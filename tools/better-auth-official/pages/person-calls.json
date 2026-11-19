@@ -1,7 +1,0 @@
-{
-  "_what": "The calls only the person present may make, which the approve page (/approve?row=<record id>) may make for them, by the engine's method name (the engine's settings `needs_person`). A pending request is a row a tool keeps whose value holds `approve` {address, method, input}; the page makes only a call this list names, with the row's `input`, at `path` (the engine's browser road to that call), so a row cannot name another call. `row_prefix`: the ids of the rows that may ask for it. `line`: the one plain line the person reads, each {name} a field of the row's value. `note`: one plain sentence under it. `changes`: the names of row fields whose short values are shown as lines, each as `label: value`. A new person-only call needs only its entry here. `value_words`: plain words for a row field's stored values. `settle`: the door's browser road that removes the row once it is answered (Allow made the call, or Deny): the row is deleted by a records write of null. A call whose pending text the engine already holds has no row: its entry names `live` (the door's browser road that lists it, the `list` in the answer, the `match` fields (the entry must hold each equal to the link's param of that name) and the `params` the link carries, `?call=<method>&<param>=...`), and `input` is drawn from those params and the entry found; its `line_new` is the line for an entry whose state is new.",
-  "calls": {},
-  "settle": {
-    "path": "/work/api/records"
-  }
-}

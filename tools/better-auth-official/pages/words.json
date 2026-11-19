@@ -98,13 +98,6 @@
   "connected_limit_saved": "Saved.",
   "connected_reconnect": "Reconnect",
   "connected_reconnect_none": "Open this AI and connect it again.",
-  "approve_change_pinned_text": "It said before",
-  "approve_change_text": "It says now",
-  "approve_change_kind": "Kind",
-  "approve_change_address": "Address",
-  "approve_unknown_call": "This request is not one I can make for you.",
-  "approve_failed": "That did not work. Try again.",
-  "approve_again": "To keep your things safe, sign in once more, then this will finish.",
   "disconnect": "Disconnect",
   "disconnected": "Disconnected.",
   "alert_actions": {

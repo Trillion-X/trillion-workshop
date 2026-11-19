@@ -24,7 +24,7 @@ test('the shared part\'s danger colour is Screen Look\'s error colour on every p
 
 test('the quiet status line is used only for news, and every action a failure names has its words and its doing', () => {
   const quiet = [...client.matchAll(/\bstatus\(([^)]*)\)/g)].map(found => found[1]).filter(argument => /words\./.test(argument));
-  const news = ['words.email_change_sent', 'words.link_sent', 'words.key_made', 'words.disconnected', 'words.connected_limit_saved', 'words.approve_again'];
+  const news = ['words.email_change_sent', 'words.link_sent', 'words.key_made', 'words.disconnected', 'words.connected_limit_saved'];
   for (const argument of quiet) assert.ok(news.some(word => argument.includes(word)), `status(${argument}) is trouble: use fail()`);
   for (const next of [...client.matchAll(/fail\([^;]*?, '([a-z-]+)'/g)].map(found => found[1])) {
     assert.ok(words.alert_actions[next], `${next} has its words`);

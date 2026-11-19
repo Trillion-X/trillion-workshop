@@ -10,7 +10,6 @@ import { emailOTPClient, twoFactorClient } from 'better-auth/client/plugins';
 import { passkeyClient } from '@better-auth/passkey/client';
 import wordsWithNameGaps from './words.json' with { type: 'json' };
 import rules from './sign-in-rules.json' with { type: 'json' };
-import personCalls from './person-calls.json' with { type: 'json' };
 import { authorizeQuery, signedQuery } from './oauth-query.mjs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -387,68 +386,6 @@ async function disconnect(button) {
   status(words.disconnected);
 }
 
-// /approve?row=<record id>: a call only the person present may make (the engine's `needs_person`), asked for by an AI and kept as a row.
-// The row's value holds `approve` {address, method, input}; the page makes only a call pages/person-calls.json names, at that call's path with
-// the row's input, so a row cannot name another call. The call is made with this person's own session; when the engine finds it not fresh
-// (403) the person signs in once more and comes back, then Allow makes it.
-// A request is a row (`?row=<record id>`) or, for a call whose pending text the engine already holds, that call read live (`?call=<method>` and
-// the names the call's `live.params` lists): either way what the page makes is only a call person-calls.json names.
-const approveWhat = () => query.get('row') ?? `${query.get('call') ?? ''}:${(personCalls.calls[query.get('call')]?.live?.params ?? []).map(name => query.get(name) ?? '').join(':')}`;
-const reauthKey = () => `${keep}approve-reauth-${approveWhat()}`;
-const requestKey = () => { const name = `${keep}approve-key-${approveWhat()}`; let key = sessionStorage.getItem(name); if (!key) { key = crypto.randomUUID(); sessionStorage.setItem(name, key); } return key; };
-// Each {name} of a text, or of every text in a shape, is the value of that name in `from`.
-const filled = (shape, from) => typeof shape === 'string' ? shape.replace(/\{(\w+)\}/g, (gap, key) => String(from[key] ?? '')) : Array.isArray(shape) ? shape.map(item => filled(item, from)) : shape && typeof shape === 'object' ? Object.fromEntries(Object.entries(shape).map(([key, item]) => [key, filled(item, from)])) : shape;
-let approving = null;
-// What is asked: { method, rule, input, from (the values the line is drawn from), id and type when it is a row }, or null.
-async function approvalAsked() {
-  const call = query.get('call');
-  const rule = personCalls.calls[call];
-  if (call && rule?.live) {
-    const params = Object.fromEntries(rule.live.params.map(name => [name, query.get(name) ?? '']));
-    const read = await json(`${rule.live.path}?input=${encodeURIComponent('{}')}`);
-    if (signedOut(read)) return 'signed-out';
-    const found = (read.data?.[rule.live.list] ?? []).find(item => rule.live.match.every(name => item[name] === params[name]));
-    return found ? { rule, from: { ...params, ...found }, input: filled(rule.input, { ...params, ...found }) } : null;
-  }
-  const id = query.get('row') ?? '';
-  const read = await json(`/work/api/door/records:read?input=${encodeURIComponent(JSON.stringify({ id }))}`);
-  if (signedOut(read)) return 'signed-out';
-  const value = read.data?.value;
-  const entry = value?.approve && Object.entries(personCalls.calls).find(([method, found]) => found.row_prefix && id.startsWith(found.row_prefix) && value.approve.method === method);
-  return entry ? { rule: entry[1], from: value, input: value.approve.input, id, type: read.data.type } : null;
-}
-async function approvePage() {
-  if (!(await signedInPerson())) return;
-  const asked = await approvalAsked();
-  if (asked === 'signed-out') return toSignIn();
-  if (!asked) return show('unknown');
-  const { rule, from } = asked;
-  approving = asked;
-  fillAll({ line: filled(from.state === 'new' && rule.line_new ? rule.line_new : rule.line, from), note: rule.note ?? '' });
-  document.querySelector('[data-fill="note"]').hidden = !rule.note;
-  const shown = (name, raw) => rule.value_words?.[name]?.[raw] ?? raw;
-  const changes = (rule.changes ?? []).filter(name => from[name]).map(name => `${words[`approve_change_${name}`] ?? name}: ${shown(name, from[name])}`);
-  listOf('changes', changes);
-  document.querySelector('[data-changes]').hidden = changes.length === 0;
-  show('ask');
-}
-// Answered, so the row goes (a request that is a row only): a records write of null at the door's browser road (the row's own type, as the door asks).
-const settle = () => approving.id ? json(personCalls.settle.path, { method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': `${requestKey()}:settle` }, body: JSON.stringify({ records: [{ id: approving.id, type: approving.type, value: null }] }) }) : null;
-async function approve(button) {
-  if (!approving) return;
-  if (button.dataset.approve === 'deny') { await settle(); return show('denied'); }
-  const made = await json(approving.rule.path, { method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': requestKey() }, body: JSON.stringify({ input: approving.input }) });
-  if (made.ok) { sessionStorage.removeItem(reauthKey()); await settle(); return show('done'); }
-  if (made.status === 403 && !sessionStorage.getItem(reauthKey())) {
-    sessionStorage.setItem(reauthKey(), '1');
-    status(words.approve_again);
-    return void client.signOut().then(() => toSignIn());
-  }
-  refusal(made, words.approve_failed, 'try-again');
-  // The engine's pending text may have changed since the page read it (a stale hash is refused): read it again.
-  if (!approving.id) approvePage().then(() => fail(words.approve_failed, 'try-again'));
-}
-
 // /device: the code a device showed (RFC 8628 user code), the app that asked and what it may do, then Allow or Deny.
 const deviceCode = query.get('user_code');
 // A device names itself by its client id (living-room-tv): said as words, and its code in the groups it was shown in.
@@ -477,7 +414,7 @@ async function device(button) {
 }
 
 document.addEventListener('click', event => {
-  const button = event.target.closest('button[data-key], button[data-passkey-link], button[data-undo], button[data-read-only], button[data-details], button[data-disconnect], button[data-limit-save], button[data-limit-clear], button[data-consent], button[data-approve], button[data-device], button[data-passkey]');
+  const button = event.target.closest('button[data-key], button[data-passkey-link], button[data-undo], button[data-read-only], button[data-details], button[data-disconnect], button[data-limit-save], button[data-limit-clear], button[data-consent], button[data-device], button[data-passkey]');
   if (!button) return;
   event.preventDefault();
   const failed = () => fail(button.dataset.failed ?? words.failed, 'try-again');
@@ -487,7 +424,6 @@ document.addEventListener('click', event => {
   else if (button.matches('[data-disconnect]')) disconnect(button).catch(failed);
   else if (button.matches('[data-limit-save]')) setLimit(button, false).catch(failed);
   else if (button.matches('[data-limit-clear]')) setLimit(button, true).catch(failed);
-  else if (button.matches('[data-approve]')) approve(button).catch(() => fail(words.approve_failed, 'try-again'));
   else if (button.matches('[data-details]')) { const panel = document.querySelector('[data-details-panel]'); panel.hidden = !panel.hidden; button.setAttribute('aria-expanded', String(!panel.hidden)); }
   else if (button.matches('[data-read-only]')) { readOnly = !readOnly; button.setAttribute('aria-pressed', String(readOnly)); button.textContent = readOnly ? words.read_only_on : words.read_only_off; }
   else if (button.matches('[data-consent]')) consent(button).catch(failed);
@@ -534,5 +470,5 @@ offerPasskeysInTheEmailBox();
 nameTheAsker().catch(() => {});
 // The pages that are for a signed-in person send one who is not to sign in and come back.
 const needsSession = async () => { await signedInPerson(); };
-const connectPage = { '/consent': consentPage, '/connected': connectedPage, '/approve': approvePage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/change-email': needsSession, '/sign-in/your-name': needsSession }[location.pathname];
+const connectPage = { '/consent': consentPage, '/connected': connectedPage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/change-email': needsSession, '/sign-in/your-name': needsSession }[location.pathname];
 connectPage?.().catch(() => fail(words.unavailable, 'try-again'));

@@ -219,33 +219,6 @@ test('the logo is served by the tool itself, and every page names that address',
   for (const name of readdirSync(new URL('sections/', dir))) assert.doesNotMatch(readFileSync(new URL(`sections/${name}`, dir), 'utf8'), /\/site\/current\//, name);
 });
 
-test('/approve is one page for every person-only call: a line, Allow and Deny, and the calls it may make are DATA, each a door path under /work/api/door/ for a row kind', () => {
-  const approve = pageAnswer('/approve?row=record:tool-source:x');
-  assert.equal(approve.status, 200);
-  const html = String(approve.body);
-  assert.match(html, /data-fill="line"/);
-  assert.match(html, /data-approve="allow"[^>]*>Allow</);
-  assert.match(html, /data-approve="deny"[^>]*>Deny</);
-  assert.match(html, /data-step="done"[\s\S]*You can close this tab\./);
-  assert.equal(pageAnswer('/approve'), null, 'with no row it is no page');
-  assert.equal(pageAnswer('/approve?call=tools:approve&source=a&tool=b').status, 200, 'a call read live is a page too');
-  const list = JSON.parse(readFileSync(new URL('person-calls.json', dir), 'utf8'));
-  const calls = list.calls;
-  assert.match(list.settle.path, /^\/work\/api\/records$/, 'an answered row is removed by a records write');
-  const words = JSON.parse(readFileSync(new URL('words.json', dir), 'utf8'));
-  // No call needs the person present since the tool-source list was deleted (Nov 18 2026); a call added later is checked below.
-  for (const [method, rule] of Object.entries(calls)) {
-    assert.match(method, /^[a-z-]+:[a-z-]+$/, method);
-    assert.match(rule.path, /^\/work\/api\/door\/[a-z-]+:[a-z-]+$/, `${method}'s path is a door path`);
-    if (rule.row_prefix) assert.match(rule.row_prefix, /^record:[a-z-]+:$/, `${method}'s rows`);
-    else assert.match(rule.live.path, /^\/work\/api\/door\/[a-z-]+:[a-z-]+$/, `${method} is read live`);
-    for (const name of rule.changes) assert.ok(words[`approve_change_${name}`], `${method} shows ${name} with a word`);
-    for (const gap of rule.line.match(/\{\w+\}/g) ?? []) assert.ok(gap.length > 2, gap);
-  }
-  const client = readFileSync(new URL('sign-in-client.mjs', dir), 'utf8');
-  assert.match(client, /id.startsWith\(found\.row_prefix\) && value\.approve\.method === method/, 'only a call the DATA names, for a row kind it names');
-});
-
 test('/sign-in/done says the person is signed in and can close the tab and go back to the terminal, in the site look, with no sign-in form', () => {
   const answer = pageAnswer('/sign-in/done');
   assert.equal(answer.status, 200);
