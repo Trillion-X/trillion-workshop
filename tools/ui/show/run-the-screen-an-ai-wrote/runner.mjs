@@ -9,12 +9,13 @@
 // Invariants
 // - The code is put into the page as it grows, at most once per animation frame, with its scripts inert; once the call's
 //   input is whole, the code is put in once more and its scripts run, once.
-// - Before any script runs, `window[words.api_name ?? 'door']` is { answer, onAnswer(fn), run(method, input), size() }.
+// - Before any script runs, `window[words.api_name ?? 'door']` is { answer, onAnswer(fn), run(method, input), tell(text), size() }.
 //   `answer` is the `answer` the call itself carried (a show tool's), else the result's structured answer. `run`
 //   is the door's one tool (the words' `run_tool`) through the app, as the person who connected it, with a fresh 128-bit request key; it
 //   resolves with the door's answer or rejects with the door's words, which are also said above the screen, so a call
 //   the door refuses never looks like an empty answer. A call names only its method: the door finds the owner that
-//   answers it. Nothing else of ours reaches the code.
+//   answers it. `tell` says words in the conversation as the person, so the AI hears what was picked. Nothing else of
+//   ours reaches the code.
 // - When the call carried no code, the screens to try come in the order the page's own words give (`order`): each a
 //   request the words name, run as the person. The first that answers code is run. When none does, the answer's own
 //   text is shown as text.
@@ -84,6 +85,10 @@ export function runScreens(win, { connect, words = {} }) {
       get answer() { return answer; },
       onAnswer(hear) { hearers.add(hear); if (answer !== null) hear(answer); return () => hearers.delete(hear); },
       run,
+      // Says words in the conversation as the person, so the AI hears what was picked and goes on from it. A screen not
+      // the person's own shows the words and waits for a press first.
+      tell: text => (own ? Promise.resolve() : ask(`${words.tells ?? 'say in the chat:'} "${text}"`)).then(() => app.sendMessage(String(text)))
+        .catch(error => { say(`${words.refused ?? 'This did not work:'} ${error?.message ?? error}`); throw error; }),
       size: () => app.reportSize(),
     };
   }

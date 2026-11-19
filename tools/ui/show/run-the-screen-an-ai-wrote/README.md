@@ -22,6 +22,7 @@ The `screen` field is laid on the door's one tool by the door owner's row (trill
 | `answer` | The call's answer: the `answer` the call itself carried (a show tool's, which runs nothing and carries nothing back, so its result never replaces it), else the result's `structuredContent`. Null until either arrives. |
 | `onAnswer(fn)` | `fn` hears the answer now if it is here, and each new one. Answers what stops hearing. |
 | `run(method, input)` | The door's one tool, through the app, as the person who connected it, with a fresh 128-bit request key. The call names only its method (`tools:list`); the door finds the owner that answers it. It resolves with the door's answer, or rejects with the door's own words, which are also said above the screen. |
+| `tell(text)` | Says `text` in the conversation as the person (MCP Apps `ui/message`, ChatGPT `sendFollowUpMessage`), so the AI hears what was picked or done on the screen and answers. A screen not the person's own shows the words and waits for a press first. |
 | `size()` | Tells the app the height the page needs. |
 
 The code may link the look every page of the owner starts with, at the owner's `look.css` (the workspace build writes it), or carry its own.
@@ -40,7 +41,7 @@ The page knows no person, database or tool. The owner's words say:
 | `api_name` | The name the code finds its members under. Default `door`. |
 | `run_tool` | The door's one tool, which `run` calls. Default `do_one_thing_in_my_account`. |
 | `chat_maker` | What a screen the call itself carried is called as a maker. Default `ai:chat`. |
-| `asks`, `allow`, `fix`, `not_kept`, `not_found`, `refused` | The page's own phrases. |
+| `asks`, `allow`, `fix`, `not_kept`, `not_found`, `refused`, `tells`, `see_all` | The page's own phrases. |
 | `css` | Styles the page carries, such as the owner's look. |
 | `fragment_answer` | When the page is opened as a page (an answer's link, outside any app), the name of the address fragment field holding the answer as base64url JSON. It is shown as text, since no request can be made without an app. |
 

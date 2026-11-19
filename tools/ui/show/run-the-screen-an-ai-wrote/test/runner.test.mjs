@@ -31,6 +31,7 @@ window.addEventListener('message', async event => {
   if (m.method) (window.heard ??= []).push(m);
   if (m.method === 'ui/initialize') reply({ protocolVersion: '2026-01-26', hostContext: { displayMode: 'inline', theme: 'dark', availableDisplayModes: ['inline', 'fullscreen'] } });
   if (m.method === 'ui/request-display-mode') reply({ mode: m.params.mode });
+  if (m.method === 'ui/message') reply({});
   if (m.method === 'tools/call') { window.calls.push(m.params); reply(await window.door(m.params)); }
 });
 window.say = (method, params) => f.contentWindow.postMessage({ jsonrpc: '2.0', method, params }, '*');
@@ -207,6 +208,19 @@ test('a screen taller than its frame scrolls inside it, tells its whole height o
     await tall.frame().click('text=See all');
     await tall.tab.waitForTimeout(100);
     assert.ok((await tall.heard()).some(m => m.method === 'ui/request-display-mode' && m.params.mode === 'fullscreen'), 'the press asked to be shown whole');
+  } finally { await browser.close(); }
+});
+
+test('a press on the screen is said in the conversation as the person, so the AI hears what was picked', async () => {
+  const browser = await chromium.launch();
+  try {
+    const picked = await app(browser, words);
+    await picked.say('ui/notifications/tool-input', { arguments: { ...callArgs, screen: '<button id="b">Find decisions</button><script>document.getElementById("b").onclick = () => door.tell("I picked: Find decisions");</script>' } });
+    await picked.tab.waitForTimeout(150);
+    await picked.frame().click('#b');
+    await picked.tab.waitForTimeout(150);
+    const told = (await picked.heard()).filter(m => m.method === 'ui/message');
+    assert.deepEqual(told.map(m => m.params), [{ role: 'user', content: { type: 'text', text: 'I picked: Find decisions' } }]);
   } finally { await browser.close(); }
 });
 

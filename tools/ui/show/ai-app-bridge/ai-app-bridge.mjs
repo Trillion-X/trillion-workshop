@@ -4,9 +4,10 @@
 // An AI app (ChatGPT, Claude) loads a tool's view in its own sandboxed frame and talks to it over one of two roads:
 // the MCP Apps bridge (JSON-RPC over postMessage: the view asks `ui/initialize`, says `ui/notifications/initialized`,
 // hears `ui/notifications/tool-input-partial` and `ui/notifications/tool-input` while and once the AI has written the call's
-// arguments, hears `ui/notifications/tool-result`, asks `tools/call`, tells `ui/notifications/size-changed`, asks `ui/open-link`)
+// arguments, hears `ui/notifications/tool-result`, asks `tools/call`, tells `ui/notifications/size-changed`, asks `ui/message`
+// and `ui/open-link`)
 // or ChatGPT's own `window.openai` (toolOutput and toolResponseMetadata announced by `openai:set_globals`, callTool,
-// notifyIntrinsicHeight, openExternal). This is the one place both roads are spoken; a view hands it what to do with a
+// notifyIntrinsicHeight, sendFollowUpMessage, openExternal). This is the one place both roads are spoken; a view hands it what to do with a
 // result and asks it for calls, sizes and links.
 //
 // Invariants
@@ -26,7 +27,7 @@
 // - MCP messages come from the embedding parent window, including when its origin is opaque.
 
 /** Starts talking to the app. `onToolResult(result)` receives `{ structuredContent, meta, content, isError }` for each
- * distinct tool result; `onToolInput(args, { partial })` the call's arguments, growing and then whole. Answers `{ callTool, reportSize, placement, onPlacement, askDisplayMode, openLink, stop }`. */
+ * distinct tool result; `onToolInput(args, { partial })` the call's arguments, growing and then whole. Answers `{ callTool, reportSize, placement, onPlacement, askDisplayMode, sendMessage, openLink, stop }`. */
 export function connectToAiApp(win, { appName = 'view', protocolVersion = '2026-01-26', onToolResult = () => {}, onToolInput = () => {}, content = null, displayModes = ['inline'] } = {}) {
   const initializeId = `${appName}-initialize`;
   let answered = false;
@@ -141,6 +142,12 @@ export function connectToAiApp(win, { appName = 'view', protocolVersion = '2026-
       const given = await request('ui/request-display-mode', { mode });
       heard({ displayMode: given?.mode ?? mode });
       return given?.mode ?? mode;
+    },
+    /** Says `text` in the conversation as the person, so the AI hears it and answers (MCP Apps `ui/message`, ChatGPT's
+     * `sendFollowUpMessage`). Rejects with the app's words when it refuses. */
+    sendMessage: async text => {
+      if (!answered && typeof win.openai?.sendFollowUpMessage === 'function') { await win.openai.sendFollowUpMessage({ prompt: text }); return; }
+      await request('ui/message', { role: 'user', content: { type: 'text', text } });
     },
     /** Asks the app to open an address outside the chat. */
     openLink: url => {
