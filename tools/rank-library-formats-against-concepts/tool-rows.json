@@ -115,7 +115,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -237,7 +236,7 @@
             },
             "settings_record": {
               "type": "object",
-              "description": "The person's list:settings row for this tool, record:setting:rank-library-formats-against-concepts~<scope_kind>~<scope_id>, as records:read gives it ({ id, type, value }; for one film: its form templates, stable keys, own formats, skipped concepts, package ids and prose). The tool reads no records: the row arrives here."
+              "description": "The person's list:settings row for this tool, record:setting:rank-library-formats-against-concepts~<scope_kind>~<scope_id>, as the person's own store gives it ({ id, type, value }; for one film: its form templates, stable keys, own formats, skipped concepts, package ids and prose). The tool reads nothing itself: the row arrives here."
             },
             "settings": {
               "type": "object",
