@@ -19,7 +19,7 @@ Moved from Trillion-X/trillion `computer/drive-the-screen.mjs`, `computer/drive-
 | `read-data/ask-payload.mjs`, `.json` | The person's redaction of what the AI reads off the screen, off until they turn it on. |
 | `read-data/settings-file.mjs` | The one way a settings file the person may have edited is read and written: a file that cannot be understood is never replaced by defaults. |
 | `read-data/work-places.mjs`, `.json` | The person's hold on this Mac: they take it over (AIs refused until they hand it back or the take-over ends) and their own recent keyboard or pointer input holds it for a few seconds. Run directly, it is their command line: take-over, hand-back. |
-| `tool-rows.json` | `tool:look-at-the-screen`, `tool:find-on-the-screen`, `tool:drive-the-screen`, `tool:screen-actions`: `computer` rows run by `tools/records-door`'s `run-an-export.mjs`. |
+| `tool-rows.json` | `tool:look-at-the-screen`, `tool:find-on-the-screen`, `tool:drive-the-screen`, `tool:screen-actions`: `computer` rows run by `tools/workflows`'s `do-work/run-a-function.mjs` with the run's input. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/` | The original tests from Trillion-X/trillion, repointed to these paths with their assertions: 16 files, 55 tests. The tests that start the real Swift programs run only on macOS. |
 
@@ -28,8 +28,8 @@ Moved from Trillion-X/trillion `computer/drive-the-screen.mjs`, `computer/drive-
 | Name | Signature / Shape | Role |
 |------|-------------------|------|
 | `makeScreenDriver` | `({ settings?, home?, now?, program?, capture?, ocr?, wait?, readSecret?, parent? }) => { look, find, drive, actions }` | The driver. Each refusal is an error with its words, `status`, `reaction` (retry, ask_user, use_different_tool, stop), `retry`, and `outcome: unknown` when the action may have run. |
-| `makeScreenTools` | `({ settings?, driver?, places?, scratch? }) => { look, find, drive, actions }` | What the Mac host did around these rows: takes `settings_folder` from the input as the driver's home, asks the place `this-mac` before a drive and marks when it ends, carries `told` after a hand-back, and answers a refusal as `{ error, retry, retry_after_ms, reaction, reaction_said, outcome, code, permission }` instead of throwing (run-an-export prints only a thrown error's message). |
-| `lookAtTheScreen`, `findOnTheScreen`, `driveTheScreen`, `screenActions` | `(input, { door }) => answer` | The four functions the rows name. |
+| `makeScreenTools` | `({ settings?, driver?, places?, scratch? }) => { look, find, drive, actions }` | What the Mac host did around these rows: takes `settings_folder` from the input as the driver's home, asks the place `this-mac` before a drive and marks when it ends, carries `told` after a hand-back, and answers a refusal as `{ error, retry, retry_after_ms, reaction, reaction_said, outcome, code, permission }` instead of throwing (run-a-function prints only a thrown error's message). |
+| `lookAtTheScreen`, `findOnTheScreen`, `driveTheScreen`, `screenActions` | `(input) => answer` | The four functions the rows name. |
 | `grantTools` | `(settings?, { home?, now? }) => { grant, revoke, grants, known }` | The person's grants, written to their own file; never a Workshop tool. |
 | `makePlaces` | `({ settings?, home?, now?, exec?, key? }) => { take_over, hand_back, handsOn, acted }` | The person's hold on a place. |
 
@@ -60,6 +60,6 @@ Moved from Trillion-X/trillion `computer/drive-the-screen.mjs`, `computer/drive-
 
 ## Dependencies
 
-**Depends on:** `tools/formula-engine` (`rules/`, `built-stored-bytes/`: its `matches_any_glob` decides whether a rule's pattern holds; the tool rows pack it), `tools/look-at-screen` (`do-work/look-at-screen.mjs` `systemCommands.capture`), `tools/records-door` (`run-an-export.mjs`), `tools/content-identity`, `@noble/hashes` (BLAKE3 of the hand-back key); macOS `/usr/bin/swift`, `screencapture`, `notifyutil` and `ioreg`.
+**Depends on:** `tools/formula-engine` (`rules/`, `built-stored-bytes/`: its `matches_any_glob` decides whether a rule's pattern holds; the tool rows pack it), `tools/look-at-screen` (`do-work/look-at-screen.mjs` `systemCommands.capture`), `tools/workflows` (`do-work/run-a-function.mjs`), `tools/content-identity`, `@noble/hashes` (BLAKE3 of the hand-back key); macOS `/usr/bin/swift`, `screencapture`, `notifyutil` and `ioreg`.
 
 **Depended on by:** `tool-rows.json`.

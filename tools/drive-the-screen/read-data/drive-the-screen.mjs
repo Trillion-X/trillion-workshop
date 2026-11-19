@@ -1,8 +1,8 @@
 // tools/drive-the-screen/read-data/drive-the-screen.mjs (moved from Trillion-X/trillion computer/drive-the-screen.mjs)
 //
 // PURPOSE
-//   Lets the person's AIs drive this Mac's screen as `computer` runs (tools/records-door/do-work/run-an-export.mjs calls
-//   lookAtTheScreen, findOnTheScreen, driveTheScreen or screenActions): observe (a screenshot taken by
+//   Lets the person's AIs drive this Mac's screen as `computer` runs (tools/workflows/do-work/run-a-function.mjs calls
+//   lookAtTheScreen, findOnTheScreen, driveTheScreen or screenActions with the run's input): observe (a screenshot taken by
 //   tools/look-at-screen and read as text with bounds by ./observe-visual.mjs, plus the accessibility tree of one running
 //   app), locate a target by DATA-described intent, dispatch an action, observe again and say what really changed.
 //   Four Workshop tools on placement:your-computer: look, find, drive and actions.
@@ -717,19 +717,19 @@ export function makeScreenTools({ settings = screenSettings(), driver = home => 
     const home = folder ?? scratch();
     return { home, rest };
   };
-  const answered = work => async (input, context) => {
-    try { return await work(input, context); } catch (error) { return answerOfError(settings, error); }
+  const answered = work => async input => {
+    try { return await work(input); } catch (error) { return answerOfError(settings, error); }
   };
   return {
     look: answered(async input => { const { home, rest } = opened(input); return driver(home).look(rest); }),
     find: answered(async input => { const { home, rest } = opened(input); return driver(home).find(rest); }),
     actions: answered(async input => { opened(input); return driver(scratch()).actions(); }),
-    drive: answered(async (input, context) => {
+    drive: answered(async input => {
       const { home, rest } = opened(input);
       const place = places(home);
       const told = await place.handsOn(PLACE);
       let answer;
-      try { answer = (await driver(home).drive(rest, context)) ?? {}; } finally { place.acted(PLACE); }
+      try { answer = (await driver(home).drive(rest)) ?? {}; } finally { place.acted(PLACE); }
       return told && answer && typeof answer === 'object' && !Array.isArray(answer) ? { ...answer, told } : answer;
     }),
   };
@@ -738,11 +738,11 @@ export function makeScreenTools({ settings = screenSettings(), driver = home => 
 let shared = null;
 const toolsHere = () => (shared ??= makeScreenTools());
 
-// The functions tools/records-door/do-work/run-an-export.mjs calls, one per row of ../tool-rows.json.
+// The functions tools/workflows/do-work/run-a-function.mjs calls with the run's input, one per row of ../tool-rows.json.
 export const lookAtTheScreen = input => toolsHere().look(input);
 export const findOnTheScreen = input => toolsHere().find(input);
 export const screenActions = input => toolsHere().actions(input);
-export const driveTheScreen = (input, context) => toolsHere().drive(input, context);
+export const driveTheScreen = input => toolsHere().drive(input);
 
 // The person's own command line, on their Mac (HOME set to their settings folder):
 //   HOME=<folder> node tools/drive-the-screen/read-data/drive-the-screen.mjs grant --actions look,press --minutes 10 [--apps Safari]
