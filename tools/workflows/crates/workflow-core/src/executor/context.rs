@@ -21,8 +21,8 @@
 //      engine and no operator name appears in this crate. A `"expr"` formula string is
 //      refused with the binding to write instead. Binding
 //      results are re-resolved recursively (depth-limited to 32) so
-//      bindings-that-return-bindings are fully flattened unless the binding
-//      explicitly says `resolve_nested_bindings: false` for target-owned JSON.
+//      a value a binding only selects is data, passed on as selected; a binding with a transform has its result
+//      resolved again (its arguments are written in the definition). `resolve_nested_bindings` overrides either.
 //   5. Unresolved bindings are ERRORS, not silently passed through.
 //   6. No `.unwrap()` in production code.
 //
@@ -567,7 +567,12 @@ impl BindingResolver {
         map: &serde_json::Map<String, Value>,
     ) -> Result<bool, WorkflowError> {
         match map.get("resolve_nested_bindings") {
-            None => Ok(true),
+            // A value a binding only selects is data: it is passed on as it is, never read again as a template, so a
+            // value that holds binding-shaped objects (a drafted workflow, a fact told from outside) keeps them. A
+            // binding with a transform is resolved again, because its arguments are written in the definition and
+            // may be placed into the result unresolved (op:core.set, op:core.merge). Either way an explicit
+            // `resolve_nested_bindings` decides.
+            None => Ok(map.contains_key("transform")),
             Some(Value::Bool(value)) => Ok(*value),
             Some(_) => Err(WorkflowError::TemplateResolutionFailed {
                 reason: "binding field resolve_nested_bindings must be a boolean".to_string(),
@@ -2212,7 +2217,7 @@ mod tests {
     }
 
     #[test]
-    fn test_binding_result_flattens_nested_bindings_by_default() {
+    fn test_a_selected_value_is_data_and_is_resolved_again_only_when_asked() {
         let mut ctx = test_context();
         ctx.steps.insert(
             "producer".to_string(),
@@ -2235,8 +2240,14 @@ mod tests {
             }
         });
 
+        // A drafted workflow or a fact from outside holds binding-shaped objects: selected, they are kept as written.
         let resolved = BindingResolver::resolve_value(&params, &ctx).unwrap();
-        assert_eq!(resolved["payload"]["value"], "node-123");
+        assert_eq!(resolved["payload"]["value"], json!({"$kind": "binding", "select": {"from": "input", "path": "target_id"}}));
+        // A binding that asks for its result to be resolved again gets the old flattening.
+        let mut asked = params.clone();
+        asked["payload"]["resolve_nested_bindings"] = json!(true);
+        let flattened = BindingResolver::resolve_value(&asked, &ctx).unwrap();
+        assert_eq!(flattened["payload"]["value"], "node-123");
     }
 
     #[test]

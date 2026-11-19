@@ -1,9 +1,9 @@
 // The workflow engine (workflow-core) as one WebAssembly component the engine runs on any computer.
 // In, on standard input: { "input": <the run>, "cause": <the cause the engine handed the run>, "context": <the task's context> }.
-// The run is the tool's input. A listed workflow row runs with its id as `row` (the engine's `invoke_with`); its
-// definition is that row's `payload.definition` in the workflow rows laid out with this tool (`rows_at`, recipes/*.json),
-// and every other field is the workflow's own input. A run may instead carry its `definition` (or `definitions`, the
-// first the one to run). `answers` (by step id), `start_at` (a step to start at), `started_at` and `run` are kept with it.
+// The run is the tool's input: its `definition` (or `definitions`, the first the one to run), handed in by whatever
+// started it from where the person keeps their workflows (their own database); this reads no file and no store, so no
+// person's workflows depend on a shared folder. Every other field is the workflow's own input; `answers` (by step id),
+// `start_at` (a step to start at), `started_at` and `run` are kept with it.
 // Out, on standard output: { "result": { "status", "workflow", "run", "steps", "waiting" }, "wake_effects": [...] }.
 // The engine replays the definition from the start with the answers held. A step whose answer is held is answered with
 // it. Every other ask waits: one whose name is a tool id is handed back as a wake effect that runs that tool with the
@@ -18,9 +18,8 @@ use workflow_engine::Host;
 
 const ANSWERED: &str = "workflow-step-answered";
 const WAITING: &str = "workflow-step-waiting";
-const ROWS_AT: &str = "/opt/workflows/recipes";
 /// The fields of a run that are the run's own, not the workflow's input.
-const KEPT: [&str; 9] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused", "rows_at"];
+const KEPT: [&str; 8] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused"];
 
 struct Held { answers: BTreeMap<String, Value>, refused: BTreeMap<String, String>, waiting: Mutex<Vec<Value>> }
 
@@ -85,33 +84,11 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
     (run, refused)
 }
 
-/// The definitions the run walks, the first the one it runs: the run's own, or its listed row's `payload.definition`.
+/// The definitions the run walks, the first the one it runs: the ones handed in with it.
 fn definitions_of(run: &Map<String, Value>) -> Vec<Value> {
     if let Some(Value::Array(all)) = run.get("definitions") { if !all.is_empty() { return all.clone(); } }
     if let Some(definition) = run.get("definition").filter(|d| d.is_object()) { return with_used(definition.clone()); }
-    let id = run.get("row").and_then(Value::as_str).unwrap_or_else(|| fail("the run names no definition and no workflow row"));
-    let at = run.get("rows_at").and_then(Value::as_str).unwrap_or(ROWS_AT);
-    let files = std::fs::read_dir(at).unwrap_or_else(|error| fail(format!("the workflow rows at {at} do not read: {error}")));
-    let mut names: Vec<_> = files.flatten().map(|entry| entry.path()).filter(|path| path.extension().is_some_and(|e| e == "json")).collect();
-    names.sort();
-    for path in names {
-        let Ok(text) = std::fs::read_to_string(&path) else { continue };
-        if !text.contains(&format!("\"{id}\"")) { continue; }
-        let Ok(file) = serde_json::from_str::<Value>(&text) else { continue };
-        let records = file.get("records").and_then(Value::as_array).cloned().unwrap_or_else(|| file.as_array().cloned().unwrap_or_default());
-        for record in records {
-            let row = &record["payload"];
-            if row["id"] != id { continue; }
-            let mut definition = row["definition"].as_object().cloned().unwrap_or_else(|| fail(format!("{id} has no definition in the engine's shape yet")));
-            definition.entry("id").or_insert_with(|| json!(id));
-            definition.entry("name").or_insert_with(|| row["label"].clone());
-            definition.entry("kind").or_insert_with(|| json!("workflow"));
-            definition.entry("is_active").or_insert(json!(true));
-            definition.entry("version").or_insert(json!(1));
-            return with_used(Value::Object(definition));
-        }
-    }
-    fail(format!("no workflow row {id} at {at}"))
+    fail("the run carries no definition: whatever starts it hands in the workflow's definition from where the person keeps it")
 }
 
 fn with_used(definition: Value) -> Vec<Value> {
