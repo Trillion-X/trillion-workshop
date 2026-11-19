@@ -1,0 +1,217 @@
+{
+  "about": "workflow:keep-my-sidebar: the person's sidebar for their AIs, kept in the person's own store: its lists (named, with their rows in order, each row kept in one list and optionally in a place or a colour), the rules that show a row or a list, and the notes an AI leaves on a list or a row (a message, a count, a highlight, and up to 4 screens offered). It replaces tools/read-the-sidebar-add-a-note-to-it-and-change-it-from (the MCP wrappers read_sidebar, note_in_sidebar and change_sidebar over the account's /sidebar routes, and the limits in src/sidebar.json), whose whole job was reading, adding notes to and changing records (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-my-sidebar",
+        "label": "Keep my sidebar for my AIs",
+        "job": "Keep the person's sidebar lists and their rows in the person's own store, change them in one batch of at most 50 changes (make, rename, remove a list; add, remove, order, move a row; style a row's colour and place; set a rule that shows a row or list), keep a note an AI leaves on a list or a row (at most 200 notes kept, a message of at most 280 characters, a count of at most 9999, at most 4 screens offered), and read the whole sidebar back.",
+        "produces": "The store's own list, row, rule and note objects, proven on the example attempts in PostgreSQL (PGlite) and a folder of JSON files: every change and note kept, and every limit refusal the same in both stores, and the sidebar read back.",
+        "source": {
+          "from": "tools/read-the-sidebar-add-a-note-to-it-and-change-it-from (src/sidebar-tools.mjs and src/sidebar.json) at trillion-workshop origin/main 14c80bcd6; the routes the wrappers called are owned outside this folder",
+          "note": "The limits are the person's settings and are kept as data: notes_max 200, message_max 280, count_max 9999, opens_max 4, changes_max 50, notice_kind sidebar-note, and the places a row can be kept in: bottom and controls. A row's colour is one of the shared palette's colours, or none for the app's own. A change batch is refused whole when one change is wrong or the batch has more than 50 changes. Making a list with no id makes one. A rule is a rule tree over the row's (or list's) facts; a list holds every row the rule is true for, and shown_when shows it only while the rule holds. Notes are kept with the time they were left and are read with the sidebar. The notice a note rings is the notice_kind of the person's notification settings, not a store object of this recipe."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "operations"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Each operation: change (changes: a list of { do: make_list | rename_list | remove_list | add | remove | order | move | style | set_rule, list_id, row_id, from_list_id, name, colour, place, holds, order_by, shown_when, before, after, at }), note (on, message, count, highlight, opens, by), read"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the sidebar is already kept (kept_in, or null) and the names of the objects that already keep it, and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: a list object keyed by its list id (name), a row object keyed by its row id (the list it is in, its position, its colour and place, and its rule), and a note object (the screen or list it is on, the message, the count, the highlight and the screens offered, and the time it was left). Keep the limits above as checks the store makes on write, so it refuses what the intent refuses wherever it can. Submit the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, run these attempts in order: [{\"op\": \"change\", \"changes\": [{\"do\": \"make_list\", \"list_id\": \"waiting\", \"name\": \"Waiting on me\"}, {\"do\": \"add\", \"list_id\": \"waiting\", \"row_id\": \"screen:inbox\"}]}, {\"op\": \"change\", \"changes\": [{\"do\": \"style\", \"row_id\": \"screen:inbox\", \"colour\": \"blue\", \"place\": \"bottom\"}]}, {\"op\": \"change\", \"changes\": [{\"do\": \"rename_list\", \"list_id\": \"waiting\", \"name\": \"Waiting for me\"}]}, {\"op\": \"note\", \"on\": \"screen:inbox\", \"message\": \"Three things wait here.\", \"count\": 3, \"highlight\": true, \"opens\": [\"screen:inbox\"]}, {\"op\": \"note\", \"on\": \"waiting\", \"message\": \"<a message of 281 characters>\"}, {\"op\": \"note\", \"on\": \"waiting\", \"message\": \"Check it.\", \"count\": 10000}, {\"op\": \"note\", \"on\": \"waiting\", \"message\": \"Check it.\", \"opens\": [\"a\", \"b\", \"c\", \"d\", \"e\"]}, {\"op\": \"change\", \"changes\": [{\"do\": \"style\", \"row_id\": \"screen:inbox\", \"place\": \"top\"}]}, {\"op\": \"change\", \"changes\": [<51 order changes on the list waiting>]}, {\"op\": \"change\", \"changes\": [{\"do\": \"set_rule\", \"list_id\": \"waiting\", \"holds\": {\"path\": \"kind\", \"equals\": \"screen\"}}]}, {\"op\": \"change\", \"changes\": [{\"do\": \"remove\", \"list_id\": \"waiting\", \"row_id\": \"screen:inbox\"}]}, {\"op\": \"read\"}]. The 281-character message is a string of 281 letter x; the 51 order changes each name a row r0 to r50 on the list waiting. Submit outcomes (kept, refused or answered for each attempt) and the answer: the read-back of the sidebar at the end, its list names and its note count.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is kept, refused or answered as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "kept",
+                    "kept",
+                    "kept",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "kept",
+                    "kept",
+                    "answered"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give the expected read-back",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "lists": [
+                      "Waiting for me"
+                    ],
+                    "notes": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's changes and notes",
+            "do": "Run each operation in order through the store's own objects: a change batch is applied whole or not at all, after its limits (at most 50 changes, a valid place, a known list or row) are checked; a note is kept after its limits (at most 200 kept notes, a message of at most 280 characters, a count of at most 9999, at most 4 screens offered) are checked; a read answers the sidebar. Submit results (one per operation: kept, refused with the words, or the read-back), kept_records (the lists, rows and notes kept) and found_records (each read back). With no operations, submit empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "results",
+                "kept_records",
+                "found_records"
+              ],
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "kept_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "found_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every record read back was kept",
+                "path": [
+                  "this",
+                  "found_records"
+                ],
+                "of": [
+                  "this",
+                  "kept_records"
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes the lists, rows and notes it holds, all of them or the ones named; nothing keeps a copy outside the store."
+      }
+    }
+  ]
+}
