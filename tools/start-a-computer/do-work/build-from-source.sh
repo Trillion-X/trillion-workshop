@@ -7,7 +7,8 @@
 # BUILDS/CURRENT (the link the unit runs: `current`, or a slot's `current-<slot>`) to COMMIT with one rename. A commit already
 # built is not fetched or built again.
 #
-# SOURCE is one JSON object: user, builds, current, repository (a git address), commit, program, output (the built file), build (the
+# SOURCE is one JSON object: user, builds, current, repository (a git address), commit, program, output (the built file, or a
+# built folder that holds PROGRAM with everything it reads beside it: the whole folder is kept), build (the
 # argv run in the tree), environment (NAME=value lines the build runs with, the toolchain's PATH among them), each already
 # filled from the computer row, and keyed with host_keys. When keyed is true, standard input holds the SSH key the person's
 # vault keeps for the repository: it goes into an ssh-agent of the unit's user for that one fetch and is never written to a
@@ -48,8 +49,17 @@ if [ ! -x "$at/$program" ]; then
     rm -rf "$tree"
     exit 1
   fi
-  install -d -o "$user" -g "$user" -m 0755 "$at"
-  install -o "$user" -g "$user" -m 0755 "$output" "$at/$program"
+  # A folder is kept whole under a name of its own and moved to COMMIT with one rename, so a cut-off copy is never a build.
+  if [ -d "$output" ]; then
+    [ -f "$output/$program" ] || { echo "The built folder $output holds no $program." >&2; rm -rf "$tree"; exit 1; }
+    rm -rf "$at.new" "$at"
+    runuser -u "$user" -- cp -a "$output" "$at.new"
+    chmod 0755 "$at.new/$program"
+    mv -T "$at.new" "$at"
+  else
+    install -d -o "$user" -g "$user" -m 0755 "$at"
+    install -o "$user" -g "$user" -m 0755 "$output" "$at/$program"
+  fi
   rm -rf "$tree"
 else
   # A key sent for a commit that is already built is read and dropped.
