@@ -1,6 +1,9 @@
 // src/incoming-files.mjs
 // Attachments named by an arrival or a recorded message must already belong to the account's Files.
 
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { GENERIC_TYPE, fileType } from '../../organize-my-files/src/file-type.mjs';
+
 const IDENTITY = /^(?:1f|12):[0-9a-f]{64}$/;
 const refused = message => Object.assign(new Error(message), { status: 400 });
 const itemsOf = items => Array.isArray(items) ? items.map((item, index) => [item, index]).filter(([item]) => item && typeof item === 'object') : [];
@@ -16,14 +19,29 @@ const identitiesOf = (item, index) => {
 
 export const incomingFileIdentities = items => [...new Set(itemsOf(items).flatMap(([item,index])=>identitiesOf(item,index)))];
 
-/** Look up each distinct identity once. `locate(identity, context)` returns the file's names/media type or null. */
-export async function locateIncomingFiles(items, locate, context) {
+const bytesOfHeld = held => typeof held === 'string' ? Buffer.from(held, 'utf8')
+  : held.text !== undefined ? Buffer.from(held.text, 'utf8') : Buffer.from(held.base64 ?? '', 'base64');
+
+/** The person's Files this run was handed (input.stored.files: { name: text | { base64 } | null }; a name given null is not
+ *  there), each named by its content identity. Two names holding the same bytes are one file, named by the first in order. */
+export function storedFileLookup(files = {}) {
+  const byIdentity = new Map();
+  for (const name of Object.keys(files).sort()) {
+    if (files[name] === null || files[name] === undefined) continue;
+    const identity = makeHashCodeHexFromBytes(bytesOfHeld(files[name]));
+    if (!byIdentity.has(identity)) byIdentity.set(identity, { name, media_type: fileType(null, name) ?? GENERIC_TYPE });
+  }
+  return identity => byIdentity.get(identity) ?? null;
+}
+
+/** Look up each distinct identity once. `locate(identity)` returns the file's name and media type or null. */
+export function locateIncomingFiles(items, locate) {
   const located = new Map();
   for (const [item, index] of itemsOf(items)) for (const identity of identitiesOf(item, index)) {
     if (located.has(identity)) continue;
-    const file = await locate(identity, context);
+    const file = locate(identity);
     if (!file) throw refused(`The attached file ${identity} is not in your Files.`);
-    located.set(identity, { identity, ...(file.names?.[0] ? { name: file.names[0] } : {}), ...(file.media_type ? { media_type: file.media_type } : {}) });
+    located.set(identity, { identity, name: file.name, media_type: file.media_type });
   }
   return located;
 }
@@ -44,22 +62,15 @@ export function fillIncomingFiles(items, located) {
 /** Check and canonicalize one batch in place, preserving its original item/operation result shape. The check only reads, so
  *  whatever fails it proves nothing was taken (`not_sent`, as the command journal reads it): the command ends aborted, never
  *  'unknown', and its retry is a new command instead of a key refused for a receipt nobody will write. */
-export async function verifyIncomingFiles(items, locate, context) {
-  try { fillIncomingFiles(items, await locateIncomingFiles(items, locate, context)); }
+export function verifyIncomingFiles(items, locate) {
+  try { fillIncomingFiles(items, locateIncomingFiles(items, locate)); }
   catch (error) { if (error && typeof error === 'object') error.not_sent = true; throw error; }
 }
 
-/** The current run's Files door: authority and account partition are held by the
- * native parent, never accepted from attachment objects or a caller-supplied owner. */
-export const nativeFileLookup = door => async identity => {
-  try { return await door.files('find_file', { name_or_identity: identity }); }
-  catch (error) { if (error?.code === 'namespace_not_found') return null; throw error; }
-};
-
-/** Check a carrier batch through the current admitted Files door. */
-export async function checkIncomingFiles(input, { door }) {
+/** Check a carrier batch against the Files handed in as input.stored.files. */
+export function checkIncomingFiles(input) {
   if (!Array.isArray(input?.items)) throw Object.assign(new Error('Send items: a batch of arrival or message objects.'), { status: 400, not_sent: true });
   const items = structuredClone(input.items);
-  await verifyIncomingFiles(items, nativeFileLookup(door));
+  verifyIncomingFiles(items, storedFileLookup(input.stored?.files));
   return { items };
 }

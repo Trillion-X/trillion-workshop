@@ -1,6 +1,6 @@
 Ports old trillion `src/inbound.mjs`, `src/incoming-files.mjs`, `src/inbound-mail.mjs`, and `src/inbound-own-records.mjs` without the retired Worker engine closure.
 
-The attachment check is complete through today's Files door: `checkIncomingFiles(input, {door})`, offered by `tool:check-incoming-attachments`, validates each distinct identity and replaces carrier-supplied names with the current account's Files metadata. Missing files are permanent input refusals; unavailable or refused authority remains its own error. A failed check is marked `not_sent`.
+The attachment check is complete: `checkIncomingFiles(input)`, offered by `tool:check-incoming-attachments`, reads the person's files handed in as `input.stored.files` (named by their bytes' content identity), validates each distinct identity and replaces carrier-supplied names with the file's own name and media type. A file not handed in is a permanent input refusal. A failed check is marked `not_sent`. The run reaches no records door; the caller reads the files from where the person keeps them.
 
 The inbound algorithm uses the existing message, harness, hybrid clock, entity mention and untrusted quote owners. It requires the account's admitted decision (`caseOf`) and moment (`itemOfArrival`, `textKeyOf`) owners; a heard input also requires its account-configured echo checker and rows. These services are required before capture, so missing native integration never manufactures a case or treats unchecked room audio as instructions.
 

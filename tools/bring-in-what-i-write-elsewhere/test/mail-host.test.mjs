@@ -41,7 +41,7 @@ test('store outage keeps complete attachment at edge; permanent refusal names re
   assert.equal(s.kept.length,1);assert.match(s.refused[0],/attachments remain.*memo.wav/);
 });
 
-test('unsigned carrier authority is never synthesized from an ordinary records door',()=>{
+test('unsigned carrier authority is never synthesized from an ordinary records bearer',()=>{
   assert.throws(()=>createOwnInbound({}),error=>error.code==='inbound_service_owner_unavailable');
   assert.throws(()=>createInboundMail({}),error=>error.code==='inbound_mail_host_unavailable');
 });

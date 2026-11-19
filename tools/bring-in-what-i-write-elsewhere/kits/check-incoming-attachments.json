@@ -2,16 +2,17 @@
   "drafted_from": "tools/bring-in-what-i-write-elsewhere/tool-rows.json, read-data/incoming-files.mjs, test/incoming-files.test.mjs",
   "start_here": "Say to your AI: \"Check that the files attached to these incoming messages are really in my Files before you take them in.\" It runs tool:check-incoming-attachments on the batch and hands it back with each attachment's real name and media type.",
   "lists": [],
-  "no_lists_because": "It keeps no list of its own: it only looks each attached file up in the account's Files and fills in what it found.",
+  "no_lists_because": "It keeps no list of its own: it only finds each attached file among the Files handed to it and fills in what it found.",
   "workflows": [],
   "tools": [
     "tool:check-incoming-attachments"
   ],
   "instructions": [
     "1. Gather the batch of arrivals or messages as items, each naming its attachments by their Files identity (1f: and 64 hex characters).",
-    "2. Say \"Check these attachments\"; the AI runs tool:check-incoming-attachments with {items}.",
-    "3. Each distinct identity is looked up once in your Files; the name and media type the carrier claimed are replaced by the file's own.",
-    "4. If any identity is missing, malformed or not in your Files, the whole batch is refused before anything is taken in, and the message says which file."
+    "2. Read the person's Files this batch names from where they are kept, and hand them in as stored.files: { name: { base64 } or { text } }. A name not handed in is not there.",
+    "3. Say \"Check these attachments\"; the AI runs tool:check-incoming-attachments with {items, stored}.",
+    "4. Each distinct identity is found once among the files handed in; the name and media type the carrier claimed are replaced by the file's own.",
+    "5. If any identity is missing, malformed or not among the files handed in, the whole batch is refused before anything is taken in, and the message says which file."
   ],
   "worked_examples": [
     {
@@ -29,19 +30,26 @@
                 {
                   "attachments": [
                     {
-                      "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "identity": "1f:089115abb04e815ba7cc0f7b56fd34bea2fa6a8dc70155aa0040abcfccd601a2",
                       "name": "Forged",
                       "media_type": "text/plain"
                     }
                   ]
                 }
-              ]
+              ],
+              "stored": {
+                "files": {
+                  "/Kept/true.wav": {
+                    "base64": "UklGRiBzYW1wbGUgd2F2ZSBieXRlcw=="
+                  }
+                }
+              }
             }
           }
         }
       },
-      "given": "From tools/bring-in-what-i-write-elsewhere/test/incoming-files.test.mjs (first test): the account's Files hold that identity as /Kept/true.wav, an audio/wav file. The answer below is the item that test asserts after the check.",
-      "hands_back": "{\"items\":[{\"attachments\":[{\"identity\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"name\":\"/Kept/true.wav\",\"media_type\":\"audio/wav\"}]}]}"
+      "given": "From tools/bring-in-what-i-write-elsewhere/test/incoming-files.test.mjs (first test): the person's Files hold the bytes \"RIFF sample wave bytes\" as /Kept/true.wav, handed in as stored.files. The answer below is the item that test asserts after the check.",
+      "hands_back": "{\"items\":[{\"attachments\":[{\"identity\":\"1f:089115abb04e815ba7cc0f7b56fd34bea2fa6a8dc70155aa0040abcfccd601a2\",\"name\":\"/Kept/true.wav\",\"media_type\":\"audio/wav\"}]}]}"
     }
   ]
 }
