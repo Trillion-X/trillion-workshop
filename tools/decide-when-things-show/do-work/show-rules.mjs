@@ -1,7 +1,7 @@
 // tools/decide-when-things-show/do-work/show-rules.mjs
 //
 // PURPOSE
-//   The rows of this tool, run by tools/records-door/do-work/run-an-export.mjs over the person's own `show-rules` record
+//   The rows of this tool, run by tools/workflows/do-work/run-a-function.mjs over the person's own `show-rules` record
 //   (show-rules.json `record`, handed in as `records`): see when things show, keep or change a rule, take a rule away, keep a type, take a type
 //   away, switch a kept type on or off, share a kept type with someone, stop sharing it with them. A person and an AI
 //   run the same rows, so each change is the same change wherever it starts.
@@ -236,9 +236,16 @@ function shareInput(input) {
   return { type: input.type, principal: input.principal.trim() };
 }
 
+/** The grant is the consent the share and the stop are checked against: it must be handed in (null when nobody holds it yet), never left out. */
+function grantHandedIn(input, type) {
+  const label = grantLabel(type);
+  if (!object(input.records) || !(label in input.records)) throw new Error(`The grant ${label} must be handed in as records (null when nobody holds it yet); a share is never checked against a grant left out.`);
+}
+
 /** tool:share-a-kept-show-type */
 export async function shareAKeptShowType(input = {}) {
   const { type, principal } = shareInput(input);
+  grantHandedIn(input, type);
   const at = nowOf(input);
   const read = readLabels(input, [data.record, grantLabel(type)]);
   const presets = typesOf(laidUnder(read.get(data.record) ?? null));
@@ -266,6 +273,7 @@ export async function shareAKeptShowType(input = {}) {
 /** tool:stop-sharing-a-show-type */
 export async function stopSharingAShowType(input = {}) {
   const { type, principal } = shareInput(input);
+  grantHandedIn(input, type);
   const at = nowOf(input);
   const before = readLabels(input, [grantLabel(type)]).get(grantLabel(type)) ?? null;
   const people = peopleOf(before);

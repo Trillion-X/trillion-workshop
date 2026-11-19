@@ -30,7 +30,7 @@ The old `/show-rules/accounts` and `/show-rules/set { give }` have no rows, beca
 
 | File | Purpose |
 |------|---------|
-| `do-work/show-rules.mjs` | The eight functions, run by `tools/records-door/do-work/run-an-export.mjs` (the shared runner): take `records`, run the store, answer `keep` |
+| `do-work/show-rules.mjs` | The eight functions, run by `tools/workflows/do-work/run-a-function.mjs` (the shared runner): take `records`, run the store, answer `keep` |
 | `read-data/show-rules-store.mjs` | trillion `src/show-rules-store.mjs`, moved |
 | `read-data/account-facts.mjs` | trillion `src/work-for-ais.mjs` lines 74-122, moved |
 | `read-data/declared-controls.mjs`, `read-data/open-choices.json` | Every declared control, moved |
@@ -46,4 +46,4 @@ The old `/show-rules/accounts` and `/show-rules/set { give }` have no rows, beca
 
 ## Dependencies
 
-**Depends on:** `tools/set-up-my-account` (`read-data`), `tools/starting-set` (`shipped-defaults.json`), `tools/wall-time`, `tools/formula-engine`, `tools/run-experiments` (`score-candidates.ts`), the part manifests of `tools/arrange-screens-in-panes`, `tools/find-anything-from-one-box`, `tools/organize-the-sidebar/sidebar` and `tools/ui`, `tools/records-door`, `tools/content-identity`.
+**Depends on:** `tools/set-up-my-account` (`read-data`), `tools/starting-set` (`shipped-defaults.json`), `tools/wall-time`, `tools/formula-engine`, `tools/run-experiments` (`score-candidates.ts`), the part manifests of `tools/arrange-screens-in-panes`, `tools/find-anything-from-one-box`, `tools/organize-the-sidebar/sidebar` and `tools/ui`, `tools/workflows` (`do-work/run-a-function.mjs`), `tools/content-identity`.

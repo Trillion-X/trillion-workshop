@@ -1,5 +1,5 @@
-// The rows of decide-when-things-show over a made-up show-rules record, against the records door stand-in
-// (tools/records-door/test/fake-door.mjs), which checks the rows' rights the way the engine does. Made-up rows only;
+// The rows of decide-when-things-show over a made-up show-rules record handed in as `records`, run by
+// test-helpers/run-a-row.mjs, which checks each row's rights (none: a row reads nothing but its input). Made-up rows only;
 // nothing here names a person, and the subject, effect and starting rule are read from show-rules.json.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -193,7 +193,7 @@ test('a shipped type can be shared like a kept one', async () => {
 });
 
 const GRANT = id => `sharing:${data.sharing.record_prefix}${id}`;
-const share = (input, records = {}) => answerOf(row('share-a-kept-show-type'),
+const share = (input, records = { [GRANT(input.type)]: null }) => answerOf(row('share-a-kept-show-type'),
   { now: NOW, grant: GRANT(input.type), records: { [data.record]: RECORD, ...records }, ...input }, {});
 
 test('share a kept type: the copy first, with what it inherits, then the grant, holding only the key\'s BLAKE3 (a2e1365f33)', async () => {
@@ -219,6 +219,8 @@ test('a share with someone already named is refused in the screen\'s words, with
   assert.deepEqual(other.result.keep[1].expected, grant);
   assert.match((await share({ type: 'nobody', principal: 'x' })).error, /no preset nobody/);
   assert.match((await share({ type: 'child', principal: 'x', grant: 'sharing:elsewhere' })).error, /grant is where the share of child is kept/);
+  const left = await share({ type: 'child', principal: 'sample-other' }, {});
+  assert.match(left.error, /must be handed in as records/, 'a grant left out is refused, never read as nobody sharing');
 });
 
 test('stop sharing takes the person out of the grant and leaves the others', async () => {
@@ -228,8 +230,10 @@ test('stop sharing takes the person out of the grant and leaves the others', asy
     { type: 'child', principal: 'sample-account', grant: GRANT('child'), now: NOW, records: { [GRANT('child')]: grant } }, {});
   assert.equal(status, 0);
   assert.deepEqual(result.keep, [{ label: GRANT('child'), value: { ...grant, people: [people[1]] }, expected: grant }]);
-  const none = await answerOf(row('stop-sharing-a-show-type'), { type: 'child', principal: 'sample-account', grant: GRANT('child') });
+  const none = await answerOf(row('stop-sharing-a-show-type'), { type: 'child', principal: 'sample-account', grant: GRANT('child'), records: { [GRANT('child')]: null } });
   assert.match(none.error, /not shared with sample-account/);
+  const left = await answerOf(row('stop-sharing-a-show-type'), { type: 'child', principal: 'sample-account', grant: GRANT('child'), records: {} });
+  assert.match(left.error, /must be handed in as records/, 'a grant left out is refused, never read as nobody sharing');
 });
 
 test('the moved store\'s edit rules decide through a row: an edit rule that denies changing rules refuses it', async () => {
