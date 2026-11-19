@@ -437,13 +437,6 @@
                 "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
               },
               {
-                "package": "hand-work-to-ais",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/hand-work-to-ais"
-              },
-              {
                 "package": "move-records-through-declared-states",
                 "paths": [
                   "do-work"
@@ -924,13 +917,6 @@
                 "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
               },
               {
-                "package": "hand-work-to-ais",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/hand-work-to-ais"
-              },
-              {
                 "package": "move-records-through-declared-states",
                 "paths": [
                   "do-work"
@@ -1372,13 +1358,6 @@
                 "at": "/opt/node_modules/tldts"
               },
               { "packages": ["node_modules/tldts-core"], "paths": ["LICENSE", "package.json", "dist"], "at": "/opt/node_modules/tldts-core" },
-              {
-                "package": "hand-work-to-ais",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/hand-work-to-ais"
-              },
               {
                 "package": "move-records-through-declared-states",
                 "paths": [
