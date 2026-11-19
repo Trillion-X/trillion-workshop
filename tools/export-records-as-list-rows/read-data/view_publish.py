@@ -26,7 +26,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from record_write_send import blake3_hex, canonical
+from record_write_plan import blake3_hex, canonical
 
 SCHEMA = 'list-view-file/v1'
 

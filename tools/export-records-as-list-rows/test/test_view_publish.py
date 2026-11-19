@@ -15,7 +15,7 @@ from pathlib import Path
 TOOL = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TOOL / 'read-data'))
 sys.path.insert(0, str(TOOL / 'do-work'))
-import record_write_send as sender  # noqa: E402
+import record_write_plan as sender  # noqa: E402
 import view_publish  # noqa: E402
 import publish_view_file as cli  # noqa: E402
 

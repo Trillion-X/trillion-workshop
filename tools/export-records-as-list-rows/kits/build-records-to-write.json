@@ -2,7 +2,7 @@
   "drafted_from": "tool:build-records-to-write row (tools/export-records-as-list-rows/tool-rows.json) and its sample-run verify, do-work/build_record_write.mjs and build_record_write.py, test/scoped-record-source.test.mjs; the answer is what do-work run-an-export.mjs printed for the row's own sample files",
   "start_here": "Say to your AI: \"Build the records to write for my stores from the mapping in the folder I granted, and tell me how many commands and pending items there are.\"",
   "lists": [],
-  "no_lists_because": "It keeps no list of its own: the lists, record types and fields all come from the mapping file, and it only returns records:write commands as data.",
+  "no_lists_because": "It keeps no list of its own: the lists, record types and fields all come from the mapping file, and it only returns write commands as data.",
   "workflows": [],
   "tools": [
     "tool:build-records-to-write",
@@ -11,12 +11,12 @@
   "instructions": [
     "1. Grant the one folder holding your mapping and source files (here mapping.json, shelf-lists.json and stores.json) and, when the mapping reads records, have your AI read those records from your store to hand in as `records`.",
     "2. Say \"Build the records to write\"; your AI calls tools:run for tool:build-records-to-write with mapping and, when the mapping reads records, records.",
-    "3. Read counts (records, commands, lists, views, rows per list), pending (items waiting) and commands (each one a records:write input); a row with no address, two rows with one id, a broken link or a value over the limit is refused by name.",
-    "4. Nothing is written yet: send the commands with tool:put-records-into-my-account when you agree."
+    "3. Read counts (records, commands, lists, views, rows per list), pending (items waiting) and commands (each one a write input); a row with no address, two rows with one id, a broken link or a value over the limit is refused by name.",
+    "4. Nothing is written yet: plan the writes with tool:put-records-into-my-account, then write the commands into your store when you agree."
   ],
   "worked_examples": [
     {
-      "title": "One store row becomes one records:write command",
+      "title": "One store row becomes one write command",
       "ask": "Build the records to write for my stores.",
       "mcp": {
         "server": "{cli}",

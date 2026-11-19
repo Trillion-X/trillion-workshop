@@ -396,7 +396,7 @@
         "id": "tool:build-records-to-write",
         "label": "Prepare records for my lists with their sources and basis (runs on your computer)",
         "job": "Take records I keep in files and prepare everything to put them into my lists as records, each value with where it came from and how sure we are, in batches I can send",
-        "description": "Reads the mapping and source files from the one folder the person granted this tool. The records a mapping reads (a lists_read or a `kind: records` source, by type and id prefix) are not read here: the caller's AI reads them from a store and hands them in as `records`. Maps each source by the person's rules, then returns counts, pending or diverted items and the records:write commands as result data. It writes no local file and sends no records. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
+        "description": "Reads the mapping and source files from the one folder the person granted this tool. The records a mapping reads (a lists_read or a `kind: records` source, by type and id prefix) are not read here: the caller's AI reads them from a store and hands them in as `records`. Maps each source by the person's rules, then returns counts, pending or diverted items and the write commands as result data. It writes no local file and sends no records. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
         "status": "active",
         "input_schema": { "type": "object", "required": ["mapping"], "properties": { "mapping": { "type": "string", "description": "The mapping file inside the folder granted to this tool." }, "roots": { "type": "string", "description": "The mapping's other folders as quoted --root NAME=DIR pairs. They must also be inside the granted folder." }, "records": { "type": "array", "description": "The records the mapping reads (its lists_read and its `kind: records` sources, each by type and id prefix), as { id, type, value } read from the person's records. Left out when the mapping reads none.", "items": { "type": "object", "required": ["id", "type"] } } } },
         "output_schema": { "type": "object", "required": ["counts", "pending", "commands"], "properties": { "counts": { "type": "object" }, "pending": { "type": "array" }, "commands": { "type": "array", "items": { "type": "object" } }, "merged": { "type": "array" }, "extra_links": { "type": "array" } } },
@@ -1298,13 +1298,13 @@
         "id": "tool:publish-a-list-view-as-a-file",
         "label": "Publish what a saved view of my list shows into a file my site shows (runs on your computer)",
         "job": "Put the rows one saved view of my list shows (a changelog, the articles I marked public) into a file my website renders when it is next deployed, without opening my account to the internet",
-        "description": "Takes what tool:read-a-list-view read for one saved view (one page holding the whole view: the rows its rules keep, in its order, with the list's fields) and a config naming the view's record id, and writes { schema, source: { view, list, blake3 }, fields, rows: [{ id, values }] }. With media in the config, the pictures and recordings the rows name are copied into the site's own static files under the BLAKE3 of their bytes (never twice) and the rows name the site's address. The BLAKE3 of the fields and rows is the file's key, so publishing the same rows again writes nothing. A read that holds only part of the view publishes nothing. It names no list, view or field.",
+        "description": "Takes the read of one saved view that my AI takes directly from my own store (one page holding the whole view: the rows its rules keep, in its order, with the list's fields) and a config naming the view's record id, and writes { schema, source: { view, list, blake3 }, fields, rows: [{ id, values }] }. With media in the config, the pictures and recordings the rows name are copied into the site's own static files under the BLAKE3 of their bytes (never twice) and the rows name the site's address. The BLAKE3 of the fields and rows is the file's key, so publishing the same rows again writes nothing. A read that holds only part of the view publishes nothing. It names no list, view or field.",
         "status": "active",
         "input_schema": {
           "type": "object",
           "required": ["read", "config", "out"],
           "properties": {
-            "read": { "type": "string", "description": "The file holding tool:read-a-list-view's answer for the view, put where {read} is in the command." },
+            "read": { "type": "string", "description": "The file holding the saved view's read (one page of its rows, the whole view), put where {read} is in the command." },
             "config": { "type": "string", "description": "The config file (view, and media when the rows' pictures are carried into the site), put where {config} is in the command." },
             "out": { "type": "string", "description": "The file the site renders, put where {out} is in the command." }
           }
@@ -1318,7 +1318,7 @@
           "get_it": ["clone the Workshop repository (package.json repository.url)", "python3 -m pip install -U blake3   # or have the b3sum command"],
           "run": "python3 -I tools/export-records-as-list-rows/do-work/publish_view_file.py --read {read} --config {config} --out {out}",
           "needs": ["python", "blake3 (the python module) or the b3sum command"],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Read the view first with tool:read-a-list-view (a limit at least the view's rows) into the read file. This writes one file there; nothing goes online until their site is deployed with it, which needs their yes. Tell them how many rows the view showed of how many, and whether the file changed."
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Read the view first from your own store into the read file: one page holding the whole view (its rows, at least the view's row count). This writes one file there; nothing goes online until their site is deployed with it, which needs their yes. Tell them how many rows the view showed of how many, and whether the file changed."
         },
         "maker": "maker:export-records-as-list-rows",
         "licence_class": "licence:maker-own",
@@ -1506,7 +1506,7 @@
         "id": "tool:read-what-shipped",
         "label": "Note new releases or commits from a repository (runs on your computer)",
         "job": "Read a person's release mark or commit branch, stage each new entry once with its source identity, and let their mapping make list rows",
-        "description": "Reads settings the person gives: a program in the repository that prints JSON naming a release, a git ref for the newest release, or a commit branch where each commit is one entry. In commit mode, each entry has the commit identity, date and its own subject; the first run may start after an explicit commit, and skip_subjects are filters in the settings. The staged file is what the person's mapping turns into rows. The sender with keep_held writes only rows the list lacks, so an existing row or a person's edits are preserved. The tool does not infer push boundaries or group commits by day, and knows no product, list or road.",
+        "description": "Reads settings the person gives: a program in the repository that prints JSON naming a release, a git ref for the newest release, or a commit branch where each commit is one entry. In commit mode, each entry has the commit identity, date and its own subject; the first run may start after an explicit commit, and skip_subjects are filters in the settings. The staged file is what the person's mapping turns into rows. The planner with keep_held plans only the rows the list lacks, so an existing row or a person's edits are preserved. The tool does not infer push boundaries or group commits by day, and knows no product, list or road.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -1535,229 +1535,298 @@
       }
     },
     {
-      "payload": {
-        "uses_tools": [
-          "trillion-workshop/account-session",
-          "trillion-workshop/addressed-marks",
-          "trillion-workshop/agents-hub",
-          "trillion-workshop/ai-execution-history",
-          "trillion-workshop/ai-guided-work",
-          "trillion-workshop/ai-memory",
-          "trillion-workshop/ai-records-producer",
-          "trillion-workshop/ai-tool-catalog",
-          "trillion-workshop/ambience",
-          "trillion-workshop/arrange-screens-in-panes",
-          "trillion-workshop/ask-a-small-model-for-a-verdict",
-          "trillion-workshop/audio-transcription",
-          "trillion-workshop/away-summary",
-          "trillion-workshop/background-runner-control",
-          "trillion-workshop/bring-in-new-items-from-this-computer",
-          "trillion-workshop/browse-and-upload-my-files",
-          "trillion-workshop/browse-inspiration-clips",
-          "trillion-workshop/browse-public-page",
-          "trillion-workshop/build-a-screen-from-patches",
-          "trillion-workshop/build-engine-modules-for-web-hosts",
-          "trillion-workshop/calibrate-a-camera-frame",
-          "trillion-workshop/chat",
-          "trillion-workshop/check-a-packages-declared-permissions",
-          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
-          "trillion-workshop/check-bundle-package-boundaries",
-          "trillion-workshop/choose-and-publish-screen-looks",
-          "trillion-workshop/command-palette",
-          "trillion-workshop/composition-scene-renderer",
-          "trillion-workshop/computer-programs",
-          "trillion-workshop/connect-a-service-and-seal-its-key",
-          "trillion-workshop/content-identity",
-          "trillion-workshop/content-media-evidence",
-          "trillion-workshop/conversations",
-          "trillion-workshop/copy-a-site",
-          "trillion-workshop/decide-when-things-show",
-          "trillion-workshop/decide-with-a-method",
-          "trillion-workshop/delight-moments",
-          "trillion-workshop/describe-the-workshop",
-          "trillion-workshop/documents",
-          "trillion-workshop/documents-as-list-rows",
-          "trillion-workshop/draw-lists-on-a-canvas",
-          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
-          "trillion-workshop/drive-the-screen",
-          "trillion-workshop/edit-a-document-together",
-          "trillion-workshop/edit-a-site-visually",
-          "trillion-workshop/feel",
-          "trillion-workshop/file-content-renderer",
-          "trillion-workshop/find-anything-from-one-box",
-          "trillion-workshop/formula-engine",
-          "trillion-workshop/formulas",
-          "trillion-workshop/founder-growth-engine-screens",
-          "trillion-workshop/funnel-offer-graph",
-          "trillion-workshop/funnels-screen",
-          "trillion-workshop/graph-canvas",
-          "trillion-workshop/guided-overlay",
-          "trillion-workshop/hand-off-jobs-between-agents",
-          "trillion-workshop/hand-work-to-ais",
-          "trillion-workshop/headless-browser",
-          "trillion-workshop/hold-one-thing-until-done",
-          "trillion-workshop/http-client",
-          "trillion-workshop/introduce-two-people",
-          "trillion-workshop/judge-words",
-          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
-          "trillion-workshop/keep-copies-in-step",
-          "trillion-workshop/keep-lists-of-rows",
-          "trillion-workshop/keep-records-only-my-devices-can-read",
-          "trillion-workshop/know-the-projects-on-this-computer",
-          "trillion-workshop/know-who-is-in-this",
-          "trillion-workshop/learn-a-workflow-from-a-job",
-          "trillion-workshop/learn-from-everyones-results",
-          "trillion-workshop/leave-a-makers-private-starting-values-out",
-          "trillion-workshop/let-someone-look-at-my-account-read",
-          "trillion-workshop/list-tools-for-an-ai",
-          "trillion-workshop/listen-for-a-while",
-          "trillion-workshop/live-namespace",
-          "trillion-workshop/local-files",
-          "trillion-workshop/look-at-screen",
-          "trillion-workshop/make-a-video-playable-at-ingest",
-          "trillion-workshop/make-screen-layouts-and-controls",
-          "trillion-workshop/make-things-feel-good",
-          "trillion-workshop/marketplace-defaults",
-          "trillion-workshop/media-composition",
-          "trillion-workshop/media-identity",
-          "trillion-workshop/media-playback",
-          "trillion-workshop/messages-screen",
-          "trillion-workshop/move-records-through-declared-states",
-          "trillion-workshop/native-space-source-release",
-          "trillion-workshop/operation-records",
-          "trillion-workshop/organize-my-files",
-          "trillion-workshop/organize-the-sidebar",
-          "trillion-workshop/outside-conversations",
-          "trillion-workshop/paid-access",
-          "trillion-workshop/pair-unknown-senders",
-          "trillion-workshop/permission-lease",
-          "trillion-workshop/person-list",
-          "trillion-workshop/pick-a-screen-as-you-type",
-          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
-          "trillion-workshop/pin-files-by-content",
-          "trillion-workshop/process-session",
-          "trillion-workshop/query-and-change-list-rows",
-          "trillion-workshop/quote-untrusted-words",
-          "trillion-workshop/read-a-list-view",
-          "trillion-workshop/read-and-write-mail",
-          "trillion-workshop/recently-deleted-and-storage",
-          "trillion-workshop/record-audio",
-          "trillion-workshop/record-graph",
-          "trillion-workshop/record-log",
-          "trillion-workshop/record-video",
-          "trillion-workshop/record-video-with-teleprompter",
-          "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
-          "trillion-workshop/refuse-requests-to-private-addresses",
-          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
-          "trillion-workshop/review-what-a-list-says",
-          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
-          "trillion-workshop/run-experiments",
-          "trillion-workshop/run-on-a-persons-computer",
-          "trillion-workshop/run-tools-in-my-signed-in-browser",
-          "trillion-workshop/run-work-later-or-on-a-repeat",
-          "trillion-workshop/screen-arrangement",
-          "trillion-workshop/screen-look",
-          "trillion-workshop/screen-looks",
-          "trillion-workshop/screen-ready-records",
-          "trillion-workshop/screen-recording",
-          "trillion-workshop/sealed-records",
-          "trillion-workshop/see-a-pursuit-through-the-lens",
-          "trillion-workshop/see-what-is-being-worked-on",
-          "trillion-workshop/see-what-my-ais-did",
-          "trillion-workshop/selected-agent",
-          "trillion-workshop/send-requests-to-an-engine",
-          "trillion-workshop/send-to-trillion-from-my-browser",
-          "trillion-workshop/serialized-content",
-          "trillion-workshop/set-up-my-account",
-          "trillion-workshop/set-up-my-devices-and-cameras",
-          "trillion-workshop/settings",
-          "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/shared-code",
-          "trillion-workshop/show-any-file-as-itself",
-          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
-          "trillion-workshop/show-ideas-as-records",
-          "trillion-workshop/sidebar",
-          "trillion-workshop/slot-table",
-          "trillion-workshop/social-posts",
-          "trillion-workshop/start-from-any-landing-page",
-          "trillion-workshop/starting-set",
-          "trillion-workshop/stream-an-answer-in-keyed-parts",
-          "trillion-workshop/take-pictures-out-of-a-zip-archive",
-          "trillion-workshop/tell-one-person-something-through-every-way-they",
-          "trillion-workshop/tell-the-person",
-          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
-          "trillion-workshop/tours-screen",
-          "trillion-workshop/transcript-reader",
-          "trillion-workshop/turn-a-list-column-that-holds-names-into",
-          "trillion-workshop/turn-frames-into-slides",
-          "trillion-workshop/tweak-live-controls",
-          "trillion-workshop/ui",
-          "trillion-workshop/view-as",
-          "trillion-workshop/walk-a-new-person-through-first-setup",
-          "trillion-workshop/walk-nested-input-within-limits",
-          "trillion-workshop/wall-time",
-          "trillion-workshop/watch-my-sources",
-          "trillion-workshop/what-is-waiting-on-me",
-          "trillion-workshop/where-a-person-stands",
-          "trillion-workshop/who-does-each-step",
-          "trillion-workshop/work-map",
-          "trillion-workshop/workflow-canvas",
-          "trillion-workshop/workflow-interruptions",
-          "trillion-workshop/workflows",
-          "trillion-workshop/workspace-pieces",
-          "trillion-workshop/workspace-screens",
-          "trillion-workshop/write-a-job-done-in-several-steps-have",
-          "trillion-workshop/write-a-post-for-each-place"
+    "payload": {
+      "uses_tools": [
+        "trillion-workshop/account-session",
+        "trillion-workshop/addressed-marks",
+        "trillion-workshop/agents-hub",
+        "trillion-workshop/ai-execution-history",
+        "trillion-workshop/ai-guided-work",
+        "trillion-workshop/ai-memory",
+        "trillion-workshop/ai-records-producer",
+        "trillion-workshop/ai-tool-catalog",
+        "trillion-workshop/ambience",
+        "trillion-workshop/arrange-screens-in-panes",
+        "trillion-workshop/ask-a-small-model-for-a-verdict",
+        "trillion-workshop/audio-transcription",
+        "trillion-workshop/away-summary",
+        "trillion-workshop/background-runner-control",
+        "trillion-workshop/bring-in-new-items-from-this-computer",
+        "trillion-workshop/browse-and-upload-my-files",
+        "trillion-workshop/browse-inspiration-clips",
+        "trillion-workshop/browse-public-page",
+        "trillion-workshop/build-a-screen-from-patches",
+        "trillion-workshop/build-engine-modules-for-web-hosts",
+        "trillion-workshop/calibrate-a-camera-frame",
+        "trillion-workshop/chat",
+        "trillion-workshop/check-a-packages-declared-permissions",
+        "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+        "trillion-workshop/check-bundle-package-boundaries",
+        "trillion-workshop/choose-and-publish-screen-looks",
+        "trillion-workshop/command-palette",
+        "trillion-workshop/composition-scene-renderer",
+        "trillion-workshop/computer-programs",
+        "trillion-workshop/connect-a-service-and-seal-its-key",
+        "trillion-workshop/content-identity",
+        "trillion-workshop/content-media-evidence",
+        "trillion-workshop/conversations",
+        "trillion-workshop/copy-a-site",
+        "trillion-workshop/decide-when-things-show",
+        "trillion-workshop/decide-with-a-method",
+        "trillion-workshop/delight-moments",
+        "trillion-workshop/describe-the-workshop",
+        "trillion-workshop/documents",
+        "trillion-workshop/documents-as-list-rows",
+        "trillion-workshop/draw-lists-on-a-canvas",
+        "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+        "trillion-workshop/drive-the-screen",
+        "trillion-workshop/edit-a-document-together",
+        "trillion-workshop/edit-a-site-visually",
+        "trillion-workshop/feel",
+        "trillion-workshop/file-content-renderer",
+        "trillion-workshop/find-anything-from-one-box",
+        "trillion-workshop/formula-engine",
+        "trillion-workshop/formulas",
+        "trillion-workshop/founder-growth-engine-screens",
+        "trillion-workshop/funnel-offer-graph",
+        "trillion-workshop/funnels-screen",
+        "trillion-workshop/graph-canvas",
+        "trillion-workshop/guided-overlay",
+        "trillion-workshop/hand-off-jobs-between-agents",
+        "trillion-workshop/hand-work-to-ais",
+        "trillion-workshop/headless-browser",
+        "trillion-workshop/hold-one-thing-until-done",
+        "trillion-workshop/http-client",
+        "trillion-workshop/introduce-two-people",
+        "trillion-workshop/judge-words",
+        "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+        "trillion-workshop/keep-copies-in-step",
+        "trillion-workshop/keep-lists-of-rows",
+        "trillion-workshop/keep-records-only-my-devices-can-read",
+        "trillion-workshop/know-the-projects-on-this-computer",
+        "trillion-workshop/know-who-is-in-this",
+        "trillion-workshop/learn-a-workflow-from-a-job",
+        "trillion-workshop/learn-from-everyones-results",
+        "trillion-workshop/leave-a-makers-private-starting-values-out",
+        "trillion-workshop/let-someone-look-at-my-account-read",
+        "trillion-workshop/list-tools-for-an-ai",
+        "trillion-workshop/listen-for-a-while",
+        "trillion-workshop/live-namespace",
+        "trillion-workshop/local-files",
+        "trillion-workshop/look-at-screen",
+        "trillion-workshop/make-a-video-playable-at-ingest",
+        "trillion-workshop/make-screen-layouts-and-controls",
+        "trillion-workshop/make-things-feel-good",
+        "trillion-workshop/marketplace-defaults",
+        "trillion-workshop/media-composition",
+        "trillion-workshop/media-identity",
+        "trillion-workshop/media-playback",
+        "trillion-workshop/messages-screen",
+        "trillion-workshop/move-records-through-declared-states",
+        "trillion-workshop/native-space-source-release",
+        "trillion-workshop/operation-records",
+        "trillion-workshop/organize-my-files",
+        "trillion-workshop/organize-the-sidebar",
+        "trillion-workshop/outside-conversations",
+        "trillion-workshop/paid-access",
+        "trillion-workshop/pair-unknown-senders",
+        "trillion-workshop/permission-lease",
+        "trillion-workshop/person-list",
+        "trillion-workshop/pick-a-screen-as-you-type",
+        "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+        "trillion-workshop/pin-files-by-content",
+        "trillion-workshop/process-session",
+        "trillion-workshop/query-and-change-list-rows",
+        "trillion-workshop/quote-untrusted-words",
+        "trillion-workshop/read-a-list-view",
+        "trillion-workshop/read-and-write-mail",
+        "trillion-workshop/recently-deleted-and-storage",
+        "trillion-workshop/record-audio",
+        "trillion-workshop/record-graph",
+        "trillion-workshop/record-log",
+        "trillion-workshop/record-video",
+        "trillion-workshop/record-video-with-teleprompter",
+        "trillion-workshop/record-voice-and-meetings",
+        "trillion-workshop/records-door",
+        "trillion-workshop/refuse-requests-to-private-addresses",
+        "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+        "trillion-workshop/review-what-a-list-says",
+        "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+        "trillion-workshop/run-experiments",
+        "trillion-workshop/run-on-a-persons-computer",
+        "trillion-workshop/run-tools-in-my-signed-in-browser",
+        "trillion-workshop/run-work-later-or-on-a-repeat",
+        "trillion-workshop/screen-arrangement",
+        "trillion-workshop/screen-look",
+        "trillion-workshop/screen-looks",
+        "trillion-workshop/screen-ready-records",
+        "trillion-workshop/screen-recording",
+        "trillion-workshop/sealed-records",
+        "trillion-workshop/see-a-pursuit-through-the-lens",
+        "trillion-workshop/see-what-is-being-worked-on",
+        "trillion-workshop/see-what-my-ais-did",
+        "trillion-workshop/selected-agent",
+        "trillion-workshop/send-requests-to-an-engine",
+        "trillion-workshop/send-to-trillion-from-my-browser",
+        "trillion-workshop/serialized-content",
+        "trillion-workshop/set-up-my-account",
+        "trillion-workshop/set-up-my-devices-and-cameras",
+        "trillion-workshop/settings",
+        "trillion-workshop/settle-amounts-and-reconcile",
+        "trillion-workshop/shared-code",
+        "trillion-workshop/show-any-file-as-itself",
+        "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+        "trillion-workshop/show-ideas-as-records",
+        "trillion-workshop/sidebar",
+        "trillion-workshop/slot-table",
+        "trillion-workshop/social-posts",
+        "trillion-workshop/start-from-any-landing-page",
+        "trillion-workshop/starting-set",
+        "trillion-workshop/stream-an-answer-in-keyed-parts",
+        "trillion-workshop/take-pictures-out-of-a-zip-archive",
+        "trillion-workshop/tell-one-person-something-through-every-way-they",
+        "trillion-workshop/tell-the-person",
+        "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+        "trillion-workshop/tours-screen",
+        "trillion-workshop/transcript-reader",
+        "trillion-workshop/turn-a-list-column-that-holds-names-into",
+        "trillion-workshop/turn-frames-into-slides",
+        "trillion-workshop/tweak-live-controls",
+        "trillion-workshop/ui",
+        "trillion-workshop/view-as",
+        "trillion-workshop/walk-a-new-person-through-first-setup",
+        "trillion-workshop/walk-nested-input-within-limits",
+        "trillion-workshop/wall-time",
+        "trillion-workshop/watch-my-sources",
+        "trillion-workshop/what-is-waiting-on-me",
+        "trillion-workshop/where-a-person-stands",
+        "trillion-workshop/who-does-each-step",
+        "trillion-workshop/work-map",
+        "trillion-workshop/workflow-canvas",
+        "trillion-workshop/workflow-interruptions",
+        "trillion-workshop/workflows",
+        "trillion-workshop/workspace-pieces",
+        "trillion-workshop/workspace-screens",
+        "trillion-workshop/write-a-job-done-in-several-steps-have",
+        "trillion-workshop/write-a-post-for-each-place"
+      ],
+      "kind": "ai-tool-descriptor",
+      "id": "tool:put-records-into-my-account",
+      "label": "Work out which of my prepared records my account lacks (runs on your computer; writes nothing)",
+      "job": "Take the records I prepared and the target records my store holds now, and say which to write, in small commands, and whether my store matches after the writes",
+      "description": "Takes the result of tool:build-records-to-write and the target records (one record type and id prefix) that my store holds now, which my AI reads directly from my own store and hands in as held. It plans the writes: only the records the store lacks or holds with another value, or, when keep_held is true, only the records it lacks; or, with an optional previous-import baseline, source-field merges that keep live edits and deletions and report each conflict by id and field path. It returns commands of bounded size, each with a request key made from the BLAKE3 of its records. A record of a baseline refresh carries the value the store must still hold: the store's write has to check it and refuse any other value. The tool writes nothing: my AI writes each command into my store, then calls again with mode readback and the target records the store holds afterwards. A readback that differs is never all_equal. It reads no file, config file, keychain item or credential.",
+      "status": "active",
+      "input_schema": {
+        "type": "object",
+        "required": [
+          "payload",
+          "target_type",
+          "target_prefix",
+          "held",
+          "config"
         ],
-        "kind": "ai-tool-descriptor",
-        "id": "tool:put-records-into-my-account",
-        "label": "Put prepared records into my account through my door, writing only what it lacks (runs on your computer)",
-        "job": "Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal",
-        "description": "Takes the result of tool:build-records-to-write directly. Through this run's separately scoped records door, it reads only the target record kinds declared on this row, skips records already held when keep_held is true, or merges source changes against an optional previous-import baseline while preserving live edits and deletions. It reports conflicts, writes bounded commands with fresh per-run request keys, reconciles unknown write outcomes and returns readback counts; a mismatching readback is never all_written. It reads no host payload file, config, keychain item or sender credential. The standalone send_record_write.py command remains available for a person who chooses the manual computer workflow.",
-        "status": "active",
-        "input_schema": {
-          "type": "object",
-          "required": ["payload", "target_type", "target_prefix"],
-          "properties": {
-            "payload": { "type": "object", "description": "The whole result object returned by tool:build-records-to-write, including commands." },
-            "target_type": { "type": "string", "description": "The one target record type this run is granted to read and write; the run right is filled from this field." },
-            "target_prefix": { "type": "string", "description": "The target record id prefix this run is granted to read and write; the run right is filled from this field." },
-            "keep_held": { "type": "boolean", "description": "When true, leave every target record already held as it is, including rows edited since they were first written." },
-            "baseline": { "type": "object", "description": "The previous imported builder payload. Refresh source fields only where the live value still matches this baseline; retain live edits/deletions and report conflicts. Cannot be combined with keep_held." },
-            "stored": {
-              "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of the kind the request names (ids the request names), as this row's `stored` lists. What is not given is not there."
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "plan",
+              "readback"
+            ],
+            "description": "plan (the default) says what to write; readback checks the target records the store holds after the writes."
+          },
+          "payload": {
+            "type": "object",
+            "description": "The whole result object returned by tool:build-records-to-write, including commands."
+          },
+          "target_type": {
+            "type": "string",
+            "description": "The one record type this plan covers; other records in the payload are counted as out_of_scope and never written."
+          },
+          "target_prefix": {
+            "type": "string",
+            "description": "The record id prefix this plan covers."
+          },
+          "held": {
+            "type": "array",
+            "description": "The target records the store holds now, [{id, type, value}], read by my AI from my own store. Only records of target_type with ids under target_prefix; anything else is refused."
+          },
+          "config": {
+            "type": "object",
+            "required": [
+              "per_command",
+              "command_bytes",
+              "request_key_prefix"
+            ],
+            "description": "per_command and command_bytes bound each command (records, and UTF-8 JSON bytes of records); request_key_prefix starts every request key; keep_held (optional, true) writes only records the store lacks."
+          },
+          "baseline": {
+            "type": "object",
+            "description": "The previous imported builder payload. Refresh source fields only where the live value still matches it; live edits and deletions are kept and reported as conflicts. Cannot be combined with keep_held."
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "to_write",
+              "nothing_to_write",
+              "all_equal",
+              "readback_differs"
+            ]
+          },
+          "records": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "to_write": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "commands": {
+            "type": "array",
+            "description": "Each { request_key, input: { records } }, in order. A record may carry expected: the value the store must still hold when the command writes it."
+          },
+          "out_of_scope": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "conflicts": {
+            "type": "array",
+            "items": {
+              "type": "object"
             }
+          },
+          "readback": {
+            "type": "object",
+            "description": "Per target type: payload, held, equal, missing and differing record ids."
+          }
+        }
+      },
+      "invoke": {
+        "kind": "computer",
+        "capabilities": [],
+        "workdir": "/opt/tools/export-records-as-list-rows",
+        "internet": false,
+        "stdout": "json",
+        "argv": [
+          "node",
+          "/opt/records-door/do-work/run-an-export.mjs",
+          "/opt/tools/export-records-as-list-rows/do-work/plan_built_record_write.mjs",
+          "planBuiltRecordWrite"
+        ],
+        "stdin": {
+          "fill": {
+            "from": "input"
           }
         },
-        "output_schema": {
-          "type": "object",
-          "required": ["state", "to_write", "commands", "written", "out_of_scope", "readback"],
-          "properties": {
-            "state": { "type": "string", "enum": ["all_written", "written_with_conflicts", "readback_differs", "stopped_on_refusal"] },
-            "to_write": { "type": "integer", "minimum": 0 },
-            "commands": { "type": "integer", "minimum": 0 },
-            "written": { "type": "integer", "minimum": 0 },
-            "out_of_scope": { "type": "integer", "minimum": 0 },
-            "last_refusal": { "type": "object" },
-            "conflicts": { "type": "array", "items": { "type": "object" } },
-            "readback": { "type": "object" },
-            "keep": {
-              "type": "array",
-              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
-            }
-          }
-        },
-        "invoke": {
-          "kind": "computer",
-          "capabilities": [],
-          "workdir": "/opt/tools/export-records-as-list-rows",
-          "internet": false,
-          "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/tools/export-records-as-list-rows/do-work/send_built_record_write.mjs", "sendBuiltRecordWrite"],
-          "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": [
+        "files": {
+          "package_files": [
             {
               "package": "export-records-as-list-rows",
               "paths": [
@@ -1782,7 +1851,9 @@
               "at": "/opt/content-identity"
             },
             {
-              "packages": ["node_modules/@noble/hashes"],
+              "packages": [
+                "node_modules/@noble/hashes"
+              ],
               "paths": [
                 "LICENSE",
                 "package.json",
@@ -1809,35 +1880,51 @@
               ],
               "at": "/opt/browse-and-upload-my-files"
             }
-          ] }
-        },
-        "result_selector": "$.result",
-        "maker": "maker:export-records-as-list-rows",
-        "licence_class": "licence:maker-own",
-        "placements": ["placement:your-computer"],
-        "provenance": { "source": "Written for the Workshop: the records:write sender that writes only what an account lacks" },
-        "verify": [{"kind": "sample-run", "input": {"payload": {"commands": [{"input": {"records": [{"id": "sample-list:row-1", "type": "sample-row", "value": {"title": "Sample row"}}]}}]}, "target_type": "sample-row", "target_prefix": "sample-list:"}}],
-        "stored": [
-          {
-            "kind": {
-              "fill": {
-                "from": "input",
-                "field": "target_type"
-              }
+          ]
+        }
+      },
+      "result_selector": "$.result",
+      "maker": "maker:export-records-as-list-rows",
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:your-computer"
+      ],
+      "provenance": {
+        "source": "Written for the Workshop: the planner that works out which writes an account lacks, and checks the account after them"
+      },
+      "verify": [
+        {
+          "kind": "sample-run",
+          "input": {
+            "payload": {
+              "commands": [
+                {
+                  "input": {
+                    "records": [
+                      {
+                        "id": "sample-list:row-1",
+                        "type": "sample-row",
+                        "value": {
+                          "title": "Sample row"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
             },
-            "prefix": {
-              "fill": {
-                "from": "input",
-                "field": "target_prefix"
-              }
-            },
-            "operations": [
-              "records:list",
-              "records:write"
-            ]
+            "target_type": "sample-row",
+            "target_prefix": "sample-list:",
+            "held": [],
+            "config": {
+              "per_command": 10,
+              "command_bytes": 4000,
+              "request_key_prefix": "sample-load"
+            }
           }
-        ]
-      }
+        }
+      ]
+    }
     }
   ]
 }

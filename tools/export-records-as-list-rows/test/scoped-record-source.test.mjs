@@ -7,7 +7,6 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { answerOf as runRow, rowOf, said } from '../../../test-helpers/run-a-row.mjs';
-import { sendBuiltRecordWrite } from '../do-work/send_built_record_write.mjs';
 import { runWorkflow } from '../../write-a-job-done-in-several-steps-have/read-data/run-a-workflow.mjs';
 
 const tool = fileURLToPath(new URL('..', import.meta.url));
@@ -90,7 +89,7 @@ test('the builder maps only the records handed in that match a source\'s type an
   }
 });
 
-test('a mapping that reads records but is given none stops, and no sender config is consulted', async () => {
+test('a mapping that reads records but is given none stops, and no store is consulted', async () => {
   const root = mkdtempSync(join(tmpdir(), 'scoped-record-source-refused-'));
   try {
     mappingAt(root, 'secret', 'secret:');
@@ -130,7 +129,29 @@ test('the Workshop COMPUTER row returns its payload from the records handed in, 
   }
 });
 
-test('a synthetic wake run starts the COMPUTER builder, given the records it reads, and its result flows to a writer per kind', async () => {
+const plannerConfig = { per_command: 4, command_bytes: 4000, request_key_prefix: 'fixture-load' };
+const canon = value => JSON.stringify(value, (_key, item) => item && typeof item === 'object' && !Array.isArray(item)
+  ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
+
+// The caller's own store, as a map of id to record. heldOf reads the target records the way the caller's AI hands them in.
+function heldOf(store, type, prefix) {
+  return [...store.values()].filter(record => record.type === type && record.id.startsWith(prefix)).map(({ id, type: kind, value }) => ({ id, type: kind, value }));
+}
+
+// Writes commands the way a store does: a record that carries expected must find exactly that value (or none), else the store refuses.
+function writeCommands(store, commands) {
+  for (const command of commands) for (const record of command.input.records) {
+    if (Object.hasOwn(record, 'expected')) {
+      const current = store.get(record.id);
+      const refused = record.expected === null ? current !== undefined : !current || canon(current.value) !== canon(record.expected.value);
+      if (refused) throw new Error(`The store refused ${record.id}: it no longer holds the expected value.`);
+    }
+    if (record.value === null) store.delete(record.id);
+    else store.set(record.id, { id: record.id, type: record.type, value: record.value });
+  }
+}
+
+test('a synthetic wake run plans the builder records for each kind, the caller writes each plan, and a readback matches', async () => {
   const root = mkdtempSync(join(tmpdir(), 'scoped-record-source-two-kinds-'));
   try {
     twoScopeMappingAt(root);
@@ -144,12 +165,12 @@ test('a synthetic wake run starts the COMPUTER builder, given the records it rea
     const slug = workflowId.slice('workflow:'.length);
     const steps = [
       { id: 'make-rows', tool_id: 'tool:build-records-to-write', input: { mapping: join(root, 'mapping.json') } },
-      { id: 'write-a', tool_id: 'tool:put-records-into-my-account', input: { payload: { from: ['steps', 'make-rows'] }, target_type: 'record:fixture-a', target_prefix: 'record:fixture-a:fixture-a-' } },
-      { id: 'write-b', tool_id: 'tool:put-records-into-my-account', input: { payload: { from: ['steps', 'make-rows'] }, target_type: 'record:fixture-b', target_prefix: 'record:fixture-b:fixture-b-' } },
+      { id: 'write-a', tool_id: 'tool:put-records-into-my-account', input: { payload: { from: ['steps', 'make-rows'] }, target_type: 'record:fixture-a', target_prefix: 'record:fixture-a:fixture-a-', config: plannerConfig } },
+      { id: 'write-b', tool_id: 'tool:put-records-into-my-account', input: { payload: { from: ['steps', 'make-rows'] }, target_type: 'record:fixture-b', target_prefix: 'record:fixture-b:fixture-b-', config: plannerConfig } },
     ];
     const workflowRows = [
       { id: `record:workflow-recipe:${slug}`, type: 'record:workflow-recipe', value: {
-        recipe: workflowId, title: 'Synthetic scoped record flow', job: 'Build records, then write them.', input_schema: JSON.stringify({ type: 'object' }),
+        recipe: workflowId, title: 'Synthetic scoped record flow', job: 'Build records, then plan their writes.', input_schema: JSON.stringify({ type: 'object' }),
       } },
       ...steps.map((step, position) => ({
         id: `record:workflow-step:${slug}--${step.id}`, type: 'record:workflow-step', value: {
@@ -169,32 +190,33 @@ test('a synthetic wake run starts the COMPUTER builder, given the records it rea
     const built = await runRow(builderRow, { ...job.value.job[0].run_tool.input, records: sources });
     assert.equal(built.status, 0, JSON.stringify(built));
     assert.deepEqual(built.calls, [], 'the builder made no records call');
-    const writerBase = rowOf(toolRows, 'tool:put-records-into-my-account');
-    const writer = writerBase;
-    const writeAInput = { ...job.value.job[1].run_tool.input, payload: built.result };
-    const wroteA = await runRow(writer, writeAInput, { records: sources });
-    assert.equal(wroteA.status, 0, JSON.stringify(wroteA));
-    assert.deepEqual(said(wroteA.result), {
-      state: 'all_written', to_write: 1, commands: 1, written: 1, out_of_scope: 3,
-      readback: { 'record:fixture-a': { payload: 1, held: 1, equal: 1, missing: [], differing: [] } },
-    });
-    assert.deepEqual(wroteA.result.keep.map(record => record.type), ['record:fixture-a']);
-    assert.equal(wroteA.kept.length, 3, 'both source records remain and only the target rows are written');
-    const writeBInput = { ...job.value.job[2].run_tool.input, payload: built.result };
-    const wroteB = await runRow(writer, writeBInput, { records: wroteA.kept });
-    assert.equal(wroteB.status, 0, JSON.stringify(wroteB));
-    assert.equal(wroteB.result.out_of_scope, 3);
-    assert.deepEqual(wroteB.result.readback, { 'record:fixture-b': { payload: 1, held: 1, equal: 1, missing: [], differing: [] } });
-    assert.deepEqual(wroteB.result.keep.map(record => record.type), ['record:fixture-b']);
-    assert.equal(wroteB.kept.length, 4, 'two source records and two target rows remain');
-    const repeated = await runRow(writer, writeBInput, { records: wroteB.kept });
+    const writer = rowOf(toolRows, 'tool:put-records-into-my-account');
+    const store = new Map(sources.map(record => [record.id, record]));
+    const stepA = job.value.job[1].run_tool.input;
+    const planA = await runRow(writer, { ...stepA, payload: built.result, held: heldOf(store, stepA.target_type, stepA.target_prefix) });
+    assert.equal(planA.status, 0, JSON.stringify(planA));
+    assert.equal(planA.result.state, 'to_write');
+    assert.equal(planA.result.to_write, 1);
+    assert.equal(planA.result.commands.length, 1);
+    assert.equal(planA.result.out_of_scope, 3, 'the other list and source records are counted, never written');
+    writeCommands(store, planA.result.commands);
+    const checkA = await runRow(writer, { ...stepA, mode: 'readback', payload: built.result, held: heldOf(store, stepA.target_type, stepA.target_prefix) });
+    assert.equal(checkA.status, 0, JSON.stringify(checkA));
+    assert.deepEqual(checkA.result.readback, { 'record:fixture-a': { payload: 1, held: 1, equal: 1, missing: [], differing: [] } });
+    const stepB = job.value.job[2].run_tool.input;
+    const planB = await runRow(writer, { ...stepB, payload: built.result, held: heldOf(store, stepB.target_type, stepB.target_prefix) });
+    assert.equal(planB.status, 0, JSON.stringify(planB));
+    assert.equal(planB.result.out_of_scope, 3);
+    writeCommands(store, planB.result.commands);
+    const repeated = await runRow(writer, { ...stepB, payload: built.result, held: heldOf(store, stepB.target_type, stepB.target_prefix) });
     assert.equal(repeated.status, 0, JSON.stringify(repeated));
     assert.equal(repeated.result.to_write, 0);
-    assert.equal(repeated.result.keep, undefined, 'a repeated build leaves the already held values as they are');
+    assert.equal(repeated.result.state, 'nothing_to_write', 'a repeated build plans nothing and leaves the held values as they are');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 });
+
 
 test('a records source with no matching record builds no row, and a missing folder path fails before anything is built', async () => {
   const root = mkdtempSync(join(tmpdir(), 'scoped-record-source-denied-kind-'));
@@ -218,48 +240,56 @@ test('a records source with no matching record builds no row, and a missing fold
   }
 });
 
-test('the managed writer refreshes through the same baseline owner, retains edits and refuses unsafe removals', async () => {
+test('the write planner refreshes through the same baseline, keeps live edits and deletions, and a store refuses a value that changed', async () => {
   const rows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));
-  const writer = (rowOf(rows, 'tool:put-records-into-my-account'));
+  const writer = rowOf(rows, 'tool:put-records-into-my-account');
   const record = (id, value) => ({ id: `record:fixture:${id}`, type: 'record:fixture', value });
   const payload = records => ({ commands: [{ input: { records } }] });
   const original = { name: 'Imported', note: 'Original', _basis: { name: { by: 'source' } } };
   const baseline = payload([record('one', original), record('deleted', { name: 'Deleted' }), record('remove', { name: 'Original' })]);
   const desired = payload([record('one', { name: 'New source name', note: 'Improved', mechanism: ['cause'], _basis: { name: { by: 'new-source' } } }),
     record('deleted', { name: 'Source changed' }), record('remove', null)]);
-  const input = { payload: desired, baseline, target_type: 'record:fixture', target_prefix: 'record:fixture:' };
-  const result = await runRow(writer, input, { records: [
+  const live = () => new Map([
     record('one', { name: 'Person edit', note: 'Original', custom: 'Keep', _basis: { name: { by: 'person' } } }),
     record('remove', { name: 'Peer edit' }),
-  ] });
-  assert.equal(result.status, 0, JSON.stringify(result));
-  assert.equal(result.result.state, 'written_with_conflicts');
-  assert.deepEqual(result.result.conflicts.map(c => [c.id, c.path, c.reason]), [
+  ].map(entry => [entry.id, entry]));
+  const input = (store) => ({ payload: desired, baseline, target_type: 'record:fixture', target_prefix: 'record:fixture:', config: plannerConfig,
+    held: heldOf(store, 'record:fixture', 'record:fixture:') });
+  const store = live();
+  const planned = await runRow(writer, input(store));
+  assert.equal(planned.status, 0, JSON.stringify(planned));
+  assert.equal(planned.result.state, 'to_write');
+  assert.deepEqual(planned.result.conflicts.map(c => [c.id, c.path, c.reason]), [
     ['record:fixture:one', ['name'], 'live_changed'], ['record:fixture:deleted', [], 'live_deleted'],
     ['record:fixture:remove', [], 'unsafe_removal'],
   ]);
-  assert.deepEqual(result.kept.find(r => r.id === 'record:fixture:one').value,
+  writeCommands(store, planned.result.commands);
+  assert.deepEqual(store.get('record:fixture:one').value,
     { name: 'Person edit', note: 'Improved', custom: 'Keep', mechanism: ['cause'], _basis: { name: { by: 'person' } } });
-  assert.ok(!result.kept.some(r => r.id === 'record:fixture:deleted'));
-  assert.equal(result.kept.find(r => r.id === 'record:fixture:remove').value.name, 'Peer edit');
-  const repeated = await runRow(writer, input, { records: result.kept });
+  assert.ok(!store.has('record:fixture:deleted'));
+  assert.equal(store.get('record:fixture:remove').value.name, 'Peer edit');
+  const repeated = await runRow(writer, input(store));
   assert.equal(repeated.status, 0, JSON.stringify(repeated));
-  assert.equal(repeated.result.to_write, 0);
-  const invalid = await runRow(writer, { ...input, keep_held: true }, { records: result.kept });
+  assert.equal(repeated.result.commands.length, 0, 'the same baseline plans nothing more');
+  const stale = live();
+  const plannedAgain = await runRow(writer, input(stale));
+  stale.set('record:fixture:one', record('one', { name: 'Someone else wrote this' }));
+  assert.throws(() => writeCommands(stale, plannedAgain.result.commands), /The store refused record:fixture:one/);
+  const invalid = await runRow(writer, { ...input(store), config: { ...plannerConfig, keep_held: true } });
   assert.notEqual(invalid.status, 0);
   assert.match(invalid.error, /cannot be combined/);
 });
 
-test('a write acknowledgement without a matching readback is not all_written', async () => {
+test('a readback that lacks a target record is readback_differs, and a held record outside the target is refused', async () => {
+  const rows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));
+  const writer = rowOf(rows, 'tool:put-records-into-my-account');
   const record = { id: 'record:fixture:one', type: 'record:fixture', value: { name: 'One' } };
-  const result = await sendBuiltRecordWrite({ payload: { commands: [{ input: { records: [record] } }] },
-    target_type: record.type, target_prefix: 'record:fixture:' }, {
-    door: { async *list() {}, async write() { return { changed: true }; } },
-  });
-  assert.equal(result.state, 'readback_differs');
-  assert.deepEqual(result.readback['record:fixture'].missing, [record.id]);
-  await assert.rejects(() => sendBuiltRecordWrite({ payload: { commands: [{ input: { records: [record] } }] },
-    target_type: record.type, target_prefix: 'record:fixture:' }, {
-    door: { async *list() { yield { id: record.id, type: record.type }; }, async write() { assert.fail('must not write after a malformed read'); } },
-  }), /outside the granted target type\/prefix/);
+  const input = { payload: { commands: [{ input: { records: [record] } }] }, target_type: record.type, target_prefix: 'record:fixture:', config: plannerConfig };
+  const readback = await runRow(writer, { ...input, mode: 'readback', held: [] });
+  assert.equal(readback.status, 0, JSON.stringify(readback));
+  assert.equal(readback.result.state, 'readback_differs');
+  assert.deepEqual(readback.result.readback['record:fixture'].missing, [record.id]);
+  const refused = await runRow(writer, { ...input, mode: 'readback', held: [{ id: record.id, type: 'record:other', value: {} }] });
+  assert.notEqual(refused.status, 0);
+  assert.match(refused.error, /outside the target type and prefix/);
 });

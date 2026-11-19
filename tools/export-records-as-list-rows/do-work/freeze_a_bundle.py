@@ -21,7 +21,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'read-data'))
 
 import frozen_bundle  # noqa: E402
-from record_write_send import blake3_hex  # noqa: E402
+from record_write_plan import blake3_hex  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:

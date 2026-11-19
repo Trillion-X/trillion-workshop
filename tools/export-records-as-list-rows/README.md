@@ -1,6 +1,6 @@
 # tools/export-records-as-list-rows/
 
-Turns a person's records on disk into the payloads that put rows into their Trillion lists (as list rows, or as the records `records:write` takes), and sends the batches. Records can be JSON, tab-separated files (a spreadsheet saved as text) or markdown tables. **The code knows no record kinds, columns or lists**: everything about them is in a mapping file the person writes, so the same script serves any library. It sends nothing; it writes `make_lists.json`, the rows in batches (`<source>-000.json`, ...) and `manifest.json` into a folder.
+Turns a person's records on disk into the payloads that put rows into their lists (as list rows, or as the write commands their store takes), and plans or sends the batches. Nothing here reaches a store: the person's AI reads and writes their own store directly, in that store's own language. Records can be JSON, tab-separated files (a spreadsheet saved as text) or markdown tables. **The code knows no record kinds, columns or lists**: everything about them is in a mapping file the person writes, so the same script serves any library. It sends nothing; it writes `make_lists.json`, the rows in batches (`<source>-000.json`, ...) and `manifest.json` into a folder.
 
 ```
 python3 -I do-work/export_records_as_list_rows.py --mapping FILE --root DIR --out DIR [--batch 100] [--only SOURCE] [--skip-ids FILE]
@@ -12,18 +12,6 @@ python3 -I do-work/export_records_as_list_rows.py --mapping FILE --root DIR --ou
 - Row ids are stable, so loading a batch twice updates its rows.
 - A re-run removes only the files the previous run listed in its manifest; other files in the folder are left alone.
 - Exit 0 on success, 2 with a reason on standard error when the mapping or a file could not be read.
-
-## Add-only transfer with an exact owner comparison
-
-For large immutable source copies, the manual sender also provides:
-
-```
-python3 -I do-work/send_record_write.py --config FILE --work DIR add-and-compare --payload FILE --status FILE
-```
-
-It reads only existing IDs, creates missing objects with `expected: null`, then submits each full expected type/value as an atomic condition with the identical value. A verification passes only when the owner answers `changed: false` and `write_count: 0`. This checks the current stored value without downloading the body again. The door must enforce exact `expected` conditions; test a wrong expectation before adopting this mode on another transport. Existing different values are refused and preserved. Removal payloads, caller-supplied conditions and baseline refresh are refused. Verification calls use fresh request identities; uncertain retries preserve the original command key. These comparisons may still create the owner's command audit/receipt metadata; the record values do not change.
-
-Ordinary `readback` remains available when the caller needs the actual stored bodies. `add-and-compare` reports `all_equal`, the number created, the number verified, and per-type equality counts; it never labels an unsupported or effectful reply as verified.
 
 ## The mapping
 
@@ -79,13 +67,13 @@ A transform is a one-key object, used in `compute` and in `map`.
 
 ## Dependencies
 
-**Depends on:** Python 3.10+; a records mapping that uses the `identity` expression also needs Node 22.6+ and the declared `tools/content-identity` files. The sender's request keys need the `blake3` module or the `b3sum` command.
+**Depends on:** Python 3.10+; a records mapping that uses the `identity` expression also needs Node 22.6+ and the declared `tools/content-identity` files. The write planner's request keys need the `blake3` module or the `b3sum` command.
 
 **Depended on by:** nothing in this repository. A library's own mapping lives with the library, or as a setting row of the person's `list:settings`; `--mapping-record` reads it with `tools/settings/read-data/settings.py`.
 
-## Records for `records:write`
+## Write commands for the person's store
 
-`do-work/build_record_write.py` builds the `{ id, type, value }` records a Trillion `records:write` takes, in commands of at most the mapping's `per_command` records and `command_bytes` bytes (a door may take only so many bytes in one request), from the person's list-definition rows and staged files. It sends nothing.
+`do-work/build_record_write.py` builds the `{ id, type, value }` records a store's write takes, in commands of at most the mapping's `per_command` records and `command_bytes` bytes, from the person's list-definition rows and staged files. It sends nothing.
 
 ```
 python3 -I do-work/build_record_write.py --mapping FILE --out FILE [--root NAME=DIR ...]
@@ -93,13 +81,11 @@ python3 -I do-work/build_record_write.py --mapping-record ID --records-from FILE
 python3 -I do-work/build_record_write.py --mapping FILE --as-setting account~main --setting-name TEXT --setting-from TEXT --out FILE
 ```
 
-When the mapping reads `kind: records` (or `lists_read`), the records come in as saved `records:read` or `records:list` answers with `--records-from FILE`: the builder reads no account and holds no credential.
+When the mapping reads `kind: records` (or `lists_read`), the records come in as the records the person's AI read from their own store, with `--records-from FILE`: the builder reads no account and holds no credential.
 
-When `tool:build-records-to-write` runs through Workshop, it is a `computer` row. The person grants it one read folder for the mapping and local sources. It declares no records door: the records the mapping reads come in as the `records` input (`[{ id, type, value }]`, read from the person's records by their AI), and each source takes only the records of its declared type and id prefix. The managed wrapper never reads a Keychain item; it returns the payload as result data and writes only in the run's private temporary folder. The standalone `--mapping ... --out ...` command takes the same records with `--records-from`.
+When `tool:build-records-to-write` runs through Workshop, it is a `computer` row. The person grants it one read folder for the mapping and local sources. It declares no store access: the records the mapping reads come in as the `records` input (`[{ id, type, value }]`, read from the person's store by their AI), and each source takes only the records of its declared type and id prefix. The managed wrapper never reads a Keychain item; it returns the payload as result data and writes only in the run's private temporary folder.
 
-`tool:put-records-into-my-account` can take the builder's result directly as its `payload` object. It also takes the exact `target_type` and `target_prefix` its separate `records:list` and `records:write` rights are filled from. For the shared changelog feeder those are `record:trillion-changelog` and `record:trillion-changelog:input-`. It writes only records in that type and prefix; the builder's list definitions and other target kinds are counted in `out_of_scope` and are not sent. It returns write counts and readback, and accepts no config, status path or credential. Builder read rights and writer target rights are separate. The manual `send_record_write.py` command remains available with the config, work folder and status file described below.
-
-`here` is always the folder of the mapping; every other folder the mapping names is given with `--root NAME=DIR`. The output holds the counts (with a per-link breakdown), what is `pending` (an optional staged file not there yet, or naming a row that does not exist yet), any notes diverted from the rows (for example a staged row that only adds a source to a row), and `commands`. Sending a command twice writes the same records again.
+`tool:put-records-into-my-account` takes that result directly as its `payload`, and the one record type and id prefix it covers. It is planned in the next section.
 
 - The lists and saved views are the person's rows (`lists_file`); this tool names no list or field. With `lists_read` instead, the lists are among the records handed in (their own `list` records), `lists_add` names only the fields, choices and top-level keys a mapping needs added, and only a list that this changes is written again, with the saved views the mapping's `views` names.
 - `emit_definitions: false` treats `lists_file` as a read-only schema snapshot: it still uses the row types and runs all existing row/link checks, but emits no list or saved-view writes. Omit it (or use `true`) to retain definition writes. Only boolean values are accepted; emitted list/view counts reflect the selected behavior.
@@ -111,20 +97,29 @@ When `tool:build-records-to-write` runs through Workshop, it is a `computer` row
 - The mapping's `at` (an expression over a row's record, for example the staged file's `_generated`) is the time each basis says it was made, so building the same files again gives byte-identical records.
 - The `identity` expression calls the declared content-identity owner on the exact UTF-8 bytes of its text; it needs Node 22.6+. Other expressions need only Python.
 - A basis may give its own `confidence`, instead of the mapping's.
-- A person's own mapping is kept as a setting row of their `list:settings` (read with `tools/settings`): `--as-setting SCOPE_KIND~SCOPE_ID --setting-name TEXT --setting-from TEXT` with `--mapping FILE` writes the payload of those rows (one, or a first row naming the others in `parts` when the mapping is bigger than one command; the text keeps the mapping's key order, which `keys` and `compute` depend on), and `--mapping-record record:setting:export-records-as-list-rows~<scope_kind>~<scope_id>` builds from them. `--records-from FILE` (saved `records:read` answers) answers the mapping record, `lists_read` and `kind: records` sources from those files instead of the door, so a build can be repeated on the same account state.
+- A person's own mapping is kept as a setting row of their `list:settings` (read with `tools/settings`): `--as-setting SCOPE_KIND~SCOPE_ID --setting-name TEXT --setting-from TEXT` with `--mapping FILE` writes the payload of those rows (one, or a first row naming the others in `parts` when the mapping is bigger than one command; the text keeps the mapping's key order, which `keys` and `compute` depend on), and `--mapping-record record:setting:export-records-as-list-rows~<scope_kind>~<scope_id>` builds from them. `--records-from FILE` answers the mapping record, `lists_read` and `kind: records` sources from the records the AI read, so a build can be repeated on the same account state.
 - Several `rows` sources may feed one list; each builds the records its own file holds. A `rows` source for a list that is never emitted is a lookup table other sources read with `row_of`.
 
-## Putting the records into the account
+## Planning the writes into the person's store
 
-`do-work/send_record_write.py` puts a payload into the person's account so a re-run writes nothing. It reads every record of each type the payload names (records:list, page by page), sends only the records whose value differs (a removal only while the record is held), in commands bounded by count and bytes, each with request key `<prefix>-<first 32 hex of the BLAKE3 of its records>`, logs each command with the local time, and stops at the first refusal with a status file. `readback` counts, per type, the records held and those holding the payload's value; `export` copies every record of a type into one JSON file (a backup before anything changes).
+`do-work/plan_record_write.py` says which records a store must write so that a re-run writes nothing. It takes one JSON object on standard input and writes nothing itself:
 
 ```
-python3 -I do-work/send_record_write.py --config FILE --work DIR [--url ADDRESS] [--key-prefix TEXT] plan|readback --payload FILE
-python3 -I do-work/send_record_write.py --config FILE --work DIR send --payload FILE --status FILE
-python3 -I do-work/send_record_write.py --config FILE --work DIR export --type TYPE [--prefix ID_START] --out DIR
+python3 -I do-work/plan_record_write.py plan < INPUT.json
+python3 -I do-work/plan_record_write.py readback < INPUT.json
 ```
 
-The config names how to reach the person's door: `transport` `mcp` (the door's MCP address and a credential handle, `{ "keychain_item": "<name>" }` where the computer has a keychain or `{ "key_file": "<path>" }` on any place; the key is read into memory and sent only as the Bearer token, never written or printed) or `call` (a program that plays a plan file); `--url` points the same config at another address, such as a copy of the account, and `--key-prefix` gives a load request keys of its own, so one config serves several loads. It also names the resource, the list and write operations, the page size, the command limits, the request-key prefix, and which refusals mean "send the halves" (the door took no effect, the command was too big for its time) or "send again under the same key" (the effect may have happened) (see the top of `read-data/record_write_send.py`). Exit 0 done, 1 refused or a readback differs, 2 unreadable config, payload or door.
+The input holds the builder's `payload`; the one `target_type` and `target_prefix` the plan covers (a record of another type or prefix is out of scope: counted, never written); `held`, the target records the store holds now, as `[{ id, type, value }]`, read by the person's AI straight from the store (a held record outside the target is refused, never ignored); and `config`: `per_command` and `command_bytes` bound each command, `request_key_prefix` starts each request key, and `keep_held` (optional, `true`) plans only the records the store lacks. The code in `read-data/record_write_plan.py` names no store, list or record kind.
+
+`plan` prints `{ state, records, to_write, commands, out_of_scope, conflicts? }`. `state` is `to_write` or `nothing_to_write`. Each command is `{ request_key, input: { records } }`, in order, holding at most the count and bytes given. A request key is the prefix and the first 32 hex of the BLAKE3 of the command's records, so the same records make the same key and a replayed write is the same write. A record whose value differs from the one held is planned, and a record the store lacks; a removal (value `null`) is planned only while the store holds the record.
+
+The person's AI writes each command into the store itself, in the store's own language: set each record's value, or remove it when its value is `null`. A record that carries `expected` (only the baseline refresh below gives one) must find exactly that value when it is written, or none when `expected` is `null`; the store refuses any other value and the write stops, so a concurrent edit is never overwritten. After the writes, the AI reads the target records back and runs `readback` with the same input. `readback` prints `{ state, records, readback, out_of_scope, conflicts }`: `all_equal` when every record holds its value and no conflict remains, otherwise `readback_differs` with the missing and differing ids. Exit 0 for a plan and for an `all_equal` readback, 1 for a readback that differs, 2 when the input could not be read.
+
+For a source refresh, give a `baseline`: the previous imported payload. The planner then merges each field against that import: a source change applies where the live field still matches the baseline; live edits, extra fields and records the store deleted stay as they are. Nested maps are merged too, and a retained field keeps its live `_basis` attribution. Removing a record requires a baseline equal to its live value. Conflicts contain record IDs and field paths, never private values, and a conflict keeps the readback from being `all_equal` until it is resolved. Never combine a baseline with `keep_held`.
+
+To add fields to rows the store already holds, keyed by row id, give a payload whose values hold only the new fields and a baseline naming the same records with the value `{}` (the previous import gave none of these fields). Every field the payload does not name stays exactly as it is held; a held field equal to the new value is left alone; a held field with a different value is kept and reported as a `live_changed` conflict; a row the store does not hold is reported as `live_deleted` and never created.
+
+The planner does not read the store, so it cannot check the store's own rules: the caller checks the `expected` values when it writes, and a write the store cannot make atomic is the caller's to refuse.
 
 ## Sending the batches
 
@@ -136,17 +131,9 @@ python3 -I do-work/send_list_rows.py --config FILE [--key KEY] --batches DIR --s
 
 The config says what to run (`send`, optionally `warm` before every send), how to count what was kept, which errors mean "retry after a wait" and which mean "send the halves", the waits and the order of the batch families (see `read-data/send_batches.py`). A batch is done only when every row was kept; a refusal stops the run and the status file says which batch and why. Exit 0 all sent, 1 refused, 2 unreadable config.
 
-A config with `keep_held: true` writes only the records the account lacks: a record it already holds is left as it is, whatever its value, so a row someone edited after it was first written keeps their edits. `tool:put-records-into-my-account` is the `send` command as a Workshop row.
-
-For a source refresh, pass `--baseline PREVIOUS_PAYLOAD` to `plan`, `send` and `readback` (or `baseline` to `tool:put-records-into-my-account`). The same sender then merges each field against that previous import: source changes apply where the live field still matches the baseline; live edits, extra fields and deleted records stay as they are. Nested maps are merged too, and a retained field keeps its live `_basis` attribution. Removing a record requires a baseline equal to its live value. Conflicts contain record IDs and field paths, never private values; `send` returns `written_with_conflicts` and exit 1 when it applied safe changes but retained a conflicting edit. `readback` reports remaining conflicts under `_refresh` and exits 1 until they are resolved. Never combine baseline refresh with `keep_held`.
-
-To add fields to rows the account already holds, keyed by row id, give a payload whose values hold only the new fields and a baseline naming the same records with the value `{}` (the previous import gave none of these fields). Every field the payload does not name stays exactly as it is held; a held field equal to the new value is left alone; a held field with a different value is kept and reported as a `live_changed` conflict; a row the account does not hold is reported as `live_deleted` and never created. `readback` with the same baseline compares each held row with the merged value.
-
-To avoid reading unrelated records, add `--read-prefix 'TYPE=PREFIX'` before the subcommand, repeating it for several scopes, or put `{ "read_prefixes": { "TYPE": ["PREFIX", "OTHER_PREFIX"] } }` in the config. Every target of a scoped type must be covered. Wrong-type/out-of-prefix answers and repeated cursors are refused; an empty page with a continuation is followed. Managed writes already use their declared `target_type` and `target_prefix`. Refreshes use the account snapshot they read; the records door has no conditional-write primitive, so these checks do not provide atomic protection against an edit arriving between that read and its write.
-
 ## Noting what shipped
 
-`do-work/read_what_shipped.py` adds a new release to a staged file, with the commit subjects since the release before it, and leaves the file as it is when that release is already there. Where the release is read is the person's setting: a program in the repository that prints JSON naming a release, or a git ref they move when they ship. For a branch whose commits are the source, `each: "commit"` makes one entry per commit after the stored cursor (or the `after` commit on the first run). `skip_subjects` is data that omits commits such as regenerated files. Each entry carries that commit's date, subject and stable commit identity; it does not infer push boundaries or combine same-day commits. The builder makes rows from staged entries with the person's mapping, and the sender with `keep_held` writes only rows the list lacks, preserving every row it already holds. `tools/workflows/recipes/keep-a-changelog-from-what-shipped.json` runs the steps every hour.
+`do-work/read_what_shipped.py` adds a new release to a staged file, with the commit subjects since the release before it, and leaves the file as it is when that release is already there. Where the release is read is the person's setting: a program in the repository that prints JSON naming a release, or a git ref they move when they ship. For a branch whose commits are the source, `each: "commit"` makes one entry per commit after the stored cursor (or the `after` commit on the first run). `skip_subjects` is data that omits commits such as regenerated files. Each entry carries that commit's date, subject and stable commit identity; it does not infer push boundaries or combine same-day commits. The builder makes rows from staged entries with the person's mapping, and the planner with `keep_held` plans only the rows the store lacks, preserving every row it already holds. `tools/workflows/recipes/keep-a-changelog-from-what-shipped.json` runs the steps every hour.
 
 ```
 python3 -I do-work/read_what_shipped.py --settings FILE --repository DIR --staged FILE
@@ -156,10 +143,9 @@ Prints `{ releases, added, added_count }`; `added` is the newest entry name, and
 
 ## Publishing what a saved view shows into a file
 
-`do-work/publish_view_file.py` writes the rows one saved view of a list shows into a file a site renders at its next deploy, so a public page shows the list with no public way into the account. The view is read first by `tools/read-a-list-view` (its rule-filter tool keeps the rows the view's rules keep, in the view's order), into one page that holds the whole view; that answer is this script's `--read`, so it never reads the door itself. It writes `{ schema, source: { view, list, blake3 }, fields, rows: [{ id, values }] }`. The key is the BLAKE3 of the fields and rows, so a publish that would write the same rows writes nothing. A read that holds only part of the view (a next page, or `complete` false) publishes nothing. With `media` in the config, the pictures and recordings the published rows name are carried into the site's own static files, each as `<BLAKE3 of its bytes>.<extension>`, and the rows name the site's address. So the page never points at a place that may go away, and a picture already carried is never copied again. A row whose own `media.public_field` holds one of `media.not_public`, such as one whose picture shows someone's own data, publishes its text with its media fields empty, and its pictures are never copied.
+`do-work/publish_view_file.py` writes the rows one saved view of a list shows into a file a site renders at its next deploy, so a public page shows the list with no public way into the account. The view is read first by the person's AI, straight from their own store, into one page that holds the whole view (the rows its rules keep, in its order, with the list's fields and the count the view holds); that page is this script's `--read`. It writes `{ schema, source: { view, list, blake3 }, fields, rows: [{ id, values }] }`. The key is the BLAKE3 of the fields and rows, so a publish that would write the same rows writes nothing. A read that holds only part of the view (a next page, or `complete` false) publishes nothing. With `media` in the config, the pictures and recordings the published rows name are carried into the site's own static files, each as `<BLAKE3 of its bytes>.<extension>`, and the rows name the site's address. So the page never points at a place that may go away, and a picture already carried is never copied again. A row whose own `media.public_field` holds one of `media.not_public`, such as one whose picture shows someone's own data, publishes its text with its media fields empty, and its pictures are never copied.
 
 ```
-node tools/read-a-list-view/do-work/read-list-view.mjs --config READ_CONFIG --view ID --limit N > READ
 python3 -I do-work/publish_view_file.py --read READ --config FILE --out FILE
 ```
 
@@ -179,24 +165,23 @@ Prints `{ ok, bundle_id, file, written, reference_issues, tier_issues }`. The fi
 
 | File | Purpose |
 |---|---|
-| `do-work/build_record_write.py` | The records:write builder's command line. |
+| `do-work/build_record_write.py` | The write builder's command line. |
 | `do-work/send_list_rows.py` | The batch sender's command line. |
 | `read-data/records_write.py` | The mapping, sources, staged-file readers, bases, checks and payload. |
-| `do-work/refresh_record_values.py` | The managed writer's stdin/stdout adapter to the same pure three-way refresh used by the CLI; reads and writes no host files. |
 | `read-data/expressions.py` | The expressions a mapping uses (paths, templates, conditions, lookups, lists, slugs, file text, requirements). |
 | `read-data/send_batches.py` | Sending with warm-up, retry, halving and a status file. |
-| `do-work/send_record_write.py` | The records:write sender's command line (plan, send, readback, export). |
-| `do-work/send_built_record_write.mjs` | The managed writer: consumes the builder's result object, uses only the run-scoped descriptor, and returns readback. |
-| `read-data/record_write_send.py` | Reading what an account holds, writing only what differs in BLAKE3-keyed bounded commands, readback and export. |
+| `do-work/plan_record_write.py` | The write planner's command line (plan and readback), on standard input; it reaches no store. |
+| `do-work/plan_built_record_write.mjs` | The managed planner: hands the builder's result and the held records to the planner and returns its answer; writes nothing. |
+| `read-data/record_write_plan.py` | Which records a store lacks, the bounded keyed commands, the baseline refresh with its conflicts and expected values, and the readback; pure, no store. |
 | `test/test_record_write.py`, `test/test_send_batches.py` | Both on made-up fixtures: `test/fixtures/pantry/` (a pantry's goods and stores) and `test/fixtures/fake_list_service.py`. |
 | `test/test_record_write_sources.py` | The tab-separated, markdown-lines, text and mapping-kept sources, `again` and `skip_if`, `lists_read`/`lists_add`, a basis's own confidence, the list, text, number and file expressions, and a mapping kept as setting rows (one, or in parts) read back to the same payload, on a made-up orchard almanac. |
-| `test/test_record_write_send.py` | Byte-bounded commands, merged duplicates, the stable basis time, and the sender against `test/fixtures/fake_record_door.py` (a made-up door). |
+| `test/test_record_write_plan.py` | Byte-bounded commands, merged duplicates, the stable basis time, the plan and readback on the made-up pantry, the baseline refresh with conflicts, and the planner's command line. |
 | `do-work/publish_view_file.py` | The view publisher's command line. |
 | `read-data/view_publish.py` | Reading a saved view, its list and rows, asking the rule filter, the view's order and the BLAKE3-keyed file. |
 | `do-work/read_what_shipped.py` | The release reader's command line. |
 | `read-data/what_shipped.py` | Reading the newest release from a program or a git ref, the commit subjects since the one before, the staged file. |
-| `test/test_what_shipped.py` | The release reader on a made-up bakery repository (a ref and a program mark), and the sender's keep_held. |
+| `test/test_what_shipped.py` | The release reader on a made-up bakery repository (a ref and a program mark), and the planner's keep_held. |
 | `do-work/freeze_a_bundle.py` | The bundle freezer's command line. |
 | `read-data/frozen_bundle.py` | The closure walk, the two gates and the canonical bytes. Its header lists the invariants. |
 | `test/test_frozen_bundle.py` | The freezer on made-up refs: a complete closure, a cycle and a diamond, an unresolved ref, a file with no hash, a private part in a public bundle, identical bytes in any order, and the command's exit codes. |
-| `test/test_view_publish.py` | The view publisher against the made-up door: what the filter is sent, the order, an unchanged publish, refusals. |
+| `test/test_view_publish.py` | The view publisher on made-up rows: the file's shape and order, an unchanged publish, the media copies, refusals. |

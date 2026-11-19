@@ -5,11 +5,10 @@
   "no_lists_because": "It keeps no list of its own: it takes one read of a saved view from a file and writes the rows into one file for a site.",
   "workflows": [],
   "tools": [
-    "tool:publish-a-list-view-as-a-file",
-    "tool:read-a-list-view"
+    "tool:publish-a-list-view-as-a-file"
   ],
   "instructions": [
-    "1. Read the saved view with tool:read-a-list-view into read.json, with a limit at least the number of rows the view shows, so the read holds the whole view.",
+    "1. Read the saved view from your own store, straight from the store, into read.json: one page holding the whole view, with a limit at least the number of rows the view shows, so the read holds the whole view.",
     "2. Write pub-config.json with view set to the saved view's record id (add media only when its pictures must be copied into the site).",
     "3. Say \"Publish my view as a file\"; your AI reads the row with tools:list and runs its command from the Workshop checkout with {read}, {config} and {out}.",
     "4. Read rows of of, and written: true means the file changed, false means it already held these rows. Deploy the site yourself when you agree."

@@ -1,7 +1,6 @@
-"""Stable declaration keys and fresh source-write fences through the existing builder and sender.
+"""Stable declaration keys through the existing builder: an explicit key keeps its record when its label and paths change.
 
-All accounts, declarations and transport files here are temporary synthetic fixtures. The opponent changes the
-actual fake owner's file after the sender reads it; the real sender must retain the owner's refusal.
+The fixtures are temporary synthetic files. The write planner's refresh and conflict checks are in test_record_write_plan.py.
 """
 import json
 import os
@@ -14,10 +13,6 @@ from unittest.mock import patch
 TOOL = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TOOL / 'read-data'))
 import records_write
-import record_write_send as sender
-
-FAKE = Path(__file__).resolve().parent / 'fixtures' / 'fake_record_door.py'
-
 
 def payload(records):
     return {'commands': [{'input': {'records': records}}]}
@@ -55,64 +50,6 @@ class RegistryIdentity(unittest.TestCase):
             self.assertEqual(second[0]['value']['entry'], 'src/account_files/mod.rs')
             self.assertEqual(second[0]['value']['owner'], 'src/account_files/mod.rs; src/account_files')
             self.assertEqual(json.loads((root / 'registry.json').read_text())['capabilities'][0]['unknown'], {'retain': True})
-
-    def test_fresh_refresh_succeeds_but_edit_type_change_create_and_remove_races_refuse(self):
-        rid, kind = 'record:capability:engine-same-job', 'record:capability'
-        before = {'capability': 'Keep files', 'entry': 'src/old.rs', 'owner': 'src/old.rs'}
-        after = {**before, 'entry': 'src/files/mod.rs', 'owner': 'src/files/mod.rs; src/files'}
-        for scenario in ('positive', 'edit', 'type', 'create', 'remove'):
-            with self.subTest(scenario=scenario), tempfile.TemporaryDirectory(prefix='registry-fence-') as temporary:
-                root = Path(temporary)
-                account = root / 'account.json'
-                initial = {} if scenario == 'create' else {rid: {'type': kind, 'value': before}}
-                account.write_text(json.dumps({'records': initial, 'keys': {}, 'calls': []}))
-                config = {'transport': {'kind': 'call', 'argv': [sys.executable, '-I', str(FAKE), '{plan}', '{result}']},
-                          'address': '@synthetic', 'list_method': 'list', 'write_method': 'write',
-                          'page_limit': 10, 'per_command': 10, 'command_bytes': 8000, 'request_key_prefix': 'fresh-source'}
-                competitor = {'type': 'another-kind' if scenario == 'type' else kind,
-                              'value': {**before, 'entry': 'src/concurrent.rs'}}
-
-                class Opponent(sender.Door):
-                    def play(self, method, key, given):
-                        if method == 'write' and scenario != 'positive':
-                            state = json.loads(account.read_text())
-                            state['records'][rid] = competitor
-                            account.write_text(json.dumps(state))
-                        return super().play(method, key, given)
-
-                old = [] if scenario == 'create' else [{'id': rid, 'type': kind, 'value': before}]
-                desired = [{'id': rid, 'type': kind, 'value': None if scenario == 'remove' else after}]
-                with patch.dict(os.environ, {'FAKE_DOOR': str(account)}):
-                    status = sender.send(Opponent(config, root / 'transport'), payload(desired), root / 'status.json',
-                                         lambda _: None, payload(old))
-                held = json.loads(account.read_text())
-                if scenario == 'positive':
-                    self.assertEqual(status['state'], 'all_written')
-                    self.assertEqual(held['records'][rid]['value'], after)
-                else:
-                    self.assertEqual(status['state'], 'stopped_on_refusal')
-                    self.assertIn('original_command_conflict', status['last_refusal']['answer'])
-                    self.assertEqual(held['records'][rid], competitor)
-                    self.assertEqual(held['keys'], {}, 'no refused write is recorded as an accepted effect')
-                self.assertNotIn('expected', desired[0], 'the original fresh input was not rewritten in place')
-
-    def test_a_pending_original_is_not_remerged_or_rekeyed(self):
-        with tempfile.TemporaryDirectory(prefix='registry-pending-') as temporary:
-            root = Path(temporary)
-            path = root / 'status.json'
-            original = {'state': 'stopped_on_refusal', 'done': {}, 'last_refusal': {
-                'request_key': 'original-key', 'answer': json.dumps({'outcome': 'unknown', 'code': 'original_command_outcome_unknown'})}}
-            path.write_text(json.dumps(original))
-            class Unused:
-                config = {}
-                def play(self, *_):
-                    raise AssertionError('no request may be dispatched')
-            with self.assertRaisesRegex(ValueError, 'original command outcome recovered'):
-                sender.send(Unused(), payload([]), path, baseline=payload([]))
-            self.assertEqual(json.loads(path.read_text()), original)
-            record = {'id': 'record:capability:engine-same-job', 'type': 'record:capability', 'value': {}, 'expected': None}
-            with self.assertRaisesRegex(ValueError, 'fresh unconditioned'):
-                sender.refresh_records([record], payload([]), {})
 
 
 if __name__ == '__main__':

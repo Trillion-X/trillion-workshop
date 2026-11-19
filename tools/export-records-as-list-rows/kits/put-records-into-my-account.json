@@ -1,23 +1,24 @@
 {
-  "drafted_from": "tool:put-records-into-my-account's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal\", with {\"payload\":{\"commands\":[{\"input\":{\"records\":[{\"id\":\"sample-list:row-1\",\"type\":\"sample-row\",\"value\":{\"title\":\"Sample row\"}}]}}]},\"target_type\":\"sample-row\",\"target_prefix\":\"sample-list:\"}. It runs tool:put-records-into-my-account and answers {\"state\":\"all_written\",\"to_write\":1,\"commands\":1,\"written\":1,\"out_of_scope\":0,\"readback\":{\"sample-row\":{\"payload\":1,\"held\":1,\"equal\":1,\"missing\":[],\"differing\":[]}}}",
+  "drafted_from": "tool:put-records-into-my-account row (tools/export-records-as-list-rows/tool-rows.json), read-data/record_write_plan.py, do-work/plan_record_write.py and test/test_record_write_plan.py; the answer is what do-work/plan_record_write.py printed on the made-up input below",
+  "start_here": "Say to your AI: \"Put the records I built into my account, and tell me what you wrote and whether my account matches.\"",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows ([object Object]) through the records door.",
+  "no_lists_because": "It keeps no list of its own: it works out the writes from the payload the builder made and the records your own store holds, and writes nothing. Your store is written and read by your AI directly, in its own language.",
   "workflows": [],
   "tools": [
     "tool:put-records-into-my-account",
     "tool:build-records-to-write"
   ],
   "instructions": [
-    "1. Say to your AI: \"Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal\", and give it payload (The whole result object returned by tool:build-records-to-write, including commands.); target_type (The one target record type this run is granted to read and write; the run right is filled from this field.); target_prefix (The target record id prefix this run is granted to read and write; the run right is filled from this field.).",
-    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:put-records-into-my-account and its input (the worked example shows one).",
-    "3. Read what comes back: Takes the result of tool:build-records-to-write directly.",
-    "4. It reads and writes only its own rows through the records door: [object Object] (records:list, records:write)."
+    "1. Build the payload with tool:build-records-to-write (see its kit) and keep the result object.",
+    "2. Read the target records your store holds now, the one record type and id prefix the payload's records use, straight from your own store, as { id, type, value } records.",
+    "3. Say \"Plan the writes\"; your AI runs tool:put-records-into-my-account with mode plan, the payload, target_type, target_prefix, held and config { per_command, command_bytes, request_key_prefix }.",
+    "4. Write each command in the answer into your store yourself: set each record's value, or remove it when value is null. A record that carries expected must find exactly that value (or none) when you write it; refuse and stop when it does not.",
+    "5. Read the target records back from your store and run the tool with mode readback. all_equal means the store matches the payload; readback_differs names the records missing or different, and conflicts name a live edit that was kept on purpose."
   ],
   "worked_examples": [
     {
-      "title": "Put prepared records into my account through my door, writing only what it lacks (runs on your computer) on its own sample",
-      "ask": "Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal",
+      "title": "One row is new and one holds an old title, so two records are planned",
+      "ask": "Put the records I built into my account.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -26,6 +27,7 @@
           "input": {
             "tool": "tool:put-records-into-my-account",
             "input": {
+              "mode": "plan",
               "payload": {
                 "commands": [
                   {
@@ -37,6 +39,20 @@
                           "value": {
                             "title": "Sample row"
                           }
+                        },
+                        {
+                          "id": "sample-list:row-2",
+                          "type": "sample-row",
+                          "value": {
+                            "title": "Second row"
+                          }
+                        },
+                        {
+                          "id": "other:x",
+                          "type": "other",
+                          "value": {
+                            "a": 1
+                          }
                         }
                       ]
                     }
@@ -44,13 +60,27 @@
                 ]
               },
               "target_type": "sample-row",
-              "target_prefix": "sample-list:"
+              "target_prefix": "sample-list:",
+              "held": [
+                {
+                  "id": "sample-list:row-2",
+                  "type": "sample-row",
+                  "value": {
+                    "title": "Old title"
+                  }
+                }
+              ],
+              "config": {
+                "per_command": 10,
+                "command_bytes": 4000,
+                "request_key_prefix": "sample-load"
+              }
             }
           }
         }
       },
-      "given": "The input {\"payload\":{\"commands\":[{\"input\":{\"records\":[{\"id\":\"sample-list:row-1\",\"type\":\"sample-row\",\"value\":{\"title\":\"Sample row\"}}]}}]},\"target_type\":\"sample-row\",\"target_prefix\":\"sample-list:\"}.",
-      "hands_back": "It answered {\"state\":\"all_written\",\"to_write\":1,\"commands\":1,\"written\":1,\"out_of_scope\":0,\"readback\":{\"sample-row\":{\"payload\":1,\"held\":1,\"equal\":1,\"missing\":[],\"differing\":[]}}}, and kept sample-list:row-1."
+      "given": "Read from a real run of do-work/plan_record_write.py on made-up input (the same input as the mcp example, on standard input). The payload holds two sample-row records and one other record; the store holds sample-list:row-2 with an old title and no sample-list:row-1.",
+      "hands_back": "{\"state\": \"to_write\", \"records\": 2, \"to_write\": 2, \"commands\": [{\"input\": {\"records\": [{\"id\": \"sample-list:row-1\", \"type\": \"sample-row\", \"value\": {\"title\": \"Sample row\"}}, {\"id\": \"sample-list:row-2\", \"type\": \"sample-row\", \"value\": {\"title\": \"Second row\"}}]}, \"request_key\": \"sample-load-e0841c1061f3c72c64167cafbe01dde9\"}], \"out_of_scope\": 1} Then the AI writes both records of the one command into the store, and calls again with mode readback; the store matching the payload gives state all_equal and exit 0."
     }
   ]
 }

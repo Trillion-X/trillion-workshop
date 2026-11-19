@@ -11,7 +11,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / 'read-data'))
 
 import frozen_bundle  # noqa: E402
-from record_write_send import blake3_hex  # noqa: E402
+from record_write_plan import blake3_hex  # noqa: E402
 
 COMMAND = HERE.parent / 'do-work' / 'freeze_a_bundle.py'
 

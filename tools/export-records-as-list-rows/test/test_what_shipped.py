@@ -1,5 +1,5 @@
-"""Stdlib tests for reading what a made-up bakery's repository shipped into a staged file, and for the sender's keep_held setting that
-writes only the rows an account lacks (test/fixtures/fake_record_door.py)."""
+"""Stdlib tests for reading what a made-up bakery's repository shipped into a staged file, and for the planner's keep_held setting that
+plans only the rows an account lacks."""
 from __future__ import annotations
 
 import io
@@ -14,10 +14,9 @@ from contextlib import redirect_stderr
 from pathlib import Path
 
 TOOL = Path(__file__).resolve().parents[1]
-DOOR = Path(__file__).resolve().parent / 'fixtures' / 'fake_record_door.py'
 sys.path.insert(0, str(TOOL / 'read-data'))
 sys.path.insert(0, str(TOOL / 'do-work'))
-import record_write_send as sender  # noqa: E402
+import record_write_plan as planner  # noqa: E402
 import what_shipped  # noqa: E402
 import read_what_shipped as cli  # noqa: E402
 
@@ -163,22 +162,14 @@ class FromACommand(Repository):
 
 
 class KeepHeld(unittest.TestCase):
-    def test_keep_held_writes_only_the_rows_the_account_lacks_and_leaves_an_edited_row_alone(self):
-        tmp = Path(tempfile.mkdtemp(prefix='keep-held-test-'))
-        self.addCleanup(shutil.rmtree, tmp)
-        account = tmp / 'account.json'
-        os.environ['FAKE_DOOR'] = str(account)
-        self.addCleanup(os.environ.pop, 'FAKE_DOOR', None)
-        account.write_text(json.dumps({'records': {'r:one': {'type': 'r', 'value': {'title': 'edited by hand'}}}, 'keys': {}, 'calls': []}))
-        config = {'transport': {'kind': 'call', 'argv': [sys.executable, '-I', str(DOOR), '{plan}', '{result}']}, 'address': '@made-up',
-                  'list_method': 'list', 'write_method': 'write', 'page_limit': 5, 'per_command': 5, 'command_bytes': 4000,
-                  'request_key_prefix': 'bakery', 'keep_held': True}
+    def test_keep_held_plans_only_the_rows_the_account_lacks_and_leaves_an_edited_row_alone(self):
+        config = {'per_command': 5, 'command_bytes': 4000, 'request_key_prefix': 'bakery', 'keep_held': True}
         payload = {'commands': [{'input': {'records': [{'id': 'r:one', 'type': 'r', 'value': {'title': 'as built'}},
                                                        {'id': 'r:two', 'type': 'r', 'value': {'title': 'new'}}]}}]}
-        status = sender.send(sender.Door(config, tmp / 'work'), payload, tmp / 'status.json', log=lambda line: None)
-        self.assertEqual((status['to_write'], status['written']), (1, 1))
-        held = json.loads(account.read_text())['records']
-        self.assertEqual((held['r:one']['value'], held['r:two']['value']), ({'title': 'edited by hand'}, {'title': 'new'}))
+        held = [{'id': 'r:one', 'type': 'r', 'value': {'title': 'edited by hand'}}]
+        answer = planner.plan({'payload': payload, 'target_type': 'r', 'target_prefix': 'r:', 'held': held, 'config': config})
+        self.assertEqual((answer['to_write'], [r['id'] for c in answer['commands'] for r in c['input']['records']]), (1, ['r:two']))
+        self.assertEqual(answer['commands'][0]['input']['records'], [{'id': 'r:two', 'type': 'r', 'value': {'title': 'new'}}])
 
 
 if __name__ == '__main__':
