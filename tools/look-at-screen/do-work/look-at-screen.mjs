@@ -2,7 +2,7 @@
 //
 // The Workshop tool "Look at my screen": a picture of what is on the person's Mac screen right now, for their AI to
 // see. Every display is captured, the main one first, each labelled with its exact pixel size so an AI can point at a
-// spot. Run as a function by tools/records-door/do-work/run-an-export.mjs on the person's own Mac.
+// spot. Run as a function by tools/workflows/do-work/run-a-function.mjs on the person's own Mac.
 //
 // Invariants:
 // - It looks only when run; nothing is captured in the background.

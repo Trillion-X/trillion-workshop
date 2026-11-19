@@ -6,7 +6,7 @@ Takes a picture of every display on the person's Mac when, and only when, the to
 
 | File | Purpose |
 |------|---------|
-| `do-work/look-at-screen.mjs` | `lookAtScreen` (run as a function by `tools/records-door`) and `look`, the same work with the system's commands handed in: asks the system whether Screen Recording is allowed, captures every display (main first), shrinks each, reads its size, and removes the folder it worked in. |
+| `do-work/look-at-screen.mjs` | `lookAtScreen` (run as a function by `tools/workflows/do-work/run-a-function.mjs`) and `look`, the same work with the system's commands handed in: asks the system whether Screen Recording is allowed, captures every display (main first), shrinks each, reads its size, and removes the folder it worked in. |
 | `read-data/rules.json` | The longest edge, the picture format, the most one answer may hold, how much smaller each retry is, and the words it says. |
 | `tool-rows.json` | The row `tool:look-at-screen`: a `computer` row with the `see-the-screen` capability. |
 | `test/look-at-screen.test.mjs` | The behaviour on stand-in commands (no real picture is taken): displays and order, the size cap, the pointer, cleanup, access refused, the answer-size limit; and the real preflight, which takes no picture. |
@@ -26,6 +26,6 @@ Takes a picture of every display on the person's Mac when, and only when, the to
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (the command that runs a function), `tools/content-identity`; macOS `screencapture`, `sips` and `osascript`.
+**Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`, the command that runs a function), `tools/content-identity`; macOS `screencapture`, `sips` and `osascript`.
 
 **Depended on by:** `tools/drive-the-screen` (`read-data/drive-the-screen.mjs` imports `systemCommands` for the picture its text reader reads, and its rows pack `do-work` and `read-data`).
