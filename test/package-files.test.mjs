@@ -45,3 +45,16 @@ test('every file a tool row is laid out with is in this tree', () => {
   }
   assert.deepEqual(missing, [], 'a tool row names a file that is not in the tree: point it at where the file moved, or drop it');
 });
+
+test('no tool row places one package folder twice', () => {
+  // The engine never replaces a file it already laid out for a run (trillion-rust container.rs copy_file), so a package
+  // placed twice at one folder refuses every run of the row: a row declared split2 while the walk added its lockfile key
+  // node_modules/split2 at the same /opt/node_modules/split2, and all four noticer wakes stopped on Nov 19 2026 at 5:27 PM CST.
+  const rows = JSON.parse(readFileSync(join(repo, PACKAGE_FILES), 'utf8'));
+  const twice = [];
+  for (const [row, items] of Object.entries(rows)) {
+    const ats = items.filter(item => item.packages).map(item => item.at);
+    for (const at of new Set(ats.filter((at, index) => ats.indexOf(at) !== index))) twice.push(`${row}: ${at}`);
+  }
+  assert.deepEqual(twice, [], 'a package folder is placed twice: the walk must skip a package the row already places (tool-row-imports.mjs `placed`)');
+});

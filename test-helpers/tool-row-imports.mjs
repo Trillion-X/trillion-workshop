@@ -443,14 +443,18 @@ function checkRow(rowFile, desc) {
   }
   for (const pkg of [...extra.keys()].sort()) items.push({ package: pkg, paths: [...extra.get(pkg)], at: `/opt/${pkg}` });
   // Each package of a module's tree is placed once at the folder its lockfile key names: two modules that need one package
-  // share its item, and a package a declared item already places is not placed again.
-  const placed = new Set(files.flatMap(item => item.packages ?? []));
+  // share its item, and a package a declared item already places is not placed again. Placed is judged by the folder (`at`),
+  // never the spelling: a row declares `split2` where the lockfile key is `node_modules/split2`, and laying both at
+  // /opt/node_modules/split2 made the engine refuse every run of the row (it never replaces a file it already laid out,
+  // container.rs copy_file): all four noticer wakes stopped on Nov 19 2026 at 5:27 PM CST.
+  const placed = new Set(files.filter(item => item.packages).map(item => item.at));
   for (const [name, resolves] of [...needed].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
     if (modules.has(name)) continue;
     for (const key of resolves.keys) {
-      if (placed.has(key)) continue;
-      placed.add(key);
-      items.push({ packages: [key], at: `/opt/${key}` });
+      const at = `/opt/${key}`;
+      if (placed.has(at)) continue;
+      placed.add(at);
+      items.push({ packages: [key], at });
     }
   }
   // A row whose entry export reaches a records door call (function level, through the call graph) needs invoke.records;
