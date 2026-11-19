@@ -1,0 +1,65 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:admit-an-audience-question-to-private-drafts with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and observed [{\\\"question\\\": \\\"How much is it?\\\"}].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the questions, reviews and private work are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:admit-an-audience-question-to-private-drafts"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:admit-an-audience-question-to-private-drafts\" with store, and the questions observed, reviews and admissions to keep.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts: every attempt must give the outcome the intent says, or the run stops and says which.",
+    "4. Every later run keeps what it was given; a question admitted without an accepted review is refused with the store's own words, and an answer stays a private draft until a person reviews it."
+  ],
+  "worked_examples": [
+    {
+      "title": "A question an audience asked is kept, reviewed and admitted to private work",
+      "ask": "Keep this question from the public page and admit it, since I accept it with its answer and rights words.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:admit-an-audience-question-to-private-drafts",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "observed": [
+                {
+                  "question": "How much is it?"
+                }
+              ],
+              "reviews": [
+                {
+                  "question": "How much is it?",
+                  "verdict": "accepted",
+                  "answer": "It costs 49 a month.",
+                  "answer_role": "answer",
+                  "rights": "Quote allowed.",
+                  "rights_role": "rights"
+                }
+              ],
+              "admits": [
+                {
+                  "question": "How much is it?"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:admit-an-audience-question-to-private-drafts",
+      "step": "keep",
+      "given": "The look step found the questions kept in the tables audience_question, audience_question_review and audience_answer_work, made by an earlier run.",
+      "hands_back": "kept_ids [\"how much is it?\"], refused [] and found_ids [\"how much is it?\"]; the work reads pending_draft, and asking again returns work_already_exists."
+    }
+  ]
+}

@@ -71,8 +71,8 @@ export function prepareAudienceQuestionAdmission({ candidate, review, evidence =
 
 // Read every prerequisite from one person's current records, then write and read
 // back one private work item. No caller-supplied review or rights verdict is used.
-export function admitCurrentAudienceQuestion(eeaf, candidateId) {
-  const records = yourRecordsStore(eeaf);
+export function admitCurrentAudienceQuestion(store, candidateId) {
+  const { records, source } = store;
   const [candidates, reviews, evidence, answers, work] = [
     'audience-question', 'audience-question-review', 'audience-answer-evidence',
     'audience-answer', 'audience-question-work',
@@ -82,10 +82,10 @@ export function admitCurrentAudienceQuestion(eeaf, candidateId) {
   const candidate = matches[0];
   const sourceRefs = [candidate.source_ref, ...evidence.filter(row => row.venture_ref === candidate.venture_ref)
     .flatMap(row => [row.source_ref, row.rights_basis_ref])].filter(Boolean);
-  const sources = sourceRefs.map(id => currentAudienceSource(eeaf, id)).filter(Boolean);
+  const sources = sourceRefs.map(id => currentAudienceSource(source, id)).filter(Boolean);
   const currentReviews = reviews.filter(row => row.candidate_id === candidateId && row.candidate_revision === candidate.revision);
   if (currentReviews.length !== 1) return fail('current_review_missing_or_conflicting');
-  const trustedReview = eeaf.read(`audience-question-decision:${candidateId}`);
+  const trustedReview = source.read(`audience-question-decision:${candidateId}`);
   if (!trustedReview || canonical(trustedReview) !== canonical(currentReviews[0])) return fail('current_review_not_verified');
   const decision = prepareAudienceQuestionAdmission({ candidate, review: currentReviews[0], evidence, answers, work, sources });
   if (!decision.admitted) return decision;
@@ -96,8 +96,7 @@ export function admitCurrentAudienceQuestion(eeaf, candidateId) {
   return { admitted: true, work: readback[0] };
 }
 
-export function listCurrentAudienceQuestions(eeaf, { venture_ref } = {}) {
-  const records = yourRecordsStore(eeaf);
+export function listCurrentAudienceQuestions({ records, source }, { venture_ref } = {}) {
   const candidates = records.read(['audience-question']);
   const reviews = records.read(['audience-question-review']);
   const work = records.read(['audience-question-work']);
@@ -105,7 +104,7 @@ export function listCurrentAudienceQuestions(eeaf, { venture_ref } = {}) {
   return candidates.filter(candidate => !venture_ref || candidate.venture_ref === venture_ref).map(candidate => ({
     candidate,
     reviews: reviews.filter(review => review.candidate_id === candidate.id && review.candidate_revision === candidate.revision
-      && canonical(review) === canonical(eeaf.read(`audience-question-decision:${candidate.id}`))),
+      && canonical(review) === canonical(source.read(`audience-question-decision:${candidate.id}`))),
     work: work.filter(item => item.candidate_id === candidate.id),
     drafts: drafts.filter(item => item.candidate_id === candidate.id),
   }));
@@ -113,8 +112,8 @@ export function listCurrentAudienceQuestions(eeaf, { venture_ref } = {}) {
 
 // An answer stays private. The account rechecks the admission decision rather than
 // trusting a caller to supply provenance, an offer, or a review verdict.
-export function saveCurrentAudienceAnswerDraft(eeaf, { candidate_id, expected_revision = null, answer, destination_url }) {
-  const records = yourRecordsStore(eeaf);
+export function saveCurrentAudienceAnswerDraft(store, { candidate_id, expected_revision = null, answer, destination_url }) {
+  const { records, source } = store;
   const candidates = records.read(['audience-question']).filter(row => row.id === candidate_id);
   const works = records.read(['audience-question-work']).filter(row => row.candidate_id === candidate_id && row.state === 'pending_draft');
   if (candidates.length !== 1 || works.length !== 1) return { saved: false, reason: 'current_work_required' };
@@ -122,14 +121,14 @@ export function saveCurrentAudienceAnswerDraft(eeaf, { candidate_id, expected_re
   const work = works[0];
   if (work.candidate_revision !== candidate.revision || work.venture_ref !== candidate.venture_ref
       || work.offer_ref !== candidate.offer_ref) return { saved: false, reason: 'work_is_stale' };
-  const review = eeaf.read(`audience-question-decision:${candidate_id}`);
+  const review = source.read(`audience-question-decision:${candidate_id}`);
   const reviewed = records.read(['audience-question-review']).filter(row => row.candidate_id === candidate_id);
   if (reviewed.length !== 1 || canonical(reviewed[0]) !== canonical(review) || review?.verdict !== 'accepted'
       || review.candidate_revision !== candidate.revision) return { saved: false, reason: 'current_review_required' };
   const evidence = records.read(['audience-answer-evidence']);
   const sourceRefs = [candidate.source_ref, ...evidence.filter(row => row.venture_ref === candidate.venture_ref)
     .flatMap(row => [row.source_ref, row.rights_basis_ref])].filter(Boolean);
-  const sources = sourceRefs.map(id => currentAudienceSource(eeaf, id)).filter(Boolean);
+  const sources = sourceRefs.map(id => currentAudienceSource(source, id)).filter(Boolean);
   const admission = prepareAudienceQuestionAdmission({ candidate, review, evidence,
     answers: records.read(['audience-answer']), work: [], sources });
   if (!admission.admitted || canonical(admission.work) !== canonical(work))
@@ -156,8 +155,9 @@ export function saveCurrentAudienceAnswerDraft(eeaf, { candidate_id, expected_re
 
 // The same account operations serve the person's screen and their AI. A question
 // starts from a quote this service saw on a public page, never a free-text row.
-export function keepObservedAudienceQuestion(eeaf, sourceId, { audience = null, locale = null } = {}) {
-  const source = currentAudienceSource(eeaf, sourceId);
+export function keepObservedAudienceQuestion(store, sourceId, { audience = null, locale = null } = {}) {
+  const { records } = store;
+  const source = currentAudienceSource(store.source, sourceId);
   if (!source || source.role !== 'question' || !text(source.offer_ref)) return fail('observed_question_required');
   const question_key = keyOf(source.quote);
   const id = `audience-question:${identityOf(JSON.stringify([source.venture_ref, question_key]))}`;
@@ -165,15 +165,14 @@ export function keepObservedAudienceQuestion(eeaf, sourceId, { audience = null, 
     revision: identityOf(JSON.stringify([source.id, source.quote, audience, locale])),
     venture_ref: source.venture_ref, question: source.quote, question_key,
     source_ref: source.id, offer_ref: source.offer_ref, audience, locale };
-  const records = yourRecordsStore(eeaf);
   const old = records.read(['audience-question']).find(row => row.id === id);
   if (old && canonical(old) !== canonical(candidate)) withdrawPendingWork(records, id);
   records.write([{ type: 'audience-question', id, value: candidate }], { tool_id: 'audience-question-intake' });
   return { kept: true, candidate };
 }
 
-export function reviewObservedAudienceQuestion(eeaf, { candidate_id, verdict, reason = '', answer_source_id, rights_source_id, answer_note = '', rights_note = '' }) {
-  const records = yourRecordsStore(eeaf);
+export function reviewObservedAudienceQuestion(store, { candidate_id, verdict, reason = '', answer_source_id, rights_source_id, answer_note = '', rights_note = '' }) {
+  const { records, source } = store;
   const candidates = records.read(['audience-question']).filter(row => row.id === candidate_id);
   if (candidates.length !== 1) return fail('candidate_missing_or_conflicting');
   const candidate = candidates[0];
@@ -181,8 +180,8 @@ export function reviewObservedAudienceQuestion(eeaf, { candidate_id, verdict, re
   if (verdict === 'rejected' && !text(reason)) return fail('rejection_reason_required');
   const evidence_refs = [];
   if (verdict === 'accepted') {
-    const answer = currentAudienceSource(eeaf, answer_source_id);
-    const rights = currentAudienceSource(eeaf, rights_source_id);
+    const answer = currentAudienceSource(source, answer_source_id);
+    const rights = currentAudienceSource(source, rights_source_id);
     if (!answer || !rights || answer.role !== 'answer' || rights.role !== 'rights'
         || !same(answer, candidate) || !same(rights, candidate) || !text(answer_note) || !text(rights_note)) return fail('answer_and_rights_evidence_required');
     if (new URL(answer.source_url).hostname !== new URL(rights.source_url).hostname) return fail('rights_source_must_cover_answer_site');
@@ -201,7 +200,7 @@ export function reviewObservedAudienceQuestion(eeaf, { candidate_id, verdict, re
   if (oldReview && canonical(oldReview) !== canonical(review)) withdrawPendingWork(records, candidate.id);
   records.write([{ type: 'audience-question-review', id: candidate.id, value: review }],
     { tool_id: 'audience-question-review' });
-  eeaf.write([{ id: `audience-question-decision:${candidate.id}`, type: 'audience-question-decision', value: review }],
+  source.write([{ id: `audience-question-decision:${candidate.id}`, type: 'audience-question-decision', value: review }],
     { actor: { by: 'audience-question-review' } });
   if (verdict === 'rejected') withdrawPendingWork(records, candidate.id);
   return { reviewed: true, review };
@@ -215,20 +214,22 @@ export function reviewObservedAudienceQuestion(eeaf, { candidate_id, verdict, re
 export const AUDIENCE_QUESTION_RECEIPTED_WRITES = Object.freeze(['audience-questions:observe', 'audience-questions:keep', 'audience-questions:review', 'audience-questions:admit', 'audience-questions:draft']);
 export function audienceQuestionOwner({ eeaf, keeps, readPage = readPublicAudiencePage, commit = change => change() }) {
   const refused = field => ({ [field]: false, reason: 'account_does_not_keep_work' });
+  // The account's records and its source store, read and written through the store the function is handed.
+  const storeOf = () => ({ records: yourRecordsStore(eeaf), source: eeaf });
   return {
     async screen() {
       if (!await keeps()) return { questions: [], sources: [], upgrade_needed: true };
-      return { questions: listCurrentAudienceQuestions(eeaf), sources: eeaf.ids('audience-source').map(id => eeaf.read(id)).filter(Boolean) };
+      return { questions: listCurrentAudienceQuestions(storeOf()), sources: eeaf.ids('audience-source').map(id => eeaf.read(id)).filter(Boolean) };
     },
     async observe(input) {
       if (!await keeps()) return refused('observed');
       const source = await readAudienceSource(input, { readPage });
       return commit(() => ({ observed: true, source: keepAudienceSource(eeaf, source) }), { operation: 'audience-questions:observe' });
     },
-    async keep(input) { return await keeps() ? commit(() => keepObservedAudienceQuestion(eeaf, input.source_id, input), { operation: 'audience-questions:keep' }) : refused('kept'); },
-    async review(input) { return await keeps() ? commit(() => reviewObservedAudienceQuestion(eeaf, input), { operation: 'audience-questions:review' }) : refused('reviewed'); },
-    async admit(input) { return await keeps() ? commit(() => admitCurrentAudienceQuestion(eeaf, String(input.candidate_id ?? '')), { operation: 'audience-questions:admit' }) : refused('admitted'); },
-    async draft(input) { return await keeps() ? commit(() => saveCurrentAudienceAnswerDraft(eeaf, input), { operation: 'audience-questions:draft' }) : refused('saved'); },
+    async keep(input) { return await keeps() ? commit(() => keepObservedAudienceQuestion(storeOf(), input.source_id, input), { operation: 'audience-questions:keep' }) : refused('kept'); },
+    async review(input) { return await keeps() ? commit(() => reviewObservedAudienceQuestion(storeOf(), input), { operation: 'audience-questions:review' }) : refused('reviewed'); },
+    async admit(input) { return await keeps() ? commit(() => admitCurrentAudienceQuestion(storeOf(), String(input.candidate_id ?? '')), { operation: 'audience-questions:admit' }) : refused('admitted'); },
+    async draft(input) { return await keeps() ? commit(() => saveCurrentAudienceAnswerDraft(storeOf(), input), { operation: 'audience-questions:draft' }) : refused('saved'); },
   };
 }
 

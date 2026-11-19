@@ -1,0 +1,236 @@
+{
+  "about": "workflow:admit-an-audience-question-to-private-drafts: keep an audience question, its reviewer's verdict with the answer and rights words it rests on, and an accepted question's private work item, in the person's own store, from the store's own keys and checks. It replaces the record-keeping half of tools/gather-audience-questions/src/audience-question-admission.mjs (the store functions), whose whole job was keeping these rows in the account's typed records (rule a-tool-is-only-what-the-store-cannot-do). Fetching a public page stays a tool.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:admit-an-audience-question-to-private-drafts",
+        "label": "Admit an audience question to private drafts",
+        "job": "Keep a question an audience asked, as the words a public page showed, keep its reviewer's verdict with the answer and rights words it rests on, and admit an accepted question to one pending private work item, from the store's own objects.",
+        "produces": "The store's own objects for audience questions, reviews, evidence and private work, proven on the example attempts, and each step kept, repeated or refused and read back.",
+        "source": {
+          "from": "the owner, 2026-11-18 about 10:57 and 11:01 AM CST: a tool whose whole job is keeping records is a shortcut of what an AI does anyway",
+          "note": "The page is read by a tool (fetching a public page is outside reach and stays one). This recipe covers only what the account keeps from the words it was given: the candidate, the verdict and its evidence, and the private work item. An answer is never public: the work item stays pending_draft until a person reviews a draft. A question kept again with the same words changes nothing."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store these are kept, when they already are"
+                }
+              }
+            },
+            "observed": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Questions this run observed from a public page: the question's words"
+            },
+            "reviews": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Reviews this run: the question, verdict, and for an accepted one the answer and rights words"
+            },
+            "admits": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Questions this run admits to private work"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where audience questions are already kept (kept_in, or null) and the names of the objects that already keep and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form, so that the store itself refuses what the intent refuses wherever it can (keys, checks). Grant only what the store's holder allows the person's login. Question, kept once per question's key (the question's words, lowercased and with spaces collapsed, up to 500 characters): the question as first seen and the time. Review, kept once per question: its verdict (accepted or rejected), the answer and rights words it rests on when accepted, and the reason when rejected. Private work, kept once per question with its state (pending_draft). Keeping an observed question: a question kept again with the same words changes nothing (repeated). Keeping a review: a verdict other than accepted or rejected is refused; an accepted review needs an answer and a rights basis, each an 'answer' and a 'rights' role, otherwise it is refused; a rejected review needs a reason; a review that changes the verdict for a question withdraws its pending work. Admitting a question: a question with no kept review is refused; a question whose review is not accepted is refused; a question that already has private work is refused (work_already_exists); a question not kept is refused. Otherwise one pending private work item is kept for it, and read back. Store rule: a kept review is changed only by a new review, and an erase the person asks for deletes the question with its review and work.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, keep these attempts in order, each through the store's own objects, each at the time given: [{\"at\": \"2026-11-01T10:00:00Z\", \"observe\": {\"question\": \"How much is it?\"}}, {\"at\": \"2026-11-01T10:01:00Z\", \"review\": {\"question\": \"How much is it?\", \"verdict\": \"accepted\", \"answer\": \"It costs 49 a month.\", \"answer_role\": \"answer\", \"rights\": \"Quote allowed.\", \"rights_role\": \"rights\"}}, {\"at\": \"2026-11-01T10:02:00Z\", \"admit\": {\"question\": \"How much is it?\"}}, {\"at\": \"2026-11-01T10:03:00Z\", \"admit\": {\"question\": \"How much is it?\"}}, {\"at\": \"2026-11-01T10:04:00Z\", \"observe\": {\"question\": \"How much is it?\"}}, {\"at\": \"2026-11-01T10:05:00Z\", \"observe\": {\"question\": \"Do you ship?\"}}, {\"at\": \"2026-11-01T10:06:00Z\", \"review\": {\"question\": \"Do you ship?\", \"verdict\": \"rejected\", \"reason\": \"Not our question.\"}}, {\"at\": \"2026-11-01T10:07:00Z\", \"admit\": {\"question\": \"Do you ship?\"}}, {\"at\": \"2026-11-01T10:08:00Z\", \"admit\": {\"question\": \"Never observed?\"}}, {\"at\": \"2026-11-01T10:09:00Z\", \"observe\": {\"question\": \"Is it open late?\"}}, {\"at\": \"2026-11-01T10:10:00Z\", \"review\": {\"question\": \"Is it open late?\", \"verdict\": \"accepted\", \"answer\": \"We close at 9.\", \"answer_role\": \"rights\", \"rights\": \"Quote allowed.\", \"rights_role\": \"rights\"}}]. Each attempt must give the outcome the intent gives, and the store's own objects must give every expected answer below.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each observe, review and admit is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "kept",
+                    "kept",
+                    "refused",
+                    "repeated",
+                    "kept",
+                    "kept",
+                    "refused",
+                    "refused",
+                    "kept",
+                    "refused"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "questions_total": 3,
+                    "pending_work": [
+                      "How much is it?"
+                    ],
+                    "reviews": {
+                      "How much is it?": "accepted",
+                      "Do you ship?": "rejected"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's observed questions, reviews and admissions",
+            "do": "Keep each item of observed in order, then each item of reviews in order, then each item of admits in order, through the store's own objects, and read the questions back. Submit kept_ids (each question kept or repeated, by its words), refused (each refused item's words and the store's own words for why) and found_ids (the questions read back). With nothing given, submit three empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_ids",
+                "refused",
+                "found_ids"
+              ],
+              "properties": {
+                "kept_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "found_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every question kept is read back",
+                "path": [
+                  "this",
+                  "kept_ids"
+                ],
+                "of": [
+                  "this",
+                  "found_ids"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
