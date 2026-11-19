@@ -1,4 +1,4 @@
-// Run the generic Python records:write builder inside a Workshop run. The wrapper keeps output in the run's private
+// Run the generic Python write builder inside a Workshop run. The wrapper keeps output in the run's private
 // temporary folder and returns it as result JSON; it reads no account: the records its mapping reads (lists_read and records
 // sources) come in as `input.records`, read from a store by the caller's AI.
 import { spawn } from 'node:child_process';

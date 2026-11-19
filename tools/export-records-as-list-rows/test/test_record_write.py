@@ -1,4 +1,4 @@
-"""Stdlib tests for the records:write builder, on a made-up pantry library (test/fixtures/pantry) copied to a temporary folder.
+"""Stdlib tests for the write builder, on a made-up pantry library (test/fixtures/pantry) copied to a temporary folder.
 Run: python3 -I -m unittest discover -s tools/export-records-as-list-rows/test -v   (or npm test)"""
 from __future__ import annotations
 

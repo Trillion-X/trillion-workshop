@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the records a Trillion `records:write` takes from a person's records, by a mapping file. Sends nothing.
+"""Build the records a store's write takes from a person's records, by a mapping file. Sends nothing.
 
 Writes one JSON file: the counts, what is pending or diverted, and `commands`, each { input: { records: [...] } } of at most 64 records
 (the mapping's limit), to send in order. The mapping is described at the top of read-data/records_write.py.
@@ -14,7 +14,7 @@ A person's own mapping is a setting row of their list:settings (tools/settings),
 record:setting:export-records-as-list-rows~<scope_kind>~<scope_id>, its `settings` the mapping as text in its own key order (keys
 and compute are worked out in order). A mapping too big for one command is kept in several rows: the first names the others in
 `parts` and they add their sources after its own. --as-setting writes those rows (and list:settings) as a payload to send;
---mapping-record reads them back from saved records:read answers (--records-from, which also answer the mapping's lists_read and
+--mapping-record reads them back from files of rows the person's AI read from its store (--records-from, which also hold the mapping's lists_read and
 records sources: this builder reads no account itself, the caller hands the records in).
 """
 from __future__ import annotations
@@ -70,13 +70,13 @@ def settings_reader():
 
 
 def held_records(files: list[Path]) -> list[dict]:
-    """Every record of the saved reads given (each a records:read or records:list answer: { records } or a list of records)."""
+    """Every record of the saved files given (each { records } as the AI read it from the store, or a list of records)."""
     records: list[dict] = []
     for path in files:
         held = json.loads(path.read_text(encoding='utf-8'))
         held = held.get('records') if isinstance(held, dict) else held
         if not isinstance(held, list) or not all(isinstance(r, dict) and 'id' in r for r in held):
-            raise ValueError(f'{path} holds no records: give a records:read or records:list answer ({{ "records": [...] }}).')
+            raise ValueError(f'{path} holds no records: give the rows your AI read from the store ({{ "records": [...] }}).')
         records.extend(held)
     return records
 
@@ -184,7 +184,7 @@ def main(argv: list[str] | None = None) -> int:
     which.add_argument('--mapping-record', metavar='ID',
                        help='read the mapping from this setting row (record:setting:export-records-as-list-rows~<scope_kind>~<scope_id>)')
     ap.add_argument('--records-from', action='append', default=[], type=Path, metavar='FILE',
-                    help='saved records:read answers: the mapping record, lists and records sources are read from them')
+                    help='files of rows your AI read from the store: the mapping record, lists and records sources are read from them')
     ap.add_argument('--as-setting', metavar='SCOPE_KIND~SCOPE_ID',
                     help='with --mapping: write the setting rows that keep this mapping in list:settings, to send instead of building')
     ap.add_argument('--setting-name', help='with --as-setting: what the mapping makes, in a few words')

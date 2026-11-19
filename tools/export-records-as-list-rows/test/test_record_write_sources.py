@@ -42,7 +42,7 @@ ALMANAC = '\n'.join([
     '| T4 | After the end | bb1 |',
 ])
 
-# The lists the account holds, as records:read gives them: trees has no `grove_size` field yet; plantings is already right.
+# The lists the account holds, as the AI reads them from the store: trees has no `grove_size` field yet; plantings is already right.
 HELD = [
     {'id': 'list:trees', 'type': 'list', 'value': {'label': 'Trees', 'row_type': 'trees', 'title_field': 'name', 'fields': [
         {'id': 'name', 'label': 'Name', 'kind': 'text'}, {'id': 'kind', 'label': 'Kind', 'kind': 'choice', 'choices': ['apple']},

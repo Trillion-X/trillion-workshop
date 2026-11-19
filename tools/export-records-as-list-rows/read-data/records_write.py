@@ -1,4 +1,4 @@
-"""Records on disk to the { id, type, value } records a Trillion `records:write` takes, by a mapping the person gives.
+"""Records on disk to the { id, type, value } records a store's write takes, by a mapping the person gives.
 
 Nothing about any record kind is known here: the lists, their fields and saved views are the person's list-definition rows
 (`lists_file`), and where each row comes from and how its values and their bases are worked out is the mapping's. The output is

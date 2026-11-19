@@ -1,4 +1,4 @@
-"""Stdlib tests for byte-bounded commands, merged duplicate rows and a stable basis time in the records:write builder, and for the write
+"""Stdlib tests for byte-bounded commands, merged duplicate rows and a stable basis time in the write builder, and for the write
 planner (read-data/record_write_plan.py, do-work/plan_record_write.py): what to write, what to keep, the refresh of source fields, and the
 readback. Nothing here reaches a store: every test hands the target records in as `held`, as the caller's AI reads them."""
 from __future__ import annotations
