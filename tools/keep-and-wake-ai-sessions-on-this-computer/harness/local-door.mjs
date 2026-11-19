@@ -28,3 +28,14 @@ export function localDoorAddress({ runtime = process.execPath, home = os.homedir
   if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('The Mac app has no local door set up on this computer.');
   return `http://127.0.0.1:${port}/mcp`;
 }
+
+/** The port this computer reports under the local door `name`: the app's sealed declaration
+ *  (Contents/Resources/computer-reader.json `local_runtime.computer.report.local_ports`), the one place the number is
+ *  written. Null when it reports none, so no port is ever guessed. */
+export function localPortOf(name, { runtime = process.execPath, read = readText } = {}) {
+  let ports;
+  try { ports = JSON.parse(read(join(contentsOf(runtime), 'Resources', 'computer-reader.json'))).local_runtime?.computer?.report?.local_ports; }
+  catch { ports = undefined; }
+  const port = ports?.[name];
+  return Number.isInteger(port) && port >= 1024 && port <= 65535 ? port : null;
+}

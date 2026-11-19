@@ -46,7 +46,7 @@
   "seeing": [
     {"id": "ffmpeg", "label": "FFmpeg on this Mac", "search_path": ["/opt/homebrew/bin", "/usr/local/bin", "/opt/local/bin"], "check": ["ffmpeg", "-version"], "probe": "ffprobe", "sizes": {"poster_width": 320, "frame_count": 12, "frame_width": 160, "peak_count": 120, "peak_rate": 1000, "picture_quality": 0.72}, "produced_by": "FFmpeg on this Mac", "most_seconds": 600}
   ],
-  "visual_caption": {"url": "http://127.0.0.1:11434/api/generate", "model": "gemma3:4b", "timeout_seconds": 120, "backfill_per_look": 5, "generic_titles": ["Processing", "Home", "Dashboard", "Untitled", "New project", "Image", "Video", "Screenshot"]},
+  "visual_caption": {"door": "local-model-server", "path": "/api/generate", "model": "gemma3:4b", "timeout_seconds": 120, "backfill_per_look": 5, "generic_titles": ["Processing", "Home", "Dashboard", "Untitled", "New project", "Image", "Video", "Screenshot"]},
   "gates": {
     "full-disk-access": {
       "label": "Full Disk Access for {program}",
