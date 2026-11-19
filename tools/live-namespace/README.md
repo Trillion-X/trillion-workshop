@@ -14,6 +14,7 @@ device's folder) reaches the files through the engine's one door; plus the brows
 | `this_computer` | An operation of `mcp` the run answers itself: the computer it is on, `{id, label}`, as the engine filled `--computer` (null when the engine did not start it). |
 | `serve-shares --state FOLDER [--settings FILE]` | The public byte route of a share (below): `GET`/`HEAD` `/share/<id>/<key>` on a loopback address, by range. |
 | `account-files-bind [show] --state FOLDER` | Bind the origins of the person's files to them on purpose (`src/account_files/bind.rs`). |
+| `rows --state FOLDER (--login-fd N \| --sqlite FILE)` | MCP over stdio: the names rows answered to the files run (`src/serve/rows.rs`), one tool per operation of `Rows`, each answer a file of bytes. It is tool:your-files-names, the one run that holds the database login. |
 
     cd tools/live-namespace
     live-namespace mcp --state ~/namespace-state [--settings FILE] [--computer JSON]
@@ -25,8 +26,13 @@ list a scope in id order a page at a time, change one row only if it is still at
 the declared totals, and a word search of the file names. `SqlStore` is the one implementation, over SQLite or Postgres with the
 same statements. Which one is the run's `settings.json` `store`: `{"sqlite": {"file": NAME}}` is a SQLite file of that name in the
 state folder (for a person with no database, and for tests) and `{"postgres": {"connection": NAME}}` is the person's own
-Postgres database (the shipped setting, with `own-rows-postgres-connection` attached on descriptor 8), `NAME` the held name of the attached field that holds its connection string (`own-rows-postgres-connection`, the
+Postgres database opened by the run itself, `NAME` the held name of the attached field that holds its connection string (`own-rows-postgres-connection`, the
 credential the person's run-sql tool uses for the same database, reached by its address; in a run the engine keeps in its sandbox, through the run's proxy, src/store/through_the_run_proxy.rs).
+The shipped setting is the third kind, `{"run": {"tool": "tool:your-files-names", "fd": 9}}`: the rows a session of tool:your-files-names keeps
+(`live-namespace rows`, holding the database login alone), reached by one call per `Rows` operation through the run's door
+(`src/store/by_calls.rs`, `src/store/through_the_door.rs`). The engine lets one process reach only the hosts every value it holds may
+go to, so a run holding the byte store's key and the database login could reach none; split this way, tool:your-files holds the byte
+store's key alone. Each operation is atomic on its own (a change is a compare-and-set on the row's version), so no transaction spans calls.
 The credential is an attached descriptor like the byte store's, never an argument and never in a file. A database off this computer is
 reached only encrypted. The Postgres side shares every statement with the SQLite side: the store's tests run on it too, when
 `NAMESPACE_POSTGRES_TEST_CONNECTION` holds the connection string of a throwaway database (each test gets a schema of its own).

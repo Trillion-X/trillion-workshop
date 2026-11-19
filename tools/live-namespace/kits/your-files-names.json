@@ -1,0 +1,37 @@
+{
+  "start_here": "You never call it yourself. Say to your AI: \"List my files\"; tool:your-files asks tool:your-files-names for the names through its own door, and the engine starts the names session on the first call.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it keeps the names of your files as rows in your own database.",
+  "workflows": [],
+  "tools": [
+    "tool:your-files-names",
+    "tool:your-files"
+  ],
+  "instructions": [
+    "1. Make sure your database connection (own-rows-postgres-connection) is saved in your vault; the engine mounts it on descriptor 3 of this run alone and never prints it.",
+    "2. Use your files through tool:your-files. Each names read or change it makes is one call of this tool: tools:run with {tool: \"tool:your-files-names\", call: {name, arguments}}, where name is one operation of the store's rows (get, get_many, held_record_with_version, list_page, ids, mutate, stamp, totals, search, place, order, changes, minted, wait_for_order).",
+    "3. Each answer comes back as a file of bytes (the row's session.byte_result), so a page of rows is never cut to fit one message."
+  ],
+  "worked_examples": [
+    {
+      "title": "Where my files' names are kept",
+      "ask": "Where are the names of my files kept?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:your-files-names",
+            "call": {
+              "name": "place",
+              "arguments": {}
+            }
+          }
+        }
+      },
+      "given": "A saved database connection.",
+      "hands_back": "{tool: \"tool:your-files-names\", result: {structuredContent: {bytes: {file, total, offset, length}}}}: the bytes of {answer: \"postgres://<host>:<port>/<name>\"}."
+    }
+  ]
+}

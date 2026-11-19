@@ -21,6 +21,7 @@
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 
 pub mod mcp;
+pub mod rows;
 pub mod settings;
 pub mod shares;
 
@@ -34,7 +35,9 @@ use live_namespace::{
     },
     secrets::{self, Held},
     store::{
+        by_calls::RowsByCalls,
         link::Link,
+        through_the_door::Door,
         SqlStore, Store,
     },
 };
@@ -131,27 +134,22 @@ impl Namespace {
 }
 
 /// The state folder (made when it is not there, readable by its owner only), what the run holds of its attached connections, and the
-/// person's rows opened as `settings` says.
+/// person's rows opened as `settings` says: a SQL store this run opens itself, or the rows another tool's session keeps, reached by
+/// calls through this run's door (so this run never holds that database's login).
 pub(crate) fn open_rows(settings: &Settings, state: &Path) -> Result<(PathBuf, Arc<Held>, Store), Refusal> {
-    let (state, held, store) = open_sql(settings, state)?;
-    Ok((state, held, store))
-}
-
-/// The same, as the SQL store itself.
-fn open_sql(settings: &Settings, state: &Path) -> Result<(PathBuf, Arc<Held>, Arc<SqlStore>), Refusal> {
     make_private_folder(state)?;
     let state = std::fs::canonicalize(state)?;
     let fields: Vec<(&str, &str, i32)> = settings.attached.iter().map(|attached| (attached.service.as_str(), attached.field.as_str(), attached.fd)).collect();
     let held = secrets::keep(Held::from_descriptors(&fields)?);
-    let store = match &settings.store {
-        Rows::Sqlite { file } => SqlStore::open(Link::sqlite(&state.join(file))?)?,
+    let store: Store = match &settings.store {
+        Rows::Sqlite { file } => Arc::new(SqlStore::open(Link::sqlite(&state.join(file))?)?),
         // A second connection hears every other process's commits, so a wait for a change (`list_changes`) wakes at once on any computer.
         Rows::Postgres { connection } => {
             let connection = held.plain(connection).map_err(|_| "the database connection is not attached: attach it to start the run")?;
-            SqlStore::open(Link::postgres(connection.as_str())?)?.hearing(Link::postgres(connection.as_str())?)?
+            Arc::new(SqlStore::open(Link::postgres(connection.as_str())?)?.hearing(Link::postgres(connection.as_str())?)?)
         }
+        Rows::Run { tool, fd } => Arc::new(RowsByCalls::new(Door::from_descriptor(*fd, tool)?.sender())),
     };
-    let store = Arc::new(store);
     Ok((state, held, store))
 }
 

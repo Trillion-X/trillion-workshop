@@ -36,7 +36,10 @@
 // The extensive documentation in this codebase is a critical design feature.
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 
+pub mod by_calls;
 pub mod link;
+#[cfg(unix)]
+pub mod through_the_door;
 mod through_the_run_proxy;
 
 use link::{Cell, Dialect, Link};

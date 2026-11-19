@@ -7,6 +7,8 @@
 //   live-namespace serve-shares --state FOLDER [--settings FILE]   the public byte route of a share (src/share_bytes), on the loopback
 //                        address settings.json `share_bytes` names
 //   live-namespace account-files-bind [show] --state FOLDER [--settings FILE]   bind the origins of the person's files to them
+//   live-namespace rows --state FOLDER (--login-fd N | --sqlite FILE)   MCP over stdio: the person's names rows answered to the files
+//                        run (src/serve/rows.rs), the one run that holds the database login
 //
 // A credential is never an argument: the engine attaches the person's `files-store` connection (and the database's own) to the run on
 // the file descriptors `settings.json` `attached` names (src/serve/mod.rs). The program opens no port: the engine runs `mcp` as a
@@ -31,19 +33,17 @@ use std::{
     sync::Arc,
 };
 
-const USAGE: &str = "usage: live-namespace mcp --state FOLDER [--settings FILE] [--computer JSON] | serve-shares --state FOLDER [--settings FILE] | account-files-bind [show] --state FOLDER [--settings FILE]";
-
-/// The settings file next to the tool's own folder when none is named: the one the tool ships.
-const SHIPPED_SETTINGS: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/settings.json");
+const USAGE: &str = "usage: live-namespace mcp --state FOLDER [--settings FILE] [--computer JSON] | serve-shares --state FOLDER [--settings FILE] | account-files-bind [show] --state FOLDER [--settings FILE] | rows --state FOLDER (--login-fd N | --sqlite FILE)";
 
 enum Command {
-    Serve { state: PathBuf, settings: PathBuf, computer: Value },
-    Shares { state: PathBuf, settings: PathBuf },
-    Bind { show: bool, state: PathBuf, settings: PathBuf },
+    Serve { state: PathBuf, settings: Option<PathBuf>, computer: Value },
+    Shares { state: PathBuf, settings: Option<PathBuf> },
+    Bind { show: bool, state: PathBuf, settings: Option<PathBuf> },
+    Rows { state: PathBuf, kept: serve::rows::Kept },
 }
 
-/// The `--state` and `--settings` flags of a command.
-fn flags(args: &[String]) -> Result<(PathBuf, PathBuf), String> {
+/// The `--state` and `--settings` flags of a command; with no `--settings`, the settings the program was built with.
+fn flags(args: &[String]) -> Result<(PathBuf, Option<PathBuf>), String> {
     let (mut state, mut settings) = (None, None);
     let mut rest = args.iter();
     while let Some(flag) = rest.next() {
@@ -53,7 +53,7 @@ fn flags(args: &[String]) -> Result<(PathBuf, PathBuf), String> {
             _ => return Err(USAGE.into()),
         }
     }
-    Ok((state.ok_or(USAGE)?, settings.unwrap_or_else(|| PathBuf::from(SHIPPED_SETTINGS))))
+    Ok((state.ok_or(USAGE)?, settings))
 }
 
 fn parse(args: &[String]) -> Result<Command, String> {
@@ -83,6 +83,19 @@ fn parse(args: &[String]) -> Result<Command, String> {
             let (state, settings) = flags(&args[1 + usize::from(show)..])?;
             Ok(Command::Bind { show, state, settings })
         }
+        "rows" => {
+            let (mut state, mut kept) = (None, None);
+            let mut rest = args[1..].iter();
+            while let Some(flag) = rest.next() {
+                match (flag.as_str(), rest.next()) {
+                    ("--state", Some(folder)) => state = Some(PathBuf::from(folder)),
+                    ("--login-fd", Some(fd)) => kept = Some(serve::rows::Kept::Postgres { fd: fd.parse().ok().filter(|fd| *fd >= 3).ok_or(USAGE)? }),
+                    ("--sqlite", Some(file)) => kept = Some(serve::rows::Kept::Sqlite { file: file.clone() }),
+                    _ => return Err(USAGE.into()),
+                }
+            }
+            Ok(Command::Rows { state: state.ok_or(USAGE)?, kept: kept.ok_or(USAGE)? })
+        }
         _ => Err(USAGE.into()),
     }
 }
@@ -90,18 +103,22 @@ fn parse(args: &[String]) -> Result<Command, String> {
 fn run(command: Command) -> Result<(), String> {
     match command {
         Command::Bind { show, state, settings } => {
-            let settings = Settings::read(&settings).map_err(|error| error.to_string())?;
+            let settings = Settings::read_or_shipped(settings.as_deref()).map_err(|error| error.to_string())?;
             let store = Namespace::rows(&settings, &state).map_err(|error| error.to_string())?;
             live_namespace::account_files::bind::run(&store, &settings.account, show, &mut io::stdout()).map_err(|error| error.to_string())
         }
         Command::Shares { state, settings } => {
-            let settings = Settings::read(&settings).map_err(|error| error.to_string())?;
+            let settings = Settings::read_or_shipped(settings.as_deref()).map_err(|error| error.to_string())?;
             serve::shares::run(&settings, &state).map_err(|error| error.to_string())
         }
         Command::Serve { state, settings, computer } => {
-            let settings = Settings::read(&settings).map_err(|error| error.to_string())?;
+            let settings = Settings::read_or_shipped(settings.as_deref()).map_err(|error| error.to_string())?;
             let namespace = Arc::new(Namespace::open(&settings, &state, computer).map_err(|error| error.to_string())?);
             serve::mcp::serve(namespace, BufReader::new(io::stdin()), io::stdout())
+        }
+        Command::Rows { state, kept } => {
+            std::fs::create_dir_all(&state).map_err(|error| error.to_string())?;
+            serve::rows::run(&kept, &state, BufReader::new(io::stdin()), io::stdout()).map_err(|error| error.to_string())
         }
     }
 }

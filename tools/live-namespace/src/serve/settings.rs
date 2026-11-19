@@ -64,6 +64,12 @@ pub enum Rows {
     /// The person's Postgres database. `connection` is the held name of the attached field that holds its connection string
     /// (`own-rows-postgres-connection`, the credential the person's other tools reach the same database with).
     Postgres { connection: String },
+    /// The rows a session of another tool keeps (`live-namespace rows`, which holds the database login alone), reached by
+    /// calls through this run's door (src/store/by_calls.rs, src/store/through_the_door.rs). `tool` is that tool's id, which
+    /// the run's row names in `invoke.records.runs`; `fd` is the descriptor its row's `invoke.records.fd` names. A run that holds
+    /// the byte store's key never holds the database's login this way: the engine lets one process reach only hosts every
+    /// value it holds may go to.
+    Run { tool: String, fd: i32 },
 }
 
 #[derive(Debug, Deserialize)]
@@ -86,6 +92,23 @@ impl std::fmt::Display for Refused {
 impl std::error::Error for Refused {}
 
 impl Settings {
+    /// The settings this program was built with (the tool folder's `settings.json`), so a run needs no file on the computer
+    /// it runs on.
+    pub fn shipped() -> Result<Self, Refused> {
+        Self::from_bytes(include_bytes!("../../settings.json"))
+    }
+
+    /// The settings of `path`, or the shipped ones when none is named.
+    pub fn read_or_shipped(path: Option<&Path>) -> Result<Self, Refused> {
+        path.map_or_else(Self::shipped, Self::read)
+    }
+
+    fn from_bytes(bytes: &[u8]) -> Result<Self, Refused> {
+        let settings: Self = serde_json::from_slice(bytes).map_err(|_| Refused("the settings file is not the shape this tool reads"))?;
+        settings.valid()?;
+        Ok(settings)
+    }
+
     pub fn read(path: &Path) -> Result<Self, Refused> {
         use std::io::Read as _;
         let file = std::fs::File::open(path).map_err(|_| Refused("the settings file does not open"))?;
@@ -94,9 +117,7 @@ impl Settings {
         }
         let mut bytes = Vec::new();
         file.take(MOST_BYTES).read_to_end(&mut bytes).map_err(|_| Refused("the settings file does not read"))?;
-        let settings: Self = serde_json::from_slice(&bytes).map_err(|_| Refused("the settings file is not the shape this tool reads"))?;
-        settings.valid()?;
-        Ok(settings)
+        Self::from_bytes(&bytes)
     }
 
     fn valid(&self) -> Result<(), Refused> {
@@ -128,6 +149,14 @@ impl Settings {
                     return Err(Refused("the database connection is a field the run is attached"));
                 }
             }
+            Rows::Run { tool, fd } => {
+                if tool.is_empty() || tool.len() > 256 || tool.chars().any(|c| c.is_control() || c.is_whitespace()) {
+                    return Err(Refused("the tool that keeps the names is a short id"));
+                }
+                if *fd < 3 || self.attached.iter().any(|attached| attached.fd == *fd) {
+                    return Err(Refused("the door's descriptor is 3 or more and no attached field's"));
+                }
+            }
         }
         if let Some(share) = &self.share {
             if !(share.origin.starts_with("https://") && url::Url::parse(&share.origin).is_ok_and(|url| url.host().is_some() && url.username().is_empty() && url.query().is_none() && url.fragment().is_none())) {
@@ -156,9 +185,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn the_shipped_settings_name_the_persons_postgres_by_its_held_connection() {
-        let settings = Settings::read(Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/settings.json"))).unwrap();
-        assert!(matches!(&settings.store, Rows::Postgres { connection } if connection == "own-rows-postgres-connection"));
-        assert!(settings.attached.iter().any(|attached| attached.service == "own-rows-postgres" && attached.field == "connection" && attached.fd == 8));
+    fn the_shipped_settings_reach_the_names_through_the_tool_that_holds_the_login_and_attach_no_login() {
+        let settings = Settings::shipped().unwrap();
+        assert!(matches!(&settings.store, Rows::Run { tool, fd } if tool == "tool:your-files-names" && *fd == 9));
+        assert!(settings.attached.iter().all(|attached| attached.service == "files-store"), "the files run holds the byte store's fields alone");
     }
 }
