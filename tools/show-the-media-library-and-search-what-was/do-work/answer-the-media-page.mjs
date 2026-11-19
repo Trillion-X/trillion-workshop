@@ -19,8 +19,8 @@
 //   /work/api/media/send-to-editor, /work/api/media/finished   a saved edit to Premiere or Resolve and back (src/work-media-editor.mjs)
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. The person's own page session is established by the Worker before this handler runs; each read uses that person's
-//      store, never an id or account supplied by the page.
+//   1. The route reads no store. What it needs from the person's store (the library, Recent, the next edit, a shared project,
+//      a transcription run) answers 503 with words that name it, and the caller hands in what it reads.
 //   2. A write is accepted only from the service's own origin.
 //   3. Library rows and search results are read-only; a saved edit is answered, not stored.
 //   4. Saving or rendering an edit keeps each of its clips as edited on the Recent screen; a file use names only a file
@@ -44,15 +44,15 @@ const FRAME_SIZES = { '16:9': [1920, 1080], '9:16': [1080, 1920], '4:5': [1080, 
 
 export const isWorkMediaPath = path => [LIBRARY, SEARCH, NEXT_EDIT, EDIT, RENDER, TRANSCRIBE, LIVE_WORDS, RECENT].includes(path) || isMediaEditorPath(path) || isMediaSessionPath(path);
 
-// Every clip of an edit, once each, kept as edited on the person's Recent screen.
-const markEdited = (person, clips) => Promise.all([...new Set(clips.map(clip => clip.identity))].map(file => person.recordFileUse({ file, kind: 'edited' }).catch(() => null)));
+// Every clip of an edit, once each, kept as edited on the person's Recent screen: the use is answered for the caller to record.
+const markEdited = (fileUses, clips) => { for (const file of new Set(clips.map(clip => clip.identity))) fileUses.push({ file, kind: 'edited' }); };
 
-/** The Media screen's own routes, bound to the already-authenticated person's store. */
-export async function handleWorkMedia(request, { person, userId, origin, url, env, startLiveWords, runTool, edit }) {
+/** The Media screen's own routes. Nothing is read from a store here: what a route needs from one answers 503 with words. */
+export async function handleWorkMedia(request, { fileUses, userId, origin, url, env, startLiveWords, runTool, edit }) {
   // Sending a saved edit to the person's own video editor and attaching what they exported (src/work-media-editor.mjs).
-  if (isMediaEditorPath(url.pathname)) return handleMediaEditor(request, { person, userId, origin, url, runTool });
+  if (isMediaEditorPath(url.pathname)) throw new Unreachable('The hand-off of a saved edit to the video editor');
   // The edit's logged session, its published versions and its track check (src/work-media-session.mjs).
-  if (isMediaSessionPath(url.pathname)) return handleMediaSession(request, { person, userId, origin, url });
+  if (isMediaSessionPath(url.pathname)) throw new Unreachable('The logged session and published versions of an edit');
   if (url.pathname === LIVE_WORDS) {
     if (!userId) return json({ error: 'Sign in to see your words while recording.' }, 401);
     if (request.headers.get('origin') !== origin) return json({ error: 'Not allowed.' }, 403);
@@ -72,27 +72,29 @@ export async function handleWorkMedia(request, { person, userId, origin, url, en
       return json({ error: 'Live words are unavailable. Your recording still saves.' }, 503);
     }
   }
-  // GET /work/api/media/library is the Namespace's own media library (old src/namespace.mjs:2131): no records-door run
+  // GET /work/api/media/library is the Namespace's own media library (old src/namespace.mjs:2131): no route here
   // reaches it, so it is not answered here (see the route tool below).
   if (url.pathname === LIBRARY) return json({ error: 'The Media library is not reachable from this page\'s route tool yet.' }, 503);
 
   // GET /work/api/search is the one search's own route tool now (Trillion-X/trillion-workshop#214), not this page's.
 
   if (url.pathname === RECENT) {
-    if (request.method === 'GET') return json(await person.recentFiles({ limit: url.searchParams.get('limit'), before: url.searchParams.get('before') }));
+    if (request.method === 'GET') throw new Unreachable('The files the person used (Recent)');
     if (request.method !== 'POST') return json({ error: 'Not found' }, 404);
     if (request.headers.get('origin') !== origin) return json({ error: 'Not allowed.' }, 403);
-    try { return json(await person.recordFileUse(await request.json().catch(() => null))); }
-    catch (error) { return json({ error: error.message }, 400); }
+    const used = await request.json().catch(() => null);
+    if (typeof used?.file !== 'string' || !used.file) return json({ error: 'Send the file that was used: { file, kind }.' }, 400);
+    fileUses.push({ file: used.file, ...(typeof used.kind === 'string' ? { kind: used.kind } : {}) });
+    return json({ file: used.file, answered_for_the_caller: true });
   }
 
   if (url.pathname === NEXT_EDIT) {
-    if (request.method === 'GET') return json(await person.mediaNextEditRead());
+    if (request.method === 'GET') throw new Unreachable('The next-edit suggestion');
     if (request.method !== 'POST') return json({ error: 'Not found' }, 404);
     if (request.headers.get('origin') !== origin) return json({ error: 'Not allowed.' }, 403);
     const input = await request.json().catch(() => null);
     if (!input || typeof input !== 'object' || Array.isArray(input)) return json({ error: 'Send the Media action as an object.' }, 400);
-    return json(await person.mediaNextEditAct(input));
+    throw new Unreachable('The next-edit suggestion');
   }
 
   if (url.pathname === EDIT) {
@@ -100,11 +102,7 @@ export async function handleWorkMedia(request, { person, userId, origin, url, en
     if (request.method === 'GET') {
       if (!id || !/^[a-zA-Z0-9-]{1,80}$/.test(id)) return json({ error: 'Choose an edit.' }, 400);
       const spaceId = url.searchParams.get('space_id');
-      if (spaceId) {
-        const answer = await person.fetch(new Request(`https://person/spaces/${encodeURIComponent(spaceId)}/records/${encodeURIComponent(`shared:media-edit:${id}`)}`));
-        const record = await answer.json().catch(() => ({}));
-        return new Response(JSON.stringify(record), { status: answer.status, headers: { 'content-type': 'application/json', 'cache-control': 'private, no-store' } });
-      }
+      if (spaceId) throw new Unreachable(`A shared project (space ${spaceId})`);
       // The saved edit is the request's `edit` (the caller read it from a store); the route keeps no edit of its own.
       return json({ edit: edit ?? null });
     }
@@ -114,13 +112,7 @@ export async function handleWorkMedia(request, { person, userId, origin, url, en
       const expectedRaw = url.searchParams.get('expected_revision');
       const expectedRevision = expectedRaw === null ? NaN : Number(expectedRaw);
       if (!id || !/^[a-zA-Z0-9-]{1,80}$/.test(id) || !spaceId || !Number.isSafeInteger(expectedRevision) || expectedRevision < 0) return json({ error: 'Choose a shared edit and its current revision.' }, 400);
-      const answer = await person.fetch(new Request(`https://person/spaces/${encodeURIComponent(spaceId)}/records/${encodeURIComponent(`shared:media-edit:${id}`)}`, {
-        method: 'DELETE', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ expected_revision: expectedRevision }),
-      }));
-      const result = await answer.json().catch(() => ({}));
-      if (!answer.ok) return new Response(JSON.stringify(result), { status: answer.status, headers: { 'content-type': 'application/json', 'cache-control': 'private, no-store' } });
-      if (!result.swapped) return json({ error: 'A teammate changed this edit first. Load their version before removing it.', conflict: result }, 409);
-      return json({ removed: true, revision: result.revision });
+      throw new Unreachable(`A shared project (space ${spaceId})`);
     }
     if (request.method !== 'POST') return json({ error: 'Not found' }, 404);
     if (request.headers.get('origin') !== origin) return json({ error: 'Not allowed.' }, 403);
@@ -129,26 +121,10 @@ export async function handleWorkMedia(request, { person, userId, origin, url, en
     if (typeof input.space_id === 'string' && input.space_id) {
       if (input.expected_revision !== null && (!Number.isSafeInteger(input.expected_revision) || input.expected_revision < 0)) return json({ error: 'The shared edit revision is not valid.' }, 400);
       if (!Object.hasOwn(input, 'expected_revision')) return json({ error: 'Read the current shared edit revision before saving.' }, 400);
-      const { space_id: spaceId, expected_revision: expectedRevision, ...value } = input;
-      const checked = await resolveSharedFiles(person, spaceId, value.edl, value.shared_files,
-        { metadataOnly: typeof person.sharedFileSource === 'function' });
-      const clips = value.clips.map(clip => {
-        const itemId = checked.itemIds.get(clip.identity);
-        if (!itemId || (clip.shared_item_id !== undefined && clip.shared_item_id !== itemId)) throw new Error('A shared clip no longer matches the file shared with this project. Save the edit again.');
-        return { ...clip, bytes: `/work/api/spaces/${encodeURIComponent(spaceId)}/items/${encodeURIComponent(itemId)}/bytes`, shared_item_id: itemId };
-      });
-      value.clips = clips;
-      const answer = await person.fetch(new Request(`https://person/spaces/${encodeURIComponent(spaceId)}/records/${encodeURIComponent(`shared:media-edit:${input.id}`)}`, {
-        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ expected_revision: expectedRevision, value }),
-      }));
-      const result = await answer.json().catch(() => ({}));
-      if (!answer.ok) return new Response(JSON.stringify(result), { status: answer.status, headers: { 'content-type': 'application/json', 'cache-control': 'private, no-store' } });
-      if (!result.swapped) return json({ error: 'A teammate saved this edit first. Load their version before saving again.', conflict: result }, 409);
-      await markEdited(person, input.clips);
-      return json({ saved: true, revision: result.revision });
+      throw new Unreachable(`A shared project (space ${input.space_id})`);
     }
     // The checked edit is the answer: the caller stores it. Nothing is kept here.
-    await markEdited(person, input.clips);
+    markEdited(fileUses, input.clips);
     return json({ edit: { id: input.id, title: input.title, clips: input.clips, ratio: input.ratio ?? null, file: input.file ?? null, ...(input.captions ? { captions: input.captions } : {}), ...(input.textOverlays ? { textOverlays: input.textOverlays } : {}), ...(input.edl ? { edl: input.edl } : {}), ...(input.panels ? { panels: input.panels } : {}), saved_at: new Date().toISOString() } });
   }
 
@@ -158,36 +134,27 @@ export async function handleWorkMedia(request, { person, userId, origin, url, en
     if (typeof userId !== 'string' || !userId) return json({ error: 'Sign in to render this edit.' }, 401);
     const input = await request.json().catch(() => null);
     if (!validEdit(input)) return json({ error: 'The edit needs clips with a source and valid start and end times.' }, 400);
+    if (typeof input.space_id === 'string' && input.space_id) throw new Unreachable(`A shared project (space ${input.space_id})`);
     const size = FRAME_SIZES[input.ratio];
-    const sourceEdl = typeof input.space_id === 'string' && input.space_id
-      ? await sharedSourcesForRender(person, input.space_id, input.edl, input.shared_files, input.clips)
-      : input.edl ?? {};
-    await markEdited(person, input.clips);
-    const edl = { ...sourceEdl, ...(size ? { encode: { width: size[0], height: size[1] } } : {}), spine: { segments: input.clips.map((clip, index) => ({ ...segmentExtras(input.edl?.spine?.segments?.[index], clip), kind: 'clip', id: `clip-${index}`, source: typeof input.space_id === 'string' && input.space_id ? sourceEdl?.spine?.segments?.[index]?.source : clip.identity, in: clip.start, out: clip.end, ...(clip.look_stack ? { look_stack: clip.look_stack } : {}) })) } };
+    markEdited(fileUses, input.clips);
+    const edl = { ...(input.edl ?? {}), ...(size ? { encode: { width: size[0], height: size[1] } } : {}), spine: { segments: input.clips.map((clip, index) => ({ ...segmentExtras(input.edl?.spine?.segments?.[index], clip), kind: 'clip', id: `clip-${index}`, source: clip.identity, in: clip.start, out: clip.end, ...(clip.look_stack ? { look_stack: clip.look_stack } : {}) })) } };
     return startedRunAnswer(runTool({ tool_id: 'tool:render-an-edit', input: { edl }, request_key: `media-render:${input.id}:${crypto.randomUUID()}`, wait_seconds: 0 }, { app: PERSON_APP, owner: userId }));
   }
 
   // The words said in one recording: the account's own transcription tool, run as the person's page, then read by task.
   if (url.pathname === TRANSCRIBE) {
     if (typeof userId !== 'string' || !userId) return json({ error: 'Sign in to transcribe recordings.' }, 401);
-    const headers = { 'content-type': 'application/json', 'x-trillion-app': PERSON_APP, 'x-trillion-user': userId };
     if (request.method === 'GET') {
-      // Whether the transcription a rule started by itself for this recording is still working or failed for good
-      // (src/automations.mjs watchedRun): { run: { state, attempt, max_attempts } | null }.
+      // Whether the transcription a rule started by itself for this recording is still working or failed for good is kept
+      // by the person's automations, which this route does not read.
       const recording = url.searchParams.get('identity');
       if (recording !== null) {
         if (!/^1f:[0-9a-f]{64}$/.test(recording)) return json({ error: 'Choose a recording that is uploaded.' }, 400);
-        const asked = new URLSearchParams({ field: 'identity', value: recording });
-        const answer = await person.fetch(new Request(`https://person/automations/watched-run?${asked}`, { headers }));
-        const read = await answer.json().catch(() => ({}));
-        if (!answer.ok) return json({ error: read.error ?? 'The transcription could not be read.' }, answer.status);
-        const run = read.run ? { state: read.run.state, attempt: read.run.attempt, max_attempts: read.run.max_attempts } : null;
-        return json({ run });
+        throw new Unreachable('The transcription a rule started for this recording');
       }
       const task = url.searchParams.get('task') ?? '';
       if (!/^task_[0-9a-f]{1,64}$/.test(task)) return json({ error: 'Choose a transcription.' }, 400);
-      const answer = await person.fetch(new Request(`https://person/tasks/${encodeURIComponent(task)}`, { headers }));
-      return new Response(answer.body, { status: answer.status, headers: { 'content-type': 'application/json' } });
+      throw new Unreachable(`The transcription run ${task}`);
     }
     if (request.method !== 'POST') return json({ error: 'Not found' }, 404);
     if (request.headers.get('origin') !== origin) return json({ error: 'Not allowed.' }, 403);
@@ -224,84 +191,19 @@ function validEdit(input) {
       && typeof clip.bytes === 'string' && clip.bytes.length <= 4096);
 }
 
-async function sharedSourcesForRender(person, spaceId, edl, sharedFiles, clips) {
-  // An execution-owned shared-file host keeps the stable grant coordinates in
-  // the queued task. Its Workshop preflight opens actual bytes only when run.
-  const stable = typeof person.sharedFileSource === 'function';
-  const { itemIds, urls } = await resolveSharedFiles(person, spaceId, edl, sharedFiles, { needUrls: !stable, metadataOnly: stable });
-  for (const clip of clips) {
-    const itemId = itemIds.get(clip.identity);
-    if (!itemId || (clip.shared_item_id !== undefined && clip.shared_item_id !== itemId)) throw new Error('A shared clip no longer matches the file shared with this project. Save the edit again.');
-  }
-  const replace = value => {
-    if (typeof value === 'string') return stable && itemIds.has(value)
-      ? person.sharedFileSource(value, { space_id: spaceId, item_id: itemIds.get(value) })
-      : urls.get(value) ?? value;
-    if (Array.isArray(value)) return value.map(replace);
-    if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, part]) => [key, replace(part)]));
-    return value;
-  };
-  return replace(edl);
-}
-
-/** Verify every saved identity/item pair through the Space file owner. Caller-supplied maps and bytes are only hints. */
-async function resolveSharedFiles(person, spaceId, edl, sharedFiles, { needUrls = false, metadataOnly = false } = {}) {
-  if (typeof spaceId !== 'string' || !spaceId || !edl || typeof edl !== 'object' || Array.isArray(edl) || !sharedFiles || typeof sharedFiles !== 'object' || Array.isArray(sharedFiles)) throw new Error('This shared edit has no valid Space file map. Save it again before rendering.');
-  const entries = Object.entries(sharedFiles);
-  if (!entries.length || entries.length > 200 || entries.some(([identity, itemId]) => !/^1f:[0-9a-f]{64}$/.test(identity) || typeof itemId !== 'string' || !itemId || itemId.length > 200)) throw new Error('This shared edit has an invalid Space file map. Save it again before rendering.');
-  const itemIds = new Map(entries);
-  const identities = [...new Set([...fileIdentities(edl), ...entries.map(([identity]) => identity)])];
-  if (fileIdentities(edl).some(identity => !itemIds.has(identity))) throw new Error('A source in this edit is no longer shared with the project. Save the edit again.');
-  const resolved = await Promise.all(identities.map(async identity => {
-    const itemId = itemIds.get(identity);
-    const answer = await person.fetch(new Request(`https://person/spaces/${encodeURIComponent(spaceId)}/items/${encodeURIComponent(itemId)}/file${metadataOnly ? '?metadata=only' : ''}`));
-    const found = await answer.json().catch(() => ({}));
-    if (!answer.ok || found.identity !== identity || (needUrls && (typeof found.url !== 'string' || !found.url.startsWith('https://')))) throw new Error(typeof found.error === 'string' ? found.error : 'A shared source could not be opened for rendering.');
-    return [identity, { itemId, ...(needUrls ? { url: found.url } : {}) }];
-  }));
-  const files = new Map(resolved);
-  return { itemIds: new Map([...files].map(([identity, file]) => [identity, file.itemId])), urls: new Map([...files].flatMap(([identity, file]) => file.url ? [[identity, file.url]] : [])) };
-}
-
-function fileIdentities(value) {
-  if (typeof value === 'string') return /^1f:[0-9a-f]{64}$/.test(value) ? [value] : [];
-  if (Array.isArray(value)) return value.flatMap(fileIdentities);
-  if (value && typeof value === 'object') return Object.values(value).flatMap(fileIdentities);
-  return [];
-}
-
 // ---------------------------------------------------------------------------------------------------------------------
 // tool:answer-the-media-page: the Media page's routes as a @workshop-routes tool (input { path, method, query, body,
-// browser, edit }, result { status, body, file_uses? }), handleWorkMedia above run with the person's carrier the old
-// native carrier handed it (src/native-browser-media.mjs); it reads and keeps nothing itself:
+// browser, edit }, result { status, body, file_uses? }). It reads and keeps nothing itself:
 //   - the edit a GET asks for is the request's `edit` (the caller read it from a store), and a POST answers the checked
 //     edit as { edit } for the caller to store;
-//   - recordFileUse (each saved clip kept as edited on Recent) is answered as file_uses ({ file, kind }), for the caller
-//     to record where the person's Recent is kept (the person's files program's record_file_use, tools/live-namespace);
-//   - the old carrier's fetch to a shared project (`/spaces/<id>/records/shared:media-edit:<id>`, `/spaces/<id>/items/
-//     <id>/file`), its Workshop runs (render, transcribe, the editor hand-off), the Namespace's media library and the
-//     next-edit owner are not reachable from this run: a request that needs one answers 503 with words that
-//     name what it needs, never a made-up answer.
-// The engine's door admits the page before this runs (the old native route was admitted before it, and set the
-// request's origin to the service's own), so the origin the handler checks is the one it is given.
+//   - each saved clip kept as edited on Recent, and each file a route records as used, is answered as file_uses ({ file, kind }),
+//     for the caller to record;
+//   - what needs the person's store, a shared project, a Workshop run or the Namespace's owners is not reachable from
+//     this run: such a request answers 503 with words that name what it needs, never a made-up answer.
+// The engine's door admits the page before this runs, so the origin the handler checks is the one it is given.
 const ORIGIN = 'https://person.local';
 export class Unreachable extends Error {
   constructor(what) { super(`${what} is not reachable from this page's route tool yet.`); this.status = 503; }
-}
-
-/** The person carrier handleWorkMedia reads: each file use it keeps goes into `uses`, answered for the caller to record. */
-export function doorPerson(uses) {
-  return {
-    recordFileUse: async input => {
-      if (typeof input?.file !== 'string' || !input.file) throw new Error('Send the file that was used: { file, kind }.');
-      uses.push({ file: input.file, ...(typeof input.kind === 'string' ? { kind: input.kind } : {}) });
-      return { file: input.file, answered_for_the_caller: true };
-    },
-    fetch: async request => { throw new Unreachable(`A shared project (${new URL(request.url).pathname})`); },
-    mediaLibrary: async () => { throw new Unreachable('The Media library (the files door has no media_library operation)'); },
-    mediaNextEditRead: async () => { throw new Unreachable('The next-edit suggestion'); },
-    mediaNextEditAct: async () => { throw new Unreachable('The next-edit suggestion'); },
-  };
 }
 
 export async function answerTheMediaPage(input) {
@@ -309,11 +211,11 @@ export async function answerTheMediaPage(input) {
   const search = new URLSearchParams(query !== null && typeof query === 'object' ? query : {}).toString();
   const url = new URL(`/work/api${path}${search ? `?${search}` : ''}`, ORIGIN);
   const request = new Request(url, { method, headers: { origin: ORIGIN, 'content-type': 'application/json' }, ...(method === 'GET' ? {} : { body: JSON.stringify(body ?? {}) }) });
-  const uses = [];
+  const fileUses = [];
   try {
-    const response = await handleWorkMedia(request, { person: doorPerson(uses), userId: 'this-account', origin: ORIGIN, url, edit,
+    const response = await handleWorkMedia(request, { fileUses, userId: 'this-account', origin: ORIGIN, url, edit,
       runTool: async () => { throw new Unreachable('Running another Workshop tool'); } });
-    return { status: response.status, body: await response.json(), ...(uses.length ? { file_uses: uses } : {}) };
+    return { status: response.status, body: await response.json(), ...(fileUses.length ? { file_uses: fileUses } : {}) };
   } catch (error) {
     if (error instanceof Unreachable) return { status: 503, body: { error: error.message } };
     throw error;

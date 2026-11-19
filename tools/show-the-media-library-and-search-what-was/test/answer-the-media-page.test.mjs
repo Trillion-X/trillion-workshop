@@ -58,7 +58,12 @@ test('what needs a shared project, a Workshop run or the Namespace\'s owners ans
   assert.equal((await answerOf(row, route('/media/next-edit'))).result.status, 503);
 });
 
-test('the row opens no door: the file uses it answers are the caller\'s to record', () => {
+test('the row opens no door: the file uses it answers are the caller\'s to record', async () => {
   assert.equal(row.invoke.records, undefined);
   assert.equal(row.invoke.internet, false);
+  assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.ok(!row.invoke.files.package_files.some(spec => spec.package === 'records-door'));
+  const kept = await answerOf(row, route('/recent-files', 'POST', { file: FILE, kind: 'viewed' }));
+  assert.deepEqual(kept.result, { status: 200, body: { file: FILE, answered_for_the_caller: true }, file_uses: [{ file: FILE, kind: 'viewed' }] });
+  assert.equal((await answerOf(row, route('/recent-files'))).result.status, 503, 'reading Recent is not reachable from this run');
 });
