@@ -16,8 +16,12 @@ const prove = step('prove');
 const attempts = JSON.parse(prove.do.slice(prove.do.indexOf('objects: [') + 'objects: '.length, prove.do.indexOf('. Answers:')));
 const answers = prove.checks.find(check => check.kind === 'covers').values[0];
 
-test('the render step makes the checks the store\'s own objects, so a write that breaks one is refused whoever makes it', () => {
+test('the render step puts the checks on the Postgres table itself, so a plain insert is refused, and says what a JSON folder cannot enforce', () => {
   const render = step('render').do;
+  assert.match(render, /CREATE TABLE pooled_result/);
+  assert.match(render, /CHECK \(contributor ~ '\^\[0-9a-f\]\{64\}\$'\)/);
+  assert.match(render, /BEFORE INSERT OR UPDATE ON pooled_result/);
+  assert.match(render, /a file written by hand bypasses them/);
   assert.match(render, /CHECK constraint in SQL/);
   assert.match(render, /64 lowercase hex/);
   assert.match(render, /not 0 or 1/);
@@ -50,8 +54,16 @@ test('a result with no precondition on its shared situation (missing input) is r
   assert.equal(answers[at], 'refused');
 });
 
+test('a plain insert straight into the table with a bad contributor is refused by the table itself', () => {
+  const at = attempts.findIndex(op => op.op === 'direct insert');
+  assert.equal(at, attempts.length - 1, 'the direct insert is the last attempt');
+  assert.equal(attempts[at].on, 'postgres');
+  assert.match(attempts[at].sql, /NOT-HEX/);
+  assert.equal(answers[at], 'refused');
+});
+
 test('an allowed contribution, at a shared situation with its version and a valid contributor and bit, is written', () => {
-  const at = attempts.length - 1;
+  const at = attempts.length - 2;
   const op = attempts[at];
   assert.equal(op.op, 'batch');
   assert.deepEqual(op.preconditions, [{ address: 'record:pooled-situation:sample-situation-1', expected_version: 1 }]);
