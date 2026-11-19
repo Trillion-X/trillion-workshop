@@ -1,6 +1,6 @@
 # tools/settings/
 
-The one reader every Workshop tool uses for the settings a person keeps for it. Settings are rows of the person's generic list `list:settings`, never files beside the code (rule 11: settings are rows in the person's lists, read through the door).
+The one reader every Workshop tool uses for the settings a person keeps for it. Settings are rows of the person's generic list `list:settings`, never files beside the code (rule 11: settings are rows in the person's lists). No store is reached here: the person's AI reads the rows from the store the person keeps them in and hands them in, and keeps what a make answers.
 
 A row is a `record:setting` with id `record:setting:<workshop-folder>~<scope_kind>~<scope_id>`:
 
@@ -14,18 +14,19 @@ A row is a `record:setting` with id `record:setting:<workshop-folder>~<scope_kin
 | `from` | Where the values came from, `"<old path>@<sha>"`. |
 | `status` | `active` or `retired`; a retired row is refused. |
 
-A tool takes `settings_record` in its request: the record as `records:read` gives it (`{id, type, value}`), its value alone, a list of records, or the path of a JSON file holding them. It reads it with `setting(given, folder, scopes, default)`: the settings of the first scope that has a row (most specific first, e.g. this piece, then this film, then the person, then the account), else the default. That is old Trillion's `setting(name)`, which gave the value or `null`.
+A tool takes `settings_record` in its request: the record as the person's store gives it (`{id, type, value}`), its value alone, a list of records, or the path of a JSON file holding them. It reads it with `setting(given, folder, scopes, default)`: the settings of the first scope that has a row (most specific first, e.g. this piece, then this film, then the person, then the account), else the default. That is old Trillion's `setting(name)`, which gave the value or `null`.
 
 ## Files
 
 | File | Purpose |
 |---|---|
-| `read-data/settings.py` | `setting_id`, `parse_id`, `make_record`, `list_record`, `chosen`, `settings_of`, `setting`; `SettingError` says how to fix a request. |
-| `read-data/settings.mjs` | The same for JavaScript tools: `settingId`, `parseId`, `makeRecord`, `chosen`, `settingsOf`, `setting`. |
-| `read-data/settings.mjs` `readSetting` | The same choice read through a door at run time (each scope's row, most specific first). The row that named it, `tool:read-a-tool-setting-through-my-door`, is deleted: the keep-tool-settings recipe (`workflow:keep-tool-settings`) is its home. `readSetting(door, { folder, scopes, fallback, tool })` remains for the tools that take a settings row by id. |
-| `do-work/read_setting.py` | `tool:read-a-tool-setting`: one JSON request in (read or make), one JSON line out. |
+| `read-data/settings.py` | `setting_id`, `parse_id`, `make_record`, `list_record`, `chosen`, `settings_of`, `setting`, `handed_record`, `given_rows`, `request_settings`, `lay_over`, `keep`; `SettingError` says how to fix a request. |
+| `read-data/settings.mjs` | The same for JavaScript tools: `settingId`, `parseId`, `makeRecord`, `chosen`, `settingsOf`, `setting`, `handedRecord`, `settingsFor`, `layOver`, `isSettingId`. |
+| `do-work/read_setting.py` | `tool:read-a-tool-setting`: one JSON request in (read or make), one JSON line out. A make answers `keep`: each row with `expected`, the row as handed in `stored.records` (`{type, value}`) or `null` when it was not there, so the store refuses a write made from a stale read. |
 | `tool-rows.json` | The row. |
-| `test/test_settings.py`, `test/settings.test.mjs` | Ids, scope choice, the default, every refusal, the command, and the two readers agreeing. Made-up rows only. |
+| `test/test_settings.py`, `test/settings.test.mjs` | Ids, scope choice, the default, every refusal, the command, `keep` with `expected`, and the two readers agreeing. Made-up rows only. |
+| `test/handed-rows.test.mjs` | A named row read from the rows handed in, the merge, and the refusals when it was not handed, in JavaScript and Python. |
+| `test/rows-name-no-records-method.test.mjs` | No row names a records method. |
 
 ## Using it from a tool
 
@@ -37,34 +38,28 @@ values = settings.setting(request.get('settings_record'), 'my-tool-folder',
                           [('film', film_id), ('account', 'main')], default=DEFAULTS)
 ```
 
-To make the rows a loader writes, use `make_record(...)` (and `list_record()` once); the records go in a `records:write` plan in the shape `tools/export-records-as-list-rows` builds.
+To make the rows a loader writes, use `make_record(...)` (and `list_record()` once), and `keep(records, stored)` to give each the `expected` row it was made over.
 
-## Reading a named row through the records door
+## A named row handed in
 
-A tool may also take `settings_record` as a row's id, `record:setting:<folder>~<scope_kind>~<scope_id>`, and read it at run time through the run's records door. Its row then grants `records:read` on its own folder's prefix only, and packs `tools/settings` (`read-data`, `do-work`) at `/opt/settings` beside `tools/records-door` at `/opt/records-door`:
+A tool may also take `settings_record` as a row's id, `record:setting:<folder>~<scope_kind>~<scope_id>`. The caller reads that row from the person's store and hands it in `stored.records` (`[{id, type, value}]`); with `settings_record` left out, the setting rows in `stored.records` are read with the scopes given. A row of another tool's folder is refused.
 
-```json
-"records": { "fd": 3, "rights": [{ "kind": "record:setting", "prefix": "record:setting:<folder>~", "operations": ["records:read"] }] }
-```
+What the tool runs with is, weakest first: its own defaults, the row's settings, the request's own `settings` object (plain objects merge key by key; anything else is replaced whole). A named id that was not handed in is refused, because running on defaults would silently change the answer.
 
-What the tool runs with is, weakest first: its own defaults, the row's settings, the request's own `settings` object (plain objects merge key by key; anything else is replaced whole). A named id the person does not keep is refused, because running on defaults would silently change the answer.
-
-- **JavaScript:** `await settingsFor(input, { door, folder, scopes, defaults, tool })` answers `{ settings, from }`. `readSettingRecord(door, id, { folder })` reads one row (or null) and refuses another folder's row. `layOver(under, over)` is the merge.
-- **Python, or any other program:** run it under `node /opt/settings/do-work/run-with-settings.mjs --folder <folder> -- <program...>`. When `settings_record` is an id, the command reads the row through the door and hands the program the request with `settings_record` replaced by the record itself and `settings_from` naming it. The program calls `settings.request_settings(request, defaults, folder=..., scopes=..., tool=...)`. Its output is passed through unchanged.
+- **JavaScript:** `settingsFor(input, { folder, scopes, defaults, tool })` answers `{ settings, from }`. `handedRecord(stored, id, { folder })` finds one row (or null). `layOver(under, over)` is the merge.
+- **Python:** `settings.request_settings(request, defaults, folder=..., scopes=..., tool=...)` gives the same settings from the same request.
 
 | File | Purpose |
 |---|---|
-| `do-work/run-with-settings.mjs` | The command above. |
-| `test/run-with-settings.test.mjs`, `test/echo_settings.py` | Reading through the stand-in records door, the merge, refusals, and a made-up Python program run under the command. |
 | `show/settings-mount.tsx` | The module entry of `tool:screen-settings`: its `mount` is `mountSettingsScreen`. |
 | `web/src/workspace/settings-screen.tsx`, `web/src/workspace/settings-pages.tsx`, `web/src/workspace/settings-pages.json`, `web/src/workspace/settings-posts.mjs`, `web/src/workspace/settings-panels.json` | The Settings screen: the rail's groups and pages (`settings-panels.json`), the pages it draws itself (`settings-pages.tsx` with their words in `settings-pages.json` and the What's new posts in `settings-posts.mjs`) and the shell that steps between them. Moved byte for byte from the web client (`moved-from.json`); the files of the web shell they import stay there. |
 
 ## Moved from Trillion
 
-Old Trillion kept a setting as one record of type `setting` (Trillion-X/trillion `src/decision-store.mjs` before 4ffa1dc4a2: line 8 names the kind; lines 751-754 `setting(name)` reads `setting:<name>` and gives its value or `null`, `setSetting` writes it). Here the name is the tool's folder plus a scope, and the value is the row's `settings` field. `settingsPage` (a page of settings by prefix) is the door's `records:list` on `list:settings` and is not repeated.
+Old Trillion kept a setting as one record of type `setting` (Trillion-X/trillion `src/decision-store.mjs` before 4ffa1dc4a2: line 8 names the kind; lines 751-754 `setting(name)` reads `setting:<name>` and gives its value or `null`, `setSetting` writes it). Here the name is the tool's folder plus a scope, and the value is the row's `settings` field. `settingsPage` (a page of settings by prefix) is a read of `list:settings` in the person's own store and is not repeated.
 
 ## Dependencies
 
-**Depends on:** Python 3 and Node's standard library; `tools/records-door` only for reading a named row through the door (`settingsFor` with a door, `do-work/run-with-settings.mjs`).
+**Depends on:** Python 3 and Node's standard library.
 
 **Depended on by:** every Workshop tool that takes `settings_record`.

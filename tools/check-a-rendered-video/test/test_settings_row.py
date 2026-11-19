@@ -1,5 +1,5 @@
 """The person's limits and reviewed pins as one row of their list:settings (record:setting:check-a-rendered-video~<scope_kind>~<scope_id>):
-read from a file holding the row, or handed in a JSON request the way tools/settings/do-work/run-with-settings.mjs hands them. Made-up data only.
+read from a file holding the row, or handed in a JSON request (the record itself, or its id with the row in stored.records). Made-up data only.
 Run: python3 test/run_tests.py test_settings_row.py"""
 import contextlib
 import io
@@ -87,10 +87,10 @@ class Request(Base):
         self.assertEqual(rc, 0)
         self.assertEqual(out['result']['changed'], [])
 
-    def test_a_named_id_not_read_through_the_door_is_refused(self):
+    def test_a_named_id_not_handed_in_is_refused(self):
         rc, out = self.run_request({'argv': ['pins'], 'settings_record': ROW_ID})
         self.assertEqual(rc, 2)
-        self.assertIn('run-with-settings', out['error'])
+        self.assertIn('no rows were handed in', out['error'])
 
     def test_a_command_that_needs_limits_is_refused_without_them(self):
         rc, out = self.run_request({'argv': ['pins']})

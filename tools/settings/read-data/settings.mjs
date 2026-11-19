@@ -42,7 +42,7 @@ function records(given) {
   if (given === undefined || given === null) return [];
   if (typeof given === 'string') {
     try { given = JSON.parse(readFileSync(given, 'utf8')); }
-    catch (error) { throw new SettingError(`settings_record names ${JSON.stringify(given)}, which could not be read as JSON (${error.message}): give the file records:read wrote, or the record itself.`); }
+    catch (error) { throw new SettingError(`settings_record names ${JSON.stringify(given)}, which could not be read as JSON (${error.message}): give the file of rows read from the person's store, or the record itself.`); }
   }
   if (given && !Array.isArray(given) && Array.isArray(given.records)) given = given.records;
   if (!Array.isArray(given)) given = [given];
@@ -90,21 +90,7 @@ export function setting(given, { folder, scopes, fallback = null, tool } = {}) {
   return found === null ? fallback : settingsOf(found, tool);
 }
 
-/**
- * The same choice read through the person's records door (tools/records-door) at run time: each scope's row by
- * records:read, most specific first; the settings of the first found, else `fallback`.
- */
-export async function readSetting(door, { folder, scopes, fallback = null, tool } = {}) {
-  if (!Array.isArray(scopes) || !scopes.length) throw new SettingError('Give the scopes to try, most specific first: [[scope_kind, scope_id], ...].');
-  for (const [kind, scopeId] of scopes) {
-    const id = settingId(folder, kind, scopeId);
-    const value = await door.read(RECORD_TYPE, id);
-    if (value) return settingsOf({ id, type: RECORD_TYPE, value }, tool);
-  }
-  return fallback;
-}
-
-// --- Reading a named row through the run's records door (added for tools that take settings_record as an id) ---
+// --- The settings a program runs with: its defaults, the row it is handed, then its own settings ---
 
 const isPlain = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
@@ -119,31 +105,41 @@ export function layOver(under, over) {
 /** True when `given` is a setting row's id (a string starting record:setting:), not a file path or a record. */
 export const isSettingId = given => typeof given === 'string' && given.startsWith(ID_PREFIX);
 
+const isSettingRow = record => isPlain(record) && (record.type ?? RECORD_TYPE) === RECORD_TYPE;
+
 /**
- * Read one row through the run's records door, like old Trillion's setting(name): the record { id, type, value }, or
- * null when the person keeps none. With `folder`, a row of another tool's folder is refused.
+ * The row `id` names among the rows handed in `stored.records` ({ id, type, value }), like old Trillion's
+ * setting(name): the record, or null when none was handed or its value is null. With `folder`, a row of another
+ * tool's folder is refused.
  */
-export async function readSettingRecord(door, id, { folder } = {}) {
+export function handedRecord(stored, id, { folder } = {}) {
   const [rowFolder] = parseId(id);
   if (folder && rowFolder !== folder) throw new SettingError(`${JSON.stringify(id)} belongs to tools/${rowFolder}, not tools/${folder}: give a ${ID_PREFIX}${folder}~... id.`);
-  const value = await door.read(RECORD_TYPE, id);
-  return value === null || value === undefined ? null : { id, type: RECORD_TYPE, value };
+  const found = (stored?.records ?? []).find(record => isSettingRow(record) && record.id === id);
+  return found && isPlain(found.value) ? { id, type: RECORD_TYPE, value: found.value } : null;
+}
+
+/** What settings_record gives: a row id is looked up in stored.records; left out, the rows in stored.records. */
+function givenRows({ settings_record: given, stored } = {}, folder) {
+  if (stored !== undefined && stored !== null && !Array.isArray(stored?.records)) throw new SettingError('stored, when given, is { records: [{ id, type, value }, ...] }: the rows read from the person\'s store.');
+  if (isSettingId(given)) {
+    if (!stored) throw new SettingError(`settings_record names ${given}, but no rows were handed in: read it from ${LIST_ID} in the person's store and hand it in stored.records, or hand the record itself.`);
+    const record = handedRecord(stored, given, { folder });
+    if (!record) throw new SettingError(`No ${given} in ${LIST_ID}: write the row first, or leave settings_record out to run on the defaults.`);
+    return record;
+  }
+  if (given === undefined && stored) return stored.records.filter(record => isSettingRow(record) && isPlain(record.value));
+  return given;
 }
 
 /**
- * The settings a tool runs with: its `defaults`, then the row `input.settings_record` names (an id read through
- * `door`, or a record, its value, a list or a file as setting() takes), then `input.settings`. Answers
- * { settings, from }. A named id the person does not keep is refused: running on defaults would silently change
- * the answer.
+ * The settings a tool runs with: its `defaults`, then the row `input.settings_record` names (a row id looked up in
+ * the rows handed in `input.stored.records`, or a record, its value, a list or a file as setting() takes; left out,
+ * the setting rows in `input.stored.records`), then `input.settings`. Answers { settings, from }. A named id that was
+ * not handed is refused: running on defaults would silently change the answer.
  */
-export async function settingsFor(input = {}, { door, folder, scopes, defaults = {}, tool } = {}) {
-  let given = input.settings_record;
-  if (isSettingId(given)) {
-    if (!door) throw new SettingError(`settings_record names ${given}, but this run was handed no records door: grant records:read on ${ID_PREFIX}${folder ?? '<folder>'}~, or hand the record itself.`);
-    const record = await readSettingRecord(door, given, { folder });
-    if (!record) throw new SettingError(`No ${given} in ${LIST_ID}: write the row first, or leave settings_record out to run on the defaults.`);
-    given = record;
-  }
+export function settingsFor(input = {}, { folder, scopes, defaults = {}, tool } = {}) {
+  const given = givenRows(input, folder);
   const found = given === undefined ? null : chosen(given, folder, scopes);
   let settings = defaults;
   if (found) settings = layOver(settings, settingsOf(found, tool));

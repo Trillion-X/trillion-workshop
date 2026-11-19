@@ -4,8 +4,9 @@ A setting is a row of the person's generic list `list:settings`: record type `re
 `record:setting:<workshop-folder>~<scope_kind>~<scope_id>`, fields name, tool, scope_kind (person, film, piece or
 account), scope_id, settings (JSON, as text or as an object), from ("<old path>@<sha>") and status.
 
-A tool takes `settings_record` in its request: the record as records:read gives it ({id, type, value}), its value
-alone, a list of such records, or the path of a JSON file holding any of those. `setting()` picks the most specific
+A tool takes `settings_record` in its request: the record as the person's store gives it ({id, type, value}), its
+value alone, a list of such records, or the path of a JSON file holding any of those; or a row id, looked up in the
+rows handed in `stored.records`; or, left out, the setting rows in `stored.records`. `setting()` picks the most specific
 scope asked for and gives its settings, or the defaults (None) when there is none: the same answer old Trillion's
 `setting(name)` gave (src/decision-store.mjs before 4ffa1dc4a2, lines 751-753).
 
@@ -50,7 +51,7 @@ def parse_id(record_id: str) -> tuple[str, str, str]:
 
 def make_record(folder: str, scope_kind: str, scope_id: str, settings: Any, *, name: str, tool: str,
                 source: str, status: str = 'active') -> dict:
-    """The record records:write takes for one setting row. `settings` is kept as JSON text, sorted keys."""
+    """The record kept for one setting row. `settings` is kept as JSON text, sorted keys."""
     if status not in STATUSES:
         raise SettingError(f'status {status!r} is not one of {", ".join(STATUSES)}.')
     return {
@@ -101,9 +102,9 @@ def _records(given: Any) -> list[dict]:
         try:
             given = json.loads(path.read_text(encoding='utf-8'))
         except FileNotFoundError:
-            raise SettingError(f'settings_record names {str(path)!r}, which does not exist: give the file records:read wrote, or the record itself.') from None
+            raise SettingError(f"settings_record names {str(path)!r}, which does not exist: give the file of rows read from the person's store, or the record itself.") from None
         except json.JSONDecodeError as exc:
-            raise SettingError(f'{str(path)!r} is not JSON ({exc}): give the record records:read gave.') from None
+            raise SettingError(f"{str(path)!r} is not JSON ({exc}): give the record the person's store gave.") from None
     if isinstance(given, dict) and isinstance(given.get('records'), list):
         given = given['records']
     if isinstance(given, dict):
@@ -171,7 +172,7 @@ def chosen(given: Any, folder: str | None = None, scopes: Iterable[tuple[str, st
     return None
 
 
-# --- The settings a program runs with (added for programs run under do-work/run-with-settings.mjs) ---
+# --- The settings a program runs with: its defaults, the row it is handed, then its own settings ---
 
 def lay_over(under: Any, over: Any) -> Any:
     """Plain objects merge key by key; anything else is replaced whole (settings.mjs layOver)."""
@@ -183,15 +184,53 @@ def lay_over(under: Any, over: Any) -> Any:
     return out
 
 
+def _is_setting_row(record: Any) -> bool:
+    return isinstance(record, dict) and record.get('type', RECORD_TYPE) == RECORD_TYPE
+
+
+def _handed_records(stored: Any) -> list[dict] | None:
+    """The rows handed in `stored.records`, or None when no rows were handed."""
+    if stored is None:
+        return None
+    if not isinstance(stored, dict) or not isinstance(stored.get('records'), list):
+        raise SettingError('stored, when given, is {"records": [{id, type, value}, ...]}: the rows read from the person\'s store.')
+    return stored['records']
+
+
+def handed_record(stored: Any, record_id: str, folder: str | None = None) -> dict | None:
+    """The row `record_id` names among the rows handed in `stored.records` (settings.mjs handedRecord), or None when
+    none was handed or its value is null. With `folder`, a row of another tool's folder is refused."""
+    row_folder = parse_id(record_id)[0]
+    if folder and row_folder != folder:
+        raise SettingError(f'{record_id!r} belongs to tools/{row_folder}, not tools/{folder}: give a {ID_PREFIX}{folder}~... id.')
+    for record in _handed_records(stored) or []:
+        if _is_setting_row(record) and record.get('id') == record_id and isinstance(record.get('value'), dict):
+            return {'id': record_id, 'type': RECORD_TYPE, 'value': record['value']}
+    return None
+
+
+def given_rows(request: dict, folder: str | None = None) -> Any:
+    """What `settings_record` gives: a row id is looked up in `stored.records`; left out, the rows in `stored.records`."""
+    given = request.get('settings_record')
+    handed = _handed_records(request.get('stored'))
+    if isinstance(given, str) and given.startswith(ID_PREFIX):
+        if handed is None:
+            raise SettingError(f'settings_record names {given}, but no rows were handed in: read it from {LIST_ID} in the '
+                               "person's store and hand it in stored.records, or hand the record itself.")
+        record = handed_record(request['stored'], given, folder)
+        if record is None:
+            raise SettingError(f'No {given} in {LIST_ID}: write the row first, or leave settings_record out to run on the defaults.')
+        return record
+    if given is None and handed is not None:
+        return [r for r in handed if _is_setting_row(r) and isinstance(r.get('value'), dict)]
+    return given
+
+
 def request_settings(request: dict, defaults: Any, folder: str | None = None,
                      scopes: Iterable[tuple[str, str]] | None = None, tool: str | None = None) -> Any:
-    """Weakest first: `defaults`, the row `request['settings_record']` holds (a record, its value, a list or a file,
-    as setting() takes; do-work/run-with-settings.mjs has already read a named id through the door), then
-    `request['settings']`."""
-    given = request.get('settings_record')
-    if isinstance(given, str) and given.startswith(ID_PREFIX):
-        raise SettingError(f'settings_record names {given}, which this program cannot read itself: run it under '
-                           'tools/settings/do-work/run-with-settings.mjs, or hand the record itself.')
+    """Weakest first: `defaults`, the row `request['settings_record']` gives (given_rows: a record, its value, a list
+    or a file, as setting() takes, or a row id looked up in `request['stored']`), then `request['settings']`."""
+    given = given_rows(request, folder)
     found = None if given is None else chosen(given, folder, scopes)
     out = copy.deepcopy(defaults)
     if found is not None:
@@ -201,4 +240,17 @@ def request_settings(request: dict, defaults: Any, folder: str | None = None,
         if not isinstance(own, dict):
             raise SettingError('settings, when given, must be a JSON object.')
         out = lay_over(out, own)
+    return out
+
+
+def keep(records: Iterable[dict], stored: Any) -> list[dict]:
+    """The rows to keep in the person's store, each with `expected`: the row as handed in `stored.records`
+    ({type, value}), or None when it was not there. A store refuses a keep whose expected row has moved, so a
+    write made from a stale read never lands."""
+    handed = {r.get('id'): r for r in _handed_records(stored) or [] if isinstance(r, dict)}
+    out = []
+    for record in records:
+        before = handed.get(record['id'])
+        expected = None if before is None or before.get('value') is None else {'type': before.get('type'), 'value': before['value']}
+        out.append({**record, 'expected': expected})
     return out

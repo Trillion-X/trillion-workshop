@@ -34,15 +34,3 @@ test('the row runs the command that exists', async () => {
   assert.equal(row.id, 'tool:read-a-tool-setting');
   assert.ok(existsSync(join(folder, 'do-work', 'read_setting.py')));
 });
-
-test('readSetting reads each scope through the door, most specific first', async () => {
-  const { readSetting } = await import('../read-data/settings.mjs');
-  const row = makeRecord('make-a-sample', 'account', 'main', { pace: 1 }, { name: 'sample', tool: 'tool:make-a-sample', source: 'x@0' });
-  const asked = [];
-  const door = { read: async (type, id) => { asked.push([type, id]); return id === row.id ? row.value : null; } };
-  assert.deepEqual(await readSetting(door, { folder: 'make-a-sample', scopes: [['film', 'f1'], ['account', 'main']] }), { pace: 1 });
-  assert.deepEqual(asked, [['record:setting', 'record:setting:make-a-sample~film~f1'], ['record:setting', 'record:setting:make-a-sample~account~main']]);
-  assert.equal(await readSetting(door, { folder: 'make-a-sample', scopes: [['film', 'f1']], fallback: 'none' }), 'none');
-  await assert.rejects(readSetting(door, { folder: 'make-a-sample', scopes: [['account', 'main']], tool: 'tool:another' }), SettingError);
-  await assert.rejects(readSetting(door, { folder: 'make-a-sample', scopes: [] }), /scopes to try/);
-});

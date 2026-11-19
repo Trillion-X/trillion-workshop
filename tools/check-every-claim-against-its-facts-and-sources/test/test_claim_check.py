@@ -261,7 +261,7 @@ class WorldAndCommands(Base):
                                (dict(self.request, settings_record=fixture_world.setting_row(status='retired')), "'retired'"),
                                ({k: v for k, v in self.request.items() if k != 'settings_record'}, 'has no settings_record'),
                                (dict(self.request, world_dir=self.dir), 'world_dir has no lists.json'),
-                               (dict(self.request, settings_record='record:setting:x~film~y'), 'cannot read itself')]:
+                               (dict(self.request, settings_record='record:setting:x~film~y'), 'no rows were handed in')]:
             code, answer = self.run_check(request)
             self.assertEqual(code, 2, answer)
             self.assertIn(words, answer['error'])

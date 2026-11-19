@@ -82,7 +82,7 @@ NEEDS_LIMITS = {'check', 'batch', 'pins', 'variety', 'review-pack', 'export-span
 
 def request_argv(request, folder):
     """`request`: one JSON request on standard input, {"argv": [command...], "settings_record": <the list:settings row>, "settings"?: {...}}, as
-    tools/settings/do-work/run-with-settings.mjs hands it. The settings are read by the shared reader (request_settings: the row, then the
+    the caller hands it (or the row's id with the row in stored.records). The settings are read by the shared reader (request_settings: the row, then the
     request's own settings over it); settings.limits and settings.reviewed_pins are written to files in `folder` and named by --limits/--reviewed."""
     argv = list(request.get('argv') or [])
     if not argv or not all(isinstance(x, str) for x in argv):
@@ -97,7 +97,7 @@ def request_argv(request, folder):
     for key, flag, name in (('limits', '--limits', 'limits.json'), ('reviewed_pins', '--reviewed', 'reviewed-pins.json')):
         wanted = argv[0] in NEEDS_LIMITS and not argv[1:2] in (['eyes'], ['placement']) if key == 'limits' else argv[0] == 'pins'
         if wanted and not isinstance(settings.get(key), dict) and key == 'limits':
-            raise ValueError(f"{argv[0]} needs the person's limits: name their list:settings row in settings_record (run under tools/settings/do-work/run-with-settings.mjs), or give settings.limits")
+            raise ValueError(f"{argv[0]} needs the person's limits: hand their list:settings row in settings_record (the record, or its id with the row in stored.records), or give settings.limits")
         if wanted and isinstance(settings.get(key), dict):
             jsonio.write(os.path.join(folder, name), settings[key])
             argv += [flag, os.path.join(folder, name)]

@@ -67,6 +67,43 @@ class Reading(unittest.TestCase):
             S.setting('/no/such/file.json')
 
 
+class Keep(unittest.TestCase):
+    def test_expected_is_the_row_as_handed_or_none(self):
+        old = row('film', 'f1', {'pace': 2})
+        new = row('film', 'f1', {'pace': 3})
+        fresh = row('film', 'f2', {'pace': 4})
+        kept = S.keep([new, fresh], {'records': [old]})
+        self.assertEqual(kept[0], {**new, 'expected': {'type': old['type'], 'value': old['value']}})
+        self.assertEqual(kept[1], {**fresh, 'expected': None})
+        self.assertEqual(S.keep([new], None), [{**new, 'expected': None}])
+        with self.assertRaises(S.SettingError):
+            S.keep([new], [old])
+
+
+class Handed(unittest.TestCase):
+    rows = [row('account', 'main', {'pace': 1}), row('film', 'f1', {'pace': 2})]
+
+    def test_a_named_row_is_read_from_the_rows_handed_in(self):
+        stored = {'records': self.rows + [{'id': 'note:1', 'type': 'note', 'value': {'words': 'not a setting'}}]}
+        got = S.request_settings({'settings_record': self.rows[1]['id'], 'stored': stored, 'settings': {'w': 1}},
+                                 {'pace': 0, 'w': 0}, folder='make-a-sample')
+        self.assertEqual(got, {'pace': 2, 'w': 1})
+        got = S.request_settings({'stored': stored}, {}, folder='make-a-sample', scopes=[('film', 'f9'), ('account', 'main')])
+        self.assertEqual(got, {'pace': 1})
+        self.assertIsNone(S.handed_record(stored, 'record:setting:make-a-sample~film~absent'))
+
+    def test_a_named_row_not_handed_is_refused_never_run_on_the_defaults(self):
+        rid = self.rows[1]['id']
+        for request in ({'settings_record': rid}, {'settings_record': rid, 'stored': {'records': []}},
+                        {'settings_record': 'record:setting:make-a-sample~film~absent', 'stored': {'records': self.rows}}):
+            with self.assertRaises(S.SettingError):
+                S.request_settings(request, {'pace': 0}, folder='make-a-sample')
+        with self.assertRaises(S.SettingError):
+            S.request_settings({'settings_record': rid, 'stored': {'records': self.rows}}, {}, folder='another-tool')
+        with self.assertRaises(S.SettingError):
+            S.request_settings({'stored': self.rows}, {})
+
+
 class Command(unittest.TestCase):
     def run_cli(self, request):
         done = subprocess.run([sys.executable, '-I', str(CLI)], input=json.dumps(request), capture_output=True, text=True)
@@ -77,14 +114,20 @@ class Command(unittest.TestCase):
                                            'settings': {'b': 1, 'a': 2}, 'name': 'n', 'tool': 'tool:t', 'from': 'x@1'},
                                   'with_list': True})
         self.assertEqual(code, 0)
-        listed, record = out['result']['records']
-        self.assertEqual(listed['id'], 'list:settings')
-        self.assertEqual(record['value']['settings'], '{"a":2,"b":1}')
+        listed, record = out['result']['keep']
+        self.assertEqual((listed['id'], listed['expected']), ('list:settings', None))
+        self.assertEqual((record['value']['settings'], record['expected']), ('{"a":2,"b":1}', None))
+        record = {k: v for k, v in record.items() if k != 'expected'}
         code, out = self.run_cli({'settings_record': [record], 'folder': 'make-a-sample',
                                   'scopes': [{'kind': 'film', 'id': 'f1'}]})
         self.assertEqual((code, out['result']), (0, {'found': True, 'id': record['id'], 'settings': {'a': 2, 'b': 1}}))
         code, out = self.run_cli({'settings_record': [], 'default': {'a': 0}})
         self.assertEqual(out['result'], {'found': False, 'id': None, 'settings': {'a': 0}})
+        code, out = self.run_cli({'stored': {'records': [record]}, 'folder': 'make-a-sample', 'scopes': [{'kind': 'film', 'id': 'f1'}]})
+        self.assertEqual(out['result'], {'found': True, 'id': record['id'], 'settings': {'a': 2, 'b': 1}})
+        code, out = self.run_cli({'settings_record': record['id'], 'folder': 'make-a-sample'})
+        self.assertEqual(code, 2)
+        self.assertIn('no rows were handed in', out['error'])
         code, out = self.run_cli({'make': {'folder': 'x'}})
         self.assertEqual(code, 2)
         self.assertIn('make needs', out['error'])
