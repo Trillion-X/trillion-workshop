@@ -1,0 +1,405 @@
+{
+  "_what": "workflow:send-each-new-notice-to-my-devices: the delivery half of a notice. Telling keeps a row of the person's notices (workflow:tell-the-person, tell-when-a-wake-stops, tell-the-owner-what-changed-for-each-person); this sends each new one to the person's registered phones and browsers through tool:send-notification-to-my-devices, once per device, and keeps notice_sends. Registering a device is the device's own step.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:send-each-new-notice-to-my-devices",
+        "label": "Send each new notice to my devices",
+        "job": "Every five minutes, send each new unread notice in the person's own notices to the phones and browsers they registered (web push and Apple push), once per device, and keep which were sent. A device sees only notices made after it registered, addressed to it or to every device.",
+        "produces": "For each new notice, one push to each registered phone or browser, and one notice_sends row per notice and device with the send's stage.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "audience"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "credential_name"
+              ],
+              "description": "Where the person's notices and devices are kept: credential_name, the vault name of that database's login (the person's own switch input)",
+              "properties": {
+                "credential_name": {
+                  "type": "string"
+                }
+              }
+            },
+            "audience": {
+              "type": "string",
+              "description": "Who the notices are for, as the person names themselves (a reference such as person:<id>)"
+            }
+          }
+        },
+        "wakes": [
+          {
+            "id": "every-five-minutes",
+            "on": {
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:send-each-new-notice-to-my-devices:every-five-minutes"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:send-each-new-notice-to-my-devices:every-five-minutes",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-01",
+                      "local_window": {
+                        "start": "00:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:send-each-new-notice-to-my-devices",
+                        "owner_dispatch": {
+                          "name": "workflow:send-each-new-notice-to-my-devices",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "minute",
+                        "interval": 5
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "budget": {
+              "steps": 60,
+              "wall_ms": 600000
+            },
+            "input": {
+              "start_at": "make-devices"
+            }
+          }
+        ],
+        "definition": {
+          "id": "workflow:send-each-new-notice-to-my-devices",
+          "name": "Send each new notice to my devices",
+          "kind": "workflow",
+          "is_active": true,
+          "version": 1,
+          "steps": [
+            {
+              "id": "make-devices",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "create table if not exists devices (id text primary key, platform text not null check (platform in ('live', 'web-push', 'apns')), token text, app_build text, registered_at timestamptz not null default now(), last_seen_at timestamptz not null default now())"
+                },
+                "context": {
+                  "step_id": "make-devices"
+                }
+              }
+            },
+            {
+              "id": "make-notices",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "create table if not exists notices (id bigint generated always as identity primary key, device_id text references devices (id), title text not null default '', body text not null default '', url text, made_at timestamptz not null default now(), read_at timestamptz, acted_at timestamptz)"
+                },
+                "context": {
+                  "step_id": "make-notices"
+                }
+              }
+            },
+            {
+              "id": "widen-notices",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "alter table notices add column if not exists kind text, add column if not exists key text"
+                },
+                "context": {
+                  "step_id": "widen-notices"
+                }
+              }
+            },
+            {
+              "id": "make-sends",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "create table if not exists notice_sends (notice_id bigint not null references notices (id), device_id text not null references devices (id), stage text not null, at timestamptz not null default now(), primary key (notice_id, device_id))"
+                },
+                "context": {
+                  "step_id": "make-sends"
+                }
+              }
+            },
+            {
+              "id": "read-due",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "SELECT n.id, coalesce(n.kind, 'needs-you') AS kind, n.title, n.body, n.url, json_agg(json_build_object('device_id', d.id, 'route', d.platform, 'address', CASE WHEN d.platform = 'web-push' THEN d.token::jsonb ELSE to_jsonb(d.token) END) ORDER BY d.id) AS devices FROM notices n JOIN devices d ON (n.device_id IS NULL OR n.device_id = d.id) AND d.platform IN ('web-push', 'apns') AND d.token IS NOT NULL AND n.made_at >= d.registered_at WHERE n.read_at IS NULL AND n.made_at > now() - interval '1 day' AND NOT EXISTS (SELECT 1 FROM notice_sends s WHERE s.notice_id = n.id AND s.device_id = d.id) GROUP BY n.id ORDER BY n.id LIMIT 20"
+                },
+                "context": {
+                  "step_id": "read-due"
+                }
+              }
+            },
+            {
+              "id": "send-each",
+              "kind": "loop",
+              "config": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "read-due",
+                    "path": "output.rows"
+                  }
+                },
+                "item_var": "notice",
+                "definition_id": "workflow:send-each-new-notice-to-my-devices:send-one",
+                "parallel": false
+              }
+            }
+          ],
+          "edges": [
+            {
+              "from": "make-devices",
+              "to": "make-notices",
+              "kind": "always"
+            },
+            {
+              "from": "make-notices",
+              "to": "widen-notices",
+              "kind": "always"
+            },
+            {
+              "from": "widen-notices",
+              "to": "make-sends",
+              "kind": "always"
+            },
+            {
+              "from": "make-sends",
+              "to": "read-due",
+              "kind": "always"
+            },
+            {
+              "from": "read-due",
+              "to": "send-each",
+              "kind": "always"
+            }
+          ],
+          "uses": [
+            {
+              "id": "workflow:send-each-new-notice-to-my-devices:send-one",
+              "name": "Send one notice to its devices",
+              "kind": "workflow",
+              "is_active": true,
+              "version": 1,
+              "steps": [
+                {
+                  "id": "send",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:send-notification-to-my-devices",
+                    "input": {
+                      "notification": {
+                        "notification_id": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "start_at"
+                          },
+                          "resolve_nested_bindings": true,
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  "told:",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "notice.id"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        "kind": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "notice.kind"
+                          }
+                        },
+                        "title": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "notice.title"
+                          }
+                        },
+                        "body": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "notice.body"
+                          }
+                        },
+                        "audience_refs": [
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "audience"
+                            }
+                          }
+                        ]
+                      },
+                      "audience": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "audience"
+                        }
+                      },
+                      "devices": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "notice.devices"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "send"
+                    }
+                  }
+                },
+                {
+                  "id": "keep-sends",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "store.credential_name"
+                        }
+                      },
+                      "sql": "INSERT INTO notice_sends (notice_id, device_id, stage) SELECT $1::bigint, d->>'device_id', $3::text FROM jsonb_array_elements($2::jsonb) AS d ON CONFLICT (notice_id, device_id) DO NOTHING",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "notice.id"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "notice.devices"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "steps",
+                            "key": "send",
+                            "path": "output.stage"
+                          }
+                        }
+                      ]
+                    },
+                    "context": {
+                      "step_id": "keep-sends"
+                    }
+                  }
+                }
+              ],
+              "edges": [
+                {
+                  "from": "send",
+                  "to": "keep-sends",
+                  "kind": "always"
+                }
+              ]
+            }
+          ]
+        },
+        "records": {
+          "runs": [
+            "tool:run-sql-in-my-database",
+            "tool:send-notification-to-my-devices"
+          ]
+        }
+      }
+    }
+  ]
+}

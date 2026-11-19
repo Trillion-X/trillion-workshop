@@ -1,0 +1,46 @@
+{
+  "start_here": "Say to your AI: \"Send each new notice to my phone and browser.\" The AI turns on workflow:send-each-new-notice-to-my-devices's wake every-five-minutes with your store (the vault name of the database your notices are kept in) and audience (who the notices are for) as the switch's input.",
+  "lists": [],
+  "no_lists_because": "The notices, devices and sends are rows of the person's own database; this workflow reads and keeps them there and names no list of its own.",
+  "workflows": [
+    "workflow:send-each-new-notice-to-my-devices"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database",
+    "tool:send-notification-to-my-devices"
+  ],
+  "instructions": [
+    "1. Register each phone or browser that should get notices (its devices row: web-push with its push subscription, or apns with its token). That is the device's own step.",
+    "2. Switch on the wake every-five-minutes once, with store {credential_name} and audience.",
+    "3. Every five minutes each new unread notice of the last day goes once to each device registered before it, addressed to it or to every device; notice_sends keeps each send's stage."
+  ],
+  "worked_examples": [
+    {
+      "title": "A new notice reaches the phone",
+      "ask": "(the five-minute due time arrived; notice told:1 is new and the phone is registered)",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:send-each-new-notice-to-my-devices",
+              "start_at": "make-devices",
+              "store": {
+                "credential_name": "my-notices-connection"
+              },
+              "audience": "person:me"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:send-each-new-notice-to-my-devices",
+      "step": "send-each",
+      "given": "notices holds told:1, made after the phone registered and not read; notice_sends holds nothing for it.",
+      "hands_back": "One send of told:1 to the phone through tool:send-notification-to-my-devices and one notice_sends row (told:1, the phone, its stage). The next run sends nothing more for it."
+    }
+  ],
+  "drafted_from": "workflow:send-each-new-notice-to-my-devices's own file (its wake, steps and the send-one line) and tools/workflows/test/send-each-new-notice-to-my-devices.test.mjs"
+}
