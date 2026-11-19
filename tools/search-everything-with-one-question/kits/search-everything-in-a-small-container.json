@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:search-everything-in-a-small-container's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Search every list, record and file name I keep with one question, in one ranked list, without my own computer\", with {\"question\":\"merlinfalcon\"}. It runs tool:search-everything-in-a-small-container and answers {\"question\":\"merlinfalcon\",\"terms\":[\"merlinfalcon\"],\"results\":[{\"start\":0,\"end\":0,\"id\":\"record:c1\",\"source\":\"trillion\",\"type\":\"sample-contacts\",\"record\":\"c1\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"c1\",\"type\":\"sample-contacts\"}},\"score\":0.01639,\"places\":[{\"place\":\"written\",\"label\":\"Notes and text\",\"said\":null,\"score\":0.016}] ...",
+  "start_here": "Say to your AI: \"Search every list, record and file name I keep with one question, in one ranked list, without my own computer\", with {\"question\":\"merlinfalcon\", \"records\": [...], \"files\": {...}} (the records and files read from your own store). It runs tool:search-everything-in-a-small-container and answers one ranked list of hits, each with found_in, said, score and address.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes its input and the rows and file names of yours it is given, and keeps nothing.",
   "workflows": [],
@@ -31,7 +31,7 @@
         }
       },
       "given": "The input {\"question\":\"merlinfalcon\"}, with 4 example rows (sample-contacts, sample-invoices, sample-places) already kept.",
-      "hands_back": "It answered {\"question\":\"merlinfalcon\",\"terms\":[\"merlinfalcon\"],\"results\":[{\"start\":0,\"end\":0,\"id\":\"record:c1\",\"source\":\"trillion\",\"type\":\"sample-contacts\",\"record\":\"c1\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"c1\",\"type\":\"sample-contacts\"}},\"score\":0.01639,\"places\":[{\"place\":\"written\",\"label\":\"Notes and text\",\"said\":null,\"score\":0.016}],\"moments\":[{\"start\":0,\"end\":0,\"timed\":false,\"said\":null,\"places\":[\"written\"]}],\"said\":null},{\"start\":0,\"end\":0,\"id\":\"record:i1\",\"source\":\"trillion\",\"type\":\"sample-invoices\",\"record\":\"i1\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"i1\" ...."
+      "hands_back": "It answered {question, terms, results, unavailable, pending}: the sample records (found_in written, each with its said and its address by id and kind) and the sample file name (found_in name, its address by path), best first."
     }
   ]
 }

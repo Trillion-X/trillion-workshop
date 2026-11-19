@@ -10,14 +10,15 @@
 // keeps only the storage reads this calls (engine-feature-boundary.json, Avery 2026-10-29).
 //
 // What was adapted, and why:
-// - The lanes are the engine's two storage reads (read-data/settings.json `lanes`): records:search at @own-records,
-//   whose every kind is its own lane, and the files' name search at @namespace (only when no `type` is asked). A hit
-//   keeps the lane its owner gave it (one per record kind), so kinds are ranked apart as the engine ranked them.
+// - The lanes are the records and the file names the caller hands in (`records`, `files`): the caller reads them from the
+//   person's own store, in its own language, and this run only searches them. Records of each kind are their own lane (rank
+//   1), and the file names are a lane at rank 0.8, asked only when no `type` narrows the question. The index lanes read the
+//   semantic-index-descriptor records and the vector set files handed in the same way (meaning/).
 // - The index lanes, partial answers, hidden files, canonical file identities, candidate fusion sessions and learned
 //   weights read the old Worker's SQL; the Workshop has none of them, so `given` starts empty, nothing is hidden, a file
 //   is its own canonical identity and every weight is 1.
-// - A refusal of the records' search is the answer's refusal (thrown), as the engine kept it; the files' refusal is
-//   named `unavailable`, never guessed.
+// - A lane that was not handed its input (no `records` or no `files`) is named `unavailable`, never guessed; a run that
+//   reaches no store has nothing to refuse, and only `door.run` (another tool's run, for the picture query) leaves the run.
 // - A result is its owner's hit (with its address) plus found_in, places, moments, said and the fused score.
 import settings from '../read-data/settings.json' with { type: 'json' };
 import { searchIndexPlaces } from '../meaning/read-data/meaning-search.mjs';
@@ -35,29 +36,81 @@ const canonicalFiles = identities => new Map(identities.map(identity => [identit
 const planned = (type, { places = null, sources = null, matches = null } = {}) => config.lanes.filter(lane => (type === undefined || type === null || lane.match === 'records')
   && (!places || lane.place == null || places.includes(lane.place)) && (!sources || sources.includes(lane.source)) && (!matches || matches.includes(lane.match)));
 
-// `{ question, type?, limit? }` in; `{ question, terms, results, unavailable, pending, sat_out }` out.
+// The person's records and files as this run was handed them: the values the caller read from its own store. `recordsOf`
+// lists the records of one kind (all kinds when none is named); `readSpan` reads a bounded span of one of the given files.
+// `run` is another Workshop tool's run, the only thing this run reaches outside its input.
+function givenOf(fields, door) {
+  const records = Array.isArray(fields.records) ? fields.records.filter(record => record && typeof record === 'object') : [];
+  const bytesOf = held => Buffer.from(typeof held === 'string' ? held : held?.base64 ?? '', typeof held === 'string' ? 'utf8' : 'base64');
+  const files = new Map(Object.entries(fields.files && typeof fields.files === 'object' ? fields.files : {}).map(([name, held]) => [name, bytesOf(held)]));
+  return {
+    recordsOf: type => (type === undefined ? records : records.filter(record => record.type === type)),
+    fileNames: () => [...files.keys()],
+    readSpan(name, offset, length) {
+      const bytes = files.get(name);
+      if (!bytes) throw Object.assign(new Error(`No file named ${name} was handed in.`), { code: 'not_found' });
+      const part = bytes.subarray(offset, offset + Math.max(0, length));
+      return { byte_length: bytes.length, offset, bytes_returned: part.length, encoding: 'base64', content: part.toString('base64') };
+    },
+    run: (tool, asked) => door.run(tool, asked),
+  };
+}
+
+// The text of a record's values, as words: every word of its JSON, lower case, apostrophes dropped.
+const textOf = value => JSON.stringify(value ?? {});
+
+// The records that hold every asked word (a word of the record starts with each term), best first by how many of their
+// words are asked for, each with the text it was found in (said) and its address (the person's own record, by id and kind).
+function searchRecords(given, { question, type, limit }) {
+  const terms = [...new Set(words(question).filter(word => word.length >= config.min_word_length))];
+  if (!terms.length) return [];
+  const hits = [];
+  for (const record of given.recordsOf(type)) {
+    const recordWords = words(textOf(record.value));
+    const matched = recordWords.filter(word => terms.some(term => word.startsWith(term)));
+    if (!terms.every(term => recordWords.some(word => word.startsWith(term)))) continue;
+    const said = leavesOf(record.value).find(text => terms.some(term => words(text).some(word => word.startsWith(term))));
+    hits.push({ id: `record:${record.id}`, record: record.id, type: record.type, found_in: ['written'], said: said ? said.slice(0, 200) : null,
+      score: matched.length / Math.max(1, recordWords.length), address: { resource: 'own-records', input: { id: record.id, type: record.type } } });
+  }
+  return hits.sort((a, b) => b.score - a.score || (a.record < b.record ? -1 : a.record > b.record ? 1 : 0)).slice(0, Number.isInteger(limit) ? limit : config.limit);
+}
+
+// The strings inside a value, depth first.
+function leavesOf(value) {
+  if (typeof value === 'string') return [value];
+  if (value && typeof value === 'object') return Object.values(value).flatMap(leavesOf);
+  return [];
+}
+
+// The file names that hold every asked word (a word of the file's own name starts with each term), best first.
+function searchFileNames(given, { question, limit }) {
+  const terms = [...new Set(words(question).filter(word => word.length >= config.min_word_length))];
+  if (!terms.length) return [];
+  return given.fileNames().filter(path => { const nameWords = words(path.split('/').at(-1)); return terms.every(term => nameWords.some(word => word.startsWith(term))); })
+    .sort().slice(0, Number.isInteger(limit) ? limit : config.limit).map((path, at) => ({ id: `file:${path}`, source: 'files', name: path.split('/').at(-1), path,
+      identity: path, found_in: ['name'], said: null, score: 1 / (61 + at), address: { resource: 'own-files', input: { path } } }));
+}
+
+// `{ question, type?, limit?, records?, files? }` in; `{ question, terms, results, unavailable, pending, sat_out }` out.
+// `records` are the person's records the caller read from its own store ({ id, type, value }); `files` maps each of the
+// person's file names to its text or { base64 }. This run reads no store: what is not handed in is not there, and a lane
+// that was not handed its input is named `unavailable`. `door` is used for one thing only, another Workshop tool's run.
 export async function searchEverything(input, { door }) {
   const fields = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
-  let refusal = null;
-  const indexes = searchIndexPlaces(door, config, fields);
+  const given = givenOf(fields, door);
+  const indexes = searchIndexPlaces(given, config, fields);
   const mechanisms = {
     indexes: (lane, context) => indexes(lane, context, Number.isInteger(fields.limit) ? fields.limit : config.limit),
-    // The records door's search; each kind it answers is its own lane.
-    records: async (lane, { question, report }) => {
-      let answer;
-      try { answer = await door.search({ question, ...(fields.type === undefined ? {} : { type: fields.type }), ...(fields.limit === undefined ? {} : { limit: fields.limit }) }); }
-      catch (error) { refusal = error; return []; }
-      for (const item of answer?.unavailable ?? []) report.passed.unavailable.push(item);
-      for (const item of answer?.pending ?? []) report.passed.pending.push(item);
-      return (answer?.results ?? []).map(hit => ({ start: 0, end: 0, ...hit, key: hit.id, lane: { ...lane, id: `${lane.id}:${hit.type}` } }));
+    // The records handed in, searched here; each kind it answers is its own lane.
+    records: async (lane, { question }) => {
+      if (fields.records === undefined) throw Object.assign(new Error('No records were handed in.'), { code: 'no_records' });
+      return searchRecords(given, { question, type: fields.type, limit: fields.limit }).map(hit => ({ start: 0, end: 0, ...hit, source: lane.source, key: hit.id, lane: { ...lane, id: `${lane.id}:${hit.type}` } }));
     },
-    // The files' name search, asked with only the question and the limit.
-    files: async (lane, { question, report }) => {
-      const asked = { question, ...(Number.isInteger(fields.limit) ? { limit: fields.limit } : {}) };
-      const answer = await door.files(lane.operation, asked);
-      for (const item of answer?.unavailable ?? []) report.passed.unavailable.push(item);
-      for (const item of answer?.pending ?? []) report.passed.pending.push(item);
-      return (answer?.results ?? []).map(hit => ({ start: 0, end: 0, ...hit, identity: hit.identity ?? hit.path, key: hit.id }));
+    // The file names handed in, searched here.
+    files: async (lane, { question }) => {
+      if (fields.files === undefined) throw Object.assign(new Error('No files were handed in.'), { code: 'no_files' });
+      return searchFileNames(given, { question, limit: fields.limit }).map(hit => ({ start: 0, end: 0, ...hit, key: hit.id }));
     },
   };
   return finish(fields.question, { type: fields.type, places: fields.places, sources: fields.sources, matches: fields.matches, limit: Number.isInteger(fields.limit) ? fields.limit : config.limit });
@@ -72,7 +125,6 @@ export async function searchEverything(input, { door }) {
     const report = {
       unavailable: (lane, reason) => unavailable.push({ lane: lane.id, place: lane.place, source: lane.source, reason }),
       pending: lane => pending.push({ lane: lane.id, place: lane.place, source: lane.source }),
-      passed: { unavailable, pending },
     };
     const answered = question ? await Promise.all(lanes.map(async (lane, at) => {
       if (INDEX_MATCHES.has(lane.match)) return given.answered[at] ?? [];
@@ -83,7 +135,6 @@ export async function searchEverything(input, { door }) {
       }
       catch (error) { report.unavailable(lane, reasonOf(error)); return []; }
     })) : [];
-    if (refusal) throw refusal;
     // An index lane still reading is still working, as a picture model starting is: it is named pending, so every screen
     // and AI that reads this answer asks again rather than taking an empty answer as final (a follower still rebuilding).
     if (question) for (const lane of lanes) if (given.still_reading?.[lane.id] && !pending.some(item => item.lane === lane.id)) report.pending(lane);
@@ -159,16 +210,15 @@ export async function searchEverything(input, { door }) {
 // { path, method, query } in, its { status, body } out. searchOptions is old src/search.mjs:2221: places, sources and
 // matches as comma lists, limit a whole number above 0, at most 200. Any other request is no route of this one.
 export async function answerTheSearchRoute(input, { door }) {
-  const { path, method, query } = input && typeof input === 'object' ? input : {};
+  const { path, method, query, records, files } = input && typeof input === 'object' ? input : {};
   if (method !== 'GET' || path !== '/search') return { status: 404, body: { error: 'Not found' } };
   const asked = query && typeof query === 'object' ? query : {};
   const list = name => (typeof asked[name] === 'string' && asked[name] ? asked[name].split(',').map(item => item.trim()).filter(Boolean) : null);
   const limit = Number(asked.limit);
   try {
     return { status: 200, body: await searchEverything({ question: typeof asked.q === 'string' ? asked.q : '', places: list('places'), sources: list('sources'), matches: list('matches'),
-      ...(Number.isInteger(limit) && limit > 0 ? { limit: Math.min(limit, 200) } : {}) }, { door }) };
+      ...(Number.isInteger(limit) && limit > 0 ? { limit: Math.min(limit, 200) } : {}), records, files }, { door }) };
   } catch (error) {
-    // A busy records account is asked again by the caller (503, retryable); any other refusal is final.
-    return error.retryable === true ? { status: 503, body: { error: error.message, retryable: true } } : { status: 500, body: { error: error.message } };
+    return { status: 500, body: { error: error.message } };
   }
 }

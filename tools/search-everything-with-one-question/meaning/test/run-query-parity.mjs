@@ -18,10 +18,9 @@ const descriptors = sets.map(set => ({
   search_mode: set.search_mode ?? settings.search_mode ?? 'approximate',
   vector_set: { items: { file: set.items }, vectors: { file: set.vectors }, points_to: set.points_to },
 }));
-const door = {
-  async *list({ type }) { if (type === 'semantic-index-descriptor') for (const value of descriptors) yield { id: `semantic-index-descriptor:${value.index_id}`, value }; },
-  async files(method, { name_or_identity, offset, length }) {
-    if (method !== 'read_file') throw new Error('This comparison bridge only reads file spans.');
+const given = {
+  recordsOf(type) { return type === 'semantic-index-descriptor' ? descriptors.map(value => ({ id: `semantic-index-descriptor:${value.index_id}`, type, value })) : []; },
+  readSpan(name_or_identity, offset, length) {
     if (!Number.isSafeInteger(offset) || offset < 0 || !Number.isSafeInteger(length) || length < 0) throw new Error('Read spans need non-negative integer offsets and lengths.');
     const file = openSync(name_or_identity, 'r');
     try {
@@ -37,7 +36,7 @@ if (!Array.isArray(queries) || !Array.isArray(vectors) || queries.length !== vec
 const results = {};
 for (const [i, query] of queries.entries()) {
   const query_vector_base64 = Buffer.from(JSON.stringify({ vector: vectors[i] })).toString('base64');
-  results[query] = await findSimilarAcross({ index_ids: sets.map(set => set.index_id), query_vector_base64, limit: top, spread: { per_file, seconds_apart } }, { door });
+  results[query] = await findSimilarAcross({ index_ids: sets.map(set => set.index_id), query_vector_base64, limit: top, spread: { per_file, seconds_apart } }, { given });
 }
 
 function pair(file, start) {

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { localVectorDoor, searchKeptVectorSets } from '../do-work/search-kept-vector-sets.mjs';
+import { localGiven, searchKeptVectorSets } from '../do-work/search-kept-vector-sets.mjs';
 
 const python = process.env.VECTOR_PYTHON || 'python3';
 const fixture = fileURLToPath(new URL('./query-cli-fixture.py', import.meta.url));
@@ -49,11 +49,11 @@ test('the shared search retains float32 source order, timed spread, readable nam
   assert.equal(one.results['blue sky'].said.length, 1);
 });
 
-test('local vector-set reads use exact bounded spans and refuse other operations', async () => {
-  const door = localVectorDoor([]);
+test('local vector-set reads use exact bounded spans and refuse unbounded ones', async () => {
+  const given = localGiven([]);
   const expected = readFileSync(fixture).subarray(3, 11);
-  const answer = await door.files('read_file', { name_or_identity: fixture, offset: 3, length: 8 });
+  const answer = given.readSpan(fixture, 3, 8);
   assert.deepEqual(Buffer.from(answer.content, 'base64'), expected);
-  await assert.rejects(door.files('write_file', { name_or_identity: fixture, offset: 0, length: 8 }), /Only bounded file reads/);
-  await assert.rejects(door.files('read_file', { name_or_identity: fixture, offset: -1, length: 8 }), /Only bounded file reads/);
+  assert.throws(() => given.readSpan(fixture, -1, 8), /Only bounded file reads/);
+  assert.throws(() => given.readSpan(fixture, 0, 1.5), /Only bounded file reads/);
 });

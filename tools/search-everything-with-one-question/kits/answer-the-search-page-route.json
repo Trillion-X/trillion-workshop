@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:answer-the-search-page-route's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Answer the page's one search (GET /work/api/search) over every list, record and file name I keep\", with {\"path\":\"/search\",\"method\":\"GET\",\"query\":{\"q\":\"merlinfalcon\",\"sources\":\"trillion\"},\"body\":{},\"browser\":{}}. It runs tool:answer-the-search-page-route and answers {\"status\":200,\"body\":{\"question\":\"merlinfalcon\",\"terms\":[\"merlinfalcon\"],\"results\":[{\"start\":0,\"end\":0,\"id\":\"record:c1\",\"source\":\"trillion\",\"type\":\"sample-contacts\",\"record\":\"c1\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"c1\",\"type\":\"sample-contacts\"}},\"score\":0.01639,\"places\":[{\"place\":\"written\",\"label\":\"Notes and text\",\"said\":null ...",
+  "start_here": "Say to your AI: \"Answer the page's one search (GET /work/api/search) over every list, record and file name I keep\", with {\"path\":\"/search\",\"method\":\"GET\",\"query\":{\"q\":\"merlinfalcon\"},\"body\":{},\"browser\":{}, \"records\": [...], \"files\": {...}} (the records and files read from your own store). It runs tool:answer-the-search-page-route and answers {\"status\":200,\"body\":{\"question\":\"merlinfalcon\",\"terms\":[\"merlinfalcon\"],\"results\":[...],\"unavailable\":[],\"pending\":[]}}; each result has found_in, said, score and address.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes its input and the rows and file names of yours it is given, and keeps nothing.",
   "workflows": [],
@@ -41,7 +41,7 @@
         }
       },
       "given": "The input {\"path\":\"/search\",\"method\":\"GET\",\"query\":{\"q\":\"merlinfalcon\",\"sources\":\"trillion\"},\"body\":{},\"browser\":{}}, with 4 example rows (sample-contacts, sample-invoices, sample-places) already kept.",
-      "hands_back": "It answered {\"status\":200,\"body\":{\"question\":\"merlinfalcon\",\"terms\":[\"merlinfalcon\"],\"results\":[{\"start\":0,\"end\":0,\"id\":\"record:c1\",\"source\":\"trillion\",\"type\":\"sample-contacts\",\"record\":\"c1\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"c1\",\"type\":\"sample-contacts\"}},\"score\":0.01639,\"places\":[{\"place\":\"written\",\"label\":\"Notes and text\",\"said\":null,\"score\":0.016}],\"moments\":[{\"start\":0,\"end\":0,\"timed\":false,\"said\":null,\"places\":[\"written\"]}],\"said\":null},{\"start\":0,\"end\":0,\"id\":\"record:i1\",\"source\":\"trillion\",\"type\":\"sample-invoices\",\"record\":\"i1\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\" ...."
+      "hands_back": "It answered status 200 with body {question, terms, results, unavailable, pending}: the records (found_in written) and the file names (found_in name) that hold the word, each with its said and its address (the person's own record by id and kind, or a file by path)."
     }
   ]
 }

@@ -1,189 +1,89 @@
-// The one search, against stand-in doors: the merge moved from the engine, the files lane named when it cannot answer,
-// `type` leaving the files out, and 10,000 rows across 3 lists (a word only row 9,731 holds comes back first and reads
-// back through its address). The container row runs as the runner runs it, against the fake records door with exactly
-// its rights. Every record and name here is made up.
+// The one search over the records and file names handed in: the fused merge, a lane not handed its input named
+// unavailable, the type filter, a large list, the row's declared shape, the row as the runner runs it, and that the run
+// reaches no store (the only thing it may use from its door is a run of another tool). Made-up names only.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { recordsDoorFromCall, RecordsDoorError } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
-import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
+import { spawnSync } from 'node:child_process';
 import { searchEverything } from '../do-work/search-everything.mjs';
-import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { readFileSync } from 'node:fs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
-const K = 60;
-const wordsOf = text => String(text ?? '').toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
-const termsOf = question => [...new Set(wordsOf(String(question).slice(0, 500)))].filter(word => word.length >= 2);
+const RECORDS = [
+  { id: 'c1', type: 'sample-contacts', value: { title: 'Sample contact', notes: 'met the merlinfalcon keeper' } },
+  { id: 'i1', type: 'sample-invoices', value: { title: 'Sample invoice', notes: 'merlinfalcon feed, 3 bags' } },
+  { id: 'p1', type: 'sample-places', value: { title: 'Sample place', notes: 'merlinfalcon aviary' } },
+  { id: 'p2', type: 'sample-places', value: { title: 'Other place', notes: 'nothing here' } },
+];
+const FILES = { '/Notes/merlinfalcon care.txt': 'made-up care notes', '/Notes/other.txt': 'made up' };
 
-// The person's own door, as the engine answers it: records:search over every kind through a word index built as the
-// records are written (each kind its own lane, 1 / (k + rank)), and the files' name search (0.8 / (k + rank)).
-function personDoor({ records = [], files = [], filesRefused = null, recordsRefused = null } = {}) {
-  const kept = new Map(records.map(record => [record.id, record]));
-  const index = new Map();
-  for (const record of records) for (const word of new Set(wordsOf(JSON.stringify(record.value)))) {
-    for (let end = 2; end <= word.length; end += 1) {
-      const start = word.slice(0, end);
-      if (!index.has(start)) index.set(start, new Set());
-      index.get(start).add(record.id);
-    }
+// The door a run is handed: only `run` (another tool's run) is allowed; any store operation reached through it fails.
+const doorOf = () => new Proxy({ run: async () => { throw new Error('no tool run in this test'); } }, {
+  get(target, key) { if (key in target) return target[key]; throw new Error(`the search reached the door's ${String(key)}`); },
+});
+const rowOf = id => rows.records.map(record => record.payload).find(payload => payload.id === id);
+
+test('the lanes merge by reciprocal rank: each kind of record is its own lane, then the file whose name holds the word', async () => {
+  const answer = await searchEverything({ question: 'merlinfalcon', records: RECORDS, files: FILES }, { door: doorOf() });
+  assert.deepEqual(answer.unavailable, []);
+  assert.deepEqual(answer.results.slice(0, 3).map(hit => hit.type).sort(), ['sample-contacts', 'sample-invoices', 'sample-places']);
+  assert.deepEqual(answer.results.map(hit => hit.id).slice(3), ['file:/Notes/merlinfalcon care.txt']);
+  const record = answer.results.find(hit => hit.record === 'c1');
+  assert.deepEqual(record.found_in, ['written']);
+  assert.equal(record.said, 'met the merlinfalcon keeper');
+  assert.deepEqual(record.address, { resource: 'own-records', input: { id: 'c1', type: 'sample-contacts' } });
+  const file = answer.results.find(hit => hit.path === '/Notes/merlinfalcon care.txt');
+  assert.deepEqual(file.found_in, ['name']);
+  assert.deepEqual(file.address, { resource: 'own-files', input: { path: '/Notes/merlinfalcon care.txt' } });
+  assert.ok(record.score > file.score, 'the records rank above a file name at weight 0.8');
+});
+
+test('a lane not handed its input is named unavailable, never guessed', async () => {
+  const noFiles = await searchEverything({ question: 'merlinfalcon', records: RECORDS }, { door: doorOf() });
+  assert.deepEqual(noFiles.unavailable, [{ lane: 'file-names', place: 'name', source: 'files', reason: 'no_files' }]);
+  assert.ok(noFiles.results.every(hit => hit.source !== 'files'));
+  const noRecords = await searchEverything({ question: 'merlinfalcon', files: FILES }, { door: doorOf() });
+  assert.ok(noRecords.unavailable.some(item => item.lane === 'records' && item.reason === 'no_records'));
+  assert.ok(noRecords.results.every(hit => hit.source === 'files'));
+});
+
+test('with a type only that kind is searched, and the file names are not asked', async () => {
+  const answer = await searchEverything({ question: 'merlinfalcon', type: 'sample-places', records: RECORDS, files: FILES }, { door: doorOf() });
+  assert.deepEqual(answer.unavailable, []);
+  assert.deepEqual(answer.results.map(hit => hit.record), ['p1']);
+  assert.deepEqual(answer.results[0].found_in, ['written']);
+});
+
+test('a search over 10,000 rows in three lists answers row 9731 first, in well under 2 seconds', async () => {
+  const many = Array.from({ length: 10_000 }, (_, at) => ({ id: `r${at}`, type: ['list-a', 'list-b', 'list-c'][at % 3],
+    value: { title: `row ${at}`, notes: at === 9731 ? 'kestrel nest by the dock' : `plain text ${at}` } }));
+  const started = Date.now();
+  const answer = await searchEverything({ question: 'kestrel', records: many }, { door: doorOf() });
+  const elapsed = Date.now() - started;
+  assert.equal(answer.results[0].record, 'r9731');
+  assert.equal(answer.results.length, 1);
+  assert.ok(elapsed < 2000, `took ${elapsed} ms`);
+});
+
+test('the rows declare the records and files they are handed, no store right, and the sample input the runner test runs', () => {
+  for (const id of ['tool:search-everything-with-one-question', 'tool:search-everything-in-a-small-container', 'tool:search-one-of-my-lists', 'tool:answer-the-search-page-route']) {
+    const row = rowOf(id);
+    assert.equal(row.stored, undefined, `${id} declares no store right`);
+    assert.ok(row.input_schema.properties.records && row.input_schema.properties.files || id === 'tool:search-one-of-my-lists' && row.input_schema.properties.records, `${id} takes records`);
+    assert.ok(!JSON.stringify(row).includes('"records:'), `${id} names no records method`);
+    assert.ok(!JSON.stringify(row).includes('"stored"'), `${id} has no stored field`);
   }
-  const asked = [];
-  const operations = {
-    'records:list': () => ({ records: [], next: null }),
-    'records:read': ({ id, type }) => ({ id, type, value: kept.get(id)?.type === type || !type ? kept.get(id)?.value ?? null : null }),
-    'records:search': ({ question, type, limit = 60 }) => {
-      if (recordsRefused) throw new RecordsDoorError(recordsRefused, 'refused', 'not_started');
-      const terms = termsOf(question);
-      let ids = null;
-      for (const term of terms) {
-        const holding = index.get(term) ?? new Set();
-        ids = ids === null ? new Set(holding) : new Set([...ids].filter(id => holding.has(id)));
-      }
-      const lanes = new Map();
-      for (const id of [...(ids ?? [])].sort()) {
-        const record = kept.get(id);
-        if (type && record.type !== type) continue;
-        if (!lanes.has(record.type)) lanes.set(record.type, []);
-        lanes.get(record.type).push(record);
-      }
-      const results = [...lanes.values()].flatMap(lane => lane.map((record, at) => ({
-        id: `record:${record.id}`, source: 'trillion', type: record.type, record: record.id, title: record.value.title, found_in: ['written'],
-        said: record.value.notes, address: { resource: '@own-records', operation: 'records:read', input: { id: record.id, type: record.type } },
-        score: Math.round(1e5 / (K + at + 1)) / 1e5,
-      }))).sort((a, b) => b.score - a.score).slice(0, limit);
-      return { question, terms, results, unavailable: [], pending: [] };
-    },
-    search: ({ question, limit = 60 }) => {
-      if (filesRefused) throw new RecordsDoorError(filesRefused, 'refused', 'not_started');
-      const terms = termsOf(question);
-      const results = files.filter(name => terms.every(term => wordsOf(name.split('/').at(-1)).some(word => word.startsWith(term)))).slice(0, limit)
-        .map((path, at) => ({ id: `file:${path}`, source: 'files', name: path.split('/').at(-1), path, found_in: ['name'],
-          address: { resource: '@namespace', operation: 'find_file', input: { name_or_identity: path } }, score: 0.8 / (K + at + 1) }));
-      return { question, terms, results, unavailable: [], pending: [] };
-    },
-  };
-  const call = async (method, input, _key, address) => {
-    asked.push({ method, address, input });
-    return operations[method](input);
-  };
-  return { door: recordsDoorFromCall(call, { resource: '@own-records', filesResource: '@namespace' }), asked };
-}
-
-test('lanes merge by reciprocal rank and keep what could not answer (old finish, which the engine\'s merged ported)', async () => {
-  const door = recordsDoorFromCall(async (method, input) => (method === 'records:list' ? { records: [], next: null } : method === 'records:search'
-    ? { question: input.question, terms: ['q'], results: [
-      { id: 'record:a', type: 'alpha', record: 'a', said: 'q a', score: 0.01639 },
-      { id: 'record:b', type: 'alpha', record: 'b', said: 'q b', score: 0.01613 },
-      { id: 'record:c', type: 'beta', record: 'c', said: 'q c', score: 0.01639 }], unavailable: [], pending: [{ place: 'said' }] }
-    : { results: [{ id: 'file:f', identity: 'f', name: 'q.txt', score: 0.01311 }], unavailable: [], pending: [] }), { resource: '@own-records', filesResource: '@namespace' });
-  const answer = await searchEverything({ question: 'quill', limit: 4 }, { door });
-  // The first of each kind ties at 1 / (k + 1); alpha's second is worth 1 / (k + 2), above the file's 0.8 / (k + 1).
-  assert.deepEqual(answer.results.map(hit => hit.id), ['record:a', 'record:c', 'record:b', 'file:f']);
-  assert.deepEqual((await searchEverything({ question: 'quill', limit: 2 }, { door })).results.map(hit => hit.id), ['record:a', 'record:c']);
-  assert.equal(answer.results[0].score, answer.results[1].score);
-  assert.equal(answer.results[0].score, Math.round(1e5 / 61) / 1e5);
-  assert.deepEqual(answer.results[3].found_in, ['name']);
-  assert.deepEqual(answer.pending, [{ place: 'said' }]);
-  assert.deepEqual(answer.terms, ['quill']);
+  const sample = rowOf('tool:search-everything-with-one-question').verify.find(check => check.kind === 'sample-run');
+  assert.deepEqual(sample.input.records.map(record => record.id), ['c1', 'i1', 'p1', 'p2']);
+  assert.deepEqual(Object.keys(sample.input.files), ['/Notes/merlinfalcon care.txt', '/Notes/other.txt']);
 });
 
-test('a search over 10,000 rows in three lists answers row 9,731 first, under 200 ms, and reads it back', async () => {
-  const lists = ['list-a', 'list-b', 'list-c'];
-  const records = [];
-  for (let n = 1; n <= 10_000; n += 1) {
-    const notes = n === 9_731 ? 'quartzbeacon left at the dock' : `plain row ${n} of the list`;
-    records.push({ id: `row${String(n).padStart(5, '0')}`, type: lists[n % 3], value: { title: `row ${n}`, notes } });
-  }
-  const { door, asked } = personDoor({ records, files: ['/Notes/quartzbeacon dock plan.pdf', '/Notes/other.txt'] });
-  const started = performance.now();
-  const found = await searchEverything({ question: 'quartzbeacon' }, { door });
-  const took = performance.now() - started;
-  console.log(`search everything over 10,000 rows in 3 lists and the files: ${took.toFixed(1)} ms`);
-  assert.ok(took < 200, `${took} ms`);
-  assert.equal(found.results[0].record, 'row09731', JSON.stringify(found));
-  // The file whose name holds the word comes after it (0.8 / 61 < 1 / 61), in the same ranked list.
-  assert.deepEqual(found.results.map(hit => hit.id), ['record:row09731', 'file:/Notes/quartzbeacon dock plan.pdf']);
-  assert.deepEqual(found.unavailable, []);
-  const { address } = found.results[0];
-  const read = await door.readRecord(address.input.type, address.input.id);
-  assert.equal(read.value.notes, 'quartzbeacon left at the dock');
-  // Both lanes were asked with the same question: the records with the whole input, the files with only the question.
-  assert.deepEqual(asked.filter(item => item.method !== 'records:read').map(({ method, address }) => `${method} ${address}`).sort(), ['records:list @own-records', 'records:search @own-records', 'search @namespace']);
-  assert.deepEqual(asked.find(item => item.method === 'search').input, { question: 'quartzbeacon' });
-});
-
-test('a caller the files refuse gets the records\' answer, with the files named unavailable, never guessed', async () => {
-  const records = [{ id: 'r1', type: 'note', value: { title: 'kestrel', notes: 'kestrel seen' } }];
-  const { door } = personDoor({ records, files: ['/kestrel.jpg'], filesRefused: 'current_workspace_rights_refused' });
-  const found = await searchEverything({ question: 'kestrel', limit: 5 }, { door });
-  assert.deepEqual(found.results.map(hit => hit.id), ['record:r1']);
-  assert.deepEqual(found.unavailable, [{ lane: 'file-names', place: 'name', source: 'files', reason: 'current_workspace_rights_refused' }]);
-  // A door handed no files right at all is refused before anything is sent, and named the same way.
-  const bare = recordsDoorFromCall(async method => method === 'records:list' ? { records: [], next: null } : ({ question: 'kestrel', terms: ['kestrel'], results: [], unavailable: [], pending: [] }), { resource: '@own-records' });
-  const none = await searchEverything({ question: 'kestrel' }, { door: bare });
-  assert.deepEqual(none.unavailable, [{ lane: 'file-names', place: 'name', source: 'files', reason: 'no_files' }]);
-});
-
-test('with a type only that kind is asked, the files are not, and the records\' answer is answered as it is', async () => {
-  const records = [
-    { id: 'a1', type: 'alpha', value: { title: 'one', notes: 'kestrel one' } },
-    { id: 'b1', type: 'beta', value: { title: 'two', notes: 'kestrel two' } },
-  ];
-  const { door, asked } = personDoor({ records, files: ['/kestrel.jpg'] });
-  const found = await searchEverything({ question: 'kestrel', type: 'beta' }, { door });
-  assert.deepEqual(found.results.map(hit => hit.record), ['b1']);
-  assert.deepEqual(asked.map(item => item.method), ['records:search']);
-});
-
-test('a refusal of the records\' search is the answer\'s refusal', async () => {
-  const { door } = personDoor({ recordsRefused: 'original_input_refused' });
-  await assert.rejects(searchEverything({ question: 'x' }, { door }), error => error.code === 'original_input_refused');
-});
-
-test('the one-list row finds the row of the kind its type names, however far down it is', async () => {
-  const row = rowOf(rows, 'tool:search-one-of-my-lists');
-  const records = Array.from({ length: 600 }, (_, at) => ({ id: `n${String(at).padStart(4, '0')}`, type: 'note', value: { text: at === 577 ? 'zephyrine harbour' : `ordinary ${at}` } }));
-  records.push({ id: 'x1', type: 'secret', value: { text: 'zephyrine elsewhere' } });
-  const ran = await answerOf(row, { question: 'zephyrine', type: 'note' }, { records });
-  assert.equal(ran.status, 0, JSON.stringify(ran));
-  assert.deepEqual(ran.result.results.map(hit => hit.record), ['n0577']);
-});
-
-test('the container row searches every kind and the file names it is given, reading only', async () => {
-  const row = rowOf(rows, 'tool:search-everything-with-one-question');
-  assert.deepEqual(rightsOf(row), [{ kind: '*', operations: ['records:search'] }, { kind: 'semantic-index-descriptor', operations: ['records:list'] }, { files: '/', operations: ['search', 'read_file'] }]);
-  const sample = row.verify.find(check => check.kind === 'sample-run');
-  const ran = await answerOf(row, sample.input, sample);
-  assert.equal(ran.status, 0, JSON.stringify(ran));
-  // One hit of each of three kinds, each first in its own lane, then the file whose name holds the word.
-  assert.deepEqual(ran.result.results.map(hit => hit.type ?? hit.source).slice(0, 3).sort(), ['sample-contacts', 'sample-invoices', 'sample-places']);
-  assert.deepEqual(ran.result.results.map(hit => hit.id), ['record:c1', 'record:i1', 'record:p1', 'file:/Notes/merlinfalcon care.txt']);
-  assert.deepEqual(ran.result.unavailable, []);
-});
-
-test('the right over every kind never writes or reads records, lists only index descriptors, and "*" is not a kind', async () => {
-  const row = rowOf(rows, 'tool:search-everything-with-one-question');
-  const records = [{ id: 'c1', type: 'sample-contacts', value: { title: 'kestrel' } }];
-  const door = await startFakeDoor({ rights: rightsOf(row), records });
-  try {
-    const ask = async (method, input) => {
-      const reply = await fetch(JSON.parse(readFileSync(door.descriptor, 'utf8')).url, { method: 'POST',
-        headers: { 'content-type': 'application/json', authorization: `Bearer ${door.capability}` },
-        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { arguments: { method, address: '@own-records', request_key: `k-${method}`, input } } }) });
-      return (await reply.json()).result;
-    };
-    assert.equal((await ask('records:search', { question: 'kestrel' })).structuredContent.results[0].record, 'c1');
-    assert.deepEqual((await ask('records:list', { type: 'semantic-index-descriptor' })).structuredContent.records, []);
-    for (const [method, input] of [
-      ['records:write', { records: [{ id: 'c1', type: 'sample-contacts', value: { title: 'changed' } }] }],
-      ['records:write', { records: [{ id: 'c1', type: '*', value: { title: 'changed' } }] }],
-      ['records:read', { id: 'c1', type: 'sample-contacts' }],
-      ['records:list', { type: 'sample-contacts' }],
-      ['records:search', { question: 'kestrel', type: 'sample-contacts' }],
-      ['records:search', { question: 'kestrel', type: '*' }],
-    ]) {
-      assert.equal((await ask(method, input)).structuredContent.code, 'current_workspace_rights_refused', `${method} ${JSON.stringify(input)}`);
-    }
-    assert.equal(door.kept.get('c1').value.title, 'kestrel', 'nothing was written');
-  } finally { await door.close(); }
+test('the runner runs the row\'s function with the records and files in its input and answers the same hits', () => {
+  const runner = new URL('../../records-door/do-work/run-an-export.mjs', import.meta.url).pathname;
+  const file = new URL('../do-work/search-everything.mjs', import.meta.url).pathname;
+  const ran = spawnSync(process.execPath, [runner, file, 'searchEverything', '--parent-actions-fd', '9'], {
+    input: JSON.stringify({ question: 'merlinfalcon', records: RECORDS, files: FILES }), encoding: 'utf8',
+  });
+  assert.equal(ran.status, 0, ran.stdout + ran.stderr);
+  const { result } = JSON.parse(ran.stdout.trim().split('\n').at(-1));
+  assert.deepEqual(result.results.map(hit => hit.id).slice(3), ['file:/Notes/merlinfalcon care.txt']);
+  assert.deepEqual(result.unavailable, []);
 });

@@ -1,12 +1,11 @@
 {
-  "_what": "Where the Workshop seam of meaning-search (read-data/meaning-search.mjs) finds the person's index descriptors and vector sets. `kinds` names every record kind the package's scripts read (its semantic-index-descriptor, capability-index source descriptor, readiness policy and convergence rows, in the person's own records, read through the records door). Scripts never name a kind in code; they read it here. `files` is the operation of the files door that reads a span of one of the person's files; `read_bytes` is how much one read asks for. `index_batch_bytes` bounds the JSON plan sent to every indexing process; a single item larger than the bound is processed alone. `embedding_property` and `attribute_table` are the names the package's own scripts write embedding facts under (make-embedding-facts-from-command-output.py), so the seam hands the ranker exactly the facts the package wrote.",
+  "_what": "Where the Workshop seam of meaning-search (read-data/meaning-search.mjs) finds the person's index descriptors and vector sets. `kinds` names every record kind the package's scripts read (its semantic-index-descriptor, capability-index source descriptor, readiness policy and convergence rows). The caller reads those records and the files from the person's own store and hands them in; the scripts never name a kind in code, they read it here. `read_bytes` is how much one span of a handed-in file is read by; `index_batch_bytes` bounds the JSON plan sent to every indexing process; a single item larger than the bound is processed alone. `embedding_property` and `attribute_table` are the names the package's own scripts write embedding facts under (make-embedding-facts-from-command-output.py), so the seam hands the ranker exactly the facts the package wrote.",
   "kinds": {
     "semantic_index_descriptor": "semantic-index-descriptor",
     "capability_index_source_descriptor": "capability-index-source-descriptor",
     "discovery_readiness_policy": "discovery-readiness-policy",
     "semantic_index_convergence": "semantic-index-convergence"
   },
-  "files": { "read": "read_file" },
   "read_bytes": 262144,
   "index_batch_bytes": 4194304,
   "embedding_property": "prop:semantic-embedding:",

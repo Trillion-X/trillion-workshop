@@ -1,5 +1,5 @@
 {
-  "_what": "The account-wide search uses the existing reciprocal-rank finisher: record kinds and each descriptor/model/match are separate rankings. File names have weight 0.8; other lanes have weight 1. Descriptor place overrides field-based classification (text+start=said, text=written, otherwise seen). Encoder DATA binds a descriptor model identity to the existing query-vector tool and verifies the response model. Missing access or models are reported, never guessed.",
+  "_what": "The account-wide search uses the existing reciprocal-rank finisher: record kinds and each descriptor/model/match are separate rankings. File names have weight 0.8; other lanes have weight 1. Lanes are the records and file names the caller hands in (records, files), never a store read. Descriptor place overrides field-based classification (text+start=said, text=written, otherwise seen). Encoder DATA binds a descriptor model identity to the existing query-vector tool and verifies the response model. Missing input or models are reported, never guessed.",
   "limit": 60,
   "min_word_length": 2,
   "merge_seconds": 4,
@@ -40,7 +40,6 @@
     {
       "id": "records",
       "match": "records",
-      "operation": "records:search",
       "place": "written",
       "source": "trillion",
       "rank": 1
@@ -48,7 +47,6 @@
     {
       "id": "file-names",
       "match": "files",
-      "operation": "search",
       "place": "name",
       "source": "files",
       "rank": 0.8

@@ -12,21 +12,21 @@ function fixture(settings = {}) {
   const work = mkdtempSync(join(tmpdir(), 'query-parity-'));
   const owner = join(work, 'workshop', 'tools', 'search-everything-with-one-question', 'meaning', 'read-data');
   mkdirSync(owner, { recursive: true });
-  // A stand-in search owner observes the invocation and exercises the file door.
+  // A stand-in search owner observes the invocation and reads the values it is handed.
   // Whole-file reads of its input fail, so matching span values alone is not enough.
   writeFileSync(join(owner, 'meaning-search.mjs'), `
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
-export async function findSimilarAcross(input, { door }) {
+export async function findSimilarAcross(input, { given }) {
   const descriptors = [];
-  for await (const row of door.list({ type: 'semantic-index-descriptor' })) descriptors.push(row.value);
+  for (const row of given.recordsOf('semantic-index-descriptor')) descriptors.push(row.value);
   const file = descriptors[0].vector_set.items.file;
   const read = fs.readFileSync;
   fs.readFileSync = (path, ...args) => { if (path === file) throw new Error('Whole-file input read is forbidden'); return read(path, ...args); };
   syncBuiltinESMExports();
   const spans = [];
   for (const [offset, length] of [[2, 3], [8, 5], [10, 4]]) {
-    const span = await door.files('read_file', { name_or_identity: file, offset, length });
+    const span = given.readSpan(file, offset, length);
     spans.push({ text: Buffer.from(span.content, span.encoding).toString('utf8'), byte_length: span.byte_length });
   }
   return { observed: { input, descriptors, spans }, result: { items: [{ address: 'a' }, { address: 'b' }] }, points_to: { a: { file: 'sample-a.mp4', start: null }, b: { file: 'sample-b.mp4', start: 2 } } };

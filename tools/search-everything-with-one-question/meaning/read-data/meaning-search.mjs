@@ -9,15 +9,15 @@
 //   model_id, model_version }`, plus `points_to`: for each address in the result, the file and time span its item
 //   names.
 //
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/search-everything-with-one-question/meaning/read-data/meaning-search.mjs findSimilarVector
+//   node tools/records-door/do-work/run-an-export.mjs tools/search-everything-with-one-question/meaning/read-data/meaning-search.mjs findSimilarVector
 //
 //   `findSimilarAcross` and `findWordsSaid` below ask the same question of several of the person's descriptors at once
 //   (see their headers); they add no ranking of their own.
 //
 // What is new here, and only this
-//   1. The descriptor comes from the person's own records (kind semantic-index-descriptor, read-data/meaning-search.json)
-//      through the records door, where the package read it from its record store.
-//   2. Its `vector_set` names two of the person's files, read through the files door: `items` (JSON lines, one item a
+//   1. The descriptor is one of the records the caller hands in (kind semantic-index-descriptor, read-data/meaning-search.json);
+//      the caller read it from the person's own store, in its own language, and this seam reads no store.
+//   2. Its `vector_set` names two of the person's files, handed in with the run: `items` (JSON lines, one item a
 //      line) and, when the set holds vectors, `vectors` (a 2-D .npy matrix, row i the vector of line i). `points_to`
 //      names the item fields that hold the file, start, end and text.
 //   3. Each item becomes one upsert of the package's index plan: its address is `<items file>#<line>`, its payload
@@ -63,11 +63,11 @@ async function step(program, script, args, work) {
 const put = (work, name, value) => { writeFileSync(join(work, name), typeof value === 'string' ? value : JSON.stringify(value)); return join(work, name); };
 const take = (work, name) => JSON.parse(readFileSync(join(work, name), 'utf8'));
 
-// Every byte of one of the person's files, read through the door a span at a time.
-async function readFile(door, name) {
+// Every byte of one of the person's files, handed in with the run, read a span at a time.
+async function readFile(given, name) {
   const parts = [];
   for (let offset = 0; ;) {
-    const span = await door.files(settings.files.read, { name_or_identity: name, offset, length: settings.read_bytes });
+    const span = given.readSpan(name, offset, settings.read_bytes);
     const bytes = Buffer.from(span.content ?? '', span.encoding === 'base64' ? 'base64' : 'utf8');
     parts.push(bytes);
     offset += bytes.length;
@@ -139,13 +139,13 @@ function* planBatches(upserts) {
 // The same canonical rows feed bounded index plans or exact search. Vectors
 // stay in their .npy bytes until one row is read; exact search never encodes them
 // as a whole-index JSON plan.
-async function vectorRowsOf(descriptor, door) {
+async function vectorRowsOf(descriptor, given) {
   const set = descriptor.vector_set;
   if (!set?.items?.file || !set.points_to?.file) {
     throw new Error(`Descriptor ${descriptor.index_id} needs vector_set: { items: { file }, vectors?: { file }, points_to: { file, start?, end?, text? } }.`);
   }
-  const itemBytes = await readFile(door, set.items.file);
-  const vectorBytes = set.vectors?.file ? await readFile(door, set.vectors.file) : Buffer.alloc(0);
+  const itemBytes = await readFile(given, set.items.file);
+  const vectorBytes = set.vectors?.file ? await readFile(given, set.vectors.file) : Buffer.alloc(0);
   const lines = itemBytes.toString('utf8').split('\n').filter(line => line.trim());
   const matrix = set.vectors?.file ? npyMatrix(vectorBytes, set.vectors.file) : null;
   if (matrix && matrix.rows !== lines.length) throw new Error(`${set.vectors.file} has ${matrix.rows} vectors and ${set.items.file} has ${lines.length} items; each item needs its vector.`);
@@ -172,8 +172,8 @@ async function vectorRowsOf(descriptor, door) {
   return { rows: rows(), pointsTo };
 }
 
-async function planOf(descriptor, door) {
-  const { rows, pointsTo } = await vectorRowsOf(descriptor, door);
+async function planOf(descriptor, given) {
+  const { rows, pointsTo } = await vectorRowsOf(descriptor, given);
   function* upserts() {
     for (const { mutation, vector } of rows) yield {
       ...mutation,
@@ -184,9 +184,9 @@ async function planOf(descriptor, door) {
 }
 
 // The descriptor rows of this index in the person's records: the package's read_descriptor reply.
-async function descriptorReply(door, indexId) {
+async function descriptorReply(given, indexId) {
   const items = [];
-  for await (const record of door.list({ type: settings.kinds.semantic_index_descriptor })) if (record.value?.index_id === indexId) items.push(record.value);
+  for (const record of given.recordsOf(settings.kinds.semantic_index_descriptor)) if (record.value?.index_id === indexId) items.push(record.value);
   return { items };
 }
 
@@ -246,12 +246,12 @@ function rankedResult(embedding, input, descriptor, rows, representationOf, coll
   return JSON.parse(pyDumps(ranked.result, { ensureAscii: true }));
 }
 
-async function run(input, door, query, onExactCandidates) {
+async function run(input, given, query, onExactCandidates) {
   checkSpread(input.spread, input.limit);
   const work = mkdtempSync(join(tmpdir(), 'meaning-search-'));
   try {
     const index = input.index_id;
-    const reply = put(work, 'd.json', await descriptorReply(door, index));
+    const reply = put(work, 'd.json', await descriptorReply(given, index));
     put(work, 'empty.json', { items: [] });
     await step('node', 'prepare-semantic-index-process-input.mjs', ['--index-id', index, '--descriptor-reply-json', reply, '--ann-state-reply-json', join(work, 'empty.json'), '--output-state-json', join(work, 'none.json'), '--output-json', join(work, 'described.json')], work);
     const { descriptor } = take(work, 'described.json');
@@ -259,7 +259,7 @@ async function run(input, door, query, onExactCandidates) {
     if (!['approximate', 'exact'].includes(mode)) throw new Error('Descriptor search_mode must be exact or approximate.');
     const collector = pointsTo => onExactCandidates ? items => onExactCandidates({ items, pointsTo, resultLimit: descriptor.result_limit }) : undefined;
     if (mode === 'exact' && descriptor.vector_set?.vectors?.file) {
-      const { rows, pointsTo } = await vectorRowsOf(descriptor, door);
+      const { rows, pointsTo } = await vectorRowsOf(descriptor, given);
       function* representations() {
         for (const { mutation, vector } of rows) yield { ...mutation, subject_id: mutation.content_address, vector };
       }
@@ -267,7 +267,7 @@ async function run(input, door, query, onExactCandidates) {
       const result = rankedResult(take(work, 'embedding.json'), input, descriptor, representations(), row => row, collector(pointsTo));
       return searchAnswer(input, index, descriptor, result, pointsTo);
     }
-    const { plans, pointsTo } = await planOf(descriptor, door);
+    const { plans, pointsTo } = await planOf(descriptor, given);
     put(work, 'descriptor.json', descriptor);
     put(work, 'params.json', descriptor.ann_params ?? {});
     const factBatches = [];
@@ -328,11 +328,11 @@ async function run(input, door, query, onExactCandidates) {
 }
 
 /** action:find-similar: the query words embedded by the descriptor's model, then ranked. */
-export async function findSimilar(input, { door, onExactCandidates }) {
+export async function findSimilar(input, { given, onExactCandidates }) {
   if (typeof input?.index_id !== 'string' || typeof input.query_text !== 'string' || !input.query_text.trim()) {
     throw new Error('Send index_id (the id of one of your semantic-index-descriptor records) and query_text (the words to look for).');
   }
-  return run(input, door, async (work, descriptor) => {
+  return run(input, given, async (work, descriptor) => {
     put(work, 'request.json', input);
     await step('node', 'embed-text-ollama.mjs', ['--request-json', join(work, 'request.json'), '--output-json', join(work, 'embedding.json'), '--model', descriptor.model_id, '--endpoint', descriptor.model_endpoint], work);
     put(work, 'vector.json', take(work, 'embedding.json').vector);
@@ -340,11 +340,11 @@ export async function findSimilar(input, { door, onExactCandidates }) {
 }
 
 /** action:find-similar-vector: a query vector made by the descriptor's model, ranked without embedding. */
-export async function findSimilarVector(input, { door, onExactCandidates }) {
+export async function findSimilarVector(input, { given, onExactCandidates }) {
   if (typeof input?.index_id !== 'string' || typeof input.query_vector_base64 !== 'string' || !input.query_vector_base64) {
     throw new Error('Send index_id (the id of one of your semantic-index-descriptor records) and query_vector_base64 (base64 of JSON {"vector": [...]}, made by the model the descriptor names).');
   }
-  return run(input, door, work => {
+  return run(input, given, work => {
     const embedding = Buffer.from(input.query_vector_base64, 'base64');
     put(work, 'embedding.json', embedding.toString('utf8'));
     put(work, 'vector.json', JSON.parse(embedding.toString('utf8')).vector);
@@ -367,7 +367,7 @@ function indexIds(input) {
  * aggregate limit apply. Scores compare
  * only vectors of one model, so descriptors of different models are refused, never merged.
  */
-export async function findSimilarAcross(input, { door }) {
+export async function findSimilarAcross(input, { given }) {
   const ids = indexIds(input);
   checkSpread(input.spread, input.limit);
   const { spread } = input;
@@ -381,7 +381,7 @@ export async function findSimilarAcross(input, { door }) {
   const exactPools = [];
   for (const id of ids) {
     let pool;
-    answers.push(await findSimilarVector({ ...asked, index_id: id }, { door, onExactCandidates: value => { pool = value; } }));
+    answers.push(await findSimilarVector({ ...asked, index_id: id }, { given, onExactCandidates: value => { pool = value; } }));
     exactPools.push(pool);
   }
   const models = new Set(answers.map(answer => `${answer.model_id}@${answer.model_version}`));
@@ -415,7 +415,7 @@ const WORD = /[a-z']+/g;
  * order the sets hold them: the words lane of a search, for items whose descriptor names a `text` field. Answers
  * { index_ids, lines: [{ address, file, start, end, text, ...carried }] }, at most `limit` (8 when none is asked).
  */
-export async function findWordsSaid(input, { door }) {
+export async function findWordsSaid(input, { given }) {
   const ids = indexIds(input);
   if (typeof input.query_text !== 'string') throw new Error('Send query_text: the words to look for.');
   if (input.limit !== undefined && !(Number.isInteger(input.limit) && input.limit >= 1)) throw new Error('limit must be a whole number of at least 1.');
@@ -423,10 +423,10 @@ export async function findWordsSaid(input, { door }) {
   const words = (input.query_text.toLowerCase().match(WORD) ?? []).filter(word => word.length > 2);
   const lines = [];
   for (const id of ids) {
-    const [descriptor] = (await descriptorReply(door, id)).items;
+    const [descriptor] = (await descriptorReply(given, id)).items;
     const set = descriptor?.vector_set;
     if (!set?.items?.file || !set.points_to?.file || !set.points_to.text) throw new Error(`Descriptor ${id} needs vector_set.items.file and points_to: { file, text }.`);
-    const rows = (await readFile(door, set.items.file)).toString('utf8').split('\n').filter(line => line.trim());
+    const rows = (await readFile(given, set.items.file)).toString('utf8').split('\n').filter(line => line.trim());
     for (const [index, line] of rows.entries()) {
       if (!words.length || lines.length >= limit) break;
       const item = JSON.parse(line);
@@ -439,13 +439,13 @@ export async function findWordsSaid(input, { door }) {
 
 // Discover and read each account index once per question. Keep every model and
 // literal reader as an independent ranking for the account search finisher.
-export function searchIndexPlaces(door, config, options = {}) {
+export function searchIndexPlaces(given, config, options = {}) {
   let descriptors;
   const encodings = new Map();
   const encoded = (encoder, question) => {
     const key = JSON.stringify([encoder, question]);
     if (!encodings.has(key)) encodings.set(key, (async () => {
-      const answer = await door.run(encoder.tool, { texts: [question] });
+      const answer = await given.run(encoder.tool, { texts: [question] });
       const value = answer?.result ?? answer;
       if (value?.model?.name !== encoder.name || value?.model?.pretrained !== encoder.pretrained
         || !Array.isArray(value.vectors?.[0]) || value.vectors[0].length !== encoder.dims
@@ -458,10 +458,9 @@ export function searchIndexPlaces(door, config, options = {}) {
   };
   const inventory = () => descriptors ??= (async () => {
     const rows = [];
-    for await (const row of door.list({ type: 'semantic-index-descriptor' })) rows.push(row);
+    for (const row of given.recordsOf('semantic-index-descriptor')) rows.push(row);
     return rows;
   })();
-  const indexDoor = { files: (...args) => door.files(...args), async *list() { yield* await inventory(); } };
   const reasonOf = error => error?.code ?? 'refused';
   return async (lane, { question, report }, limit = config.limit) => {
   const hits = [];
@@ -478,13 +477,13 @@ export function searchIndexPlaces(door, config, options = {}) {
         name: point.name ?? point.file.split('/').at(-1), path: point.file, file: point.file,
         start: point.start ?? 0, end: point.end ?? point.start ?? 0,
         timed: Number.isFinite(point.start), said: point.text ?? null,
-        address: { resource: '@namespace', operation: 'find_file', input: { name_or_identity: identity } },
+        address: { resource: 'own-files', input: { name: identity } },
         evidence: { index_id: index, address: item.address, match, model_id: descriptor.model_id, model_version: descriptor.model_version },
         lane: { ...lane, id: `${lane.id}:${index}:${match}` } });
     };
     if (pointFields?.text) {
       try {
-        const answer = await findWordsSaid({ index_ids: [index], query_text: question, limit }, { door: indexDoor });
+        const answer = await findWordsSaid({ index_ids: [index], query_text: question, limit }, { given });
         answer.lines.forEach((point, at) => add(point, { address: point.address, score: 1 / (at + 1) }, 'words'));
       } catch (error) { report.unavailable({ ...lane, id: `${lane.id}:${index}:words` }, reasonOf(error)); }
     }
@@ -492,10 +491,10 @@ export function searchIndexPlaces(door, config, options = {}) {
       const encoder = config.encoders?.find(item => item.model_id === descriptor.model_id && item.model_version === descriptor.model_version);
       const supplied = options.query_vectors?.find(item => item.model_id === descriptor.model_id && item.model_version === descriptor.model_version);
       const answer = supplied
-        ? await findSimilarVector({ index_id: index, query_vector_base64: supplied.vector_base64, limit }, { door: indexDoor })
+        ? await findSimilarVector({ index_id: index, query_vector_base64: supplied.vector_base64, limit }, { given })
         : encoder
-        ? await findSimilarVector({ index_id: index, query_vector_base64: await encoded(encoder, question), limit }, { door: indexDoor })
-        : await findSimilar({ index_id: index, query_text: question, limit }, { door: indexDoor });
+        ? await findSimilarVector({ index_id: index, query_vector_base64: await encoded(encoder, question), limit }, { given })
+        : await findSimilar({ index_id: index, query_text: question, limit }, { given });
       if (answer.result.skipped > 0) report.unavailable({ ...lane, id: `${lane.id}:${index}:meaning` }, 'unqualified_candidates');
       for (const item of answer.result.items) add(answer.points_to[item.address], item, 'meaning');
     } catch (error) { report.unavailable({ ...lane, id: `${lane.id}:${index}:meaning` }, reasonOf(error)); }

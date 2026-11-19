@@ -183,7 +183,7 @@
         "label": "Search everything I keep",
         "status": "active",
         "job": "Find anything in my account with one question across every list and file, by what was said, seen, named or written",
-        "description": "One question over every list and file in this account. Combines record text, file names, literal transcript and document text, and each installed semantic index. Results are fused by rank, never by scores across models, with addresses, places (said, seen, name, written), timed moments and their original evidence scores. Discovers semantic-index-descriptor rows automatically; no index choice is needed. places and sources narrow the requested search. unavailable names every source or model that could not answer; pending names work still in progress. A missing model leaves literal words usable. Only read access is granted.",
+        "description": "One question over every record and file name the caller hands in, and each installed semantic index among them. The caller reads the person's records and files from the person's own store and gives them as `records` and `files`; this run searches them and reads no store, and changes nothing. Results are fused by rank, never by scores across models, with addresses (the person's own record by id and kind, or a file by path), places (said, seen, name, written), timed moments and their original evidence scores. Semantic-index-descriptor records are discovered automatically; no index choice is needed. places and sources narrow the requested search. unavailable names every source or model that could not answer (a source not handed in too); pending names work still in progress. A missing model leaves literal words usable.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -265,9 +265,29 @@
                 }
               }
             },
-            "stored": {
+            "records": {
+              "type": "array",
+              "description": "The person's records the caller read from its own store, as {id, type, value}: the kinds the search covers. Kind semantic-index-descriptor rows are the installed indexes, and their vector set files are handed in under `files`. What is not given is not there.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {}
+                }
+              }
+            },
+            "files": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of *, semantic-index-descriptor; files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
+              "description": "The person's files the search reads, by path (under /): each name maps to its text, or to {base64}, as the caller read it from its own store. What is not given is not there."
             }
           }
         },
@@ -339,7 +359,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -407,69 +429,48 @@
           {
             "kind": "sample-run",
             "input": {
-              "question": "merlinfalcon"
-            },
-            "records": [
-              {
-                "id": "c1",
-                "type": "sample-contacts",
-                "value": {
-                  "title": "Sample contact",
-                  "notes": "met the merlinfalcon keeper"
+              "question": "merlinfalcon",
+              "records": [
+                {
+                  "id": "c1",
+                  "type": "sample-contacts",
+                  "value": {
+                    "title": "Sample contact",
+                    "notes": "met the merlinfalcon keeper"
+                  }
+                },
+                {
+                  "id": "i1",
+                  "type": "sample-invoices",
+                  "value": {
+                    "title": "Sample invoice",
+                    "notes": "merlinfalcon feed, 3 bags"
+                  }
+                },
+                {
+                  "id": "p1",
+                  "type": "sample-places",
+                  "value": {
+                    "title": "Sample place",
+                    "notes": "merlinfalcon aviary"
+                  }
+                },
+                {
+                  "id": "p2",
+                  "type": "sample-places",
+                  "value": {
+                    "title": "Other place",
+                    "notes": "nothing here"
+                  }
                 }
-              },
-              {
-                "id": "i1",
-                "type": "sample-invoices",
-                "value": {
-                  "title": "Sample invoice",
-                  "notes": "merlinfalcon feed, 3 bags"
-                }
-              },
-              {
-                "id": "p1",
-                "type": "sample-places",
-                "value": {
-                  "title": "Sample place",
-                  "notes": "merlinfalcon aviary"
-                }
-              },
-              {
-                "id": "p2",
-                "type": "sample-places",
-                "value": {
-                  "title": "Other place",
-                  "notes": "nothing here"
-                }
+              ],
+              "files": {
+                "/Notes/merlinfalcon care.txt": "made-up care notes",
+                "/Notes/other.txt": "made up"
               }
-            ],
-            "door_files": {
-              "/Notes/merlinfalcon care.txt": "made-up care notes",
-              "/Notes/other.txt": "made up"
             },
             "output_selector": "$.results[0].found_in[0]",
             "contains": "written"
-          }
-        ],
-        "stored": [
-          {
-            "kind": "*",
-            "operations": [
-              "records:search"
-            ]
-          },
-          {
-            "kind": "semantic-index-descriptor",
-            "operations": [
-              "records:list"
-            ]
-          },
-          {
-            "files": "/",
-            "operations": [
-              "search",
-              "read_file"
-            ]
           }
         ]
       }
@@ -654,7 +655,7 @@
         "label": "Search everything I keep with one question (runs in a small container)",
         "status": "active",
         "job": "Search every list, record and file name I keep with one question, in one ranked list, without my own computer",
-        "description": "Searches everything this person keeps with one question, as a Workshop run: every kind of record (each kind ranked as its own lane) and their files by name, merged by reciprocal rank into one list, best first. Each result has found_in (written for a record's text, name for a file's name), said (the words around the match), score and address (records:read for a record, find_file for a file). The run holds two read-only rights and nothing else: records:search over every kind ({kind: \"*\"}, which covers only a search that names no kind and never a write) and the files' name search over every name. unavailable names a lane that could not answer and why; pending names one still working.",
+        "description": "Searches the records and file names the caller hands in (`records` and `files`, read by the caller from the person's own store) with one question, as a Workshop run: every kind of record (each kind ranked as its own lane) and the file names, merged by reciprocal rank into one list, best first. Each result has found_in (written for a record's text, name for a file's name), said (the text it was found in), score and address (the person's own record by id and kind, or a file by path). The run reads no store and changes nothing. unavailable names a lane that was not handed its input and why; pending names one still working.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -673,9 +674,29 @@
               "maximum": 200,
               "description": "The most results (60 when left out)"
             },
-            "stored": {
+            "records": {
+              "type": "array",
+              "description": "The person's records the caller read from its own store, as {id, type, value}: the kinds the search covers. Kind semantic-index-descriptor rows are the installed indexes, and their vector set files are handed in under `files`. What is not given is not there.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {}
+                }
+              }
+            },
+            "files": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of *; files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
+              "description": "The person's files the search reads, by path (under /): each name maps to its text, or to {base64}, as the caller read it from its own store. What is not given is not there."
             }
           }
         },
@@ -747,7 +768,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -808,62 +831,48 @@
           {
             "kind": "sample-run",
             "input": {
-              "question": "merlinfalcon"
-            },
-            "records": [
-              {
-                "id": "c1",
-                "type": "sample-contacts",
-                "value": {
-                  "title": "Sample contact",
-                  "notes": "met the merlinfalcon keeper"
+              "question": "merlinfalcon",
+              "records": [
+                {
+                  "id": "c1",
+                  "type": "sample-contacts",
+                  "value": {
+                    "title": "Sample contact",
+                    "notes": "met the merlinfalcon keeper"
+                  }
+                },
+                {
+                  "id": "i1",
+                  "type": "sample-invoices",
+                  "value": {
+                    "title": "Sample invoice",
+                    "notes": "merlinfalcon feed, 3 bags"
+                  }
+                },
+                {
+                  "id": "p1",
+                  "type": "sample-places",
+                  "value": {
+                    "title": "Sample place",
+                    "notes": "merlinfalcon aviary"
+                  }
+                },
+                {
+                  "id": "p2",
+                  "type": "sample-places",
+                  "value": {
+                    "title": "Other place",
+                    "notes": "nothing here"
+                  }
                 }
-              },
-              {
-                "id": "i1",
-                "type": "sample-invoices",
-                "value": {
-                  "title": "Sample invoice",
-                  "notes": "merlinfalcon feed, 3 bags"
-                }
-              },
-              {
-                "id": "p1",
-                "type": "sample-places",
-                "value": {
-                  "title": "Sample place",
-                  "notes": "merlinfalcon aviary"
-                }
-              },
-              {
-                "id": "p2",
-                "type": "sample-places",
-                "value": {
-                  "title": "Other place",
-                  "notes": "nothing here"
-                }
+              ],
+              "files": {
+                "/Notes/merlinfalcon care.txt": "made-up care notes",
+                "/Notes/other.txt": "made up"
               }
-            ],
-            "door_files": {
-              "/Notes/merlinfalcon care.txt": "made-up care notes",
-              "/Notes/other.txt": "made up"
             },
             "output_selector": "$.results[0].found_in[0]",
             "contains": "written"
-          }
-        ],
-        "stored": [
-          {
-            "kind": "*",
-            "operations": [
-              "records:search"
-            ]
-          },
-          {
-            "files": "/",
-            "operations": [
-              "search"
-            ]
           }
         ]
       }
@@ -1048,7 +1057,7 @@
         "label": "Search one of my lists with one question",
         "status": "active",
         "job": "Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are",
-        "description": "Searches the records of one kind (one list) with one question through the records door's word index, which every write feeds: the rows holding every asked word, best first, each with said (the words around the match), score and address (the records:read that opens it). The whole list is searched in one call, never one page at a time. This run is granted that one kind only; to search every list and the files together, use tool:search-everything-with-one-question.",
+        "description": "Searches the records of one kind (one list) the caller hands in as `records` (read from the person's own store, that kind only) with one question: the rows holding every asked word, best first, each with said (the text it was found in), score and address (the person's own record, by id and kind). The whole list handed in is searched in one call, never one page at a time. This run is given that one kind only; to search every list and the files together, use tool:search-everything-with-one-question. The run reads no store and changes nothing.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -1073,9 +1082,25 @@
               "maximum": 200,
               "description": "The most results (60 when left out)"
             },
-            "stored": {
-              "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of the kind the request names, as this row's `stored` lists. What is not given is not there."
+            "records": {
+              "type": "array",
+              "description": "The records of the kind the request names, as the caller read them from the person's own store: {id, type, value}. What is not given is not there.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {}
+                }
+              }
             }
           }
         },
@@ -1147,7 +1172,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1209,39 +1236,26 @@
             "kind": "sample-run",
             "input": {
               "question": "launch plan",
-              "type": "record:note"
-            },
-            "records": [
-              {
-                "id": "note:plan-7",
-                "type": "record:note",
-                "value": {
-                  "title": "Launch plan",
-                  "body": "Ship the launch plan on Friday"
+              "type": "record:note",
+              "records": [
+                {
+                  "id": "note:plan-7",
+                  "type": "record:note",
+                  "value": {
+                    "title": "Launch plan",
+                    "body": "Ship the launch plan on Friday"
+                  }
+                },
+                {
+                  "id": "note:idea-2",
+                  "type": "record:note",
+                  "value": {
+                    "title": "Garden ideas",
+                    "body": "Plant beans"
+                  }
                 }
-              },
-              {
-                "id": "note:idea-2",
-                "type": "record:note",
-                "value": {
-                  "title": "Garden ideas",
-                  "body": "Plant beans"
-                }
-              }
-            ]
-          }
-        ],
-        "stored": [
-          {
-            "kind": {
-              "fill": {
-                "from": "input",
-                "field": "type"
-              }
-            },
-            "operations": [
-              "records:search"
-            ]
+              ]
+            }
           }
         ]
       }
@@ -1453,9 +1467,29 @@
             "browser": {
               "type": "object"
             },
-            "stored": {
+            "records": {
+              "type": "array",
+              "description": "The person's records the caller read from its own store, as {id, type, value}: the kinds the search covers. Kind semantic-index-descriptor rows are the installed indexes, and their vector set files are handed in under `files`. What is not given is not there.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {}
+                }
+              }
+            },
+            "files": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of *, semantic-index-descriptor; files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
+              "description": "The person's files the search reads, by path (under /): each name maps to its text, or to {base64}, as the caller read it from its own store. What is not given is not there."
             }
           }
         },
@@ -1503,7 +1537,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1578,65 +1614,44 @@
                 "sources": "trillion"
               },
               "body": {},
-              "browser": {}
+              "browser": {},
+              "records": [
+                {
+                  "id": "c1",
+                  "type": "sample-contacts",
+                  "value": {
+                    "title": "Sample contact",
+                    "notes": "met the merlinfalcon keeper"
+                  }
+                },
+                {
+                  "id": "i1",
+                  "type": "sample-invoices",
+                  "value": {
+                    "title": "Sample invoice",
+                    "notes": "merlinfalcon feed, 3 bags"
+                  }
+                },
+                {
+                  "id": "p1",
+                  "type": "sample-places",
+                  "value": {
+                    "title": "Sample place",
+                    "notes": "merlinfalcon aviary"
+                  }
+                },
+                {
+                  "id": "p2",
+                  "type": "sample-places",
+                  "value": {
+                    "title": "Other place",
+                    "notes": "nothing here"
+                  }
+                }
+              ]
             },
-            "records": [
-              {
-                "id": "c1",
-                "type": "sample-contacts",
-                "value": {
-                  "title": "Sample contact",
-                  "notes": "met the merlinfalcon keeper"
-                }
-              },
-              {
-                "id": "i1",
-                "type": "sample-invoices",
-                "value": {
-                  "title": "Sample invoice",
-                  "notes": "merlinfalcon feed, 3 bags"
-                }
-              },
-              {
-                "id": "p1",
-                "type": "sample-places",
-                "value": {
-                  "title": "Sample place",
-                  "notes": "merlinfalcon aviary"
-                }
-              },
-              {
-                "id": "p2",
-                "type": "sample-places",
-                "value": {
-                  "title": "Other place",
-                  "notes": "nothing here"
-                }
-              }
-            ],
             "output_selector": "$.body.results[0].found_in[0]",
             "contains": "written"
-          }
-        ],
-        "stored": [
-          {
-            "kind": "*",
-            "operations": [
-              "records:search"
-            ]
-          },
-          {
-            "kind": "semantic-index-descriptor",
-            "operations": [
-              "records:list"
-            ]
-          },
-          {
-            "files": "/",
-            "operations": [
-              "search",
-              "read_file"
-            ]
           }
         ]
       }

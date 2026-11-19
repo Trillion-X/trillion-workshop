@@ -2,7 +2,7 @@
   "drafted_from": "tool:search-everything-with-one-question row in tools/search-everything-with-one-question/tool-rows.json, do-work/search-everything.mjs, test/search-everything.test.mjs and the sample run of the container row that calls the same searchEverything function",
   "start_here": "Say to your AI: \"Search everything I keep for merlinfalcon: every list, record and file, by what was said, seen, named or written, best match first, and tell me where each hit is.\" It runs tool:search-everything-with-one-question at @tools and answers from each hit's said and address.",
   "lists": [],
-  "no_lists_because": "It names no list: it asks every kind of record and the file names the same question through your records door and answers one merged ranking.",
+  "no_lists_because": "It names no list: it asks every kind of record and the file names the same question from the records and files you hand in and answers one merged ranking. The caller reads them from your own store and hands them in as `records` and `files`; the run reads no store.",
   "workflows": [],
   "tools": [
     "tool:search-everything-in-a-small-container",
@@ -10,6 +10,7 @@
     "tool:words-as-picture-vector"
   ],
   "instructions": [
+    "0. Hand in the records and files the search covers: read them from your own store and give them as records (each {id, type, value}) and files (each file name to its text or {base64}). The run reads no store.",
     "1. Say what you want to find: question (at most 500 characters), and optionally type to keep only one kind of record, limit 1 to 200, places (said, seen, name, written), sources (trillion, files) or index_ids.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:search-everything-with-one-question and that input; picture indexes are asked through tool:words-as-picture-vector when the question needs a picture model.",
     "3. Read result {question, terms, results, unavailable, pending}: answer from each result's said and cite it by its address (records:read for a record, find_file for a file).",
@@ -33,7 +34,7 @@
         }
       },
       "given": "From tools/search-everything-with-one-question/test/search-everything.test.mjs (the sample the container version of this search runs; both call searchEverything): input.json is {\"question\": \"merlinfalcon\"}; the account holds a sample-contacts row c1 (\"met the merlinfalcon keeper\"), a sample-invoices row i1 (\"merlinfalcon feed, 3 bags\"), a sample-places row p1 (\"merlinfalcon aviary\"), another place p2 that does not hold the word, and the files /Notes/merlinfalcon care.txt and /Notes/other.txt. The command is `node trillion-workshop/tools/records-door/do-work/run-with-stdio-mcp.mjs client.json trillion-workshop/tools/search-everything-with-one-question/do-work/search-everything.mjs searchEverything input.json`.",
-      "hands_back": "The last line is {result: {question: \"merlinfalcon\", terms: [\"merlinfalcon\"], results: [...], unavailable: [], pending: []}, started_at, finished_at}. results are, in order, record:c1, record:i1, record:p1 (each found_in [\"written\"], the first first in its own lane with score 0.01639, each with address {resource: \"@own-records\", operation: \"records:read\", input: {id, type}}) and then file:/Notes/merlinfalcon care.txt (found_in [\"name\"], address {resource: \"@namespace\", operation: \"find_file\"}). The other place and other.txt are not listed. If the files may not be searched they appear under unavailable and the records still answer."
+      "hands_back": "The last line is {result: {question: \"merlinfalcon\", terms: [\"merlinfalcon\"], results: [...], unavailable: [], pending: []}, started_at, finished_at}. results are, in order, record:c1, record:i1, record:p1 (each found_in [\"written\"], the first first in its own lane with score 0.01639, each with address {resource: \"own-records\", input: {id, type}}) and then file:/Notes/merlinfalcon care.txt (found_in [\"name\"], address {resource: \"own-files\", input: {path}}). The other place and other.txt are not listed. If the files may not be searched they appear under unavailable and the records still answer."
     }
   ]
 }

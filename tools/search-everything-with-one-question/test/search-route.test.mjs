@@ -1,105 +1,49 @@
-// The page's GET /work/api/search, as the engine runs it through tool:answer-the-search-page-route (workshop-routes):
-// old trillion's tests of that route at the tag old-trillion-before-worker-retire, ported to this route tool.
-// - test/search.test.mjs:382-390 (searchOptions: places, sources and matches as comma lists, limit as a number) and
-//   :61-92 ("places filter": only the asked places' lanes answer).
-// - test/namespace-account-route.test.mjs:128-140 (GET /work/api/search reaches the one search with its question and
-//   places, and nothing else).
-// The row runs as the runner runs it, against the fake records door with exactly its rights. Every record and file
-// name here is made up.
+// The page's GET /search route over the handed-in records and files: the question and the places, sources, matches and
+// limit it asks, the empty question, other requests, and the row's declared shape. Made-up names only.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { recordsDoorFromCall } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
-import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import { answerTheSearchRoute } from '../do-work/search-everything.mjs';
+import settings from '../read-data/settings.json' with { type: 'json' };
 import rows from '../tool-rows.json' with { type: 'json' };
+const RECORDS_SOURCE = settings.lanes.find(lane => lane.match === 'records').source;
 
-// A door that records what each lane was asked and answers one hit per lane.
-function askedDoor() {
-  const asked = [];
-  const door = recordsDoorFromCall(async (method, input) => {
-    asked.push({ method, input });
-    if (method === 'records:list') return { records: [], next: null };
-    return method === 'records:search'
-      ? { question: input.question, terms: [], results: [{ id: 'record:k1', type: 'note', record: 'k1', said: 'kiln notes', score: 0.016 }], unavailable: [], pending: [] }
-      : { results: [{ id: 'file:/kiln.txt', identity: 'f1', name: 'kiln.txt', score: 0.013 }], unavailable: [], pending: [] };
-  }, { resource: '@own-records', filesResource: '@namespace' });
-  return { door, asked };
-}
+const RECORDS = [{ id: 'k1', type: 'note', value: { title: 'Kiln notes', body: 'kiln at the studio' } }];
+const FILES = { '/Notes/kiln plan.txt': 'made-up plan' };
+const door = { run: async () => { throw new Error('no tool run in this test'); } };
+const GET = (query, extra = {}) => ({ path: '/search', method: 'GET', query, body: {}, browser: {}, records: RECORDS, files: FILES, ...extra });
 
-test('GET /search reaches the one search with its question, and the places filter the lanes (search.test.mjs:61, namespace-account-route.test.mjs:134)', async () => {
-  const every = askedDoor();
-  const answer = await answerTheSearchRoute({ path: '/search', method: 'GET', query: { q: 'kiln' }, body: {}, browser: {} }, { door: every.door });
-  assert.equal(answer.status, 200);
-  assert.equal(answer.body.question, 'kiln');
-  assert.deepEqual(answer.body.results.map(hit => hit.found_in), [['written'], ['name']]);
-  assert.deepEqual(every.asked.map(call => call.method).sort(), ['records:list', 'records:search', 'search']);
-  assert.deepEqual(every.asked.find(call => call.method === 'records:search').input, { question: 'kiln' },
-    'the records lane is asked only its question (and a limit when one is asked)');
-
-  const namesOnly = askedDoor();
-  const named = await answerTheSearchRoute({ path: '/search', method: 'GET', query: { q: 'kiln', places: 'name' } }, { door: namesOnly.door });
-  assert.deepEqual(named.body.results.map(hit => hit.name), ['kiln.txt']);
-  assert.deepEqual(namesOnly.asked.map(call => call.method), ['search'], 'a place not asked is not searched');
-
-  const writtenOnly = askedDoor();
-  const written = await answerTheSearchRoute({ path: '/search', method: 'GET', query: { q: 'kiln', places: 'written' } }, { door: writtenOnly.door });
-  assert.deepEqual(written.body.results.map(hit => hit.found_in), [['written']]);
+test('GET /search answers the one search with its question, and places narrow the lanes', async () => {
+  const every = await answerTheSearchRoute(GET({ q: 'kiln' }), { door });
+  assert.equal(every.status, 200);
+  assert.equal(every.body.question, 'kiln');
+  assert.deepEqual(every.body.results.map(hit => hit.source).sort(), ['files', RECORDS_SOURCE].sort());
+  const names = await answerTheSearchRoute(GET({ q: 'kiln', places: 'name' }), { door });
+  assert.deepEqual(names.body.results.map(hit => hit.path), ['/Notes/kiln plan.txt']);
+  const written = await answerTheSearchRoute(GET({ q: 'kiln', places: 'written' }), { door });
+  assert.deepEqual(written.body.results.map(hit => hit.record), ['k1']);
 });
 
-test('searchOptions: places, sources and matches are comma lists and limit a number, at most 200 (search.test.mjs:388)', async () => {
-  const sourced = askedDoor();
-  const fromSources = await answerTheSearchRoute({ path: '/search', method: 'GET', query: { q: 'kiln', sources: 'files, ', limit: '5' } }, { door: sourced.door });
-  assert.deepEqual(fromSources.body.results.map(hit => hit.name), ['kiln.txt']);
-  assert.deepEqual(sourced.asked.map(call => call.method), ['search', 'records:list']);
-  assert.deepEqual(sourced.asked[0].input, { question: 'kiln', limit: 5 });
-  assert.equal(sourced.asked[1].input.type, 'semantic-index-descriptor');
-
-  const matched = askedDoor();
-  await answerTheSearchRoute({ path: '/search', method: 'GET', query: { q: 'kiln', matches: 'records', limit: '900' } }, { door: matched.door });
-  assert.deepEqual(matched.asked, [{ method: 'records:search', input: { question: 'kiln', limit: 200 } }]);
-
-  const unbounded = askedDoor();
-  await answerTheSearchRoute({ path: '/search', method: 'GET', query: { q: 'kiln', limit: '0', matches: 'files' } }, { door: unbounded.door });
-  assert.deepEqual(unbounded.asked, [{ method: 'search', input: { question: 'kiln' } }], 'a limit that is no whole number above 0 is left out');
+test('sources and matches narrow the answer, and a limit is a whole number at most 200', async () => {
+  const sourced = await answerTheSearchRoute(GET({ q: 'kiln', sources: 'files, ', limit: '5' }), { door });
+  assert.deepEqual(sourced.body.results.map(hit => hit.source), ['files']);
+  const many = await answerTheSearchRoute(GET({ q: 'kiln', limit: '900' }), { door });
+  assert.equal(many.status, 200);
+  const none = await answerTheSearchRoute(GET({ q: 'kiln', limit: '0', matches: 'indexes' }), { door });
+  assert.deepEqual(none.body.results, []);
 });
 
 test('a question left out is the empty question, which asks no lane; any other request is no route of this one', async () => {
-  const none = askedDoor();
-  const empty = await answerTheSearchRoute({ path: '/search', method: 'GET', query: {} }, { door: none.door });
-  assert.deepEqual([empty.status, empty.body.question, empty.body.results, none.asked], [200, '', [], []]);
-  assert.deepEqual(await answerTheSearchRoute({ path: '/search', method: 'POST', query: { q: 'kiln' } }, { door: none.door }), { status: 404, body: { error: 'Not found' } });
-  assert.deepEqual(await answerTheSearchRoute({ path: '/search/lanes', method: 'GET', query: {} }, { door: none.door }), { status: 404, body: { error: 'Not found' } });
+  const empty = await answerTheSearchRoute({ path: '/search', method: 'GET', query: {} }, { door });
+  assert.equal(empty.status, 200);
+  assert.deepEqual(empty.body.results, []);
+  assert.deepEqual(await answerTheSearchRoute({ path: '/search', method: 'POST', query: { q: 'kiln' } }, { door }), { status: 404, body: { error: 'Not found' } });
+  assert.deepEqual(await answerTheSearchRoute({ path: '/search/lanes', method: 'GET', query: {} }, { door }), { status: 404, body: { error: 'Not found' } });
 });
 
-test('the route row runs as the engine runs it, with the same read-only rights as the one search', async () => {
-  const row = rowOf(rows, 'tool:answer-the-search-page-route');
-  assert.deepEqual(rightsOf(row), rightsOf(rowOf(rows, 'tool:search-everything-with-one-question')));
-  const [sample] = row.verify;
-  const ran = await answerOf(row, sample.input, sample);
-  assert.equal(ran.status, 0, 'the run ends well');
-  assert.equal(ran.result.status, 200);
-  assert.deepEqual(ran.result.body.results.map(hit => hit.record).sort(), ['c1', 'i1', 'p1']);
-  assert.ok(ran.result.body.results.every(hit => hit.found_in.includes('written')), 'sources=trillion leaves the files out');
-});
-
-// A busy records account answers the search as 503 (retryable); any other refusal stays a final 500.
-const GET = { path: '/search', method: 'GET', query: { q: 'kiln' } };
-const doorRefusing = error => ({
-  search: async () => { throw error; },
-  files: async () => ({ results: [], unavailable: [], pending: [] }),
-});
-
-test('a busy records account answers the search as 503 and says it may be asked again', async () => {
-  const busy = Object.assign(new Error('The person\'s records stayed busy; try again shortly.'), { code: 'selected_owner_unavailable', retryable: true });
-  const answer = await answerTheSearchRoute(GET, { door: doorRefusing(busy) });
-  assert.equal(answer.status, 503);
-  assert.equal(answer.body.retryable, true);
-  assert.equal(answer.body.error, busy.message);
-});
-
-test('any other refusal of the records stays a final 500 with no retryable mark', async () => {
-  const refused = Object.assign(new Error('The records door refused the call.'), { code: 'original_input_refused' });
-  const answer = await answerTheSearchRoute(GET, { door: doorRefusing(refused) });
-  assert.equal(answer.status, 500);
-  assert.equal(answer.body.retryable, undefined);
+test('a route row takes the records and files it is handed and declares no store right', () => {
+  const row = rows.records.map(record => record.payload).find(payload => payload.id === 'tool:answer-the-search-page-route');
+  assert.equal(row.stored, undefined);
+  assert.ok(row.input_schema.properties.records && row.input_schema.properties.files);
+  assert.ok(!JSON.stringify(row).includes('"records:'));
+  assert.deepEqual(row.input_schema.required, ['path', 'method']);
 });

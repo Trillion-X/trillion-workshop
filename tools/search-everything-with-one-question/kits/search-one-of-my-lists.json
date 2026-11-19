@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:search-one-of-my-lists's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are\", with {\"question\":\"launch plan\",\"type\":\"record:note\"}. It runs tool:search-one-of-my-lists and answers {\"question\":\"launch plan\",\"terms\":[\"launch\",\"plan\"],\"results\":[{\"start\":0,\"end\":0,\"id\":\"record:note:plan-7\",\"source\":\"trillion\",\"type\":\"record:note\",\"record\":\"note:plan-7\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"note:plan-7\",\"type\":\"record:note\"}},\"score\":0.01639,\"places\":[{\"place\":\"written\",\"label\":\"Notes and text\",\"said\":null ...",
+  "start_here": "Say to your AI: \"Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are\", with {\"question\":\"launch plan\",\"type\":\"record:note\", \"records\": [...]} (the records of that one kind, read from your own store). It runs tool:search-one-of-my-lists and answers the rows that hold every asked word, best first, each with its said, score and address (the person's own record by id and kind).",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes its input and the rows of yours it is given (of the kind the request names), and keeps nothing.",
   "workflows": [],
@@ -33,7 +33,7 @@
         }
       },
       "given": "The input {\"question\":\"launch plan\",\"type\":\"record:note\"}, with 2 example rows (record:note) already kept.",
-      "hands_back": "It answered {\"question\":\"launch plan\",\"terms\":[\"launch\",\"plan\"],\"results\":[{\"start\":0,\"end\":0,\"id\":\"record:note:plan-7\",\"source\":\"trillion\",\"type\":\"record:note\",\"record\":\"note:plan-7\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"note:plan-7\",\"type\":\"record:note\"}},\"score\":0.01639,\"places\":[{\"place\":\"written\",\"label\":\"Notes and text\",\"said\":null,\"score\":0.016}],\"moments\":[{\"start\":0,\"end\":0,\"timed\":false,\"said\":null,\"places\":[\"written\"]}],\"said\":null}],\"unavailable\":[],\"pending\":[],\"sat_out\":[]}."
+      "hands_back": "It answered {question, terms, results, unavailable, pending}: the record of the one kind that holds the asked words (found_in written), best first, each with its said and its address by id and kind."
     }
   ]
 }
