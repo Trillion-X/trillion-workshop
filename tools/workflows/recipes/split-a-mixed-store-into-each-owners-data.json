@@ -36,6 +36,16 @@
                   "type": "string",
                   "minLength": 1,
                   "description": "The language it is read in (postgres, sqlite, or another the AI reads directly)"
+                },
+                "schema": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The schema (or namespace) the store's tables are in, when it is not the language's default (public for postgres)"
+                },
+                "sorted_by": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "A table of the store that already says where each table or part goes, when one was written while judging it: the sort step reads it first and keeps its decisions"
                 }
               }
             },
@@ -110,7 +120,7 @@
           {
             "id": "list-places",
             "title": "List every table of the store with its rows and columns",
-            "do": "Read input.source directly in its own language (for sqlite: the file opened read-only; for postgres: tool:run-sql-in-my-database with credential_name = input.source.name) and list every table or list it holds, with its row count, its columns and the column (or columns) that name one row. Change nothing in the source. Submit {places: [{place, rows, columns, key}]}, every table, empty ones too.",
+            "do": "Read input.source directly in its own language (for sqlite: the file opened read-only; for postgres: tool:run-sql-in-my-database with credential_name = input.source.name) and list every table or list it holds in input.source.schema (the language's default schema when none, public for postgres; name tables as schema.table when a schema is given), with its row count, its columns and the column (or columns) that name one row. Change nothing in the source. Submit {places: [{place, rows, columns, key}]}, every table, empty ones too.",
             "submit": {
               "type": "object",
               "required": [
@@ -153,7 +163,7 @@
           {
             "id": "sort",
             "title": "Decide whose each part is, and keep it as a ledger row",
-            "do": "For each place, read a few of its rows and decide which of input.owners it belongs to, by what the rows are about and who acts on them, not by its name alone. When one table holds rows of several owners, split it by a condition in the source's own language (which), one part per owner. A part that belongs to no owner (scratch, a cache, a copy kept elsewhere) gets owner null and says why. Keep each part with the statement named keep of this step's sql through tool:run-sql-in-my-database with credential_name = input.ledger.credential_name and params [source name, place, which (null for the whole table), owner credential_name (null for none), the table name in the owner's database (the same name unless it would clash), key column(s), why]. Every place of list-places has at least one row. Submit {parts: the rows kept, each {id, place, which, owner, into_place, key, why}}.",
+            "do": "When input.source.sorted_by is given, read that table first: each of its decisions (a table or a part, its owner and why) is kept as given, and only the places it does not decide are decided here. For each place, read a few of its rows and decide which of input.owners it belongs to, by what the rows are about and who acts on them, not by its name alone. When one table holds rows of several owners, split it by a condition in the source's own language (which), one part per owner. A part that belongs to no owner (scratch, a cache, a copy kept elsewhere) gets owner null and says why. Keep each part with the statement named keep of this step's sql through tool:run-sql-in-my-database with credential_name = input.ledger.credential_name and params [source name, place, which (null for the whole table), owner credential_name (null for none), the table name in the owner's database (the same name unless it would clash), key column(s), why]. Every place of list-places has at least one row. Submit {parts: the rows kept, each {id, place, which, owner, into_place, key, why}}.",
             "sql": [
               {
                 "name": "keep",
@@ -228,7 +238,7 @@
           {
             "id": "move-each",
             "title": "Write each part into its owner's database, in batches safe to run again",
-            "do": "For each part with an owner and no moved_at: in the owner's database (tool:run-sql-in-my-database, credential_name = the part's owner) make into_place if it is absent, with the source's columns in the owner's language's nearest types and the key as its primary key. Then read the part's rows from the source in batches of input.batch_rows (500 when none), ordered by key, as JSON, and write each batch with the statement named write of this step's sql, both of its %I filled with into_place by the database's own format() and params [the batch as JSON text]; a row already there by its key is left as it is. Add up the rows read and the rows each write returned, and keep them with the statement named counted in the ledger. Submit {moved: [{id, read_count, written_count}]}.",
+            "do": "For each part with an owner and no moved_at: in the owner's database (tool:run-sql-in-my-database, credential_name = the part's owner) make into_place if it is absent in its public schema (a source's schema name is not carried over), with the source's columns in the owner's language's nearest types and the key as its primary key. Then read the part's rows from the source in batches of input.batch_rows (500 when none), ordered by key, as JSON, and write each batch with the statement named write of this step's sql, both of its %I filled with into_place by the database's own format() and params [the batch as JSON text]; a row already there by its key is left as it is. Add up the rows read and the rows each write returned, and keep them with the statement named counted in the ledger. Submit {moved: [{id, read_count, written_count}]}.",
             "sql": [
               {
                 "name": "write",

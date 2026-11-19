@@ -10,9 +10,9 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Name the store (a vault name of its connection, or its file) and the language it is read in.",
+    "1. Name the store (a vault name of its connection, or its file), the language it is read in, and its schema when its tables are not in the default one. When a table already says where each part goes, name it as sorted_by.",
     "2. Name each owner: the vault name of their own database and whose data it is.",
-    "3. Name your own database for the ledger.",
+    "3. Name your own database for the ledger (row_moves is kept there, beside your other rows).",
     "4. The AI lists every table, decides whose each part is and keeps that in row_moves before anything moves; read it and change a row before the move if a part is wrong.",
     "5. Each part is written by its key, so a stopped run is run again; each is read back, and moved_at is set only when the counts match.",
     "6. The store is left as it was; remove it only once nothing waits."
@@ -30,12 +30,23 @@
             "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:split-a-mixed-store-into-each-owners-data",
-              "source": { "name": "old-store.sqlite", "language": "sqlite" },
+              "source": {
+                "name": "old-store.sqlite",
+                "language": "sqlite"
+              },
               "owners": [
-                { "credential_name": "my-own-database", "who": "me" },
-                { "credential_name": "shop-management-database", "who": "the shop's management" }
+                {
+                  "credential_name": "my-own-database",
+                  "who": "me"
+                },
+                {
+                  "credential_name": "shop-management-database",
+                  "who": "the shop's management"
+                }
               ],
-              "ledger": { "credential_name": "my-own-database" }
+              "ledger": {
+                "credential_name": "my-own-database"
+              }
             }
           }
         }
