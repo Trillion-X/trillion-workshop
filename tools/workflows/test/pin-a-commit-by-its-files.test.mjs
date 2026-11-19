@@ -34,3 +34,23 @@ test('a commit is pinned by exactly its archived files, in the engine\'s identit
   assert.throws(() => pinOf(repository, 'main', address), /full commit/);
   for (const bad of [undefined, 'http://archives.example.com/{commit}', 'archives.example.com/{commit}']) assert.throws(() => pinOf(repository, commit, bad), /https address/, bad);
 });
+
+test('a commit whose layout would stop runs is not pinned: a laid-out file it lacks, or a package folder placed twice', () => {
+  const repository = mkdtempSync(join(tmpdir(), 'pin-a-layout-'));
+  const git = (...args) => execFileSync('git', ['-C', repository, ...args], { encoding: 'utf8' }).trim();
+  git('init', '-q');
+  const commitWith = (layout, extra = {}) => {
+    const files = { 'tools/kit/do-work/run.mjs': 'export {}', 'tools/kit/read-data/a.json': '{}', 'package-files.json': JSON.stringify(layout), ...extra };
+    for (const [path, text] of Object.entries(files)) { mkdirSync(join(repository, path, '..'), { recursive: true }); writeFileSync(join(repository, path), text); }
+    git('add', '-A');
+    git('-c', 'user.name=Example', '-c', 'user.email=maker@example.com', 'commit', '-q', '--allow-empty', '-m', 'layout');
+    return git('rev-parse', 'HEAD');
+  };
+  const address = 'https://archives.example.com/{commit}.tar.gz';
+  const good = commitWith({ 'tool:a': [{ package: 'kit', paths: ['do-work/run.mjs', 'read-data'], at: '/opt/kit' }, { packages: ['pg'], at: '/opt/node_modules/pg' }] });
+  assert.equal(pinOf(repository, good, address).files, 3, 'a file and a folder the commit holds, each package once: pinned');
+  const missing = commitWith({ 'tool:a': [{ package: 'kit', paths: ['do-work/run.mjs', 'src/moved-away.mjs'], at: '/opt/kit' }] });
+  assert.throws(() => pinOf(repository, missing, address), (error) => error.problems?.[0] === 'tool:a is laid out with tools/kit/src/moved-away.mjs, which this commit does not hold');
+  const twice = commitWith({ 'tool:b': [{ packages: ['split2'], at: '/opt/node_modules/split2' }, { packages: ['node_modules/split2'], at: '/opt/node_modules/split2' }] });
+  assert.throws(() => pinOf(repository, twice, address), (error) => error.problems?.[0] === 'tool:b places the package folder /opt/node_modules/split2 twice');
+});

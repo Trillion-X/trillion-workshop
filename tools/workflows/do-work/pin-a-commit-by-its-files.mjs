@@ -19,6 +19,10 @@
 //
 // Non-Negotiable Invariants:
 // - Only a full commit identity is pinned (a branch or a short name moves; a pin must not), at an https address.
+// - A commit whose package-files.json would stop runs is never pinned (layoutProblems): every file a row is laid out with
+//   must be in the commit, and no row may place one package folder twice. The engine refuses a whole run for either
+//   (trillion-rust container.rs: a missing file, or a file already at its place), and a pin is what every kept-running wake
+//   restarts with, so a bad pin stopped every workflow on Nov 19 2026 at 4:30 PM CST and the four noticers at 5:27 PM.
 // - Nothing is written: the archive is read from git's output in memory.
 //
 // AI Assistant Directive:
@@ -66,6 +70,31 @@ export function manifestIdentity(files) {
   return hex(blake3(Buffer.from(text, 'utf8')));
 }
 
+const LAYOUT_FILE = 'package-files.json';
+
+/** What in the commit's package-files.json would stop a run, as readable lines (none when it has no such file): a laid-out
+ *  path of a package item that is neither a file of the commit nor a folder holding one, and a package folder (`at` of a
+ *  `packages` item) one row places twice. The same rules as test/package-files.test.mjs, judged on the commit's own files. */
+export function layoutProblems(files) {
+  const layout = files.find(([path]) => path === LAYOUT_FILE);
+  if (!layout) return [];
+  const paths = new Set(files.map(([path]) => path));
+  const folders = new Set();
+  for (const path of paths) for (let cut = path.lastIndexOf('/'); cut > 0; cut = path.lastIndexOf('/', cut - 1)) folders.add(path.slice(0, cut));
+  const problems = [];
+  for (const [row, items] of Object.entries(JSON.parse(layout[1].toString('utf8')))) {
+    for (const item of items) {
+      if (item.package) for (const path of item.paths ?? []) {
+        const full = `tools/${item.package}/${path}`.replace(/\/+$/, '');
+        if (!paths.has(full) && !folders.has(full)) problems.push(`${row} is laid out with ${full}, which this commit does not hold`);
+      }
+    }
+    const ats = items.filter(item => item.packages).map(item => item.at);
+    for (const at of new Set(ats.filter((at, index) => ats.indexOf(at) !== index))) problems.push(`${row} places the package folder ${at} twice`);
+  }
+  return problems;
+}
+
 /** The pin of `commit` in `repository`, served at `address` (`{commit}` stands for the commit): what tools:update takes. */
 export function pinOf(repository, commit, address) {
   if (!/^[a-f0-9]{40}$/.test(commit)) throw new Error('Give the full commit identity (40 hex): a branch or a short name moves.');
@@ -73,6 +102,8 @@ export function pinOf(repository, commit, address) {
   if (!/^https:\/\/[^/\s]+\/\S*$/.test(at)) throw new Error('Give the https address of the commit\'s archive, with {commit} where the commit goes.');
   const archive = execFileSync('git', ['-C', repository, 'archive', '--format=tar', commit], { maxBuffer: 1 << 30 });
   const files = tarFiles(archive);
+  const problems = layoutProblems(files);
+  if (problems.length) throw Object.assign(new Error(`Not pinned: ${commit} would stop runs, because the engine refuses a run whose layout names a missing file or places one package twice.\n${problems.join('\n')}`), { problems });
   return { address: at, files_blake3: manifestIdentity(files), files: files.length };
 }
 
