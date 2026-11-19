@@ -571,6 +571,15 @@
                   }
                 },
                 {
+                  "id": "no-mail-was-read",
+                  "kind": "return",
+                  "config": {
+                    "value": {
+                      "skipped": "no mailbox answered, so the draft does not know the mail already sent"
+                    }
+                  }
+                },
+                {
                   "id": "read-the-calendar",
                   "kind": "ask",
                   "config": {
@@ -614,6 +623,15 @@
                     },
                     "context": {
                       "step_id": "read-the-calendar"
+                    }
+                  }
+                },
+                {
+                  "id": "no-calendar-was-read",
+                  "kind": "return",
+                  "config": {
+                    "value": {
+                      "skipped": "no calendar answered, so the draft does not know the coming events"
                     }
                   }
                 },
@@ -758,7 +776,8 @@
                             ]
                           }
                         }
-                      ]
+                      ],
+                      "job": "write-a-reply"
                     },
                     "context": {
                       "step_id": "draft"
@@ -833,6 +852,15 @@
                   }
                 },
                 {
+                  "id": "no-voice-score",
+                  "kind": "return",
+                  "config": {
+                    "value": {
+                      "skipped": "the voice scorer did not run"
+                    }
+                  }
+                },
+                {
                   "id": "check-the-phrases",
                   "kind": "ask",
                   "config": {
@@ -867,6 +895,15 @@
                     },
                     "context": {
                       "step_id": "check-the-phrases"
+                    }
+                  }
+                },
+                {
+                  "id": "no-phrase-check",
+                  "kind": "return",
+                  "config": {
+                    "value": {
+                      "skipped": "the phrase rules were not checked"
                     }
                   }
                 },
@@ -1160,6 +1197,269 @@
                   }
                 },
                 {
+                  "id": "draft-in-the-notice",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "notices.credential_name"
+                        }
+                      },
+                      "sql": "insert into notices (title, body, kind, key) select $2::text, coalesce($3::text, ''), $1::text, $4::text where not exists (select 1 from notices where key = $4::text) returning 'told:' || id as notification_id",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "notices.kind"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.if_null",
+                              "args": {
+                                "value": "needs-you"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "start_at"
+                          },
+                          "resolve_nested_bindings": true,
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  "A draft to ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "due.address"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
+                                  },
+                                  ": ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "due.words"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "start_at"
+                          },
+                          "resolve_nested_bindings": true,
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  "No mailbox took the draft, so here it is. Subject: ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "steps",
+                                      "key": "draft",
+                                      "path": "output.choices.0.message.content"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.json_parse"
+                                      },
+                                      {
+                                        "op": "op:core.get_path",
+                                        "args": {
+                                          "path": "subject"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
+                                  },
+                                  ". Text: ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "steps",
+                                      "key": "draft",
+                                      "path": "output.choices.0.message.content"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.json_parse"
+                                      },
+                                      {
+                                        "op": "op:core.get_path",
+                                        "args": {
+                                          "path": "text"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
+                                  },
+                                  ". Voice score (lowest paragraph): ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "steps",
+                                      "key": "score-the-voice",
+                                      "path": "output.result.body_min"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "not scored"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
+                                  },
+                                  ". Phrase findings: ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "steps",
+                                      "key": "check-the-phrases",
+                                      "path": "output.findings"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "not checked"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.stringify",
+                                        "args": {
+                                          "format": "json"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  ". Send it yourself when it is right; sending it is your yes."
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "start_at"
+                          },
+                          "resolve_nested_bindings": true,
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  "history:",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "due.thing_scheme"
+                                    }
+                                  },
+                                  ":",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "due.thing_value"
+                                    }
+                                  },
+                                  ":",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "due.through"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "context": {
+                      "step_id": "draft-in-the-notice"
+                    }
+                  }
+                },
+                {
                   "id": "changed-without-a-draft",
                   "kind": "ask",
                   "config": {
@@ -1255,7 +1555,7 @@
                               "op": "op:core.concat",
                               "args": {
                                 "values": [
-                                  "No draft was made (a mail, calendar, model or check step failed; the run says which). Their history, oldest first: ",
+                                  "No draft was made (no model answered in time; the run says why). Their history, oldest first: ",
                                   {
                                     "$kind": "binding",
                                     "select": {
@@ -1516,12 +1816,12 @@
                 },
                 {
                   "from": "read-what-was-sent",
-                  "to": "changed-without-a-draft",
+                  "to": "no-mail-was-read",
                   "kind": "on_failure"
                 },
                 {
                   "from": "read-the-calendar",
-                  "to": "changed-without-a-draft",
+                  "to": "no-calendar-was-read",
                   "kind": "on_failure"
                 },
                 {
@@ -1531,17 +1831,17 @@
                 },
                 {
                   "from": "score-the-voice",
-                  "to": "changed-without-a-draft",
+                  "to": "no-voice-score",
                   "kind": "on_failure"
                 },
                 {
                   "from": "check-the-phrases",
-                  "to": "changed-without-a-draft",
+                  "to": "no-phrase-check",
                   "kind": "on_failure"
                 },
                 {
                   "from": "save-the-draft",
-                  "to": "changed-without-a-draft",
+                  "to": "draft-in-the-notice",
                   "kind": "on_failure"
                 },
                 {
@@ -1562,6 +1862,31 @@
                 {
                   "from": "give-back-the-told",
                   "to": "remove-the-draft",
+                  "kind": "always"
+                },
+                {
+                  "from": "draft-in-the-notice",
+                  "to": "give-back-the-told",
+                  "kind": "on_failure"
+                },
+                {
+                  "from": "no-mail-was-read",
+                  "to": "read-the-calendar",
+                  "kind": "always"
+                },
+                {
+                  "from": "no-calendar-was-read",
+                  "to": "draft",
+                  "kind": "always"
+                },
+                {
+                  "from": "no-voice-score",
+                  "to": "check-the-phrases",
+                  "kind": "always"
+                },
+                {
+                  "from": "no-phrase-check",
+                  "to": "save-the-draft",
                   "kind": "always"
                 }
               ]

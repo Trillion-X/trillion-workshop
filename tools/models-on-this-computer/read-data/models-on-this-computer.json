@@ -99,6 +99,17 @@
         "type": "json_object"
       }
     },
+    "write-a-reply": {
+      "models": [
+        "ollama-gemma3-4b",
+        "ollama-qwen2.5-14b"
+      ],
+      "most_tokens": 600,
+      "timeout_seconds": 90,
+      "response_format": {
+        "type": "json_object"
+      }
+    },
     "meeting-notes": {
       "models": [
         "ollama-gemma3-4b"

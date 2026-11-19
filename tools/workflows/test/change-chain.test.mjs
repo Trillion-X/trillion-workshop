@@ -164,13 +164,22 @@ test('changes already told are not told again: the claim refuses and nothing is 
   assert.deepEqual(asked(d), [...MADE, 'WITH', 'INSERT']);
 });
 
-test('a draft step that fails still tells what changed; a notice that fails gives its claim back and removes its draft', async () => {
-  for (const failing of ['tool:find-mail', 'tool:read-calendar-events', 'tool:ask-a-model', 'tool:score-writing-with-a-voice-adapter', 'tool:judge-against-rules', 'tool:save-a-mail-draft']) {
+test('a draft is made from the history when mail, calendar, voice or phrase steps cannot run; only no model answer means no draft', async () => {
+  for (const failing of ['tool:find-mail', 'tool:read-calendar-events', 'tool:score-writing-with-a-voice-adapter', 'tool:judge-against-rules']) {
     const d = tellDoor({ rows: [due(false)], fail: failing });
     assert.equal((await tellRun(d)).status, 'completed');
-    assert.deepEqual(asked(d).slice(-2), [failing, 'notice'], failing);
-    assert.match(noticeOf(d.calls.at(-1)).body, /^No draft was made/);
+    assert.ok(asked(d).includes('tool:ask-a-model'), failing);
+    assert.deepEqual(asked(d).slice(-2), ['tool:save-a-mail-draft', 'notice'], failing);
+    assert.match(noticeOf(d.calls.at(-1)).title, /draft to .* is in your mailbox/, failing);
   }
+  const noMailbox = tellDoor({ rows: [due(false)], fail: 'tool:save-a-mail-draft' });
+  assert.equal((await tellRun(noMailbox)).status, 'completed');
+  assert.deepEqual(asked(noMailbox).slice(-2), ['tool:save-a-mail-draft', 'notice']);
+  assert.match(noticeOf(noMailbox.calls.at(-1)).body, /^No mailbox took the draft, so here it is\. Subject: .+\. Text: .+\. Voice score/);
+  const noModel = tellDoor({ rows: [due(false)], fail: 'tool:ask-a-model' });
+  assert.equal((await tellRun(noModel)).status, 'completed');
+  assert.deepEqual(asked(noModel).slice(-2), ['tool:ask-a-model', 'notice']);
+  assert.match(noticeOf(noModel.calls.at(-1)).body, /^No draft was made/);
   const told = tellDoor({ rows: [due(false)], fail: 'notice' });
   await tellRun(told);
   assert.deepEqual(asked(told).slice(-3), ['notice', 'DELETE', 'tool:delete-a-mail-draft']);
