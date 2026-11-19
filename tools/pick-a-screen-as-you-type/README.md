@@ -6,7 +6,7 @@ Moved from Trillion-X/trillion (commit b92aa549f2) byte for byte by `tools/move-
 
 ## How it runs
 
-`tool:pick-a-screen-for-typed-words`, `tool:fill-screen-inputs-from-words` run `do-work/pick-a-screen-as-you-type.mjs` in a small container with no internet, through `tools/records-door/do-work/run-an-export.mjs`. It reads no records and writes nothing; everything it works on is handed in.
+`tool:pick-a-screen-for-typed-words`, `tool:fill-screen-inputs-from-words` run `do-work/pick-a-screen-as-you-type.mjs` in a small container with no internet, through `tools/workflows/do-work/run-a-function.mjs`. It reads no records and writes nothing; everything it works on is handed in.
 
 ## What stays in the old tree
 
@@ -30,6 +30,6 @@ The app's `src/workspace/instant-screen.tsx` and `src/meaning-or-words.mjs` (whi
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (the run command), Node.
+**Depends on:** `tools/workflows` (the run command), Node.
 
 **Depended on by:** `tool-rows.json`.

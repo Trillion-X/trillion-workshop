@@ -1,6 +1,6 @@
 // tools/pick-a-screen-as-you-type/do-work/pick-a-screen-as-you-type.mjs
 //
-// Two tools run as functions (tools/records-door do-work/run-an-export.mjs), both by the moved modules unchanged and
+// Two tools run as functions (tools/workflows do-work/run-a-function.mjs), both by the moved modules unchanged and
 // with no model:
 //   pickAScreenForWords   tool:pick-a-screen-for-typed-words: the screen the typed words pick from the catalog handed
 //                         in (offered screens, made interfaces by intent, kept screens by their words), ranked by
