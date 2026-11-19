@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:2248e506c4e032d707562a6daed11e5353620dcdad7662bcae65db753302dba3"
+  "blake3": "1f:a2d54fe7ec7afb907d7982560e6e5993450d27220ef83ec12470fc94fd810f4c"
  },
  "fields": [
   {
@@ -4112,6 +4112,21 @@
      "placement:small-container"
     ],
     "folder": "guided-tours"
+   }
+  },
+  {
+   "id": "tool:find-tool-servers-in-a-catalog",
+   "values": {
+    "title": "Find tool servers in a catalog",
+    "job": "Find tool servers for a job in a published catalog and get the address to call each one at",
+    "description": "Searches a published catalog of tool servers (the MCP registry's own list unless another catalog with the same API is named) for every word given, and answers each server's name, what it does, whether it is still active, the headers it asks for, and its address. Give that address to tools:list or tools:run to see and use its tools; a server with no address runs only as a program on a computer. It keeps nothing and sends no key.",
+    "status": "active",
+    "maker": "maker:find-tool-servers-in-a-catalog",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "find-tool-servers-in-a-catalog"
    }
   },
   {

@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tool:find-tool-servers-in-a-catalog's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find tool servers for a job in a published catalog and get the address to call each one at\", with {\"words\":\"inbox\",\"limit\":2}. It runs tool:find-tool-servers-in-a-catalog and answers {\"servers\":[{\"name\":\"example.inbox/mcp\",\"title\":\"Inbox\",\"description\":\"Email inboxes for agents (a made-up server).\",\"status\":\"active\",\"address\":\"https://inbox.example/mcp\",\"transport\":\"streamable-http\",\"asks_for\":[\"Authorization\"],\"repository\":null,\"website\":null,\"version\":\"1.0.0\"}],\"next_cursor\":null}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:find-tool-servers-in-a-catalog"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Find tool servers for a job in a published catalog and get the address to call each one at\", and give it words (What the server should do, like \"email inboxes\".).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:find-tool-servers-in-a-catalog and its input (the worked example shows one).",
+    "3. Read what comes back: Searches a published catalog of tool servers (the MCP registry's own list unless another catalog with the same API is named) for every word given, and answers each server's name, what it does, whether it is still active, the headers it asks for, and its address."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find tool servers in a catalog on its own sample",
+      "ask": "Find tool servers for a job in a published catalog and get the address to call each one at",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-tool-servers-in-a-catalog",
+            "input": {
+              "words": "inbox",
+              "limit": 2
+            }
+          }
+        }
+      },
+      "given": "The input {\"words\":\"inbox\",\"limit\":2}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"servers\":[{\"name\":\"example.inbox/mcp\",\"title\":\"Inbox\",\"description\":\"Email inboxes for agents (a made-up server).\",\"status\":\"active\",\"address\":\"https://inbox.example/mcp\",\"transport\":\"streamable-http\",\"asks_for\":[\"Authorization\"],\"repository\":null,\"website\":null,\"version\":\"1.0.0\"}],\"next_cursor\":null}."
+    }
+  ]
+}

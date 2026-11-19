@@ -1,0 +1,6 @@
+{
+  "_what": "Where tool servers are searched when a call names no catalog: any catalog that answers the MCP registry's GET <catalog>?search=&limit=&cursor=&version=latest with { servers: [{ server, _meta }], metadata: { nextCursor } } (registry.modelcontextprotocol.io's own API, v0). A call may name another catalog that speaks the same API.",
+  "default_catalog": "https://registry.modelcontextprotocol.io/v0/servers",
+  "remote_types": ["streamable-http", "sse"],
+  "limit": { "default": 20, "most": 100 }
+}

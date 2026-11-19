@@ -1,0 +1,6 @@
+{
+  "public": [
+    "do-work/find-tool-servers.mjs",
+    "read-data/catalogs.json"
+  ]
+}

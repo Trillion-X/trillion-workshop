@@ -11130,6 +11130,16 @@
    "at": "/opt/guided-tours"
   }
  ],
+ "tool:find-tool-servers-in-a-catalog": [
+  {
+   "package": "find-tool-servers-in-a-catalog",
+   "paths": [
+    "do-work/find-tool-servers.mjs",
+    "read-data/catalogs.json"
+   ],
+   "at": "/opt/find-tool-servers-in-a-catalog"
+  }
+ ],
  "tool:find-when-a-character-speaks": [],
  "tool:find-where-the-line-should-go": [],
  "tool:finish-an-ai-job": [
