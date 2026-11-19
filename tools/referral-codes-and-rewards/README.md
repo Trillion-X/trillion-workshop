@@ -60,6 +60,6 @@ A friend's discount is the referral code itself as a checkout code (typed at che
 
 ## Dependencies
 
-**Depends on:** Node in the tool container; `tools/records-door` (the export command that runs each tool), `tools/paid-access` (the grant row shape), `tools/formula-engine` (paid-access's rule engine), `tools/content-identity`. A discount row it answers is read by `tools/take-payments` once the person's AI keeps it.
+**Depends on:** Node in the tool container; `tools/workflows` (the function runner, `do-work/run-a-function.mjs`, that runs each tool), `tools/paid-access` (the grant row shape), `tools/formula-engine` (paid-access's rule engine), `tools/content-identity`. A discount row it answers is read by `tools/take-payments` once the person's AI keeps it.
 
 **Depended on by:** Trillion's deploy (it reads `tool-rows.json` and bundles the files a row names).

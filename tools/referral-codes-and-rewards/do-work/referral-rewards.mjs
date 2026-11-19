@@ -1,7 +1,7 @@
 // tools/referral-codes-and-rewards/do-work/referral-rewards.mjs
 //
 // The functions the referral rows run through the export command:
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/referral-codes-and-rewards/do-work/referral-rewards.mjs <function> < input.json
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/referral-codes-and-rewards/do-work/referral-rewards.mjs <function> < input.json
 // Each is `(input) => result`. The business's rule rows (read-data/referral-reward-list.json) come in the request as
 // `rules` (the person's AI reads them from their store); the referral events (a code made, withdrawn, a signup) are the
 // caller's too. Nothing is read from or kept in any store: every answer holds its whole result.
@@ -27,7 +27,7 @@ function rulesFrom(input) {
 }
 
 /** tool:make-a-referral-code: the code and its event; `allowed_on` is the attributes the business's active rules name. */
-export function makeAReferralCode(input, _context, random = count => randomBytes(count)) {
+export function makeAReferralCode(input, random = count => randomBytes(count)) {
   if (!object(input)) throw new Error('Give { referrer, target, rules }.');
   const { rules } = rulesFrom(input);
   const allowedOn = allowedOnFrom(rules);
