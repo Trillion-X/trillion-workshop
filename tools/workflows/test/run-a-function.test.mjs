@@ -20,7 +20,7 @@ test('the function is called with the input and its answer is the result', () =>
 });
 
 test('a function is handed its input and the host actions, which read nothing until used', () => {
-  assert.deepEqual(run(['names'], {}).last, { result: { given: 2, host: ['parentActions', 'readWholeFile'] } });
+  assert.deepEqual(run(['names'], {}).last, { result: { given: 2, host: ['files', 'run', 'operation', 'writeLarge', 'parentActions', 'readWholeFile'] } });
 });
 
 test('a run without its private descriptor refuses a host action as not handed, and reads no door', () => {
