@@ -2,7 +2,7 @@
 //
 // Purpose: a list that is the original and a folder that is its copy, kept the same in both directions. A row source
 // declared `original: "list"` is not only read into the list: what any AI writes into the list (through the person's
-// door, from a web chat, a phone or a service) is written into the folder for apps that read only files, and what an
+// store, from a web chat, a phone or a service) is written into the folder for apps that read only files, and what an
 // app writes into the folder is written into the list. A refresh of such a source is this sync.
 //
 // How each document is settled, with no state kept anywhere but the rows themselves: a row made from a file keeps the
@@ -10,8 +10,8 @@
 //   - the folder's text equals the list's text: nothing to do (a changed file fact or frontmatter value still writes);
 //   - the file is still the one the row was made from: the list changed, so the folder gets the list's text;
 //   - the list's text is still the file the row was made from: the file changed, so the list gets the file's rows;
-//   - both changed: the side changed last wins (the file's modified time against the row's newest version time,
-//     records:history), and the other side's text is written as a version of the row first, so neither is lost;
+//   - both changed: the side changed last wins (the file's modified time against the row's newest version time), and the
+//     other side's text is written as a version of the row first, so neither is lost;
 //   - only a row, made from a file whose text it still holds: the file was removed, so the rows are removed;
 //   - only a row the list changed or wrote (no file yet): the folder gets it;
 //   - only a file: a new file, so the list gets it; unless the row's history ends in a removal of that same file's
@@ -23,28 +23,30 @@
 // own fields (a check's switch) are kept on the row and never reach the file.
 //
 // Non-Negotiable Invariants:
-//   1. Every row effect carries the native owner's exact expected type/value (or expected absence). Unknown outcomes
-//      retain the original tuple. A file publication's actual concurrency boundary belongs to its change owner;
-//      require_atomic is forwarded without downgrade and unsupported publication is refused, not called CAS.
+//   1. Every row effect is an answered `keep` row carrying the value the store held when it was read (expected), so a
+//      store refuses a row whose record moved. The folder is changed only through the kind's change function
+//      (read-data/sources.mjs), which checks the identity of the file it read.
 //   2. Nothing is removed from the list for a file the source has not answered: rows of documents not seen are judged
 //      only after the source answered its last page, as in a one-way refresh.
 //   3. A run with `paths` settles only those documents (the write a file-writing app just made); without, every one.
 //   4. No list, field, folder or tool is named here: the source declaration and list-view.json `row_sources` name them.
 //   5. dry_run plans the same and writes nothing, so a first run on a person's real list can be read before it acts.
-//   6. A restore never becomes a removal. When the account was restored from an older copy of its state, it holds a
-//      restore generation stamped with its time (list-view.json `restore` names the record and its time field). A
-//      removal judged from a row version older than that time is not trusted: the folder may hold newer copies than
-//      the restored rows. A file whose row history ends in such an older removal is carried back up to the list
-//      (carried_after_restore), and a row whose file is gone keeps its rows (kept_after_restore). Removals written
+//   6. A restore never becomes a removal. The caller hands in stored.restore: the account's restore generation record, { value: { generation, restored_at } }
+//      (list-view.json `restore` names it and its time field), or null when the account was never restored. A removal judged from a row version older than that time is not trusted: the folder may hold newer
+//      copies than the restored rows. A file whose row history ends in such an older removal is carried back up to the
+//      list (carried_after_restore), and a row whose file is gone keeps its rows (kept_after_restore). Removals written
 //      after the restore are judged as always.
+//   7. The judgements need the row versions. A sync is handed stored.history ({ <record id>: [{ value, deleted, at }] },
+//      newest first) and stored.restore; a sync handed neither refuses to run, never judging as if there were none.
 //
-//   syncRowSource({ list, type, source, sources, paths?, dry_run?, source_answer_bytes?, key, signal? }, door)
+//   syncRowSource({ list, type, record_prefix, source, sources, paths?, dry_run?, source_answer_bytes?, stored, store, keep, signal? })
 //     → { source, original: "list", documents, unchanged, pushed, pulled, adopted, removed_rows, removed_files,
 //         carried_after_restore, kept_after_restore, conflicts: [{ document, kept, because }],
 //         refused: [{ document, because }], planned? }
-//     door: { list, run, write, read?(type, id), history?(id) → { versions: [{ value, deleted, at }] } }
+//     store: list-view.mjs storeOf(stored); keep: list-view.mjs keeperOf(store), where the row effects are collected.
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { projectedValues, sourcePages, valueIdentity, writeAll, SOURCE_MARK } from './list-view.mjs';
+import { projectedValues, sourcePages, valueIdentity, SOURCE_MARK } from './list-view.mjs';
+import { changeSourceRows } from './sources.mjs';
 import data from './list-view.json' with { type: 'json' };
 
 const say = (code, words) => Object.assign(new Error(words), { code });
@@ -54,12 +56,12 @@ const textIdentity = text => makeHashCodeHexFromBytes(utf8.encode(text));
 // A value from a template placeholder made one safe name segment: lower case, letters, digits and dashes.
 const segment = value => String(value).toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
 const MOST_NAME_TRIES = 9;
-// A refusal by the folder's change tool (a local tool's own error, or a door run that failed) is that document's
-// refusal, reported; anything else (the door unreachable) ends the run, and the next run settles the document again.
+// A refusal by the folder's change function (its own error, a document changed since it was read, a bad request) is that
+// document's refusal, reported; anything else ends the run, and the next run settles the document again.
 const folderRefused = error => ['tool_failed', 'document_changed', 'bad_input', 'not_a_document', 'not_written'].includes(error.code);
 const conflicted = error => error.code === 'document_changed' || /changed after it was read/.test(error.message);
 
-/** The copy field names: the source tool's defaults (list-view.json `copy`) under the source's own content names. */
+/** The copy field names: the source kind's defaults (list-view.json `copy`) under the source's own content names. */
 function copyNames(source) {
   const named = { ...source.served.copy, ...(source.content && typeof source.content === 'object' ? source.content : {}) };
   for (const key of ['field', 'parent_field', 'index_field', 'count_field', 'identity_field', 'changed_field']) {
@@ -95,8 +97,11 @@ function documentOf(rows, names) {
 const properties = (values, names) => Object.fromEntries(Object.entries(values).filter(([key]) => names.own(key)));
 const sameValues = (a, b) => valueIdentity(a) === valueIdentity(b);
 
-export async function syncRowSource(input, door) {
-  const { list, type, record_prefix: recordPrefix = `${type}:`, source, sources, paths, dry_run: dryRun = false, key, signal } = input;
+export async function syncRowSource(input) {
+  const { list, type, record_prefix: recordPrefix = `${type}:`, source, sources, paths, dry_run: dryRun = false, stored, store, keep, signal } = input;
+  if (!stored || !Object.hasOwn(stored, 'restore') || !Object.hasOwn(stored, 'history')) {
+    throw say('bad_input', 'A two-way sync is handed stored.restore (the restore record value, or null) and stored.history (each row version, newest first).');
+  }
   const names = copyNames(source);
   const change = source.served.change;
   const prefixOf = id => `${recordPrefix}${id}${SOURCE_MARK}`;
@@ -111,30 +116,19 @@ export async function syncRowSource(input, door) {
   // When the account was last restored from an older copy of its state (list-view.json `restore`): the time its
   // restore generation was stamped, or null when it never was.
   const restore = data.restore;
-  const stamped = typeof door.read === 'function' ? await door.read(restore.record_type, restore.record) : null;
-  const restoredAt = Number.isFinite(Date.parse(at(stamped, restore.restored_at))) ? Date.parse(at(stamped, restore.restored_at)) : null;
-  let writeIndex = 0;
-  const snapshots = new Map();
+  const stamp = stored.restore;
+  const restoredAt = Number.isFinite(Date.parse(at(stamp, restore.restored_at))) ? Date.parse(at(stamp, restore.restored_at)) : null;
   const plan = (action, document) => { if (dryRun && report.planned.length < data.limits.planned_shown) report.planned.push({ action, document }); };
-  const write = async records => {
-    if (!records.length || dryRun) return [];
-    // These are fresh effects from this admitted read. Conditional refusal never refreshes the body or key;
-    // transport/unknown errors still end the run with the original request tuple unchanged.
-    const guarded = records.map(record => ({ ...record, expected: snapshots.has(record.id)
-      ? { type, value: structuredClone(snapshots.get(record.id)) } : null }));
-    const refused = await writeAll(door, guarded, `${key}:${writeIndex++}`, signal);
-    for (const record of records) if (!refused.includes(record.id)) {
-      if (record.value === null) snapshots.delete(record.id);
-      else snapshots.set(record.id, structuredClone(record.value));
-    }
-    for (const id of refused) report.refused.push({ document: id, because: 'the door refused its values' });
-    return refused;
+  // The row effects of this run go to `keep`; a dry run writes nothing.
+  const write = records => {
+    if (dryRun) return;
+    for (const record of records) keep.put(type, record.id, record.value);
   };
   const changeInput = Object.fromEntries(Object.entries(change.input).map(([field, template]) => {
     const exact = /^\{(\w+)\}$/.exec(template);
     return [field, exact ? source[exact[1]] : template];
   }).filter(([, value]) => value !== undefined && value !== ''));
-  const changeFiles = request => door.run(change.tool, { ...changeInput, ...request });
+  const changeFiles = request => changeSourceRows(source.served.kind, { ...changeInput, ...request });
 
   // ---- the list's side ----------------------------------------------------------------------------------------------
   const held = new Map(), own = [], documentNames = new Map();
@@ -147,35 +141,26 @@ export async function syncRowSource(input, door) {
           throw say('records_unanswered', `Listing ${record.id} answered different document owners.`);
         }
         documentNames.set(record.id, name);
-        snapshots.set(record.id, structuredClone(record.value));
         (held.get(name) ?? held.set(name, []).get(name)).push(record);
       }
     } else if (!paths && source.adopt_own_rows && !otherPrefixes.some(prefix => record.id.startsWith(prefix)) && record.value) {
-      snapshots.set(record.id, structuredClone(record.value));
       own.push(record);
     }
   };
   const listing = paths ? paths.map(name => recordId(name)) : [recordPrefix];
+  const taken = new Set();
   for (const prefix of listing) {
-    const cursors = new Set();
-    for (let after = null; ;) {
-      signal?.throwIfAborted();
-      const page = await door.list({ type, prefix, limit: data.limits.door_page_rows, ...(after ? { after } : {}) });
-      if (!Array.isArray(page?.records)) throw say('records_unanswered', `Listing ${prefix} answered no records.`);
-      for (const record of page.records) take(record);
-      if (page.next === undefined) throw say('records_unanswered', `Listing ${prefix} answered no continuation or terminal null.`);
-      if (page.next === null || !page.records.length) break;
-      if (cursors.has(page.next)) throw say('source_cursor_stalled', `Listing ${prefix} did not advance its cursor.`);
-      cursors.add(page.next);
-      after = page.next;
+    for (const record of store.recordsOf(type, prefix)) {
+      if (taken.has(record.id)) continue;
+      taken.add(record.id);
+      take(record);
     }
   }
 
   // ---- reading the folder -------------------------------------------------------------------------------------------
-  const scoped = paths ? { ...source, paths } : source;
   const fileRowsOf = async name => {
     const rows = [];
-    for await (const page of sourcePages(door, { ...source, paths: [name] }, input.source_answer_bytes, signal)) rows.push(...page);
+    for await (const page of sourcePages({ ...source, paths: [name] }, input.source_answer_bytes, signal)) rows.push(...page);
     return rows;
   };
   const asRecords = rows => rows.map(row => ({ id: recordId(row.id), value: projectedValues(source, row) }));
@@ -204,7 +189,7 @@ export async function syncRowSource(input, door) {
 
   // The file's rows written over the list's rows of that document: values outside the copy's own prefixes that the
   // list's rows hold (a field an AI added in the list) stay on the row of the same id. Rows the file no longer has go.
-  const push = async (fileRows, listRows = [], name) => {
+  const push = (fileRows, listRows = [], name) => {
     // Also applies to fresh reads after a pull or adoption: a missing or invalid readback never removes originals.
     if (!sourceDocument(fileRows, name)) { refuseSource(name, fileRows); return 0; }
     claimSource(fileRows, name);
@@ -216,8 +201,8 @@ export async function syncRowSource(input, door) {
     });
     const writes = records.filter(record => !before.has(record.id) || !sameValues(before.get(record.id), record.value));
     const gone = [...before.keys()].filter(id => !records.some(record => record.id === id)).map(id => ({ id, type, value: null }));
-    const refused = await write([...writes, ...gone]);
-    return refused.length ? 0 : writes.length + gone.length;
+    write([...writes, ...gone]);
+    return writes.length + gone.length;
   };
 
   // The list's text written into the folder while the file is still `expected` (null: there is none), then its rows.
@@ -231,15 +216,13 @@ export async function syncRowSource(input, door) {
       return false;
     }
     const beforeRefusals = report.refused.length;
-    await push(await fileRowsOf(name), listRows, name);
+    push(await fileRowsOf(name), listRows, name);
     return report.refused.length === beforeRefusals;
   };
 
-  const newestRowTime = async id => {
-    if (typeof door.history !== 'function') return null;
-    const versions = (await door.history(id))?.versions ?? [];
-    return versions[0]?.at ?? null;
-  };
+  // The newest version time of a record, from the history the caller handed in (newest first).
+  const versionsOf = id => stored.history[id] ?? [];
+  const newestRowTime = id => versionsOf(id)[0]?.at ?? null;
   // A removal is decided only by a version written after the account's last restore: a version older than it may come
   // from the older state the account was restored from, while the folder kept the newer copies (invariant 6).
   const beforeRestore = when => restoredAt !== null && !(Date.parse(when) >= restoredAt);
@@ -263,11 +246,11 @@ export async function syncRowSource(input, door) {
         }
         if (row.baseline === row.textIdentity) {
           plan('push', name);
-          if (await push(fileRows, listRows, name)) report.pushed += 1;
+          if (push(fileRows, listRows, name)) report.pushed += 1;
           return;
         }
         // Both changed since the row was made from the file: the later change wins, the other stays a row version.
-        const rowAt = await newestRowTime(row.rows[0].id);
+        const rowAt = newestRowTime(row.rows[0].id);
         if (rowAt === null || !file.changed) {
           report.conflicts.push({ document: name, kept: 'both as they are', because: 'the list and the file both changed and their times are unknown' });
           return;
@@ -278,10 +261,10 @@ export async function syncRowSource(input, door) {
         plan(listWins ? 'conflict-pull' : 'conflict-push', name);
         if (dryRun) return;
         const beforeRefusals = report.refused.length;
-        await push(fileRows, listRows, name);
+        push(fileRows, listRows, name);
         if (report.refused.length !== beforeRefusals) return;
         if (listWins) await pull(name, { text: row.text, if_identity: fileIdentity }, asRecords(fileRows)
-          .map(record => ({ ...record, type, value: snapshots.get(record.id) ?? record.value })));
+          .map(record => ({ ...record, type, value: keep.current(type, record.id) ?? record.value })));
         return;
       }
       // Same text. A value only the list changed (a frontmatter property) goes to the file when the file is the one
@@ -296,20 +279,20 @@ export async function syncRowSource(input, door) {
       }
       if (dryRun) { report.unchanged += 1; return; }
       const beforeRefusals = report.refused.length;
-      if (await push(fileRows, listRows, name)) report.pushed += 1;
+      if (push(fileRows, listRows, name)) report.pushed += 1;
       else if (report.refused.length === beforeRefusals) report.unchanged += 1;
       return;
     }
     if (row) {
       if (row.baseline !== null && row.baseline === row.textIdentity) {
-        if (restoredAt !== null && beforeRestore(await newestRowTime(row.rows[0].id))) {
+        if (restoredAt !== null && beforeRestore(newestRowTime(row.rows[0].id))) {
           plan('keep-after-restore', name);
           report.kept_after_restore += 1;
           return;
         }
         plan('remove-rows', name);
-        const refused = await write(listRows.map(record => ({ id: record.id, type, value: null })));
-        if (!refused.length) report.removed_rows += 1;
+        write(listRows.map(record => ({ id: record.id, type, value: null })));
+        report.removed_rows += 1;
         return;
       }
       plan('pull', name);
@@ -317,12 +300,12 @@ export async function syncRowSource(input, door) {
       return;
     }
     // Only a file: the list removed it when the row's newest version is a removal of this same file's text.
-    const versions = typeof door.history === 'function' ? (await door.history(recordId(name)))?.versions ?? [] : [];
+    const versions = versionsOf(recordId(name));
     const removedFromList = versions[0]?.deleted && versions.slice(1).find(version => !version.deleted)?.value?.[names.identity_field] === file.first[names.identity_field];
     if (removedFromList && beforeRestore(versions[0].at)) {
       plan('carry-after-restore', name);
       const beforeRefusals = report.refused.length;
-      await push(fileRows, [], name);
+      push(fileRows, [], name);
       if (report.refused.length === beforeRefusals) report.carried_after_restore += 1;
       return;
     }
@@ -339,12 +322,12 @@ export async function syncRowSource(input, door) {
       return;
     }
     plan('push', name);
-    if (await push(fileRows, [], name)) report.pushed += 1;
+    if (push(fileRows, [], name)) report.pushed += 1;
   };
 
   // ---- both sides, document by document ------------------------------------------------------------------------------
   const pending = new Map(), sourceNames = new Map();
-  for await (const page of sourcePages(door, scoped, input.source_answer_bytes, signal)) {
+  for await (const page of sourcePages(paths ? { ...source, paths } : source, input.source_answer_bytes, signal)) {
     for (const fileRow of page) {
       const name = sourceNameOf(fileRow);
       if (sourceNames.has(fileRow.id) && sourceNames.get(fileRow.id) !== name) {
@@ -422,9 +405,10 @@ export async function syncRowSource(input, door) {
       continue;
     }
     const beforeRefusals = report.refused.length;
-    await push(made, [], named);
+    push(made, [], named);
     if (report.refused.length !== beforeRefusals) continue;
-    if (!(await write([{ id: record.id, type, value: null }])).length) report.adopted += 1;
+    write([{ id: record.id, type, value: null }]);
+    report.adopted += 1;
   }
   return report;
 }

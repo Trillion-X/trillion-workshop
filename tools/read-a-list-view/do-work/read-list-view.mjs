@@ -1,38 +1,24 @@
 #!/usr/bin/env node
 // tools/read-a-list-view/do-work/read-list-view.mjs
 //
-// One page of what a person's list or saved view shows, or a refresh of a list's row sources, through their own door
-// from their computer:
+// One page of what a person's list or saved view shows, a refresh of a list's row sources, a joined copy, or whether a
+// list's file copy may be read, run on the person's computer from the Workshop checkout. The records are handed in: the
+// caller reads them from the person's store and passes them as `stored` on standard input, and a refresh answers the
+// records to write as `keep` rows for the caller to write back, each with the value it expected.
 //
-//   node do-work/read-list-view.mjs --config FILE (--list ID | --view ID) [--after CURSOR] [--limit N]
-//   node do-work/read-list-view.mjs --config FILE --refresh ID [--sources '["source-id"]'] [--changes '{"source-id":{"paths":["/a/b.md"],"removed":["/c.md"]}}'] [--run-id COMMIT] [--deadline-ms MS] [--paths '["/a/b.md"]'] [--dry-run yes]
+//   node tools/read-a-list-view/do-work/read-list-view.mjs [--deadline-ms MS] < input.json
 //
-// A refresh of a list whose source is declared original: "list" writes both ways (read-data/list-copy.mjs); --paths
-// settles only those documents (a file an app just wrote) and --dry-run yes plans without writing.
+// input.op is one of:
+//   "read"          { names, stored, list | view, after?, limit? }             → a page { list, fields, rows, next, complete, of? }
+//   "refresh"       { names, stored, list, source_ids?, paths?, changes?, dry_run?, source_answer_bytes?, restore?, history? }
+//                                                                                  → { list, sources, keep: [{ id, type, value, expected }] }
+//   "write-joined"  { root, name, type, prefixes, text_at, order_at, header?, most_bytes?, dry_run?, stored } → the copy's answer
+//   "copy-readable" { names, list, reading }                                    → { readable, list, code?, because }
 //
-//   node do-work/read-list-view.mjs --config FILE --write-joined '{"root":...,"name":...,"type":...,"prefixes":[...],...}' [--dry-run yes]
-//
-// A --write-joined writes one file that is many rows' text joined in order (read-data/joined-copy.mjs): rows are
-// the original, the file their copy, for an app that reads only a file at start.
-//
-//   node do-work/read-list-view.mjs --config FILE --copy-readable LIST_ID
-//
-// A --copy-readable answers whether that list's file copy may be read now, read-only (read-data/copy-readable.mjs):
-// { readable: true } only when the list answers "unavailable" or the door cannot be reached; a copy guard asks it.
-//
-// The config is JSON: the door (read-data/door.mjs: transport, records, tools, filter), `names` as
-// read-data/list-view.mjs takes them, and optionally `source_answer_bytes` (the room a source tool's answer has in the
-// door's reply, for a refresh). The bounds are the reader's own (read-data/list-view.json `limits`), never a caller's.
-// --deadline-ms optionally supplies the caller's existing absolute Unix-millisecond deadline. It creates no budget.
-//
-// --changes reconciles only the named documents of a selected document source (a commit's changed files). --run-id is the
-// full commit a refresh is made for: a refresh sent again for it keys its writes the same, so the door answers their
-// first answers. --deadline-ms is the caller's absolute Unix-millisecond deadline: a refresh that has not started when
-// it passes is refused as not_started; one still running at it is ended and reported as outcome=unknown.
-//
-// Prints the page, or what the refresh wrote, as one JSON answer. Exit 0 done, 2 with the reason on standard error.
-import { readFile } from 'node:fs/promises';
-import { openDoor } from '../read-data/door.mjs';
+// --deadline-ms is the caller's absolute Unix-millisecond deadline: a run that has not started when it passes is refused as
+// not_started; one still running at it is ended and reported as outcome=unknown. Exit 0 done, 2 with the reason on standard
+// error. Every bound is the reader's own (read-data/list-view.json `limits`), never a caller's.
+import { text } from 'node:stream/consumers';
 import { readListView, refreshRowSources } from '../read-data/list-view.mjs';
 import { writeJoinedCopy } from '../read-data/joined-copy.mjs';
 import { copyReadable } from '../read-data/copy-readable.mjs';
@@ -43,12 +29,18 @@ for (let index = 0; index < rest.length; index += 2) flags[rest[index].replace(/
 let deadlineTimer;
 let operationStarted = false;
 
+async function answerOf(input, signal) {
+  switch (input.op) {
+    case 'read': return readListView(input);
+    case 'refresh': return refreshRowSources({ ...input, signal });
+    case 'write-joined': return writeJoinedCopy(input);
+    case 'copy-readable': return copyReadable(input);
+    default: throw Object.assign(new Error('op is "read", "refresh", "write-joined" or "copy-readable".'), { outcome: 'not_started' });
+  }
+}
+
 try {
   let signal;
-  if (Object.keys(flags).some(name => name.startsWith('deadline-ms') && name !== 'deadline-ms')
-      || rest.filter(value => value === '--deadline-ms').length > 1) {
-    throw Object.assign(new Error('--deadline-ms must appear once with one absolute Unix-millisecond integer.'), { outcome: 'not_started' });
-  }
   if (Object.hasOwn(flags, 'deadline-ms')) {
     const deadline = Number(flags['deadline-ms']);
     if (typeof flags['deadline-ms'] !== 'string' || !/^[0-9]+$/.test(flags['deadline-ms']) || !Number.isSafeInteger(deadline)) {
@@ -58,38 +50,24 @@ try {
     if (remaining <= 0) {
       throw Object.assign(new Error('The list-reader deadline elapsed before its request started.'), { outcome: 'not_started' });
     }
-    // The deadline bounds the whole process, including a request the door has not answered: its requests are told to stop
-    // (the signal the door and the refresh take), the process ends there, and every write is keyed, so the caller's retry
-    // answers its first answers.
+    // The deadline bounds the whole process: the run is told to stop (the signal a refresh takes), the process ends there.
     const controller = new AbortController();
     signal = controller.signal;
     deadlineTimer = setTimeout(() => {
       controller.abort();
-      console.error('The list-reader deadline elapsed while the request was running.');
+      console.error('The list-reader deadline elapsed while the run was running.');
       console.error('read-list-view: outcome=unknown');
       process.exit(2);
     }, Math.min(remaining, 2147483647));
     deadlineTimer.unref();
   }
-  if (!flags.config) throw new Error('usage: read-list-view.mjs --config FILE ((--list ID | --view ID) [--after CURSOR] [--limit N] | --refresh ID [--sources JSON] [--paths JSON] [--dry-run yes] | --write-joined SPEC [--dry-run yes] | --copy-readable LIST_ID)');
-  const config = JSON.parse(await readFile(flags.config, 'utf8'));
-  const door = await openDoor(config, { signal });
+  const input = JSON.parse((await text(process.stdin)) || 'null');
+  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('usage: read-list-view.mjs < input.json, where input.op names the run.');
   operationStarted = true;
-  const answer = flags['copy-readable']
-    ? await copyReadable({ list: flags['copy-readable'], names: config.names }, door)
-    : flags['write-joined']
-    ? await writeJoinedCopy({ ...JSON.parse(flags['write-joined']), signal, ...(flags['dry-run'] === 'yes' ? { dry_run: true } : {}) }, door)
-    : flags.refresh
-    ? await refreshRowSources({ list: flags.refresh, names: config.names, source_answer_bytes: config.source_answer_bytes, signal,
-      ...(flags.sources !== undefined ? { source_ids: JSON.parse(flags.sources) } : {}),
-      ...(flags.changes !== undefined ? { changes: JSON.parse(flags.changes) } : {}),
-      ...(flags['run-id'] !== undefined ? { run_id: flags['run-id'] } : {}),
-      ...(flags.paths !== undefined ? { paths: JSON.parse(flags.paths) } : {}), ...(flags['dry-run'] === 'yes' ? { dry_run: true } : {}) }, door)
-    : await readListView({ list: flags.list, view: flags.view, after: flags.after ?? null, limit: flags.limit ? Number(flags.limit) : undefined, names: config.names }, door);
-  console.log(JSON.stringify(answer));
+  console.log(JSON.stringify(await answerOf(input, signal)));
 } catch (error) {
   console.error(error.message);
-  // A later no-send call cannot prove this multi-step operation had no earlier effects.
+  // A later no-send call cannot prove this multi-step run had no earlier effects.
   const outcome = operationStarted ? 'unknown' : error.outcome;
   if (outcome === 'unknown' || outcome === 'not_started') console.error(`read-list-view: outcome=${outcome}`);
   process.exitCode = 2;

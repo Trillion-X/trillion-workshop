@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "read-a-list-view-tool-rows",
-  "what_this_is": "The Workshop row for the tool in tools/read-a-list-view: one page of what a person's list or saved view shows, read from their records through their own door, and the refresh that writes a list's row sources into those records.",
+  "what_this_is": "The Workshop row for the tool in tools/read-a-list-view: one page of what a list or saved view shows, read from the records the caller hands in, and the refresh that answers the records a list's row sources need as keep rows, and the joined copy and copy-readable answers.",
   "records": [
     {
       "payload": {
@@ -115,7 +115,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -183,32 +182,85 @@
         "status": "active",
         "licence_class": "licence:maker-own",
         "maker": "maker:read-a-list-view",
-        "placements": ["placement:your-computer"],
+        "placements": [
+          "placement:your-computer"
+        ],
         "label": "Read a page of one of my lists or saved views, or refresh its row sources",
-        "job": "Read one page of what one of my lists or saved views shows, from my records, or refresh a list's row sources (a folder of documents, for one) into its records",
-        "description": "Reads the list (or the saved view and its list) through the person's door, from records only: the list's rows are the records of its row type, and each row source's rows are among them, written there by the last refresh (row id <source>~<its id>), so a read runs no tool. A page holds `limit` rows (read_page_rows when left out, never more than rows_per_read) and answers `next` while more remain. A view with rules keeps the rows its rules keep, decided in the same process by the rule filter of tools/formulas, ordered by its sort. With `refresh` it runs the tool each row source names (read-data/list-view.json), reads the whole source, and writes its rows as the list's records: only the rows that changed, removing the rows the source no longer has, in bounded writes. A source with more than rows_per_read rows, a source no tool serves, or a source that answers no rows is refused and nothing of it is written.",
+        "job": "Read one page of what one of my lists or saved views shows, from records handed in, or refresh a list's row sources (a folder of documents, for one) into keep rows for the caller to write",
+        "description": "Reads a list (or the saved view and its list) from the records the caller hands in as stored.records: the list's rows are the records of its row type, and each row source's rows are among them, written there by an earlier refresh (row id <source>~<its id>), so a read reads no folder. A refresh reads each row source's folder on this computer and answers keep rows (id, type, value, expected) for the caller to write back: a store refuses a row whose expected record has moved. A page holds limit rows (read_page_rows when left out, never more than rows_per_read) and answers next as the record id to pass as after.",
         "input_schema": {
           "type": "object",
-          "required": ["config"],
+          "required": [
+            "op",
+            "names",
+            "stored"
+          ],
           "properties": {
-            "config": {"type": "string", "description": "The person's door config file (the README describes its keys)."},
-            "list": {"type": "string", "description": "The list's id; give this or view."},
-            "view": {"type": "string", "description": "The saved view's record id; give this or list."},
-            "after": {"type": "string", "description": "The `next` of the page before; left out for the first page."},
-            "limit": {"type": "integer", "minimum": 1, "description": "Rows a page holds."},
-            "refresh": {"type": "string", "description": "A list's id: run its row sources and write their rows as its records, instead of reading a page."},
-            "source_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}, "description": "For refresh, only these declared source ids; every selected source is read completely before its stale rows can be removed. CLI: --sources as a JSON array. Unselected source records are never read, run, written or removed."}
+            "op": {
+              "type": "string",
+              "enum": [
+                "read",
+                "refresh",
+                "write-joined",
+                "copy-readable"
+              ],
+              "description": "The run: a page of a list or view, a refresh of its row sources, a joined copy file, or whether a copy may be read."
+            },
+            "names": {
+              "type": "object",
+              "description": "The record names of the list: list_type, list_record (with {list_id}), row_type (with {row_type}) and view_type."
+            },
+            "stored": {
+              "type": "object",
+              "description": "The records the run reads: { records: [{id, type, value}] }; a two-way sync also carries history and restore."
+            },
+            "list": {
+              "type": "string",
+              "description": "The list id, for read or refresh; give this or view."
+            },
+            "view": {
+              "type": "string",
+              "description": "The saved view record id, for read; give this or list."
+            },
+            "after": {
+              "type": "string",
+              "description": "The next of the page before; left out for the first page."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Rows a page holds."
+            },
+            "source_ids": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "For refresh, only these declared source ids."
+            }
           }
         },
-        "output_schema": {"type": "object", "description": "A page { list, fields, rows: [{ id, record_id, values, title, source? }], next, complete, of? }, or for a refresh { list, sources: [{ source, rows, written, removed, unchanged, refused }] }, as JSON; exit 2 with the reason on standard error."},
+        "output_schema": {
+          "type": "object",
+          "description": "A page { list, fields, rows: [{ id, record_id, values, title, source? }], next, complete, of? }; for a refresh { list, sources: [{ source, rows, written, removed, unchanged }], keep: [{ id, type, value, expected }] }; exit 2 with the reason on standard error."
+        },
         "invoke": {
           "kind": "on-your-computer",
-          "get_it": ["clone the Workshop repository (package.json repository.url)"],
-          "run": "node tools/read-a-list-view/do-work/read-list-view.mjs --config {config} --list {list} --after {after} --limit {limit}",
-          "needs": ["node"],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout, and reads their lists through their own door with their own key. Use --view instead of --list for a saved view, and --refresh with a list's id when they want its row sources read again: a refresh is the only thing that runs the source tools. Show the rows as a table of the list's fields, and read the next page with `next` until it is null when they want every row."
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "node tools/read-a-list-view/do-work/read-list-view.mjs",
+          "needs": [
+            "node"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Hand it the input as JSON on standard input: the list's records read from the person's store as stored.records. A refresh answers keep rows for the AI to write back to the store, with the value each row expected, and it reads the folder of each source itself. Show a page as a table of the list's fields."
         },
-        "provenance": {"source": "Written for the Workshop: a list read that pages across a list's own records and its row sources, in the way a database view joins its tables"}
+        "provenance": {
+          "source": "Written for the Workshop: a list read that pages across a list's own records and its row sources, in the way a database view joins its tables"
+        }
       }
     }
   ]

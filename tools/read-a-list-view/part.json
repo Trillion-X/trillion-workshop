@@ -1,7 +1,6 @@
 {
   "public": [
-    "read-data/list-view.mjs",
-    "read-data/door.mjs"
+    "read-data/list-view.mjs"
   ],
   "offers": [
     {
