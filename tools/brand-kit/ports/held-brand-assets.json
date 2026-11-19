@@ -23,9 +23,6 @@
   "targets": [
     {
       "path": "tools/brand-kit/read-data/brand-asset-actions.mjs"
-    },
-    {
-      "path": "tools/brand-kit/read-data/brand-owners-over-door.mjs"
     }
   ],
   "preserve": [
@@ -51,7 +48,7 @@
     "required_mechanisms": [],
     "test_refs": [
       "tools/brand-kit/test/brand-assets.test.mjs",
-      "tools/brand-kit/test/brand-door.test.mjs"
+      "tools/brand-kit/test/brand-keep.test.mjs"
     ]
   }
 }

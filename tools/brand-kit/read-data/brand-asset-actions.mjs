@@ -38,59 +38,59 @@ export function presentationFromBrand(rows, look) {
   };
 }
 
-// Read from the operator account's own records resource, where its Brand assets list and worn Screen look live, through
-// the same list and look routes its AIs use. The Worker reads them as the service, a sign-in of its own; the list and
-// look remain the only editable sources. `consume(path, body, method)` answers one route; tests supply their own.
-// That sign-in is a service actor the operator account's own policy owner mints (src/service-actor-origins.json
-// brand-presentation), opening only the list and looks routes.
-// The caller supplies an already admitted owner; this tool never mints an actor.
-async function operatorConsumer(owner) {
-  if (typeof owner?.consume !== 'function') throw new Error('The operator brand store is unavailable.');
-  return owner.consume;
-}
-export async function readOperatorBrandPresentation(env, { consume = null } = {}) {
-  const read = consume ?? await operatorConsumer(env);
-  const answer = async (path, body, method) => {
-    const result = await read(path, body, method);
-    if (result == null) throw new Error(`The brand owner has no route for ${path}.`);
-    return result;
+// The fields each action needs in input.stored. A field the caller leaves out (undefined) is a need: the action keeps
+// nothing and names what to read. A list handed as null is absent, not unknown.
+const NEEDS = Object.freeze({
+  create: ['list', 'rows'],
+  delete: ['list', 'mayDelete'],
+  save: ['list', 'rows'],
+  edit: ['list', 'rows'],
+  import: ['list', 'rows'],
+  remove: ['list', 'rows'],
+  select: ['list', 'rows'],
+  read: ['list', 'rows', 'worn', 'look'],
+  export: ['list', 'rows', 'worn', 'look'],
+  resolve: ['list', 'rows', 'worn', 'look'],
+});
+
+const newList = (label, listId) => ({
+  label: label ?? 'Brand assets', about: 'Brand families and variants used by screens and messages.', row_type: listId, title_field: 'name', fields: BRAND_FIELDS,
+});
+
+/** All brands use the Lists and Screen look the caller hands in (input.stored: { list, rows, worn, look, mayDelete }).
+ * list is the list's value or null; rows are the list's rows as { id, values }. Every write comes back as keep: each
+ * record with the value it expected (null when absent), so the caller's store refuses it when that record has moved.
+ * A builder may add roles and families as rows; the app's share and email consumers ask for the roles they draw. No
+ * account or brand is named by this tool. */
+export function runBrandKit(input = {}) {
+  const { action = 'read', list_id: listId = 'brand-assets', stored = {}, row_id: rowId, values, rows, family, role, format = 'svg', tone } = input;
+  if (!Object.hasOwn(NEEDS, action)) throw new Error(`Brand assets can create, read, edit, import, export, save, remove, select, resolve and delete; not ${action}.`);
+  const needs = NEEDS[action].filter(name => stored[name] === undefined);
+  if (needs.length) return { needs, keep: [], complete: false };
+  if (action !== 'create' && action !== 'delete' && !stored.list) throw new Error(`${listId} is not there; create it first.`);
+
+  const keep = [];
+  const done = result => ({ ...result, keep, complete: true });
+  const rowType = `record:${stored.list?.row_type ?? listId}`;
+  const existing = rowId => stored.rows?.find(row => row.id === rowId);
+  const writeRows = writes => {
+    for (const row of writes) {
+      const before = existing(row.id);
+      keep.push({ id: `${rowType}:${row.id}`, type: rowType, value: { ...structuredClone(before?.values ?? {}), ...row.values },
+        expected: before ? { type: rowType, value: structuredClone(before.values) } : null });
+    }
   };
-  const { rows } = await answer('/lists/brand-assets', undefined, 'GET');
-  const { worn } = await answer('/looks', undefined, 'GET');
-  if (!worn) throw new Error('No Screen look is worn.');
-  const { look } = await answer('/looks/read', { look_id: worn }, 'POST');
-  return presentationFromBrand(rows, look);
-}
 
-// The service's brand as every page and email draws it: the service record brand-presentation (src/service-records.json),
-// which the operator's own records resource publishes into the service's edge store whenever a write touches its
-// Brand assets list or its looks (src/service-record-publication.mjs), and the operator's store publishes once it
-// starts. Every reader reads its region's copy, however old, so no page or email waits on the operator's resource
-// (its three reads took 10 to 39 s on a busy day, 2026-10-07) and none is drawn in another account's colours. Null
-// when it was never published: a page then draws the bundled brand (fallbackBrandAssetPath, fallbackBrandPalette) and an
-// email is not sent (src/mail-sender.mjs).
-export const BRAND_RECORD = 'brand-presentation';
-// The admitted publication owner supplies this read. Its storage schema and cache
-// stay with that owner; this tool never substitutes the operator's live store.
-export const readBrandPresentationWithin = owner => owner.serviceRecord(BRAND_RECORD);
-
-/** All brands use the existing Lists and Screen looks owners. A builder may add
- * roles and families as rows; the app's share and email consumers ask for the
- * roles they draw. No account or brand is named by this tool. */
-export async function runBrandKit({ lists, looks, mayDelete = true }, input = {}) {
-  const { action = 'read', list_id: listId = 'brand-assets', row_id: rowId, values, rows, family, role, format = 'svg', tone } = input;
   if (action === 'create') {
-    try { await lists.read(listId); }
-    catch (error) {
-      if (lists.find && await lists.find(listId)) throw error;
-      await lists.save({ id: listId, label: input.label ?? 'Brand assets', about: 'Brand families and variants used by screens and messages.', row_type: listId, title_field: 'name', fields: BRAND_FIELDS }); }
-    return { ...await lists.read(listId), said: `${listId} is ready.` };
+    const list = stored.list ?? newList(input.label, listId);
+    if (!stored.list) keep.push({ id: `list:${listId}`, type: 'list', value: list, expected: null });
+    return done({ list, rows: stored.rows, said: `${listId} is ready.` });
   }
   if (action === 'delete') {
-    if (!mayDelete) throw new Error('This service brand is in use; its list cannot be removed.');
-    return { ...await lists.save({ id: listId, remove: true }), said: `${listId} was removed; its asset records remain recoverable.` };
+    if (!stored.mayDelete) throw new Error('This service brand is in use; its list cannot be removed.');
+    if (stored.list) keep.push({ id: `list:${listId}`, type: 'list', value: null, expected: { type: 'list', value: stored.list } });
+    return done({ removed: listId, said: `${listId} was removed; its asset records remain recoverable.` });
   }
-  const current = await lists.read(listId);
   if (action === 'save' || action === 'edit' || action === 'import') {
     const writes = rows ?? (rowId && values ? [{ id: rowId, values }] : []);
     if (!Array.isArray(writes) || !writes.length) throw new Error('Give rows, or row_id and values.');
@@ -98,28 +98,28 @@ export async function runBrandKit({ lists, looks, mayDelete = true }, input = {}
       const url = new URL(row.values.url);
       if (url.protocol !== 'https:' || url.username || url.password) throw new Error('A brand asset URL must be HTTPS without credentials.');
     }
-    const saved = await lists.putRows(listId, { rows: writes });
-    return { ...saved, said: `${writes.length} brand row(s) saved.` };
+    writeRows(writes);
+    return done({ said: `${writes.length} brand row(s) saved.` });
   }
   if (action === 'remove') {
     if (!rowId) throw new Error('Give row_id to remove.');
-    const selected = current.rows.find(row => row.values?.role === 'selection')?.values?.family;
-    const row = current.rows.find(one => one.id === rowId);
+    const selected = stored.rows.find(row => row.values?.role === 'selection')?.values?.family;
+    const row = existing(rowId);
     if (row?.values?.role === 'selection' || row?.values?.family === selected) throw new Error('Select another complete family before removing an active brand row.');
-    return { ...await lists.putRows(listId, { remove: [rowId] }), said: `${rowId} was removed.` };
+    if (row) keep.push({ id: `${rowType}:${rowId}`, type: rowType, value: null, expected: { type: rowType, value: structuredClone(row.values) } });
+    return done({ said: `${rowId} was removed.` });
   }
   if (action === 'select') {
-    if (!family || !current.rows.some(row => row.values?.family === family && row.values?.role !== 'selection')) throw new Error('Choose a family that has asset rows.');
-    const selection = current.rows.find(row => row.values?.role === 'selection');
-    const saved = await lists.putRows(listId, { rows: [{ id: selection?.id ?? 'brand', values: { name: input.label ?? selection?.values?.name ?? 'Brand', role: 'selection', family } }] });
-    return { ...saved, said: `Now using ${family}.` };
+    if (!family || !stored.rows.some(row => row.values?.family === family && row.values?.role !== 'selection')) throw new Error('Choose a family that has asset rows.');
+    const selection = stored.rows.find(row => row.values?.role === 'selection');
+    writeRows([{ id: selection?.id ?? 'brand', values: { name: input.label ?? selection?.values?.name ?? 'Brand', role: 'selection', family } }]);
+    return done({ said: `Now using ${family}.` });
   }
-  if (action !== 'read' && action !== 'export' && action !== 'resolve') throw new Error(`Brand assets can create, read, edit, import, export, save, remove, select, resolve and delete; not ${action}.`);
-  const worn = (await looks.list()).worn;
-  const look = (await looks.read({ look_id: worn })).look;
-  const presentation = presentationFromBrand(current.rows, look);
-  return action === 'resolve'
-    ? { asset: assetForBrand(current.rows, { role, format, tone: tone ?? presentation.tone }), palette: presentation.palette,
-      said: `Resolved ${role ?? 'asset'} in the worn ${worn} look.` }
-    : { list: current.list, rows: current.rows, worn, presentation, said: `${current.rows.length} brand rows; wearing ${worn}.` };
+  // read, export and resolve
+  if (!stored.worn || !stored.look) throw new Error('No Screen look is worn.');
+  const presentation = presentationFromBrand(stored.rows, stored.look);
+  return done(action === 'resolve'
+    ? { asset: assetForBrand(stored.rows, { role, format, tone: tone ?? presentation.tone }), palette: presentation.palette,
+      said: `Resolved ${role ?? 'asset'} in the worn ${stored.worn} look.` }
+    : { list: stored.list, rows: stored.rows, worn: stored.worn, presentation, said: `${stored.rows.length} brand rows; wearing ${stored.worn}.` });
 }

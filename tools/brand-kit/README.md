@@ -1,6 +1,6 @@
 # tools/brand-kit/
 
-A brand is rows of a list, one per logo variant, and one selection row names the family in use. This folder picks the variant a light or a dark page draws: the black wordmark on a light page, the white one on a dark page, a mark on its own square of the page colour. The rows are the person's own and stay in their list; changing a brand is writing rows there. Ported from the account's brand kit (its share pages and emails read the same rows): the resolver unchanged in behaviour, with the list writes left to the list owner.
+A brand is rows of a list, one per logo variant, and one selection row names the family in use. This folder picks the variant a light or a dark page draws: the black wordmark on a light page, the white one on a dark page, a mark on its own square of the page colour. The rows are the person's own and stay in their list; changing a brand is writing rows there. Ported from the account's brand kit (its share pages and emails read the same rows): the resolver unchanged in behaviour, with the list writes handed back as keep rows for the caller to store.
 
 ## Files
 
@@ -12,10 +12,10 @@ A brand is rows of a list, one per logo variant, and one selection row names the
 | `part.json` | `read-data/brand-assets.mjs`, which other tools may import. |
 | `test/resolve-a-brand.test.mjs` | A made-up brand: the selected family only, both row shapes, unsafe addresses refused, local copies named. |
 | `src/brand-assets.mjs` | The held old brand API: worn-look palette, bundled fallback selection, brand list actions, and supplied admitted presentation readers. |
-| `read-data/brand-owners-over-door.mjs` | Uses the current list door for async edits and conditional record removals. List deletion retains its asset records. |
-| `test/brand-assets.test.mjs`, `test/brand-door.test.mjs` | Original selection/list action behavior and conditional writes through the current door contract. |
+| `read-data/brand-asset-actions.mjs` | `runBrandKit(input)`: create, read, edit, import, export, save, remove, select, resolve and delete, over the list, rows, worn look and in-use flag handed in as `input.stored`. Writes come back as `keep`, each with the value it expected. A field left out is a `needs` answer that keeps nothing. |
+| `test/brand-assets.test.mjs`, `test/brand-keep.test.mjs` | The selection and fallback picks, and the list actions run against a store that applies `keep` only when each record still holds its expected value. |
 
-The full brand API is a library port, separate from the existing resolver command. It does not install a new tool row or publish a service brand. Its caller must supply the admitted look owner and operator consumer; the retired Worker service actor is not recreated. The service presentation reader still needs its production record schema confirmed before installation.
+The full brand API is a library port, separate from the existing resolver command. It does not install a new tool row or publish a service brand. Its caller reads the list, its rows, the worn look and the in-use flag from its own store and hands them in; the retired Worker service actor is not recreated. The service presentation record is read by its caller and handed in as well.
 
 ## How to run it
 
