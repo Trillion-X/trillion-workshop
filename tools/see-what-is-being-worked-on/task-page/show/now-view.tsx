@@ -66,7 +66,8 @@ export function NowView({ data, tree, now, seenBefore }: { data: Data; tree: Tre
         </button>
         {isOpen && (
           <div style={{ paddingLeft: 46 }}>
-            {task.waiting_on && <p className="m-0 pb-1 text-[13px] leading-5"><span style={{ color: look?.tone ?? muted }}>Waiting on</span> {task.waiting_on}</p>}
+            {/* A row with facts says what it waits on among them; the waiting_on line is for a row without facts. */}
+            {task.waiting_on && !factGroups.get(task.id)?.length && <p className="m-0 pb-1 text-[13px] leading-5"><span style={{ color: look?.tone ?? muted }}>Waiting on</span> {task.waiting_on}</p>}
             <Detail id={`now-${task.id}`} detail={task.plain_detail} evidence={task.evidence} look={look} title={task.title} shows={shows.get(task.id) ?? []} facts={factGroups.get(task.id) ?? []} />
           </div>
         )}
