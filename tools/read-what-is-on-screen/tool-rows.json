@@ -118,7 +118,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -227,7 +226,7 @@
           "max_run_ms": 300000,
           "workdir": "/opt/read-what-is-on-screen",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/read-what-is-on-screen/do-work/read-what-is-on-screen.mjs", "readWhatIsOnScreen"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/read-what-is-on-screen/do-work/read-what-is-on-screen.mjs", "readWhatIsOnScreen"],
           "stdin": {"fill": {"from": "input"}},
           "files": {
             "package_files": [
@@ -240,12 +239,11 @@
                 "at": "/opt/read-what-is-on-screen"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -414,7 +412,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -540,7 +537,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-what-is-on-screen/read-data/snapshot-triggers.mjs",
             "parse"
           ],
@@ -560,12 +557,11 @@
                 "at": "/opt/read-what-is-on-screen"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",

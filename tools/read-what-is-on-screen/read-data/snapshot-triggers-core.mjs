@@ -17,7 +17,7 @@
 // (Trillion-X/trillion-apps). This file is the policy half, and `parse` is the row tool:parse-snapshot.
 //
 // USAGE
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/read-what-is-on-screen/read-data/snapshot-triggers.mjs parse
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/read-what-is-on-screen/read-data/snapshot-triggers.mjs parse
 //
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -83,5 +83,5 @@ export const triggerTools = {
   async parse(input) { return { rows: parseSnapshot(triggerSettings(), input.app, input.elements) }; },
 };
 
-/** The tool-table entry as a named function, for run-an-export.mjs. */
+/** The tool-table entry as a named function, for run-a-function.mjs. */
 export const { parse } = triggerTools;

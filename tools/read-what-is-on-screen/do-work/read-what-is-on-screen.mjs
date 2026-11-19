@@ -1,7 +1,7 @@
 // tools/read-what-is-on-screen/do-work/read-what-is-on-screen.mjs
 //
 // The Workshop tool "Read what is on my screen": runs read.swift beside it for a short watch and returns its one JSON
-// line ({ captures }, { needs_access, said } or { error }). Run as a function by tools/records-door/do-work/run-an-export.mjs
+// line ({ captures }, { needs_access, said } or { error }). Run as a function by tools/workflows/do-work/run-a-function.mjs
 // on the person's own Mac.
 //
 // Invariants:
