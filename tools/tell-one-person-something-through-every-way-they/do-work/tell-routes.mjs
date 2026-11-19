@@ -10,24 +10,35 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. The request goes to the moved route, read-data/tell-the-person.mjs handleTellRequest, over makeTellThePerson
 //      with the moved rows (read-data/tell-the-person.json); this file only reads the person's kept notices for it.
-//   2. The kept notices are the person's `told-the-person` records, read the way tools/tell-the-person reads them
-//      (one head naming the notices in order, one record per notice, or an older head holding them all).
+//   2. The kept notices are the person's `told-the-person` records, given as input.stored.records ({ id, type, value }).
+//      This file reads them in place: one head `told-the-person` naming the notices in order ({ seqs }), one record
+//      `told-the-person:<seq>` per notice ({ item }), or an older head holding them all as `items`. Nothing is kept here.
 //   3. Only GET /tell/notices is this row's: it writes nothing and tells no one, so no sender is wired. Any other path
 //      or method answers 404 { error: 'Not found' }, as the moved route answers a path it has no row for.
 //
 import rows from '../read-data/tell-the-person.json' with { type: 'json' };
 import { handleTellRequest, makeTellThePerson } from '../read-data/tell-the-person.mjs';
-import { readKeptNotices } from '../../tell-the-person/read-data/told.mjs';
+
+const KIND = 'told-the-person';
+const HEAD = KIND;
+
+/** The kept notices in order, read from the records the caller hands in; what is not given is not there. */
+function keptNotices(records) {
+  const held = new Map((Array.isArray(records) ? records : []).filter(record => record?.type === KIND).map(record => [record.id, record.value]));
+  const head = held.get(HEAD) ?? {};
+  if (Array.isArray(head.items)) return head.items;
+  return (head.seqs ?? []).map(seq => held.get(`${HEAD}:${seq}`)?.item).filter(Boolean);
+}
 
 const queryText = query => new URLSearchParams(Object.entries(query && typeof query === 'object' ? query : {})
   .filter(([, value]) => value !== undefined && value !== null).map(([name, value]) => [name, String(value)])).toString();
 
 /** tool:answer-the-tell-notices-route */
-export async function answerTellNoticesRoute(input = {}, { door, now = () => new Date() } = {}) {
+export async function answerTellNoticesRoute(input = {}, { now = () => new Date() } = {}) {
   const path = String(input?.path ?? '');
   const method = String(input?.method ?? 'GET').toUpperCase();
   if (!(method === 'GET' && path === '/tell/notices')) return { status: 404, body: { error: 'Not found' } };
-  const kept = await readKeptNotices({}, { door });
+  const kept = keptNotices(input.stored?.records);
   const store = {
     choices: () => null,
     notices: () => kept,

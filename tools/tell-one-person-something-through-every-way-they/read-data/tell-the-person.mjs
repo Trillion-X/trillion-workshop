@@ -104,7 +104,7 @@ const asText = value => (Array.isArray(value) ? value.filter(item => item !== nu
 import { DeviceError } from '../../tell-the-person-something-on-all-of-their-own-phones-computers/src/tell-devices.mjs';
 import glanceFeeds from './glance-feeds.json' with { type: 'json' };
 import quietHoursLevel from './tell-quiet-hours.json' with { type: 'json' };
-import screens from '../../shared-code/src/workspace/screens.mjs';
+import screens from '../../keep-and-wake-ai-sessions-on-this-computer/src/workspace/screens.mjs';
 import { thingAddress, thingScreen } from '../../hand-off-jobs-between-agents/src/workspace/addresses.mjs';
 
 // An address of the person's own Trillion (`/decisions/c1`), never another site or a protocol-relative `//host`.

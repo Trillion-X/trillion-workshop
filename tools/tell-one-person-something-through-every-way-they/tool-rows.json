@@ -121,7 +121,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -158,7 +157,6 @@
       "trillion-workshop/starting-set",
       "trillion-workshop/stream-an-answer-in-keyed-parts",
       "trillion-workshop/take-pictures-out-of-a-zip-archive",
-      "trillion-workshop/tell-the-person",
       "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
       "trillion-workshop/tours-screen",
       "trillion-workshop/transcript-reader",
@@ -243,13 +241,6 @@
         "at": "/opt/tell-one-person-something-through-every-way-they"
        },
        {
-        "package": "tell-the-person",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/tell-the-person"
-       },
-       {
         "package": "tell-the-person-something-on-all-of-their-own-phones-computers",
         "paths": [
          "src/tell-devices.mjs"
@@ -259,7 +250,6 @@
        {
         "package": "shared-code",
         "paths": [
-         "src/workspace/screens.mjs",
          "src/web-push.mjs"
         ],
         "at": "/opt/shared-code"
@@ -275,17 +265,17 @@
        {
         "package": "keep-and-wake-ai-sessions-on-this-computer",
         "paths": [
+         "src/workspace/screens.mjs",
          "src/workspace/surfaces.json"
         ],
         "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
        },
        {
-        "package": "records-door",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/records-door"
+         "package": "workflows",
+         "paths": [
+           "do-work/run-a-function.mjs"
+         ],
+         "at": "/opt/workflows"
        },
        {
         "package": "content-identity",
@@ -329,7 +319,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/tell-one-person-something-through-every-way-they/do-work/tell-routes.mjs",
       "answerTellNoticesRoute"
      ],

@@ -1,5 +1,5 @@
 // The page route GET /work/api/tell/notices as a Workshop route tool, over told-the-person rows given as `stored.records`
-// (the AI reads them from the person's own store and gives them as stored.records; the run's values door answers the reads). Old trillion answered it with src/tell-the-person.mjs handleTellRequest 'GET /tell/notices' (tag
+// (the AI reads them from the person's own store and gives them as stored.records; the row reads no store). Old trillion answered it with src/tell-the-person.mjs handleTellRequest 'GET /tell/notices' (tag
 // old-trillion-before-worker-retire): recent() for the open page, forDevice() with ?channel, 400 for a channel that does
 // not exist, 404 for a path it has no row for. The answers are checked against the moved owner over the same notices.
 // Made-up notices only.
