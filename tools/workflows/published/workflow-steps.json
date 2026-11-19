@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "2923f91bfd200d5974daab4caeba64147e09db05319f1ed8c55b42b5b68e09a8",
+  "blake3": "7e317f11a0b58518805e1c032cad5ff9336e0335911eb574ba04b05d1da4a1fd",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -49,6 +49,7 @@
     "check-what-changed-and-fix-what-failed",
     "choose-a-change-worth-making",
     "choose-audience-countries-by-payout",
+    "choose-four-products-for-one-person",
     "choose-marketing-moves-that-fit-the-stage-budget-and-time",
     "choose-testimonials-for-relevance-and-give-sales-a-list",
     "choose-the-model-and-effort-for-a-task",
@@ -52157,6 +52158,198 @@
     ],
     "part_of": [
      "workflow:raise-the-price-by-asking-what-would-need-to-be-true"
+    ]
+   }
+  },
+  {
+   "id": "choose-four-products-for-one-person--pick-the-person",
+   "values": {
+    "title": "Pick the person",
+    "recipe": [
+     "choose-four-products-for-one-person"
+    ],
+    "position": 0,
+    "step": "pick-the-person",
+    "do": "Pick a person the seller knows and cares to serve, and follow what they buy and which groups they join.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At the start.",
+    "done_when": "One person is described.",
+    "if_missing": "If none, pick someone close.",
+    "why": "Ryan Daniel Moran's method, from 103 videos: choose the products a brand will make by looking at what one person already buys, in the order they buy them.",
+    "good_answer": "'Dana, 34, runs, buys four recovery items.'",
+    "came_from": [
+     "Ryan Daniel Moran's method, from 103 videos",
+     "https://www.youtube.com/watch?v=7uLTPQ-T8TM",
+     "https://www.youtube.com/watch?v=4IQNW2eeyfE",
+     "https://www.youtube.com/watch?v=hzd5fnBdo-E",
+     "https://www.youtube.com/watch?v=YMct3e2H6mA",
+     "https://www.youtube.com/watch?v=7c0vfBoljDs"
+    ],
+    "part_of": [
+     "workflow:choose-four-products-for-one-person"
+    ]
+   }
+  },
+  {
+   "id": "choose-four-products-for-one-person--list-what-they-buy",
+   "values": {
+    "title": "List four things they buy regularly",
+    "recipe": [
+     "choose-four-products-for-one-person"
+    ],
+    "position": 1,
+    "step": "list-what-they-buy",
+    "do": "Write at least three to five things the person buys regularly and keep four.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the person.",
+    "done_when": "A list of four items with how often.",
+    "if_missing": "If few, watch the person for a month.",
+    "why": "Ryan Daniel Moran's method, from 103 videos: choose the products a brand will make by looking at what one person already buys, in the order they buy them.",
+    "good_answer": "'Gel, socks, bands, balm.'",
+    "came_from": [
+     "Ryan Daniel Moran's method, from 103 videos",
+     "https://www.youtube.com/watch?v=7uLTPQ-T8TM",
+     "https://www.youtube.com/watch?v=4IQNW2eeyfE",
+     "https://www.youtube.com/watch?v=hzd5fnBdo-E",
+     "https://www.youtube.com/watch?v=YMct3e2H6mA",
+     "https://www.youtube.com/watch?v=7c0vfBoljDs"
+    ],
+    "part_of": [
+     "workflow:choose-four-products-for-one-person"
+    ]
+   }
+  },
+  {
+   "id": "choose-four-products-for-one-person--study-existing-products",
+   "values": {
+    "title": "Study existing products and their reviews",
+    "recipe": [
+     "choose-four-products-for-one-person"
+    ],
+    "position": 2,
+    "step": "study-existing-products",
+    "do": "For each, read the best products and their reviews, and check for volume and a gap in quality.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the list.",
+    "done_when": "Each item has volume and the main complaint.",
+    "if_missing": "If no volume, drop it.",
+    "why": "Ryan Daniel Moran's method, from 103 videos: choose the products a brand will make by looking at what one person already buys, in the order they buy them.",
+    "good_answer": "'Balm: 4,000 sales a month; complaint: smell.'",
+    "came_from": [
+     "Ryan Daniel Moran's method, from 103 videos",
+     "https://www.youtube.com/watch?v=7uLTPQ-T8TM",
+     "https://www.youtube.com/watch?v=4IQNW2eeyfE",
+     "https://www.youtube.com/watch?v=hzd5fnBdo-E",
+     "https://www.youtube.com/watch?v=YMct3e2H6mA",
+     "https://www.youtube.com/watch?v=7c0vfBoljDs"
+    ],
+    "part_of": [
+     "workflow:choose-four-products-for-one-person"
+    ]
+   }
+  },
+  {
+   "id": "choose-four-products-for-one-person--choose-the-first",
+   "values": {
+    "title": "Choose the first product",
+    "recipe": [
+     "choose-four-products-for-one-person"
+    ],
+    "position": 3,
+    "step": "choose-the-first",
+    "do": "Choose the best first product from the four. Second and third follow it for the same person.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the study.",
+    "done_when": "One product is chosen with the reason.",
+    "if_missing": "If tied, take the cheapest to make.",
+    "why": "Ryan Daniel Moran's method, from 103 videos: choose the products a brand will make by looking at what one person already buys, in the order they buy them.",
+    "good_answer": "'Balm: high volume, clear complaint.'",
+    "came_from": [
+     "Ryan Daniel Moran's method, from 103 videos",
+     "https://www.youtube.com/watch?v=7uLTPQ-T8TM",
+     "https://www.youtube.com/watch?v=4IQNW2eeyfE",
+     "https://www.youtube.com/watch?v=hzd5fnBdo-E",
+     "https://www.youtube.com/watch?v=YMct3e2H6mA",
+     "https://www.youtube.com/watch?v=7c0vfBoljDs"
+    ],
+    "part_of": [
+     "workflow:choose-four-products-for-one-person"
+    ]
+   }
+  },
+  {
+   "id": "choose-four-products-for-one-person--get-a-prototype",
+   "values": {
+    "title": "Get a prototype",
+    "recipe": [
+     "choose-four-products-for-one-person"
+    ],
+    "position": 4,
+    "step": "get-a-prototype",
+    "do": "Spend a few hundred to about a thousand on a good prototype. Ask makers what they have on the shelf to put your name on, or have a maker make it from a formula.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After choosing.",
+    "done_when": "A prototype exists with its cost.",
+    "if_missing": "If too costly, use a shelf product.",
+    "why": "Ryan Daniel Moran's method, from 103 videos: choose the products a brand will make by looking at what one person already buys, in the order they buy them.",
+    "good_answer": "'Prototype, 600.'",
+    "came_from": [
+     "Ryan Daniel Moran's method, from 103 videos",
+     "https://www.youtube.com/watch?v=7uLTPQ-T8TM",
+     "https://www.youtube.com/watch?v=4IQNW2eeyfE",
+     "https://www.youtube.com/watch?v=hzd5fnBdo-E",
+     "https://www.youtube.com/watch?v=YMct3e2H6mA",
+     "https://www.youtube.com/watch?v=7c0vfBoljDs"
+    ],
+    "part_of": [
+     "workflow:choose-four-products-for-one-person"
+    ]
+   }
+  },
+  {
+   "id": "choose-four-products-for-one-person--record-the-line",
+   "values": {
+    "title": "Record the four products and what matters most",
+    "recipe": [
+     "choose-four-products-for-one-person"
+    ],
+    "position": 5,
+    "step": "record-the-line",
+    "do": "Write the four products, which is first and the next step.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At the end.",
+    "done_when": "A list of four with the first marked.",
+    "if_missing": "If a product is open, say why.",
+    "why": "Ryan Daniel Moran's method, from 103 videos: choose the products a brand will make by looking at what one person already buys, in the order they buy them.",
+    "good_answer": "'Balm first; prototype by the 20th.'",
+    "came_from": [
+     "Ryan Daniel Moran's method, from 103 videos",
+     "https://www.youtube.com/watch?v=7uLTPQ-T8TM",
+     "https://www.youtube.com/watch?v=4IQNW2eeyfE",
+     "https://www.youtube.com/watch?v=hzd5fnBdo-E",
+     "https://www.youtube.com/watch?v=YMct3e2H6mA",
+     "https://www.youtube.com/watch?v=7c0vfBoljDs"
+    ],
+    "part_of": [
+     "workflow:choose-four-products-for-one-person"
     ]
    }
   }

@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "9ffd65aa173fe742649513571ef59cb1d503750112cab6a422b3cd6df1eadd2e",
+  "blake3": "100f557cb2bb22b7f86ada6dc156c247058a175e88ebbb5661390800df95d646",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -49,6 +49,7 @@
     "check-what-changed-and-fix-what-failed",
     "choose-a-change-worth-making",
     "choose-audience-countries-by-payout",
+    "choose-four-products-for-one-person",
     "choose-marketing-moves-that-fit-the-stage-budget-and-time",
     "choose-testimonials-for-relevance-and-give-sales-a-list",
     "choose-the-model-and-effort-for-a-task",
@@ -5319,6 +5320,21 @@
     "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
     "fires_when": "[{\"label\": \"a part asks to raise the price by asking what must be true\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"price-decision\", \"margin-too-low\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Ryan Daniel Moran's method, from 4 videos\\\", \\\"https://www.youtube.com/watch?v=xbZ8AXhWSUQ\\\", \\\"https://www.youtube.com/watch?v=A2axxxeyhrY\\\", \\\"https://www.youtube.com/watch?v=VPbY27Owyd8\\\", \\\"https://www.youtube.com/watch?v=ejzxTcX20Rw\\\"]; the label is the condition in words.\"}]",
     "source": "{\"from\": \"Ryan Daniel Moran's method, from 4 videos\\\", \\\"https://www.youtube.com/watch?v=xbZ8AXhWSUQ\\\", \\\"https://www.youtube.com/watch?v=A2axxxeyhrY\\\", \\\"https://www.youtube.com/watch?v=VPbY27Owyd8\\\", \\\"https://www.youtube.com/watch?v=ejzxTcX20Rw\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "choose-four-products-for-one-person",
+   "values": {
+    "title": "Choose four products for one person",
+    "recipe": "workflow:choose-four-products-for-one-person",
+    "job": "Choose the products to make by looking at what one person already buys.",
+    "produces": "A described person, four regular purchases, a study of products and reviews, a first product and a prototype with its cost.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to choose four products for one person\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"product-to-choose\", \"new-business-to-start\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Ryan Daniel Moran's method, from 103 videos\\\", \\\"https://www.youtube.com/watch?v=7uLTPQ-T8TM\\\", \\\"https://www.youtube.com/watch?v=4IQNW2eeyfE\\\", \\\"https://www.youtube.com/watch?v=hzd5fnBdo-E\\\", \\\"https://www.youtube.com/watch?v=YMct3e2H6mA\\\", \\\"https://www.youtube.com/watch?v=7c0vfBoljDs\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Ryan Daniel Moran's method, from 103 videos\\\", \\\"https://www.youtube.com/watch?v=7uLTPQ-T8TM\\\", \\\"https://www.youtube.com/watch?v=4IQNW2eeyfE\\\", \\\"https://www.youtube.com/watch?v=hzd5fnBdo-E\\\", \\\"https://www.youtube.com/watch?v=YMct3e2H6mA\\\", \\\"https://www.youtube.com/watch?v=7c0vfBoljDs\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
    }
   }
  ]
