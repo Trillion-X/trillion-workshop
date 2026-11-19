@@ -1,0 +1,56 @@
+{
+  "start_here": "Say to your AI: \"Keep how this person writes, from the edits they made to your drafts\", with store {\"where\": \"postgresql database example_writer on my own computer\", \"language\": \"SQL (PostgreSQL)\", \"credential_name\": \"example-writer-postgres-connection\"} and edits [{\"kind\":\"post\",\"subject_id\":\"post:p2\",\"before\":\"Stronger together\",\"after\":\"Short and plain.\",\"before_by\":\"sample-ai\"}]. It runs workflow:keep-how-someone-does-their-thing and answers written 1, nothing 0, retired 0, forgot 0, refused [].",
+  "lists": [],
+  "no_lists_because": "It names no list: the voice profiles and edits are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-how-someone-does-their-thing"
+  ],
+  "tools": [
+    "tool:save-voice",
+    "tool:keep-a-voice-edit"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-how-someone-does-their-thing\" with store, and save, edits, forget or read as you want them done this time (each optional).",
+    "3. The first run makes the store's own objects once and proves them on the example attempts: every answer must be the one the intent says, or the run stops and says which.",
+    "4. Read what came back: written, nothing, retired, forgot and each refused item with its reason. A refused save means the profile was saved since the read: read it again, then save."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep the change a person made to a draft",
+      "ask": "Keep how this person writes, from the edits they made to your drafts",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-how-someone-does-their-thing",
+              "store": {
+                "where": "postgresql database example_writer on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-writer-postgres-connection"
+              },
+              "edits": [
+                {
+                  "kind": "post",
+                  "subject_id": "post:p2",
+                  "before": "Stronger together",
+                  "after": "Short and plain.",
+                  "before_by": "sample-ai"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-how-someone-does-their-thing",
+      "step": "keep",
+      "given": "The look step found no voice-edit records for this subject; the edit changes the words of one draft.",
+      "hands_back": "written 1, nothing 0, retired 0, forgot 0, refused [] and the voice-edit record it kept."
+    }
+  ],
+  "drafted_from": "tool:read-voice and tool:forget-voice (their rows, retired in this commit), tool:save-voice and tool:keep-a-voice-edit (their shaping rows), and the recipe prove step, run on PGlite and a JSON folder: the same nine answers on both."
+}

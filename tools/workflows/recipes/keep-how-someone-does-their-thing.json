@@ -1,0 +1,211 @@
+{
+  "about": "workflow:keep-how-someone-does-their-thing: keeps a person's writing voice in their own store: the profile an AI learned for each kind of writing, the edits the person made to words an AI wrote, and the forgets the person asks for (rule a-tool-is-only-what-the-store-cannot-do). It replaces tool:read-voice and tool:forget-voice in tools/how-someone-does-their-thing, whose whole job was those reads and writes through the records door; tool:save-voice and tool:keep-a-voice-edit stay as the shapers that give back the rows to keep.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-how-someone-does-their-thing",
+        "label": "Keep how someone does their thing",
+        "job": "Keep a person's writing voice in their own store: the profile an AI learned for each kind of writing, the edits the person made to words an AI wrote, and the forgets the person asks for. Each save is refused when the profile was saved since the read, each edit is kept only when the words really changed, and only the newest edits are kept.",
+        "produces": "The store's own objects for voice-profile and voice-edit records, proven on the example attempts: a profile written over the version read (or new), an edit written once, the newest keep_edits kept, and a forget that removes exactly what it names.",
+        "source": {
+          "from": "tools/how-someone-does-their-thing read-data/voice.mjs (saveVoice and keepAVoiceEdit: the shaping and the refusals) and read-data/voice.json (the sizes, the profile fields and the words), with tool:read-voice and tool:forget-voice (their rows, retired in this commit) read on trillion-workshop origin/main fca623dfb.",
+          "note": "Only the keeping is the store's job: a record, its version, and a write made only when the record is absent or still at the version read. What a profile holds, which edits count as a change, and what a refusal says are the tools' (saveVoice, keepAVoiceEdit). The records door and its runner are not used."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "read": {
+              "type": "object",
+              "description": "Read the voice for a drafting AI this time. kind narrows the profiles and edits.",
+              "properties": {
+                "kind": {
+                  "type": "string"
+                }
+              }
+            },
+            "save": {
+              "type": "array",
+              "maxItems": 40,
+              "description": "Profiles to save: {kind, name?, fields, expected_set_at?, by?}. Fields are the ones voice.json names."
+            },
+            "edits": {
+              "type": "array",
+              "maxItems": 256,
+              "description": "Words the person changed in words an AI wrote: {kind, subject_id?, before, after, before_by?}."
+            },
+            "forget": {
+              "type": "array",
+              "maxItems": 256,
+              "description": "What to forget: {profile_kind} or {edit_id} or {all_edits: true, kind?}."
+            },
+            "keep_edits": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "How many of the newest edits to keep (300 when left out)."
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the voice profiles and voice edits are kept (kept_in, or null) and the names of the objects that already keep them. Records use these addresses: voice-profile:<kind> (kind \"all\" when none is given) and voice-edit:<edit_id>. Read each voice-profile record that the run will save over (its value and version), and count the voice-profile records the store holds (profiles_kept).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "read",
+            "title": "Read the voice a drafting AI needs (only when input.read is given)",
+            "do": "Read from the store, and only when input.read is given: every voice-profile record (of input.read.kind when it is named; at most 40), the newest 15 voice-edit records (at most 50; of that kind when one is named), and the newest 200 post records, of which the posted ones (status \"posted\") are kept, up to 10, each with its caption cut to 1500 characters and its sent_at or updated_at. Tell the drafting AI: write the way this person writes; read the profiles first, then the edits (each is an AI's draft, before, beside the words the person changed it to, after); the sent words are what they published; a profile's builds_on names the profiles it sits on, earliest first, and each later one overrides. Submit the profiles, edits and sent lists as read, with no words added or changed.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "profiles",
+                "edits",
+                "sent"
+              ],
+              "properties": {
+                "profiles": {
+                  "type": "array"
+                },
+                "edits": {
+                  "type": "array"
+                },
+                "sent": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Keep the saves, edits and forgets this run was given",
+            "do": "Run each item in order, each through the store's own objects, with the tools as they are named: (a) each input.save item goes to tool:save-voice with its kind, name, fields and by, plus earlier (the voice-profile record read for that kind, or null), profiles_kept (from the look step) and expected_set_at when the item gives one. A refusal is recorded with its words and nothing is written. A result's keep row is written at its id with the value of the row and the expected version read (null when the record did not exist); a conflict is recorded and nothing changes. (b) each input.edits item goes to tool:keep-a-voice-edit; when it returns no edit nothing is written; otherwise its keep row is written at its id with expected version null. Then retire the old edits: list the voice-edit addresses newest first and delete, each with the version read, every one past input.keep_edits (300 when not given). (c) each input.forget item: a profile_kind deletes voice-profile:<kind> with its version read; an edit_id deletes that voice-edit; all_edits true deletes every voice-edit (only those whose kind is input.forget.kind when it is given). Submit the counts and the refusals.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "written",
+                "nothing",
+                "retired",
+                "forgot",
+                "refused"
+              ],
+              "properties": {
+                "written": {
+                  "type": "integer"
+                },
+                "nothing": {
+                  "type": "integer"
+                },
+                "retired": {
+                  "type": "integer"
+                },
+                "forgot": {
+                  "type": "integer"
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "item",
+                      "why"
+                    ]
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the store on the example attempts",
+            "do": "In a throwaway place in the same store (a separate prefix or database), run these attempts in order, each through the tools and the store's own objects, with keep_edits 1 for this place only. Then remove the throwaway place. Submit answers: one per attempt, in order, exactly as the answers given. The attempts: 1. save: tool:save-voice with {\"kind\":\"post\",\"name\":\"Posts\",\"fields\":{\"how_they_write\":\"Short, plain, no slogans.\",\"words_they_avoid\":\"synergy\"},\"earlier\":null,\"profiles_kept\":0,\"by\":\"ai\"}; write its keep row at its id with expected version null. Answer: written. 2. save: tool:save-voice with {\"kind\":\"post\",\"fields\":{\"examples\":\"We launched today.\"},\"earlier\":<the voice-profile:post record read at version 1>,\"profiles_kept\":1,\"expected_set_at\":<the set_at attempt 1 kept>}; write its keep row with expected version 1. Answer: written. 3. save: tool:save-voice with {\"kind\":\"post\",\"fields\":{\"examples\":\"older\"},\"earlier\":<the record at version 2>,\"profiles_kept\":1,\"expected_set_at\":\"2029-12-31T23:00:00.000Z\"}. The tool refuses it because the profile was saved since that read; write nothing. Answer: refused. 4. save: tool:save-voice with {\"kind\":\"post\",\"fields\":{\"tone\":\"warm\"},\"earlier\":<the record at version 2>,\"profiles_kept\":1}. The tool refuses a field voice.json does not name; write nothing. Answer: refused. 5. edit: tool:keep-a-voice-edit with {\"kind\":\"post\",\"subject_id\":\"post:p2\",\"before\":\"Stronger together\",\"after\":\"Short and plain.\",\"before_by\":\"sample-ai\"}; write its keep row at its edit_id with expected version null. Answer: written. 6. edit: tool:keep-a-voice-edit with {\"kind\":\"post\",\"subject_id\":\"post:p2\",\"before\":\"Same words.\",\"after\":\"Same words.\"}. The tool returns no edit; write nothing. Answer: nothing. 7. edit: tool:keep-a-voice-edit with {\"kind\":\"post\",\"subject_id\":\"post:p3\",\"before\":\"Hello there\",\"after\":\"Hi there\"}; write its keep row with expected version null. Answer: written. 8. retire: with keep_edits 1 (the throwaway place keeps one edit), list the voice-edit addresses newest first and delete each one after the first, with the version read. Answer: retired 1. 9. forget: delete the one voice-edit that is left, by its address and the version read. Answer: forgot 1. 10. read: the voice-profile:post record in the store. Answer: its version, 2.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt gives the answer the intent says: the second save writes over the profile read, a save over a profile saved since the read is refused, a field not named is refused, an unchanged edit is nothing, the retire step keeps only the newest edit, and the profile reads back at version 2",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    "written",
+                    "written",
+                    "refused",
+                    "refused",
+                    "written",
+                    "nothing",
+                    "written",
+                    "retired 1",
+                    "forgot 1",
+                    "2"
+                  ]
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes that person's voice-profile records (the profile of one kind, or all) and voice-edit records (one, or every one of a kind); nothing else is kept for them."
+      }
+    }
+  ]
+}

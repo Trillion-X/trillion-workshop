@@ -2,15 +2,17 @@
   "drafted_from": "tool:keep-a-profile's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep the profile of how a person does their thing, so drafts made for them are shaped by it and checked against it\", with {\"profile_ref\":\"profile:bakery-voice\",\"subject_ref\":\"baker:1\",\"derived_items\":[{\"kind\":\"tone\",\"value\":\"warm\",\"evidence\":\"post:1\"}],\"evaluator_refs\":[\"evaluator:tone\"]}. It runs tool:keep-a-profile and answers {\"profile\":{\"type\":\"profile\",\"id\":\"profile:bakery-voice\",\"subject_ref\":\"baker:1\",\"feature_schema_refs\":[],\"evaluator_refs\":[\"evaluator:tone\"],\"generator_refs\":[],\"derived_items\":[{\"kind\":\"tone\",\"value\":\"warm\",\"evidence\":\"post:1\"}]}}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
-  "workflows": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers the profile record; the store keeps it, through workflow:keep-how-someone-does-their-thing.",
+  "workflows": [
+    "workflow:keep-how-someone-does-their-thing"
+  ],
   "tools": [
     "tool:keep-a-profile"
   ],
   "instructions": [
     "1. Say to your AI: \"Keep the profile of how a person does their thing, so drafts made for them are shaped by it and checked against it\", and give it profile_ref; subject_ref; derived_items.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:keep-a-profile and its input (the worked example shows one).",
-    "3. Read what comes back: Give the profile's name, the subject's name, the items you derived (a non-empty list of objects) and, as refs, the feature schemas, evaluators, generators and validation policy that go with it."
+    "3. Read what comes back: Give the profile's name, the subject's name, the items you derived (a non-empty list of objects) and, as refs, the feature schemas, evaluators, generators and validation policy that go with it. The workflow writes the profile record it gives back, through the person's own store."
   ],
   "worked_examples": [
     {

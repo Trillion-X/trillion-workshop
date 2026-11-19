@@ -2,17 +2,17 @@
   "drafted_from": "tool:save-voice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Save what you learned about how this person writes, for one kind of writing\", with {\"kind\":\"post\",\"name\":\"Posts\",\"fields\":{\"how_they_write\":\"Short, plain, no slogans.\",\"words_they_avoid\":\"synergy\"}}. It runs tool:save-voice and answers {\"profile\":{\"profile_id\":\"voice-profile:post\",\"kind\":\"post\",\"name\":\"Posts\",\"fields\":{\"how_they_write\":\"Short, plain, no slogans.\",\"words_they_avoid\":\"synergy\"},\"set_at\":\"2026-11-14T00:50:24.447Z\",\"set_by\":\"ai\"},\"said\":\"Saved the post voice profile.\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (voice-profile) through the records door.",
-  "workflows": [],
+  "no_lists_because": "It names no list of yours: it takes the profile the store holds for this kind (earlier) and gives back the row to keep. The store is read and written by workflow:keep-how-someone-does-their-thing, not by this tool.",
+  "workflows": [
+    "workflow:keep-how-someone-does-their-thing"
+  ],
   "tools": [
-    "tool:save-voice",
-    "tool:read-voice"
+    "tool:save-voice"
   ],
   "instructions": [
-    "1. Say to your AI: \"Save what you learned about how this person writes, for one kind of writing\", and give it fields.",
-    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:save-voice and its input (the worked example shows one).",
-    "3. Read what comes back: Saves what you learned from tool:read-voice as the voice profile of one kind of writing (kind, like post or email; leave out for a general one).",
-    "4. It reads and writes only its own rows through the records door: voice-profile (records:read, records:list, records:write)."
+    "1. Say to your AI: \"Save what you learned about how this person writes, for one kind of writing\", and give it kind, name and fields (the fields voice.json names), plus earlier (the voice-profile the store holds for that kind, or null) and profiles_kept.",
+    "2. The AI calls tool:save-voice with that input; it refuses a field voice.json does not name, a stale read and a new profile past the account limit, and says why.",
+    "3. Read what comes back: profile, said and keep. The workflow writes keep at its id with the version it read, through the person's own store."
   ],
   "worked_examples": [
     {

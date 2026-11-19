@@ -2,16 +2,17 @@
   "drafted_from": "tool:keep-a-voice-edit's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep what the person changed in words an AI wrote for them, so their voice is learned from it\", with {\"before\":\"Same words.\",\"after\":\"Same words.\"}. It runs tool:keep-a-voice-edit and answers {\"edit\":null}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (voice-edit) through the records door.",
-  "workflows": [],
+  "no_lists_because": "It names no list of yours: it takes the words an AI wrote and the words the person changed them to, and gives back the row to keep (or none). The store is written by workflow:keep-how-someone-does-their-thing, not by this tool.",
+  "workflows": [
+    "workflow:keep-how-someone-does-their-thing"
+  ],
   "tools": [
     "tool:keep-a-voice-edit"
   ],
   "instructions": [
-    "1. Say to your AI: \"Keep what the person changed in words an AI wrote for them, so their voice is learned from it\", and give it before; after.",
-    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:keep-a-voice-edit and its input (the worked example shows one).",
-    "3. Read what comes back: Run when the person themselves changed words an AI wrote (a draft's caption): kind (like post), subject_id (what was edited), before (the AI's words), after (theirs) and before_by (the AI that wrote them).",
-    "4. It reads and writes only its own rows through the records door: voice-edit (records:list, records:write)."
+    "1. Say to your AI: \"Keep what the person changed in words an AI wrote for them, so their voice is learned from it\", and give it kind, subject_id, before (the AI's words), after (theirs) and before_by.",
+    "2. The AI calls tool:keep-a-voice-edit; when the words did not really change it answers edit null and keeps nothing.",
+    "3. When it answers an edit, the workflow writes keep at its edit_id through the person's own store and retires the older edits beyond keep_edits."
   ],
   "worked_examples": [
     {
