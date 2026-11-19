@@ -1,25 +1,28 @@
 {
   "drafted_from": "workflow:tell-the-owner-what-changed-for-each-person's own file (tools/workflows/recipes/tell-the-owner-what-changed-for-each-person.json) and its runs in the change-chain proof: six cases (a booking, a reschedule, a cancel, a rebook from a second address, a call under two hours away, a duplicate tell) on PGlite with stand-in tools.",
-  "start_here": "Say to your AI: \"Tell me when someone's bookings change, with a message ready to send.\" The AI switches on this workflow's wake every-five-minutes; every five minutes your history says who has new settled changes, and you get one notice for each, with a call to make or a draft to send on your yes.",
+  "start_here": "Say to your AI: \"Tell me when someone's bookings change, with a message ready to send.\" The AI switches on this workflow's wake every-five-minutes with your own settings; every five minutes your history says who has new settled changes, and you get one notice for each, a call to make now, or a draft waiting in your mailbox that you send yourself.",
   "lists": [],
   "no_lists_because": "It reads the person's own history (due_tells, history, known_as) and writes one tells row per notice there, in the person's own database; it keeps no list of its own.",
   "workflows": [
-    "workflow:keep-each-told-change-in-the-history",
-    "workflow:send-what-the-owner-said-yes-to"
+    "workflow:keep-each-told-change-in-the-history"
   ],
   "tools": [
     "tool:run-sql-in-my-database",
-    "tool:tell-the-person",
+    "tool:record-a-notification",
+    "tool:find-mail",
+    "tool:read-google-calendar-events",
     "tool:ask-a-model",
     "tool:score-writing-with-a-voice-adapter",
+    "tool:judge-against-rules",
     "tool:save-a-mail-draft",
     "tool:delete-a-mail-draft"
   ],
   "instructions": [
     "1. Keep changes in your history first (workflow:keep-each-told-change-in-the-history).",
     "2. In your history, give each meaning that should reach you a tell_after (how long it settles) and tell_words for the sets of meanings told together; mark the schemes you are told about (told_about).",
-    "3. Give this workflow your voice scorer settings (voice) and your mail account (mail), and soon_minutes: a next call sooner than that is a call to make now.",
-    "4. Switch on every-five-minutes. Each notice is about one person, once: a second look at the same changes finds them told."
+    "3. Switch on every-five-minutes with your own input: history, address_scheme, soon_minutes (a next call sooner than that is a call to make now), owner (audience_refs, kind, privacy_class for the notice), mail (provider, connection), calendar (calendar_id, connection_ref), voice (the scorer's draft-mode settings) and phrase_rules.",
+    "4. Each draft waits in your mailbox: sending it is your yes. Your sent-mail waiter tells the sent message back into your history as a sent statement, which has no tell_after, so it starts nothing.",
+    "5. Each notice is about one person, once: a second look at the same changes finds them told."
   ],
   "worked_examples": [
     {
@@ -36,7 +39,7 @@
               "row": "workflow:tell-the-owner-what-changed-for-each-person",
               "start_at": "read-what-is-due",
               "history": {
-                "credential_name": "own-rows-postgres-connection"
+                "credential_name": "my-history-connection"
               },
               "address_scheme": "email",
               "soon_minutes": 120,
@@ -49,6 +52,25 @@
                 "min_paragraph_chars": 40,
                 "decider_common_dir": "/opt/example-decider"
               },
+              "owner": {
+                "audience_refs": [
+                  "person:owner"
+                ],
+                "kind": "needs-you",
+                "privacy_class": "private"
+              },
+              "calendar": {
+                "calendar_id": "primary",
+                "connection_ref": "my-calendar"
+              },
+              "phrase_rules": [
+                {
+                  "id": "no-filler",
+                  "words": [
+                    "just checking in"
+                  ]
+                }
+              ],
               "mail": {
                 "provider": "gmail",
                 "connection": {
@@ -62,7 +84,7 @@
       "workflow": "workflow:tell-the-owner-what-changed-for-each-person",
       "step": "tell-each",
       "given": "A history where two addresses are linked to person:bo; booking 102 (first address) was cancelled and booking 103 (second address) was made, both settled.",
-      "hands_back": "One tells row (person:bo, through statement 9, moved the call), one mail draft to the second address, and one tool:tell-the-person notice titled \"Send to <second address>? moved the call\" about that draft."
+      "hands_back": "One tells row (person:bo, through statement 9, moved the call), one mail draft to the second address in the owner's mailbox, and one tool:record-a-notification notice titled \"A draft to <second address> is in your mailbox: moved the call\" with its voice score and phrase findings."
     }
   ]
 }

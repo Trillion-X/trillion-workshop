@@ -199,7 +199,7 @@
         "listed_on": "2026-11-18T06:30:00Z",
         "label": "Notice when something shows up, and tell the engine",
         "job": "Keep watching for things outside (a stretch of time passing, a drive attached or removed, files someone finished putting in a place, a delivery over the network) and tell the person's engine one fact each time, so any tool whose wake hears that kind of fact starts",
-        "description": "Give waiters: the standing orders the noticer keeps (notice-when-something-shows-up.waiter-descriptor rows, each naming one mechanism in do-work/mechanisms, its settings and the kind of fact it emits). It runs as a kept-open program: while its wake is on, each waiter waits, and each time something shows up or goes away it tells the engine one fact at wake:arrive, of the waiter's kind, with the change's fields as text. A tool hears it by declaring a wake {fact: {kind, from: [\"run\"], match}}. This row may tell only the kinds its rights name. Each fact told or refused is one line of the program's output. Given for_seconds, it watches that long and answers {told, refused}. A second wake, keep-noticing-row-changes, watches one database's changes (the row-changes leaf) over the connection the person keeps under own-rows-postgres-connection; it is off until the person switches it on, and only then does the run hold that connection and reach its host.",
+        "description": "Give waiters: the standing orders the noticer keeps (notice-when-something-shows-up.waiter-descriptor rows, each naming one mechanism in do-work/mechanisms, its settings and the kind of fact it emits). It runs as a kept-open program: while its wake is on, each waiter waits, and each time something shows up or goes away it tells the engine one fact at wake:arrive, of the waiter's kind, with the change's fields as text. A tool hears it by declaring a wake {fact: {kind, from: [\"run\"], match}}. This row may tell only the kinds its rights name. Each fact told or refused is one line of the program's output. Given for_seconds, it watches that long and answers {told, refused}. A second wake, keep-noticing-row-changes, watches one database's changes (the row-changes leaf) over the connection the person keeps under own-rows-postgres-connection; it is off until the person switches it on, and only then does the run hold that connection and reach its host. A third wake, keep-noticing-one-source, names no waiter and no credential: the person switches it on with their own input (wake:switch input {credential_name, waiters}), so a source of theirs (a booking service's list, their sent mail) is watched from their own DATA and never from a shared row; one source per switch, because a run reaches only the hosts every value it holds may go to.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -672,6 +672,16 @@
                   "why": "Each change of a table the person's AI attached record_row_change() to, in the database whose connection the person keeps under own-rows-postgres-connection (made by workflow:make-a-database-for-each-pursuit), told once in commit order. The fact carries the change itself: where (the vault name of what is watched), table_name, op, at, key (the change's own key in that database), and before and after as JSON text when each fits the engine's 1,024 bytes a field (else left out, and a run that needs more reads it by key in the store's own language). No reader tool is needed. This waiter is one way a Postgres database tells its changes; another store tells its own (workflow:tell-me-when-something-changes). A tool hears it with a wake {fact: {kind: row-changes, from: [run], match: {table_name}}}."
                 }
               ]
+            }
+          },
+          {
+            "id": "keep-noticing-one-source",
+            "on": {
+              "running": {}
+            },
+            "budget": {
+              "steps": 2,
+              "wall_ms": 600000
             }
           }
         ],
