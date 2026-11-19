@@ -26,12 +26,12 @@ const refused = async (lists, input, pattern) => await assert.rejects(async () =
 test('a list is made with a colour, default calendar and preferred times, and a read answers them', async () => {
   const lists = freshLists();
   const work = await makeList(lists, 'work', {
-    color: 'teal', default_calendar: { source_id: 'google', calendar_id: 'primary' }, ai_scheduling: false,
+    color: 'teal', default_calendar: { source_id: 'google', calendar_id: 'primary' }, plan_automatically: false,
     preferred_times: { start_minute: 540, end_minute: 720, weekdays: [3, 1] },
   });
   assert.deepEqual(work, {
     id: 'calendar-collection-work', title: 'work', color: 'teal', default_calendar: { source_id: 'google', calendar_id: 'primary' },
-    archived: false, ai_scheduling: false, preferred_times: { start_minute: 540, end_minute: 720, weekdays: [1, 3] },
+    archived: false, plan_automatically: false, preferred_times: { start_minute: 540, end_minute: 720, weekdays: [1, 3] },
   });
   assert.deepEqual((await readCalendarTaskCollections(lists)).collections, [work]);
   assert.equal(data.list_colors.length, 16);
@@ -40,14 +40,14 @@ test('a list is made with a colour, default calendar and preferred times, and a 
 
 test('update_collection changes only the settings it names, null clears one, and bad values are refused', async () => {
   const lists = freshLists();
-  const work = await makeList(lists, 'work', { color: 'blue', ai_scheduling: true });
+  const work = await makeList(lists, 'work', { color: 'blue', plan_automatically: true });
   const renamed = await act(lists, { action: 'update_collection', collection_id: work.id, title: 'Projects' });
   assert.deepEqual(renamed.collection, { ...work, title: 'Projects' }, 'a rename leaves the colour and scheduling alone');
   const archived = await act(lists, { action: 'update_collection', collection_id: work.id, archived: true });
   assert.equal(archived.collection.archived, true);
   assert.equal(archived.collection.color, 'blue');
-  const cleared = await act(lists, { action: 'update_collection', collection_id: work.id, color: null, ai_scheduling: null, archived: false });
-  assert.deepEqual([cleared.collection.color, cleared.collection.ai_scheduling, cleared.collection.archived], [null, null, false]);
+  const cleared = await act(lists, { action: 'update_collection', collection_id: work.id, color: null, plan_automatically: null, archived: false });
+  assert.deepEqual([cleared.collection.color, cleared.collection.plan_automatically, cleared.collection.archived], [null, null, false]);
   refused(lists, { action: 'update_collection', collection_id: work.id, color: 'chartreuse' }, /list setting is not valid/);
   refused(lists, { action: 'update_collection', collection_id: work.id, default_calendar: { source_id: 'google' } }, /list setting is not valid/);
   refused(lists, { action: 'update_collection', collection_id: work.id, preferred_times: { start_minute: 600, end_minute: 600 } }, /list setting is not valid/);
@@ -104,7 +104,7 @@ test('a store made with the old plain lists is brought to the declared shape whe
   await lists.save({ id: data.collections.id, label: 'Task lists', row_type: 'calendar-task-list', title_field: 'title', fields: [{ id: 'title', label: 'List name', kind: 'text' }] }, { actor: { by: 'calendar' } });
   await lists.putRows(data.collections.id, { rows: [{ id: 'old-one', values: { title: 'Old one' } }] }, { actor: { by: 'calendar' } });
   const read = await readCalendarTasks(lists);
-  assert.deepEqual(read.collections, [{ id: 'old-one', title: 'Old one', color: null, default_calendar: null, archived: false, ai_scheduling: null, preferred_times: null }]);
+  assert.deepEqual(read.collections, [{ id: 'old-one', title: 'Old one', color: null, default_calendar: null, archived: false, plan_automatically: null, preferred_times: null }]);
   const upgraded = await lists.find(data.collections.id);
   assert.deepEqual(upgraded.fields.map(field => field.id), data.collections.fields.map(field => field.id));
   assert.equal(upgraded.ordering.index, 'manual_order');
@@ -115,18 +115,18 @@ test('the person-level preferences round trip, including a text one that an empt
   const lists = freshLists();
   const read = async () => (await readCalendarTasks(lists)).preferences;
   assert.deepEqual(await read(), {
-    refit_on_move: false, external_display: 'off', ai_scheduling: true, default_todo_visibility: 'private',
+    refit_on_move: false, external_display: 'off', plan_automatically: true, default_todo_visibility: 'private',
     email_todos: false, email_split_contents: true, email_todo_account: '',
   });
-  const set = await act(lists, { action: 'set_preferences', ai_scheduling: false, default_todo_visibility: 'visible', external_display: 'busy', email_todos: true, email_split_contents: false, email_todo_account: ' me@example.test ' });
+  const set = await act(lists, { action: 'set_preferences', plan_automatically: false, default_todo_visibility: 'visible', external_display: 'busy', email_todos: true, email_split_contents: false, email_todo_account: ' me@example.test ' });
   assert.deepEqual(set.preferences, {
-    refit_on_move: false, external_display: 'busy', ai_scheduling: false, default_todo_visibility: 'visible',
+    refit_on_move: false, external_display: 'busy', plan_automatically: false, default_todo_visibility: 'visible',
     email_todos: true, email_split_contents: false, email_todo_account: 'me@example.test',
   });
   assert.deepEqual(await read(), set.preferences);
   await act(lists, set.undo);
   assert.deepEqual((await read()).email_todo_account, '');
-  assert.equal((await read()).ai_scheduling, true);
+  assert.equal((await read()).plan_automatically, true);
   await act(lists, { action: 'set_preferences', email_todo_account: 'x@example.test' });
   await act(lists, { action: 'set_preferences', email_todo_account: '' });
   assert.equal((await read()).email_todo_account, '');

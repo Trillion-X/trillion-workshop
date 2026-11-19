@@ -1,0 +1,83 @@
+{
+  "drafted_from": "tool:take-a-task's own row (its words, input schema, sample run and steps) and what its sample run answered here; read it before relying on it",
+  "start_here": "Take the next task waiting for ai:sample-taker. It runs tool:take-a-task and answers {\"taken\":{\"id\":\"record:calendar-task:sample-1\",\"title\":\"Write a made-up sample report\",\"status\":\"In progress\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"taken_by\":\"ai:sample-taker\",\"taken_at\":\"2026-11-19T21:25:26.066Z\"},\"tried\":1,\"keep\":[{\"id\":\"record:calendar-task:sample-1\",\"type\":\"calendar-task\",\"value\":{\"title\":\"Write a made-up sample report\",\"status\":\"In progress\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"taken_by\":\"ai:sample-taker\",\"taken_at\":\"2026-11-19T21:25:26.066Z\"},\"expected\":{\"type\":\"calendar-task\",\"value\":{\"title\":\"Write a made-up sample report\",\"status\":\"To do\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\"}}}]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps only its own task rows (calendar-task) in your own store. Its records come in as input.records (ai, calendar-task) and its writes go back as keep.",
+  "workflows": [],
+  "tools": [
+    "tool:take-a-task"
+  ],
+  "instructions": [
+    "Say to your AI: \"Take the next task waiting for me\", and give it as (the taker) and id if you name one.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:take-a-task and its input (the worked example shows one).",
+    "3. Read what comes back: Takes the first task it may take, once; a task another AI already took is refused and the next one is tried."
+  ],
+  "worked_examples": [
+    {
+      "title": "Take the next task waiting for me, or one task by its id on its own sample",
+      "ask": "Take the next task waiting for me, or one task by its id",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:take-a-task",
+            "input": {
+              "as": "ai:sample-taker",
+              "records": [
+                {
+                  "id": "ai:sample-sender",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sender",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 1,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "ai:sample-taker",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample taker",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 2,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "record:calendar-task:sample-1",
+                  "type": "calendar-task",
+                  "value": {
+                    "title": "Write a made-up sample report",
+                    "status": "To do",
+                    "assignees": [
+                      "ai:sample-taker"
+                    ],
+                    "sent_by": "ai:sample-sender",
+                    "priority": "medium",
+                    "sent_at": "2026-11-03T00:00:00.000Z",
+                    "description": "Write a made-up sample report"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"as\":\"ai:sample-taker\"}, with 3 example records (ai, calendar-task) already kept in the store that the run reads.",
+      "hands_back": "It answered {\"taken\":{\"id\":\"record:calendar-task:sample-1\",\"title\":\"Write a made-up sample report\",\"status\":\"In progress\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"taken_by\":\"ai:sample-taker\",\"taken_at\":\"2026-11-19T21:25:26.066Z\"},\"tried\":1,\"keep\":[{\"id\":\"record:calendar-task:sample-1\",\"type\":\"calendar-task\",\"value\":{\"title\":\"Write a made-up sample report\",\"status\":\"In progress\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"taken_by\":\"ai:sample-taker\",\"taken_at\":\"2026-11-19T21:25:26.066Z\"},\"expected\":{\"type\":\"calendar-task\",\"value\":{\"title\":\"Write a made-up sample report\",\"status\":\"To do\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\"}}}]}"
+    }
+  ]
+}

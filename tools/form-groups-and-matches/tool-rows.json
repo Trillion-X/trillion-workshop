@@ -112,6 +112,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -483,6 +484,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -950,6 +952,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -1374,6 +1377,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -1909,6 +1913,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -2324,6 +2329,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -2733,6 +2739,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -3094,6 +3101,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -3173,7 +3181,7 @@
         "label": "Run a community's matchmaker clock: start or close a round, introduce, follow up",
         "status": "active",
         "job": "Pair a community's members on its cadence without anyone asking: start a round when it is due, close it at its deadline, make introductions everyone said yes to, and follow up the ones nobody acted on",
-        "description": "The wake target of a community's matchmaker; a person declares it as their own wake (a wake-declaration record with tool tool:advance-a-community-matchmaker, a time repeat, and input { community_id }). Reads the community's settings (a match-community record, checked by tool:check-community-matching-settings), its members, rounds, matches and answers. When no round is open and the cadence (every_days after the last round) has come, it starts one: each opted-in member whose answers are incomplete gets a profile job for their own AI, and each complete member gets a bounded shortlist (an inverted index over categories and words, at most shortlist_size candidates, never every pair) and a score job asking their AI to score each candidate on the contract's factors with cited claims. Nothing here runs a model. At the deadline it forms groups from the grounded scores only (exact product of the factors, every factor cited), proposes each and hands each person's AI a consent job. It makes the one-to-one group of any match whose yeses all hold and hands topic jobs; it hands follow-up jobs at the community's follow_up_hours until the members talk. Jobs are ai-job records on the engine's job road, once per request key. Returns round (what started or closed, or null), next_at (when the clock next has something to do) and written; a community without usable settings returns ok false and its error. This tool reads and keeps no records: the caller's AI reads the community's records from a store and hands them in as `records`, and puts the answer's `write` (each changed record with the value it expected, null for a new one) in a store.",
+        "description": "The wake target of a community's matchmaker; a person declares it as their own wake (a wake-declaration record with tool tool:advance-a-community-matchmaker, a time repeat, and input { community_id }). Reads the community's settings (a match-community record, checked by tool:check-community-matching-settings), its members, rounds, matches and answers. When no round is open and the cadence (every_days after the last round) has come, it starts one: each opted-in member whose answers are incomplete gets a profile job for their own AI, and each complete member gets a bounded shortlist (an inverted index over categories and words, at most shortlist_size candidates, never every pair) and a score job asking their AI to score each candidate on the contract's factors with cited claims. Nothing here runs a model. At the deadline it forms groups from the grounded scores only (exact product of the factors, every factor cited), proposes each and hands each person's AI a consent job. It makes the one-to-one group of any match whose yeses all hold and hands topic jobs; it hands follow-up tasks at the community's follow_up_hours until the members talk. Tasks are calendar-task records assigned to their person, once per request key. Returns round (what started or closed, or null), next_at (when the clock next has something to do) and written; a community without usable settings returns ok false and its error. This tool reads and keeps no records: the caller's AI reads the community's records from a store and hands them in as `records`, and puts the answer's `write` (each changed record with the value it expected, null for a new one) in a store.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -3194,7 +3202,7 @@
             },
             "records": {
               "type": "array",
-              "description": "The community's records as { id, type, value }, read from a store and handed in (match-community, match-member, match-round, match-ask, match, match-answer, ai-job:match: and group:introduction: records of this community). This tool reads and keeps no records. Left out, there are none.",
+              "description": "The community's records as { id, type, value }, read from a store and handed in (match-community, match-member, match-round, match-ask, match, match-answer, record:calendar-task:match: and group:introduction: records of this community). This tool reads and keeps no records. Left out, there are none.",
               "items": {
                 "type": "object",
                 "required": [
@@ -3448,6 +3456,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -3603,7 +3612,7 @@
             },
             "records": {
               "type": "array",
-              "description": "The community's records as { id, type, value }, read from a store and handed in (match-community, match-member, match-round, match-ask, match, match-answer, ai-job:match: and group:introduction: records of this community). This tool reads and keeps no records. Left out, there are none.",
+              "description": "The community's records as { id, type, value }, read from a store and handed in (match-community, match-member, match-round, match-ask, match, match-answer, record:calendar-task:match: and group:introduction: records of this community). This tool reads and keeps no records. Left out, there are none.",
               "items": {
                 "type": "object",
                 "required": [
@@ -3870,6 +3879,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -3949,7 +3959,7 @@
         "label": "Read my matches in a community, my profile, and the score job I owe",
         "status": "active",
         "job": "See who a community's matchmaker proposed for me and where each introduction stands, what my profile still misses, the shortlist my AI still has to score, and fellow members who share my categories",
-        "description": "Reads one member's view (person): on (their switch), cadence_label, next_at, matches (each match_id, status and the community's words for it, answered, answer_by, consent: what to answer a yes with, with, why: the scoring AI's cited reasons, topics, space_id once they are in the one-to-one), profile (answers, categories, complete, missing questions), waiting_for_your_scores (the open round's shortlist with citable claims), discover (members sharing a category, with what they offer and seek), waiting_jobs (this person's own waiting jobs, for their AI to pull: nothing is ever written into another person's account), wake_at (when the community's clock next acts, so the member side wakes then and pulls once), and for the community's owner experiments (each arm's introduced and talked counts and the shown and converted events an experiment owner reads). It writes nothing and keeps nothing: the caller's AI reads the community's records from a store and hands them in as `records`.",
+        "description": "Reads one member's view (person): on (their switch), cadence_label, next_at, matches (each match_id, status and the community's words for it, answered, answer_by, consent: what to answer a yes with, with, why: the scoring AI's cited reasons, topics, space_id once they are in the one-to-one), profile (answers, categories, complete, missing questions), waiting_for_your_scores (the open round's shortlist with citable claims), discover (members sharing a category, with what they offer and seek), waiting_tasks (this person's own To do tasks, for their AI to pull: nothing is ever written into another person's account), wake_at (when the community's clock next acts, so the member side wakes then and pulls once), and for the community's owner experiments (each arm's introduced and talked counts and the shown and converted events an experiment owner reads). It writes nothing and keeps nothing: the caller's AI reads the community's records from a store and hands them in as `records`.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -3978,7 +3988,7 @@
             },
             "records": {
               "type": "array",
-              "description": "The community's records as { id, type, value }, read from a store and handed in (match-community, match-member, match-round, match-ask, match, match-answer, ai-job:match: and group:introduction: records of this community). This tool reads and keeps no records. Left out, there are none.",
+              "description": "The community's records as { id, type, value }, read from a store and handed in (match-community, match-member, match-round, match-ask, match, match-answer, record:calendar-task:match: and group:introduction: records of this community). This tool reads and keeps no records. Left out, there are none.",
               "items": {
                 "type": "object",
                 "required": [
@@ -4237,6 +4247,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -4341,7 +4352,7 @@
             },
             "records": {
               "type": "array",
-              "description": "The community's records as { id, type, value }, read from a store and handed in (match-community, match-member, match-round, match-ask, match, match-answer, ai-job:match: and group:introduction: records of this community). This tool reads and keeps no records. Left out, there are none.",
+              "description": "The community's records as { id, type, value }, read from a store and handed in (match-community, match-member, match-round, match-ask, match, match-answer, record:calendar-task:match: and group:introduction: records of this community). This tool reads and keeps no records. Left out, there are none.",
               "items": {
                 "type": "object",
                 "required": [
@@ -4590,6 +4601,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",

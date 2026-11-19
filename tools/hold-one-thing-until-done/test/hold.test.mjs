@@ -84,8 +84,8 @@ test('setting the held row aside answers the next setting and its job; it then l
   const result = changeWhatHoldsMe(change);
   assert.equal(result.changed, true);
   assert.equal(result.jobs.length, 1);
-  assert.equal(result.jobs[0].type, 'ai-job');
-  assert.match(result.jobs[0].value.job, /the sample site is down today/);
+  assert.equal(result.jobs[0].type, 'calendar-task');
+  assert.match(result.jobs[0].value.description, /the sample site is down today/);
   assert.ok(result.state.aside['record:waiting-on-you:sign-in']);
   const after = await see({ setup: { ready: true }, state: result.state });
   assert.notEqual(after.hold.held.key, 'record:waiting-on-you:sign-in');
@@ -118,18 +118,18 @@ test('a hand-back answers its real producer job with the setting, and repeats an
   const input = { change: 'hand-back', key: 'sample-form', title: 'Sample form', way: 'done', reason: 'I signed it', now: NOW, rules: RULES, state: {} };
   const result = changeWhatHoldsMe(input);
   const [job] = result.jobs;
-  assert.equal(job.type, 'ai-job');
-  assert.equal(job.value.from, null);
+  assert.equal(job.type, 'calendar-task');
+  assert.equal(job.value.sent_by, null);
   assert.equal(job.value.producer.kind, 'record');
   assert.equal(job.value.producer.ref, 'setting:needs_you_hold');
-  assert.equal(job.value.source_job, 'hold-hand-back:sample-form');
+  assert.equal(job.value.source_task, 'hold-hand-back:sample-form');
   assert.equal(changeWhatHoldsMe(input).jobs[0].id, job.id);
 });
 
 test('the canonical read preserves non-ask sections and their finish controls', async () => {
   const things = { complete: true, finishes: [{ choice: 'pick', press: { tool: 'sample:choose' } }], sections: [
     { id: 'decide', finish: 'pick', cards: [{ id: 'decision:sample', title: 'Choose the sample option' }] },
-    { id: 'stuck', step: { already_ais: true, needs: 'write a draft' }, cards: [{ id: 'ai-job:sample', title: 'An AI already owns this' }] },
+    { id: 'stuck', step: { already_ais: true, needs: 'write a draft' }, cards: [{ id: 'record:calendar-task:sample', title: 'An AI already owns this' }] },
   ] };
   const result = await seeWhatHoldsMe({ now: NOW, rules: RULES, setup: { ready: true }, gate: {}, state: {}, things });
   assert.equal(result.hold.held.key, 'decision:sample');
@@ -147,9 +147,9 @@ test('AI work removed by the canonical read is answered once with the original s
   assert.equal(first.hold.held, null);
   assert.equal(first.jobs.length, 1);
   const [job] = first.jobs;
-  assert.equal(job.value.source_job, 'weighed:asks:sample-draft');
+  assert.equal(job.value.source_task, 'weighed:asks:sample-draft');
   assert.equal(job.value.input.card_id, 'asks:sample-draft');
-  assert.equal(job.value.from, null);
+  assert.equal(job.value.sent_by, null);
   assert.deepEqual((await seeWhatHoldsMe(input)).jobs.map(each => each.id), [job.id], 'the same trigger is the same job id');
 });
 

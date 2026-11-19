@@ -1,0 +1,85 @@
+{
+  "drafted_from": "tool:see-tasks's own row (its words, input schema, sample run and steps) and what its sample run answered here; read it before relying on it",
+  "start_here": "Show me the tasks in progress. It runs tool:see-tasks and answers {\"tasks\":[{\"id\":\"record:calendar-task:sample-1\",\"title\":\"Write a made-up sample report\",\"status\":\"In progress\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"taken_by\":\"ai:sample-taker\",\"taken_at\":\"2026-11-03T00:05:00.000Z\"}],\"more\":false}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps only its own task rows (calendar-task) in your own store. Its records come in as input.records (ai, calendar-task) and its writes go back as keep.",
+  "workflows": [],
+  "tools": [
+    "tool:see-tasks"
+  ],
+  "instructions": [
+    "Say to your AI: \"Show me the tasks in progress\", and give it status (or id for one task).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:see-tasks and its input (the worked example shows one).",
+    "3. Read what comes back: Reads the tasks that match, newest first, with who gave each, who may take it and who holds it."
+  ],
+  "worked_examples": [
+    {
+      "title": "See tasks: one task by its id, or the newest that match on its own sample",
+      "ask": "Show me tasks: what is waiting, who holds what, and what each finished with",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:see-tasks",
+            "input": {
+              "status": "In progress",
+              "records": [
+                {
+                  "id": "ai:sample-sender",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sender",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 1,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "ai:sample-taker",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample taker",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 2,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "record:calendar-task:sample-1",
+                  "type": "calendar-task",
+                  "value": {
+                    "title": "Write a made-up sample report",
+                    "status": "In progress",
+                    "assignees": [
+                      "ai:sample-taker"
+                    ],
+                    "sent_by": "ai:sample-sender",
+                    "priority": "medium",
+                    "sent_at": "2026-11-03T00:00:00.000Z",
+                    "description": "Write a made-up sample report",
+                    "taken_by": "ai:sample-taker",
+                    "taken_at": "2026-11-03T00:05:00.000Z"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"status\":\"In progress\"}, with 3 example records (ai, calendar-task) already kept in the store that the run reads.",
+      "hands_back": "It answered {\"tasks\":[{\"id\":\"record:calendar-task:sample-1\",\"title\":\"Write a made-up sample report\",\"status\":\"In progress\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"taken_by\":\"ai:sample-taker\",\"taken_at\":\"2026-11-03T00:05:00.000Z\"}],\"more\":false}"
+    }
+  ]
+}

@@ -88,11 +88,11 @@
     {
       "id": "ai-work",
       "label": "Work for your AIs",
-      "about": "Jobs waiting for one of your AIs to take them.",
-      "read": { "type": "ai-job", "prefix": "ai-job:", "rows": [] },
-      "where": { "field": ["value", "status"], "equals": "waiting" },
+      "about": "Tasks waiting for one of your AIs to take them.",
+      "read": { "type": "calendar-task", "prefix": "record:calendar-task:", "rows": [] },
+      "where": { "field": ["value", "status"], "equals": "To do" },
       "row_id": { "field": ["id"] },
-      "show": { "title": ["value", "label"], "detail": ["value", "cause"], "open": { "fill": "/jobs/{id}" } },
+      "show": { "title": ["value", "title"], "open": { "fill": "/jobs/{id}" } },
       "empty": "No work is waiting."
     }
   ]

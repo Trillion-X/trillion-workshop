@@ -2,7 +2,7 @@
   "drafted_from": "tool:answer-the-needs-you-hold-route's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Answer the Trillion page routes GET and POST /work/api/needs-you-hold: the one thing held for me now, and setting it aside, handing it back, choosing a stake, asking off or turning it on\", with {\"path\":\"/needs-you-hold\",\"method\":\"GET\",\"query\":{},\"body\":{},\"browser\":{}}. It runs tool:answer-the-needs-you-hold-route and answers {\"status\":200,\"body\":{\"on\":true,\"held\":null,\"ranked\":[],\"every_seconds\":90,\"asides_left\":0,\"hand_back\":[],\"stakes\":[],\"said\":\"Nothing is holding you.\",\"words\":{\"free\":\"Nothing is holding you.\"}}}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input, the records it works from (setting, record:waiting-on-you, ai-job, told-the-person and the rest its `stored` lists) as stored.records, and answers the rows to keep and the device runs to start.",
+  "no_lists_because": "It names no list of yours: it takes its input, the records it works from (setting, record:waiting-on-you, calendar-task, told-the-person and the rest its `stored` lists) as stored.records, and answers the rows to keep and the device runs to start.",
   "workflows": [],
   "tools": [
     "tool:answer-the-needs-you-hold-route",
@@ -16,7 +16,7 @@
     "1. Say to your AI: \"Answer the Trillion page routes GET and POST /work/api/needs-you-hold: the one thing held for me now, and setting it aside, handing it back, choosing a stake, asking off or turning it on\", and give it path (The route after /work/api); method.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:answer-the-needs-you-hold-route and its input (the worked example shows one).",
     "3. Read what comes back: A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }.",
-    "4. It reads and writes no store. Give it the person's own rows it works from as stored.records (setting, record:waiting-on-you, ai-job, told-the-person and the rest of its stored list). Keep each row it answers in keep, conditioned on its expected record, and start each run it answers in runs only after the kept rows are written."
+    "4. It reads and writes no store. Give it the person's own rows it works from as stored.records (setting, record:waiting-on-you, calendar-task, told-the-person and the rest of its stored list). Keep each row it answers in keep, conditioned on its expected record, and start each run it answers in runs only after the kept rows are written."
   ],
   "worked_examples": [
     {

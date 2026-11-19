@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:960c9a28dd7f9767d6b15e579fd2795c83f9bca9dc86c0452fe1b43ced94103c"
+  "blake3": "1f:e43393a8fa90b3db78c8e8cffcca4ce3579e6f736c567f6db3d0bca7b4b1cbfd"
  },
  "fields": [
   {
@@ -260,7 +260,7 @@
    "values": {
     "title": "Run a community's matchmaker clock: start or close a round, introduce, follow up",
     "job": "Pair a community's members on its cadence without anyone asking: start a round when it is due, close it at its deadline, make introductions everyone said yes to, and follow up the ones nobody acted on",
-    "description": "The wake target of a community's matchmaker; a person declares it as their own wake (a wake-declaration record with tool tool:advance-a-community-matchmaker, a time repeat, and input { community_id }). Reads the community's settings (a match-community record, checked by tool:check-community-matching-settings), its members, rounds, matches and answers. When no round is open and the cadence (every_days after the last round) has come, it starts one: each opted-in member whose answers are incomplete gets a profile job for their own AI, and each complete member gets a bounded shortlist (an inverted index over categories and words, at most shortlist_size candidates, never every pair) and a score job asking their AI to score each candidate on the contract's factors with cited claims. Nothing here runs a model. At the deadline it forms groups from the grounded scores only (exact product of the factors, every factor cited), proposes each and hands each person's AI a consent job. It makes the one-to-one group of any match whose yeses all hold and hands topic jobs; it hands follow-up jobs at the community's follow_up_hours until the members talk. Jobs are ai-job records on the engine's job road, once per request key. Returns round (what started or closed, or null), next_at (when the clock next has something to do) and written; a community without usable settings returns ok false and its error. This tool reads and keeps no records: the caller's AI reads the community's records from a store and hands them in as `records`, and puts the answer's `write` (each changed record with the value it expected, null for a new one) in a store.",
+    "description": "The wake target of a community's matchmaker; a person declares it as their own wake (a wake-declaration record with tool tool:advance-a-community-matchmaker, a time repeat, and input { community_id }). Reads the community's settings (a match-community record, checked by tool:check-community-matching-settings), its members, rounds, matches and answers. When no round is open and the cadence (every_days after the last round) has come, it starts one: each opted-in member whose answers are incomplete gets a profile job for their own AI, and each complete member gets a bounded shortlist (an inverted index over categories and words, at most shortlist_size candidates, never every pair) and a score job asking their AI to score each candidate on the contract's factors with cited claims. Nothing here runs a model. At the deadline it forms groups from the grounded scores only (exact product of the factors, every factor cited), proposes each and hands each person's AI a consent job. It makes the one-to-one group of any match whose yeses all hold and hands topic jobs; it hands follow-up tasks at the community's follow_up_hours until the members talk. Tasks are calendar-task records assigned to their person, once per request key. Returns round (what started or closed, or null), next_at (when the clock next has something to do) and written; a community without usable settings returns ok false and its error. This tool reads and keeps no records: the caller's AI reads the community's records from a store and hands them in as `records`, and puts the answer's `write` (each changed record with the value it expected, null for a new one) in a store.",
     "status": "active",
     "maker": "maker:form-groups-and-matches",
     "licence_class": "licence:maker-own",
@@ -443,7 +443,7 @@
    "values": {
     "title": "Answer the web chat message routes",
     "job": "Answer the web chat's message routes (GET /work/api/messages, /messages/threads and /messages/thread, POST /work/api/messages/send and /messages/send-all) and keep each message the person sends as a message row in my own records, and wake the AI it is for",
-    "description": "The web chat's message routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. GET /messages and /messages/threads answer the person's conversations newest first ({conversations, next_before}); GET /messages/thread answers one conversation's messages (app and conversation_id). POST /messages/send keeps the person's words to one AI (app, conversation_id, text, client_id?) and POST /messages/send-all keeps them once in the shared Trillion conversation, each as one `message` row, given back in `keep` for the caller to write as new rows: the route holds no database, so it reads only the rows the caller gives as `stored` and writes nothing. The same client_id sent again is the message already kept. POST /messages/correct replaces the words of one of the person's own messages (message_id, text, client_id?) in its row, keeping the words before it in corrected_from; that one row is given back in `keep` with replaces: true, to be updated in place, and the same client_id sent again keeps nothing. Files ride by reference (each must be one of the person's own, linked in the message). An AI is woken the way the person's AIs take work: a waiting ai-job row kept in the same write (send with agent_id: for that AI; send-all: for any AI, or for the AIs @-mentioned). The answer says the message is kept and read on the AI's next connection; it never says delivered.",
+    "description": "The web chat's message routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. GET /messages and /messages/threads answer the person's conversations newest first ({conversations, next_before}); GET /messages/thread answers one conversation's messages (app and conversation_id). POST /messages/send keeps the person's words to one AI (app, conversation_id, text, client_id?) and POST /messages/send-all keeps them once in the shared Trillion conversation, each as one `message` row, given back in `keep` for the caller to write as new rows: the route holds no database, so it reads only the rows the caller gives as `stored` and writes nothing. The same client_id sent again is the message already kept. POST /messages/correct replaces the words of one of the person's own messages (message_id, text, client_id?) in its row, keeping the words before it in corrected_from; that one row is given back in `keep` with replaces: true, to be updated in place, and the same client_id sent again keeps nothing. Files ride by reference (each must be one of the person's own, linked in the message). An AI is woken the way the person's AIs take work: a To do calendar-task row kept in the same write (send with agent_id: for that AI; send-all: for any AI, or for the AIs @-mentioned). The answer says the message is kept and read on the AI's next connection; it never says delivered.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -458,7 +458,7 @@
    "values": {
     "title": "Answer the page that shows the one thing that holds me",
     "job": "Answer the Trillion page routes GET and POST /work/api/needs-you-hold: the one thing held for me now, and setting it aside, handing it back, choosing a stake, asking off or turning it on",
-    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser, stored } and answers the page with { status, body }; it reads and writes no store: stored.records are the person's records it works from, and it answers the rows to keep (keep) and the device runs to start (runs). GET /needs-you-hold answers 200 with the hold over the person's Waiting on you rows (record:waiting-on-you), their hold setting (setting:needs_you_hold) and their hold rules (setting:needs_you_hold_rules): { on, held, ranked, ..., said, words }; a read that fails answers 503 { error, busy: true }. POST /needs-you-hold with { op, key?, title?, reason?, way?, stake?, values? } (op: read, seen, aside, hand_back, stake, off or on) changes the hold setting on condition of what was read (409 when the store refuses the kept setting), keeps each job the change hands to the person's AIs as an ai-job record once, and answers the change with the read after it; seen marks read the notices the held thing's own device runs told, on this page's surface. Every read keeps the held thing as setting:needs_you_held when it changed; a refused change answers 400 { error }. Any other path or method answers 404.",
+    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser, stored } and answers the page with { status, body }; it reads and writes no store: stored.records are the person's records it works from, and it answers the rows to keep (keep) and the device runs to start (runs). GET /needs-you-hold answers 200 with the hold over the person's Waiting on you rows (record:waiting-on-you), their hold setting (setting:needs_you_hold) and their hold rules (setting:needs_you_hold_rules): { on, held, ranked, ..., said, words }; a read that fails answers 503 { error, busy: true }. POST /needs-you-hold with { op, key?, title?, reason?, way?, stake?, values? } (op: read, seen, aside, hand_back, stake, off or on) changes the hold setting on condition of what was read (409 when the store refuses the kept setting), keeps each task the change hands to the person's AIs as a calendar-task record once, and answers the change with the read after it; seen marks read the notices the held thing's own device runs told, on this page's surface. Every read keeps the held thing as setting:needs_you_held when it changed; a refused change answers 400 { error }. Any other path or method answers 404.",
     "status": "active",
     "maker": "maker:hold-one-thing-until-done",
     "licence_class": "licence:maker-own",
@@ -1269,18 +1269,19 @@
    }
   },
   {
-   "id": "tool:change-an-ai-job",
+   "id": "tool:change-a-task",
    "values": {
-    "title": "Finish, fail, give back, withdraw, flag or remove a job handed between my AIs",
-    "job": "Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it",
-    "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (any AI, so a watcher can flag it; needs words) and unstuck clears that (any AI); withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why. A finish also needs check: the exact saved outcome, checked_at during this take, consumer evidence ({ref, observation}), and one matching check per saved obligation. This records accountable observation and does not itself prove its truth. wait keeps recoverable work blocked on this same job with continuation {owner, action, after, reason}. resume returns it to waiting when due for its taker, sender or continuation owner. release may retain that same bounded continuation, which delays the next take. No completion automatically creates another job. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+    "title": "Finish, fail, give back, hand on, withdraw, flag or remove a task",
+    "job": "Record what happened to a task: finish it with its result, say it failed, give it back, hand it on to someone else, say what blocks it, take back one I gave, or remove it",
+    "description": "Reads the task id and makes the move action names, by the rules in task-moves.json: finish (the taker; needs result, may add summary and check) and fail (the taker; needs result: why) end it as Done or Broken; release gives it back to To do (the taker, or anyone once it is held longer than the stale-take time; because says why); hand-on replaces the assignees (required) and gives the task back to To do with no taker (the taker, or the giver while it waits); stuck says what blocks it (anyone, so a watcher can flag it; needs words) and unstuck clears that; withdraw takes back a task still waiting (its giver; because); wait keeps recoverable work blocked on this same task with continuation {owner, action, after, reason}; resume returns it to waiting when due (its taker, giver or continuation owner); plan saves the acceptance a finish checks (the taker); edit changes a waiting task's words, assignees or acceptance (its giver); remove deletes the record (its giver, or anyone once it is finished). The move is one write of the whole task conditioned on the value just read: when the task changed meanwhile nothing is written and the answer is moved false with reason changed and the task as it now is. A move the rules do not allow is refused, saying why. A finish also needs check: the exact saved outcome, checked_at during this take, consumer evidence ({ref, observation}), and one matching check per saved obligation. This records accountable observation and does not itself prove its truth. The caller hands in every record it reads as input.records; this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
     "status": "active",
-    "maker": "maker:hand-work-to-ais",
+    "maker": "maker:plan-tasks-and-todo-lists",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:small-container"
     ],
-    "folder": "hand-work-to-ais"
+    "listed_on": "2026-11-19T21:16:33Z",
+    "folder": "plan-tasks-and-todo-lists"
    }
   },
   {
@@ -1333,7 +1334,7 @@
    "values": {
     "title": "Change what holds me",
     "job": "Set the one thing I must do aside with a reason, hand it back to my AIs, choose what turning the hold off costs me, ask to turn it off, or turn it back on",
-    "description": "Reads and keeps nothing. Answers your hold setting after a change, by your hold rules: set-aside needs a reason of the rules' length and lasts the rules' minutes, a few times a day; hand-back gives the rest of the thing to your AIs by one of the rules' ways and leaves the hold; choose-stake picks what turning off costs, in force once the stake before it has run its delay; turn-off takes effect only after the stake's delay and comes back by itself; turn-on is at once. state is your hold setting as you last kept it; the answer holds the whole next setting (state) and the AI jobs the change makes (jobs, ai-job records under stable ids with real producer provenance), for you to keep together.",
+    "description": "Reads and keeps nothing. Answers your hold setting after a change, by your hold rules: set-aside needs a reason of the rules' length and lasts the rules' minutes, a few times a day; hand-back gives the rest of the thing to your AIs by one of the rules' ways and leaves the hold; choose-stake picks what turning off costs, in force once the stake before it has run its delay; turn-off takes effect only after the stake's delay and comes back by itself; turn-on is at once. state is your hold setting as you last kept it; the answer holds the whole next setting (state) and the tasks the change makes (jobs, calendar-task records under stable ids with real producer provenance), for you to keep together.",
     "status": "active",
     "maker": "maker:hold-one-thing-until-done",
     "licence_class": "licence:maker-own",
@@ -4160,18 +4161,19 @@
    }
   },
   {
-   "id": "tool:finish-an-ai-job",
+   "id": "tool:finish-a-task",
    "values": {
-    "title": "Check the saved consumer and finish an AI job",
-    "job": "Finish an AI job only after its saved acceptance checks pass on the actual persisted consumer",
-    "description": "Reads the exact record target saved in the job acceptance and applies the existing judge-words rules to its current value. Missing target, failed or unavailable checks, mismatched target, stale claim and changed job refuse completion. Receipt strings do not prove success. Keeps the actual consumer content identity and acceptance identity bound to this take. Rights are intersected by the engine with the caller authority; this tool grants no new account access. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+    "title": "Check the saved consumer and finish a task",
+    "job": "Finish a task only after its saved acceptance checks pass on the actual persisted consumer",
+    "description": "Reads the exact record target saved in the task's acceptance and applies the shared judge-words rules to its current value. A missing target, failed or unavailable check, mismatched target, stale claim or changed task refuses completion. Receipt strings do not prove success. Keeps the actual consumer content identity and acceptance identity bound to this take. Rights are intersected by the engine with the caller authority; this tool grants no new account access. It is the finish move of the change row with action finish. The caller hands in every record it reads as input.records; this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
     "status": "active",
-    "maker": "maker:hand-work-to-ais",
+    "maker": "maker:plan-tasks-and-todo-lists",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:small-container"
     ],
-    "folder": "hand-work-to-ais"
+    "listed_on": "2026-11-19T21:16:33Z",
+    "folder": "plan-tasks-and-todo-lists"
    }
   },
   {
@@ -4811,6 +4813,22 @@
    }
   },
   {
+   "id": "tool:give-a-task",
+   "values": {
+    "title": "Give a task to anyone: a person, an AI, another record, or whoever takes it first",
+    "job": "Make a new task, waiting for the ones named to take it, or for anyone when none is named",
+    "description": "Writes one task, id record:calendar-task:<key>, with status To do, its title (title, else the first line of description), its description, its outcome (what done looks like), its priority (urgent, high, medium or low; medium when left out), sent_by (as: the record id of whoever gives it), sent_at, and assignees: the record ids of anyone who may take it. An empty or missing list means anyone may take it, and every assignee must be among the records handed in. source {kind, ref} keeps where it came from; obligations declare parts each checked on its own; acceptance saves the checks a finish must pass. key (or the run's request key) names the task: the write is conditioned on the task being absent, so the same key gives the task once; sending it again answers written with no write, and a different task under the same key answers already-there. The caller hands in every record it reads as input.records; this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+    "status": "active",
+    "maker": "maker:plan-tasks-and-todo-lists",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-19T21:16:33Z",
+    "folder": "plan-tasks-and-todo-lists"
+   }
+  },
+  {
    "id": "tool:give-back-a-computer",
    "values": {
     "title": "Give back a computer",
@@ -4871,21 +4889,6 @@
      "placement:your-computer"
     ],
     "folder": "grade-and-repair-speech-audio"
-   }
-  },
-  {
-   "id": "tool:hand-a-job-to-an-ai",
-   "values": {
-    "title": "Hand a job to one of my AIs, or to whichever takes it first",
-    "job": "Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take",
-    "description": "Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent. The write is conditioned on the record being absent, so the same key sends the job once: sending it again answers already-there with the job as it is. `key` defaults to the run's request key. An AI named in `to` must be one of the person's ai records. source {kind, ref} preserves incoming provenance; obligations [{id, outcome}] declare independently checked parts. Reuse the incoming stable key and existing source job; do not enqueue duplicate work. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
-    "status": "active",
-    "maker": "maker:hand-work-to-ais",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "hand-work-to-ais"
    }
   },
   {
@@ -6140,6 +6143,24 @@
      "placement:your-computer"
     ],
     "folder": "conversations"
+   }
+  },
+  {
+   "id": "tool:list-the-courses-a-learner-is-on",
+   "values": {
+    "title": "List the courses a learner is on",
+    "job": "Show the learner their courses as a list: each course, how many lessons are done, and each lesson complete, active or locked. Opening a lesson opens it in the lesson screen.",
+    "description": "Give the courses (each with its id, title, about and lessons with id, title and body) and the lessons this learner has finished as { course_id, lesson_id }. Returns each course with how many lessons are done, and each lesson with its status: complete when done, active for the first lesson not done, locked for the rest. Nothing is read or written here; the course list screen runs the same read in the page.",
+    "status": "active",
+    "maker": "maker:lessons-and-learning-paths",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "lessons-and-learning-paths",
+    "flags": [
+     "has-a-screen"
+    ]
    }
   },
   {
@@ -7706,7 +7727,7 @@
    "values": {
     "title": "Open the billing page for one purchase and show its card",
     "job": "Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it",
-    "description": "Give subscription_id (the sub_ id of one purchase) and return_url (an https address the billing page returns to). Reads the purchase with the card that pays it, opens a Stripe customer billing-portal session for the customer that bills it, and gives back the redirect address and the card (brand, last four, expiry only). The configuration is the account default unless configuration names one; an account with none is refused, never given a made-up one. It changes no subscription and moves no money. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
+    "description": "Give subscription_id (the sub_ id of one purchase), return_url (an https address the billing page returns to) and subject_email (the signed-in buyer's verified email; the purchase must be theirs, or nothing is opened or read). Reads the purchase with the card that pays it, opens a Stripe customer billing-portal session for the customer that bills it, and gives back the redirect address and the card (brand, last four, expiry only). flow opens the page on one step: payment_method_update (change the card), subscription_update (change the plan) or subscription_cancel (cancel); leave it out for the page itself. The configuration is the account default unless configuration names one; an account with none is refused, never given a made-up one. It changes no subscription and moves no money: the buyer confirms the change on Stripe's page. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
     "status": "active",
     "maker": "maker:take-payments",
     "licence_class": "licence:maker-own",
@@ -9534,7 +9555,7 @@
    "values": {
     "title": "Read my matches in a community, my profile, and the score job I owe",
     "job": "See who a community's matchmaker proposed for me and where each introduction stands, what my profile still misses, the shortlist my AI still has to score, and fellow members who share my categories",
-    "description": "Reads one member's view (person): on (their switch), cadence_label, next_at, matches (each match_id, status and the community's words for it, answered, answer_by, consent: what to answer a yes with, with, why: the scoring AI's cited reasons, topics, space_id once they are in the one-to-one), profile (answers, categories, complete, missing questions), waiting_for_your_scores (the open round's shortlist with citable claims), discover (members sharing a category, with what they offer and seek), waiting_jobs (this person's own waiting jobs, for their AI to pull: nothing is ever written into another person's account), wake_at (when the community's clock next acts, so the member side wakes then and pulls once), and for the community's owner experiments (each arm's introduced and talked counts and the shown and converted events an experiment owner reads). It writes nothing and keeps nothing: the caller's AI reads the community's records from a store and hands them in as `records`.",
+    "description": "Reads one member's view (person): on (their switch), cadence_label, next_at, matches (each match_id, status and the community's words for it, answered, answer_by, consent: what to answer a yes with, with, why: the scoring AI's cited reasons, topics, space_id once they are in the one-to-one), profile (answers, categories, complete, missing questions), waiting_for_your_scores (the open round's shortlist with citable claims), discover (members sharing a category, with what they offer and seek), waiting_tasks (this person's own To do tasks, for their AI to pull: nothing is ever written into another person's account), wake_at (when the community's clock next acts, so the member side wakes then and pulls once), and for the community's owner experiments (each arm's introduced and talked counts and the shown and converted events an experiment owner reads). It writes nothing and keeps nothing: the caller's AI reads the community's records from a store and hands them in as `records`.",
     "status": "active",
     "maker": "maker:form-groups-and-matches",
     "licence_class": "licence:maker-own",
@@ -10358,7 +10379,7 @@
    "values": {
     "title": "Keep measurement history current",
     "job": "Collect configured operation evidence and return the observation and forecast rows to keep, on a timed or record wake without an AI",
-    "description": "Takes the source configuration (config) and the forecast rows the caller read from its store (forecasts) in the request, runs the canonical collector and ledger checks directly, and returns checked observation and forecast rows with real OS CPU, wall and peak-memory measurements of this refresh. It creates no AI job and reads and keeps nothing; the caller writes the returned rows through its store. Missing or stale measurements remain incomplete; monetary cost remains unknown.",
+    "description": "Takes the source configuration (config) and the forecast rows the caller read from its store (forecasts) in the request, runs the canonical collector and ledger checks directly, and returns checked observation and forecast rows with real OS CPU, wall and peak-memory measurements of this refresh. It creates no task and reads and keeps nothing; the caller writes the returned rows through its store. Missing or stale measurements remain incomplete; monetary cost remains unknown.",
     "status": "active",
     "maker": "maker:keep-measurements-current",
     "licence_class": "licence:maker-own",
@@ -11671,21 +11692,6 @@
    }
   },
   {
-   "id": "tool:see-ai-work",
-   "values": {
-    "title": "See the work handed between my AIs: one job, or the newest that match",
-    "job": "Show me the jobs my AIs handed each other: what is waiting, who took what, and what each finished with",
-    "description": "With `id`, reads that one ai-job record. Otherwise reads the person's ai-job records, kept to those whose status, to, from or taker equal what is given, and answers the newest `limit` of them by when they were sent (read-data/ai-work.json jobs_shown), with `more` true when more matched. A job comes back whole: its status, words, sender, the AI it is for, priority, outcome, taker and when taken, what blocks it, who gave it back and why, and its result and summary. Nothing is written. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method.",
-    "status": "active",
-    "maker": "maker:hand-work-to-ais",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "hand-work-to-ais"
-   }
-  },
-  {
    "id": "tool:see-changes-in-a-project",
    "values": {
     "title": "See what changed in a project",
@@ -11732,21 +11738,6 @@
    }
   },
   {
-   "id": "tool:see-my-ais",
-   "values": {
-    "title": "See my AIs: which are live, what each can do and how many jobs each holds",
-    "job": "Show me my AIs and computers: which are live now, what each can do and how many jobs each is doing",
-    "description": "Reads the person's ai records and counts the ai-job records each AI holds as taker. Each AI comes back with its id and its whole stored value, every cell as kept (a caller names it from those cells by its own formula; no name is made here), whether it is live (seen within the minutes its record names, else read-data/ai-work.json live_minutes_default) and when it was last seen. Live AIs come first, then the person's order. `can` keeps only AIs that can do every word given (an AI that can do `any` can do all); `live_only` keeps only live ones. Nothing is written. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method.",
-    "status": "active",
-    "maker": "maker:hand-work-to-ais",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "hand-work-to-ais"
-   }
-  },
-  {
    "id": "tool:see-my-decisions",
    "values": {
     "title": "See my decisions",
@@ -11759,6 +11750,25 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:see-tasks",
+   "values": {
+    "title": "See tasks: one task by its id, or the newest that match",
+    "job": "Show me tasks: what is waiting, who holds what, and what each finished with",
+    "description": "With id, reads that one task. Otherwise reads the tasks, kept to those whose status (a status word of the rules, such as To do or In progress), sent_by or taken_by equal what is given, or whose assignees name assignee, and answers the newest limit of them by when they were sent (task-moves.json tasks_shown), with more true when more matched. A task comes back whole: its status, title and words, who gave it, who may take it, its priority, outcome, who took it and when, what is stuck, who released it and why, and its result and summary. Nothing is written. The caller hands in every record it reads as input.records; this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+    "status": "active",
+    "maker": "maker:plan-tasks-and-todo-lists",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-19T21:16:33Z",
+    "folder": "plan-tasks-and-todo-lists",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -11781,7 +11791,7 @@
    "values": {
     "title": "See what holds me",
     "job": "Tell me whether my setup still has to be finished before anything else opens, and which one thing I must do now",
-    "description": "Reads and keeps nothing. Everything it works from is in the request and everything it makes is in the answer. From your setup steps (setup_steps: record:setup-steps rows, or the Get started answer you send as setup), your must-do list (must_do: record:waiting-on-you rows, or the whole waiting answer as things) and your hold setting (state), it answers cover { covered, key }: true while any required step is not done (the page draws only setup until then), null when nothing says, and key, the name your gate row gives the cover (required-setup when it gives none, so a missing key never leaves everything open). Beside it, hold: the one row that unblocks the most by your rank rules, every row that may hold in that order, how many times it can still be set aside today, the ways to hand it back and the stakes for turning the hold off. While the cover stands nothing else is held. Also answers what to keep: jobs (ai-job records for the AI-doable work it removed from the hold, each under a stable id so the same trigger is one job), held_fact ({ key, title } or null, the held thing to keep) and device_runs (the declared device tools to start when the held thing changed from kept_held, the one you last kept).",
+    "description": "Reads and keeps nothing. Everything it works from is in the request and everything it makes is in the answer. From your setup steps (setup_steps: record:setup-steps rows, or the Get started answer you send as setup), your must-do list (must_do: record:waiting-on-you rows, or the whole waiting answer as things) and your hold setting (state), it answers cover { covered, key }: true while any required step is not done (the page draws only setup until then), null when nothing says, and key, the name your gate row gives the cover (required-setup when it gives none, so a missing key never leaves everything open). Beside it, hold: the one row that unblocks the most by your rank rules, every row that may hold in that order, how many times it can still be set aside today, the ways to hand it back and the stakes for turning the hold off. While the cover stands nothing else is held. Also answers what to keep: tasks (calendar-task records for the AI-doable work it removed from the hold, each under a stable id so the same trigger is one job), held_fact ({ key, title } or null, the held thing to keep) and device_runs (the declared device tools to start when the held thing changed from kept_held, the one you last kept).",
     "status": "active",
     "maker": "maker:hold-one-thing-until-done",
     "licence_class": "licence:maker-own",
@@ -11912,6 +11922,25 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:see-who-can-take-work",
+   "values": {
+    "title": "See who can take my work: which people, AIs and other records are live, what each can do and how many tasks each holds",
+    "job": "Show me who I can hand a task to: which are live now, what each can do and how many tasks each is doing",
+    "description": "Reads every record handed in that is not a task (a person, an AI, a raccoon, anything with a record) and answers each with its id, its whole stored value (every cell as kept: a caller names it from those cells by its own formula; no name is made here), whether it is live (seen within the minutes its record names as live.minutes, else task-moves.json live_minutes_default), when it was last seen, and how many tasks it holds as taker. Live ones come first, then by the order cell. `can` keeps only those that can do every word given (one that can do any can do all); `live_only` keeps only the live ones. Nothing is written. The caller hands in every record it reads as input.records; this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+    "status": "active",
+    "maker": "maker:plan-tasks-and-todo-lists",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-19T21:16:33Z",
+    "folder": "plan-tasks-and-todo-lists",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -12339,6 +12368,24 @@
      "placement:your-computer"
     ],
     "folder": "conversations"
+   }
+  },
+  {
+   "id": "tool:show-one-purchase-plan-card-and-receipts",
+   "values": {
+    "title": "Show one purchase's plan, card and receipts",
+    "job": "Show the buyer the plan of one of my purchases, when it renews or ends, the card that pays it and its receipts",
+    "description": "Give subscription_id (the sub_ id of one purchase) and subject_email (the signed-in buyer's verified email; the purchase must be theirs). Reads the purchase from Stripe: its plan, status, renewal date (or end date when it is set to end), the card that pays it (brand, last four, expiry only) and its latest receipts (up to 12, with a receipt address when Stripe gives an https one). It changes nothing and opens no billing page; the buttons that change the card, the plan or cancel open tool:open-the-billing-page-for-one-purchase-and-show-the-card with a flow. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-payments",
+    "flags": [
+     "has-a-screen"
+    ]
    }
   },
   {
@@ -12867,18 +12914,19 @@
    }
   },
   {
-   "id": "tool:take-an-ai-job",
+   "id": "tool:take-a-task",
    "values": {
-    "title": "Take the next job waiting for me, or one job by its id",
-    "job": "Take the next job another of my AIs left for me, so no other AI does it too",
-    "description": "Without `id`, reads the ai-job records a take may move (read-data/ai-work.json: waiting ones for any AI or for `as`, and taken ones held longer than the stale-take time), sorts them by take_order (priority, then oldest first), and takes the first: one write of the whole job as taken by `as` at this time, conditioned on the value it read. When another AI took that job first the write is refused and changes nothing, and the next one is tried, at most take_tries. `only_mine` keeps only jobs addressed to `as`. With `id`, takes that job or answers `taken: null` with reason changed (and the job as it now is) when another AI won it. `taken` is null when there was nothing to take. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+    "title": "Take the next task waiting for me, or one task by its id",
+    "job": "Take the next task that is waiting for me or for anyone, so no one else does it too",
+    "description": "Without id, reads the tasks a take may move (waiting ones that name `as` or no one, and taken ones held longer than the stale-take time), sorts them by take_order (priority, then oldest first), and takes the first: one write of the whole task as taken by as at this time, conditioned on the value it read. When someone else took that task first the write is refused and changes nothing, and the next one is tried, at most take_tries. only_mine keeps only tasks that name as. With id, takes that task, or answers taken null with reason changed (and the task as it now is) when someone else won it. taken is null when there was nothing to take. The same request key gives back the same claim. The caller hands in every record it reads as input.records; this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
     "status": "active",
-    "maker": "maker:hand-work-to-ais",
+    "maker": "maker:plan-tasks-and-todo-lists",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:small-container"
     ],
-    "folder": "hand-work-to-ais"
+    "listed_on": "2026-11-19T21:16:33Z",
+    "folder": "plan-tasks-and-todo-lists"
    }
   },
   {

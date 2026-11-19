@@ -8,7 +8,7 @@
   ],
   "tools": [
     "tool:run-workflow-definition",
-    "tool:hand-a-job-to-an-ai"
+    "tool:give-a-task"
   ],
   "instructions": [
     "1. Make a keep rule row in your store: enabled, the kind it keeps, its expiry rule, page and walk.",

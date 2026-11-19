@@ -5,19 +5,19 @@
 // PURPOSE
 //   Any AG-UI agent as one of the person's AIs. An AG-UI agent is an address that answers a RunAgentInput with AG-UI
 //   events (LangGraph, Mastra, CrewAI, the Claude Agent SDK, Pydantic AI, or one written by hand; https://docs.ag-ui.com).
-//   `{cli} serve --ag-ui URL` takes each job handed to this AI and runs the agent at URL on it (runOnAgUi):
-//   the job and its steers are the run's user messages, and the tools named in command.json `ag_ui.tools`
+//   `{cli} serve --ag-ui URL` takes each task handed to this AI and runs the agent at URL on it (runOnAgUi):
+//   the task's words are the run's user message, and the tools named in command.json `ag_ui.tools`
 //   are offered as AG-UI frontend tools. Each call the agent makes of one is made here, as this AI, with the same
 //   tools/call every connected AI makes, so the call is checked like any other and kept on the activity record.
-//   What the agent says is the result; an AG-UI interrupt is what is in the way; a run that fails gives the job back.
+//   What the agent says is the result; an AG-UI interrupt is what is in the way; a run that fails gives the task back.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. The agent never holds the account's key: it asks for a tool and this program runs it.
 //   2. Only an offered tool runs. A call of any other tool is answered with ag_ui.words.not_offered and never run.
-//   3. Bounded: at most ag_ui.max_turns runs of the agent per job (each pending tool call answered starts the next
+//   3. Bounded: at most ag_ui.max_turns runs of the agent per task (each pending tool call answered starts the next
 //      run), each run at most ag_ui.run_seconds, silent at most ag_ui.quiet_seconds while it is waited on (a tool run here
 //      is not the agent's silence), and the frames read through ./ag-ui-wire.mjs bounds.
-//   4. A run's thread is the handoff id, so an agent that keeps threads keeps one per job, and its run ids name the
+//   4. A run's thread is the handoff id, so an agent that keeps threads keeps one per task, and its run ids name the
 //      attempt (generation) and turn.
 //   5. Every word and bound is DATA (command.json `ag_ui`); the agent's address comes from the person's command line.
 //   6. This file and the wire module are installed beside command.mjs (command.json install.files).
@@ -39,11 +39,8 @@ const answerWords = (answer, most) => {
   return text.length > most ? `${text.slice(0, most - 1)}…` : text;
 };
 
-/** The run's user messages: the job, then each steer kept on it, in order. */
-export const jobMessages = handoff => [
-  { id: `job:${handoff.handoff_id}`, role: 'user', content: handoff.job },
-  ...(handoff.steers ?? []).map((steer, index) => ({ id: `steer:${handoff.handoff_id}:${index}`, role: 'user', content: steer.job })),
-];
+/** The run's user message: the words of the task it was handed (`handoff.words`). */
+export const taskMessages = handoff => [{ id: `task:${handoff.handoff_id}`, role: 'user', content: handoff.words }];
 
 /** One run of the agent: POST the input, read its events until the run ends or the time is up. */
 async function runOnce(url, input, { rules, fetchImpl }) {
@@ -55,13 +52,13 @@ async function runOnce(url, input, { rules, fetchImpl }) {
 }
 
 /**
- * Runs the agent at `url` on one taken job until it answers, is stuck or fails.
+ * Runs the agent at `url` on one taken task until it answers, is stuck or fails.
  * `client` is the {cli} command's client (rpc, tool). -> { ok, output, stuck? } as serveOnce reads a run.
  */
 export async function runOnAgUi(url, handoff, { client, rules, fetchImpl = fetch }) {
   const tools = await offeredTools(client, rules.ag_ui.tools);
   const offered = new Set(tools.map(tool => tool.name));
-  const messages = jobMessages(handoff);
+  const messages = taskMessages(handoff);
   const context = [{ description: rules.ag_ui.context_description, value: fill(rules.ag_ui.context, { handoff_id: handoff.handoff_id }) }];
   for (let turn = 1; turn <= rules.ag_ui.max_turns; turn += 1) {
     const input = { threadId: handoff.handoff_id, runId: `${handoff.handoff_id}:${handoff.generation ?? 0}:${turn}`, messages, tools, context, state: {}, forwardedProps: {} };

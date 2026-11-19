@@ -25,15 +25,16 @@
 //      the row with that id in one statement, and it must exist already.
 //   3. A read looks through at most SCAN messages given, newest first, and answers what it found with `next_before`; no
 //      read walks the whole history.
-//   4. An AI is woken the way the person's AIs take work (a waiting ai-job row, which an AI lists when it connects), kept
+//   4. An AI is woken the way the person's AIs take work (a To do calendar-task row, which an AI lists when it connects), kept
 //      in the same batch as the message: send with an agent_id hands it to that AI, send-all to any AI or to the AIs
 //      @-mentioned. Nothing here reaches an AI's live session, so the answer says the message is kept and read on the AI's
 //      next connection, never that it was delivered. Files ride by reference: each must be one of the person's own
-//      (`stored.file_identities`), linked in the message's `about` and in the job's refs.
+//      (`stored.file_identities`), linked in the message's `about` and in the task's input refs.
 //
 import { mentionKind } from '../../send-one-message-to-all-of-my-ais-at-once/src/work-mentions.mjs';
 import { partFrom } from '../../keep-and-wake-ai-sessions-on-this-computer/src/responses.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { prepareProducedTask } from '../../plan-tasks-and-todo-lists/task-moves.mjs';
 
 const TYPE = 'message';
 const SOURCE_KEY_TYPE = 'message-source-key';
@@ -42,7 +43,6 @@ const MAX_TEXT = 200_000;
 const SCAN = 1000;
 const PAGE = { default: 20, max: 100 };
 const SENT_VIA = 'Trillion';
-const JOB_TYPE = 'ai-job';
 // An event's refs hold at most 20 ids, one of them the message's own (old src/send-to-all-ais.mjs).
 const MOST_FILES = 19;
 const MOST_MENTIONS = 20;
@@ -71,9 +71,9 @@ function newestOf(records, type, before) {
     .slice(0, SCAN);
 }
 
-// The one message the person sent, kept once (invariant 1) with the jobs that hand it to the AIs it is for, in the same
-// batch, so a message is never kept without its jobs. Answers { id, recorded, keep }.
-function keep(records, { app, conversation_id, text, about, client_id }, now, jobsOf = () => []) {
+// The one message the person sent, kept once (invariant 1) with the tasks that hand it to the AIs it is for, in the same
+// batch, so a message is never kept without its tasks. Answers { id, recorded, keep }.
+function keep(records, { app, conversation_id, text, about, client_id }, now, tasksOf = () => []) {
   const at = new Date(now).toISOString();
   const source_ref = client_id ? `client:${client_id.trim()}` : undefined;
   const message = { conversation_id, app, speaker: 'person', at, text, ...(about?.length ? { about } : {}), ...(source_ref ? { source_ref } : {}) };
@@ -85,17 +85,22 @@ function keep(records, { app, conversation_id, text, about, client_id }, now, jo
   const id = idOf(message);
   const rows = [{ id, type: TYPE, value: { ...message, recorded_at: at, captured_road: 'signed-in screen', recorded_app: SENT_VIA } }];
   if (sourceKey) rows.push({ id: sourceKey, type: SOURCE_KEY_TYPE, value: { message_id: id } });
-  for (const job of jobsOf(id)) rows.push({ id: job.id, type: JOB_TYPE, value: job.value });
+  for (const task of tasksOf(id)) rows.push({ id: task.id, type: task.type, value: task.value });
   return { id, recorded: 1, keep: rows };
 }
 
-// The job that is an AI's wake (old trillion's `message.created` event and hand-off): a waiting ai-job row, which an AI
-// takes when it connects (its bootstrap lists waiting ai-jobs). `agent_id` names the one AI it is for; none, any AI may take it.
-const jobFor = ({ message_id, label, job, said, conversation_id, files, agent_id }) => ({
-  id: `${JOB_TYPE}:message:${message_id}${agent_id ? `:${agent_id}` : ''}`,
-  value: {
-    kind: JOB_TYPE, status: 'waiting', label, job, ...(said ? { said: said.slice(0, 300) } : {}),
-    input: { arrived: { message_id } }, once_per: message_id, ...(agent_id ? { to_agent: agent_id } : {}),
+// The task that is an AI's wake (old trillion's `message.created` event and hand-off): a To do calendar-task, which an AI
+// takes when it connects (its bootstrap lists the To do tasks it can take). `agent_id` names the one AI it is for, as its
+// one assignee; none leaves the task to anyone, so any AI may take it.
+const taskFor = ({ message_id, label, job, said, conversation_id, files, agent_id }) => prepareProducedTask({
+  key: `message:${message_id}${agent_id ? `:${agent_id}` : ''}`,
+  source: { kind: 'message', ref: message_id },
+  title: label,
+  description: job,
+  ...(agent_id ? { assignees: [agent_id] } : {}),
+  source_task: message_id,
+  input: {
+    arrived: { message_id }, ...(said ? { said: said.slice(0, 300) } : {}),
     refs: { message_id, ...Object.fromEntries(files.map((identity, index) => [`file_${index + 1}`, identity])) },
     next_call: { tool: 'read_messages', arguments: { conversation_id } },
   },
@@ -150,14 +155,10 @@ function send(stored, body, now) {
   if (!app || !conversation_id || (!text.length && !files.length)) throw new Refused('Choose an AI and write a message.');
   const about = files.map(identity => ({ kind: 'file', id: identity }));
   const summary = `New message from you in ${app}.`;
-  let job = null;
-  const kept = keep(stored.records, { app, conversation_id, text, about, client_id }, now, message_id => {
-    if (!agent_id) return [];
-    job = jobFor({ message_id, label: summary, job: summary, said: text, conversation_id, files, agent_id });
-    return [job];
-  });
+  const taskOf = message_id => taskFor({ message_id, label: summary, job: summary, said: text, conversation_id, files, agent_id });
+  const kept = keep(stored.records, { app, conversation_id, text, about, client_id }, now, message_id => (agent_id ? [taskOf(message_id)] : []));
   const delivery = { state: 'next_connection', message: `Saved. ${app} reads it the next time it connects to your Trillion.`,
-    ...(agent_id ? { event_id: kept.recorded ? job.id : `${JOB_TYPE}:message:${kept.id}:${agent_id}` } : {}) };
+    ...(agent_id ? { event_id: taskOf(kept.id).id } : {}) };
   return answer({ message_id: kept.id, recorded: kept.recorded, delivery }, 200, kept.keep);
 }
 
@@ -174,10 +175,10 @@ function sendAll(stored, body, now) {
   // Mentioning some of the person's AIs sends the message to those AIs only; otherwise any AI may take it.
   const addressed = [...new Set(named.filter(one => mentionKind(one.kind).wakes).map(one => one.value))];
   const summary = files.length ? `New message from you in Trillion, with ${files.length} ${files.length === 1 ? 'file' : 'files'}.` : 'New message from you in Trillion.';
-  const jobs = message_id => (addressed.length ? addressed : [null]).map(agent_id => jobFor({
+  const tasks = message_id => (addressed.length ? addressed : [null]).map(agent_id => taskFor({
     message_id, label: summary, job: text.trim() ? text : files.join('\n'), said: text.trim() ? text : '', conversation_id: SHARED.conversation_id, files, agent_id }));
-  const kept = keep(stored.records, { ...SHARED, text, about, client_id }, now, jobs);
-  const handoff_id = jobs(kept.id)[0].id;
+  const kept = keep(stored.records, { ...SHARED, text, about, client_id }, now, tasks);
+  const handoff_id = tasks(kept.id)[0].id;
   return answer({ message_id: kept.id, handoff_id, recorded: kept.recorded, conversation_id: SHARED.conversation_id, files,
     delivery: addressed.map(agent_id => ({ agent_id, state: 'next_connection' })),
     message: `Saved for ${addressed.length ? `${addressed.length} of your ${addressed.length === 1 ? 'AI' : 'AIs'}` : 'your AIs'}. They read it the next time they connect to your Trillion.` }, 200, kept.keep);

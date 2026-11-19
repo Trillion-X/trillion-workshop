@@ -10,7 +10,7 @@
     "tool:see-my-decisions"
   ],
   "instructions": [
-    "1. Optionally add record:waiting-sources rows to extend or override read-data/waiting-sources.json. Read them and every record kind the sources read (record:waiting-on-you, post, ai-job and the rest) from the person's own store, as stored: [{ id, type, value }].",
+    "1. Optionally add record:waiting-sources rows to extend or override read-data/waiting-sources.json. Read them and every record kind the sources read (record:waiting-on-you, post, calendar-task and the rest) from the person's own store, as stored: [{ id, type, value }].",
     "2. Run each reader tool a source names (tool:my-notification-devices, tool:see-my-decisions) with its declared input, follow its cursor until none is left, and keep each result in order as pages: { [tool id]: [result, ...] }.",
     "3. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-what-is-waiting-on-me and { stored, pages }.",
     "4. Read cards, sections, count and said; a source with unread true was not read, so the answer is incomplete for it.",

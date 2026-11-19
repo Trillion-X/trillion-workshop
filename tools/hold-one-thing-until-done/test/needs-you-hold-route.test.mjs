@@ -85,13 +85,13 @@ test('setting the held thing aside keeps the setting and its job once, and answe
   assert.notEqual(run.body.held?.key, 'record:waiting-on-you:sign-in', 'the thing set aside leaves the hold');
   const state = run.kept.find(record => record.id === 'setting:needs_you_hold').value.value;
   assert.ok(state.aside['record:waiting-on-you:sign-in']);
-  const jobs = run.keep.filter(row => row.type === 'ai-job');
+  const jobs = run.keep.filter(row => row.type === 'calendar-task');
   assert.equal(jobs.length, 1);
-  assert.equal(jobs[0].value.status, 'waiting');
-  assert.equal(jobs[0].value.from, null);
+  assert.equal(jobs[0].value.status, 'To do');
+  assert.equal(jobs[0].value.sent_by, null);
   assert.equal(jobs[0].value.producer.ref, 'setting:needs_you_hold');
-  assert.match(jobs[0].value.source_job, /^hold-aside:/);
-  assert.match(jobs[0].value.job, /the sample service is down today/);
+  assert.match(jobs[0].value.source_task, /^hold-aside:/);
+  assert.match(jobs[0].value.description, /the sample service is down today/);
   assert.equal(run.keep.find(row => row.id === 'setting:needs_you_hold').expected, null, 'the setting was not handed in, so it is kept as new');
 });
 
@@ -213,7 +213,7 @@ test('a waiting row Trillion can do, or with nothing to press, is not held; one 
   assert.equal(run.status, 200, JSON.stringify(run.body));
   assert.equal(run.body.held.key, 'record:waiting-on-you:body');
   assert.deepEqual(run.body.ranked.map(thing => thing.key), ['record:waiting-on-you:body'], 'the AI-doable and the uncontrollable rows are left out');
-  assert.equal(run.keep.filter(row => row.type === 'ai-job').length, 2, 'removed cards are kept as jobs before leaving the person\'s view');
+  assert.equal(run.keep.filter(row => row.type === 'calendar-task').length, 2, 'removed cards are kept as tasks before leaving the person\'s view');
 });
 
 test('a completion button remains a valid control for an explicit physical step without a screen address', async () => {
@@ -222,7 +222,7 @@ test('a completion button remains a valid control for an explicit physical step 
   const run = await answer(page('GET'), records);
   assert.equal(run.status, 200, JSON.stringify(run.body));
   assert.equal(run.body.held.key, 'record:waiting-on-you:physical-step');
-  assert.equal(run.keep.filter(row => row.type === 'ai-job').length, 0);
+  assert.equal(run.keep.filter(row => row.type === 'calendar-task').length, 0);
 });
 
 test('prepareForHold hands what it weighs to the AIs once per card, and the hold is weighed over the rest', async () => {

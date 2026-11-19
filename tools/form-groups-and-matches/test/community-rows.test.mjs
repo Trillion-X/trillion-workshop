@@ -49,7 +49,7 @@ async function step(world, row, input) {
   return run.result;
 }
 const kept = (world, prefix) => world.records.filter(record => record.id.startsWith(prefix));
-const jobFor = (world, person, start) => kept(world, ids.jobPrefix(C)).map(record => record.value).find(job => job.for === person && job.request_key.startsWith(start));
+const jobFor = (world, person, start) => kept(world, ids.jobPrefix(C)).map(record => record.value).find(job => job.assignees[0] === person && job.request_key.startsWith(start));
 const scoresFrom = job => job.input.candidates.map(candidate => ({
   candidate_ref: candidate.candidate_ref,
   factors: Object.fromEntries(job.input.factors.map(factor => [factor, { score: 0.8, reason: `${candidate.name} fits ${factor}.`, you: job.input.you.claims.map(claim => claim.claim_ref), them: candidate.claims.map(claim => claim.claim_ref) }])),
@@ -83,10 +83,10 @@ test('a guild\'s matchmaker runs through its rows: a round on the clock, scores,
   assert.deepEqual(kept(world, ids.jobPrefix(C)).map(record => record.value.request_key.split(':')[0]).sort(), ['match-consent', 'match-consent', 'match-profile', 'match-score', 'match-score', 'match-topics', 'match-topics']);
 
   // An AI took Ana's topics job; a run that would hand it again leaves the door's copy as it is.
-  const topics = kept(world, ids.jobPrefix(C)).find(record => record.value.for === 'ana' && record.value.request_key.startsWith('match-topics:'));
-  topics.value = { ...topics.value, status: 'done', result: 'two topics' };
+  const topics = kept(world, ids.jobPrefix(C)).find(record => record.value.assignees[0] === 'ana' && record.value.request_key.startsWith('match-topics:'));
+  topics.value = { ...topics.value, status: 'Done', result: 'two topics' };
   await step(world, answer, asked({ community_id: C, person: 'ana', kind: 'answer', match_id: match.match_id, yes: true, consent: after.consent, now: START + 6000 }, PAGE));
-  assert.equal(kept(world, ids.jobPrefix(C)).find(record => record.id === topics.id).value.status, 'done');
+  assert.equal(kept(world, ids.jobPrefix(C)).find(record => record.id === topics.id).value.status, 'Done');
 
   const gone = await step(world, forget, { community_id: C, person: 'ana', now: START + 7000 });
   assert.equal(gone.forgotten, 'ana');

@@ -309,11 +309,11 @@
       "where": [
         {
           "field": "status",
-          "equals": "blocked"
+          "in": ["Waiting", "Blocked"]
         }
       ],
       "read": {
-        "type": "ai-job"
+        "type": "calendar-task"
       },
       "card": {
         "record_status": "status",

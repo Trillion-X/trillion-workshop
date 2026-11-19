@@ -37,7 +37,7 @@
 //
 // Key concepts
 //   stopped thing  { key, kind, stop, title words, said, job, outcome, values, restart|null, left_to_its_job? },
-//                  from stoppedThings(); left_to_its_job: a step whose own AI job is open is restarted (read) but never
+//                  from stoppedThings(); left_to_its_job: a step whose own task is open is restarted (read) but never
 //                  handed a second job
 //   watched        this store's fact { watching, things: { key: { first_seen_at, stop, restarts, handed_off,
 //                  last_problem } } }; watching is how many things the last sweep read. Written only when it changes.

@@ -1,19 +1,19 @@
 // tools/use-your-tools-from-a-shell/do-work/keep-result.mjs
 //
 // Purpose
-//   One road for every result an AI gives a job, of any size: a result is a row (the job row's `result`), and where its
+//   One road for every result an AI gives a task, of any size: a result is a row (the task row's `result`), and where its
 //   bytes physically sit is the store's business, never the AI's choice (the person's standing rule that
-//   every output is a row of the job that made it). A result that fits the door's own limit for the field goes on the job row as it
-//   is. A larger one is kept as one file of the person's files under a name derived here from the job's id, and the job
+//   every output is a row of the task that made it). A result that fits the door's own limit for the field goes on the task row as it
+//   is. A larger one is kept as one file of the person's files under a name derived here from the task's id, and the task
 //   row's result says which file (a line a program can read back: command.json keep.pointer / keep.pointer_pattern).
 //   `{cli} work ID --result` reads either form whole through one call.
 //
 // Non-negotiable invariants
 //   1. The inline limit is read from the door at run time: the `maxLength` of the `result` input of the Workshop tool that
-//      finishes jobs (tools:list {tool}). Nothing here types a number; a door that states none refuses.
-//   2. The file's name is {keep.folder}/<job id>/result, never given by the caller. Its upload token is the BLAKE3 of the
-//      job id and the content, so a retried keep resumes the same upload and the same bytes are kept once.
-//   3. The job is finished only after the kept file reads back with the identity and size of the bytes sent.
+//      finishes tasks (tools:list {tool}). Nothing here types a number; a door that states none refuses.
+//   2. The file's name is {keep.folder}/<task id>/result, never given by the caller. Its upload token is the BLAKE3 of the
+//      task id and the content, so a retried keep resumes the same upload and the same bytes are kept once.
+//   3. The task is finished only after the kept file reads back with the identity and size of the bytes sent.
 //   4. A read-back checks every page against the identity the file was kept under, and answers nothing when it differs.
 import { makeHashCodeHexFromBytes } from './packs/read-data/identity.mjs';
 
@@ -21,17 +21,17 @@ const fill = (template, values) => template.replace(/\{(\w+)\}/g, (whole, name) 
 
 export class KeepRefused extends Error {}
 
-/** The most characters the door takes inline for a job's result, from the finishing tool's own schema. */
+/** The most characters the door takes inline for a task's result, from the finishing tool's own schema. */
 export async function inlineLimit(client, rules) {
-  const tool = await client.op(rules.engine.tools, rules.engine.tools_list, { tool: rules.work.tools.change }, { idempotent: true });
+  const tool = await client.op(rules.engine.tools, rules.engine.tools_list, { tool: rules.tasks.tools.finish }, { idempotent: true });
   const limit = tool?.input_schema?.properties?.result?.maxLength;
-  if (!Number.isInteger(limit) || limit < 1) throw new KeepRefused(fill(rules.keep.words.no_limit, { tool: rules.work.tools.change }));
+  if (!Number.isInteger(limit) || limit < 1) throw new KeepRefused(fill(rules.keep.words.no_limit, { tool: rules.tasks.tools.finish }));
   return limit;
 }
 
 const nameFor = (id, rules) => `${rules.keep.folder}/${id.replace(/[^A-Za-z0-9._-]+/g, '-')}/result`;
 
-/** The text to record as job `id`'s result for `bytes`: the text itself when it fits the door's limit, else the line that
+/** The text to record as task `id`'s result for `bytes`: the text itself when it fits the door's limit, else the line that
  *  names the file the bytes were kept in. */
 export async function keepResult(client, id, bytes, rules) {
   const text = bytes.toString('utf8');
@@ -55,7 +55,7 @@ export async function keepResult(client, id, bytes, rules) {
   return fill(rules.keep.pointer, { name, bytes: bytes.length, identity, id });
 }
 
-/** The whole result of a job as bytes: the file a pointer names (every page checked against the identity the pointer
+/** The whole result of a task as bytes: the file a pointer names (every page checked against the identity the pointer
  *  carries), or the text itself. */
 export async function readResult(client, result, rules) {
   const pointer = new RegExp(rules.keep.pointer_pattern, 'm').exec(result);

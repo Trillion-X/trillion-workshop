@@ -48,7 +48,13 @@
       { "id": "source_id", "label": "Source ID", "kind": "text", "hidden_by_default": true },
       { "id": "source_url", "label": "Source URL", "kind": "text", "hidden_by_default": true },
       { "id": "manual_order", "label": "Manual order", "kind": "text", "hidden_by_default": true, "editable": false },
-      { "id": "status", "label": "Status", "kind": "choice", "hidden_by_default": true, "choices": ["To do", "Done"], "starts": "To do", "settles": ["Done"], "needs_linked_records_to_set": { "values": ["Done"], "links_in": "description", "pattern": "\\bai-job:([A-Za-z0-9][A-Za-z0-9._-]*)", "kind": "ai-job", "id_prefix": "ai-job:", "require": { "field": "status", "equals": "done", "non_empty": "result" } } }
+      { "id": "assignees", "label": "Assignees", "kind": "tags", "hidden_by_default": true },
+      { "id": "sent_by", "label": "Given by", "kind": "text", "hidden_by_default": true },
+      { "id": "taken_by", "label": "Taken by", "kind": "text", "hidden_by_default": true },
+      { "id": "taken_at", "label": "Taken at", "kind": "date", "hidden_by_default": true },
+      { "id": "outcome", "label": "What done looks like", "kind": "text", "hidden_by_default": true },
+      { "id": "result", "label": "Result", "kind": "long-text", "hidden_by_default": true },
+      { "id": "status", "label": "Status", "kind": "choice", "hidden_by_default": true, "choices": ["To do", "In progress", "Waiting", "Done", "Broken", "Not needed"], "starts": "To do", "settles": ["Done", "Broken", "Not needed"] }
     ],
     "indexes": [{ "name": "manual_order", "fields": ["manual_order"] }],
     "ordering": { "index": "manual_order" }
@@ -66,7 +72,7 @@
       { "id": "default_calendar", "label": "Default calendar", "kind": "long-text", "hidden_by_default": true, "api": "json", "schema": { "source_id": "text", "calendar_id": "text" } },
       { "id": "archived", "label": "Archived", "kind": "choice", "hidden_by_default": true, "choices": ["yes"], "api": "flag" },
       { "id": "manual_order", "label": "Manual order", "kind": "text", "hidden_by_default": true, "editable": false },
-      { "id": "ai_scheduling", "label": "Plan this list automatically", "kind": "choice", "hidden_by_default": true, "choices": ["yes", "no"], "api": "yes_no" },
+      { "id": "plan_automatically", "label": "Plan this list automatically", "kind": "choice", "hidden_by_default": true, "choices": ["yes", "no"], "api": "yes_no" },
       { "id": "preferred_times", "label": "Preferred times", "kind": "long-text", "hidden_by_default": true, "api": "json", "schema": { "start_minute": "minute", "end_minute": "minute", "weekdays?": "weekdays" }, "ordered": ["start_minute", "end_minute"] }
     ],
     "indexes": [{ "name": "manual_order", "fields": ["manual_order"] }],
@@ -124,7 +130,7 @@
       { "id": "refit_on_move", "label": "Move planned tasks out of the way of a task I move", "kind": "choice", "choices": ["yes", "no"], "hidden_by_default": true },
       { "id": "external_display", "label": "Put planned tasks on my calendar", "kind": "text", "hidden_by_default": true },
       { "id": "capacity", "label": "Most planned work per day", "kind": "text", "hidden_by_default": true },
-      { "id": "ai_scheduling", "label": "Plan my tasks automatically", "kind": "choice", "choices": ["yes", "no"], "hidden_by_default": true },
+      { "id": "plan_automatically", "label": "Plan my tasks automatically", "kind": "choice", "choices": ["yes", "no"], "hidden_by_default": true },
       { "id": "default_todo_visibility", "label": "Who sees my planned tasks on my calendar", "kind": "choice", "choices": ["private", "visible"], "hidden_by_default": true },
       { "id": "email_todos", "label": "Show emails as todos", "kind": "choice", "choices": ["yes", "no"], "hidden_by_default": true },
       { "id": "email_split_contents", "label": "Sort emails into Email, Calendar and Other", "kind": "choice", "choices": ["yes", "no"], "hidden_by_default": true },
@@ -157,10 +163,10 @@
     "default_minutes": 30
   },
   "preferences": {
-    "_what": "Planning choices a person can flip, stored on the working-hours row. A row with `choices` takes one of them (external_display: whether planned tasks are also put on the person's own calendar as events, and how they show to others; `off` writes nothing, which is what a person who never chose gets; the rows are tools/ui/show/schedule-calendar/timebox-policy.json). `refit_on_move`: when a person moves or schedules a task over tasks the planner placed (and that are not pinned), those tasks are taken off the calendar and wait in the tasks, with one undo for the lot. The default here is what a person who never chose gets. `ai_scheduling`: whether the planner places tasks for the person at all. `default_todo_visibility`: who sees a planned task put on their calendar (private, or visible like any event). `email_todos`: whether the inbox is turned into todos; `email_split_contents`: whether those are sorted into Email, Calendar and Other (email_split); `email_todo_account`: which mail account (empty means every connected one). A row with kind `text` takes a string of at most `most_chars`; empty clears it.",
+    "_what": "Planning choices a person can flip, stored on the working-hours row. A row with `choices` takes one of them (external_display: whether planned tasks are also put on the person's own calendar as events, and how they show to others; `off` writes nothing, which is what a person who never chose gets; the rows are tools/ui/show/schedule-calendar/timebox-policy.json). `refit_on_move`: when a person moves or schedules a task over tasks the planner placed (and that are not pinned), those tasks are taken off the calendar and wait in the tasks, with one undo for the lot. The default here is what a person who never chose gets. `plan_automatically`: whether the planner places tasks for the person at all. `default_todo_visibility`: who sees a planned task put on their calendar (private, or visible like any event). `email_todos`: whether the inbox is turned into todos; `email_split_contents`: whether those are sorted into Email, Calendar and Other (email_split); `email_todo_account`: which mail account (empty means every connected one). A row with kind `text` takes a string of at most `most_chars`; empty clears it.",
     "refit_on_move": { "default": false },
     "external_display": { "choices": ["off", "free", "busy", "busy_when_at_risk"], "default": "off" },
-    "ai_scheduling": { "default": true },
+    "plan_automatically": { "default": true },
     "default_todo_visibility": { "choices": ["private", "visible"], "default": "private" },
     "email_todos": { "default": false },
     "email_split_contents": { "default": true },
@@ -206,13 +212,6 @@
     "body": "This is the reminder you set for this task."
   },
   "limits": { "time_spent_minutes": 100000, "title_chars": 200, "description_chars": 10000, "label_chars": 80, "labels_per_task": 20, "duration_minutes": 1440, "source_id_chars": 500, "source_url_chars": 2048 },
-  "job_link": {
-    "about": "A task a lane-job link row names (the lane launcher writes the row: type link.record_type, value {job, task}) is done only when every job the rows name for it has the settled status and a non-empty result field. The task description is not read. The job records are the ones tools/hand-work-to-ais keeps.",
-    "record_type": "ai-job",
-    "settled_status": "done",
-    "result_field": "result",
-    "link": { "record_type": "lane-job-link", "job_field": "job", "task_field": "task", "task_record_prefix": "record:calendar-task:" }
-  },
   "words": {
     "bad_capacity": "Give the most minutes of planned work a day (1 to 1440), a caution band, and weekday limits from 0 (Sunday) to 6.",
     "bad_status": "The Status field needs a starting choice and at least one settled choice, each one of its choices.",

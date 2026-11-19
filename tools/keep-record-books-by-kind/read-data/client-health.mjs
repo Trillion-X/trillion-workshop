@@ -2,10 +2,10 @@
 // reportClientHealthIssue takes the issue's own record and the settings as input (the caller reads them from the operator's
 // store and hands them in) and answers the issue and its job to keep. Input never selects the account.
 // The caller keeps them in one conditional write, which refuses when the issue changed meanwhile.
-// prepareProducedJob is the existing hand-work-to-ais public owner, provided by the runtime through this package port.
+// prepareProducedTask is the existing plan-tasks-and-todo-lists public owner, provided by the runtime through this package port.
 // src/client-health.mjs
 //
-// Purpose: a grouped client health issue (src/interaction-log.mjs) as one job for Trillion HQ's own AIs. Each issue key
+// Purpose: a grouped client health issue (src/interaction-log.mjs) as one task for Trillion HQ's own AIs. Each issue key
 // has its own owner, one record book per issue (src/book-handlers.mjs 'client-health'), which keeps the issue and hands
 // its fix work once to the AIs of the account that runs Trillion (the account `OPERATOR_ACCOUNT_ID` names, whose AIs
 // take Trillion's own work). No book every issue shares and no store answers every report: every interaction log used
@@ -21,7 +21,7 @@
 //
 //   clientHealthWork({ key, kind, facts }) → { id, said, job, outcome, priority, once_per }
 //   clientHealthBookName(work) → the issue's book name
-//   reportClientHealthIssue({ stored, settings, prepareProducedJob, now?, requestKey? }, issue) → { handoff_id, key, keep }
+//   reportClientHealthIssue({ stored, settings, prepareProducedTask, now?, requestKey? }, issue) → { handoff_id, key, keep }
 //     stored.records must be the list handed in (the issue's record, if one is kept); keep is [] once the issue is handed.
 //   makeClientHealthIssue({ list, put, hand }) → { run('report', issue) }
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -44,16 +44,16 @@ export function clientHealthWork({ key, kind, facts }, settings) {
 
 export const clientHealthBookName = work => `client-health:${work.id}`;
 
-/** The issue's own owner answers the issue and its job to keep, once: keep is written by the caller in one conditional write. */
+/** The issue's own owner answers the issue and its task to keep, once: keep is written by the caller in one conditional write. */
 export async function reportClientHealthIssue(context, issue) {
-  const { stored, settings, prepareProducedJob, now = () => new Date() } = context;
-  if (!Array.isArray(stored?.records) || !settings || typeof prepareProducedJob !== 'function') throw new Error('The issue records handed in, trusted interaction settings and produced-job owner are required.');
+  const { stored, settings, prepareProducedTask, now = () => new Date() } = context;
+  if (!Array.isArray(stored?.records) || !settings || typeof prepareProducedTask !== 'function') throw new Error('The issue records handed in, trusted interaction settings and produced-task owner are required.');
   const work = clientHealthWork(issue, settings);
   const id = clientHealthBookName(work);
   const held = stored.records.find(record => record.id === id && record.type === 'client-health') ?? null;
   if (held?.value?.handoff_id) return { handoff_id: held.value.handoff_id, key: null, keep: [] };
   const at = now();
-  const job = prepareProducedJob({ key: work.once_per, job: work.job, label: work.said,
+  const job = prepareProducedTask({ key: work.once_per, description: work.job, title: work.said,
     outcome: work.outcome, priority: work.priority, source: { kind: 'client-health', ref: id } }, at);
   const value = { id: work.id, handoff_id: job.id, handed_at: at.toISOString() };
   return {

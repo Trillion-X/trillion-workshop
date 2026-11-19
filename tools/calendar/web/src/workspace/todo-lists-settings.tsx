@@ -26,7 +26,7 @@ import {
 export type TodoList = {
   id: string; title: string; color: string | null; archived: boolean;
   default_calendar: { source_id: string; calendar_id: string } | null;
-  ai_scheduling: boolean | null;
+  plan_automatically: boolean | null;
   preferred_times: { start_minute: number; end_minute: number; weekdays?: number[] } | null;
 };
 type Page = { complete: boolean; next_cursor: string | null };
@@ -154,7 +154,7 @@ export function TodoListsSettings({ accounts, notify, onChanged }: { accounts: C
         { id: 'calendar:none', label: words.default_calendar_none, icon: 'CalendarX', checked: !list.default_calendar },
         ...calendarItems,
       ] },
-      { id: 'ai', label: words.ai_scheduling, icon: 'Sparkles', items: [
+      { id: 'ai', label: words.plan_automatically, icon: 'Sparkles', items: [
         { id: 'ai:inherit', label: words.ai_inherit, icon: 'Settings2', checked: aiChoiceOf(list) === 'inherit' },
         { id: 'ai:on', label: words.ai_on, icon: 'Sparkles', checked: aiChoiceOf(list) === 'on' },
         { id: 'ai:off', label: words.ai_off, icon: 'Ban', checked: aiChoiceOf(list) === 'off' },
@@ -171,14 +171,14 @@ export function TodoListsSettings({ accounts, notify, onChanged }: { accounts: C
     else if (id.startsWith('calendar:')) {
       const [, source, ...calendar] = id.split(':');
       void update(list, { default_calendar: { source_id: source, calendar_id: calendar.join(':') } }, words.calendar_set);
-    } else if (id.startsWith('ai:')) void update(list, { ai_scheduling: aiValueOf(id.slice(3)) }, words.ai_set);
+    } else if (id.startsWith('ai:')) void update(list, { plan_automatically: aiValueOf(id.slice(3)) }, words.ai_set);
   };
 
   const row = (list: TodoList) => <Container layout="horizontal" gap="sm" alignItems="center" justifyContent="between" data-todo-list-row>
     <Container layout="horizontal" gap="sm" alignItems="center">
       {colorOf(list.color) ? <ColorDot color={colorOf(list.color)!} size="md" /> : <NamedIcon name="ListTodo" size="xs" aria-hidden />}
       <Text variant="body-sm" truncate>{list.title}</Text>
-      {list.ai_scheduling === false ? <Badge size="sm" variant="muted-outline">{words.ai_off}</Badge> : null}
+      {list.plan_automatically === false ? <Badge size="sm" variant="muted-outline">{words.ai_off}</Badge> : null}
     </Container>
     <ActionMenu label={`${words.options}: ${list.title}`} items={menuFor(list)} onAction={act(list)} align="end" />
   </Container>;

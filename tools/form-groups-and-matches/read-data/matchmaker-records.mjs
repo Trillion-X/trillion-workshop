@@ -10,7 +10,7 @@
 //   match-ask:C:R:P            one member's job in a round: { round_id, person, answers, candidates, arms, scores, answered_at }
 //   match:C:M                  one proposed match: { match_id, round_id, members, reasons, answer_by, space_id, introduced_at, followed_up }
 //   match-answer:C:M:P         one person's own answer to a match: { person, yes, by_person, consent, at, topics, wrote }
-//   ai-job:match:C:KEY         one job for one person's own AI, on the engine's job road: { status, for, said, job, input }
+//   record:calendar-task:match:C:KEY  one task for one person's own AI: { status, assignees, sent_by, title, description, input, request_key, sent_at }
 //   group:introduction:...     the one-to-one a match opens (read-data/group-records.mjs)
 //
 // Each record has one writer: a member's own answers go only to their own member, ask and answer records; a round and
@@ -19,7 +19,7 @@
 const part = value => encodeURIComponent(String(value));
 
 export const KINDS = Object.freeze({
-  community: 'match-community', member: 'match-member', round: 'match-round', ask: 'match-ask', match: 'match', answer: 'match-answer', job: 'ai-job',
+  community: 'match-community', member: 'match-member', round: 'match-round', ask: 'match-ask', match: 'match', answer: 'match-answer', job: 'calendar-task',
 });
 
 export const ids = Object.freeze({
@@ -38,8 +38,8 @@ export const ids = Object.freeze({
   answer: (c, m, p) => `match-answer:${part(c)}:${m}:${part(p)}`,
   answerPrefix: (c, m) => `match-answer:${part(c)}:${m}:`,
   allAnswersPrefix: c => `match-answer:${part(c)}:`,
-  job: (c, key) => `ai-job:match:${part(c)}:${part(key)}`,
-  jobPrefix: c => `ai-job:match:${part(c)}:`,
+  job: (c, key) => `record:calendar-task:match:${part(c)}:${part(key)}`,
+  jobPrefix: c => `record:calendar-task:match:${part(c)}:`,
 });
 
 const byId = (a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);

@@ -731,16 +731,13 @@ function undoFor(changes) {
 }
 
 // Checked values to write for a set of restorable fields, through the validators every other change uses.
-// A task is settled only when the work it is linked to is finished.
-//  - A task linked to a Workshop workflow (source_id "workflow:<slug>") needs that workflow's latest run verdict to have
-//    passed. The run judge writes the verdict as the capability-check row capability-check:workflow-run-<slug> in the list
-//    everything-still-working; its state is the verdict. No row, or any state but passed, refuses.
-//  - A task a lane-job link row names (the launcher's link row: data.job_link.link, value {job, task}) needs every job those
-//    rows name for it to be done with a result (data.job_link). The jobs come from options.jobs, the owner's reader of the person's
-//    job records, and the keys of the jobs the link rows name for this task from options.jobsOfTask. The task's description is not
-//    read: the link row is the only link. A caller with no jobsOfTask reader (a test, never the owner) sees no link.
+// A task is settled only when the workflow it is linked to has passed its check: a task linked to a Workshop workflow
+// (source_id "workflow:<slug>") needs that workflow's latest run verdict to have passed. The run judge writes the verdict as
+// the capability-check row capability-check:workflow-run-<slug> in the list everything-still-working; its state is the
+// verdict. No row, or any state but passed, refuses. A task's own steps (its child rows, parent_id) are not a gate: the
+// share of them that is settled is the task's progress, which the Lists owner works out on every read.
 const WORKFLOW_VERDICT_LIST = 'everything-still-working';
-async function refuseUnlessLinkedWorkIsFinished(lists, row, options = {}) {
+async function refuseUnlessLinkedWorkIsFinished(lists, row) {
   const link = row?.values?.source_id;
   if (typeof link === 'string' && link.startsWith('workflow:')) {
     const slug = link.slice('workflow:'.length);
@@ -750,18 +747,9 @@ async function refuseUnlessLinkedWorkIsFinished(lists, row, options = {}) {
       throw new CalendarTasksError(`This task is linked to workflow ${slug}, and its latest run verdict is ${verdict?.state ?? 'missing'}, not passed. Run the workflow's check before marking it done.`);
     }
   }
-  const named = typeof options.jobsOfTask === 'function' ? [...new Set(await options.jobsOfTask(row.id))] : [];
-  for (const key of named) {
-    if (typeof options.jobs !== 'function') throw new CalendarTasksError(`This task is linked to ${data.job_link.record_type}:${key}, and this owner cannot read the job, so it cannot say the job is finished.`);
-    const job = await options.jobs(key);
-    const result = job?.[data.job_link.result_field];
-    if (job?.status !== data.job_link.settled_status || typeof result !== 'string' || !result.trim()) {
-      throw new CalendarTasksError(`This task is linked to ${data.job_link.record_type}:${key}, and that job is ${job ? `${job.status ?? 'without a status'}${job.status === data.job_link.settled_status ? ' but has no result' : ''}` : 'not found'}. Finish the job with a result before marking the task done.`);
-    }
-  }
 }
 
-async function restoreValues(lists, taskId, given, options) {
+async function restoreValues(lists, taskId, given) {
   const rule = await statusRule(lists);
   if (!object(given) || !Object.keys(given).length) throw new CalendarTasksError(data.words.bad_restore);
   const values = {};
@@ -774,7 +762,7 @@ async function restoreValues(lists, taskId, given, options) {
     } else if (field === 'status') {
       if (value !== null && !rule.choices.includes(value)) throw new CalendarTasksError(data.words.bad_restore);
       // A task that was settled is reopened by clearing the status, as the reopen action does; the starting status is the cleared one.
-      if (rule.settles.includes(value)) await refuseUnlessLinkedWorkIsFinished(lists, await lists.row(data.list.id, taskId), options);
+      if (rule.settles.includes(value)) await refuseUnlessLinkedWorkIsFinished(lists, await lists.row(data.list.id, taskId));
       values.status = value === rule.starts ? null : value;
     } else if (field === 'collection_id') values.collection_id = await checkedCollection(lists, value);
     else if (field === 'parent_id') values.parent_id = await checkedParent(lists, value, taskId);
@@ -787,7 +775,7 @@ async function restoreValues(lists, taskId, given, options) {
   return values;
 }
 
-async function restoreTasks(lists, input, options) {
+async function restoreTasks(lists, input) {
   const rule = await statusRule(lists);
   const rows = input.rows;
   if (!Array.isArray(rows) || !rows.length || rows.length > data.undo.most_rows) throw new CalendarTasksError(data.words.bad_restore);
@@ -803,7 +791,7 @@ async function restoreTasks(lists, input, options) {
     } else if (object(entry.create)) {
       if (row || !entry.task_id.startsWith('calendar-')) throw new CalendarTasksError(data.words.restore_changed);
       if (!nonempty(entry.create.title) || !Number.isSafeInteger(entry.create.duration_minutes)) throw new CalendarTasksError(data.words.bad_restore);
-      plan.push({ row: { id: entry.task_id, values: await restoreValues(lists, entry.task_id, entry.create, options) } });
+      plan.push({ row: { id: entry.task_id, values: await restoreValues(lists, entry.task_id, entry.create) } });
       changes.push({ id: entry.task_id, before: null, after: { id: entry.task_id, values: entry.create } });
     } else {
       if (!row || !object(entry.expected) || !object(entry.values)
@@ -815,7 +803,7 @@ async function restoreTasks(lists, input, options) {
         return Array.isArray(value) && ['parent_id', 'collection_id', 'duplicate_of'].includes(field) ? value[0] ?? null : value;
       };
       if (Object.keys(entry.expected).some(field => !same(now(field), entry.expected[field]))) throw new CalendarTasksError(data.words.restore_changed);
-      const values = await restoreValues(lists, row.id, entry.values, options);
+      const values = await restoreValues(lists, row.id, entry.values);
       plan.push({ row: { id: row.id, values } });
       changes.push({ id: row.id, before: row, after: { id: row.id, values: { ...row.values, ...values } } });
     }
@@ -1202,7 +1190,7 @@ async function bulkChange(lists, input, options) {
 
 export async function changeCalendarTask(lists, input, options = {}) {
   if (!object(input)) throw new CalendarTasksError(data.words.bad_action);
-  if (input.action === 'restore') { await ensureTaskList(lists); return await restoreTasks(lists, input, options); }
+  if (input.action === 'restore') { await ensureTaskList(lists); return await restoreTasks(lists, input); }
   if (input.action === 'set_capacity') { await ensureTaskList(lists); return await setCapacity(lists, input); }
   if (input.action === 'bulk') { await ensureTaskList(lists); return await bulkChange(lists, input, options); }
   if (input.action === 'rollover') { await ensureTaskList(lists); return await rolloverTasks(lists, input); }
@@ -1407,7 +1395,7 @@ async function applyCalendarTask(lists, input, options = {}) {
   }
   if (input.action === 'complete') {
     const row = await taskRow(lists, input.task_id);
-    await refuseUnlessLinkedWorkIsFinished(lists, row, options);
+    await refuseUnlessLinkedWorkIsFinished(lists, row);
     const recurrence = await activeRecurrence(lists, row);
     const next = recurrence && ['when_done', 'direct_even_if_open'].includes(recurrence.nextTodo)
       ? nextTaskValues(row, recurrence, now()) : null;

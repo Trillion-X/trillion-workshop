@@ -7,10 +7,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { runOnAgUi, jobMessages } from '../do-work/ag-ui-agent.mjs';
+import { runOnAgUi, taskMessages } from '../do-work/ag-ui-agent.mjs';
 import { foldRun, sseEvents, sseFrame } from '../../offer-my-work-as-ag-ui-events/harness/ag-ui-wire.mjs';
 import { serveOnce, speakFor } from '../do-work/command.mjs';
 import settings from '../do-work/command.json' with { type: 'json' };
+import { recordStore, taskDoorOps } from '../test-fixtures/task-records.mjs';
 
 // These tests speak for one site, as an install from that site's site makes the command do.
 speakFor({ cli: 'example', site_name: 'Example' });
@@ -51,7 +52,7 @@ function client() {
   };
 }
 
-const handoff = { handoff_id: 'h_abc', generation: 2, job: 'How many lists do I keep?', steers: [{ job: 'Name them too', request_key: 'k' }] };
+const handoff = { handoff_id: 'h_abc', generation: 2, words: 'How many lists do I keep?' };
 
 test('the agent asks for an offered tool, is given its answer, and its words are the result', async () => {
   const counted = await agent(input => (input.messages.at(-1).role === 'tool'
@@ -65,10 +66,10 @@ test('the agent asks for an offered tool, is given its answer, and its words are
     const [first, second] = counted.inputs;
     assert.equal(first.threadId, 'h_abc');
     assert.equal(first.runId, 'h_abc:2:1');
-    assert.deepEqual(first.messages.map(message => message.content), ['How many lists do I keep?', 'Name them too'], 'the job and its steers are the user messages');
+    assert.deepEqual(first.messages.map(message => message.content), ['How many lists do I keep?'], 'the task\'s words are the user message');
     assert.deepEqual(first.tools.map(tool => tool.name), ['list_lists'], 'only tools named in DATA are offered');
     assert.match(first.context[0].value, /h_abc/);
-    assert.deepEqual(second.messages.slice(2).map(message => message.role), ['assistant', 'assistant', 'tool'], 'the second run carries what the first said, its tool call and the answer');
+    assert.deepEqual(second.messages.slice(1).map(message => message.role), ['assistant', 'assistant', 'tool'], 'the second run carries what the first said, its tool call and the answer');
     assert.equal(second.messages.at(-1).toolCallId, 'c1');
   } finally { await counted.close(); }
 });
@@ -86,20 +87,33 @@ test('a tool the agent was not offered is never run, and an interrupt keeps the 
   } finally { await pushy.close(); }
 });
 
-const ACCEPTANCE = { outcome: 'Done', target: { type: 'note', id: 'note:1' }, rules: [] };
-const RECEIPT = { outcome: 'Done', checked_at: '2026-11-16T20:05:00.000Z', evidence: [{ ref: 'note:1', observation: 'Read back.' }], obligations: [] };
+const ACCEPTANCE = { outcome: 'Done', target: { type: 'note', id: 'note:1' }, rules: [{ id: 'outcome', path: 'text', equals: ['Done'] }] };
+const TASK = 'record:calendar-task:abc';
 
-test('serveOnce records each way a run ends with tool:change-an-ai-job', async () => {
-  const calls = [];
-  const fake = { op: async (address, method, input) => { if (method === 'tools:list') return { input_schema: { properties: { result: { maxLength: 60000 } } } }; calls.push([input.tool, input.input]); return { result: input.tool === 'tool:take-an-ai-job' ? { taken: { id: 'ai-job:abc', job: handoff.job, status: 'taken', acceptance: ACCEPTANCE }, tried: 1 } : { moved: true } }; } };
-  const state = { hold: () => {}, letGo: () => {} };
-  for (const [ran, action] of [[{ ok: true, output: 'Done', stuck: 'Which bank?' }, 'stuck'], [{ ok: true, output: 'Done', check: RECEIPT }, 'finish'], [{ ok: true, output: 'Done' }, 'wait'], [{ ok: false, output: 'It failed' }, 'wait']]) {
-    calls.length = 0;
-    await serveOnce({ client: fake, me: { agent_id: 'ag-ui-mac', ai_id: 'ai:ag-ui-mac' }, command: [], state, log: () => {}, runImpl: async () => ran });
-    assert.equal(calls.at(-1)[0], settings.work.tools.change);
-    assert.deepEqual([calls.at(-1)[1].action, calls.at(-1)[1].id, calls.at(-1)[1].as], [action, 'ai-job:abc', 'ai:ag-ui-mac']);
+/** One take of a waiting task, run through the task rows over an in-memory account; every call is kept in `calls`. */
+const taskClient = (store, calls) => {
+  const ops = taskDoorOps(store);
+  return { wait: async () => {}, op: async (address, method, input) => {
+    calls.push({ method, tool: input?.tool, action: input?.input?.action, id: input?.input?.id, as: input?.input?.as, continuation: input?.input?.continuation });
+    const handler = ops[`${address ?? (method.startsWith('tools:') ? '@tools' : '')} ${method}`];
+    const answer = await handler(input, { address, method });
+    if (answer?.refused) throw new Error(answer.refused);
+    return answer;
+  } };
+};
+
+test('serveOnce records each way a run ends with the task row that makes that move', async () => {
+  const me = { agent_id: 'ag-ui-mac', ai_id: 'ai:ag-ui-mac' };
+  for (const [ran, action] of [[{ ok: true, output: 'Done', stuck: 'Which bank?' }, 'stuck'], [{ ok: true, output: 'Done', check: true }, 'finish'], [{ ok: true, output: 'Done' }, 'wait'], [{ ok: false, output: 'It failed' }, 'wait']]) {
+    const store = recordStore([['ai:ag-ui-mac', 'ai', {}], ['note:1', 'note', { text: 'Done' }], [TASK, 'calendar-task', { title: 'List', outcome: 'Done', status: 'To do', sent_by: 'ai:someone', sent_at: '2026-11-19T12:00:00.000Z', priority: 'medium', acceptance: ACCEPTANCE }]]);
+    const calls = [];
+    const runImpl = async () => (ran.check ? { ...ran, check: { outcome: 'Done', checked_at: new Date().toISOString(), evidence: [{ ref: 'note:1', observation: 'Read back.' }], obligations: [] } } : ran);
+    await serveOnce({ client: taskClient(store, calls), me, command: [], state: { hold: () => {}, letGo: () => {} }, log: () => {}, runImpl });
+    const move = calls.filter(call => call.tool !== undefined).at(-1);
+    assert.deepEqual([move.tool, move.action, move.id, move.as], [action === 'finish' ? settings.tasks.tools.finish : settings.tasks.tools.change, action, TASK, me.ai_id]);
+    assert.equal(store.get(TASK).status, { stuck: 'In progress', finish: 'Done', wait: 'Waiting' }[action]);
+    if (action === 'wait') assert.equal(move.continuation.reason, ran.ok ? 'The command returned successfully but supplied no complete consumer check receipt.' : ran.output, 'a run that cannot be checked is blocked on an owned next step');
   }
-  assert.equal(calls.at(-1)[1].continuation.reason, 'It failed', 'a failed run is blocked on an owned next step, not given back');
 });
 
 test('a run that never finishes, an agent that refuses, or too many tool runs give the job back with why', async () => {
@@ -124,7 +138,7 @@ test('the wire reads frames split anywhere, skips comments and folds a run into 
   const run = foldRun(events);
   assert.equal(run.text, 'héllo');
   assert.deepEqual(run.messages, [{ id: 'm', role: 'assistant', content: 'héllo' }]);
-  assert.deepEqual(jobMessages({ handoff_id: 'h', job: 'j' }), [{ id: 'job:h', role: 'user', content: 'j' }]);
+  assert.deepEqual(taskMessages({ handoff_id: 'h', words: 'j' }), [{ id: 'task:h', role: 'user', content: 'j' }]);
 });
 
 test('the wire bounds complete frames even when the frame and delimiter arrive in one read', async () => {

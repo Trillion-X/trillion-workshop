@@ -111,6 +111,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -190,7 +191,7 @@
         "label": "See what holds me",
         "status": "active",
         "job": "Tell me whether my setup still has to be finished before anything else opens, and which one thing I must do now",
-        "description": "Reads and keeps nothing. Everything it works from is in the request and everything it makes is in the answer. From your setup steps (setup_steps: record:setup-steps rows, or the Get started answer you send as setup), your must-do list (must_do: record:waiting-on-you rows, or the whole waiting answer as things) and your hold setting (state), it answers cover { covered, key }: true while any required step is not done (the page draws only setup until then), null when nothing says, and key, the name your gate row gives the cover (required-setup when it gives none, so a missing key never leaves everything open). Beside it, hold: the one row that unblocks the most by your rank rules, every row that may hold in that order, how many times it can still be set aside today, the ways to hand it back and the stakes for turning the hold off. While the cover stands nothing else is held. Also answers what to keep: jobs (ai-job records for the AI-doable work it removed from the hold, each under a stable id so the same trigger is one job), held_fact ({ key, title } or null, the held thing to keep) and device_runs (the declared device tools to start when the held thing changed from kept_held, the one you last kept).",
+        "description": "Reads and keeps nothing. Everything it works from is in the request and everything it makes is in the answer. From your setup steps (setup_steps: record:setup-steps rows, or the Get started answer you send as setup), your must-do list (must_do: record:waiting-on-you rows, or the whole waiting answer as things) and your hold setting (state), it answers cover { covered, key }: true while any required step is not done (the page draws only setup until then), null when nothing says, and key, the name your gate row gives the cover (required-setup when it gives none, so a missing key never leaves everything open). Beside it, hold: the one row that unblocks the most by your rank rules, every row that may hold in that order, how many times it can still be set aside today, the ways to hand it back and the stakes for turning the hold off. While the cover stands nothing else is held. Also answers what to keep: tasks (calendar-task records for the AI-doable work it removed from the hold, each under a stable id so the same trigger is one job), held_fact ({ key, title } or null, the held thing to keep) and device_runs (the declared device tools to start when the held thing changed from kept_held, the one you last kept).",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -303,7 +304,7 @@
               "items": {
                 "type": "object"
               },
-              "description": "ai-job records to keep"
+              "description": "calendar-task records to keep"
             },
             "held_fact": {
               "type": [
@@ -643,6 +644,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -722,7 +724,7 @@
         "label": "Change what holds me",
         "status": "active",
         "job": "Set the one thing I must do aside with a reason, hand it back to my AIs, choose what turning the hold off costs me, ask to turn it off, or turn it back on",
-        "description": "Reads and keeps nothing. Answers your hold setting after a change, by your hold rules: set-aside needs a reason of the rules' length and lasts the rules' minutes, a few times a day; hand-back gives the rest of the thing to your AIs by one of the rules' ways and leaves the hold; choose-stake picks what turning off costs, in force once the stake before it has run its delay; turn-off takes effect only after the stake's delay and comes back by itself; turn-on is at once. state is your hold setting as you last kept it; the answer holds the whole next setting (state) and the AI jobs the change makes (jobs, ai-job records under stable ids with real producer provenance), for you to keep together.",
+        "description": "Reads and keeps nothing. Answers your hold setting after a change, by your hold rules: set-aside needs a reason of the rules' length and lasts the rules' minutes, a few times a day; hand-back gives the rest of the thing to your AIs by one of the rules' ways and leaves the hold; choose-stake picks what turning off costs, in force once the stake before it has run its delay; turn-off takes effect only after the stake's delay and comes back by itself; turn-on is at once. state is your hold setting as you last kept it; the answer holds the whole next setting (state) and the tasks the change makes (jobs, calendar-task records under stable ids with real producer provenance), for you to keep together.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -799,7 +801,7 @@
               "items": {
                 "type": "object"
               },
-              "description": "ai-job records to keep"
+              "description": "calendar-task records to keep"
             },
             "state": {
               "type": "object",
@@ -1103,6 +1105,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -1182,7 +1185,7 @@
         "label": "Answer the page that shows the one thing that holds me",
         "status": "active",
         "job": "Answer the Trillion page routes GET and POST /work/api/needs-you-hold: the one thing held for me now, and setting it aside, handing it back, choosing a stake, asking off or turning it on",
-        "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser, stored } and answers the page with { status, body }; it reads and writes no store: stored.records are the person's records it works from, and it answers the rows to keep (keep) and the device runs to start (runs). GET /needs-you-hold answers 200 with the hold over the person's Waiting on you rows (record:waiting-on-you), their hold setting (setting:needs_you_hold) and their hold rules (setting:needs_you_hold_rules): { on, held, ranked, ..., said, words }; a read that fails answers 503 { error, busy: true }. POST /needs-you-hold with { op, key?, title?, reason?, way?, stake?, values? } (op: read, seen, aside, hand_back, stake, off or on) changes the hold setting on condition of what was read (409 when the store refuses the kept setting), keeps each job the change hands to the person's AIs as an ai-job record once, and answers the change with the read after it; seen marks read the notices the held thing's own device runs told, on this page's surface. Every read keeps the held thing as setting:needs_you_held when it changed; a refused change answers 400 { error }. Any other path or method answers 404.",
+        "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser, stored } and answers the page with { status, body }; it reads and writes no store: stored.records are the person's records it works from, and it answers the rows to keep (keep) and the device runs to start (runs). GET /needs-you-hold answers 200 with the hold over the person's Waiting on you rows (record:waiting-on-you), their hold setting (setting:needs_you_hold) and their hold rules (setting:needs_you_hold_rules): { on, held, ranked, ..., said, words }; a read that fails answers 503 { error, busy: true }. POST /needs-you-hold with { op, key?, title?, reason?, way?, stake?, values? } (op: read, seen, aside, hand_back, stake, off or on) changes the hold setting on condition of what was read (409 when the store refuses the kept setting), keeps each task the change hands to the person's AIs as a calendar-task record once, and answers the change with the read after it; seen marks read the notices the held thing's own device runs told, on this page's surface. Every read keeps the held thing as setting:needs_you_held when it changed; a refused change answers 400 { error }. Any other path or method answers 404.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -1218,7 +1221,7 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here as { records: [{id, type, value}] } of setting (the row setting:needs_you_hold), setting (the row setting:needs_you_held), setting (the row setting:needs_you_hold_rules), record:waiting-on-you, ai-job (ids starting ai-job:hold-), told-the-person, told-the-person (the row told-the-person), told-the-person (ids starting told-the-person:), record:waiting-sources, ai-job, post, as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here as { records: [{id, type, value}] } of setting (the row setting:needs_you_hold), setting (the row setting:needs_you_held), setting (the row setting:needs_you_hold_rules), record:waiting-on-you, calendar-task (ids starting record:calendar-task:hold-), told-the-person, told-the-person (the row told-the-person), told-the-person (ids starting told-the-person:), record:waiting-sources, calendar-task, post, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -1446,8 +1449,8 @@
             "kind": "record:waiting-on-you"
           },
           {
-            "kind": "ai-job",
-            "prefix": "ai-job:hold-"
+            "kind": "calendar-task",
+            "prefix": "record:calendar-task:hold-"
           },
           {
             "kind": "told-the-person"
@@ -1464,7 +1467,7 @@
             "kind": "record:waiting-sources"
           },
           {
-            "kind": "ai-job"
+            "kind": "calendar-task"
           },
           {
             "kind": "post"

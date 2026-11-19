@@ -1,0 +1,126 @@
+{
+  "drafted_from": "tool:finish-a-task's own row (its words, input schema, sample run and steps) and what its sample run answered here; read it before relying on it",
+  "start_here": "Finish the sample task after checking the consumer it names. It runs tool:finish-a-task and answers {\"task_id\":\"record:calendar-task:sample-finish\",\"moved\":true,\"from\":\"In progress\",\"to\":\"Done\",\"task\":{\"id\":\"record:calendar-task:sample-finish\",\"title\":\"Write a made-up sample report\",\"status\":\"Done\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"taken_by\":\"ai:sample-taker\",\"taken_at\":\"2026-11-03T00:05:00.000Z\",\"acceptance\":{\"outcome\":\"Write a made-up sample report\",\"target\":{\"type\":\"sample-consumer\",\"id\":\"sample-consumer:one\"},\"rules\":[{\"id\":\"outcome\",\"path\":\"readable\",\"equals\":[true],\"says\":\"The consumer must be readable.\"}]},\"result\":\"Observed the readable sample consumer\",\"finished_at\":\"2026-11-19T21:25:27.203Z\",\"finished_by\":\"ai:sample-taker\",\"check\":{\"outcome\":\"Write a made-up sample report\",\"target\":{\"type\":\"sample-consumer\",\"id\":\"sample-consumer:one\"},\"checked_at\":\"2026-11-19T21:25:27.203Z\",\"evidence\":[{\"ref\":\"sample-consumer:one\",\"observation\":\"The consumer is readable.\"}],\"consumer\":{\"type\":\"sample-consumer\",\"id\":\"sample-consumer:one\",\"identity\":\"1f:5e7b47e0b7d8d084f7918a56d942b6c80260e8d43c63964315a4a90dc6c6bcac\"},\"acceptance_identity\":\"1f:9d7f882802fc5aa50e15be10a4ecbcbc005759d65eb45c9c7d751c6841c9a7c0\",\"taken_at\":\"2026-11-03T00:05:00.000Z\"}},\"keep\":[{\"id\":\"record:calendar-task:sample-finish\",\"type\":\"calendar-task\",\"value\":{\"title\":\"Write a made-up sample report\",\"status\":\"Done\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"taken_by\":\"ai:sample-taker\",\"taken_at\":\"2026-11-03T00:05:00.000Z\",\"acceptance\":{\"outcome\":\"Write a made-up sample report\",\"target\":{\"type\":\"sample-consumer\",\"id\":\"sample-consumer:one\"},\"rules\":[{\"id\":\"outcome\",\"path\":\"readable\",\"equals\":[true],\"says\":\"The consumer must be readable.\"}]},\"result\":\"Observed the readable sample consumer\",\"finished_at\":\"2026-11-19T21:25:27.203Z\",\"finished_by\":\"ai:sample-taker\",\"check\":{\"outcome\":\"Write a made-up sample report\",\"target\":{\"type\":\"sample-consumer\",\"id\":\"sample-consumer:one\"},\"checked_at\":\"2026-11-19T21:25:27.203Z\",\"evidence\":[{\"ref\":\"sample-consumer:one\",\"observation\":\"The consumer is readable.\"}],\"consumer\":{\"type\":\"sample-consumer\",\"id\":\"sample-consumer:one\",\"identity\":\"1f:5e7b47e0b7d8d084f7918a56d942b6c80260e8d43c63964315a4a90dc6c6bcac\"},\"acceptance_identity\":\"1f:9d7f882802fc5aa50e15be10a4ecbcbc005759d65eb45c9c7d751c6841c9a7c0\",\"taken_at\":\"2026-11-03T00:05:00.000Z\"}},\"expected\":{\"type\":\"calendar-task\",\"value\":{\"title\":\"Write a made-up sample report\",\"status\":\"In progress\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"taken_by\":\"ai:sample-taker\",\"taken_at\":\"2026-11-03T00:05:00.000Z\",\"acceptance\":{\"outcome\":\"Write a made-up sample report\",\"target\":{\"type\":\"sample-consumer\",\"id\":\"sample-consumer:one\"},\"rules\":[{\"id\":\"outcome\",\"path\":\"readable\",\"equals\":[true],\"says\":\"The consumer must be readable.\"}]}}}}]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps only its own task rows (calendar-task) in your own store. Its records come in as input.records (ai, calendar-task, sample-consumer) and its writes go back as keep.",
+  "workflows": [],
+  "tools": [
+    "tool:finish-a-task"
+  ],
+  "instructions": [
+    "Say to your AI: \"Finish this task after checking its consumer\", and give it as, id, taken_at (the claim you hold), result and check (the consumer you read).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:finish-a-task and its input (the worked example shows one).",
+    "3. Read what comes back: Reads the consumer the saved acceptance names, applies its checks and finishes the task only if they all pass."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check the saved consumer and finish a task on its own sample",
+      "ask": "Finish a task only after its saved acceptance checks pass on the actual persisted consumer",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:finish-a-task",
+            "input": {
+              "as": "ai:sample-taker",
+              "id": "record:calendar-task:sample-finish",
+              "taken_at": "2026-11-03T00:05:00.000Z",
+              "result": "Observed the readable sample consumer",
+              "check": {
+                "outcome": "Write a made-up sample report",
+                "target": {
+                  "type": "sample-consumer",
+                  "id": "sample-consumer:one"
+                },
+                "checked_at": "2026-11-03T00:06:00.000Z",
+                "evidence": [
+                  {
+                    "ref": "sample-consumer:one",
+                    "observation": "The consumer is readable."
+                  }
+                ]
+              },
+              "records": [
+                {
+                  "id": "ai:sample-sender",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sender",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 1,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "ai:sample-taker",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample taker",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 2,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "record:calendar-task:sample-finish",
+                  "type": "calendar-task",
+                  "value": {
+                    "title": "Write a made-up sample report",
+                    "status": "In progress",
+                    "assignees": [
+                      "ai:sample-taker"
+                    ],
+                    "sent_by": "ai:sample-sender",
+                    "priority": "medium",
+                    "sent_at": "2026-11-03T00:00:00.000Z",
+                    "description": "Write a made-up sample report",
+                    "taken_by": "ai:sample-taker",
+                    "taken_at": "2026-11-03T00:05:00.000Z",
+                    "acceptance": {
+                      "outcome": "Write a made-up sample report",
+                      "target": {
+                        "type": "sample-consumer",
+                        "id": "sample-consumer:one"
+                      },
+                      "rules": [
+                        {
+                          "id": "outcome",
+                          "path": "readable",
+                          "equals": [
+                            true
+                          ],
+                          "says": "The consumer must be readable."
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "id": "sample-consumer:one",
+                  "type": "sample-consumer",
+                  "value": {
+                    "readable": true
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"as\":\"ai:sample-taker\",\"id\":\"record:calendar-task:sample-finish\",\"taken_at\":\"2026-11-03T00:05:00.000Z\",\"result\":\"Observed the readable sample consumer\",\"check\":{\"outcome\":\"Write a made-up sample report\",\"target\":{\"type\":\"sample-consumer\",\"id\":\"sample-consumer:one\"},\"checked_at\":\"2026-11-03T00:06:00.000Z\",\"evidence\":[{\"ref\":\"sample-consumer:one\",\"observation\":\"The consumer is readable.\"}]}}, with 4 example records (ai, calendar-task, sample-consumer) already kept in the store that the run reads.",
+      "hands_back": "It answered {\"task_id\":\"record:calendar-task:sample-finish\",\"moved\":true,\"from\":\"In progress\",\"to\":\"Done\",\"task\":{\"id\":\"record:calendar-task:sample-finish\",\"title\":\"Write a made-up sample report\",\"status\":\"Done\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"taken_by\":\"ai:sample-taker\",\"taken_at\":\"2026-11-03T00:05:00.000Z\",\"acceptance\":{\"outcome\":\"Write a made-up sample report\",\"target\":{\"type\":\"sample-consumer\",\"id\":\"sample-consumer:one\"},\"rules\":[{\"id\":\"outcome\",\"path\":\"readable\",\"equals\":[true],\"says\":\"The consumer must be readable.\"}]},\"result\":\"Observed the readable sample consumer\",\"finished_at\":\"2026-11-19T21:25:27.203Z\",\"finished_by\":\"ai:sample-taker\",\"check\":{\"outcome\":\"Write a made-up sample report\",\"target\":{\"type\":\"sample-consumer\",\"id\":\"sample-consumer:one\"},\"checked_at\":\"2026-11-19T21:25:27.203Z\",\"evidence\":[{\"ref\":\"sample-consumer:one\",\"observation\":\"The consumer is readable.\"}],\"consumer\":{\"type\":\"sample-consumer\",\"id\":\"sample-consumer:one\",\"identity\":\"1f:5e7b47e0b7d8d084f7918a56d942b6c80260e8d43c63964315a4a90dc6c6bcac\"},\"acceptance_identity\":\"1f:9d7f882802fc5aa50e15be10a4ecbcbc005759d65eb45c9c7d751c6841c9a7c0\",\"taken_at\":\"2026-11-03T00:05:00.000Z\"}},\"keep\":[{\"id\":\"record:calendar-task:sample-finish\",\"type\":\"calendar-task\",\"value\":{\"title\":\"Write a made-up sample report\",\"status\":\"Done\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"taken_by\":\"ai:sample-taker\",\"taken_at\":\"2026-11-03T00:05:00.000Z\",\"acceptance\":{\"outcome\":\"Write a made-up sample report\",\"target\":{\"type\":\"sample-consumer\",\"id\":\"sample-consumer:one\"},\"rules\":[{\"id\":\"outcome\",\"path\":\"readable\",\"equals\":[true],\"says\":\"The consumer must be readable.\"}]},\"result\":\"Observed the readable sample consumer\",\"finished_at\":\"2026-11-19T21:25:27.203Z\",\"finished_by\":\"ai:sample-taker\",\"check\":{\"outcome\":\"Write a made-up sample report\",\"target\":{\"type\":\"sample-consumer\",\"id\":\"sample-consumer:one\"},\"checked_at\":\"2026-11-19T21:25:27.203Z\",\"evidence\":[{\"ref\":\"sample-consumer:one\",\"observation\":\"The consumer is readable.\"}],\"consumer\":{\"type\":\"sample-consumer\",\"id\":\"sample-consumer:one\",\"identity\":\"1f:5e7b47e0b7d8d084f7918a56d942b6c80260e8d43c63964315a4a90dc6c6bcac\"},\"acceptance_identity\":\"1f:9d7f882802fc5aa50e15be10a4ecbcbc005759d65eb45c9c7d751c6841c9a7c0\",\"taken_at\":\"2026-11-03T00:05:00.000Z\"}},\"expected\":{\"type\":\"calendar-task\",\"value\":{\"title\":\"Write a made-up sample report\",\"status\":\"In progress\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"taken_by\":\"ai:sample-taker\",\"taken_at\":\"2026-11-03T00:05:00.000Z\",\"acceptance\":{\"outcome\":\"Write a made-up sample report\",\"target\":{\"type\":\"sample-consumer\",\"id\":\"sample-consumer:one\"},\"rules\":[{\"id\":\"outcome\",\"path\":\"readable\",\"equals\":[true],\"says\":\"The consumer must be readable.\"}]}}}}]}"
+    }
+  ]
+}

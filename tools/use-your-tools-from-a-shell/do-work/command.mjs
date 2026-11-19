@@ -5,18 +5,20 @@
 //
 // Purpose
 //   The command: any AI that can run a shell (Claude Code, Codex, Cursor, Gemini CLI, opencode, a script) sees
-//   the person's AIs and their AI jobs, hands and takes work, lists and runs Workshop tools and runs any engine
-//   operation, with no MCP connection of its own. Every command is ONE call of the engine's one MCP tool,
+//   the person's AIs and their tasks, gives, takes and hands on tasks, lists and runs Workshop tools and runs any engine
+//   operation, with no MCP connection of its own. Every command is addressed calls of the engine's one MCP tool,
 //   do_one_thing_in_my_account {address, method, request_key, input} (command.json `engine`), at the account's door: the Mac
-//   app's local door when this computer has one (./local-door.mjs), else the address given (--origin or {CLI}_ORIGIN). The engine's own
-//   checks and the Workshop work tools (tools/hand-work-to-ais) decide; nothing here decides, stores or routes work.
+//   app's local door when this computer has one (./local-door.mjs), else the address given (--origin or {CLI}_ORIGIN).
+//   A task is one calendar-task record and its assignees are who may do it; the task rows (tools/plan-tasks-and-todo-lists,
+//   packed under ./packs) decide every move. This command reads the records a move needs, runs the row through
+//   run-a-task-move.mjs, and applies the writes the row answers, each conditioned on the value it was read at.
 //
 //     {cli} setup                      sign in once, put the command on PATH, write the skill for each AI app here
 //     {cli} whoami                     who is signed in, this AI's id and facts (--verbose: the account id and the address that answered)
 //     {cli} who [--all] [--list FILE]  the person's AIs, grouped by owner, named by the list:ais name formula when that list is given
 //     {cli} publish [HELD]             this AI's own `ai` record as a `keep` row for the person's own store (writes nothing)
-//     {cli} send|work|take|finish|fail|stuck|release|withdraw|remove|serve
-//                                         AI jobs, each through the Workshop tool its command.json `work` row names
+//     {cli} tasks | give | take | who-can-take | finish | fail | hand-on | plan | release | stuck | wait | resume | edit | withdraw | remove | serve
+//                                         tasks, each a read or one move through its Workshop task tool (command.json `tasks`)
 //     {cli} tools | call TOOL JSON     the Workshop tools, and run one
 //     {cli} op ADDRESS METHOD JSON     any engine operation
 //     {cli} schedule list | on|off TOOL WAKE_ID | cancel RUN_KEY
@@ -34,11 +36,11 @@
 //      program made, never the Mac app's key.
 //   3. Every call carries one request_key, reused on every retry, so a retry is answered as the first call was.
 //   4. A refusal says which door refused and why. "{cli} login" is said only when there is no credential at all.
-//   5. A claim is the work tool's conditioned write: a job another AI moved first is reported, never retried blindly.
+//   5. A move is the task row's conditioned write: a task another AI moved first is reported, never retried blindly.
 //   6. An AI's name is never stored or built here: `who` evaluates the name formula of the `ai_list` list it is given.
-//   7. No row is read or written here: rows live in the person's own store, reached there in its own language. A command
-//      that makes a row (publish) prints it as `keep` with `expected`, for the caller to keep where the person keeps rows.
-//   8. Settings, the skill text, the work table and every place written are DATA in command.json and command-skill.md;
+//   7. No row is read or written here except through the records the account answers: a command that makes a row
+//      (publish) prints it as `keep` with `expected`, for the caller to keep where the person keeps rows.
+//   8. Settings, the skill text, the task table and every place written are DATA in command.json and command-skill.md;
 //      a new AI app is one `skills` row and one `agents` row.
 //
 import { spawn, spawnSync } from 'node:child_process';
@@ -57,6 +59,8 @@ import { KeepRefused, keepResult, readResult } from './keep-result.mjs';
 import { localDoorAddress } from './local-door.mjs';
 import { keptFetch, startKeeper } from './keep-the-connection.mjs';
 import settings from './command.json' with { type: 'json' };
+import taskRules from './packs/tools/plan-tasks-and-todo-lists/task-moves.json' with { type: 'json' };
+import { declaredStates, readFor, runTaskMove, statesFrom, stateOfWord, wordsOfStates } from './packs/tools/plan-tasks-and-todo-lists/run-a-task-move.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const fill = (template, values) => template.replace(/\{(\w+)\}/g, (whole, name) => (values[name] === undefined ? whole : String(values[name])));
@@ -111,8 +115,8 @@ export function modelOf(row, { env = process.env, home = homedir(), read = path 
 export const providerOf = (id, rules = settings) => (id ? rules.model_families.find(row => row.prefix === id.split(/[-_\s]+/)[0].toLowerCase())?.provider ?? null : null);
 
 /** Which AI runs this command: --as, else {CLI}_AGENT, else the first `agents` row whose variable is set, one id per
- *  chat session when that app names its session (`session_env`), else one per computer. `held_as` are the other ids a job
- *  this AI holds may have been taken under: the computer id, for jobs taken before sessions had their own id. `ai_id` is
+ *  chat session when that app names its session (`session_env`), else one per computer. `held_as` are the other ids a task
+ *  this AI holds may have been taken under: the computer id, for tasks taken before sessions had their own id. `ai_id` is
  *  its `ai` record id. `app`, `model`, `provider` and `computer` are the facts its record carries; no name is made here. */
 export function agentOf({ as = null, env = process.env, computer = computerOf(), computerName = null, model = undefined, rules = settings } = {}) {
   const row = rules.agents.find(item => item.env.some(name => env[name])) ?? rules.fallback_agent;
@@ -132,11 +136,14 @@ export function agentOf({ as = null, env = process.env, computer = computerOf(),
 }
 
 /** An `ai` record id for an agent id or an id that already is one (command.json `engine.ai_type`). */
-export const aiIdOf = (id, rules = settings) => (String(id).startsWith(`${rules.engine.ai_type}:`) ? String(id) : `${rules.engine.ai_type}:${id}`);
+// A record id names its kind (`ai:codex`, `person:someone`); a bare name is an AI's, so it gets the `ai:` kind.
+export const aiIdOf = (id, rules = settings) => (/^[^:\s]+:\S+$/.test(String(id)) ? String(id) : `${rules.engine.ai_type}:${id}`);
 
 // ── Command line ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const VALUE_FLAGS = new Set(['address', 'job', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'list', 'check-file', 'acceptance-file', 'input']);
+const VALUE_FLAGS = new Set(['address', 'description', 'title', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'can', 'from', 'taken-by', 'assignee', 'ag-ui', 'since', 'list', 'check-file', 'acceptance-file', 'input']);
+// A flag given more than once keeps every value, in order (`--to A --to B`); the others keep the last.
+const MULTI_FLAGS = new Set(['to', 'can']);
 
 /** The method `op` names first. A word that starts with @ is the address the old form put first, which a call no longer names. */
 function opMethod(word) {
@@ -148,15 +155,16 @@ function opMethod(word) {
 /** argv -> { words, flags, rest }: `--name value` for VALUE_FLAGS, `--name` alone is true, everything after `--` is rest. */
 export function parseArgs(argv) {
   const words = [], flags = {};
+  const put = (name, value) => { flags[name] = MULTI_FLAGS.has(name) ? [...(flags[name] ?? []), value] : value; };
   for (let index = 0; index < argv.length; index += 1) {
     const value = argv[index];
     if (value === '--') return { words, flags, rest: argv.slice(index + 1) };
     if (!value.startsWith('--') || value === '-') { words.push(value); continue; }
     const [name, inline] = value.slice(2).split(/=(.*)/s, 2);
-    if (inline !== undefined) flags[name] = inline;
+    if (inline !== undefined) put(name, inline);
     else if (VALUE_FLAGS.has(name)) {
       if (argv[index + 1] === undefined) throw new CommandError(`--${name} needs a value.`, { status: 2 });
-      flags[name] = argv[index += 1];
+      put(name, argv[index += 1]);
     } else flags[name] = true;
   }
   return { words, flags, rest: [] };
@@ -205,12 +213,12 @@ export function validateAcceptance(value) {
     throw new CommandError('Acceptance needs outcome, target type and id, and a rules array.', { status: 2 });
   return value;
 }
-export function checkForJob(check, job) {
+export function checkForTask(check, task) {
   try { validateCheck(check); } catch { return false; }
-  if (!job.acceptance) return false;
-  const expected = job.acceptance.outcome;
+  if (!task.acceptance) return false;
+  const expected = task.acceptance.outcome;
   if (check.outcome !== expected) return false;
-  const obligations = job.obligations ?? [];
+  const obligations = task.obligations ?? [];
   if (check.obligations.length !== obligations.length) return false;
   const byId = new Map(check.obligations.map(row => [row.id, row]));
   if (byId.size !== obligations.length) return false;
@@ -221,18 +229,56 @@ export function checkForJob(check, job) {
   return true;
 }
 
-/** Which of this AI's ids holds job `id`: its own, else an id it held work under before (held.json), else its own. */
+/** Which of this AI's ids holds task `id`: its own, else an id it held work under before (held.json), else its own. */
 export const holderOf = (me, held, id) => [me.agent_id, ...(me.held_as ?? [])].find(agent => held[`${agent} ${id}`] !== undefined) ?? me.agent_id;
 
-/** The jobs this AI holds, newest last: { id, said }. */
+/** The tasks this AI holds, newest last: { id, said }. */
 export const holdingOf = (me, held) => Object.entries(held).flatMap(([key, kept]) => {
   const agent = key.slice(0, key.lastIndexOf(' ')), id = key.slice(key.lastIndexOf(' ') + 1);
   return [me.agent_id, ...(me.held_as ?? [])].includes(agent) ? [{ id, said: typeof kept === 'object' ? kept?.said ?? '' : '' }] : [];
 });
 
-/** The work commands, each answered by the Workshop work tool its command.json `work` row names, and serve, which takes
- *  and moves jobs through the same rows. `work.actions` are the commands that move a job with tool:change-an-ai-job. */
-export const WORK_COMMANDS = new Set(['send', 'work', 'take', 'serve', ...Object.keys(settings.work.actions)]);
+/** The task commands. Each is one read or one move through its Workshop task tool (command.json `tasks.tools`), run by
+ *  run-a-task-move.mjs; `serve` takes and moves tasks through the same tools. `tasks.actions` maps each move command to the
+ *  action the task row takes. */
+export const TASK_COMMANDS = new Set(['tasks', 'give', 'take', 'who-can-take', ...Object.keys(settings.tasks.actions)]);
+
+/** A record id, `<kind>:<name>` (ai:codex-on-mac, person:someone, a task's record id): refused whole when it is not one. */
+export function recordIdOf(value, name) {
+  if (typeof value !== 'string' || !/^[^:\s]+:\S+$/.test(value)) throw new CommandError(`${name} is a record id, <kind>:<name>, for example ai:codex-on-mac or person:someone.`, { status: 2 });
+  return value;
+}
+/** The reads of run-a-task-move.mjs for records named by id: a task is the task kind's record, and any other record is labelled by its kind. */
+const taskRef = id => ({ type: taskRules.task_kind, id: recordIdOf(id, 'A task') });
+/** The words a task asks for, as the rows read them: its outcome, else its description, else its title. */
+const wordsOf = task => [task.outcome, task.description, task.title].find(words => typeof words === 'string' && words.trim() !== '') ?? '';
+/** The states a task ends in (the rows' terminal states): `give --wait` returns once a task is in one of them. */
+const finishedStates = taskRules.states.filter(state => state.terminal).map(state => state.key);
+/** The state a take moves a task into (the rows' `take` transition), so who-can-take counts the tasks each one holds. */
+const takenState = taskRules.transitions.find(edge => edge.action === 'take').to;
+const recordRef = id => ({ type: recordIdOf(id, 'A record').split(':')[0], id });
+/** What a take reads when no task is named: the tasks a take may move, and the caller's own record. */
+const takeReads = me => ({ tasks: { statuses: wordsOfStates(statesFrom('take')) }, ids: [recordRef(me.ai_id)] });
+const statusOf = word => {
+  if (!declaredStates().includes(stateOfWord(word))) throw new CommandError(`--status is one of ${declaredStates().join(', ')}.`, { status: 2 });
+  return word;
+};
+const priorityOf = word => {
+  if (!taskRules.priorities.includes(word)) throw new CommandError(`--priority is one of ${taskRules.priorities.join(', ')}.`, { status: 2 });
+  return word;
+};
+
+/** The addressed transport run-a-task-move.mjs expects, `resource(address, method, input, key)`: each call answered whole. */
+export const resourceOf = (client, { rules = settings } = {}) => (address, method, input, key) =>
+  opWhole(client, address, method, input, { requestKey: key ?? randomUUID(), rules });
+
+/** Runs one Workshop tool by its id with `input` at the door: tools:run, answered whole. Answers the tool's own answer. */
+export async function toolCall(client, tool, input, { idempotent = false, rules = settings } = {}) {
+  const requestKey = randomUUID(), method = rules.engine.tools_run, request = { tool, input };
+  const first = await client.op(null, method, request, { idempotent, requestKey });
+  const answer = bytePageOf(first) ? await wholeAnswer(client, null, method, request, first, { requestKey, rules }) : first;
+  return object(answer) && Object.hasOwn(answer, 'result') ? answer.result : answer;
+}
 
 /** The route a call of one Workshop tool is sent with: the `need` of the tool's run template (tools:list with `tool`, the
  *  row's invoke block as the engine gives it), passed through untouched. A need that names no door is no route (the same
@@ -243,77 +289,96 @@ export async function routeOf(client, tool, { rules = settings } = {}) {
   return Array.isArray(need?.local_doors) && need.local_doors.length > 0 ? { need } : {};
 }
 
-/** Runs one work tool (`work.tools[name]`) with `input`: tools:run at the door. Answers the tool's own answer, whole: a job
- *  row too large for one reply (a long brief) comes as byte pages, which are read through under the call's request key. */
-export async function workCall(client, name, input, { idempotent = false, rules = settings } = {}) {
-  const requestKey = randomUUID(), method = rules.engine.tools_run, request = { tool: rules.work.tools[name], input };
-  const first = await client.op(null, method, request, { idempotent, requestKey });
-  const answer = bytePageOf(first) ? await wholeAnswer(client, null, method, request, first, { requestKey, rules }) : first;
-  return object(answer) && Object.hasOwn(answer, 'result') ? answer.result : answer;
-}
-
-/** The work call one work command makes: { work, input }, `work` naming its command.json `work.tools` row. `me` is
- *  agentOf(); `held` is what this AI last took (a job moves as the id that took it). */
+/** The call one task command makes: { call, input, read, wait? }. `call` names its tool in command.json `tasks.tools`
+ *  (see, give, take, who, change, finish). `read` is what run-a-task-move.mjs reads for it; a move by id also reads its task
+ *  (main), and its assignees and continuation owner are named here. `me` is agentOf(); `held` is what this AI last took
+ *  (a move is made as the id that took the task). */
 export function argumentsFor(command, { words, flags }, { me, held = {}, requestKey = randomUUID(), rules = settings } = {}) {
   const [first, ...more] = words;
-  const as = id => aiIdOf(holderOf(me, held, id), rules);
-  const move = (action, extra) => ({ work: 'change', input: { as: as(first), id: first, action, ...extra } });
+  const idFor = verb => taskRef(need(first, `Name the task: ${cliName()} ${verb} ID.`)).id;
+  const move = (verb, action, extra) => {
+    const id = idFor(verb);
+    const named = [...(extra.assignees ?? []), ...(extra.continuation ? [extra.continuation.owner] : [])].map(recordRef);
+    return { call: action === 'finish' ? 'finish' : 'change', input: { as: aiIdOf(holderOf(me, held, id), rules), id, action, ...extra }, read: { ids: named } };
+  };
+  // A repeated --to is a list (parseArgs); one given as a single value is a list of one.
+  const handsTo = () => [flags.to ?? []].flat().map(id => recordIdOf(id, '--to'));
   switch (command) {
-    case 'send': {
-      const to = need(first, `Say who: ${cliName()} send any "JOB", or ${cliName()} send AI "JOB" with an id from ${cliName()} who.`);
-      const job = need(joined(more), `Say the job: ${cliName()} send any "JOB".`);
+    case 'tasks': {
+      if (first) return { call: 'see', input: { id: taskRef(first).id }, read: { ids: [taskRef(first)] } };
+      const where = {
+        ...(flags.from !== undefined ? { sent_by: recordIdOf(flags.from, '--from') } : {}),
+        ...(flags['taken-by'] !== undefined ? { taken_by: recordIdOf(flags['taken-by'], '--taken-by') } : {}),
+      };
+      const status = flags.status === undefined ? undefined : statusOf(flags.status);
+      const limit = wholeNumber(flags.limit, 'limit') ?? rules.tasks.list_limit;
+      return {
+        call: 'see',
+        input: { ...(status !== undefined ? { status } : {}), ...where, ...(flags.assignee !== undefined ? { assignee: recordIdOf(flags.assignee, '--assignee') } : {}), limit },
+        read: { tasks: { ...(Object.keys(where).length ? { where } : {}), ...(status !== undefined ? { statuses: wordsOfStates([stateOfWord(status)]) } : {}) } },
+      };
+    }
+    case 'give': {
+      const description = need(joined(words), `Say the task: ${cliName()} give WORDS [--to ID]...`);
+      const assignees = handsTo();
       const acceptance = flags['acceptance-file'] ? validateAcceptance(readJsonFile(flags['acceptance-file'], 'acceptance', '{"outcome":"...","target":{"type":"...","id":"..."},"rules":[...]}')) : null;
       if (acceptance && flags.outcome !== undefined && flags.outcome !== acceptance.outcome) throw new CommandError('--outcome must exactly match acceptance.outcome.', { status: 2 });
-      return { work: 'send', input: {
-        as: me.ai_id, job, key: flags.key ?? requestKey, to: to === 'any' ? null : aiIdOf(to, rules),
-        ...(flags.priority !== undefined ? { priority: wholeNumber(flags.priority, 'priority') } : {}),
-        ...(flags.outcome !== undefined ? { outcome: flags.outcome } : acceptance ? { outcome: acceptance.outcome } : {}),
-        ...(flags.label ? { label: flags.label } : {}),
-        ...(flags['source-file'] ? { source: validateSource(readJsonFile(flags['source-file'], 'source', '{"kind":"repository","ref":"..."}')) } : {}),
-        ...(flags['obligations-file'] ? { obligations: validateObligations(readJsonFile(flags['obligations-file'], 'obligations', '[{"id":"...","outcome":"..."}]')) } : {}),
-        ...(acceptance ? { acceptance } : {}),
-      } };
+      return {
+        call: 'give', wait: flags.wait,
+        input: {
+          as: me.ai_id, key: flags.key ?? requestKey, description,
+          ...(flags.title !== undefined ? { title: flags.title } : {}),
+          ...(assignees.length ? { assignees } : {}),
+          ...(flags.priority !== undefined ? { priority: priorityOf(flags.priority) } : {}),
+          ...(flags.outcome !== undefined ? { outcome: flags.outcome } : acceptance ? { outcome: acceptance.outcome } : {}),
+          ...(flags['source-file'] ? { source: validateSource(readJsonFile(flags['source-file'], 'source', '{"kind":"repository","ref":"..."}')) } : {}),
+          ...(flags['obligations-file'] ? { obligations: validateObligations(readJsonFile(flags['obligations-file'], 'obligations', '[{"id":"...","outcome":"..."}]')) } : {}),
+          ...(acceptance ? { acceptance } : {}),
+        },
+        read: { ids: assignees.map(recordRef) },
+      };
     }
-    case 'work': return { work: 'see', input: first ? { id: first } : {
-      ...(flags.status ? { status: flags.status } : {}), ...(flags.to ? { to: aiIdOf(flags.to, rules) } : {}),
-      ...(flags.from ? { from: aiIdOf(flags.from, rules) } : {}), ...(flags.taker ? { taker: aiIdOf(flags.taker, rules) } : {}),
-      limit: wholeNumber(flags.limit, 'limit') ?? rules.work_list_limit,
-    } };
-    case 'take': return { work: 'take', input: { as: me.ai_id, ...(first ? { id: first } : {}), ...(flags.mine ? { only_mine: true } : {}) } };
+    case 'take':
+      if (first) return { call: 'take', input: { as: me.ai_id, id: taskRef(first).id, ...(flags['only-mine'] ? { only_mine: true } : {}) }, read: { ids: [taskRef(first)] } };
+      return { call: 'take', input: { as: me.ai_id, ...(flags['only-mine'] ? { only_mine: true } : {}) }, read: takeReads(me) };
+    case 'who-can-take':
+      return { call: 'who', input: { ...(flags.can !== undefined ? { can: [flags.can].flat() } : {}), ...(flags.live === true ? { live_only: true } : {}) }, read: { types: rules.tasks.who_types, tasks: { statuses: wordsOfStates([takenState]) } } };
     case 'finish':
     case 'fail': {
-      need(first, `Name the job: ${cliName()} ${command} ID "RESULT".`);
       const result = need(joined(more), `Say what came of it: ${cliName()} ${command} ID "RESULT".`);
-      return move(rules.work.actions[command], { result, ...(command === 'finish' ? { summary: flags.summary ?? result.split('\n')[0].slice(0, 300) } : {}),
+      return move(command, rules.tasks.actions[command], { result, ...(command === 'finish' ? { summary: flags.summary ?? result.split('\n')[0].slice(0, 300) } : {}),
         ...(flags['check-file'] ? { check: validateCheck(readJsonFile(flags['check-file'], 'check', '{"outcome":"...","checked_at":"...","evidence":[{"ref":"...","observation":"..."}],"obligations":[]}')) } : {}) });
     }
-    case 'plan': {
-      need(first, `Name the job: ${cliName()} plan ID --acceptance-file JSON.`);
-      return move(rules.work.actions.plan, { acceptance: validateAcceptance(readJsonFile(need(flags['acceptance-file'], 'Name the saved consumer acceptance: --acceptance-file JSON.'), 'acceptance', '{"outcome":"...","target":{"type":"...","id":"..."},"rules":[...]}')) });
+    case 'plan':
+      return move('plan', rules.tasks.actions.plan, { acceptance: validateAcceptance(readJsonFile(need(flags['acceptance-file'], 'Name the saved consumer acceptance: --acceptance-file JSON.'), 'acceptance', '{"outcome":"...","target":{"type":"...","id":"..."},"rules":[...]}')) });
+    case 'stuck':
+      return flags.clear ? move('stuck', rules.tasks.actions.unstuck, {}) : move('stuck', rules.tasks.actions.stuck, { words: need(joined(more), 'Say what is in the way, or pass --clear.') });
+    case 'release':
+      return move('release', rules.tasks.actions.release, { ...(flags.because ? { because: flags.because } : {}), ...(flags['continuation-file'] ? { continuation: validateContinuation(readJsonFile(flags['continuation-file'], 'continuation', '{"owner":"ai:...","action":"...","after":"...","reason":"..."}')) } : {}) });
+    case 'wait':
+      return move('wait', rules.tasks.actions.wait, { continuation: validateContinuation(readJsonFile(need(flags['continuation-file'], 'Say who owns the next step and when: --continuation-file JSON.'), 'continuation', '{"owner":"ai:...","action":"...","after":"...","reason":"..."}')) });
+    case 'resume':
+      return move('resume', rules.tasks.actions.resume, { because: need(flags.because, 'Say what changed after reviewing the existing effects: --because WORDS.') });
+    case 'hand-on': {
+      const assignees = handsTo();
+      if (!assignees.length) throw new CommandError(`Say who takes it next: ${cliName()} hand-on ID --to ID (repeat --to for more).`, { status: 2 });
+      return move('hand-on', rules.tasks.actions['hand-on'], { assignees, ...(flags.because ? { because: flags.because } : {}) });
     }
-    case 'stuck': {
-      need(first, `Name the job: ${cliName()} stuck ID "WHAT IS IN THE WAY".`);
-      return flags.clear ? move(rules.work.actions.unstuck, {}) : move(rules.work.actions.stuck, { words: need(joined(more), 'Say what is in the way, or pass --clear.') });
-    }
-    case 'release': need(first, `Name the job: ${cliName()} release ID --because "WHY".`); return move(rules.work.actions.release, { ...(flags.because ? { because: flags.because } : {}), ...(flags['continuation-file'] ? { continuation: validateContinuation(readJsonFile(flags['continuation-file'], 'continuation', '{"owner":"ai:...","action":"...","after":"...","reason":"..."}')) } : {}) });
-    case 'wait': need(first, `Name the job: ${cliName()} wait ID --continuation-file JSON.`); return move(rules.work.actions.wait, { continuation: validateContinuation(readJsonFile(need(flags['continuation-file'], 'Say who owns the next step and when: --continuation-file JSON.'), 'continuation', '{"owner":"ai:...","action":"...","after":"...","reason":"..."}')) });
-    case 'resume': need(first, `Name the job: ${cliName()} resume ID.`); return move(rules.work.actions.resume, { because: need(flags.because, 'Say what changed after reviewing the existing effects: --because WORDS.') });
     case 'edit': {
-      need(first, `Name the job: ${cliName()} edit ID [--job WORDS].`);
       const input = {
-        ...(flags.job !== undefined ? { job: flags.job } : {}),
+        ...(flags.description !== undefined ? { description: flags.description } : {}),
+        ...(flags.title !== undefined ? { title: flags.title } : {}),
         ...(flags.outcome !== undefined ? { outcome: flags.outcome } : {}),
-        ...(flags.label !== undefined ? { label: flags.label } : {}),
         ...(flags['source-file'] ? { source: validateSource(readJsonFile(flags['source-file'], 'source', '{"kind":"repository","ref":"..."}')) } : {}),
         ...(flags['obligations-file'] ? { obligations: validateObligations(readJsonFile(flags['obligations-file'], 'obligations', '[{"id":"...","outcome":"..."}]')) } : {}),
-        ...(flags.to !== undefined ? { to: flags.to === 'any' ? null : aiIdOf(flags.to, rules) } : {}),
-        ...(flags.priority !== undefined ? { priority: wholeNumber(flags.priority, 'priority') } : {}),
+        ...(flags.to !== undefined ? { assignees: handsTo() } : {}),
+        ...(flags.priority !== undefined ? { priority: priorityOf(flags.priority) } : {}),
       };
-      if (!Object.keys(input).length) throw new CommandError('Name at least one field to change with --job, --outcome, --label, --source-file, --obligations-file, --to, or --priority.', { status: 2 });
-      return move(rules.work.actions.edit, input);
+      if (!Object.keys(input).length) throw new CommandError('Name at least one field to change with --description, --title, --outcome, --source-file, --obligations-file, --to, or --priority.', { status: 2 });
+      return move('edit', rules.tasks.actions.edit, input);
     }
-    case 'withdraw': need(first, `Name the job: ${cliName()} withdraw ID --reason "WHY".`); return move(rules.work.actions.withdraw, { because: need(flags.reason, 'Say why: --reason "WHY".') });
-    case 'remove': need(first, `Name the job: ${cliName()} remove ID.`); return move(rules.work.actions.remove, {});
+    case 'withdraw': return move('withdraw', rules.tasks.actions.withdraw, { because: need(flags.reason, 'Say why: --reason "WHY".') });
+    case 'remove': return move('remove', rules.tasks.actions.remove, {});
     default: throw new CommandError(`Unknown command ${command}. Run ${cliName()} help.`, { status: 2 });
   }
 }
@@ -321,7 +386,7 @@ export function argumentsFor(command, { words, flags }, { me, held = {}, request
 /** This AI's `ai` record as `publish` answers it: the record it already has (its other cells kept as they are; a new
  *  record starts from `ai_record.new`) with its fact cells set: `owner` (the account the door answered for, never typed
  *  by the AI), `agent_id`, `app`, `model`, `provider`, `computer`, `harness`, `where` (repository and branch, never a
- *  path), `working_on` (the job it holds, or null) and `live.seen_at` now. No name is written. `facts` is
+ *  path), `working_on` (the task it holds, or null) and `live.seen_at` now. No name is written. `facts` is
  *  { repository, branch, holding } (placeOf, holdingOf). */
 export function aiRecordOf(me, { account, held = null, now = new Date(), repository = null, branch = null, holding = [] } = {}, rules = settings) {
   const card = rules.agent_card;
@@ -1066,7 +1131,7 @@ function openInBrowser(url) {
   spawn(opener[0], opener[1], { stdio: 'ignore', detached: true }).on('error', () => {}).unref();
 }
 
-// ── Local state: the key this program made, and each job this AI took ────────────────────────────────────────────
+// ── Local state: the key this program made, and each task this AI took ────────────────────────────────────────────
 
 export function stateOf({ rules = settings, home = homedir() } = {}) {
   const folder = expand(rules.state_folder, home);
@@ -1075,15 +1140,15 @@ export function stateOf({ rules = settings, home = homedir() } = {}) {
   const write = (name, value) => { mkdirSync(folder, { recursive: true, mode: 0o700 }); writeFileSync(`${path(name)}.new`, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 }); renameSync(`${path(name)}.new`, path(name)); };
   return {
     held: () => read(rules.held_file)?.held ?? {},
-    // Kept per agent and job, so a job is moved as the id that took it, and this AI's record can say what it is doing.
-    hold(agentId, job) {
+    // Kept per agent and task, so a task is moved as the id that took it, and this AI's record can say what it is doing.
+    hold(agentId, task) {
       const held = read(rules.held_file)?.held ?? {};
-      held[`${agentId} ${job.id}`] = { said: short(job.job ?? '', rules.agent_card.doing_chars) };
+      held[`${agentId} ${task.id}`] = { said: short(task.title ?? task.description ?? '', rules.agent_card.doing_chars) };
       write(rules.held_file, { held: Object.fromEntries(Object.entries(held).slice(-200)) });
     },
-    letGo(agentId, jobId) {
+    letGo(agentId, taskId) {
       const held = read(rules.held_file)?.held ?? {};
-      delete held[`${agentId} ${jobId}`];
+      delete held[`${agentId} ${taskId}`];
       write(rules.held_file, { held });
     },
     // The site this command was installed from (`site_file`, written by that site's install line): where `login` signs in.
@@ -1210,13 +1275,15 @@ function ownerLines(group, { all = false, rules = settings } = {}) {
   ])];
 }
 
-/** The lines for one AI job: its id, status, who it is for or who took it and who sent it, the job, and what came of it. */
-export function jobLines(job) {
-  return [`${job.id}  ${job.status ?? 'unknown'}${job.taker ? `  taken by ${job.taker}` : job.to ? `  for ${job.to}` : '  for any AI'}${job.from ? `  from ${job.from}` : ''}`,
-    ...(typeof job.job === 'string' && job.job ? [`  job: ${short(job.job, 300)}`] : []),
-    ...(job.label ? [`  label: ${short(job.label, 120)}`] : []),
-    ...(job.stuck?.words ? [`  in the way: ${short(job.stuck.words, 300)}`] : []),
-    ...(job.result !== undefined && job.result !== null ? [`  result: ${short(job.result, 1000)}`] : [])];
+/** The lines for one task: its id, status, who it is for or who took it and who gave it, its words, and what came of it. */
+export function taskLines(task) {
+  const assignees = Array.isArray(task.assignees) ? task.assignees : [];
+  const whom = task.taken_by ? `  taken by ${task.taken_by}` : assignees.length ? `  for ${assignees.join(', ')}` : '  for anyone';
+  return [`${task.id}  ${task.status ?? 'unknown'}${whom}${task.sent_by ? `  from ${task.sent_by}` : ''}`,
+    ...(typeof task.description === 'string' && task.description ? [`  description: ${short(task.description, 300)}`] : []),
+    ...(typeof task.title === 'string' && task.title ? [`  title: ${short(task.title, 120)}`] : []),
+    ...(task.stuck?.words ? [`  in the way: ${short(task.stuck.words, 300)}`] : []),
+    ...(task.result !== undefined && task.result !== null ? [`  result: ${short(task.result, 1000)}`] : [])];
 }
 
 /** Plain lines for a command's answer; --json prints the answer itself instead. */
@@ -1227,13 +1294,14 @@ export function render(command, answer, rules = settings) {
     if (!value.groups.length) return [rules.who.none, ...hidden].join('\n');
     return [...value.groups.flatMap(group => ownerLines(group, { all: value.all, rules })), ...hidden].join('\n');
   }
-  if (command === 'work' && Array.isArray(value.jobs)) return value.jobs.length ? [...value.jobs.flatMap(jobLines), ...(value.more ? [rules.words.more_jobs] : [])].join('\n') : rules.words.no_jobs;
+  if (command === 'tasks' && Array.isArray(value.tasks)) return value.tasks.length ? [...value.tasks.flatMap(taskLines), ...(value.more ? [rules.words.more_tasks] : [])].join('\n') : rules.words.no_tasks;
+  if (command === 'who-can-take' && Array.isArray(value.who)) return value.who.length ? value.who.map(row => `${row.id}  ${row.live ? 'live' : 'away'}  ${row.busy} taken`).join('\n') : rules.words.no_takers;
   if (command === 'tools' && Array.isArray(value.tools)) return value.tools.map(row => `${row.id}  ${short(row.job ?? row.label ?? '', 110)}`).join('\n');
-  if (command === 'send' && object(value.job)) return [fill(value.status === 'already-there' ? rules.words.sent_before : rules.words.sent, { id: value.job_id }), ...jobLines(value.job), ...(value.note ? [value.note] : [])].join('\n');
-  if (command === 'take') return object(value.taken) ? [fill(rules.words.took, { id: value.taken.id }), ...jobLines(value.taken)].join('\n')
-    : [value.reason === 'changed' ? fill(rules.words.take_lost, { id: value.job_id, taker: value.job?.taker ?? rules.words.another_ai }) : value.reason === 'gone' ? fill(rules.words.take_gone, { id: value.job_id }) : rules.words.nothing_to_take, ...(object(value.job) ? jobLines(value.job) : [])].join('\n');
-  if (Object.hasOwn(rules.work.actions, command) && typeof value.moved === 'boolean') return [value.moved ? fill(rules.words.moved, { id: value.job_id, from: value.from, to: value.to })
-    : fill(rules.words.not_moved, { id: value.job_id, reason: value.reason ?? 'refused' }), ...(object(value.job) ? jobLines(value.job) : [])].join('\n');
+  if (command === 'give' && object(value.task)) return [fill(value.status === 'already-there' ? rules.words.gave_before : rules.words.gave, { id: value.task_id }), ...taskLines(value.task), ...(value.note ? [value.note] : [])].join('\n');
+  if (command === 'take') return object(value.taken) ? [fill(rules.words.took, { id: value.taken.id }), ...taskLines(value.taken)].join('\n')
+    : [value.reason === 'changed' ? fill(rules.words.take_lost, { id: value.task_id, taker: value.task?.taken_by ?? rules.words.another_ai }) : value.reason === 'gone' ? fill(rules.words.take_gone, { id: value.task_id }) : rules.words.nothing_to_take, ...(object(value.task) ? taskLines(value.task) : [])].join('\n');
+  if (Object.hasOwn(rules.tasks.actions, command) && typeof value.moved === 'boolean') return [value.moved ? fill(rules.words.moved, { id: value.task_id, from: value.from, to: value.to })
+    : fill(rules.words.not_moved, { id: value.task_id, reason: value.reason ?? 'refused' }), ...(object(value.task) ? taskLines(value.task) : [])].join('\n');
   if (typeof value.text === 'string' && Object.keys(value).length === 1) return value.text;
   return JSON.stringify(value, null, 2);
 }
@@ -1252,16 +1320,16 @@ export async function waitFor(check, { seconds, pollSeconds = settings.wait.poll
   }
 }
 
-// ── serve: stay ready and run a command for each job ────────────────────────────────────────────────────────────
+// ── serve: stay ready and run a command for each task ────────────────────────────────────────────────────────────
 
-/** Runs `command` with the job's words on standard input; answers { ok, output }. */
-export function runJob(command, job, { rules = settings, me, spawnImpl = spawn } = {}) {
+/** Runs `command` with the task's words on standard input; answers { ok, output }. */
+export function runTask(command, task, { rules = settings, me, spawnImpl = spawn } = {}) {
   return new Promise(resolve => {
-    // The job's saved terms travel with it, so a command can check its work against them.
-    const terms = JSON.stringify({ taken_at: job.taken_at, outcome: job.outcome, obligations: job.obligations, acceptance: job.acceptance,
-      source_job: job.source_job ?? job.source, continuation: job.continuation });
+    // The task's saved terms travel with it, so a command can check its work against them.
+    const terms = JSON.stringify({ taken_at: task.taken_at, outcome: task.outcome, obligations: task.obligations, acceptance: task.acceptance,
+      source: task.source ?? null, source_task: task.source_task ?? null, continuation: task.continuation ?? null });
     const child = spawnImpl(command[0], command.slice(1), { stdio: ['pipe', 'pipe', 'pipe'],
-      env: { ...process.env, [settings.env.job_id]: job.id, [settings.env.agent]: me.agent_id, AI_JOB_CONTEXT: terms } });
+      env: { ...process.env, [settings.env.task_id]: task.id, [settings.env.agent]: me.agent_id, [settings.env.task_context]: terms } });
     let output = '', errors = '';
     const timer = setTimeout(() => child.kill('SIGTERM'), rules.serve.run_timeout_minutes * 60_000);
     child.stdout.on('data', chunk => { output = (output + chunk).slice(-rules.serve.result_chars); });
@@ -1278,35 +1346,41 @@ export function runJob(command, job, { rules = settings, me, spawnImpl = spawn }
       resolve({ ok: true, output: words });
     });
     child.stdin.on('error', () => {});
-    child.stdin.end(`${job.job}\n`);
+    child.stdin.end(`${wordsOf(task)}\n`);
   });
 }
 
-/** One pass: take a job with tool:take-an-ai-job; when there is one, run it, then finish it, say what is in the way, or
- *  give it back when the command failed, each with tool:change-an-ai-job. A move another AI made first is logged, never
- *  retried. */
-export async function serveOnce({ client, me, command, state, rules = settings, log, runImpl = runJob, refresh = async () => {} }) {
-  const answer = await workCall(client, 'take', { as: me.ai_id }, { rules });
-  const job = answer?.taken;
-  if (!object(job)) return false;
-  state.hold(me.agent_id, job);
-  log({ event: 'took', job_id: job.id });
+/** One pass: take a task with tasks.tools.take; when there is one, run it, then finish it, say what is in the way, or give
+ *  it back when the command failed, each with the task row that makes that move. A move another AI made first is logged,
+ *  never retried. */
+export async function serveOnce({ client, me, command, state, rules = settings, log, runImpl = runTask, refresh = async () => {} }) {
+  const resource = resourceOf(client, { rules });
+  const took = await runTaskMove(resource, { tool: rules.tasks.tools.take, input: { as: me.ai_id }, read: takeReads(me) });
+  const task = took.result?.taken;
+  if (!object(task)) return false;
+  if (!took.kept) { log({ event: 'not_take', task_id: task.id, reason: 'changed' }); return false; }
+  state.hold(me.agent_id, task);
+  log({ event: 'took', task_id: task.id });
   await refresh();
-  const { ok, output = '', stuck = null, check } = await runImpl(command, job, { rules, me, client });
+  const { ok, output = '', stuck = null, check } = await runImpl(command, task, { rules, me, client });
   // A finish needs the saved acceptance and a consumer check receipt for it. A run with neither, or one that failed, is blocked
   // on an owned next step, not given back: its effects may have happened, and the next taker reads them before running again.
   const next = (reason, action = 'Inspect the existing consumer result and requested outcome before deciding whether to execute anything again') =>
     ({ continuation: { owner: me.ai_id, action, after: new Date(Date.now() + rules.serve.continue_after_minutes * 60_000).toISOString(), reason } });
   let action, extra;
   if (stuck) [action, extra] = ['stuck', { words: stuck }];
-  else if (ok && checkForJob(check, job)) [action, extra] = ['finish', { result: await kept(keepResult(client, job.id, Buffer.from(output, 'utf8'), rules)), summary: output.split('\n')[0].slice(0, 300), check: { ...check, target: job.acceptance.target } }];
-  else if (!job.acceptance) [action, extra] = ['wait', next('This job has no saved consumer acceptance, so its requested outcome cannot be checked yet.', 'Ask the sender to add a saved consumer acceptance, then inspect existing consumer state before deciding whether to continue')];
+  else if (ok && checkForTask(check, task)) [action, extra] = ['finish', { result: await kept(keepResult(client, task.id, Buffer.from(output, 'utf8'), rules)), summary: output.split('\n')[0].slice(0, 300), check: { ...check, target: task.acceptance.target } }];
+  else if (!task.acceptance) [action, extra] = ['wait', next('This task has no saved consumer acceptance, so its requested outcome cannot be checked yet.', 'Ask the sender to add a saved consumer acceptance, then inspect existing consumer state before deciding whether to continue')];
   else [action, extra] = ['wait', next(ok ? 'The command returned successfully but supplied no complete consumer check receipt.' : output || 'The command did not complete; partial effects are unknown.')];
-  const moved = await workCall(client, 'change', { as: me.ai_id, id: job.id, taken_at: job.taken_at, action: rules.work.actions[action], ...extra }, { rules });
-  // A job that says what is in the way stays taken (an AG-UI agent's interrupt); any other move ends this AI's hold.
-  if (!stuck) state.letGo(me.agent_id, job.id);
+  // The records the move names: the task, its acceptance target for a finish, and the continuation owner (this AI) for a wait.
+  const ids = [taskRef(task.id), ...(action === 'finish' ? [{ type: task.acceptance.target.type, id: task.acceptance.target.id }] : []), ...(action === 'wait' ? [recordRef(me.ai_id)] : [])];
+  const moved = await runTaskMove(resource, { tool: action === 'finish' ? rules.tasks.tools.finish : rules.tasks.tools.change,
+    input: { as: me.ai_id, id: task.id, taken_at: task.taken_at, action: rules.tasks.actions[action], ...extra }, read: { ids } });
+  // A task that says what is in the way stays taken (an AG-UI agent's interrupt); any other move ends this AI's hold.
+  if (!stuck) state.letGo(me.agent_id, task.id);
   await refresh();
-  log({ event: moved?.moved === false ? `not_${action}` : action, job_id: job.id, ...(moved?.moved === false ? { reason: moved.reason } : {}) });
+  const movedOk = moved.kept && moved.result?.moved !== false;
+  log({ event: movedOk ? action : `not_${action}`, task_id: task.id, ...(movedOk ? {} : { reason: moved.kept ? moved.result?.reason : 'changed' }) });
   return true;
 }
 
@@ -1340,7 +1414,7 @@ export function speakFor(site, rules = settings) {
 
 // ── The commands ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const HELP = `{cli}: see your AIs and their work, and run your {site_name}'s tools, from any shell.
+const HELP = `{cli}: see your AIs and their tasks, and run your {site_name}'s tools, from any shell.
 
   {cli} setup [--harness claude-code,codex,cursor]   sign in once, put {cli} on PATH, write each app's skill
   {cli} login [--origin ADDRESS] | logout | whoami    sign in to {site_name} (to another one with its address), sign out, or say who is signed in
@@ -1355,22 +1429,24 @@ const HELP = `{cli}: see your AIs and their work, and run your {site_name}'s too
   {cli} update                                        who updates this command (it never updates itself)
   ${basename(settings.install.link)} records replay-from-transcripts --since TIME            list the rows this computer's AIs wrote, to keep in your own store (writes nothing)
 
-  AI jobs (each runs the Workshop work tool this command's settings name for it):
-  {cli} work [ID] [--status S --to AI --from AI --taker AI --limit N]   the newest jobs, or one with its result
-  {cli} send any "JOB" | send AI "JOB"                hand off a job (--wait SECONDS, --priority 0-9, --outcome "DONE WHEN", --label, --acceptance-file, --source-file, --obligations-file)
-  {cli} take [ID] [--mine]                            take the oldest waiting job you may take (or that one)
-  {cli} finish ID "RESULT" [--check-file JSON] | fail ID "WHY"            record what came of a job you took (no words: the result is read from standard input, any size; one too long for the job row is kept as a file of your files and the row names it)
-  {cli} work ID --result                              print that job's whole result, whether on the row or kept as a file
-  {cli} plan ID --acceptance-file JSON                save what a job you took must come to, read from the record that shows it (finish checks it)
+  Tasks (a task is one calendar-task record; its assignees are the record ids that may do it: a person, an AI, anything with a record; none means anyone):
+  {cli} tasks [ID] [--status S] [--from ID] [--taken-by ID] [--assignee ID] [--limit N]   the newest tasks that match, or one with its result
+  {cli} give WORDS [--to ID]... [--title T] [--priority urgent|high|medium|low] [--outcome TEXT] [--key K] [--wait SECONDS]   give a task (--to: who may take it; repeat for more)
+  {cli} take [ID] [--only-mine]                       take the oldest task you may take (or that one)
+  {cli} who-can-take [--can WORD]... [--live]         the people and AIs that can take a task: live now, and how many tasks each holds
+  {cli} finish ID "RESULT" [--check-file JSON] | fail ID "WHY"   record what came of a task you took (no words: the result is read from standard input, any size; one too long for the task row is kept as a file of your files and the row names it)
+  {cli} tasks ID --result                             print that task's whole result, whether on the row or kept as a file
+  {cli} hand-on ID --to ID [--to ID]... [--because WHY]   hand a task you took, or gave, to whoever is named next (the task waits for them)
+  {cli} plan ID --acceptance-file JSON                save what a task you took must come to, read from the record that shows it (finish checks it)
   {cli} stuck ID "WORDS" | stuck ID --clear           say what is in the way, or that nothing is now
-  {cli} release ID [--because WHY] [--continuation-file JSON]   give a job back, with an owned next step if you have one
+  {cli} release ID [--because WHY] [--continuation-file JSON]   give a task back, with an owned next step if you have one
   {cli} wait ID --continuation-file JSON              block on a bounded next step ({owner, action, after, reason})
   {cli} resume ID --because "WHAT CHANGED"            resume after reviewing existing effects and the dependency
-  {cli} edit ID [--job WORDS --outcome TEXT --label TEXT --source-file JSON --obligations-file JSON --to AI|any --priority 0-9]   edit a job you sent
-  {cli} withdraw ID --reason "WHY" | remove ID        take back a job you sent; delete a finished one
-  {cli} serve -- COMMAND ARGS | serve --ag-ui URL     stay ready: run COMMAND (or an AG-UI agent) for each job taken
+  {cli} edit ID [--description WORDS --title TEXT --outcome TEXT --to ID --priority P --source-file JSON --obligations-file JSON]   edit a task you gave
+  {cli} withdraw ID --reason "WHY" | remove ID        take back a task you gave; delete a finished one
+  {cli} serve -- COMMAND ARGS | serve --ag-ui URL     stay ready: run COMMAND (or an AG-UI agent) for each task taken
 
-  AI ids are ai:NAME (the ai: may be left off); job ids are ai-job:KEY. --as AI acts as another AI id (default: from
+  Record ids are <kind>:<name> (ai:codex-on-mac, person:someone). --as ID acts as another id (default: from
   {CLI}_AGENT or the AI running this). --json prints the answer. --verbose adds the technical details of a refusal.`;
 
 /** `schedule`: the wakes the person's tool rows declare (each row's `wakes` list), read and switched at the engine's wake
@@ -1453,11 +1529,11 @@ export async function publishRecord(client, context, { held = null, rules = sett
   return { keep: [{ id: context.me.ai_id, type: engine.ai_type, value, expected: held === null ? null : { type: engine.ai_type, value: held } }] };
 }
 
-/** What `send` says about when the receiver sees the job: the AI it names reads it when it next reads its work; any AI's
- *  when one next takes. */
-export function sendNote(answer, rules = settings) {
-  const to = answer?.job?.to;
-  return to ? fill(rules.send_note.to, { to }) : rules.send_note.any;
+/** What `give` says about when the receiver sees the task: each assignee reads it when it next reads its tasks; anyone's
+ *  when someone next takes it. */
+export function giveNote(task, rules = settings) {
+  const assignees = Array.isArray(task?.assignees) ? task.assignees : [];
+  return assignees.length ? fill(rules.give_note.to, { to: assignees.join(', ') }) : rules.give_note.any;
 }
 
 /** Where a local bridge finds this computer's engine: the address and where the credential this command holds lives (never
@@ -1582,10 +1658,10 @@ async function logout(context) {
 
 async function serve(context) {
   const agUi = context.flags['ag-ui'] ?? null;
-  if (!context.rest.length && !agUi) throw new CommandError(`Say what runs each job: ${cliName()} serve -- COMMAND ARGS (the job arrives on its standard input), or ${cliName()} serve --ag-ui URL (an AG-UI agent).`, { status: 2 });
+  if (!context.rest.length && !agUi) throw new CommandError(`Say what runs each task: ${cliName()} serve -- COMMAND ARGS (the task's words arrive on its standard input), or ${cliName()} serve --ag-ui URL (an AG-UI agent).`, { status: 2 });
   if (agUi && !/^https?:\/\//.test(agUi)) throw new CommandError('--ag-ui is the address of an AG-UI agent, starting http:// or https://.', { status: 2 });
-  // An AG-UI agent keeps one thread per job: the job's id is its thread.
-  const runImpl = agUi ? (_command, job, options) => runOnAgUi(agUi, { ...job, handoff_id: job.id }, { ...options, fetchImpl: context.fetchImpl }) : runJob;
+  // An AG-UI agent keeps one thread per task: the task's id is its thread.
+  const runImpl = agUi ? (_command, task, options) => runOnAgUi(agUi, { handoff_id: task.id, words: wordsOf(task) }, { ...options, fetchImpl: context.fetchImpl }) : runTask;
   const client = await signedInClient(context);
   const { me, state } = context;
   const log = entry => process.stderr.write(`${JSON.stringify({ at: new Date().toISOString(), agent_id: me.agent_id, ...entry })}\n`);
@@ -1626,14 +1702,14 @@ const readJson = async (raw, example) => {
   throw new CommandError(`The input is one JSON object, for example ${example}.`, { status: 2 });
 };
 
-/** A keep or read the door could not complete exactly is a refusal like any other (status 4: the caller may try again under the same job). */
+/** A keep or read the door could not complete exactly is a refusal like any other (status 4: the caller may try again under the same task). */
 const kept = async work => { try { return await work; } catch (error) { throw error instanceof KeepRefused ? new CommandError(error.message, { status: 4 }) : error; } };
 
 const readStdin = async stream => { const chunks = []; for await (const chunk of stream) chunks.push(chunk); return Buffer.concat(chunks); };
 
-/** The result of job `id` in a `work ID` answer, as text; a refusal when the job is not there or has none. */
-function jobResultOf(answer, id) {
-  const result = answer?.jobs?.[0]?.result;
+/** The result of task `id` in a `tasks ID` answer, as text; a refusal when the task is not there or has none. */
+function taskResultOf(answer, id) {
+  const result = answer?.tasks?.[0]?.result;
   if (typeof result !== 'string') throw new CommandError(fill(settings.words.no_result, { id }), { status: 1 });
   return result;
 }
@@ -1653,6 +1729,70 @@ function printResult(bytes, stdout) {
 export function keptConnection({ rules = settings, home = homedir() } = {}) {
   const socket = join(expand(rules.state_folder, home), rules.kept_connection.socket);
   return keptFetch({ socket, start: () => { mkdirSync(dirname(socket), { recursive: true, mode: 0o700 }); startKeeper({ socket, idleSeconds: rules.kept_connection.idle_seconds }); } });
+}
+
+/** The read or move one task command makes, run through run-a-task-move.mjs: the row reads what it needs, the writes it answers
+ *  are applied where they were read, and a write refused because the task changed is answered as "changed". */
+async function taskCommand(client, context, { command, call, flags, requestKey, stdinBytes, stdout, print }) {
+  const { tools, holder_commands: holders } = settings.tasks;
+  const { me, state } = context;
+  const resource = resourceOf(client);
+  const shownOf = found => (found ? { id: found.id, ...found.value } : null);
+  const withoutKeep = answer => { const { keep: _keep, ...rest } = answer; return rest; };
+  const readOne = async id => shownOf((await readFor(resource, { ids: [taskRef(id)] }))[0] ?? null);
+  if (call.call === 'see') {
+    if (flags.result === true && !call.input.id) throw new CommandError(`Name the task: ${cliName()} tasks ID --result.`, { status: 2 });
+    const answer = await runTaskMove(resource, { tool: tools.see, input: call.input, key: requestKey, read: call.read });
+    if (flags.result === true) return printResult(await kept(readResult(client, taskResultOf(answer.result, call.input.id), settings)), stdout);
+    return print('tasks', withoutKeep(answer.result));
+  }
+  if (call.call === 'give') {
+    const answer = await runTaskMove(resource, { tool: tools.give, input: call.input, key: requestKey, read: call.read });
+    if (!answer.kept) throw new CommandError(settings.words.not_written, { status: 4 });
+    const given = withoutKeep(answer.result);
+    if (call.wait === undefined) return print('give', { ...given, note: giveNote(given.task) });
+    const seconds = Number(call.wait);
+    if (!Number.isFinite(seconds) || seconds <= 0) throw new CommandError('--wait is a number of seconds.', { status: 2 });
+    const done = await waitFor(async () => {
+      const seen = await readOne(given.task_id);
+      return seen && finishedStates.includes(seen.status) ? seen : null;
+    }, { seconds, sleep: context.wait });
+    if (done) return print('tasks', { tasks: [done], more: false });
+    return print('give', { ...given, note: [giveNote(given.task), fill(settings.words.not_finished, { seconds, id: given.task_id })].join(' ') });
+  }
+  if (call.call === 'take') {
+    const answer = await runTaskMove(resource, { tool: tools.take, input: call.input, key: requestKey, read: call.read });
+    if (!answer.kept) {
+      const id = answer.result.taken?.id ?? call.input.id;
+      return print('take', { taken: null, tried: answer.result.tried ?? 0, task_id: id, reason: 'changed', task: await readOne(id) });
+    }
+    const taken = answer.result.taken;
+    if (object(taken)) state.hold(me.agent_id, taken);
+    return print('take', withoutKeep(answer.result));
+  }
+  if (call.call === 'who') {
+    const answer = await runTaskMove(resource, { tool: tools.who, input: call.input, key: requestKey, read: call.read });
+    return print('who-can-take', withoutKeep(answer.result));
+  }
+  // A move by id: the task is read first, so a move is made on the task as it is, with the claim it holds.
+  const id = call.input.id;
+  const [found] = await readFor(resource, { ids: [taskRef(id)] });
+  if (!found) throw new CommandError(fill(settings.words.no_task, { id }), { status: 1 });
+  if (call.input.result !== undefined) call.input.result = await kept(keepResult(client, id, stdinBytes ?? Buffer.from(call.input.result, 'utf8'), settings));
+  const task = found.value;
+  // The claim a move names is read from the task's own row, when this AI holds it: never from a file the AIs share. A task held
+  // by another AI is sent without a claim, and the row refuses it, saying who holds it.
+  if (holders.includes(command) && task.taken_by === call.input.as) call.input.taken_at = task.taken_at;
+  if (call.input.check && call.input.check.target === undefined && task.acceptance) call.input.check.target = task.acceptance.target;
+  // A finish or plan names the consumer its acceptance points at: the saved one for a finish, the one handed in for a plan.
+  const acceptanceTarget = call.input.action === 'finish' ? task.acceptance?.target : call.input.acceptance?.target;
+  const target = acceptanceTarget ? [{ type: acceptanceTarget.type, id: acceptanceTarget.id }] : [];
+  const answer = await runTaskMove(resource, { tool: tools[call.call], input: call.input, key: requestKey, read: { ids: [taskRef(id), ...call.read.ids, ...target] } });
+  if (!answer.kept) return print(command, { task_id: id, moved: false, from: task.status, to: null, reason: 'changed', task: await readOne(id) });
+  const moved = withoutKeep(answer.result);
+  // A move that clears the claim ends this AI's hold on the task (hand-on and resume clear the taker too).
+  if (moved.moved && ['finish', 'fail', 'release', 'hand-on', 'resume', 'withdraw', 'remove'].includes(command)) state.letGo(holderOf(me, state.held(), id), id);
+  return print(command, moved);
 }
 
 export async function main(argv, seams = {}) {
@@ -1705,7 +1845,7 @@ export async function main(argv, seams = {}) {
     return '';
   }
   if (command === 'serve') return serve(context);
-  if (!WORK_COMMANDS.has(command) && !['whoami', 'tools', 'connect', 'call', 'op', 'who', 'publish', 'schedule'].includes(command)) throw new CommandError(`Unknown command ${command}. Run ${cliName()} help.`, { status: 2 });
+  if (!TASK_COMMANDS.has(command) && !['whoami', 'tools', 'connect', 'call', 'op', 'who', 'publish', 'schedule'].includes(command)) throw new CommandError(`Unknown command ${command}. Run ${cliName()} help.`, { status: 2 });
   if (command === 'call' || command === 'op') {
     const known = settings.direct_calls.flags[command];
     const unknown = Object.keys(flags).find(name => !known.includes(name));
@@ -1716,35 +1856,11 @@ export async function main(argv, seams = {}) {
       return JSON.stringify(request, null, 2);
     }
   }
-  // A work command's words are checked before anything is sent.
-  const call = WORK_COMMANDS.has(command) ? argumentsFor(command, { words, flags }, { me: context.me, held: context.state.held() }) : null;
+  // A task command's words are checked before anything is sent; then its one read or move runs (taskCommand).
+  const requestKey = randomUUID();
+  const call = TASK_COMMANDS.has(command) ? argumentsFor(command, { words, flags }, { me: context.me, held: context.state.held(), requestKey }) : null;
   const client = await signedInClient(context);
-  if (call) {
-    if (call.input.result !== undefined && call.work === 'change') call.input.result = await kept(keepResult(client, call.input.id, stdinBytes ?? Buffer.from(call.input.result, 'utf8'), settings));
-    if (settings.work.holder_commands.includes(command)) {
-      // The claim a move names is read from the job's own row, when this AI is the one holding it: never from a file the
-      // AIs on this computer share. A job held by another AI is sent without a claim, and the tool refuses it, saying who holds it.
-      const job = (await workCall(client, 'see', { id: call.input.id }, { idempotent: true }))?.jobs?.[0];
-      if (job?.taker === call.input.as) call.input.taken_at = job.taken_at;
-      if (call.input.check && call.input.check.target === undefined && job?.acceptance) call.input.check.target = job.acceptance.target;
-    }
-    let answer = await workCall(client, call.work, call.input);
-    if (command === 'take' && object(answer?.taken)) context.state.hold(context.me.agent_id, answer.taken);
-    if (['finish', 'fail', 'release', 'withdraw', 'remove'].includes(command) && answer?.moved) context.state.letGo(holderOf(context.me, context.state.held(), call.input.id), call.input.id);
-    if (command === 'send' && flags.wait !== undefined && answer?.job_id) {
-      const seconds = Number(flags.wait);
-      if (!Number.isFinite(seconds) || seconds <= 0) throw new CommandError('--wait is a number of seconds.', { status: 2 });
-      const done = await waitFor(async () => {
-        const seen = await workCall(client, 'see', { id: answer.job_id }, { idempotent: true });
-        return settings.wait.finished_states.includes(seen?.jobs?.[0]?.status) ? seen : null;
-      }, { seconds, sleep: context.wait });
-      if (done) return print('work', done);
-      answer = { ...answer, note: [answer.note, fill(settings.words.not_finished, { seconds, id: answer.job_id })].filter(Boolean).join(' ') };
-    }
-    if (command === 'send' && object(answer?.job)) answer = { ...answer, note: [answer.note, sendNote(answer)].filter(Boolean).join(' ') };
-    if (command === 'work' && flags.result === true) return printResult(await kept(readResult(client, jobResultOf(answer, call.input.id), settings)), seams.stdout ?? process.stdout);
-    return print(command, answer);
-  }
+  if (call) return taskCommand(client, context, { command, call, flags, requestKey, stdinBytes, stdout: seams.stdout ?? process.stdout, print });
   if (command === 'publish') {
     const held = words[0] === undefined ? null : await readJson(words[0], '{"kind": "cli"}');
     return JSON.stringify(await publishRecord(client, context, { held }), null, 2);
@@ -1758,7 +1874,7 @@ export async function main(argv, seams = {}) {
     const { agent_id, ai_id, held_as, app, model, provider, computer, harness } = context.me;
     return flags.json ? JSON.stringify({ account_id: account, agent_id, ai_id, held_as, app, model, provider, computer, harness, door: client.door.mcp, local: client.door.local }, null, 2)
       : [signedInWords(client.credential), fill(settings.words.whoami_where, { where: client.door.local ? settings.words.this_mac : new URL(client.door.mcp).host }), fill(settings.words.whoami_ai, { ai: ai_id }), fill(settings.words.whoami_facts, { facts: [app, model, provider, computer].filter(Boolean).join(', ') }),
-        ...(flags.verbose === true ? [`account ${account}`, ...(held_as.length ? [`jobs taken before this session had its own id are finished as ${held_as.join(', ')}`] : []), `door ${client.door.mcp}`] : [])].join('\n');
+        ...(flags.verbose === true ? [`account ${account}`, ...(held_as.length ? [`tasks taken before this session had its own id are finished as ${held_as.join(', ')}`] : []), `door ${client.door.mcp}`] : [])].join('\n');
   }
   if (command === 'schedule') {
     const requestKey = flags['request-key'] ?? randomUUID();
@@ -1780,7 +1896,7 @@ export async function main(argv, seams = {}) {
   if (command === 'who') {
     const now = Date.now();
     const { account } = await client.whoami();
-    const rows = (await workCall(client, 'ais', {}, { idempotent: true }))?.ais ?? [];
+    const rows = (await toolCall(client, settings.who.tool, {}, { idempotent: true }))?.ais ?? [];
     const recent = row => flags.all === true || aiOf(row, { now }).recent;
     const shown = rows.filter(recent);
     const list = flags.list === undefined ? null : readJsonFile(flags.list, 'the list', '{"title_field": "name", "fields": [...]}');

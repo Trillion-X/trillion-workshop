@@ -1,0 +1,61 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-tasks-handed-between-anyone on my store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} to hand the task t-one from me to ai:north, and then back to me.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the task records (kind calendar-task) are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-tasks-handed-between-anyone"
+  ],
+  "tools": [
+    "tool:give-a-task",
+    "tool:see-tasks",
+    "tool:take-a-task",
+    "tool:change-a-task",
+    "tool:finish-a-task",
+    "tool:see-who-can-take-work"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-tasks-handed-between-anyone\" with store, and the tool row and its input (for example tool:give-a-task with as, title, assignees and key).",
+    "3. The first run makes the store's own objects once and proves them on the example attempts; every answer must be the one the intent says, or the run stops and says which.",
+    "4. Each run reads the task records from the store, runs the tool over them, applies its keep list to the store in one transaction, and reports what was written, and any write refused because the task changed (read again, then decide again).",
+    "5. A task's assignees are record ids of anyone (a person, an AI, a workflow): an empty list lets anyone take it. A handoff is tool:change-a-task with action hand-on and the new assignees; it gives the task back to waiting."
+  ],
+  "worked_examples": [
+    {
+      "title": "Give a task to an AI, and take it back when it is handed back",
+      "ask": "Give ai:north the task \"Water the plants\" so it waits for ai:north to take, then hand it back to me.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "workflow:keep-tasks-handed-between-anyone",
+            "input": {
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "tool": "tool:give-a-task",
+              "input": {
+                "as": "person:someone",
+                "title": "Water the plants",
+                "outcome": "The plants are watered",
+                "assignees": [
+                  "ai:north"
+                ],
+                "key": "t-one"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-tasks-handed-between-anyone",
+      "step": "keep",
+      "given": "The store holds person:someone and ai:north as records and no task t-one.",
+      "hands_back": "Run answers written 1 and refused 0; the store now holds \"record:calendar-task:t-one\" with status \"To do\", sent by \"person:someone\" and assigned to [\"ai:north\"]. Once ai:north takes it and hands it on with assignees [\"person:someone\"], the same workflow keeps that change too."
+    }
+  ],
+  "drafted_from": "tools/plan-tasks-and-todo-lists (task-moves.mjs and task-moves.json) on the Workshop export of this lane; the example attempts are the ones test/keep-tasks-stores.test.mjs runs on PGlite and on a folder of JSON files."
+}

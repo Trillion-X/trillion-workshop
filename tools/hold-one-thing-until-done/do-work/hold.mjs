@@ -9,7 +9,7 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. The decisions are the moved code's (read-data/needs-you-hold.mjs, read-data/required-cover.mjs,
 //      read-data/hold-answer.mjs); this file only checks the request and shapes the answer.
-//   2. A change answers the whole next setting (`state`) and its jobs as ai-job records (`jobs`); the caller keeps both.
+//   2. A change answers the whole next setting (`state`) and its jobs as calendar-task records (`jobs`); the caller keeps both.
 //      A job's id is stable from its source and once_per, so a repeated trigger is one job.
 //   3. The cover fails closed: no gate key still covers (DEFAULT_COVER_KEY), and rows that decide nothing answer
 //      `covered: null`, never false.

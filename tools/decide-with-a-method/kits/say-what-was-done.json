@@ -2,7 +2,7 @@
   "drafted_from": "tool:say-what-was-done's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Tell Trillion my AI did the next step of a decision, or the exact wall it reached\", with {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"state\":\"done\",\"what_happened\":\"Sent the made-up email to the sample families\",\"by\":\"sample-ai\"}. It runs tool:say-what-was-done and answers {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"carried_out\":{\"decision_generation\":1,\"state\":\"done\",\"what_happened\":\"Sent the made-up email to the sample families\",\"by\":\"sample-ai\",\"at\":\"2026-11-14T00:50:20.177Z\"},\"status\":\"needs_outcome\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (decision, decision-revision, decision-step, decision-call, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, ai-job, pursuit, record:check, record:decision-kind) from the records handed in.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (decision, decision-revision, decision-step, decision-call, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, calendar-task, pursuit, record:check, record:decision-kind) from the records handed in.",
   "workflows": [],
   "tools": [
     "tool:say-what-was-done"
@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Tell Trillion my AI did the next step of a decision, or the exact wall it reached\", and give it decision_id; state; what_happened.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:say-what-was-done and its input (the worked example shows one).",
     "3. Read what comes back: Keeps, with the decision generation it carried out, that its next action was done (state done) or the exact wall reached (state wall: the file, field, refused command or missing credential), in what_happened.",
-    "4. It reads only the records handed in as `records` (decision; decision-revision; decision-step; decision-call; decision-evidence; decision-answered-step; decision-option; decision-candidate; decision-report; decision-carried-out; decision-history; decision-cited-pursuit; decision-method; decision-part; decision-refs; ai-job; pursuit; record:check; record:decision-kind). The changes come back as keep, each with the value it expected, for the caller to write to its own store."
+    "4. It reads only the records handed in as `records` (decision; decision-revision; decision-step; decision-call; decision-evidence; decision-answered-step; decision-option; decision-candidate; decision-report; decision-carried-out; decision-history; decision-cited-pursuit; decision-method; decision-part; decision-refs; calendar-task; pursuit; record:check; record:decision-kind). The changes come back as keep, each with the value it expected, for the caller to write to its own store."
   ],
   "worked_examples": [
     {

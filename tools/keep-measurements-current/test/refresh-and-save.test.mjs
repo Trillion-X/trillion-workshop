@@ -7,7 +7,7 @@ import rows from '../tool-rows.json' with { type: 'json' };
 import { answerOf } from '../../../test-helpers/run-a-row.mjs';
 import { collectAndRefresh } from '../read-data/collect.mjs';
 
-test('direct wake consumer answers its rows through the actual shared process row without creating an AI job', async t => {
+test('direct wake consumer answers its rows through the actual shared process row without creating a task', async t => {
   const root = await mkdtemp(path.join(tmpdir(), 'direct-measurement-wake-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   const source = path.join(root, 'source'), receipts = path.join(root, 'receipts');
@@ -28,7 +28,7 @@ test('direct wake consumer answers its rows through the actual shared process ro
   assert.equal(first.status, 0, JSON.stringify(first));
   assert.ok(first.result.observations.length > 0);
   assert.equal(first.result.forecast.type, 'record:cost-measurement-forecast');
-  assert.equal(first.result.ai_jobs_created, 0);
+  assert.equal(first.result.tasks_created, 0);
   assert.deepEqual(first.kept.filter(r => r.type !== 'measurement_source_config'), []);
   assert.deepEqual(first.calls, []);
   assert.equal(first.result.coverage.total_cost, null);

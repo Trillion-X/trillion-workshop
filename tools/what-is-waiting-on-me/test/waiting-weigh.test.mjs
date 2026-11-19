@@ -1,7 +1,7 @@
 // Waiting on you shows only what is the person's (src/waiting-weigh.mjs at the reader, person-store waitingOnYou):
 // every section's things are weighed by src/who-does-it.mjs on the section's `step` (DATA) before any section is cut,
 // what the AIs can do is handed to them and never shown, consent given once is not asked again, and one order runs
-// across sections. The owner, 2026-10-11: drafts under his auto-approval, files from AI tests, stuck AI jobs and decisions
+// across sections. The owner, 2026-10-11: drafts under his auto-approval, files from AI tests, stuck tasks and decisions
 // his AIs opened from his own words were all on his list.
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -39,7 +39,7 @@ const answers = {
   ] },
   work: { work: [
     { handoff_id: 'h_1', said: 'Recover the test evidence', in_the_way: 'Historical evidence wall', status: 'blocked', handed_at: '2026-10-11T02:00:00Z' },
-    // A job nobody took, marked stuck by Trillion: it already is the AIs' work, so no second job is made for it.
+    // A task nobody took, marked stuck by Trillion: it already is the AIs' work, so no second task is made for it.
     { handoff_id: 'h_2', said: 'Getting stuck work moving again: Recover the test evidence', in_the_way: 'No AI took it', status: 'blocked', handed_at: '2026-10-11T03:00:00Z', from_agent: 'trillion-waiting-on-you' },
   ] },
   decisions: { summaries: [
@@ -69,7 +69,7 @@ test('what the AIs can do never reaches the person; a reason only they can meet 
   // An AI-doable ask goes to the AIs once; one that needs the person's own body stays theirs.
   assert.deepEqual(shown('asks').map(card => card.id), ['asks:film']);
   assert.ok(toAis.some(row => row.card.id === 'asks:summary' && row.handOff?.once_per === 'weighed:asks:summary'));
-  // A stuck AI job, a decision its AIs opened, a question they can check themselves and a file from a test leave the
+  // A stuck task, a decision its AIs opened, a question they can check themselves and a file from a test leave the
   // person's list, and each is handed to the AIs with its own section's words: nothing leaves without an AI holding it.
   for (const id of ['decide', 'answer', 'look']) {
     assert.deepEqual(shown(id), [], `${id} is the AIs' work`);
@@ -81,7 +81,7 @@ test('what the AIs can do never reaches the person; a reason only they can meet 
     }
   }
   assert.match(toAis.find(row => row.section.id === 'decide').handOff.job, /export_decision/);
-  // Stuck work leaves the person's view and stays the AIs' job it already is: no second job is made for it.
+  // Stuck work leaves the person's view and stays the AIs' task it already is: no second task is made for it.
   assert.deepEqual(shown('stuck'), []);
   assert.deepEqual(toAis.filter(row => row.section.id === 'stuck').map(row => [row.card.id, row.handOff]), [['work:h_2', null], ['work:h_1', null]]);
   // A sign-in goes to the AIs with the saved logins first, never to the person until they were stopped; a service

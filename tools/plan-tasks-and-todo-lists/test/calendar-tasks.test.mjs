@@ -357,7 +357,7 @@ test('task lists use generic Lists rows for create, read, rename, move, duplicat
   const store = localStore(':memory:');
   const lists = makeLists({ eeaf: store.eeaf, newId: () => 'unused-list-row' });
   const created = await changeCalendarTask(lists, { action: 'create_collection', request_key: 'work', title: 'Work' });
-  assert.deepEqual(created, { collection: { id: 'calendar-collection-work', title: 'Work', color: null, default_calendar: null, archived: false, ai_scheduling: null, preferred_times: null }, kept: false, undo: { action: 'delete_collection', collection_id: 'calendar-collection-work' } });
+  assert.deepEqual(created, { collection: { id: 'calendar-collection-work', title: 'Work', color: null, default_calendar: null, archived: false, plan_automatically: null, preferred_times: null }, kept: false, undo: { action: 'delete_collection', collection_id: 'calendar-collection-work' } });
   assert.equal((await changeCalendarTask(lists, { action: 'create_collection', request_key: 'work', title: 'Work' })).kept, true,
     'retrying a collection create returns the same collection');
   await assert.rejects(async () => await changeCalendarTask(lists, { action: 'create_collection', request_key: 'work', title: 'Different' }), /different task list/);
@@ -860,47 +860,4 @@ test('a task linked to a workflow is settled only after that workflow run verdic
   await assert.rejects(changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, now), /latest run verdict is failed, not passed/);
   verdicts.set(verdictId, { id: verdictId, values: { state: 'passed' } });
   assert.equal((await changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, now)).task.status, 'Done');
-});
-
-test('a task a lane-job link row names is settled only when that job is done with a result', async () => {
-  const lists = listsOwner();
-  const jobs = new Map();
-  const links = new Map();
-  const clock = () => Date.parse('2026-10-20T08:00:00.000Z');
-  const options = { now: clock, jobs: async key => jobs.get(key) ?? null, jobsOfTask: async taskId => links.get(taskId) ?? [] };
-  const created = await changeCalendarTask(lists, { action: 'create', request_key: 'job-linked-1', title: 'Pay the card', duration_minutes: 30 }, options);
-  links.set(created.task.id, ['lane-1']);
-  await assert.rejects(changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, options), /ai-job:lane-1, and that job is not found/);
-  jobs.set('lane-1', { status: 'taken' });
-  await assert.rejects(changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, options), /that job is taken/);
-  jobs.set('lane-1', { status: 'failed', result: 'could not' });
-  await assert.rejects(changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, options), /that job is failed/);
-  jobs.set('lane-1', { status: 'done', result: '  ' });
-  await assert.rejects(changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, options), /done but has no result/);
-  await assert.rejects(changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, { now: clock, jobsOfTask: options.jobsOfTask }), /cannot read the job/);
-  await assert.rejects(changeCalendarTask(lists, { action: 'restore', rows: [{ task_id: created.task.id, expected: { status: 'To do' }, values: { status: 'Done' } }] }, options), /done but has no result/);
-  jobs.set('lane-1', { status: 'done', result: 'Paid; confirmation read back.' });
-  assert.equal((await changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, options)).task.status, 'Done');
-});
-
-test('a task with no link row completes, and a description that names a job is not read as a link', async () => {
-  const lists = listsOwner();
-  const clock = () => Date.parse('2026-10-20T08:00:00.000Z');
-  const options = { now: clock, jobs: async () => null, jobsOfTask: async () => [] };
-  const created = await changeCalendarTask(lists, { action: 'create', request_key: 'no-link-1', title: 'Water the plants', duration_minutes: 10 }, options);
-  lists.putRows(data.list.id, { rows: [{ id: created.task.id, values: { description: 'Lane job: ai-job:lane-9' } }] }, { actor: { by: 'calendar' } });
-  assert.equal((await changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, options)).task.status, 'Done');
-});
-
-test('two jobs one task is linked to must both be done with a result', async () => {
-  const lists = listsOwner();
-  const jobs = new Map([['a', { status: 'done', result: 'ok' }], ['b', { status: 'taken' }]]);
-  const clock = () => Date.parse('2026-10-20T08:00:00.000Z');
-  const links = new Map();
-  const options = { now: clock, jobs: async key => jobs.get(key) ?? null, jobsOfTask: async taskId => links.get(taskId) ?? [] };
-  const created = await changeCalendarTask(lists, { action: 'create', request_key: 'two-jobs-1', title: 'Two lanes', duration_minutes: 10 }, options);
-  links.set(created.task.id, ['a', 'b', 'a']);
-  await assert.rejects(changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, options), /ai-job:b, and that job is taken/);
-  jobs.set('b', { status: 'done', result: 'ok' });
-  assert.equal((await changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, options)).task.status, 'Done');
 });

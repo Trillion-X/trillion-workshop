@@ -75,7 +75,7 @@ export function calendarGroups(accounts) {
 }
 
 /** The scheduling choice of a list as one of 'inherit', 'on', 'off'. */
-export const aiChoiceOf = list => (list.ai_scheduling === true ? 'on' : list.ai_scheduling === false ? 'off' : 'inherit');
+export const aiChoiceOf = list => (list.plan_automatically === true ? 'on' : list.plan_automatically === false ? 'off' : 'inherit');
 export const aiValueOf = choice => (choice === 'on' ? true : choice === 'off' ? false : null);
 
 /** The preference write for one email-todo setting. */

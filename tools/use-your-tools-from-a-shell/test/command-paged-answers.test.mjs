@@ -86,16 +86,17 @@ test('example call reads every page of a byte-paged answer under one request key
   }
 });
 
-test('a job row too large for one reply is read whole, so a move names the claim the row holds', async () => {
-  const target = { type: 'ai-job', id: 'ai-job:big' };
-  const row = { id: 'ai-job:big', status: 'taken', taker: 'ai:lane-x', taken_at: '2026-11-15T20:00:00.000Z', label: 'A long brief', job: 'long brief words '.repeat(600), acceptance: { outcome: 'A long brief', target, rules: [] } };
-  const whole = Buffer.from(JSON.stringify({ exit_code: 0, replayed: false, result: { jobs: [row], more: false, job_id: 'ai-job:big', moved: true, from: 'taken', to: 'done', job: row } }));
+test('a task row too large for one reply is read whole, so a move names the claim the row holds', async () => {
+  const target = { type: 'note', id: 'note:big' };
+  const row = { id: 'record:calendar-task:big', status: 'In progress', taken_by: 'ai:lane-x', taken_at: '2026-11-15T20:00:00.000Z', title: 'A long brief', description: 'long brief words '.repeat(600), outcome: 'A long brief', sent_by: 'ai:lane-y', sent_at: '2026-11-15T19:00:00.000Z', priority: 'medium', acceptance: { outcome: 'A long brief', target, rules: [] } };
+  // The engine answers the record's value for records:read, and the tool run's own answer for tools:run: the same row, whole.
+  const whole = Buffer.from(JSON.stringify(row));
   const door = fakeDoor({ whole, pageBytes: 4000 });
   const folder = home();
   const accept = join(folder, 'acceptance.json');
   writeFileSync(accept, JSON.stringify({ outcome: 'A long brief', target, rules: [] }));
-  await run(['plan', 'ai-job:big', '--acceptance-file', accept, '--as', 'lane-x'], door, folder);
-  const planned = door.seen.find(row => row.args.input.tool === 'tool:change-an-ai-job' && row.args.input.after_byte === undefined);
+  await run(['plan', 'record:calendar-task:big', '--acceptance-file', accept, '--as', 'lane-x'], door, folder);
+  const planned = door.seen.find(call => call.args.input.tool === settings.tasks.tools.change && call.args.input.after_byte === undefined);
   assert.equal(planned.args.input.input.taken_at, '2026-11-15T20:00:00.000Z', 'the claim is read from the whole row, not left out because the row came in pages');
 });
 

@@ -112,6 +112,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -480,6 +481,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -568,7 +570,7 @@
           "properties": {
             "stored": {
               "type": "array",
-              "description": "The person's records this run reads, each { id, type, value }: the record:waiting-sources rows, and the records of each kind a source reads (record:waiting-on-you, post, ai-job and the rest). What is not given is not there.",
+              "description": "The person's records this run reads, each { id, type, value }: the record:waiting-sources rows, and the records of each kind a source reads (record:waiting-on-you, post, calendar-task and the rest). What is not given is not there.",
               "items": {
                 "type": "object",
                 "required": [
@@ -912,6 +914,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",
@@ -1274,6 +1277,7 @@
           "trillion-workshop/pick-a-screen-as-you-type",
           "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
           "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
           "trillion-workshop/process-session",
           "trillion-workshop/query-and-change-list-rows",
           "trillion-workshop/quote-untrusted-words",

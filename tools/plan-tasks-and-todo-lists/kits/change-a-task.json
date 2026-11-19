@@ -1,0 +1,89 @@
+{
+  "drafted_from": "tool:change-a-task's own row (its words, input schema, sample run and steps) and what its sample run answered here; read it before relying on it",
+  "start_here": "Give back the sample task the taker holds, with its reason. It runs tool:change-a-task and answers {\"task_id\":\"record:calendar-task:sample-1\",\"moved\":true,\"from\":\"In progress\",\"to\":\"To do\",\"task\":{\"id\":\"record:calendar-task:sample-1\",\"title\":\"Write a made-up sample report\",\"status\":\"To do\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"released\":{\"by\":\"ai:sample-taker\",\"at\":\"2026-11-19T21:25:26.499Z\",\"words\":\"Synthetic sample returns its claim\"},\"released_taken_at\":\"2026-11-03T00:05:00.000Z\"},\"keep\":[{\"id\":\"record:calendar-task:sample-1\",\"type\":\"calendar-task\",\"value\":{\"title\":\"Write a made-up sample report\",\"status\":\"To do\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"released\":{\"by\":\"ai:sample-taker\",\"at\":\"2026-11-19T21:25:26.499Z\",\"words\":\"Synthetic sample returns its claim\"},\"released_taken_at\":\"2026-11-03T00:05:00.000Z\"},\"expected\":{\"type\":\"calendar-task\",\"value\":{\"title\":\"Write a made-up sample report\",\"status\":\"In progress\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"taken_by\":\"ai:sample-taker\",\"taken_at\":\"2026-11-03T00:05:00.000Z\"}}}]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps only its own task rows (calendar-task) in your own store. Its records come in as input.records (ai, calendar-task) and its writes go back as keep.",
+  "workflows": [],
+  "tools": [
+    "tool:change-a-task"
+  ],
+  "instructions": [
+    "Say to your AI: \"Record what happened to this task\", and give it as (the one making the move), id (the task), action and what the action needs (result, because, words or assignees).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:change-a-task and its input (the worked example shows one).",
+    "3. Read what comes back: Makes the move the rules allow for the one making it, as one write of the whole task; a move the rules do not allow is refused with the reason."
+  ],
+  "worked_examples": [
+    {
+      "title": "Finish, fail, give back, hand on, withdraw, flag or remove a task on its own sample",
+      "ask": "Record what happened to a task: finish it with its result, say it failed, give it back, hand it on to someone else, say what blocks it, take back one I gave, or remove it",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:change-a-task",
+            "input": {
+              "as": "ai:sample-taker",
+              "id": "record:calendar-task:sample-1",
+              "action": "release",
+              "taken_at": "2026-11-03T00:05:00.000Z",
+              "because": "Synthetic sample returns its claim",
+              "records": [
+                {
+                  "id": "ai:sample-sender",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sender",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 1,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "ai:sample-taker",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample taker",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 2,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "record:calendar-task:sample-1",
+                  "type": "calendar-task",
+                  "value": {
+                    "title": "Write a made-up sample report",
+                    "status": "In progress",
+                    "assignees": [
+                      "ai:sample-taker"
+                    ],
+                    "sent_by": "ai:sample-sender",
+                    "priority": "medium",
+                    "sent_at": "2026-11-03T00:00:00.000Z",
+                    "description": "Write a made-up sample report",
+                    "taken_by": "ai:sample-taker",
+                    "taken_at": "2026-11-03T00:05:00.000Z"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"as\":\"ai:sample-taker\",\"id\":\"record:calendar-task:sample-1\",\"action\":\"release\",\"taken_at\":\"2026-11-03T00:05:00.000Z\",\"because\":\"Synthetic sample returns its claim\"}, with 3 example records (ai, calendar-task) already kept in the store that the run reads.",
+      "hands_back": "It answered {\"task_id\":\"record:calendar-task:sample-1\",\"moved\":true,\"from\":\"In progress\",\"to\":\"To do\",\"task\":{\"id\":\"record:calendar-task:sample-1\",\"title\":\"Write a made-up sample report\",\"status\":\"To do\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"released\":{\"by\":\"ai:sample-taker\",\"at\":\"2026-11-19T21:25:26.499Z\",\"words\":\"Synthetic sample returns its claim\"},\"released_taken_at\":\"2026-11-03T00:05:00.000Z\"},\"keep\":[{\"id\":\"record:calendar-task:sample-1\",\"type\":\"calendar-task\",\"value\":{\"title\":\"Write a made-up sample report\",\"status\":\"To do\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"released\":{\"by\":\"ai:sample-taker\",\"at\":\"2026-11-19T21:25:26.499Z\",\"words\":\"Synthetic sample returns its claim\"},\"released_taken_at\":\"2026-11-03T00:05:00.000Z\"},\"expected\":{\"type\":\"calendar-task\",\"value\":{\"title\":\"Write a made-up sample report\",\"status\":\"In progress\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"description\":\"Write a made-up sample report\",\"taken_by\":\"ai:sample-taker\",\"taken_at\":\"2026-11-03T00:05:00.000Z\"}}}]}"
+    }
+  ]
+}

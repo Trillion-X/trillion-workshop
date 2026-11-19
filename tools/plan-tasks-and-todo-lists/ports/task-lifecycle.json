@@ -1,0 +1,64 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-TASK-LIFECYCLE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "01a1b7dc-4f43-7983-80dd-fa693b18ba0d",
+    "quote": "Repair the existing intake and ai-job lifecycle so authorized incoming work reaches a checked requested outcome and bounded owned recovery, using current shared stage and CAS owners.",
+    "message_multihash": "1f:c2f436960fb5ed87430acc08752414b3ffeec76b6b0beaaf9523897264fe3373"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+      "path": "tools/hand-work-to-ais/read-data/ai-work.mjs",
+      "multihash": "1f:89d44a53aab296d68212e73f7efef67ed63d7b6cc377ee7a3321aea9b5c04656",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/plan-tasks-and-todo-lists/task-moves.mjs"
+    }
+  ],
+  "preserve": [
+    "The existing task state transitions and compare-and-set writes against the task value just read",
+    "One claim owner and bounded recovery when a result or continuation is refused"
+  ],
+  "allowed_deltas": [
+    "One kind of work: a task names its assignees as record ids of anyone (a person, an AI, a workflow, a raccoon), and a handoff is the hand-on move, a change of assignees",
+    "Require declared acceptance and a checked requested outcome before finishing a task",
+    "Carry the original claim fence and owned retry boundary across attempts; keep continuation bounded and explicit"
+  ],
+  "banned_substitutions": [
+    "Treating result text alone as proof that the requested outcome was checked",
+    "Reassigning a claimed task to another owner during a retry",
+    "Giving any kind of record its own rules (an AI-only or person-only take, give or finish)"
+  ],
+  "baseline": {
+    "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+    "recorded_at": "2026-11-03T02:35:50-07:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:89d44a53aab296d68212e73f7efef67ed63d7b6cc377ee7a3321aea9b5c04656",
+    "target_multihash_at_baseline": "1f:89d44a53aab296d68212e73f7efef67ed63d7b6cc377ee7a3321aea9b5c04656",
+    "note": "Same-file snapshot of the AI job module before this port (its path was tools/hand-work-to-ais/read-data/ai-work.mjs, removed by the same landing). task-moves.mjs is a new file ported from it, not a byte copy; the test in test/task-moves.test.mjs is the proof."
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export function checkOutcome",
+      "export function checkContinuation",
+      "export const giveATask",
+      "export const takeATask",
+      "export const changeATask"
+    ],
+    "test_refs": [
+      "tools/plan-tasks-and-todo-lists/test/task-moves.test.mjs",
+      "tools/plan-tasks-and-todo-lists/test/task-moves-stores.test.mjs"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

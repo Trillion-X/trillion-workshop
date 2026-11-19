@@ -328,12 +328,12 @@ export function openCommunity({ communityId, book, now }) {
     const asked = book.get(ids.ask(c, roundId, person))?.arms ?? {};
     return Object.fromEntries((matching.experiments ?? []).map(experiment => [experiment.id, experiment.arms.find(arm => arm.id === asked[experiment.id])]).filter(([, arm]) => arm));
   };
-  // One job for one person's own AI, once per request key: a job kept under that key is never handed again (the seam
-  // also drops a write of a job the door already holds).
+  // One task for one person's own AI, once per request key: a task kept under that key is never handed again (the seam
+  // also drops a write of a task the door already holds).
   const handToAi = (person, jobText, requestKey, input) => {
     const id = ids.job(c, requestKey);
     if (book.has(id)) return false;
-    book.put(id, KINDS.job, { status: 'waiting', for: person, said: jobText.said, job: jobText.job, input, from: `community:${c}`, request_key: requestKey, at: iso(now) });
+    book.put(id, KINDS.job, { status: 'To do', assignees: [person], title: jobText.said, description: jobText.job, input, sent_by: ids.community(c), request_key: requestKey, sent_at: iso(now) });
     return true;
   };
   const answerWith = extra => ({ tool: ANSWER_TOOL, arguments: { community_id: c, ...extra } });
@@ -685,16 +685,16 @@ export function openCommunity({ communityId, book, now }) {
         candidates: ask.candidates.map(candidate => ({ candidate_ref: candidate.candidate_ref, name: nameOf(candidate.person), claims: citableClaims(profileOf(candidate.answers, matching, candidate.candidate_ref), matching) })),
       }] : [],
       discover: discoverFor(person),
-      // The pull road: this person's waiting jobs, and when the community's clock next acts, so the member side wakes
+      // The pull road: this person's To do tasks, and when the community's clock next acts, so the member side wakes
       // then and pulls once. Nothing is ever written into another person's account.
-      waiting_jobs: book.list(ids.jobPrefix(c)).map(record => record.value).filter(job => job.for === person && job.status === 'waiting').map(({ request_key: requestKey, said, job, input }) => ({ request_key: requestKey, said, job, input })),
+      waiting_tasks: book.list(ids.jobPrefix(c)).map(record => record.value).filter(task => task.assignees.includes(person) && task.status === 'To do').map(({ request_key: requestKey, title, description, input }) => ({ request_key: requestKey, title, description, input })),
       wake_at: nextAt(),
     };
   }
 
-  // Erasure: what this person told matchmaking, every match that names them with its group, answers and jobs, their
-  // round asks and jobs, and their place and scores on other members' shortlists and score jobs go. The others keep
-  // their own asks and jobs.
+  // Erasure: what this person told matchmaking, every match that names them with its group, answers and tasks, their
+  // round asks and tasks, and their place and scores on other members' shortlists and score tasks go. The others keep
+  // their own asks and tasks.
   function forget(person) {
     book.remove(ids.member(c, person));
     const gone = new Set();
@@ -715,7 +715,7 @@ export function openCommunity({ communityId, book, now }) {
     }
     for (const record of book.list(ids.jobPrefix(c))) {
       const job = record.value;
-      if (job.for === person || gone.has(job.input?.match_id)) { book.remove(record.id); continue; }
+      if (job.assignees.includes(person) || gone.has(job.input?.match_id)) { book.remove(record.id); continue; }
       const refs = scrubbed.get(job.request_key);
       if (refs) book.put(record.id, KINDS.job, { ...job, input: { ...job.input, candidates: job.input.candidates.filter(candidate => !refs.has(candidate.candidate_ref)) } });
     }

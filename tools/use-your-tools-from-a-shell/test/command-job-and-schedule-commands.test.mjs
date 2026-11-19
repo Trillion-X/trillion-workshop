@@ -16,25 +16,28 @@ const call = (command, words, flags = {}) => argumentsFor(command, { words, flag
 const continuation = { owner: 'ai:lane-b', action: 'Read the consumer record', after: '2026-11-17T09:00:00-06:00', reason: 'Waiting on the sender' };
 const acceptance = { outcome: 'Saved', target: { type: 'note', id: 'note:1' }, rules: [{ id: 'outcome', path: 'text', equals: ['x'] }] };
 
+const task = 'record:calendar-task:1';
 test('wait, resume, edit and release carry their saved parts, and a malformed part is refused before anything is sent', () => {
-  assert.deepEqual(call('wait', ['ai-job:1'], { 'continuation-file': file('c.json', continuation) }), { work: 'change', input: { as: 'ai:lane-a', id: 'ai-job:1', action: 'wait', continuation } });
-  assert.deepEqual(call('release', ['ai-job:1'], { because: 'later', 'continuation-file': file('c2.json', continuation) }).input, { as: 'ai:lane-a', id: 'ai-job:1', action: 'release', because: 'later', continuation });
-  assert.deepEqual(call('resume', ['ai-job:1'], { because: 'The record changed' }).input, { as: 'ai:lane-a', id: 'ai-job:1', action: 'resume', because: 'The record changed' });
-  assert.throws(() => call('resume', ['ai-job:1']), /Say what changed/);
-  assert.throws(() => call('wait', ['ai-job:1']), /continuation-file/);
-  assert.throws(() => call('wait', ['ai-job:1'], { 'continuation-file': file('bad.json', { owner: 'lane-b' }) }), /A continuation needs owner ai:NAME/);
-  const edit = call('edit', ['ai-job:1'], { job: 'Do it again', to: 'any', priority: '2', 'obligations-file': file('o.json', [{ id: 'a', outcome: 'A holds' }]), 'source-file': file('s.json', { kind: 'repository', ref: 'r' }) });
-  assert.deepEqual(edit.input, { as: 'ai:lane-a', id: 'ai-job:1', action: 'edit', job: 'Do it again', source: { kind: 'repository', ref: 'r' }, obligations: [{ id: 'a', outcome: 'A holds' }], to: null, priority: 2 });
-  assert.throws(() => call('edit', ['ai-job:1']), /Name at least one field/);
-  assert.throws(() => call('edit', ['ai-job:1'], { 'obligations-file': file('dup.json', [{ id: 'a', outcome: 'x' }, { id: 'a', outcome: 'y' }]) }), /Obligations are unique rows/);
-  for (const action of ['wait', 'resume', 'edit']) assert.equal(settings.work.actions[action], action, `${action} is a work action`);
+  assert.deepEqual(call('wait', [task], { 'continuation-file': file('c.json', continuation) }).input, { as: 'ai:lane-a', id: task, action: 'wait', continuation });
+  assert.deepEqual(call('release', [task], { because: 'later', 'continuation-file': file('c2.json', continuation) }).input, { as: 'ai:lane-a', id: task, action: 'release', because: 'later', continuation });
+  assert.deepEqual(call('resume', [task], { because: 'The record changed' }).input, { as: 'ai:lane-a', id: task, action: 'resume', because: 'The record changed' });
+  assert.throws(() => call('resume', [task]), /Say what changed/);
+  assert.throws(() => call('wait', [task]), /continuation-file/);
+  assert.throws(() => call('wait', [task], { 'continuation-file': file('bad.json', { owner: 'lane-b' }) }), /A continuation needs owner ai:NAME/);
+  const edit = call('edit', [task], { description: 'Do it again', to: 'person:someone', priority: 'high', 'obligations-file': file('o.json', [{ id: 'a', outcome: 'A holds' }]), 'source-file': file('s.json', { kind: 'repository', ref: 'r' }) });
+  assert.deepEqual(edit.input, { as: 'ai:lane-a', id: task, action: 'edit', description: 'Do it again', source: { kind: 'repository', ref: 'r' }, obligations: [{ id: 'a', outcome: 'A holds' }], assignees: ['person:someone'], priority: 'high' });
+  assert.deepEqual(edit.read.ids, [{ type: 'person', id: 'person:someone' }], 'the person it is handed to is read with the move');
+  assert.throws(() => call('edit', [task]), /Name at least one field/);
+  assert.throws(() => call('edit', [task], { to: 'someone' }), /record id/, 'a hand-on names a record id, never a bare name');
+  assert.throws(() => call('edit', [task], { 'obligations-file': file('dup.json', [{ id: 'a', outcome: 'x' }, { id: 'a', outcome: 'y' }]) }), /Obligations are unique rows/);
+  for (const action of ['wait', 'resume', 'edit', 'hand-on']) assert.equal(settings.tasks.actions[action], action, `${action} is a task action`);
 });
 
-test('send carries a saved acceptance, source and obligations, and the outcome must match the acceptance', () => {
-  const sent = call('send', ['any', 'Save', 'a', 'note'], { 'acceptance-file': file('a.json', acceptance) }).input;
-  assert.deepEqual([sent.outcome, sent.acceptance], ['Saved', acceptance]);
-  assert.throws(() => call('send', ['any', 'Save'], { 'acceptance-file': file('a2.json', acceptance), outcome: 'Other' }), /must exactly match/);
-  assert.throws(() => call('plan', ['ai-job:1'], { 'acceptance-file': file('a3.json', { outcome: 'x' }) }), /Acceptance needs outcome/);
+test('give carries a saved acceptance, source and obligations, and the outcome must match the acceptance', () => {
+  const given = call('give', ['Save', 'a', 'note'], { 'acceptance-file': file('a.json', acceptance) }).input;
+  assert.deepEqual([given.outcome, given.acceptance], ['Saved', acceptance]);
+  assert.throws(() => call('give', ['Save'], { 'acceptance-file': file('a2.json', acceptance), outcome: 'Other' }), /must exactly match/);
+  assert.throws(() => call('plan', [task], { 'acceptance-file': file('a3.json', { outcome: 'x' }) }), /Acceptance needs outcome/);
 });
 
 test('a check receipt is valid only with an outcome, an offset time, evidence and obligations', () => {

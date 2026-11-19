@@ -32,8 +32,8 @@
       "meaning": "A record in the account's data."
     },
     {
-      "catalog": "ran-job",
-      "meaning": "An ai-job that was taken and finished; the lookup answers the taker that finished it."
+      "catalog": "ran-task",
+      "meaning": "A task (calendar-task) that was taken and finished; the lookup answers the taker that finished it."
     }
   ],
   "kinds": [
@@ -1747,7 +1747,7 @@
               "args": {
                 "values": [
                   "{\"catalog\":\"",
-                  "ran-job",
+                  "ran-task",
                   "\",\"id\":",
                   {
                     "$kind": "binding",

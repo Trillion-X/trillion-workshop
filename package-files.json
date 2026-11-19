@@ -1660,6 +1660,29 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "move-records-through-declared-states",
+   "paths": [
+    "do-work/move-records-through-declared-states.mjs"
+   ],
+   "at": "/opt/move-records-through-declared-states"
+  },
+  {
+   "package": "plan-tasks-and-todo-lists",
+   "paths": [
+    "task-moves.json",
+    "task-moves.mjs"
+   ],
+   "at": "/opt/plan-tasks-and-todo-lists"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -1859,6 +1882,14 @@
     "src/workspace/screens.mjs"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "plan-tasks-and-todo-lists",
+   "paths": [
+    "task-moves.json",
+    "task-moves.mjs"
+   ],
+   "at": "/opt/plan-tasks-and-todo-lists"
   }
  ],
  "tool:answer-the-pursuits-page": [
@@ -4891,28 +4922,14 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
- "tool:change-an-ai-job": [
+ "tool:change-a-task": [
   {
-   "package": "formula-engine",
+   "package": "plan-tasks-and-todo-lists",
    "paths": [
-    "rules",
-    "built-stored-bytes"
+    "task-moves.mjs",
+    "task-moves.json"
    ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "hand-work-to-ais",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/hand-work-to-ais"
-  },
-  {
-   "package": "move-records-through-declared-states",
-   "paths": [
-    "do-work/move-records-through-declared-states.mjs"
-   ],
-   "at": "/opt/move-records-through-declared-states"
+   "at": "/opt/plan-tasks-and-todo-lists"
   },
   {
    "package": "workflows",
@@ -4920,6 +4937,13 @@
     "do-work/run-a-function.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "move-records-through-declared-states",
+   "paths": [
+    "do-work/move-records-through-declared-states.mjs"
+   ],
+   "at": "/opt/move-records-through-declared-states"
   },
   {
    "package": "content-identity",
@@ -4961,39 +4985,30 @@
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
+    "do-work/shared-file-reference.mjs"
    ],
    "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
-   ],
-   "at": "/opt/formula-engine"
   },
   {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
-    "read-data/large-file.json",
     "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/large-file.json"
    ],
    "at": "/opt/workflows"
   }
@@ -5415,6 +5430,14 @@
     "src/workspace/screens.mjs"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "plan-tasks-and-todo-lists",
+   "paths": [
+    "task-moves.json",
+    "task-moves.mjs"
+   ],
+   "at": "/opt/plan-tasks-and-todo-lists"
   }
  ],
  "tool:check-a-bundle-against-package-boundaries": [
@@ -14440,36 +14463,14 @@
  ],
  "tool:find-when-a-character-speaks": [],
  "tool:find-where-the-line-should-go": [],
- "tool:finish-an-ai-job": [
+ "tool:finish-a-task": [
   {
-   "package": "formula-engine",
+   "package": "plan-tasks-and-todo-lists",
    "paths": [
-    "rules",
-    "built-stored-bytes"
+    "task-moves.mjs",
+    "task-moves.json"
    ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "judge-words",
-   "paths": [
-    "do-work/judge-words.mjs",
-    "do-work/evidence-checks.mjs"
-   ],
-   "at": "/opt/judge-words"
-  },
-  {
-   "package": "hand-work-to-ais",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/hand-work-to-ais"
-  },
-  {
-   "package": "move-records-through-declared-states",
-   "paths": [
-    "do-work/move-records-through-declared-states.mjs"
-   ],
-   "at": "/opt/move-records-through-declared-states"
+   "at": "/opt/plan-tasks-and-todo-lists"
   },
   {
    "package": "workflows",
@@ -14479,11 +14480,26 @@
    "at": "/opt/workflows"
   },
   {
+   "package": "move-records-through-declared-states",
+   "paths": [
+    "do-work/move-records-through-declared-states.mjs"
+   ],
+   "at": "/opt/move-records-through-declared-states"
+  },
+  {
    "package": "content-identity",
    "paths": [
     "read-data"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/judge-words.mjs",
+    "do-work/evidence-checks.mjs"
+   ],
+   "at": "/opt/judge-words"
   },
   {
    "packages": [
@@ -14505,38 +14521,35 @@
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
     "do-work/content-chunks.mjs",
     "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
+    "do-work/shared-file-reference.mjs"
    ],
    "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
-   ],
-   "at": "/opt/formula-engine"
   },
   {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
-    "read-data/large-file.json",
     "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/large-file.json"
    ],
    "at": "/opt/workflows"
   }
@@ -15416,6 +15429,97 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:give-a-task": [
+  {
+   "package": "plan-tasks-and-todo-lists",
+   "paths": [
+    "task-moves.mjs",
+    "task-moves.json"
+   ],
+   "at": "/opt/plan-tasks-and-todo-lists"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "move-records-through-declared-states",
+   "paths": [
+    "do-work/move-records-through-declared-states.mjs"
+   ],
+   "at": "/opt/move-records-through-declared-states"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/judge-words.mjs",
+    "do-work/evidence-checks.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/large-file.json"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:give-back-a-computer": [],
  "tool:give-referral-rewards": [
   {
@@ -15677,113 +15781,6 @@
   }
  ],
  "tool:grade-and-repair-speech-audio": [],
- "tool:hand-a-job-to-an-ai": [
-  {
-   "package": "formula-engine",
-   "paths": [
-    "rules",
-    "built-stored-bytes"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "hand-work-to-ais",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/hand-work-to-ais"
-  },
-  {
-   "package": "move-records-through-declared-states",
-   "paths": [
-    "do-work/move-records-through-declared-states.mjs"
-   ],
-   "at": "/opt/move-records-through-declared-states"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "package": "judge-words",
-   "paths": [
-    "do-work/judge-words.mjs",
-    "do-work/evidence-checks.mjs"
-   ],
-   "at": "/opt/judge-words"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
-   ],
-   "at": "/opt/formula-engine"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
-   ],
-   "at": "/opt/workflows"
-  }
- ],
  "tool:hand-a-request-to-its-owner": [
   {
    "package": "take-requests",
@@ -20729,6 +20726,19 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  }
+ ],
+ "tool:list-the-courses-a-learner-is-on": [
+  {
+   "package": "lessons-and-learning-paths",
+   "paths": [
+    "do-work",
+    "read-data/courses-of-a-learner.mjs"
+   ],
+   "at": "/opt/lessons-and-learning-paths",
+   "exclude": [
+    "__tests__"
+   ]
   }
  ],
  "tool:list-the-facebook-pages-a-sign-in-reaches": [],
@@ -27935,6 +27945,13 @@
    "exclude": [
     "__tests__"
    ]
+  },
+  {
+   "package": "lessons-and-learning-paths",
+   "paths": [
+    "read-data/courses-of-a-learner.mjs"
+   ],
+   "at": "/opt/lessons-and-learning-paths"
   }
  ],
  "tool:plan-an-event": [
@@ -38926,113 +38943,6 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
- "tool:see-ai-work": [
-  {
-   "package": "formula-engine",
-   "paths": [
-    "rules",
-    "built-stored-bytes"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "hand-work-to-ais",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/hand-work-to-ais"
-  },
-  {
-   "package": "move-records-through-declared-states",
-   "paths": [
-    "do-work/move-records-through-declared-states.mjs"
-   ],
-   "at": "/opt/move-records-through-declared-states"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "package": "judge-words",
-   "paths": [
-    "do-work/judge-words.mjs",
-    "do-work/evidence-checks.mjs"
-   ],
-   "at": "/opt/judge-words"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
-   ],
-   "at": "/opt/formula-engine"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
-   ],
-   "at": "/opt/workflows"
-  }
- ],
  "tool:see-changes-in-a-project": [
   {
    "package": "git-changes",
@@ -39247,113 +39157,6 @@
    "at": "/opt/workflows"
   }
  ],
- "tool:see-my-ais": [
-  {
-   "package": "formula-engine",
-   "paths": [
-    "rules",
-    "built-stored-bytes"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "hand-work-to-ais",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/hand-work-to-ais"
-  },
-  {
-   "package": "move-records-through-declared-states",
-   "paths": [
-    "do-work/move-records-through-declared-states.mjs"
-   ],
-   "at": "/opt/move-records-through-declared-states"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "package": "judge-words",
-   "paths": [
-    "do-work/judge-words.mjs",
-    "do-work/evidence-checks.mjs"
-   ],
-   "at": "/opt/judge-words"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
-   ],
-   "at": "/opt/formula-engine"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
-   ],
-   "at": "/opt/workflows"
-  }
- ],
  "tool:see-my-decisions": [
   {
    "package": "decide-with-a-method",
@@ -39466,6 +39269,97 @@
     "read-data/host-actions.mjs",
     "read-data/large-file.json",
     "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
+ "tool:see-tasks": [
+  {
+   "package": "plan-tasks-and-todo-lists",
+   "paths": [
+    "task-moves.mjs",
+    "task-moves.json"
+   ],
+   "at": "/opt/plan-tasks-and-todo-lists"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "move-records-through-declared-states",
+   "paths": [
+    "do-work/move-records-through-declared-states.mjs"
+   ],
+   "at": "/opt/move-records-through-declared-states"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/judge-words.mjs",
+    "do-work/evidence-checks.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/large-file.json"
    ],
    "at": "/opt/workflows"
   }
@@ -39669,6 +39563,14 @@
     "src/workspace/screens.mjs"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "plan-tasks-and-todo-lists",
+   "paths": [
+    "task-moves.json",
+    "task-moves.mjs"
+   ],
+   "at": "/opt/plan-tasks-and-todo-lists"
   }
  ],
  "tool:see-what-is-left-to-set-up": [
@@ -40163,6 +40065,97 @@
   }
  ],
  "tool:see-which-models-can-judge": [],
+ "tool:see-who-can-take-work": [
+  {
+   "package": "plan-tasks-and-todo-lists",
+   "paths": [
+    "task-moves.mjs",
+    "task-moves.json"
+   ],
+   "at": "/opt/plan-tasks-and-todo-lists"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "move-records-through-declared-states",
+   "paths": [
+    "do-work/move-records-through-declared-states.mjs"
+   ],
+   "at": "/opt/move-records-through-declared-states"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/judge-words.mjs",
+    "do-work/evidence-checks.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/large-file.json"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:see-who-holds-paid-access": [
   {
    "package": "formula-engine",
@@ -42504,7 +42497,8 @@
   {
    "package": "lessons-and-learning-paths",
    "paths": [
-    "do-work"
+    "do-work",
+    "read-data/courses-of-a-learner.mjs"
    ],
    "at": "/opt/lessons-and-learning-paths",
    "exclude": [
@@ -44917,28 +44911,14 @@
    "at": "/opt/workflows"
   }
  ],
- "tool:take-an-ai-job": [
+ "tool:take-a-task": [
   {
-   "package": "formula-engine",
+   "package": "plan-tasks-and-todo-lists",
    "paths": [
-    "rules",
-    "built-stored-bytes"
+    "task-moves.mjs",
+    "task-moves.json"
    ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "hand-work-to-ais",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/hand-work-to-ais"
-  },
-  {
-   "package": "move-records-through-declared-states",
-   "paths": [
-    "do-work/move-records-through-declared-states.mjs"
-   ],
-   "at": "/opt/move-records-through-declared-states"
+   "at": "/opt/plan-tasks-and-todo-lists"
   },
   {
    "package": "workflows",
@@ -44946,6 +44926,13 @@
     "do-work/run-a-function.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "move-records-through-declared-states",
+   "paths": [
+    "do-work/move-records-through-declared-states.mjs"
+   ],
+   "at": "/opt/move-records-through-declared-states"
   },
   {
    "package": "content-identity",
@@ -44987,39 +44974,30 @@
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
+    "do-work/shared-file-reference.mjs"
    ],
    "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
-   ],
-   "at": "/opt/formula-engine"
   },
   {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
-    "read-data/large-file.json",
     "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/large-file.json"
    ],
    "at": "/opt/workflows"
   }
@@ -47380,6 +47358,13 @@
    "exclude": [
     "__tests__"
    ]
+  },
+  {
+   "package": "lessons-and-learning-paths",
+   "paths": [
+    "read-data/courses-of-a-learner.mjs"
+   ],
+   "at": "/opt/lessons-and-learning-paths"
   }
  ],
  "tool:write-a-message-body-from-a-document": [],

@@ -17,7 +17,7 @@ import words from './planning-settings.json' with { type: 'json' };
 import { postJson, readJson } from './api';
 
 type Hours = { start: string; end: string; time_zone: string; weekdays?: number[]; mode: string };
-type Stored = { working_hours?: Hours | null; capacity: { default_minutes: number | null; caution_band_minutes: number } | null; preferences: { refit_on_move: boolean; external_display?: string; ai_scheduling?: boolean; default_todo_visibility?: string } };
+type Stored = { working_hours?: Hours | null; capacity: { default_minutes: number | null; caution_band_minutes: number } | null; preferences: { refit_on_move: boolean; external_display?: string; plan_automatically?: boolean; default_todo_visibility?: string } };
 type Undo = Record<string, unknown>;
 const ROAD = '/work/api/calendar/tasks';
 const minutesOf = (clock: string) => Number(clock.slice(0, 2)) * 60 + Number(clock.slice(3));
@@ -64,10 +64,10 @@ export function PlanningSettings({ notify }: { notify: (message: string, options
       <Switch checked={stored.preferences.refit_on_move} label={words.refit} size="sm" onCheckedChange={value => void write({ action: 'set_preferences', refit_on_move: value })} />
     </Container>
     <Container layout="horizontal" gap="sm" alignItems="center" justifyContent="between" wrap>
-      <Text variant="body-sm">{words.ai_scheduling}</Text>
-      <Switch checked={stored.preferences.ai_scheduling !== false} label={words.ai_scheduling} size="sm" onCheckedChange={value => void write({ action: 'set_preferences', ai_scheduling: value })} />
+      <Text variant="body-sm">{words.plan_automatically}</Text>
+      <Switch checked={stored.preferences.plan_automatically !== false} label={words.plan_automatically} size="sm" onCheckedChange={value => void write({ action: 'set_preferences', plan_automatically: value })} />
     </Container>
-    <Text variant="caption" color="muted">{words.ai_scheduling_note}</Text>
+    <Text variant="caption" color="muted">{words.plan_automatically_note}</Text>
     <Container layout="vertical" gap="xs">
       <Text variant="caption" color="muted">{words.busy_default}</Text>
       <Select items={timeboxPolicies.map(row => ({ value: row.id, label: row.label }))} value={stored.preferences.external_display ?? 'off'} onValueChange={value => { if (typeof value === 'string') void write({ action: 'set_preferences', external_display: value }); }}>

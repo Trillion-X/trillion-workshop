@@ -21,8 +21,8 @@
 //   2. Old statuses: a read that fails answers 503 { error: 'Busy for a moment. Try again.', busy: true }; a change that
 //      fails answers 400 { error } (old threw it as an uncaught error, which a route tool cannot do and still answer the
 //      page). Any other path or method is 404 { error: 'Not found' }. A failed request keeps and runs nothing.
-//   3. Every record read is one read-data/hold-rows.json names (given in `stored.records`), or an `ai-job` (the person's
-//      AIs pick their jobs up there, tools/hand-work-to-ais); the row's rights grant no more.
+//   3. Every record read is one read-data/hold-rows.json names (given in `stored.records`), or a `calendar-task` (the person's
+//      AIs pick their tasks up there, tools/plan-tasks-and-todo-lists); the row's rights grant no more.
 //   4. The hold setting is kept with `expected` set to what was read; a caller whose store refuses it answers 409 and
 //      nothing is kept. A job is kept only while absent (expected null), under its `once_per`, so one is handed once.
 //   5. Every read keeps what the hold holds now as the person's `setting:needs_you_held` ({ key, title }, or null when
@@ -49,7 +49,7 @@ import { makeWaitingNudge } from '../read-data/waiting-nudge.mjs';
 import { inOrder, sameOnce, weighCards } from '../read-data/waiting-weigh.mjs';
 import { whoDoesEachStep } from '../../who-does-each-step/read-data/who-does.mjs';
 import WHO from '../../shared-code/src/who-does-it.json' with { type: 'json' };
-import { prepareProducedJob } from '../../hand-work-to-ais/read-data/ai-work.mjs';
+import { prepareProducedTask } from '../../plan-tasks-and-todo-lists/task-moves.mjs';
 import { readWaitingOnMe } from '../../what-is-waiting-on-me/read-data/waiting-records.mjs';
 import { waitingSentence } from '../../what-is-waiting-on-me/read-data/waiting.mjs';
 import tellRows from '../../tell-one-person-something-through-every-way-they/read-data/tell-the-person.json' with { type: 'json' };
@@ -229,19 +229,19 @@ function seen(store, made, body, now) {
   return { seen: key, read };
 }
 
-/** A hold job is kept once: a job already among the records handed in is left as it is (and must name the same source). */
+/** A hold task is kept once: a task already among the records handed in is left as it is (and must name the same source). */
 function holdJobRows(store, jobs, now) {
   const rows = [];
   for (const job of jobs) {
     if (!job.job?.trim()) continue;
-    if (typeof job.once_per !== 'string' || !job.once_per) throw new Error('A hold job needs its stable once_per source.');
+    if (typeof job.once_per !== 'string' || !job.once_per) throw new Error('A hold task needs its stable once_per source.');
     const source = { kind: 'record', ref: job.input?.card_id ?? ROWS.state.id };
-    const record = prepareProducedJob({ key: `hold-${makeHashCodeHexFromJson({ source, source_job: job.once_per })}`, job: job.job,
-      source, source_job: job.once_per, ...(object(job.input) ? { input: job.input } : {}),
-      ...(job.said ? { label: job.said } : {}) }, new Date(now));
+    const record = prepareProducedTask({ key: `hold-${makeHashCodeHexFromJson({ source, source_job: job.once_per })}`, description: job.job,
+      source, source_task: job.once_per, ...(object(job.input) ? { input: job.input } : {}),
+      ...(job.said ? { title: job.said } : {}) }, new Date(now));
     const before = store.get(record.id);
     if (before) {
-      if (JSON.stringify(before.value?.producer) !== JSON.stringify(record.value.producer) || before.value?.source_job !== job.once_per) throw new Error('A hold job key names a different source.');
+      if (JSON.stringify(before.value?.producer) !== JSON.stringify(record.value.producer) || before.value?.source_task !== job.once_per) throw new Error('A hold task key names a different source.');
       continue;
     }
     rows.push({ ...record, expected: null });

@@ -141,7 +141,6 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `grade-and-repair-speech-audio` | `tool:clone-speech-that-repair-could-not-fix`, `tool:enhance-speech`, `tool:find-glitches-in-a-generated-voice-take`, `tool:grade-and-repair-speech-audio`, `tool:list-the-speech-in-my-edit-plans-to-grade`, `tool:listen-to-a-generated-voice-take-word-by-word`, `tool:measure-speech-in-my-recordings`, `tool:pick-the-cleanest-speech-to-clone-from`, `tool:read-back-repaired-speech`, `tool:score-voice-takes-against-the-voice-i-want`, `tool:silence-the-ticks-in-a-generated-voice-takes-pauses`, `tool:time-words-to-where-the-voice-starts` |
 | `guard-ai-spending` | `tool:may-this-spend-go-ahead`, `tool:read-spend-rails`, `tool:record-a-spend`, `tool:reserve-a-spend-within-budget`, `tool:reset-daily-spend` |
 | `guided-tours` | `tool:check-if-a-tour-step-may-advance`, `tool:find-the-event-that-starts-one-tour`, `tool:find-the-tour-an-event-starts`, `tool:step-through-a-guided-tour` |
-| `hand-work-to-ais` | `tool:change-an-ai-job`, `tool:finish-an-ai-job`, `tool:hand-a-job-to-an-ai`, `tool:see-ai-work`, `tool:see-my-ais`, `tool:take-an-ai-job` |
 | `hold-a-computer-quiet` | `tool:device-holds`, `tool:focus`, `tool:hold-a-device-quiet`, `tool:release-a-device` |
 | `hold-one-thing-until-done` | `tool:answer-the-needs-you-hold-route`, `tool:change-what-holds-me`, `tool:see-what-holds-me` |
 | `hold-to-it` | `tool:hold-to-it` |
@@ -214,7 +213,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `pick-a-screen-as-you-type` | `tool:fill-screen-inputs-from-words`, `tool:pick-a-screen-for-typed-words` |
 | `pin-files-by-content` | `tool:check-prose-against-its-writing-rules`, `tool:check-quotes-against-their-source-bytes`, `tool:pin-files-by-content` |
 | `plan-my-time` | `tool:plan-my-time` |
-| `plan-tasks-and-todo-lists` | `tool:sort-mail-into-built-in-task-lists` |
+| `plan-tasks-and-todo-lists` | `tool:change-a-task`, `tool:finish-a-task`, `tool:give-a-task`, `tool:see-tasks`, `tool:see-who-can-take-work`, `tool:sort-mail-into-built-in-task-lists`, `tool:take-a-task` |
 | `plan-trips` | `tool:measure-a-checklist`, `tool:rank-open-trip-things` |
 | `pointillist-film` | `tool:render-a-pointillist-frame`, `tool:render-a-pointillist-target-animation`, `tool:render-pointillist-frames-over-time` |
 | `poker` | `tool:rank-poker-hands`, `tool:run-a-poker-table`, `tool:view-a-poker-table-for-a-player` |

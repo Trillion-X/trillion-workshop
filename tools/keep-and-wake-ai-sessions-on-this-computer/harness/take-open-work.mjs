@@ -5,7 +5,7 @@
 //   ios/, never part of the hosted service). Work handed to "whichever of my AIs takes it first" waits on the account
 //   until an AI takes it; Trillion runs no agent of its own, so this gets it done by the AI the person chose:
 //     - work handed to nobody in particular is claimed by id for this computer's agent card, then the chosen AI runs
-//       headless with a prompt telling it to take that exact job, do it, and finish it;
+//       headless with a prompt telling it to take that exact task, do it, and finish it;
 //     - work that came from one of the person's chats stays with that chat (only that chat's agent may take it), so
 //       when that chat is idle on this computer it is resumed headless with a prompt to take, do and finish it.
 //   Two layers: plan() is pure (open work, agent cards, settings, today's count → what to start now), and the runner
@@ -20,22 +20,22 @@
 //               one pass that waits for the runs it started to end, printing one JSON line per thing that happened.
 //
 // Non-negotiable invariants
-//   1. Never start a job twice: a job's local record (<state>/started/<handoff_id>.json) is created exclusively before
-//      anything runs, a job with a record is never planned again, and the account's take-by-id is the claim.
+//   1. Never start a task twice: a task's local record (<state>/started/<handoff_id>.json) is created exclusively before
+//      anything runs, a task with a record is never planned again, and the account's take-by-id is the claim.
 //   2. Never more than max_concurrent runs alive and never more than daily_cap started in one local day. What the
 //      person said themselves goes first, newest first, and is held only by max_concurrent, never by daily_cap. What they
 //      said themselves is decided by src/own-work.mjs: an arrival from the person, or a priority at or above
 //      src/inbound-words.json from_person, whatever priority the rule that handed it gave it.
 //   3. A chat's work goes only to that same chat, resumed only when it has been idle chat_idle_minutes and its transcript
-//      is at most chat_largest_bytes (a longer chat costs more to resume than the job is worth), one run per chat at a
+//      is at most chat_largest_bytes (a longer chat costs more to resume than the task is worth), one run per chat at a
 //      time; a chat with a published agent card takes its own work and is left alone.
 //   4. No AI, chat app or product is named in this file: commands, prompts, limits and words are DATA in
 //      take-open-work.json. The personal key is held in memory and sent only in the Authorization header.
 //   5. Before a claim, the exact Trillion MCP bridge the AI will receive must initialize successfully. A run that ends
-//      without finishing its claimed job gives it back immediately with the log and exit code, never silently.
-//   6. One announced job costs one read by its id (and one page of open work for the agent cards when the caller has
-//      none), never a listing of every open job.
-//   7. A program that is installed nowhere Trillion looks is a wall, never a crash: no job is claimed or taken for the AI
+//      without finishing its claimed task gives it back immediately with the log and exit code, never silently.
+//   6. One announced task costs one read by its id (and one page of open work for the agent cards when the caller has
+//      none), never a listing of every open task.
+//   7. A program that is installed nowhere Trillion looks is a wall, never a crash: no task is claimed or taken for the AI
 //      that needs it, the AI's taker card line says "<program> is not installed where Trillion looks (<folders tried>)"
 //      (words.program_missing_trouble), and the next of the person's AIs whose program is installed runs instead. A chat
 //      whose AI's program is missing waits (its work is left, not claimed). The card clears when the program is found.
@@ -50,17 +50,23 @@ import { fileURLToPath } from 'node:url';
 import { aiOrder, chosenAi as chosenAiOnThisComputer, computerSettings } from './chosen-ai.mjs';
 import { isOwnWork, takingOrder } from '../src/own-work.mjs';
 import { accountKeyOrNull, accountOrigin } from './account-key.mjs';
+import { runTaskMove, stateOfWord, wordsOfStates } from '../../plan-tasks-and-todo-lists/run-a-task-move.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (whole, name) => (Object.hasOwn(values, name) ? String(values[name]) : whole));
-const jobContract = (job, settings) => Object.fromEntries((settings.ai_jobs?.revision_fields ?? []).map(field => [field, job?.[field] ?? null]));
+// The receipt field keeps its name (job_contract): a receipt written before this change keeps its attempt count.
+const taskContract = (task, settings) => Object.fromEntries((settings.tasks?.revision_fields ?? []).map(field => [field, task?.[field] ?? null]));
 const home = path => String(path).replace(/^~(?=\/|$)/, homedir());
 
 // Programs. A helper the Mac app starts has a short PATH, so a program a command names is looked for on this PATH, then in
 // the folders take-open-work.json program_paths names (~ expanded), then by the person's login shell. A program found is
 // kept for this process; one not found is looked for again on the next pass, so one installed since runs at once.
 const takerData = JSON.parse(readFileSync(new URL('./take-open-work.json', import.meta.url), 'utf8'));
-const jobStates = JSON.parse(readFileSync(new URL('../../hand-work-to-ais/read-data/ai-work.json', import.meta.url), 'utf8'));
-const jobState = status => jobStates.read_as?.[status] ?? status;
+const taskRules = JSON.parse(readFileSync(new URL('../../plan-tasks-and-todo-lists/task-moves.json', import.meta.url), 'utf8'));
+// A task's stored status word read as its declared state, then as the state this worker names it by (settings.tasks.worker_states).
+const workerStateOf = (status, settings) => settings.tasks.worker_states[stateOfWord(status)];
+// The taking order reads priority as a number: the declared words, most urgent highest. The person's own words start at
+// from_person (src/inbound-words.json), above every task word, so a task is never taken as the person's own words.
+const priorityNumber = word => taskRules.priorities.length - taskRules.priorities.indexOf(word ?? taskRules.default_priority);
 const PROGRAM_NAME = /^[A-Za-z0-9._+-]+$/;
 const resolvedPrograms = new Map();
 const isRunnableFile = path => { try { accessSync(path, constants.X_OK); return statSync(path).isFile(); } catch { return false; } };
@@ -158,7 +164,7 @@ export async function preflightTrillion(settings, { launch = spawn, runtime = pr
     child.stdin?.end(`${JSON.stringify({ jsonrpc: '2.0', id: 'trillion-preflight', method: 'initialize', params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'take-open-work-preflight', version: '1' } } })}\n`);
   });
 }
-// Why a job cannot be taken now, or null when it can: held by another AI, waiting on other work, or something an AI
+// Why a task cannot be taken now, or null when it can: held by another AI, waiting on other work, or something an AI
 // said stands in its way. Trillion's own waits (for a chat, for any AI to connect) are exactly what taking it ends.
 export function notTakeable(item, nowIso, trillion) {
   if (item.state === 'taken' && !(item.hold_until && item.hold_until <= nowIso)) return 'being worked on';
@@ -309,7 +315,9 @@ export function plan({ open, agents, settings, started, today, running, chats, a
     if (why) { leave(why); continue; }
     if (started.has(item.handoff_id) && !started.get(item.handoff_id).limit_hit) { leave('already started here'); continue; }
     const source_id = item.input?.arrived?.source_id;
-    if (item.to_agent && !(item.ai_job && item.to_agent === agent_id) && sourceOwners.get(source_id) !== item.to_agent) { leave('handed to a named agent'); continue; }
+    // A task names its assignees (record ids of anyone; none means anyone may take it). A chat's work names one AI in to_agent.
+    const named = item.task ? item.assignees.length > 0 && !item.assignees.includes(agent_id) : Boolean(item.to_agent) && sourceOwners.get(source_id) !== item.to_agent;
+    if (named) { leave('handed to a named agent'); continue; }
     // With a triage step (settings.triage, harness/triage-open-work.mjs), only work it sorted as real work is run.
     if (triaged && !own(item) && !item.input?.arrived?.from_person && !(item.to_agent && sourceOwners.get(source_id) === item.to_agent)
       && !String(item.from_agent ?? '').startsWith(settings.triage.agent_id_prefix)) {
@@ -336,12 +344,12 @@ export function plan({ open, agents, settings, started, today, running, chats, a
     }
     if (!job) {
       if (!ai) { leave('no chosen AI is installed here'); continue; }
-      const prompt = fill(item.ai_job ? settings.prompts.ai_job : settings.prompts.claim, { handoff_id: item.handoff_id, agent_id, computer, job: item.job, outcome: item.outcome ?? item.job, take_tool: settings.ai_jobs?.take_tool, move_tool: settings.ai_jobs?.move_tool, finish_tool: settings.ai_jobs?.finish_tool, continuation: item.continuation ? JSON.stringify(item.continuation) : 'none' });
+      const prompt = fill(item.task ? settings.prompts.task : settings.prompts.claim, { handoff_id: item.handoff_id, agent_id, computer, take_tool: settings.tasks?.take_tool, move_tool: settings.tasks?.move_tool, finish_tool: settings.tasks?.finish_tool, continuation: item.continuation ? JSON.stringify(item.continuation) : 'none' });
       job = { handoff_id: item.handoff_id, mode: 'claim', agent_id, cwd: home(settings.working_folder), prompt,
         command: ai.command.map(part => fill(part, { prompt })), ai_id: ai.id, work_mcp: ai.work_mcp };
     }
     if (start.length >= (own(item) ? slots : room)) { leave(!own(item) && settings.daily_cap - today <= 0 ? 'daily cap reached' : 'no free slot now'); continue; }
-    if (item.ai_job) job.job_contract = jobContract(item, settings);
+    if (item.task) job.job_contract = taskContract(item, settings);
     job.own = own(item);
     start.push(job);
     if (job.mode === 'chat') busyChats.add(source_id);
@@ -407,7 +415,7 @@ export function startedRecords(folder) {
   };
 }
 
-// How long a job may sit between its local record and its process before it counts as lost.
+// How long a task may sit between its local record and its process before it counts as lost.
 const STARTING_MS = 5 * 60_000;
 const alive = pid => { try { process.kill(pid, 0); return true; } catch { return false; } };
 // A chat's kept file can be larger than one string may be (a long Codex or Claude session passes 512 MB, and reading it
@@ -497,10 +505,10 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
   const folder = home(settings.state_folder);
   const records = startedRecords(folder);
   const ai = chosenAi(settings);
-  const agent_id = `${call.aiJobs ? 'ai:' : ''}${takerCard(settings, computer).agent_id}`;
+  const agent_id = `${call.tasks ? 'ai:' : ''}${takerCard(settings, computer).agent_id}`;
   const nowIso = now().toISOString();
   // A transport loss may hide a still-running atomic take. Recover its original request key before deciding
-  // whether this job was claimed; a fresh key could take it twice after a release or strand a late claim.
+  // whether this task was claimed; a fresh key could take it twice after a release or strand a late claim.
   for (const record of records.all().values()) {
     if (!record.claim_pending) continue;
     try {
@@ -526,8 +534,8 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
   const listedCards = new Map();
   let listedAgents = [];
   let after = null;
-  // One announced job is read by its id, never by listing every open job (2026-10-07: each announced chat job listed
-  // all 3,646 open jobs, 73 pages, about three page calls a second on the busiest account). A chat's job is given back
+  // One announced task is read by its id, never by listing every open task (2026-10-07: each announced chat task listed
+  // all 3,646 open tasks, 73 pages, about three page calls a second on the busiest account). A chat's task is given back
   // to its chat by the agent cards, which the first page of open work carries; one page is read for them only when
   // the caller has none.
   const named = onlyHandoffId ? (await call('/handoffs/read', { handoff_id: onlyHandoffId })).handoff : null;
@@ -573,20 +581,20 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
   const attempts = new Map();
   const executions = new Map();
   for (const item of selected) {
-    if (item.state !== 'open' && !(call.aiJobs && item.state === 'taken')) continue;
+    if (item.state !== 'open' && !(call.tasks && item.state === 'taken')) continue;
     const record = started.get(item.handoff_id);
     const attempt = record?.attempt ?? 1;
-    const reviewed = call.aiJobs && (record?.executor_starts ?? 0) >= settings.ai_jobs.max_attempts
+    const reviewed = call.tasks && (record?.executor_starts ?? 0) >= settings.tasks.max_attempts
       && typeof item.resumed?.words === 'string' && item.resumed.words.trim()
       && Date.parse(item.resumed.at) > Date.parse(record.ended_at);
-    const revised = reviewed || record?.job_contract && JSON.stringify(record.job_contract) !== JSON.stringify(jobContract(item, settings));
-    if (call.aiJobs && (record?.executor_starts ?? 0) >= settings.ai_jobs.max_attempts && !revised) {
+    const revised = reviewed || record?.job_contract && JSON.stringify(record.job_contract) !== JSON.stringify(taskContract(item, settings));
+    if (call.tasks && (record?.executor_starts ?? 0) >= settings.tasks.max_attempts && !revised) {
       if (item.state === 'open' && item.continuation?.owner === agent_id) {
-        try { await call('/handoffs/release', { handoff_id: item.handoff_id, agent_id, taken_at: record.taken_at, because: settings.ai_jobs.review_action, park: true }); } catch { /* The next pass retains the cap and retries the canonical park. */ }
+        try { await call('/handoffs/release', { handoff_id: item.handoff_id, agent_id, taken_at: record.taken_at, because: settings.tasks.review_action, park: true }); } catch { /* The next pass retains the cap and retries the canonical park. */ }
       }
       continue;
     }
-    if (record?.claim_pending || record?.release_pending || !record?.ended_at || (!call.aiJobs && attempt >= retryAfterMinutes.length) || nowMs - Date.parse(record.ended_at) < retryAfterMinutes[Math.min(attempt, retryAfterMinutes.length - 1)] * 60_000) continue;
+    if (record?.claim_pending || record?.release_pending || !record?.ended_at || (!call.tasks && attempt >= retryAfterMinutes.length) || nowMs - Date.parse(record.ended_at) < retryAfterMinutes[Math.min(attempt, retryAfterMinutes.length - 1)] * 60_000) continue;
     if (record.parked && record.parked_move === item.last_move?.key) continue;
     executions.set(item.handoff_id, revised ? 0 : record.executor_starts ?? (record.pid ? attempt : 0));
     attempts.set(item.handoff_id, revised ? 1 : attempt + 1);
@@ -602,7 +610,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
   const running = [...current.values()].filter(record => !record.ended_at || record.claim_pending).length;
   const chats = findChats(settings, new Set(selected.map(item => item.input?.arrived?.source_id).filter(Boolean)), now().getTime());
   // What the triage step (harness/triage-open-work.mjs) sorted, when this computer sorts work before running it.
-  const triaged = settings.triage && !call.aiJobs ? readTriaged(folder) : null;
+  const triaged = settings.triage && !call.tasks ? readTriaged(folder) : null;
   // An AI whose program is not installed where Trillion looks is neither claimed for nor run. Its trouble says which program
   // and the folders tried (words.program_missing_trouble), the card shows it, and it clears once the program is found.
   const runnable = row => programReady(row, locate);
@@ -637,7 +645,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
     settings.resting_because = { ...settings.resting_because, [ai_id]: because };
     log({ did: 'rested', ai: ai_id, until, because });
   };
-  // A run that could not start (the system refused, or its program went missing): the job is given back, the AI does not
+  // A run that could not start (the system refused, or its program went missing): the task is given back, the AI does not
   // rest (nothing says its budget is spent), and why is on the card (`what`, the words the card shows).
   const failedToStart = async (job, error, what = fill(settings.words.start_failed_trouble, { error: error?.message ?? error })) => {
     trouble(job.ai_id, what);
@@ -666,7 +674,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
       continue;
     }
     // One successful initialize proves the exact bridge all runs in this pass receive. This happens before the local
-    // record and before /handoffs/take, so an authentication failure cannot consume a slot or hold a job.
+    // record and before /handoffs/take, so an authentication failure cannot consume a slot or hold a task.
     if (settings.work_mcp) {
       connectionChecked ??= Promise.resolve().then(() => checkConnection(settings));
       try { await connectionChecked; }
@@ -683,16 +691,16 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
     if (!records.claim({ handoff_id: job.handoff_id, mode: job.mode, source_id: job.source_id ?? null, agent_id: job.agent_id, started_at: nowIso, attempt: attempts.get(job.handoff_id) ?? 1, request_key: randomUUID(), ...(job.job_contract ? { job_contract: job.job_contract } : {}), executor_starts: job.executor_starts, ...(job.own ? { own: true } : {}) })) { log({ did: 'already started here', handoff_id: job.handoff_id }); continue; }
     if (job.mode === 'claim') {
       let taken;
-      try { taken = await call('/handoffs/take', { agent_id, handoff_id: job.handoff_id, ...(call.aiJobs ? { request_key: records.all().get(job.handoff_id).request_key } : {}) }); }
+      try { taken = await call('/handoffs/take', { agent_id, handoff_id: job.handoff_id, ...(call.tasks ? { request_key: records.all().get(job.handoff_id).request_key } : {}) }); }
       catch (error) {
-        records.update(job.handoff_id, { ended_at: nowIso, refused: error.message, ...(call.aiJobs && !error.refused ? { claim_pending: true } : {}) });
+        records.update(job.handoff_id, { ended_at: nowIso, refused: error.message, ...(call.tasks && !error.refused ? { claim_pending: true } : {}) });
         log({ did: 'not taken', handoff_id: job.handoff_id, note: error.message });
         continue;
       }
       if (!taken.handoff) { records.update(job.handoff_id, { ended_at: nowIso, refused: taken.note ?? 'not taken' }); log({ did: 'not taken', handoff_id: job.handoff_id, note: taken.note }); continue; }
-      if (call.aiJobs) { job.taken_at = taken.handoff.taken_at; job.prompt = fill(job.prompt, { taken_at: job.taken_at }); records.update(job.handoff_id, { taken_at: job.taken_at }); }
+      if (call.tasks) { job.taken_at = taken.handoff.taken_at; job.prompt = fill(job.prompt, { taken_at: job.taken_at }); records.update(job.handoff_id, { taken_at: job.taken_at }); }
     }
-    const logPath = join(folder, 'runs', `${job.handoff_id.startsWith('ai-job:') ? encodeURIComponent(job.handoff_id) : job.handoff_id}.log`);
+    const logPath = join(folder, 'runs', `${call.tasks ? encodeURIComponent(job.handoff_id) : job.handoff_id}.log`);
     mkdirSync(join(folder, 'runs'), { recursive: true });
     try { job.command = withWorkMcp(job, job.command, settings, folder); }
     catch (error) { runs.push(failedToStart(job, error)); continue; }
@@ -711,7 +719,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
     log({ did: 'started', handoff_id: job.handoff_id, mode: job.mode, pid: child.pid });
     begun.push(job.handoff_id);
     // While the run is alive the account is looked at every busy.check_every_seconds; when it keeps answering busy
-    // (busy.tries checks in a row, each already sent again on busy.backoff_seconds), the run is stopped and the job
+    // (busy.tries checks in a row, each already sent again on busy.backoff_seconds), the run is stopped and the task
     // released at once, so an AI never burns its budget against an account that cannot answer it.
     let busyChecks = 0;
     let stoppedBusy = false;
@@ -729,7 +737,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
       try {
         const current = (await call('/handoffs/read', { handoff_id: job.handoff_id }))?.handoff;
         busyChecks = 0;
-        if (call.aiJobs && !stoppedClaim && (!current || current.state !== 'taken'
+        if (call.tasks && !stoppedClaim && (!current || current.state !== 'taken'
           || current.taken_by !== job.agent_id || current.taken_at !== job.taken_at)) {
           stoppedClaim = true;
           log({ did: 'stopped, claim ended or changed', handoff_id: job.handoff_id, pid: child.pid });
@@ -776,7 +784,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
         return { handoff_id: job.handoff_id, code, finished: false, released };
       }
       // An AI that reached its usage limit rests until the reset its words name (limit_reset; else limit_rest_hours from
-      // now); its job is given back and planned again, and the next of the person's chosen AIs runs work meanwhile (chosenAi).
+      // now); its task is given back and planned again, and the next of the person's chosen AIs runs work meanwhile (chosenAi).
       if (code !== 0 && reachedLimit(settings, said)) {
         rest(job.ai_id, restUntil(settings, said, now().getTime()), fill(settings.words.rested_because, { said: limitLine() }));
         const released = await releaseHeld(call, settings, job, fill(settings.words.released_limit, { ai: job.ai_id, until: settings.resting[job.ai_id] }));
@@ -799,11 +807,11 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
         released = await releaseHeld(call, settings, job, fill(settings.words.not_finished, { code, log: logPath, computer }));
         if (!released) records.update(job.handoff_id, { release_pending: true });
       }
-      if (call.aiJobs && !finished && job.executor_starts >= settings.ai_jobs.max_attempts && read?.state === 'open' && read.continuation?.owner === job.agent_id) {
-        try { await call('/handoffs/release', { handoff_id: job.handoff_id, agent_id: job.agent_id, taken_at: job.taken_at, because: settings.ai_jobs.review_action, park: true }); }
+      if (call.tasks && !finished && job.executor_starts >= settings.tasks.max_attempts && read?.state === 'open' && read.continuation?.owner === job.agent_id) {
+        try { await call('/handoffs/release', { handoff_id: job.handoff_id, agent_id: job.agent_id, taken_at: job.taken_at, because: settings.tasks.review_action, park: true }); }
         catch { records.update(job.handoff_id, { review_pending: true }); }
       }
-      // A run that finished its job shows its AI works: an earlier failure to start or timeout leaves the card.
+      // A run that finished its task shows its AI works: an earlier failure to start or timeout leaves the card.
       if (finished && settings.trouble?.[job.ai_id]) { trouble(job.ai_id, null); await republish(); }
       log({ did: finished ? 'finished' : 'ended unfinished', handoff_id: job.handoff_id, code, summary: read?.summary ?? null });
       return { handoff_id: job.handoff_id, code, finished, ...(!finished ? { released } : {}) };
@@ -816,23 +824,23 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
 /** Whether an error is the account saying it is busy (it answered, and asked to be sent again). */
 export const isBusy = error => Boolean(error?.busy);
 
-/** Gives back a job this computer's run held, so the next AI can take it at once (`because` is what the job then says;
+/** Gives back a task this computer's run held, so the next AI can take it at once (`because` is what the task then says;
  * the busy account's words when none is given). → true when the account took it back. */
 export async function releaseHeld(call, settings, job, because = settings.words.released_busy) {
   try {
-    // An ai-job recovery belongs to the original take, not whichever claim the latest read happens to show.
+    // A task recovery belongs to the original take, not whichever claim the latest read happens to show.
     // Missing local evidence stays pending for review; borrowing a fresh timestamp would authorize another run's release.
-    if (call.aiJobs && (typeof job.taken_at !== 'string' || !Number.isFinite(Date.parse(job.taken_at)))) return false;
+    if (call.tasks && (typeof job.taken_at !== 'string' || !Number.isFinite(Date.parse(job.taken_at)))) return false;
     const answer = await call('/handoffs/read', { handoff_id: job.handoff_id });
     const read = answer?.handoff;
-    if (call.aiJobs) {
+    if (call.tasks) {
       if (!answer || !Object.hasOwn(answer, 'handoff')) return false;
       if (read === null) return true; // An explicit absent target, rather than an unavailable read.
-      if (!read || (!jobStates.states.some(state => state.key === read.state) && !['open', 'finished'].includes(read.state))) return false;
+      if (!read || (!Object.values(settings.tasks.worker_states).includes(read.state) && !['open', 'finished'].includes(read.state))) return false;
       if (read.state === 'taken' && (typeof read.taken_by !== 'string' || typeof read.taken_at !== 'string' || !Number.isFinite(Date.parse(read.taken_at)))) return false;
     }
     if (read?.state !== 'taken' || read.taken_by !== job.agent_id || (job.taken_at && read.taken_at !== job.taken_at)) return true;
-    await call('/handoffs/release', { handoff_id: job.handoff_id, agent_id: job.agent_id, generation: read.generation, because, ...(call.aiJobs ? { taken_at: job.taken_at } : {}), ...(call.aiJobs && (job.executor_starts ?? 0) >= settings.ai_jobs.max_attempts ? { park: true } : {}) });
+    await call('/handoffs/release', { handoff_id: job.handoff_id, agent_id: job.agent_id, generation: read.generation, because, ...(call.tasks ? { taken_at: job.taken_at } : {}), ...(call.tasks && (job.executor_starts ?? 0) >= settings.tasks.max_attempts ? { park: true } : {}) });
     return true;
   } catch { return false; }
 }
@@ -848,49 +856,52 @@ export function readSettings() {
   return { ...settings, use_ai: chosenAiOnThisComputer(), ai_order: aiOrder(), resting, resting_because, trouble: kept('trouble.json') };
 }
 
-// The worker keeps scheduling/attempt receipts only. The shared ai-job owner remains the only queue and the
-// only authority for claims and transitions. This transport adapter leaves legacy direct callers unchanged.
-export function aiJobCaller(call, settings, { now = () => new Date(), computer = computerName() } = {}) {
-  const rules = settings.ai_jobs;
+// The worker keeps scheduling/attempt receipts only. The shared task owner (tools/plan-tasks-and-todo-lists) remains the
+// only queue and the only authority for claims and transitions: each tool runs over the records it names, and the writes
+// it answers are kept by run-a-task-move.mjs, each conditioned on the value it was read at. This transport adapter leaves
+// legacy direct callers unchanged.
+export function taskCaller(call, settings, { now = () => new Date(), computer = computerName() } = {}) {
+  const rules = settings.tasks;
   if (!rules) return call;
-  if (typeof call.resource !== 'function') throw new Error('The ai-job worker needs the addressed resource transport.');
+  if (typeof call.resource !== 'function') throw new Error('The task worker needs the addressed resource transport.');
   const workerId = `${rules.ai_kind}:${takerCard(settings, computer).agent_id}`;
-  const openStates = jobStates.states.filter(state => !state.terminal).flatMap(state =>
-    [state.key, ...Object.keys(jobStates.read_as ?? {}).filter(word => jobStates.read_as[word] === state.key)]);
+  const openStates = wordsOfStates(taskRules.states.filter(state => !state.terminal).map(state => state.key));
   const operation = (address, method, input, key = randomUUID()) => call.resource(address, method, input, key);
-  const run = async (tool, input, key) => {
-    let answer = await operation('@tools', 'tools:run', { tool, input }, key);
-    for (let attempt = 0; answer?.task_id && !['completed', 'failed'].includes(answer.state) && attempt < (rules.task_reads ?? 5); attempt += 1) {
-      answer = await operation('@tools', 'tools:read', { task_id: answer.task_id, wait_seconds: rules.task_wait_seconds ?? 10 });
-    }
-    if (answer?.state === 'failed' || answer?.exit_code && answer.exit_code !== 0) throw new Error(answer.error ?? 'The ai-job action failed.');
-    const output = answer?.output ?? answer;
-    const result = output?.result ?? output;
-    if (!result || answer?.task_id && answer.state !== 'completed') throw new Error('The ai-job action is still pending; its stable request key must be recovered.');
-    return result;
-  };
-  const resumeDue = async job => {
-    const record = startedRecords(home(settings.state_folder)).all().get(job?.id);
-    if ((record?.executor_starts ?? 0) >= rules.max_attempts && JSON.stringify(record.job_contract) === JSON.stringify(jobContract(job, settings))) return job;
-    if (job?.status !== 'blocked' || job.continuation?.owner !== workerId || Date.parse(job.continuation.after) > now().getTime()) return job;
-    const resumed = await run(rules.move_tool, { as: workerId, id: job.id, action: 'resume', because: rules.recovery_action });
-    if (typeof resumed?.moved !== 'boolean') throw new Error('The shared resume returned no transition result.');
-    return resumed.job;
-  };
-  const shown = job => job ? { ...job, handoff_id: job.id, ai_job: true,
-    state: jobState(job.status) === 'waiting' ? 'open' : jobState(job.status) === 'done' && job.check?.consumer?.identity && job.check.acceptance_identity && job.check.taken_at === job.taken_at ? 'finished' : jobState(job.status),
-    to_agent: job.to, from_agent: job.from, taken_by: job.taker, handed_at: job.sent_at,
+  const kindOf = id => String(id).split(':')[0];
+  // The records a task tool names: the task itself, its continuation owner, its assignees, and the consumer a finish checks.
+  const readsOf = input => ({ ids: [
+    ...(input.id ? [{ type: rules.kind, id: input.id }] : []),
+    ...(input.continuation?.owner ? [{ type: kindOf(input.continuation.owner), id: input.continuation.owner }] : []),
+    ...(Array.isArray(input.assignees) ? input.assignees.map(id => ({ type: kindOf(id), id })) : []),
+    ...(input.check?.target ? [{ type: input.check.target.type, id: input.check.target.id }] : []),
+  ] });
+  // One task tool run over the records it names. `kept: false` means the account refused its write whole because the
+  // task changed since it was read: nothing was written, and the caller reads again.
+  const act = (tool, input, key) => runTaskMove(operation, { tool, input, key, read: readsOf(input), reads: rules.task_reads, waitSeconds: rules.task_wait_seconds });
+  const workerStateOfTask = task => workerStateOf(task?.status, settings);
+  const shown = task => task ? { ...task, handoff_id: task.id, task: true, assignees: task.assignees ?? [],
+    state: workerStateOfTask(task) === 'done' && task.check?.consumer?.identity && task.check.acceptance_identity && task.check.taken_at === task.taken_at ? 'finished' : workerStateOfTask(task),
+    from_agent: task.sent_by, handed_at: task.sent_at, priority: priorityNumber(task.priority),
     // The shared take action decides whether an old claim can be taken. An adapter never owns that stale-time rule.
-    hold_until: jobState(job.status) === 'taken' ? now().toISOString() : null,
-    next_step: Date.parse(job.continuation?.after) > now().getTime() ? { kind: 'dependency' } : null,
-    input: job.input ?? {},
+    hold_until: workerStateOfTask(task) === 'taken' ? now().toISOString() : null,
+    next_step: Date.parse(task.continuation?.after) > now().getTime() ? { kind: 'dependency' } : null,
+    input: task.input ?? {},
   } : null;
+  const resumeDue = async task => {
+    const record = startedRecords(home(settings.state_folder)).all().get(task?.id);
+    if ((record?.executor_starts ?? 0) >= rules.max_attempts && JSON.stringify(record.job_contract) === JSON.stringify(taskContract(shown(task), settings))) return task;
+    if (workerStateOfTask(task) !== 'blocked' || task.continuation?.owner !== workerId || Date.parse(task.continuation.after) > now().getTime()) return task;
+    const resumed = await act(rules.move_tool, { as: workerId, id: task.id, action: 'resume', because: rules.recovery_action });
+    if (!resumed.kept) throw new Error('The task changed before its resume was written; the next pass reads it again.');
+    if (typeof resumed.result?.moved !== 'boolean') throw new Error('The shared resume returned no transition result.');
+    return resumed.result.task;
+  };
   const adapted = async (path, body = {}) => {
     if (path === '/handoffs/open-page') {
       const cursor = body.after ? JSON.parse(body.after) : { state: 0, after: null };
-      if (!Number.isInteger(cursor.state) || cursor.state < 0 || cursor.state >= openStates.length) throw new Error('The open-job cursor names no declared state.');
+      if (!Number.isInteger(cursor.state) || cursor.state < 0 || cursor.state >= openStates.length) throw new Error('The open-task cursor names no declared state.');
       const page = await operation('@own-records', 'records:list', { type: rules.kind, where: { status: openStates[cursor.state] }, limit: 100, ...(cursor.after ? { after: cursor.after } : {}) });
-      if (!Array.isArray(page?.records)) throw new Error('The account did not return its ai-job records.');
+      if (!Array.isArray(page?.records)) throw new Error('The account did not return its task records.');
       const work = [];
       for (const row of page.records) work.push(shown(await resumeDue({ id: row.id, ...row.value })));
       const next = page.next ? { state: cursor.state, after: page.next }
@@ -898,47 +909,51 @@ export function aiJobCaller(call, settings, { now = () => new Date(), computer =
       return { work: work.filter(Boolean), agents: [], next_after: next ? JSON.stringify(next) : null };
     }
     if (path === '/handoffs/read') {
-      const row = await operation('@own-records', 'records:read', { type: rules.kind, id: body.handoff_id });
-      if (!row || !Object.hasOwn(row, 'value')) throw new Error('The account did not return the ai-job read.');
-      return { handoff: row.value ? shown(await resumeDue({ id: row.id, ...row.value })) : null };
+      const value = await operation('@own-records', 'records:read', { id: body.handoff_id });
+      if (value === undefined) throw new Error('The account did not return the task read.');
+      return { handoff: value === null ? null : shown(await resumeDue({ id: body.handoff_id, ...value })) };
     }
     if (path === '/handoffs/take') {
       try {
-        const result = await run(rules.take_tool, { as: body.agent_id, id: body.handoff_id }, body.request_key);
+        const { result, kept } = await act(rules.take_tool, { as: body.agent_id, id: body.handoff_id }, body.request_key);
         if (!Object.hasOwn(result, 'taken')) throw new Error('The shared take returned no claim result.');
+        // Refused whole by the account's conditional write: nothing was taken, so the next pass reads the task again.
+        if (!kept) return { handoff: null, note: 'The task changed before it could be taken.' };
         return { handoff: shown(result.taken), note: result.reason };
       } catch (error) {
-        // A declared rule refusal cannot have claimed the job. Transport loss and pending tasks remain uncertain.
-        if (/The rule for .take.|cannot be given .take.|No job .* is in this person/.test(error?.message ?? '')) error.refused = true;
+        // A declared rule refusal cannot have claimed the task. Transport loss and pending tasks remain uncertain.
+        if (/The rule for .take.|cannot be given .take.|No task .* is among the records/.test(error?.message ?? '')) error.refused = true;
         throw error;
       }
     }
     if (path === '/handoffs/release') {
-      const result = await run(rules.move_tool, { as: body.agent_id, id: body.handoff_id, action: body.park ? 'wait' : 'release', taken_at: body.taken_at, because: body.because,
+      const { result, kept } = await act(rules.move_tool, { as: body.agent_id, id: body.handoff_id, action: body.park ? 'wait' : 'release', taken_at: body.taken_at, because: body.because,
         continuation: { owner: body.agent_id, action: body.park ? rules.review_action : rules.recovery_action, after: new Date(now().getTime() + (rules.recovery_after_seconds ?? 60) * 1000).toISOString(), reason: body.because } }, body.request_key);
+      if (!kept) throw new Error('The task changed before this release was written; the next pass reads it again.');
       if (typeof result?.moved !== 'boolean') throw new Error('The shared recovery returned no transition result.');
-      if (body.park && result.moved) startedRecords(home(settings.state_folder)).update(body.handoff_id, { parked: true, parked_move: result.job?.last_move?.key });
+      const job = shown(result.task);
+      if (body.park && result.moved) startedRecords(home(settings.state_folder)).update(body.handoff_id, { parked: true, parked_move: job.last_move?.key });
       // A lost CAS is not a released claim. Readback decides whether this worker still holds it.
-      if (!result.moved && result.job?.status === 'taken' && result.job.taker === body.agent_id) throw new Error('The ai-job changed before release.');
-      return result;
+      if (!result.moved && job.state === 'taken' && job.taken_by === body.agent_id) throw new Error('The task changed before release.');
+      return { moved: result.moved, job };
     }
     // The helper's identity is its canonical AI record. Preserve unrelated cells and existing person choices.
     if (path === '/agents/publish') {
       const id = body.agent_id;
-      const before = await operation('@own-records', 'records:read', { type: rules.ai_kind, id });
-      if (!before || !Object.hasOwn(before, 'value')) throw new Error('The account did not return the worker AI record.');
-      try { await operation('@own-records', 'records:write', { records: [{ id, type: rules.ai_kind, value: { ...(before.value ?? {}), kind: before.value?.kind ?? rules.default_ai_kind,
-        label: before.value?.label ?? body.name, agent_id: before.value?.agent_id ?? id.slice(id.indexOf(':') + 1), can: before.value?.can ?? ['any'], live: { ...(before.value?.live ?? {}), seen_at: now().toISOString(), minutes: 60 },
-        runs_on: before.value?.runs_on ?? { device: body.where, place: 'placement:your-computer' }, capacity: body.capacity }, expected: before.value === null ? null : { type: rules.ai_kind, value: before.value } }] }); }
+      const before = await operation('@own-records', 'records:read', { id });
+      if (before === undefined) throw new Error('The account did not return the worker AI record.');
+      try { await operation('@own-records', 'records:write', { records: [{ id, type: rules.ai_kind, value: { ...(before ?? {}), kind: before?.kind ?? rules.default_ai_kind,
+        label: before?.label ?? body.name, agent_id: before?.agent_id ?? id.slice(id.indexOf(':') + 1), can: before?.can ?? ['any'], live: { ...(before?.live ?? {}), seen_at: now().toISOString(), minutes: 60 },
+        runs_on: before?.runs_on ?? { device: body.where, place: 'placement:your-computer' }, capacity: body.capacity }, expected: before === null ? null : { type: rules.ai_kind, value: before } }] }); }
       catch (error) {
         if (error?.code !== 'original_command_conflict' && !String(error?.message).includes('original_command_conflict')) throw error;
-        // Another pass published the same AI card first. Its fresh cells win; claiming still uses the job CAS.
+        // Another pass published the same AI card first. Its fresh cells win; claiming still uses the task's conditional write.
       }
       return { agent_id: id };
     }
-    throw new Error(`The ai-job worker does not use legacy operation ${path}.`);
+    throw new Error(`The task worker does not use legacy operation ${path}.`);
   };
-  adapted.aiJobs = true;
+  adapted.tasks = true;
   adapted.resource = call.resource;
   return adapted;
 }
@@ -979,7 +994,7 @@ export function accountCaller(origin, key, { backoff_seconds = readSettings().bu
       return result;
     }
   };
-  // One file's first bytes by its name or identity (GET /namespace/contents), as { encoding, content }: what a job
+  // One file's first bytes by its name or identity (GET /namespace/contents), as { encoding, content }: what a task
   // points at, read by the sorting step (triage-open-work.mjs attachedText).
   call.readFile = async (name, length = 65536) => {
     const answer = await send(`${origin.replace(/\/$/, '')}/mcp/api/namespace/contents/read`, { method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, body: JSON.stringify({ name, offset: 0, length }) });
@@ -1052,19 +1067,19 @@ export async function listOpenWork(call, retry) {
 export default async function handle(event, agents, key, origin, { afterRuns = null } = {}) {
   const settings = readSettings();
   const log = entry => process.stdout.write(`${JSON.stringify({ at: new Date().toISOString(), part: 'take-open-work', event: event?.type ?? null, ...entry })}\n`);
-  const call = aiJobCaller(accountCaller(accountOrigin({ asked: origin }), key), settings);
+  const call = taskCaller(accountCaller(accountOrigin({ asked: origin }), key), settings);
   // New work is sorted first, so only real work gets a full run (harness/triage-open-work.mjs).
-  const announcedId = event?.refs?.ai_job_id ?? event?.refs?.handoff_id ?? event?.subject_id ?? null;
-  const onlyHandoffId = call.aiJobs && !String(announcedId).startsWith(`${settings.ai_jobs.kind}:`) ? null : announcedId;
+  const announcedId = event?.refs?.handoff_id ?? event?.subject_id ?? null;
+  const onlyHandoffId = call.tasks && !String(announcedId).startsWith(`${settings.tasks.kind}:`) ? null : announcedId;
   let listed = onlyHandoffId ? null : await listOpenWork(call);
   let sorted = null;
-  if (settings.triage && !call.aiJobs) {
+  if (settings.triage && !call.tasks) {
     const triage = await import('./triage-open-work.mjs');
     sorted = await triage.runTriage({ settings, call, computer: computerName(), log, onlyHandoffId, listed });
     const closed = new Set(sorted?.closed ?? []);
     if (listed && closed.size) listed = { ...listed, work: listed.work.filter(item => !closed.has(item.handoff_id)) };
   }
-  const { runs, ...rest } = await runPass({ settings, call, computer: computerName(), log, knownAgents: agents, onlyHandoffId, alreadyPublished: !call.aiJobs, listed });
+  const { runs, ...rest } = await runPass({ settings, call, computer: computerName(), log, knownAgents: agents, onlyHandoffId, alreadyPublished: !call.tasks, listed });
   if (afterRuns && runs.length) Promise.allSettled(runs).then(() => afterRuns());
   return { ...rest, idle: !rest.started.length && !(sorted?.verdicts?.length) };
 }
@@ -1081,8 +1096,8 @@ async function main(argv) {
   }
   if (!key) throw new Error(`No personal key: put one in the Keychain item ${item}, or give it on the first line of stdin.`);
   const log = entry => process.stdout.write(`${JSON.stringify({ at: new Date().toISOString(), ...entry })}\n`);
-  const call = aiJobCaller(accountCaller(accountOrigin({ asked: pairs.origin }), key), settings);
-  if (settings.triage && !call.aiJobs && !pairs['handoff-id']) { const triage = await import('./triage-open-work.mjs'); await triage.runTriage({ settings, call, computer: computerName(), log }); }
+  const call = taskCaller(accountCaller(accountOrigin({ asked: pairs.origin }), key), settings);
+  if (settings.triage && !call.tasks && !pairs['handoff-id']) { const triage = await import('./triage-open-work.mjs'); await triage.runTriage({ settings, call, computer: computerName(), log }); }
   const pass = await runPass({ settings, call, computer: computerName(), log, onlyHandoffId: pairs['handoff-id'] ?? null });
   const ended = await Promise.all(pass.runs);
   log({ did: 'pass done', agent_id: pass.agent_id, started: pass.started, ended, left: pass.left });

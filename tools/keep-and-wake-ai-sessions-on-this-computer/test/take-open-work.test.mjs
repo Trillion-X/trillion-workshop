@@ -557,49 +557,59 @@ test('the bridge take-open-work.json names ships beside it, so the packaged Mac 
   assert.ok(existsSync(new URL(settings.work_mcp.bridge, new URL('../harness/take-open-work.mjs', import.meta.url))));
 });
 
-// Synthetic persisted records exercise the current shared ai-job owner through the worker bridge.
+// Synthetic persisted records exercise the calendar-task owner through the worker. The store holds each record as { type,
+// value }; each task tool runs over the records handed to it, and the writes it answers are kept against the store's
+// conditional writes (a write whose expected value no longer holds is refused whole), as run-a-task-move.mjs does.
 async function jobFixture() {
-  const { aiJobCaller } = await import('../harness/take-open-work.mjs');
-  const { takeAJob, moveAJob } = await import('../../hand-work-to-ais/read-data/ai-work.mjs');
+  const { taskCaller } = await import('../harness/take-open-work.mjs');
+  const { takeATask, changeATask } = await import('../../plan-tasks-and-todo-lists/task-moves.mjs');
   const { EventEmitter } = await import('node:events');
   const clone = value => structuredClone(value);
+  const KIND = settingsFile.tasks.kind;
+  const ID = `${KIND}:synthetic`;
   let time = new Date('2026-11-07T12:00:00.000Z');
   const as = 'ai:take-open-work-fixture';
-  const held = new Map([['ai-job:synthetic', { kind: 'ai-job', status: 'waiting', job: 'Create a synthetic artifact and read it back', outcome: 'The synthetic artifact contains the requested value', to: null, from: 'ai:synthetic-sender', priority: 5, sent_at: time.toISOString() }]]);
-  held.get('ai-job:synthetic').acceptance = { outcome: held.get('ai-job:synthetic').outcome, target: { type: 'synthetic-consumer', id: 'synthetic-consumer:artifact' }, rules: [{ id: 'outcome', path: 'content', equals: ['requested value'] }] };
+  const acceptance = { outcome: 'The synthetic artifact contains the requested value', target: { type: 'synthetic-consumer', id: 'synthetic-consumer:artifact' }, rules: [{ id: 'outcome', path: 'content', equals: ['requested value'] }] };
+  const held = new Map([[ID, { type: KIND, value: { status: 'To do', description: 'Create a synthetic artifact and read it back', outcome: acceptance.outcome, assignees: [], sent_by: 'ai:synthetic-sender', priority: 'medium', sent_at: time.toISOString(), acceptance } }]]);
   const receipts = new Map(), calls = [];
-  const door = {
-    read: async (_kind, id) => clone(held.get(id) ?? null),
-    async *list(query) { for (const [id, value] of held) if (value.kind === query.type && Object.entries(query.where ?? {}).every(([key, expected]) => value[key] === expected)) yield { id, value: clone(value) }; },
-    write: async (rows, { key } = {}) => {
-      if (key && receipts.has(key)) return receipts.get(key);
-      for (const row of rows) {
-        const prior = held.get(row.id) ?? null;
-        if (JSON.stringify(prior) !== JSON.stringify(row.expected?.value ?? row.expected)) throw Object.assign(new Error('Changed'), { code: 'original_command_conflict' });
-        if (row.value === null) held.delete(row.id); else held.set(row.id, clone(row.value));
-      }
-      if (key) receipts.set(key, true);
-      return true;
-    },
+  const write = (rows, key) => {
+    if (key && receipts.has(key)) return;
+    for (const row of rows) {
+      const prior = held.get(row.id) ?? null;
+      const expected = row.expected ?? null;
+      const holds = expected === null ? prior === null : prior?.type === expected.type && JSON.stringify(prior.value) === JSON.stringify(expected.value);
+      if (!holds) throw Object.assign(new Error('Changed'), { code: 'original_command_conflict' });
+    }
+    for (const row of rows) { if (row.value === null) held.delete(row.id); else held.set(row.id, clone({ type: row.type, value: row.value })); }
+    if (key) receipts.set(key, true);
   };
-  const context = { door, now: () => time };
+  const snapshot = () => [...held].map(([id, record]) => ({ id, type: record.type, value: clone(record.value) }));
+  const context = { now: () => time };
+  // A task tool run over the records now held, as a caller hands them in; its answered writes are kept.
+  const owner = async (fn, input, request = {}) => {
+    const answer = await fn({ input: { ...input, records: snapshot() }, task: request }, context);
+    if (answer.keep) write(answer.keep);
+    return answer;
+  };
   const resource = async (address, method, input, key) => {
     calls.push({ address, method, input: clone(input), key });
-    if (method === 'records:read') return { id: input.id, value: clone(held.get(input.id) ?? null) };
-    if (method === 'records:list') return { records: [...held].filter(([, v]) => v.kind === input.type && (!input.where || Object.entries(input.where).every(([field, expected]) => v[field] === expected))).map(([id, value]) => ({ id, value: clone(value) })), next: null };
-    if (method === 'records:write') { await door.write(input.records); return { written: input.records.length }; }
+    if (method === 'records:read') return clone(held.get(input.id)?.value ?? null);
+    if (method === 'records:list') return { records: [...held].filter(([, record]) => record.type === input.type && (!input.where || Object.entries(input.where).every(([field, expected]) => record.value[field] === expected))).map(([id, record]) => ({ id, value: clone(record.value) })), next: null };
+    if (method === 'records:write') { write(input.records, key); return { written: input.records.length }; }
     if (method === 'tools:run') {
       const receipt = `tool:${key}`;
       if (receipts.has(receipt)) return clone(receipts.get(receipt));
-      const fn = input.tool === settingsFile.ai_jobs.take_tool ? takeAJob : moveAJob;
-      const result = await fn({ input: input.input, task: { request_key: key } }, context);
-      const answer = { exit_code: 0, result }; receipts.set(receipt, clone(answer)); return answer;
+      const fn = input.tool === settingsFile.tasks.take_tool ? takeATask : changeATask;
+      const answer = { exit_code: 0, result: await fn({ input: input.input, task: { request_key: key } }, context) };
+      receipts.set(receipt, clone(answer));
+      return answer;
     }
     throw new Error(`Unexpected ${address} ${method}`);
   };
-  const configured = { ...settingsFile, use_ai: 'claude', max_concurrent: 1, state_folder: mkdtempSync(join(tmpdir(), 'synthetic-worker-')), working_folder: tmpdir(), triage: undefined, work_mcp: undefined, retry_unfinished_minutes: [0, 0], ai_jobs: { ...settingsFile.ai_jobs, recovery_after_seconds: 0 } };
+  const task = () => held.get(ID).value;
+  const configured = { ...settingsFile, use_ai: 'claude', max_concurrent: 1, state_folder: mkdtempSync(join(tmpdir(), 'synthetic-worker-')), working_folder: tmpdir(), triage: undefined, work_mcp: undefined, retry_unfinished_minutes: [0, 0], tasks: { ...settingsFile.tasks, recovery_after_seconds: 0 } };
   const raw = Object.assign(async () => { throw new Error('Legacy HTTP is forbidden in this fixture'); }, { resource });
-  const wrap = () => aiJobCaller(raw, configured, { now: () => time, computer: 'Fixture' });
+  const wrap = () => taskCaller(raw, configured, { now: () => time, computer: 'Fixture' });
   const call = wrap();
   const pass = (spawnRun, more = {}) => runPass({ settings: configured, call, computer: 'Fixture', now: () => time, locate: () => '/synthetic/ai', spawnRun, ...more });
   const child = action => {
@@ -607,60 +617,60 @@ async function jobFixture() {
     setImmediate(async () => { try { await action?.(); emitter.emit('close', 0); } catch (error) { console.error('Synthetic worker action failed:', error.message); emitter.emit('error', error); emitter.emit('close', 1); } });
     return emitter;
   };
-  const finish = () => { held.set('synthetic-consumer:artifact', { kind: 'synthetic-consumer', content: 'requested value' }); return moveAJob({ input: { as, id: 'ai-job:synthetic', action: 'finish', taken_at: held.get('ai-job:synthetic').taken_at, result: 'Synthetic artifact was created and read back', check: { target: held.get('ai-job:synthetic').acceptance.target, outcome: held.get('ai-job:synthetic').outcome, checked_at: time.toISOString(), evidence: [{ ref: 'fixture:synthetic-artifact', observation: 'Readback equals the requested value' }] } } }, context); };
-  const move = input => moveAJob({ input: { as, id: 'ai-job:synthetic', taken_at: held.get('ai-job:synthetic').taken_at, ...input } }, context);
-  const resume = () => moveAJob({ input: { as, id: 'ai-job:synthetic', action: 'resume', because: 'The retained effects and dependency were reviewed' }, task: { request_key: 'synthetic-evidence-reviewed' } }, context);
-  return { held, calls, configured, raw, wrap, pass, child, finish, resume, move, as, tick: () => { time = new Date(time.getTime() + 120000); } };
+  const finish = () => { held.set('synthetic-consumer:artifact', { type: 'synthetic-consumer', value: { content: 'requested value' } }); return owner(changeATask, { as, id: ID, action: 'finish', taken_at: task().taken_at, result: 'Synthetic artifact was created and read back', check: { target: acceptance.target, outcome: acceptance.outcome, checked_at: time.toISOString(), evidence: [{ ref: 'fixture:synthetic-artifact', observation: 'Readback equals the requested value' }] } }); };
+  const move = input => owner(changeATask, { as, id: ID, taken_at: task().taken_at, ...input });
+  const resume = () => owner(changeATask, { as, id: ID, action: 'resume', because: 'The retained effects and dependency were reviewed' }, { request_key: 'synthetic-evidence-reviewed' });
+  return { held, calls, configured, raw, wrap, pass, child, finish, resume, move, as, task, tick: () => { time = new Date(time.getTime() + 120000); } };
 }
 
-test('ai-job worker claims through shared action and recognizes persisted checked completion', async () => {
+test('task worker claims through shared action and recognizes persisted checked completion', async () => {
   const f = await jobFixture(); let artifact;
   const pass = await f.pass(() => f.child(async () => { artifact = 'requested value'; assert.equal(artifact, 'requested value'); await f.finish(); }));
-  assert.deepEqual(pass.started, ['ai-job:synthetic']);
+  assert.deepEqual(pass.started, ['calendar-task:synthetic']);
   assert.equal((await Promise.all(pass.runs))[0].finished, true);
-  assert.equal(f.held.get('ai-job:synthetic').status, 'done');
-  assert.ok(f.held.get('ai-job:synthetic').check.evidence.length);
+  assert.equal(f.task().status, 'Done');
+  assert.ok(f.task().check.evidence.length);
 });
 
-test('ai-job watcher stops an old executor after same-AI claim replacement and preserves producer input', async () => {
+test('task watcher stops an old executor after same-AI claim replacement and preserves producer input', async () => {
   const { EventEmitter } = await import('node:events');
   const f = await jobFixture();
-  f.held.get('ai-job:synthetic').input = { card_id: 'fixture:card', because: 'The original reason' };
+  f.task().input = { card_id: 'fixture:card', because: 'The original reason' };
   f.configured.busy = { ...f.configured.busy, check_every_seconds: 0.001 };
-  const listed = await f.wrap()('/handoffs/read', { handoff_id: 'ai-job:synthetic' });
+  const listed = await f.wrap()('/handoffs/read', { handoff_id: 'calendar-task:synthetic' });
   assert.deepEqual(listed.handoff.input, { card_id: 'fixture:card', because: 'The original reason' });
   let stopped = false;
   const child = new EventEmitter(); child.pid = process.pid;
   child.kill = () => { stopped = true; setImmediate(() => child.emit('close', 1)); };
   const pass = await f.pass(() => child);
-  const replacement = { ...f.held.get('ai-job:synthetic'), taken_at: '2026-11-08T01:00:00.000Z' };
-  f.held.set('ai-job:synthetic', replacement);
+  const replacement = { ...f.task(), taken_at: '2026-11-08T01:00:00.000Z' };
+  f.held.set('calendar-task:synthetic', { type: 'calendar-task', value: replacement });
   const fallback = setTimeout(() => child.emit('close', 1), 200);
   try { await Promise.all(pass.runs); } finally { clearTimeout(fallback); }
   assert.equal(stopped, true);
-  assert.equal(f.held.get('ai-job:synthetic').taken_at, replacement.taken_at, 'the ended old executor does not release the new claim');
+  assert.equal(f.task().taken_at, replacement.taken_at, 'the ended old executor does not release the new claim');
 });
 
-test('two ai-job workers racing the same record start one process total', async () => {
+test('two task workers racing the same record start one process total', async () => {
   const f = await jobFixture(); let starts = 0;
   const spawn = () => { starts += 1; return f.child(() => f.finish()); };
   const passes = await Promise.all([f.pass(spawn), f.pass(spawn, { settings: { ...f.configured, state_folder: mkdtempSync(join(tmpdir(), 'synthetic-racing-worker-')) } })]);
   await Promise.all(passes.flatMap(pass => pass.runs)); assert.equal(starts, 1);
 });
 
-test('ai-job unfinished exits keep bounded continuation and park for review at the declared attempt limit', async () => {
+test('task unfinished exits keep bounded continuation and park for review at the declared attempt limit', async () => {
   const f = await jobFixture();
-  for (let attempt = 0; attempt < f.configured.ai_jobs.max_attempts; attempt += 1) {
+  for (let attempt = 0; attempt < f.configured.tasks.max_attempts; attempt += 1) {
     const pass = await f.pass(() => f.child());
     assert.equal(pass.started.length, 1, `attempt ${attempt + 1}`);
     assert.equal((await Promise.all(pass.runs))[0].finished, false);
-    const job = f.held.get('ai-job:synthetic');
-    assert.equal(job.status, attempt + 1 === f.configured.ai_jobs.max_attempts ? 'blocked' : 'waiting'); assert.equal(job.continuation.owner, f.as);
+    const job = f.task();
+    assert.equal(job.status, attempt + 1 === f.configured.tasks.max_attempts ? 'Waiting' : 'To do'); assert.equal(job.continuation.owner, f.as);
     assert.ok(job.continuation.action && job.continuation.reason && job.continuation.after); f.tick();
   }
   assert.equal((await f.pass(() => { throw new Error('Review is required before another executor starts'); })).started.length, 0);
-  assert.equal(f.held.size, 2, 'same ai-job and canonical AI card before the consumer exists, no follow-up queue');
-  f.held.get('ai-job:synthetic').source = { evidence: 'fixture:new-evidence-after-review' };
+  assert.equal(f.held.size, 2, 'same task and canonical AI card before the consumer exists, no follow-up queue');
+  f.task().source = { evidence: 'fixture:new-evidence-after-review' };
   await f.resume();
   const reviewed = await f.pass(() => f.child(() => f.finish()));
   assert.equal(reviewed.started.length, 1, 'an explicit reviewed resume is a new bounded execution cycle');
@@ -669,33 +679,33 @@ test('ai-job unfinished exits keep bounded continuation and park for review at t
 
 test('an explicit reviewed resume starts a fresh bounded cycle without changing the requested work', async () => {
   const f = await jobFixture();
-  for (let n = 0; n < f.configured.ai_jobs.max_attempts; n += 1) {
+  for (let n = 0; n < f.configured.tasks.max_attempts; n += 1) {
     const pass = await f.pass(() => f.child()); await Promise.all(pass.runs);
   }
-  assert.equal(f.held.get('ai-job:synthetic').status, 'blocked');
+  assert.equal(f.task().status, 'Waiting');
   f.tick(); await f.resume();
   const resumed = await f.pass(() => f.child(() => f.finish()));
   await Promise.all(resumed.runs);
-  assert.deepEqual(resumed.started, ['ai-job:synthetic']);
-  assert.equal(f.held.get('ai-job:synthetic').status, 'done');
+  assert.deepEqual(resumed.started, ['calendar-task:synthetic']);
+  assert.equal(f.task().status, 'Done');
 });
 
-test('ai-job late take reply is recovered with the original key before another process starts', async () => {
+test('task late take reply is recovered with the original key before another process starts', async () => {
   const f = await jobFixture(); const original = f.raw.resource; let lose = true;
-  f.raw.resource = async (...args) => { const result = await original(...args); if (args[1] === 'tools:run' && args[2].tool === settingsFile.ai_jobs.take_tool && lose) { lose = false; throw new Error('Synthetic transport lost reply'); } return result; };
+  f.raw.resource = async (...args) => { const result = await original(...args); if (args[1] === 'tools:run' && args[2].tool === settingsFile.tasks.take_tool && lose) { lose = false; throw new Error('Synthetic transport lost reply'); } return result; };
   const call = f.wrap();
   const first = await f.pass(() => { throw new Error('Uncertain claim must not start'); }, { call });
   assert.equal(first.started.length, 0);
-  assert.equal(startedRecords(f.configured.state_folder).all().get('ai-job:synthetic').claim_pending, true);
+  assert.equal(startedRecords(f.configured.state_folder).all().get('calendar-task:synthetic').claim_pending, true);
   const next = await f.pass(() => f.child(() => f.finish()), { call }); await Promise.all(next.runs);
-  const takes = f.calls.filter(row => row.method === 'tools:run' && row.input.tool === settingsFile.ai_jobs.take_tool);
+  const takes = f.calls.filter(row => row.method === 'tools:run' && row.input.tool === settingsFile.tasks.take_tool);
   assert.equal(takes[0].key, takes[1].key);
-  assert.equal(startedRecords(f.configured.state_folder).all().get('ai-job:synthetic').claim_pending ?? false, false);
+  assert.equal(startedRecords(f.configured.state_folder).all().get('calendar-task:synthetic').claim_pending ?? false, false);
 });
 
-test('ai-job blocked work resumes by its shared action only when its continuation is due', async () => {
+test('task blocked work resumes by its shared action only when its continuation is due', async () => {
   const f = await jobFixture();
-  Object.assign(f.held.get('ai-job:synthetic'), { status: 'blocked', taker: f.as, taken_at: '2026-11-07T12:00:00.000Z', continuation: { owner: f.as, action: 'Read synthetic dependency', after: '2026-11-07T12:01:00.000Z', reason: 'Waiting for fixture' } });
+  Object.assign(f.task(), { status: 'Waiting', taken_by: f.as, taken_at: '2026-11-07T12:00:00.000Z', continuation: { owner: f.as, action: 'Read synthetic dependency', after: '2026-11-07T12:01:00.000Z', reason: 'Waiting for fixture' } });
   assert.equal((await f.pass(() => { throw new Error('Too early'); })).started.length, 0); f.tick();
   const pass = await f.pass(() => f.child(() => f.finish())); await Promise.all(pass.runs);
   assert.equal(pass.started.length, 1); assert.ok(f.calls.some(row => row.input?.input?.action === 'resume'));
@@ -708,38 +718,38 @@ test('addressed MCP carrier protects the key and keeps request identity on busy 
     if (!attempt++) return new Response(JSON.stringify({ error: 'busy' }), { status: 503, headers: { 'retry-after': '0' } });
     return Response.json({ result: { content: [{ type: 'text', text: JSON.stringify({ records: [], next: null }) }] } });
   } });
-  assert.deepEqual(await call.resource('@own-records', 'records:list', { type: 'ai-job' }, 'synthetic-stable-key'), { records: [], next: null });
+  assert.deepEqual(await call.resource('@own-records', 'records:list', { type: 'calendar-task' }, 'synthetic-stable-key'), { records: [], next: null });
   assert.equal(requests.length, 2); assert.equal(requests[0].url, 'https://synthetic.invalid/mcp');
   assert.equal(requests[0].body, requests[1].body); assert.ok(!requests[0].body.includes('synthetic-private-key'));
 });
 
 
-test('ai-job self-release cannot bypass the executor attempt bound', async () => {
+test('task self-release cannot bypass the executor attempt bound', async () => {
   const f = await jobFixture(); let starts = 0;
-  for (let attempt = 0; attempt < f.configured.ai_jobs.max_attempts + 2; attempt += 1) {
+  for (let attempt = 0; attempt < f.configured.tasks.max_attempts + 2; attempt += 1) {
     const pass = await f.pass(() => { starts += 1; return f.child(() => f.move({ action: 'release', because: 'Synthetic child has partial effects; inspect first', continuation: { owner: f.as, action: 'Inspect existing synthetic effect before remaining work', after: '2026-11-07T12:20:00.000Z', reason: 'Synthetic partial outcome' } })); });
     await Promise.all(pass.runs); f.tick();
     // Make the continuation due without changing the job contract.
-    const current = f.held.get('ai-job:synthetic');
+    const current = f.task();
     if (current.continuation) current.continuation.after = '2026-11-07T12:00:00.000Z';
   }
-  assert.equal(starts, f.configured.ai_jobs.max_attempts);
-  assert.equal(f.held.get('ai-job:synthetic').status, 'blocked');
+  assert.equal(starts, f.configured.tasks.max_attempts);
+  assert.equal(f.task().status, 'Waiting');
 });
 
-test('ai-job retries count each started history receipt toward the daily cap without losing per-job count', async () => {
-  const f = await jobFixture(); f.configured.daily_cap = 2; f.held.get('ai-job:synthetic').priority = 1;
+test('task retries count each started history receipt toward the daily cap without losing per-task count', async () => {
+  const f = await jobFixture(); f.configured.daily_cap = 2; f.task().priority = 'low';
   for (let attempt = 0; attempt < 2; attempt += 1) { const pass = await f.pass(() => f.child()); await Promise.all(pass.runs); f.tick(); }
   const capped = await f.pass(() => { throw new Error('The daily run cap was spent by retries'); });
   assert.equal(capped.started.length, 0);
   assert.equal(capped.left['daily cap reached'], 1);
-  assert.equal(startedRecords(f.configured.state_folder).all().get('ai-job:synthetic').executor_starts, 2);
+  assert.equal(startedRecords(f.configured.state_folder).all().get('calendar-task:synthetic').executor_starts, 2);
 });
 
-test('ai-job asynchronous tool claims are read to completion before the child starts', async () => {
+test('task asynchronous tool claims are read to completion before the child starts', async () => {
   const f = await jobFixture(); const original = f.raw.resource; let pending, reads = 0;
   f.raw.resource = async (address, method, input, key) => {
-    if (method === 'tools:run' && input.tool === settingsFile.ai_jobs.take_tool) { pending = await original(address, method, input, key); return { task_id: 'synthetic-task', state: 'working' }; }
+    if (method === 'tools:run' && input.tool === settingsFile.tasks.take_tool) { pending = await original(address, method, input, key); return { task_id: 'synthetic-task', state: 'working' }; }
     if (method === 'tools:read') { reads += 1; return { task_id: 'synthetic-task', state: 'completed', output: pending.result }; }
     return original(address, method, input, key);
   };
@@ -748,19 +758,19 @@ test('ai-job asynchronous tool claims are read to completion before the child st
 });
 
 
-test('ai-job local receipts keep distinct colon and underscore ids distinct', () => {
+test('task local receipts keep distinct colon and underscore ids distinct', () => {
   const records = startedRecords(mkdtempSync(join(tmpdir(), 'synthetic-distinct-ids-')));
-  assert.equal(records.claim({ handoff_id: 'ai-job:sample:one', started_at: NOW }), true);
-  assert.equal(records.claim({ handoff_id: 'ai-job:sample_one', started_at: NOW }), true);
+  assert.equal(records.claim({ handoff_id: 'calendar-task:sample:one', started_at: NOW }), true);
+  assert.equal(records.claim({ handoff_id: 'calendar-task:sample_one', started_at: NOW }), true);
   assert.equal(records.all().size, 2);
 });
 
 
-test('ai-job unavailable final read retains exact claim recovery before the next backlog read', async () => {
+test('task unavailable final read retains exact claim recovery before the next backlog read', async () => {
   const f = await jobFixture(); f.configured.page_retry = { backoff_seconds: [] }; const original = f.raw.resource;
   let failJobRead = false, failBacklog = false;
   f.raw.resource = async (address, method, input, key) => {
-    if (method === 'records:read' && input.id === 'ai-job:synthetic' && failJobRead) throw new Error('Synthetic final read transport unavailable');
+    if (method === 'records:read' && input.id === 'calendar-task:synthetic' && failJobRead) throw new Error('Synthetic final read transport unavailable');
     if (method === 'records:list' && failBacklog) throw new Error('Synthetic backlog unavailable');
     return original(address, method, input, key);
   };
@@ -769,39 +779,39 @@ test('ai-job unavailable final read retains exact claim recovery before the next
   const result = (await Promise.all(first.runs))[0];
   assert.equal(result.finished, false);
   assert.equal(result.released, false);
-  const receipt = startedRecords(f.configured.state_folder).all().get('ai-job:synthetic');
+  const receipt = startedRecords(f.configured.state_folder).all().get('calendar-task:synthetic');
   assert.ok(receipt.ended_at);
   assert.equal(receipt.final_read_pending, true);
   assert.equal(receipt.release_pending, true);
-  assert.equal(f.held.get('ai-job:synthetic').status, 'taken');
+  assert.equal(f.task().status, 'In progress');
   const originalTakenAt = receipt.taken_at;
   failJobRead = false; failBacklog = true;
   await assert.rejects(f.pass(() => { throw new Error('Recovery must not spawn another child'); }, { call }), /Synthetic backlog unavailable/);
-  const recovered = f.held.get('ai-job:synthetic');
-  assert.equal(recovered.status, 'waiting');
+  const recovered = f.task();
+  assert.equal(recovered.status, 'To do');
   assert.equal(recovered.released_taken_at, originalTakenAt);
   assert.equal(recovered.continuation.owner, f.as);
-  const updated = startedRecords(f.configured.state_folder).all().get('ai-job:synthetic');
+  const updated = startedRecords(f.configured.state_folder).all().get('calendar-task:synthetic');
   assert.equal(updated.release_pending, false);
   assert.equal(updated.final_read_pending, false);
 });
 
 
-test('ai-job recovery never borrows a newer same-AI claim timestamp when its original fence is missing', async () => {
+test('task recovery never borrows a newer same-AI claim timestamp when its original fence is missing', async () => {
   const current = { state: 'taken', taken_by: 'ai:synthetic-worker', taken_at: '2026-11-07T13:00:00.000Z' };
   const calls = [];
-  const call = Object.assign(async (path, body) => { calls.push({ path, body }); return { handoff: current }; }, { aiJobs: true });
-  const unknown = { handoff_id: 'ai-job:synthetic', agent_id: current.taken_by };
+  const call = Object.assign(async (path, body) => { calls.push({ path, body }); return { handoff: current }; }, { tasks: true });
+  const unknown = { handoff_id: 'calendar-task:synthetic', agent_id: current.taken_by };
   assert.equal(await releaseHeld(call, settingsFile, unknown), false);
   assert.equal(calls.length, 0, 'unknown original ownership stays pending without adopting current ownership');
   assert.equal(await releaseHeld(call, settingsFile, { ...unknown, taken_at: '2026-11-07T12:00:00.000Z' }), true);
   assert.equal(calls.filter(row => row.path === '/handoffs/release').length, 0, 'a known newer claim is left untouched');
 });
 
-test('ai-job recovery preserves pending state on incomplete current readback and releases only its exact claim', async () => {
-  const original = { handoff_id: 'ai-job:synthetic', agent_id: 'ai:synthetic-worker', taken_at: '2026-11-07T12:00:00.000Z' };
+test('task recovery preserves pending state on incomplete current readback and releases only its exact claim', async () => {
+  const original = { handoff_id: 'calendar-task:synthetic', agent_id: 'ai:synthetic-worker', taken_at: '2026-11-07T12:00:00.000Z' };
   let answer; const releases = [];
-  const call = Object.assign(async (path, body) => { if (path === '/handoffs/release') { releases.push(body); return {}; } return answer; }, { aiJobs: true });
+  const call = Object.assign(async (path, body) => { if (path === '/handoffs/release') { releases.push(body); return {}; } return answer; }, { tasks: true });
   for (const unknown of [undefined, {}, { handoff: undefined }, { handoff: {} }, { handoff: { state: 'unavailable' } }, { handoff: { state: 'taken', taken_by: original.agent_id } }, { handoff: { state: 'taken', taken_at: original.taken_at } }]) {
     answer = unknown;
     assert.equal(await releaseHeld(call, settingsFile, original), false);
@@ -814,18 +824,18 @@ test('ai-job recovery preserves pending state on incomplete current readback and
 });
 
 
-test('ai-job missing original recovery fence stays pending across a pass without adopting a newer same-AI take', async () => {
+test('task missing original recovery fence stays pending across a pass without adopting a newer same-AI take', async () => {
   const f = await jobFixture();
-  const current = f.held.get('ai-job:synthetic');
-  Object.assign(current, { status: 'taken', taker: f.as, taken_at: '2026-11-07T12:00:00.000Z' });
+  const current = f.task();
+  Object.assign(current, { status: 'In progress', taken_by: f.as, taken_at: '2026-11-07T12:00:00.000Z' });
   const local = startedRecords(f.configured.state_folder);
-  local.claim({ handoff_id: 'ai-job:synthetic', mode: 'claim', agent_id: f.as, started_at: '2026-11-07T11:00:00.000Z', ended_at: '2026-11-07T11:01:00.000Z', executor_starts: 1, release_pending: true });
+  local.claim({ handoff_id: 'calendar-task:synthetic', mode: 'claim', agent_id: f.as, started_at: '2026-11-07T11:00:00.000Z', ended_at: '2026-11-07T11:01:00.000Z', executor_starts: 1, release_pending: true });
   const pass = await f.pass(() => { throw new Error('Unresolved recovery cannot start another executor'); });
   assert.equal(pass.started.length, 0);
-  const retained = local.all().get('ai-job:synthetic');
+  const retained = local.all().get('calendar-task:synthetic');
   assert.equal(retained.release_pending, true);
   assert.equal(retained.taken_at, undefined);
-  assert.equal(current.status, 'taken');
+  assert.equal(current.status, 'In progress');
   assert.equal(current.taken_at, '2026-11-07T12:00:00.000Z');
   assert.equal(f.calls.filter(row => row.method === 'tools:run').length, 0);
 });

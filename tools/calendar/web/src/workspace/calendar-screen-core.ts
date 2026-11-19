@@ -105,5 +105,5 @@ export type Task = {
 /** One of the person's own task lists, with the settings the Todos page keeps on it. */
 export type TaskCollection = {
   id: string; title: string; color?: string | null; default_calendar?: { source_id: string; calendar_id: string } | null; archived?: boolean;
-  ai_scheduling?: boolean | null; preferred_times?: { start_minute: number; end_minute: number; weekdays?: number[] } | null;
+  plan_automatically?: boolean | null; preferred_times?: { start_minute: number; end_minute: number; weekdays?: number[] } | null;
 };

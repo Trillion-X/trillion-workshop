@@ -31,16 +31,6 @@ export function nativeCalendarOwner({
   if (typeof route !== 'function') throw new TypeError('The current native shared-route adapter is required.');
 
   const lists = taskListOwner ?? makeLists({ eeaf });
-  // The person's AI job records, which a task row's Done gate reads (calendar-tasks.json job_link): the plain record <type>:<key>.
-  const jobs = async key => eeaf.read(`${taskSettings.job_link.record_type}:${key}`) ?? null;
-  // The jobs the lane-job link rows name for one task (calendar-tasks.json job_link.link): the link rows are listed once by type
-  // and read; the job key is the job id without its record type. An owner whose records cannot be listed cannot say, so it refuses.
-  const jobsOfTask = async taskId => {
-    const { record_type: type, job_field: jobField, task_field: taskField, task_record_prefix: prefix } = taskSettings.job_link.link;
-    if (typeof eeaf.ids !== 'function') throw new Error('This owner cannot list the lane job links, so it cannot say which jobs a task waits on.');
-    return eeaf.ids(type).map(id => eeaf.read(id)).filter(value => value?.[taskField] === `${prefix}${taskId}`)
-      .map(value => String(value[jobField]).replace(`${taskSettings.job_link.record_type}:`, ''));
-  };
   const read = async (operation, input, fn) => {
     await current(operation, input);
     return fn();
@@ -69,7 +59,7 @@ export function nativeCalendarOwner({
       if (!owner) throw new Error('The availability capability is not installed.');
       return owner.request(input);
     } else if (url.pathname === '/calendar/tasks') {
-      response = method === 'GET' ? await handleCalendarTasksRequest(lists, new Request(url, { method }), { jobs, jobsOfTask }) : keepingMoved();
+      response = method === 'GET' ? await handleCalendarTasksRequest(lists, new Request(url, { method })) : keepingMoved();
     } else if (isDateShiftPath(url.pathname)) {
       response = method === 'GET' ? Response.json(shiftChoices()) : keepingMoved();
     } else if (isTaskProposalPath(url.pathname)) {

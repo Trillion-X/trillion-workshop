@@ -316,7 +316,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -371,6 +373,3255 @@
             "at_least": 1
           }
         ]
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/formulas",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/wall-time",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:plan-tasks-and-todo-lists",
+        "listed_on": "2026-11-19T21:16:33Z",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "id": "tool:see-who-can-take-work",
+        "read_only": true,
+        "label": "See who can take my work: which people, AIs and other records are live, what each can do and how many tasks each holds",
+        "job": "Show me who I can hand a task to: which are live now, what each can do and how many tasks each is doing",
+        "description": "Reads every record handed in that is not a task (a person, an AI, a raccoon, anything with a record) and answers each with its id, its whole stored value (every cell as kept: a caller names it from those cells by its own formula; no name is made here), whether it is live (seen within the minutes its record names as live.minutes, else task-moves.json live_minutes_default), when it was last seen, and how many tasks it holds as taker. Live ones come first, then by the order cell. `can` keeps only those that can do every word given (one that can do any can do all); `live_only` keeps only the live ones. Nothing is written. The caller hands in every record it reads as input.records; this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "can": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Words each must be able to do, such as [\"code\"]"
+            },
+            "live_only": {
+              "type": "boolean",
+              "description": "Only those seen recently enough to count as live"
+            },
+            "records": {
+              "type": "array",
+              "maxItems": 20000,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "description": "The records this run needs, read by the caller from the person's own store and handed in: [{id, type, value}] of the task records and of each person, AI or other record a task names (and, for a finish, the consumer record its saved acceptance names). The engine keeps none of them."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "who"
+          ],
+          "properties": {
+            "who": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value",
+                  "live",
+                  "seen_at",
+                  "busy"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "object",
+                    "description": "The record's whole stored value, every cell as kept"
+                  },
+                  "live": {
+                    "type": "boolean"
+                  },
+                  "seen_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "busy": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Tasks it holds as taker"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/plan-tasks-and-todo-lists",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/plan-tasks-and-todo-lists/task-moves.mjs",
+            "seeWhoCanTakeWork"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "plan-tasks-and-todo-lists",
+                "paths": [
+                  "task-moves.mjs",
+                  "task-moves.json"
+                ],
+                "at": "/opt/plan-tasks-and-todo-lists"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "move-records-through-declared-states",
+                "paths": [
+                  "do-work/move-records-through-declared-states.mjs"
+                ],
+                "at": "/opt/move-records-through-declared-states"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work/judge-words.mjs",
+                  "do-work/evidence-checks.mjs"
+                ],
+                "at": "/opt/judge-words"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/host-actions.mjs",
+                  "read-data/whole-file.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "can": [
+                "code"
+              ],
+              "records": [
+                {
+                  "id": "ai:sample-sender",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sender",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 1,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "ai:sample-taker",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample taker",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 2,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/formulas",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/wall-time",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:plan-tasks-and-todo-lists",
+        "listed_on": "2026-11-19T21:16:33Z",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "id": "tool:give-a-task",
+        "label": "Give a task to anyone: a person, an AI, another record, or whoever takes it first",
+        "job": "Make a new task, waiting for the ones named to take it, or for anyone when none is named",
+        "description": "Writes one task, id record:calendar-task:<key>, with status To do, its title (title, else the first line of description), its description, its outcome (what done looks like), its priority (urgent, high, medium or low; medium when left out), sent_by (as: the record id of whoever gives it), sent_at, and assignees: the record ids of anyone who may take it. An empty or missing list means anyone may take it, and every assignee must be among the records handed in. source {kind, ref} keeps where it came from; obligations declare parts each checked on its own; acceptance saves the checks a finish must pass. key (or the run's request key) names the task: the write is conditioned on the task being absent, so the same key gives the task once; sending it again answers written with no write, and a different task under the same key answers already-there. The caller hands in every record it reads as input.records; this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "as"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "as": {
+              "type": "string",
+              "description": "The record id of whoever gives the task (sent_by)"
+            },
+            "key": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._:-]+$",
+              "description": "The task's key; the same key gives the same task once"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "The title; left out, the first line of description"
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20000,
+              "description": "What to do, in plain words"
+            },
+            "outcome": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000,
+              "description": "What done looks like"
+            },
+            "priority": {
+              "type": "string",
+              "enum": [
+                "urgent",
+                "high",
+                "medium",
+                "low"
+              ],
+              "description": "How urgent: urgent first, then high, medium and low (medium when left out)"
+            },
+            "assignees": {
+              "type": "array",
+              "maxItems": 1000,
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              },
+              "description": "The record ids of anyone who may take the task (a person, an AI, a workflow, a raccoon, anything with a record). Empty or left out: anyone may take it. Each must be among the records handed in."
+            },
+            "source": {
+              "type": "object",
+              "required": [
+                "kind",
+                "ref"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ref": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "description": "Where the task came from (kind and ref), kept as given"
+            },
+            "obligations": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 64,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "outcome"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "outcome": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "description": "Parts of the outcome each checked on its own at finish; the id outcome is reserved for the whole"
+            },
+            "acceptance": {
+              "type": "object",
+              "required": [
+                "outcome",
+                "target",
+                "rules"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "target": {
+                  "type": "object",
+                  "required": [
+                    "type",
+                    "id"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                "rules": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 65,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "path"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "path": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "description": "A shared judge-words rule directly testing the persisted consumer data at path; id is outcome or a saved obligation id."
+                  }
+                }
+              },
+              "description": "The checks a finish must pass: the outcome as the task asks for it, the record that shows it, and the rules that record must meet"
+            },
+            "records": {
+              "type": "array",
+              "maxItems": 20000,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "description": "The records this run needs, read by the caller from the person's own store and handed in: [{id, type, value}] of the task records and of each person, AI or other record a task names (and, for a finish, the consumer record its saved acceptance names). The engine keeps none of them."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "task_id",
+            "status",
+            "task"
+          ],
+          "properties": {
+            "task_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "written",
+                "already-there"
+              ]
+            },
+            "task": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "keep": {
+              "type": "array",
+              "description": "The writes the run made, for the caller to keep where the person keeps it: { id, type, value, expected } (value null removes). The run itself writes nothing."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/plan-tasks-and-todo-lists",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/plan-tasks-and-todo-lists/task-moves.mjs",
+            "giveATask"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "plan-tasks-and-todo-lists",
+                "paths": [
+                  "task-moves.mjs",
+                  "task-moves.json"
+                ],
+                "at": "/opt/plan-tasks-and-todo-lists"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "move-records-through-declared-states",
+                "paths": [
+                  "do-work/move-records-through-declared-states.mjs"
+                ],
+                "at": "/opt/move-records-through-declared-states"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work/judge-words.mjs",
+                  "do-work/evidence-checks.mjs"
+                ],
+                "at": "/opt/judge-words"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/host-actions.mjs",
+                  "read-data/whole-file.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "as": "ai:sample-sender",
+              "description": "Write a made-up sample report",
+              "assignees": [
+                "ai:sample-taker"
+              ],
+              "key": "sample-1",
+              "records": [
+                {
+                  "id": "ai:sample-sender",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sender",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 1,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "ai:sample-taker",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample taker",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 2,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/formulas",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/wall-time",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:plan-tasks-and-todo-lists",
+        "listed_on": "2026-11-19T21:16:33Z",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "id": "tool:see-tasks",
+        "read_only": true,
+        "label": "See tasks: one task by its id, or the newest that match",
+        "job": "Show me tasks: what is waiting, who holds what, and what each finished with",
+        "description": "With id, reads that one task. Otherwise reads the tasks, kept to those whose status (a status word of the rules, such as To do or In progress), sent_by or taken_by equal what is given, or whose assignees name assignee, and answers the newest limit of them by when they were sent (task-moves.json tasks_shown), with more true when more matched. A task comes back whole: its status, title and words, who gave it, who may take it, its priority, outcome, who took it and when, what is stuck, who released it and why, and its result and summary. Nothing is written. The caller hands in every record it reads as input.records; this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "A task's record id: record:calendar-task:<key>"
+            },
+            "status": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A status word of the rules, such as To do or In progress"
+            },
+            "sent_by": {
+              "type": "string"
+            },
+            "taken_by": {
+              "type": "string"
+            },
+            "assignee": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "records": {
+              "type": "array",
+              "maxItems": 20000,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "description": "The records this run needs, read by the caller from the person's own store and handed in: [{id, type, value}] of the task records and of each person, AI or other record a task names (and, for a finish, the consumer record its saved acceptance names). The engine keeps none of them."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "tasks",
+            "more"
+          ],
+          "properties": {
+            "tasks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "status"
+                ]
+              }
+            },
+            "more": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/plan-tasks-and-todo-lists",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/plan-tasks-and-todo-lists/task-moves.mjs",
+            "seeTasks"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "plan-tasks-and-todo-lists",
+                "paths": [
+                  "task-moves.mjs",
+                  "task-moves.json"
+                ],
+                "at": "/opt/plan-tasks-and-todo-lists"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "move-records-through-declared-states",
+                "paths": [
+                  "do-work/move-records-through-declared-states.mjs"
+                ],
+                "at": "/opt/move-records-through-declared-states"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work/judge-words.mjs",
+                  "do-work/evidence-checks.mjs"
+                ],
+                "at": "/opt/judge-words"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/host-actions.mjs",
+                  "read-data/whole-file.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "status": "In progress",
+              "records": [
+                {
+                  "id": "ai:sample-sender",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sender",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 1,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "ai:sample-taker",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample taker",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 2,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "record:calendar-task:sample-1",
+                  "type": "calendar-task",
+                  "value": {
+                    "title": "Write a made-up sample report",
+                    "status": "In progress",
+                    "assignees": [
+                      "ai:sample-taker"
+                    ],
+                    "sent_by": "ai:sample-sender",
+                    "priority": "medium",
+                    "sent_at": "2026-11-03T00:00:00.000Z",
+                    "description": "Write a made-up sample report",
+                    "taken_by": "ai:sample-taker",
+                    "taken_at": "2026-11-03T00:05:00.000Z"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/formulas",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/wall-time",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:plan-tasks-and-todo-lists",
+        "listed_on": "2026-11-19T21:16:33Z",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "id": "tool:take-a-task",
+        "label": "Take the next task waiting for me, or one task by its id",
+        "job": "Take the next task that is waiting for me or for anyone, so no one else does it too",
+        "description": "Without id, reads the tasks a take may move (waiting ones that name `as` or no one, and taken ones held longer than the stale-take time), sorts them by take_order (priority, then oldest first), and takes the first: one write of the whole task as taken by as at this time, conditioned on the value it read. When someone else took that task first the write is refused and changes nothing, and the next one is tried, at most take_tries. only_mine keeps only tasks that name as. With id, takes that task, or answers taken null with reason changed (and the task as it now is) when someone else won it. taken is null when there was nothing to take. The same request key gives back the same claim. The caller hands in every record it reads as input.records; this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "as"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "as": {
+              "type": "string",
+              "description": "The record id of the one taking the task"
+            },
+            "id": {
+              "type": "string",
+              "description": "A task's record id: record:calendar-task:<key>"
+            },
+            "only_mine": {
+              "type": "boolean",
+              "description": "Only tasks that name as"
+            },
+            "records": {
+              "type": "array",
+              "maxItems": 20000,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "description": "The records this run needs, read by the caller from the person's own store and handed in: [{id, type, value}] of the task records and of each person, AI or other record a task names (and, for a finish, the consumer record its saved acceptance names). The engine keeps none of them."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "taken",
+            "tried"
+          ],
+          "properties": {
+            "taken": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "tried": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "task_id": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "changed",
+                "gone"
+              ]
+            },
+            "task": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "keep": {
+              "type": "array",
+              "description": "The writes the run made, for the caller to keep where the person keeps it: { id, type, value, expected } (value null removes). The run itself writes nothing."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/plan-tasks-and-todo-lists",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/plan-tasks-and-todo-lists/task-moves.mjs",
+            "takeATask"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "plan-tasks-and-todo-lists",
+                "paths": [
+                  "task-moves.mjs",
+                  "task-moves.json"
+                ],
+                "at": "/opt/plan-tasks-and-todo-lists"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "move-records-through-declared-states",
+                "paths": [
+                  "do-work/move-records-through-declared-states.mjs"
+                ],
+                "at": "/opt/move-records-through-declared-states"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work/judge-words.mjs",
+                  "do-work/evidence-checks.mjs"
+                ],
+                "at": "/opt/judge-words"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/host-actions.mjs",
+                  "read-data/whole-file.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "as": "ai:sample-taker",
+              "records": [
+                {
+                  "id": "ai:sample-sender",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sender",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 1,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "ai:sample-taker",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample taker",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 2,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "record:calendar-task:sample-1",
+                  "type": "calendar-task",
+                  "value": {
+                    "title": "Write a made-up sample report",
+                    "status": "To do",
+                    "assignees": [
+                      "ai:sample-taker"
+                    ],
+                    "sent_by": "ai:sample-sender",
+                    "priority": "medium",
+                    "sent_at": "2026-11-03T00:00:00.000Z",
+                    "description": "Write a made-up sample report"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/formulas",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/wall-time",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:plan-tasks-and-todo-lists",
+        "listed_on": "2026-11-19T21:16:33Z",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "id": "tool:change-a-task",
+        "label": "Finish, fail, give back, hand on, withdraw, flag or remove a task",
+        "job": "Record what happened to a task: finish it with its result, say it failed, give it back, hand it on to someone else, say what blocks it, take back one I gave, or remove it",
+        "description": "Reads the task id and makes the move action names, by the rules in task-moves.json: finish (the taker; needs result, may add summary and check) and fail (the taker; needs result: why) end it as Done or Broken; release gives it back to To do (the taker, or anyone once it is held longer than the stale-take time; because says why); hand-on replaces the assignees (required) and gives the task back to To do with no taker (the taker, or the giver while it waits); stuck says what blocks it (anyone, so a watcher can flag it; needs words) and unstuck clears that; withdraw takes back a task still waiting (its giver; because); wait keeps recoverable work blocked on this same task with continuation {owner, action, after, reason}; resume returns it to waiting when due (its taker, giver or continuation owner); plan saves the acceptance a finish checks (the taker); edit changes a waiting task's words, assignees or acceptance (its giver); remove deletes the record (its giver, or anyone once it is finished). The move is one write of the whole task conditioned on the value just read: when the task changed meanwhile nothing is written and the answer is moved false with reason changed and the task as it now is. A move the rules do not allow is refused, saying why. A finish also needs check: the exact saved outcome, checked_at during this take, consumer evidence ({ref, observation}), and one matching check per saved obligation. This records accountable observation and does not itself prove its truth. The caller hands in every record it reads as input.records; this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "as",
+            "id",
+            "action"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "as": {
+              "type": "string",
+              "description": "The record id of the one making the move"
+            },
+            "id": {
+              "type": "string",
+              "description": "A task's record id: record:calendar-task:<key>"
+            },
+            "action": {
+              "type": "string",
+              "enum": [
+                "take",
+                "release",
+                "hand-on",
+                "finish",
+                "fail",
+                "stuck",
+                "unstuck",
+                "withdraw",
+                "wait",
+                "resume",
+                "edit",
+                "plan",
+                "remove"
+              ],
+              "description": "The move, one of the rules' actions"
+            },
+            "taken_at": {
+              "type": "string",
+              "description": "The exact timestamp of the claim whose holder is acting"
+            },
+            "because": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000,
+              "description": "Why: for release, hand-on, withdraw, resume"
+            },
+            "words": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000,
+              "description": "What blocks the task, for stuck"
+            },
+            "result": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60000,
+              "description": "What was done (finish) or why it could not be (fail)"
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000,
+              "description": "One line about the result"
+            },
+            "assignees": {
+              "type": "array",
+              "maxItems": 1000,
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              },
+              "description": "The record ids of anyone who may take the task (a person, an AI, a workflow, a raccoon, anything with a record). Empty or left out: anyone may take it. Each must be among the records handed in."
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20000
+            },
+            "outcome": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            },
+            "priority": {
+              "type": "string",
+              "enum": [
+                "urgent",
+                "high",
+                "medium",
+                "low"
+              ],
+              "description": "How urgent: urgent first, then high, medium and low (medium when left out)"
+            },
+            "source": {
+              "type": "object",
+              "required": [
+                "kind",
+                "ref"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ref": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "description": "Where the task came from (kind and ref), kept as given"
+            },
+            "obligations": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 64,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "outcome"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "outcome": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "description": "Parts of the outcome each checked on its own at finish; the id outcome is reserved for the whole"
+            },
+            "acceptance": {
+              "type": "object",
+              "required": [
+                "outcome",
+                "target",
+                "rules"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "target": {
+                  "type": "object",
+                  "required": [
+                    "type",
+                    "id"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                "rules": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 65,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "path"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "path": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "description": "A shared judge-words rule directly testing the persisted consumer data at path; id is outcome or a saved obligation id."
+                  }
+                }
+              },
+              "description": "The checks a finish must pass: the outcome as the task asks for it, the record that shows it, and the rules that record must meet"
+            },
+            "continuation": {
+              "type": "object",
+              "required": [
+                "owner",
+                "action",
+                "after",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "owner": {
+                  "type": "string"
+                },
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "after": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "An ISO time, now or within the owned review window"
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "check": {
+              "type": "object",
+              "required": [
+                "outcome",
+                "checked_at",
+                "evidence",
+                "target"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "required": [
+                    "type",
+                    "id"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                "outcome": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The saved outcome, exactly as the task asks for it"
+                },
+                "checked_at": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "When the consumer was read; during this take"
+                },
+                "evidence": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 32,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "ref",
+                      "observation"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "ref": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "observation": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                "obligations": {
+                  "type": "array",
+                  "maxItems": 64,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "outcome",
+                      "evidence"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "outcome": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "evidence": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 32,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "ref",
+                            "observation"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "ref": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "observation": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "records": {
+              "type": "array",
+              "maxItems": 20000,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "description": "The records this run needs, read by the caller from the person's own store and handed in: [{id, type, value}] of the task records and of each person, AI or other record a task names (and, for a finish, the consumer record its saved acceptance names). The engine keeps none of them."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "task_id",
+            "moved",
+            "from",
+            "to",
+            "task"
+          ],
+          "properties": {
+            "task_id": {
+              "type": "string"
+            },
+            "moved": {
+              "type": "boolean"
+            },
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "changed",
+                "gone"
+              ]
+            },
+            "task": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "keep": {
+              "type": "array",
+              "description": "The writes the run made, for the caller to keep where the person keeps it: { id, type, value, expected } (value null removes). The run itself writes nothing."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/plan-tasks-and-todo-lists",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/plan-tasks-and-todo-lists/task-moves.mjs",
+            "changeATask"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "plan-tasks-and-todo-lists",
+                "paths": [
+                  "task-moves.mjs",
+                  "task-moves.json"
+                ],
+                "at": "/opt/plan-tasks-and-todo-lists"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "move-records-through-declared-states",
+                "paths": [
+                  "do-work/move-records-through-declared-states.mjs"
+                ],
+                "at": "/opt/move-records-through-declared-states"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work/judge-words.mjs",
+                  "do-work/evidence-checks.mjs"
+                ],
+                "at": "/opt/judge-words"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/host-actions.mjs",
+                  "read-data/whole-file.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "as": "ai:sample-taker",
+              "id": "record:calendar-task:sample-1",
+              "action": "release",
+              "taken_at": "2026-11-03T00:05:00.000Z",
+              "because": "Synthetic sample returns its claim",
+              "records": [
+                {
+                  "id": "ai:sample-sender",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sender",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 1,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "ai:sample-taker",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample taker",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 2,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "record:calendar-task:sample-1",
+                  "type": "calendar-task",
+                  "value": {
+                    "title": "Write a made-up sample report",
+                    "status": "In progress",
+                    "assignees": [
+                      "ai:sample-taker"
+                    ],
+                    "sent_by": "ai:sample-sender",
+                    "priority": "medium",
+                    "sent_at": "2026-11-03T00:00:00.000Z",
+                    "description": "Write a made-up sample report",
+                    "taken_by": "ai:sample-taker",
+                    "taken_at": "2026-11-03T00:05:00.000Z"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/formulas",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/wall-time",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:plan-tasks-and-todo-lists",
+        "listed_on": "2026-11-19T21:16:33Z",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "id": "tool:finish-a-task",
+        "label": "Check the saved consumer and finish a task",
+        "job": "Finish a task only after its saved acceptance checks pass on the actual persisted consumer",
+        "description": "Reads the exact record target saved in the task's acceptance and applies the shared judge-words rules to its current value. A missing target, failed or unavailable check, mismatched target, stale claim or changed task refuses completion. Receipt strings do not prove success. Keeps the actual consumer content identity and acceptance identity bound to this take. Rights are intersected by the engine with the caller authority; this tool grants no new account access. It is the finish move of the change row with action finish. The caller hands in every record it reads as input.records; this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "as",
+            "id",
+            "taken_at",
+            "result",
+            "check"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "as": {
+              "type": "string",
+              "description": "The record id of the one finishing (the taker)"
+            },
+            "id": {
+              "type": "string",
+              "description": "A task's record id: record:calendar-task:<key>"
+            },
+            "taken_at": {
+              "type": "string",
+              "description": "The exact timestamp of the claim whose holder is finishing"
+            },
+            "result": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60000,
+              "description": "What was done"
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000,
+              "description": "One line about the result"
+            },
+            "check": {
+              "type": "object",
+              "required": [
+                "outcome",
+                "checked_at",
+                "evidence",
+                "target"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "required": [
+                    "type",
+                    "id"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                "outcome": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The saved outcome, exactly as the task asks for it"
+                },
+                "checked_at": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "When the consumer was read; during this take"
+                },
+                "evidence": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 32,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "ref",
+                      "observation"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "ref": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "observation": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                "obligations": {
+                  "type": "array",
+                  "maxItems": 64,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "outcome",
+                      "evidence"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "outcome": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "evidence": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 32,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "ref",
+                            "observation"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "ref": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "observation": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "records": {
+              "type": "array",
+              "maxItems": 20000,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "description": "The records this run needs, read by the caller from the person's own store and handed in: [{id, type, value}] of the task records and of each person, AI or other record a task names (and, for a finish, the consumer record its saved acceptance names). The engine keeps none of them."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "task_id",
+            "moved",
+            "from",
+            "to",
+            "task"
+          ],
+          "properties": {
+            "task_id": {
+              "type": "string"
+            },
+            "moved": {
+              "type": "boolean"
+            },
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "changed",
+                "gone"
+              ]
+            },
+            "task": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "keep": {
+              "type": "array",
+              "description": "The writes the run made, for the caller to keep where the person keeps it: { id, type, value, expected } (value null removes). The run itself writes nothing."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/plan-tasks-and-todo-lists",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/plan-tasks-and-todo-lists/task-moves.mjs",
+            "finishATask"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "plan-tasks-and-todo-lists",
+                "paths": [
+                  "task-moves.mjs",
+                  "task-moves.json"
+                ],
+                "at": "/opt/plan-tasks-and-todo-lists"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "move-records-through-declared-states",
+                "paths": [
+                  "do-work/move-records-through-declared-states.mjs"
+                ],
+                "at": "/opt/move-records-through-declared-states"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work/judge-words.mjs",
+                  "do-work/evidence-checks.mjs"
+                ],
+                "at": "/opt/judge-words"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/host-actions.mjs",
+                  "read-data/whole-file.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "as": "ai:sample-taker",
+              "id": "record:calendar-task:sample-finish",
+              "taken_at": "2026-11-03T00:05:00.000Z",
+              "result": "Observed the readable sample consumer",
+              "check": {
+                "outcome": "Write a made-up sample report",
+                "target": {
+                  "type": "sample-consumer",
+                  "id": "sample-consumer:one"
+                },
+                "checked_at": "2026-11-03T00:06:00.000Z",
+                "evidence": [
+                  {
+                    "ref": "sample-consumer:one",
+                    "observation": "The consumer is readable."
+                  }
+                ]
+              },
+              "records": [
+                {
+                  "id": "ai:sample-sender",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sender",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 1,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "ai:sample-taker",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample taker",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 2,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "record:calendar-task:sample-finish",
+                  "type": "calendar-task",
+                  "value": {
+                    "title": "Write a made-up sample report",
+                    "status": "In progress",
+                    "assignees": [
+                      "ai:sample-taker"
+                    ],
+                    "sent_by": "ai:sample-sender",
+                    "priority": "medium",
+                    "sent_at": "2026-11-03T00:00:00.000Z",
+                    "description": "Write a made-up sample report",
+                    "taken_by": "ai:sample-taker",
+                    "taken_at": "2026-11-03T00:05:00.000Z",
+                    "acceptance": {
+                      "outcome": "Write a made-up sample report",
+                      "target": {
+                        "type": "sample-consumer",
+                        "id": "sample-consumer:one"
+                      },
+                      "rules": [
+                        {
+                          "id": "outcome",
+                          "path": "readable",
+                          "equals": [
+                            true
+                          ],
+                          "says": "The consumer must be readable."
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "id": "sample-consumer:one",
+                  "type": "sample-consumer",
+                  "value": {
+                    "readable": true
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "result_selector": "$.result"
       }
     }
   ]

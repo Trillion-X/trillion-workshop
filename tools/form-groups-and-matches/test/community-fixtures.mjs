@@ -76,7 +76,7 @@ export const say = (book, now, person, kind, extra = {}, task = {}) => at(book, 
 /** The task of a run the person started on their own page: the engine's stamp (tool-runs.json page_origin). */
 export const PAGE = Object.freeze({ origin: 'page' });
 export const jobs = book => book.list(ids.jobPrefix(C)).map(record => record.value);
-export const jobOf = (book, person, start) => jobs(book).find(job => job.for === person && job.request_key.startsWith(start));
+export const jobOf = (book, person, start) => jobs(book).find(job => job.assignees[0] === person && job.request_key.startsWith(start));
 
 /** Scores one AI gives from the job it was handed: every factor cites every claim of both sides. */
 export const scoresFrom = (job, value) => job.input.candidates.map(candidate => ({

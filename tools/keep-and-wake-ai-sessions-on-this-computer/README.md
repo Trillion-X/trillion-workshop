@@ -1,6 +1,6 @@
 # tools/keep-and-wake-ai-sessions-on-this-computer/
 
-Keep every message, web chat and written file of each AI session on this computer as the person's records, ask the person's Trillion before building, take open work handed to this computer's AIs, wake their stopped sessions, run the tools a job needs here, and set up this computer's AI apps with the account's key, hooks and MCP connection.
+Keep every message, web chat and written file of each AI session on this computer as the person's records, ask the person's Trillion before building, take open work handed to this computer's AIs, wake their stopped sessions, run the tools a task needs here, and set up this computer's AI apps with the account's key, hooks and MCP connection.
 
 Moved here byte for byte from Trillion-X/trillion by `tools/move-code-between-trees` (`move-rows/older-repository-harness-to-workshop.json`), from the tag `old-trillion-before-worker-retire` (b6ae0ebf81): Trillion-X/trillion PR #243 deleted these harness files when it retired the old Worker, with no ported home. `moved-from.json` names each file's source path and commit and the identity of its bytes there and here; only import paths differ. The folder keeps the source tree's own paths under it (`harness/`, `harness/wake-handlers/`, `src/`, `parts/`, `records/`, `server.json`), so the files import each other as they did. Files the Workshop already held byte for byte (in `tools/record-log`, `tools/set-up-my-account` and nine more) are imported from there, not copied.
 

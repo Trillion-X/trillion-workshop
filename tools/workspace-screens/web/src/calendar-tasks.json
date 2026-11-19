@@ -58,7 +58,7 @@
       { "id": "default_calendar", "label": "Default calendar", "kind": "long-text", "hidden_by_default": true, "api": "json", "schema": { "source_id": "text", "calendar_id": "text" } },
       { "id": "archived", "label": "Archived", "kind": "choice", "hidden_by_default": true, "choices": ["yes"], "api": "flag" },
       { "id": "manual_order", "label": "Manual order", "kind": "text", "hidden_by_default": true, "editable": false },
-      { "id": "ai_scheduling", "label": "Plan this list automatically", "kind": "choice", "hidden_by_default": true, "choices": ["yes", "no"], "api": "yes_no" },
+      { "id": "plan_automatically", "label": "Plan this list automatically", "kind": "choice", "hidden_by_default": true, "choices": ["yes", "no"], "api": "yes_no" },
       { "id": "preferred_times", "label": "Preferred times", "kind": "long-text", "hidden_by_default": true, "api": "json", "schema": { "start_minute": "minute", "end_minute": "minute", "weekdays?": "weekdays" }, "ordered": ["start_minute", "end_minute"] }
     ],
     "indexes": [{ "name": "manual_order", "fields": ["manual_order"] }],
@@ -116,7 +116,7 @@
       { "id": "refit_on_move", "label": "Move planned tasks out of the way of a task I move", "kind": "choice", "choices": ["yes", "no"], "hidden_by_default": true },
       { "id": "external_display", "label": "Put planned tasks on my calendar", "kind": "text", "hidden_by_default": true },
       { "id": "capacity", "label": "Most planned work per day", "kind": "text", "hidden_by_default": true },
-      { "id": "ai_scheduling", "label": "Plan my tasks automatically", "kind": "choice", "choices": ["yes", "no"], "hidden_by_default": true },
+      { "id": "plan_automatically", "label": "Plan my tasks automatically", "kind": "choice", "choices": ["yes", "no"], "hidden_by_default": true },
       { "id": "default_todo_visibility", "label": "Who sees my planned tasks on my calendar", "kind": "choice", "choices": ["private", "visible"], "hidden_by_default": true },
       { "id": "email_todos", "label": "Show emails as todos", "kind": "choice", "choices": ["yes", "no"], "hidden_by_default": true },
       { "id": "email_split_contents", "label": "Sort emails into Email, Calendar and Other", "kind": "choice", "choices": ["yes", "no"], "hidden_by_default": true },
@@ -149,10 +149,10 @@
     "default_minutes": 30
   },
   "preferences": {
-    "_what": "Planning choices a person can flip, stored on the working-hours row. A row with `choices` takes one of them (external_display: whether planned tasks are also put on the person's own calendar as events, and how they show to others; `off` writes nothing, which is what a person who never chose gets; the rows are tools/ui/show/schedule-calendar/timebox-policy.json). `refit_on_move`: when a person moves or schedules a task over tasks the planner placed (and that are not pinned), those tasks are taken off the calendar and wait in the tasks, with one undo for the lot. The default here is what a person who never chose gets. `ai_scheduling`: whether the planner places tasks for the person at all. `default_todo_visibility`: who sees a planned task put on their calendar (private, or visible like any event). `email_todos`: whether the inbox is turned into todos; `email_split_contents`: whether those are sorted into Email, Calendar and Other (email_split); `email_todo_account`: which mail account (empty means every connected one). A row with kind `text` takes a string of at most `most_chars`; empty clears it.",
+    "_what": "Planning choices a person can flip, stored on the working-hours row. A row with `choices` takes one of them (external_display: whether planned tasks are also put on the person's own calendar as events, and how they show to others; `off` writes nothing, which is what a person who never chose gets; the rows are tools/ui/show/schedule-calendar/timebox-policy.json). `refit_on_move`: when a person moves or schedules a task over tasks the planner placed (and that are not pinned), those tasks are taken off the calendar and wait in the tasks, with one undo for the lot. The default here is what a person who never chose gets. `plan_automatically`: whether the planner places tasks for the person at all. `default_todo_visibility`: who sees a planned task put on their calendar (private, or visible like any event). `email_todos`: whether the inbox is turned into todos; `email_split_contents`: whether those are sorted into Email, Calendar and Other (email_split); `email_todo_account`: which mail account (empty means every connected one). A row with kind `text` takes a string of at most `most_chars`; empty clears it.",
     "refit_on_move": { "default": false },
     "external_display": { "choices": ["off", "free", "busy", "busy_when_at_risk"], "default": "off" },
-    "ai_scheduling": { "default": true },
+    "plan_automatically": { "default": true },
     "default_todo_visibility": { "choices": ["private", "visible"], "default": "private" },
     "email_todos": { "default": false },
     "email_split_contents": { "default": true },

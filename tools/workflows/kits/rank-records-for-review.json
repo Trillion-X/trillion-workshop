@@ -10,7 +10,7 @@
   "tools": [
     "tool:run-workflow-definition",
     "tool:accept-or-pass-on-a-ranked-record",
-    "tool:hand-a-job-to-an-ai"
+    "tool:give-a-task"
   ],
   "instructions": [
     "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",

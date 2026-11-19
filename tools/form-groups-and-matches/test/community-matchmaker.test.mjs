@@ -47,7 +47,7 @@ test('a round hands each member\'s own AI a job: missing answers to fill, or a b
   assert.deepEqual([round.ok, round.asked_to_score, round.asked_for_profile], [true, 3, 1], 'the keeper, with no answers yet, is asked for them');
   const profileJob = jobOf(book, 'keeper', 'match-profile:');
   assert.equal(profileJob.input.questions.length, MATCHING.questions.length);
-  assert.ok(jobs(book).every(job => job.status === 'waiting' && job.from === `community:${C}` && job.said && job.job), 'every job is the guild\'s own work, with its words');
+  assert.ok(jobs(book).every(job => job.status === 'To do' && job.sent_by === `match-community:${C}` && job.title && job.description), 'every task is the guild\'s own work, with its words');
   const anaJob = jobOf(book, 'ana', 'match-score:');
   assert.deepEqual(anaJob.input.candidates.map(candidate => candidate.name).sort(), ['Ben', 'Cat']);
   assert.ok(anaJob.input.candidates.every(candidate => candidate.claims.length && !/"(ben|cat)"/.test(JSON.stringify(candidate))), 'a shortlist carries claims and names, never a person\'s id');
@@ -80,7 +80,7 @@ test('cited scores form a pair; they are introduced in a one-to-one, their AIs s
 
   const [proposed] = at(book, START).myMatching('ana').matches;
   assert.deepEqual([proposed.status, proposed.says, proposed.space_id], ['proposed', MATCHING.state_words.proposed, null], 'a closed round only proposes');
-  assert.deepEqual(jobs(book).filter(job => job.request_key.startsWith('match-consent:')).map(job => job.for).sort(), ['ana', 'ben'], 'each person is asked, through their own AI');
+  assert.deepEqual(jobs(book).filter(job => job.request_key.startsWith('match-consent:')).map(job => job.assignees[0]).sort(), ['ana', 'ben'], 'each person is asked, through their own AI');
   const consentJob = jobOf(book, 'ana', 'match-consent:');
   assert.deepEqual(consentJob.input.show_with, { screen: `/guild/${C}` }, 'the AI shows the person the match on their own screen');
   assert.equal(consentJob.input.no_with.arguments.yes, false, 'and may only say no for them');
@@ -93,7 +93,7 @@ test('cited scores form a pair; they are introduced in a one-to-one, their AIs s
   assert.deepEqual(at(book, START).myMatching('cat').matches, [], 'Cat is left for a later round');
   assert.deepEqual(inGroup(book, match), ['ana', 'ben'], 'the one-to-one holds both, and only them');
 
-  assert.deepEqual(jobs(book).filter(job => job.request_key.startsWith('match-topics:')).map(job => job.for).sort(), ['ana', 'ben']);
+  assert.deepEqual(jobs(book).filter(job => job.request_key.startsWith('match-topics:')).map(job => job.assignees[0]).sort(), ['ana', 'ben']);
   say(book, START, 'ana', 'topics', { match_id: match.match_id, topics: ['Which joints held last winter', 'Trading clamps'] });
   let mine = at(book, START).myMatching('ben').matches[0];
   assert.deepEqual([mine.status, mine.topics], ['introduced', ['Which joints held last winter', 'Trading clamps']]);
@@ -118,7 +118,7 @@ test('nobody shares a group until both say yes; one yes waits, and the second ma
   const made = saysYes(book, START, match.match_id, 'ben');
   assert.deepEqual([made.status, made.space_id], ['waiting_for_ais', matchRecord(book, match.match_id).space_id]);
   assert.deepEqual(inGroup(book, matchRecord(book, match.match_id)), ['ana', 'ben']);
-  const topics = () => jobs(book).filter(job => job.request_key.startsWith('match-topics:')).map(job => job.for).sort();
+  const topics = () => jobs(book).filter(job => job.request_key.startsWith('match-topics:')).map(job => job.assignees[0]).sort();
   assert.deepEqual(topics(), ['ana', 'ben']);
   assert.equal(saysYes(book, START, match.match_id, 'ben').status, 'waiting_for_ais', 'a retry after the introduction changes nothing');
   assert.deepEqual(topics(), ['ana', 'ben'], 'and asks no AI twice');
@@ -151,7 +151,7 @@ test('a yes for an introduction that changed since it was shown is refused namin
   assert.equal(saysYes(book, START, match.match_id, 'ana').status, 'one_yes', 'her yes for what she sees now counts');
 
   rename(book, 'ana', 'Anabel');
-  const asked = () => jobs(book).filter(job => job.for === 'ana' && job.request_key.startsWith(`match-consent:${match.match_id}:ana:`)).length;
+  const asked = () => jobs(book).filter(job => job.assignees[0] === 'ana' && job.request_key.startsWith(`match-consent:${match.match_id}:ana:`)).length;
   assert.equal(asked(), 1);
   assert.equal(saysYes(book, START, match.match_id, 'ben').status, 'one_yes');
   const ana = at(book, START).myMatching('ana').matches[0];
@@ -222,10 +222,10 @@ test('the clock starts a round when due and pairs whoever answered once its time
   assert.equal(at(book, START).myMatching('ben').waiting_for_your_scores.length, 1, 'Ben\'s AI can read the job it still owes');
   // The pull road: Ben's own waiting jobs come with his view, and the time to wake and pull again is the round's deadline.
   const pulled = at(book, START).myMatching('ben');
-  assert.deepEqual(pulled.waiting_jobs.map(job => job.request_key), [`match-score:${roundId}:ben`]);
-  assert.equal(pulled.waiting_jobs[0].input.round_id, roundId);
+  assert.deepEqual(pulled.waiting_tasks.map(job => job.request_key), [`match-score:${roundId}:ben`]);
+  assert.equal(pulled.waiting_tasks[0].input.round_id, roundId);
   assert.equal(pulled.wake_at, new Date(START + MATCHING.round_hours * HOUR).toISOString());
-  assert.ok(!JSON.stringify(pulled.waiting_jobs).includes('"for"'), 'only his own jobs, without anyone else\'s');
+  assert.ok(!JSON.stringify(pulled.waiting_tasks).includes('"assignees"'), 'only his own tasks, without anyone else\'s');
   const closed = at(book, START + 49 * HOUR).tick();
   assert.deepEqual([closed.round.closed, closed.round.formed], [roundId, 1]);
   assert.equal(at(book, START + 49 * HOUR).myMatching('ben').matches[0].with.name, 'Ana');
@@ -286,7 +286,7 @@ test('a community runs its introductions as a many-armed experiment: arms word t
   for (const person of ['ana', 'ben']) saysYes(paired, START, match.match_id, person);
   const topicJobs = jobs(paired).filter(job => job.request_key.startsWith('match-topics:'));
   assert.equal(topicJobs.length, 2);
-  for (const job of topicJobs) assert.match(job.job, /^(plain|warm|short): suggest what (Ana|Ben) and (Ana|Ben) could talk about in Oak Guild/, 'each person\'s job is worded by their arm');
+  for (const job of topicJobs) assert.match(job.description, /^(plain|warm|short): suggest what (Ana|Ben) and (Ana|Ben) could talk about in Oak Guild/, 'each person\'s job is worded by their arm');
   let results = at(paired, START).myMatching('keeper').experiments[0];
   assert.deepEqual([results.experiment_id, results.arms.length, results.arms.reduce((sum, arm) => sum + arm.introduced, 0), results.arms.reduce((sum, arm) => sum + arm.talked, 0)], ['introduction-words', 3, 2, 0]);
   assert.equal(at(paired, START).myMatching('ana').experiments, undefined, 'only the keeper reads the results');
@@ -324,9 +324,9 @@ test('an introduction nobody acted on is followed up a bounded number of times, 
   assert.equal(at(book, START).nextAt(), new Date(START + hours[0] * HOUR).toISOString(), 'the clock wakes for the first follow-up');
   const followUps = () => jobs(book).filter(job => job.request_key.startsWith('match-follow:'));
   at(book, START + hours[0] * HOUR + 1000).tick();
-  assert.deepEqual(followUps().map(job => job.for).sort(), ['ana', 'ben', 'cat', 'dan']);
-  const anaJob = followUps().find(job => job.for === 'ana');
-  assert.match(anaJob.job, /Ana met Ben 2 days ago/);
+  assert.deepEqual(followUps().map(job => job.assignees[0]).sort(), ['ana', 'ben', 'cat', 'dan']);
+  const anaJob = followUps().find(job => job.assignees[0] === 'ana');
+  assert.match(anaJob.description, /Ana met Ben 2 days ago/);
   assert.equal(anaJob.input.space_id, matchRecord(book, anaBen.match_id).space_id);
   at(book, START + hours[0] * HOUR + 2000).tick();
   assert.equal(followUps().length, 4, 'one job per person per step');

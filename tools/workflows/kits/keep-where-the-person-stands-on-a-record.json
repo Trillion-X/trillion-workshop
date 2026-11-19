@@ -7,13 +7,13 @@
   ],
   "tools": [
     "tool:run-workflow-definition",
-    "tool:hand-a-job-to-an-ai"
+    "tool:give-a-task"
   ],
   "instructions": [
     "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
     "2. Say \"Run workflow:keep-where-the-person-stands-on-a-record\" with store and the stands to keep. Ask the person first, and send answered_by \"person\" only with what they said.",
     "3. The first run makes the store's own objects once and proves them on the example attempts: every attempt must be kept, repeated or refused as the intent says, or the run stops and says which.",
-    "4. Every later run keeps the new stands through those objects and reads each one back. A disagreement with a decision opens it for a corrected one and hands one AI its job, once."
+    "4. Every later run keeps the new stands through those objects and reads each one back. A disagreement with a decision opens it for a corrected one and gives one AI its task, once."
   ],
   "worked_examples": [
     {

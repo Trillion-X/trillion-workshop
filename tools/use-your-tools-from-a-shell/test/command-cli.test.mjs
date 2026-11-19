@@ -9,11 +9,11 @@ import test from 'node:test';
 import { makeHashCodeHexFromBytes } from '../do-work/packs/read-data/identity.mjs';
 import settings from '../do-work/command.json' with { type: 'json' };
 import {
-  CommandError, agentOf, aiOf, aiRecordOf, allPages, groupsOf, argumentsFor, computerNameOf, computerOf, credentialFor, doorFor, grantStore, holdingOf, installProgram,
-  installSkills, jobLines, keyStore, main, modelOf, namesOf, parseArgs, pkce, placeOf, providerOf, publishRecord, render, repliesOf, sendNote,
-  opWhole, serveOnce, signInWithBrowser, addPersonHere, findAgentSocket, audiencesOf, stateOf, engineClient, waitFor, workCall, speakFor } from '../do-work/command.mjs';
+  CommandError, agentOf, aiOf, aiRecordOf, allPages, groupsOf, argumentsFor, computerNameOf, computerOf, credentialFor, doorFor, giveNote, grantStore, holdingOf, installProgram,
+  installSkills, keyStore, main, modelOf, namesOf, parseArgs, pkce, placeOf, providerOf, publishRecord, render, repliesOf, taskLines,
+  opWhole, serveOnce, signInWithBrowser, addPersonHere, findAgentSocket, audiencesOf, stateOf, engineClient, waitFor, toolCall, speakFor } from '../do-work/command.mjs';
+import { recordStore, taskDoorOps } from '../test-fixtures/task-records.mjs';
 
-// These tests speak for one site, as an install from that site's site makes the command do.
 speakFor({ cli: 'example', site_name: 'Example' });
 
 const KEY = `nm_${'ab'.repeat(32)}`;
@@ -21,9 +21,7 @@ const ACCOUNT = 'f'.repeat(64);
 const me = { agent_id: 'claude-code-on-mac', ai_id: 'ai:claude-code-on-mac', held_as: [], harness: 'Claude Code', app: 'Claude Code', model: null, provider: 'Anthropic', computer: 'Mac' };
 const place = () => ({ repository: 'example', branch: 'main' });
 const home = () => mkdtempSync(join(tmpdir(), 'example-cli-test-'));
-// What the door's tools:list {tool} answers for the tool that finishes jobs: the most characters a result takes inline.
-const RESULT_LIMIT = 60000;
-const changeTool = { id: 'tool:change-an-ai-job', input_schema: { type: 'object', properties: { result: { type: 'string', maxLength: RESULT_LIMIT } } } };
+const task = 'record:calendar-task:1';
 const quick = { ...settings, retry: { ...settings.retry, count: 3, first_seconds: 0, most_seconds: 0 } };
 const noWait = async () => {};
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
@@ -57,7 +55,8 @@ async function fakeDoor({ ops = {}, oauth = null, sse = false, bearers = [KEY], 
       // A call names its method; the stand-in finds the owner by it, as the engine does (an address is only sent to pass a method on).
       const handler = ops[`${args.address ?? (args.method.startsWith('tools:') ? '@tools' : '')} ${args.method}`];
       const answer = handler ? await handler(args.input, args, calls) : { refused: `No ${args.method} at ${args.address}` };
-      if (answer?.status) return send(answer.status, 'busy', 'text/plain');
+      // An HTTP status is a number; a record's own `status` word is an answer, not a status.
+      if (typeof answer?.status === 'number') return send(answer.status, 'busy', 'text/plain');
       // A refusal the engine names by a code alone answers as the engine does: { code, outcome } and no words.
       result = answer?.code ? { isError: true, content: [{ type: 'text', text: 'The resource operation was refused.' }], structuredContent: { code: answer.code, outcome: 'not_started' } }
         : answer?.refused ? { isError: true, content: [{ type: 'text', text: answer.refused }], structuredContent: { error: { message: answer.refused, retryable: answer.retryable ?? false } } }
@@ -85,34 +84,40 @@ test('arguments: words and flags, with -- ending them', () => {
   assert.throws(() => parseArgs(['send', '--as']), /--as needs a value/);
 });
 
-test('each work command is one row of the work table, with the input its Workshop work tool is given', () => {
-  const parse = line => parseArgs(line);
-  const call = (line, extra = {}) => argumentsFor(line[0], { words: parse(line).words.slice(1), flags: parse(line).flags }, { me, requestKey: 'k1', ...extra });
-  assert.deepEqual(call(['send', 'any', 'fix', 'the', 'build']), { work: 'send', input: { as: me.ai_id, job: 'fix the build', key: 'k1', to: null } });
-  assert.deepEqual(call(['send', 'codex-on-mac', 'review', '--priority', '5', '--outcome', 'tests pass', '--label', 'Review']).input,
-    { as: me.ai_id, job: 'review', key: 'k1', to: 'ai:codex-on-mac', priority: 5, outcome: 'tests pass', label: 'Review' });
-  assert.equal(call(['send', 'ai:codex-on-mac', 'x']).input.to, 'ai:codex-on-mac', 'an id that is already an ai id is kept');
-  assert.equal(call(['send', 'any', 'x', '--key', 'mine']).input.key, 'mine');
-  assert.throws(() => call(['send', 'any']), /Say the job/);
-  assert.deepEqual(call(['work']), { work: 'see', input: { limit: settings.work_list_limit } });
-  assert.deepEqual(call(['work', 'ai-job:1']), { work: 'see', input: { id: 'ai-job:1' } });
-  assert.deepEqual(call(['work', '--status', 'waiting', '--to', 'codex', '--limit', '5']).input, { status: 'waiting', to: 'ai:codex', limit: 5 });
-  assert.deepEqual(call(['take']), { work: 'take', input: { as: me.ai_id } });
-  assert.deepEqual(call(['take', 'ai-job:1', '--mine']).input, { as: me.ai_id, id: 'ai-job:1', only_mine: true });
-  assert.deepEqual(call(['finish', 'ai-job:1', 'done.', 'All', 'green.']), { work: 'change', input: { as: me.ai_id, id: 'ai-job:1', action: 'finish', result: 'done. All green.', summary: 'done. All green.' } });
+test('each task command is one read or one move, with the input its Workshop task tool is given', () => {
+  const call = (line, extra = {}) => argumentsFor(line[0], { words: parseArgs(line).words.slice(1), flags: parseArgs(line).flags }, { me, requestKey: 'k1', ...extra });
+  assert.deepEqual(call(['give', 'fix', 'the', 'build']).input, { as: me.ai_id, key: 'k1', description: 'fix the build' });
+  const review = call(['give', 'review', '--to', 'ai:codex-on-mac', '--to', 'person:someone', '--priority', 'high', '--outcome', 'tests pass', '--title', 'Review']);
+  assert.deepEqual(review.input, { as: me.ai_id, key: 'k1', description: 'review', title: 'Review', assignees: ['ai:codex-on-mac', 'person:someone'], priority: 'high', outcome: 'tests pass' });
+  assert.deepEqual(review.read.ids, [{ type: 'ai', id: 'ai:codex-on-mac' }, { type: 'person', id: 'person:someone' }], 'every named assignee is read with the move');
+  assert.equal(call(['give', 'x', '--key', 'mine']).input.key, 'mine');
+  assert.throws(() => call(['give']), /Say the task/);
+  assert.deepEqual(call(['tasks']).input, { limit: settings.tasks.list_limit });
+  assert.deepEqual(call(['tasks', task]).input, { id: task });
+  const listed = call(['tasks', '--status', 'To do', '--taken-by', 'ai:codex-on-mac', '--limit', '5']);
+  assert.deepEqual(listed.input, { status: 'To do', taken_by: 'ai:codex-on-mac', limit: 5 });
+  assert.ok(listed.read.tasks.statuses.includes('To do'), 'a listing by state reads the words that state is written with');
+  assert.deepEqual(call(['take']).input, { as: me.ai_id });
+  assert.deepEqual(call(['take', task, '--only-mine']).input, { as: me.ai_id, id: task, only_mine: true });
+  assert.deepEqual(call(['finish', task, 'done.', 'All', 'green.']), { call: 'finish', input: { as: me.ai_id, id: task, action: 'finish', result: 'done. All green.', summary: 'done. All green.' }, read: { ids: [] } });
   const planned = join(home(), 'acceptance.json');
-  writeFileSync(planned, JSON.stringify({ outcome: 'Done', target: { type: 'ai-job', id: 'ai-job:1' }, rules: [] }));
-  assert.deepEqual(call(['plan', 'ai-job:1', '--acceptance-file', planned]), { work: 'change', input: { as: me.ai_id, id: 'ai-job:1', action: 'plan', acceptance: { outcome: 'Done', target: { type: 'ai-job', id: 'ai-job:1' }, rules: [] } } });
-  assert.throws(() => call(['plan', 'ai-job:1']), /acceptance-file/);
-  assert.deepEqual(call(['fail', 'ai-job:1', 'no', 'access']).input, { as: me.ai_id, id: 'ai-job:1', action: 'fail', result: 'no access' });
-  assert.deepEqual(call(['stuck', 'ai-job:1', '--clear']).input, { as: me.ai_id, id: 'ai-job:1', action: 'unstuck' });
-  assert.deepEqual(call(['stuck', 'ai-job:1', 'needs', 'a', 'sign-in']).input, { as: me.ai_id, id: 'ai-job:1', action: 'stuck', words: 'needs a sign-in' });
-  assert.deepEqual(call(['release', 'ai-job:1', '--because', 'busy']).input, { as: me.ai_id, id: 'ai-job:1', action: 'release', because: 'busy' });
-  assert.throws(() => call(['withdraw', 'ai-job:1']), /--reason/);
-  assert.deepEqual(call(['withdraw', 'ai-job:1', '--reason', 'not needed']).input, { as: me.ai_id, id: 'ai-job:1', action: 'withdraw', because: 'not needed' });
-  assert.deepEqual(call(['remove', 'ai-job:1']).input, { as: me.ai_id, id: 'ai-job:1', action: 'remove' });
+  writeFileSync(planned, JSON.stringify({ outcome: 'Done', target: { type: 'calendar-task', id: task }, rules: [] }));
+  assert.deepEqual(call(['plan', task, '--acceptance-file', planned]).input, { as: me.ai_id, id: task, action: 'plan', acceptance: { outcome: 'Done', target: { type: 'calendar-task', id: task }, rules: [] } });
+  assert.throws(() => call(['plan', task]), /acceptance-file/);
+  assert.deepEqual(call(['fail', task, 'no', 'access']).input, { as: me.ai_id, id: task, action: 'fail', result: 'no access' });
+  assert.deepEqual(call(['stuck', task, '--clear']).input, { as: me.ai_id, id: task, action: 'unstuck' });
+  assert.deepEqual(call(['stuck', task, 'needs', 'a', 'sign-in']).input, { as: me.ai_id, id: task, action: 'stuck', words: 'needs a sign-in' });
+  assert.deepEqual(call(['release', task, '--because', 'busy']).input, { as: me.ai_id, id: task, action: 'release', because: 'busy' });
+  assert.throws(() => call(['withdraw', task]), /--reason/);
+  assert.deepEqual(call(['withdraw', task, '--reason', 'not needed']).input, { as: me.ai_id, id: task, action: 'withdraw', because: 'not needed' });
+  assert.deepEqual(call(['remove', task]).input, { as: me.ai_id, id: task, action: 'remove' });
+  const handed = call(['hand-on', task, '--to', 'person:someone', '--because', 'Yours now']);
+  assert.deepEqual(handed.input, { as: me.ai_id, id: task, action: 'hand-on', assignees: ['person:someone'], because: 'Yours now' });
+  assert.deepEqual(handed.read.ids, [{ type: 'person', id: 'person:someone' }]);
+  assert.throws(() => call(['hand-on', task]), /--to/);
+  assert.throws(() => call(['hand-on', task, '--to', 'someone']), /record id/, 'a hand-on names a record id, never a bare name');
   assert.throws(() => call(['dance']), error => error instanceof CommandError && error.status === 2);
-  assert.deepEqual(Object.values(settings.work.tools).sort(), ['tool:change-an-ai-job', 'tool:hand-a-job-to-an-ai', 'tool:see-ai-work', 'tool:see-my-ais', 'tool:take-an-ai-job']);
+  assert.deepEqual(Object.values(settings.tasks.tools).sort(), ['tool:change-a-task', 'tool:finish-a-task', 'tool:give-a-task', 'tool:see-tasks', 'tool:see-who-can-take-work', 'tool:take-a-task']);
 });
 
 test('the agent id comes from --as, EXAMPLE_AGENT, or the AI app running the command', () => {
@@ -165,17 +170,17 @@ test('an AI carries facts only: its app, model, provider and computer; no name i
   assert.equal(computerNameOf({ platform: 'linux', exec: () => { throw new Error('not asked'); }, host: 'box.localdomain' }), 'box');
 });
 
-test('a job taken under the computer id before the upgrade is moved as that id', () => {
+test('a task taken under the computer id before the upgrade is moved as that id', () => {
   const session = { ...me, agent_id: 'claude-code-7d2e6f4a9b10-on-mac', ai_id: 'ai:claude-code-7d2e6f4a9b10-on-mac', held_as: ['claude-code-on-mac'] };
   const call = (line, held) => argumentsFor(line[0], parseArgs(line.slice(1)), { me: session, held });
-  const old = { 'claude-code-on-mac ai-job:old': { said: '' } }, both = { ...old, 'claude-code-7d2e6f4a9b10-on-mac ai-job:new': { said: 'Fix the build' } };
-  assert.equal(call(['finish', 'ai-job:old', 'done'], old).input.as, 'ai:claude-code-on-mac');
-  assert.equal(call(['release', 'ai-job:old'], old).input.as, 'ai:claude-code-on-mac');
-  assert.equal(call(['stuck', 'ai-job:old', 'a', 'sign-in'], old).input.as, 'ai:claude-code-on-mac');
-  assert.equal(call(['finish', 'ai-job:new', 'done'], both).input.as, session.ai_id);
-  assert.equal(call(['finish', 'ai-job:other', 'done'], both).input.as, session.ai_id, 'a job held nowhere here is this session\'s');
+  const old = { 'claude-code-on-mac record:calendar-task:old': { said: '' } }, both = { ...old, 'claude-code-7d2e6f4a9b10-on-mac record:calendar-task:new': { said: 'Fix the build' } };
+  assert.equal(call(['finish', 'record:calendar-task:old', 'done'], old).input.as, 'ai:claude-code-on-mac');
+  assert.equal(call(['release', 'record:calendar-task:old'], old).input.as, 'ai:claude-code-on-mac');
+  assert.equal(call(['stuck', 'record:calendar-task:old', 'a', 'sign-in'], old).input.as, 'ai:claude-code-on-mac');
+  assert.equal(call(['finish', 'record:calendar-task:new', 'done'], both).input.as, session.ai_id);
+  assert.equal(call(['finish', 'record:calendar-task:other', 'done'], both).input.as, session.ai_id, 'a task held nowhere here is this session\'s');
   assert.equal(call(['take'], both).input.as, session.ai_id, 'new work is always taken as this session');
-  assert.deepEqual(holdingOf(session, { ...both, 'codex-on-mac ai-job:x': { said: '' } }), [{ id: 'ai-job:old', said: '' }, { id: 'ai-job:new', said: 'Fix the build' }]);
+  assert.deepEqual(holdingOf(session, { ...both, 'codex-on-mac record:calendar-task:x': { said: '' } }), [{ id: 'record:calendar-task:old', said: '' }, { id: 'record:calendar-task:new', said: 'Fix the build' }]);
 });
 
 test('this AI\'s record carries facts only: owner from the door, app, model, provider, computer, where it works and what it holds, never a name, path or secret', () => {
@@ -185,9 +190,9 @@ test('this AI\'s record carries facts only: owner from the door, app, model, pro
     where: 'repository example, branch main, in a terminal on this computer', working_on: null, live: { ...settings.ai_record.new.live, seen_at: now.toISOString() } });
   // What a person set on the record (a nickname, an order, what it can do) is kept as it is; the facts are made current.
   const kept = aiRecordOf(me, { account: ACCOUNT, now, held: { nickname: 'Builder', order: 2, can: ['code'], app: 'Old', label: 'take-open-work-preflight', live: { minutes: 10, seen_at: 'x' } },
-    holding: [{ id: 'ai-job:1', said: 'Review the login page' }] });
+    holding: [{ id: 'record:calendar-task:1', said: 'Review the login page' }] });
   assert.deepEqual([kept.nickname, kept.order, kept.can, kept.app, kept.live, kept.working_on], ['Builder', 2, ['code'], 'Claude Code', { how: 'heartbeat', minutes: 10, seen_at: now.toISOString() }, 'Review the login page']);
-  assert.equal(aiRecordOf(me, { account: ACCOUNT, holding: [{ id: 'ai-job:1', said: '' }, { id: 'ai-job:2', said: '' }] }).working_on, 'ai-job:2 (and 1 more)');
+  assert.equal(aiRecordOf(me, { account: ACCOUNT, holding: [{ id: 'record:calendar-task:1', said: '' }, { id: 'record:calendar-task:2', said: '' }] }).working_on, 'record:calendar-task:2 (and 1 more)');
   assert.equal(aiRecordOf(me, { account: ACCOUNT, branch: null, repository: 'example' }).where, 'repository example, branch none (detached), in a terminal on this computer');
   assert.equal(aiRecordOf(me, { account: ACCOUNT }).where, 'a terminal on this computer');
 
@@ -207,9 +212,9 @@ test('this AI\'s record carries facts only: owner from the door, app, model, pro
   for (const value of [KEY, '/home/someone', 'sk_live_abc', '5b1f0c2e-8a4d']) assert.ok(!record.includes(value), `the record does not carry ${value}`);
 });
 
-test('send says when the receiver sees the job', () => {
-  assert.match(sendNote({ job: { to: null } }), /^Any of your AIs can take it\./);
-  assert.equal(sendNote({ job: { to: 'ai:codex-on-mac' } }), 'ai:codex-on-mac sees it the next time it runs example work or example take, or at once while example serve runs for it.');
+test('give says when the receiver sees the task', () => {
+  assert.match(giveNote({ assignees: [] }), /^Anyone may take it\./);
+  assert.equal(giveNote({ assignees: ['ai:codex-on-mac'] }), 'Assigned to ai:codex-on-mac: each sees it the next time it runs example tasks or example take, or at once while example serve runs for it.');
 });
 
 test('the key and the sign-in: a 0600 file off macOS, and on macOS the Keychain is written on standard input, never in an argument', () => {
@@ -425,69 +430,94 @@ test('who: the AIs tool:see-my-ais answers, named by the list:ais formula handed
   } finally { await bare.close(); }
 });
 
-test('send, work, take and every move are one Workshop work tool each; a job another AI moved first is shown, never retried', async () => {
-  const job = { id: 'ai-job:k1', status: 'waiting', job: 'Fix the build', from: 'ai:claude-code-on-mac', to: null };
-  let race = false;
-  const tools = {
-    'tool:hand-a-job-to-an-ai': input => ({ job_id: `ai-job:${input.key}`, status: 'written', job: { ...job, id: `ai-job:${input.key}`, job: input.job, to: input.to } }),
-    'tool:see-ai-work': input => (input.id ? { jobs: [{ ...job, id: input.id, status: 'done', result: 'Built.' }], more: false } : { jobs: [job], more: true }),
-    'tool:take-an-ai-job': input => (race ? { taken: null, tried: 1, job_id: 'ai-job:k1', reason: 'changed', job: { ...job, status: 'taken', taker: 'ai:codex-on-mac' } }
-      : { taken: { ...job, status: 'taken', taker: input.as }, tried: 1 }),
-    'tool:change-an-ai-job': input => (race ? { job_id: input.id, moved: false, from: 'taken', to: null, reason: 'changed', job: { ...job, status: 'done', taker: 'ai:codex-on-mac' } }
-      : { job_id: input.id, moved: true, from: 'taken', to: input.action === 'finish' ? 'done' : 'waiting', job: { ...job, status: 'done', result: input.result } }),
+// The task rows over an in-memory account: each command reads what its move needs and applies only the writes the row answers.
+const taskOf = (id, value = {}) => [id, 'calendar-task', { title: 'Fix the build', status: 'To do', sent_by: 'ai:claude-code-on-mac', sent_at: '2026-11-19T12:00:00.000Z', priority: 'medium', ...value }];
+
+test('give → take → hand-on to person:someone → that person takes and finishes: every write goes through records:write with expected, and a task another AI took first is shown, never retried', async () => {
+  const store = recordStore([['ai:codex-on-mac', 'ai', { agent_id: 'codex-on-mac' }], ['build:main', 'build', { status: 'green' }]]);
+  const ops = taskDoorOps(store);
+  const writeOf = ops['@own-records records:write'];
+  let takenByPeer = null;
+  ops['@own-records records:write'] = input => {
+    // The peer's take lands between this take's read and its write, so the write is refused whole.
+    if (takenByPeer) { store.put(takenByPeer, 'calendar-task', { ...store.get(takenByPeer), status: 'In progress', taken_by: 'ai:codex-on-mac', taken_at: '2026-11-19T12:30:00.000Z' }); takenByPeer = null; }
+    return writeOf(input);
   };
-  const fake = await fakeDoor({ ops: {
-    '@tools tools:run': input => ran(tools[input.tool](input.input)),
-    '@tools tools:list': () => changeTool,
-  } });
+  const fake = await fakeDoor({ ops });
   try {
-    const seams = seamsFor(home(), { localDoor: () => fake.mcp });
-    const sent = await main(['send', 'any', 'Fix', 'the', 'build', '--key', 'k1'], seams);
-    assert.match(sent, /^Sent ai-job:k1\.\nai-job:k1 {2}waiting {2}for any AI {2}from ai:claude-code-on-mac\n {2}job: Fix the build\nAny of your AIs can take it\./);
-    assert.deepEqual(fake.calls.find(call => call.method === 'tools:run').input, { tool: 'tool:hand-a-job-to-an-ai', input: { as: `ai:claude-code-on-${computerOf()}`, job: 'Fix the build', key: 'k1', to: null } });
-    assert.equal(await main(['work'], seams), `ai-job:k1  waiting  for any AI  from ai:claude-code-on-mac\n  job: Fix the build\n${settings.words.more_jobs}`);
-    assert.equal(await main(['work', 'ai-job:k1'], seams), 'ai-job:k1  done  for any AI  from ai:claude-code-on-mac\n  job: Fix the build\n  result: Built.');
-    assert.match(await main(['take'], seams), /^Took ai-job:k1\.\nai-job:k1 {2}taken {2}taken by ai:claude-code-on-/);
-    assert.deepEqual(Object.keys(seams.state.held()), [`claude-code-on-${computerOf()} ai-job:k1`], 'the job taken is held here');
-    assert.match(await main(['finish', 'ai-job:k1', 'Built.'], seams), /^ai-job:k1: taken -> done\./);
-    assert.deepEqual(seams.state.held(), {}, 'a finished job is let go');
-    const sentWithWait = await main(['send', 'any', 'x', '--key', 'k2', '--wait', '5'], seams);
-    assert.match(sentWithWait, /^ai-job:k2 {2}done/, '--wait reads the job with tool:see-ai-work until it is finished');
-    race = true;
-    assert.match(await main(['take'], seams), /^Another AI \(ai:codex-on-mac\) moved ai-job:k1 first\.\nai-job:k1 {2}taken {2}taken by ai:codex-on-mac/);
-    assert.match(await main(['finish', 'ai-job:k1', 'Built.'], seams), /^ai-job:k1 was not moved \(changed\); here it is as it now is\.\nai-job:k1 {2}done/);
-    const changes = fake.calls.filter(call => call.method === 'tools:run' && call.input?.tool === 'tool:change-an-ai-job');
-    assert.equal(changes.length, 2, 'a move another AI made first is reported, never tried again');
+    const folder = home();
+    const seams = (extra = {}) => seamsFor(folder, { localDoor: () => fake.mcp, ...extra });
+    const acceptance = join(home(), 'acceptance.json');
+    writeFileSync(acceptance, JSON.stringify({ outcome: 'The build is green', target: { type: 'build', id: 'build:main' }, rules: [{ id: 'outcome', path: 'status', equals: ['green'] }] }));
+    const given = await main(['give', 'Fix', 'the', 'build', '--key', 'k1', '--acceptance-file', acceptance], seams());
+    assert.match(given, /^Gave record:calendar-task:k1\.\nrecord:calendar-task:k1 {2}To do {2}for anyone {2}from ai:claude-code-on-/);
+    assert.equal(store.get('record:calendar-task:k1').status, 'To do', 'the task is written once, waiting');
+    assert.match(await main(['take'], seams()), /^Took record:calendar-task:k1\./);
+    assert.equal(store.get('record:calendar-task:k1').taken_by, `ai:claude-code-on-${computerOf()}`);
+    assert.deepEqual(Object.keys(seams().state.held()), [`claude-code-on-${computerOf()} record:calendar-task:k1`], 'the task taken is held here');
+    store.put('person:someone', 'person', { name: 'Someone' });
+    assert.match(await main(['hand-on', 'record:calendar-task:k1', '--to', 'person:someone', '--because', 'Yours now'], seams()), /^record:calendar-task:k1: In progress -> To do\./);
+    assert.deepEqual(store.get('record:calendar-task:k1').assignees, ['person:someone']);
+    assert.deepEqual(seams().state.held(), {}, 'a task handed on is no longer held by the AI that handed it');
+    assert.match(await main(['take', 'record:calendar-task:k1', '--as', 'person:someone'], seams()), /^Took record:calendar-task:k1\./, 'the person it was handed to takes it');
+    const checked = join(home(), 'check.json');
+    writeFileSync(checked, JSON.stringify({ outcome: 'The build is green', checked_at: new Date().toISOString(), evidence: [{ ref: 'build:main', observation: 'status is green' }], obligations: [] }));
+    assert.match(await main(['finish', 'record:calendar-task:k1', 'Built.', '--check-file', checked, '--as', 'person:someone'], seams()), /^record:calendar-task:k1: In progress -> Done\./);
+    assert.equal(store.get('record:calendar-task:k1').status, 'Done');
+    assert.equal(store.get('record:calendar-task:k1').result, 'Built.');
+    const sentWithWait = await main(['give', 'x', '--key', 'k2', '--wait', '5'], seams({ wait: async () => store.put('record:calendar-task:k2', 'calendar-task', { ...store.get('record:calendar-task:k2'), status: 'Done', result: 'Built.' }) }));
+    assert.match(sentWithWait, /^record:calendar-task:k2 {2}Done/, '--wait reads the task until it is in a state the rows end in');
+
+    // Another AI takes the next task between this take's read and its write: the write is refused whole, and the take says who did.
+    store.put('record:calendar-task:k3', 'calendar-task', taskOf('record:calendar-task:k3')[2]);
+    takenByPeer = 'record:calendar-task:k3';
+    assert.match(await main(['take', 'record:calendar-task:k3'], seams()), /^Another AI \(ai:codex-on-mac\) moved record:calendar-task:k3 first\.\nrecord:calendar-task:k3 {2}In progress {2}taken by ai:codex-on-mac/, 'a task taken by another AI is shown, never tried again');
+    const writes = fake.calls.filter(call => call.method === 'records:write');
+    assert.ok(writes.length >= 5, 'every move wrote its records through records:write');
+    assert.ok(writes.every(call => call.input.records.every(record => 'expected' in record)), 'every write is conditioned on the value it was read at');
+    assert.ok(fake.calls.filter(call => call.method === 'tools:run').every(call => Array.isArray(call.input.input.records)), 'every task row is handed the records it reads');
   } finally { await fake.close(); }
 });
 
-test('a move names the claim read from the job\'s own row when this AI holds it: two lane ids on one computer each send their own job\'s take, never a kept one', async () => {
-  const target = { type: 'ai-job', id: 'ai-job:lane-a' };
-  const rows = {
-    'ai-job:lane-a': { id: 'ai-job:lane-a', status: 'taken', label: 'Lane a', job: [{ id: 'dig' }], taker: 'ai:lane-a', taken_at: '2026-11-15T20:00:00.000Z', acceptance: { outcome: 'Lane a', target, rules: [] } },
-    'ai-job:lane-b': { id: 'ai-job:lane-b', status: 'taken', label: 'Lane b', job: [{ id: 'dig' }], taker: 'ai:lane-b', taken_at: '2026-11-15T20:01:00.000Z' },
+test('a move another AI made between its read and its write is reported as changed, and nothing is written over it', async () => {
+  const store = recordStore([['ai:claude-code-on-mac', 'ai', {}], ['record:calendar-task:r', 'calendar-task', { title: 'Race', status: 'In progress', taken_by: 'ai:claude-code-on-mac', taken_at: '2026-11-19T12:00:00.000Z', sent_by: 'ai:codex-on-mac', sent_at: '2026-11-19T11:00:00.000Z', priority: 'medium' }]]);
+  const ops = taskDoorOps(store);
+  const writeOnce = ops['@own-records records:write'];
+  let raced = false;
+  ops['@own-records records:write'] = input => {
+    if (!raced) { raced = true; store.put('record:calendar-task:r', 'calendar-task', { ...store.get('record:calendar-task:r'), description: 'Changed by a peer' }); }
+    return writeOnce(input);
   };
-  const moves = [];
-  const fake = await fakeDoor({ ops: {
-    '@tools tools:run': input => ran(input.tool === 'tool:see-ai-work' ? { jobs: [rows[input.input.id]], more: false }
-      : input.tool === 'tool:change-an-ai-job' ? (moves.push(input.input), { job_id: input.input.id, moved: true, from: 'taken', to: 'done', job: rows[input.input.id] }) : null),
-    '@tools tools:list': () => changeTool,
-  } });
+  const fake = await fakeDoor({ ops });
+  try {
+    const seams = seamsFor(home(), { localDoor: () => fake.mcp });
+    assert.match(await main(['stuck', 'record:calendar-task:r', 'waiting', 'on', 'access'], seams), /^record:calendar-task:r was not moved \(changed\)/);
+    assert.equal(store.get('record:calendar-task:r').description, 'Changed by a peer', 'the peer\'s write is kept; this move wrote nothing over it');
+    assert.equal(store.get('record:calendar-task:r').stuck, undefined);
+  } finally { await fake.close(); }
+});
+
+test('a move names the claim read from the task\'s own row when this AI holds it: an AI that does not hold a task is refused, saying who holds it', async () => {
+  const store = recordStore([
+    ['record:calendar-task:lane-a', 'calendar-task', { title: 'Lane a', outcome: 'Lane a', status: 'In progress', taken_by: 'ai:lane-a', taken_at: '2026-11-15T20:00:00.000Z', sent_by: 'ai:lane-c', sent_at: '2026-11-15T19:00:00.000Z', priority: 'medium',
+      acceptance: { outcome: 'Lane a', target: { type: 'note', id: 'note:lane-a' }, rules: [{ id: 'outcome', path: 'text', equals: ['Lane a'] }] } }],
+    ['record:calendar-task:lane-b', 'calendar-task', { title: 'Lane b', status: 'In progress', taken_by: 'ai:lane-b', taken_at: new Date().toISOString(), sent_by: 'ai:lane-c', sent_at: '2026-11-15T19:00:00.000Z', priority: 'medium' }],
+    ['note:lane-a', 'note', { text: 'Lane a' }],
+  ]);
+  const fake = await fakeDoor({ ops: taskDoorOps(store) });
   try {
     const folder = home();
     const seams = () => seamsFor(folder, { localDoor: () => fake.mcp });
-    // Both takes were kept long ago, under another claim: the shared file's memory is wrong for both lanes.
-    seams().state.hold('lane-a', { id: 'ai-job:lane-a', job: 'x', taken_at: '2026-11-14T01:00:00.000Z' });
-    seams().state.hold('lane-b', { id: 'ai-job:lane-b', job: 'x', taken_at: '2026-11-14T02:00:00.000Z' });
+    // Both tasks are held here under old claims: the shared file's memory is wrong for both lanes.
+    seamsFor(folder).state.hold('lane-a', { id: 'record:calendar-task:lane-a', title: 'x', taken_at: '2026-11-14T01:00:00.000Z' });
+    seamsFor(folder).state.hold('lane-b', { id: 'record:calendar-task:lane-b', title: 'x', taken_at: '2026-11-14T02:00:00.000Z' });
     const checkFile = join(home(), 'check.json');
-    writeFileSync(checkFile, JSON.stringify({ outcome: 'Lane a', checked_at: '2026-11-15T20:05:00.000Z', evidence: [{ ref: 'ai-job:lane-a', observation: 'Read back.' }], obligations: [] }));
-    await main(['finish', 'ai-job:lane-a', 'Done a.', '--check-file', checkFile, '--as', 'lane-a'], seams());
-    await main(['release', 'ai-job:lane-b', '--because', 'Not mine.', '--as', 'lane-b'], seams());
-    assert.equal(moves[0].taken_at, '2026-11-15T20:00:00.000Z', 'lane a names the claim its job row holds');
-    assert.deepEqual(moves[0].check.target, target, 'the check names the job\'s saved acceptance target');
-    assert.equal(moves[1].taken_at, '2026-11-15T20:01:00.000Z', 'lane b names its own, not lane a\'s');
-    await main(['release', 'ai-job:lane-b', '--because', 'Not mine.', '--as', 'lane-a'], seams());
-    assert.equal('taken_at' in moves[2], false, 'an AI that does not hold the job names no claim; the tool refuses it, saying who holds it');
+    writeFileSync(checkFile, JSON.stringify({ outcome: 'Lane a', checked_at: '2026-11-15T20:05:00.000Z', evidence: [{ ref: 'note:lane-a', observation: 'Read back.' }], obligations: [] }));
+    assert.match(await main(['finish', 'record:calendar-task:lane-a', 'Done a.', '--check-file', checkFile, '--as', 'lane-a'], seams()), /: In progress -> Done\./, 'lane a finishes the task its row holds, under its own claim');
+    assert.equal(store.get('record:calendar-task:lane-a').status, 'Done');
+    assert.match(await main(['release', 'record:calendar-task:lane-b', '--because', 'Not mine.', '--as', 'lane-b'], seams()), /: In progress -> To do\./, 'lane b releases its own task');
+    store.put('record:calendar-task:lane-c', 'calendar-task', { title: 'Lane c', status: 'In progress', taken_by: 'ai:lane-b', taken_at: new Date().toISOString(), sent_by: 'ai:lane-c', sent_at: '2026-11-15T19:00:00.000Z', priority: 'medium' });
+    await assert.rejects(main(['release', 'record:calendar-task:lane-c', '--because', 'Not mine.', '--as', 'lane-a'], seams()), /does not hold for ai:lane-a \(the task is taken by ai:lane-b/, 'an AI that does not hold a recent task is refused, saying who holds it');
   } finally { await fake.close(); }
 });
 
@@ -506,43 +536,55 @@ test('publish: this AI\'s own record as one keep row, conditioned on the value h
     assert.deepEqual(fake.calls.map(call => call.method).filter(method => method !== 'initialize'), [], 'no operation is sent: only who the door answers for');
     await assert.rejects(main(['publish', '[1]'], seams), /one JSON object/);
   } finally { await fake.close(); }
-  const context = { me, placeImpl: () => ({}), state: { held: () => ({ [`${me.agent_id} ai-job:1`]: { id: 'ai-job:1', said: 'Fix the build' } }) } };
+  const context = { me, placeImpl: () => ({}), state: { held: () => ({ [`${me.agent_id} record:calendar-task:1`]: { said: 'Fix the build' } }) } };
   const client = { whoami: async () => ({ account: ACCOUNT }), op: async () => { throw new Error('nothing is sent'); } };
   const { keep } = await publishRecord(client, context, { held: null });
   assert.equal(keep[0].id, me.ai_id);
+  assert.deepEqual(keep[0].value.working_on, 'Fix the build', 'a held task is what the record says it works on');
 });
 
-test('serve: a job taken is run, then finished, blocked on a next step when it cannot be checked or fails, or said stuck, each with tool:change-an-ai-job', async () => {
+test('serve: a task taken is run, then finished, blocked on a next step when it cannot be checked or fails, or said stuck, each by its task row', async () => {
   const calls = [];
-  const acceptance = { outcome: 'Said hi', target: { type: 'note', id: 'note:1' }, rules: [] };
-  const receipt = { outcome: 'Said hi', checked_at: '2026-11-16T20:05:00.000Z', evidence: [{ ref: 'note:1', observation: 'Read back.' }], obligations: [] };
-  let taken = { id: 'ai-job:1', job: 'say hi', status: 'taken', acceptance };
-  const client = { op: async (address, method, input) => { if (method === 'tools:list') return changeTool; calls.push(input); return ran(input.tool === 'tool:take-an-ai-job' ? { taken, tried: 1 } : { moved: true }); } };
-  const held = [];
-  const state = { hold: (agent, job) => held.push(['hold', job.id]), letGo: (agent, id) => held.push(['let go', id]) };
-  for (const [result, action, job] of [
-    [{ ok: true, output: 'hi', check: receipt }, 'finish', taken],
-    [{ ok: true, output: 'hi' }, 'wait', taken],
-    [{ ok: true, output: 'hi', check: receipt }, 'wait', { id: 'ai-job:1', job: 'say hi', status: 'taken' }],
-    [{ ok: false, output: 'failed' }, 'wait', taken],
-    [{ ok: true, output: 'x', stuck: 'Which bank?' }, 'stuck', taken]]) {
-    calls.length = 0; held.length = 0; taken = job;
-    assert.equal(await serveOnce({ client, me, command: ['cat'], state, log: () => {}, runImpl: async () => result }), true);
-    assert.deepEqual(calls[0], { tool: 'tool:take-an-ai-job', input: { as: me.ai_id } });
-    assert.deepEqual([calls.at(-1).tool, calls.at(-1).input.action, calls.at(-1).input.id, calls.at(-1).input.as], ['tool:change-an-ai-job', action, 'ai-job:1', me.ai_id]);
-    if (action === 'wait') assert.equal(calls.at(-1).input.continuation.owner, me.ai_id, 'a run that cannot finish is blocked on a next step this AI owns');
-    if (action === 'finish') assert.deepEqual(calls.at(-1).input.check.target, acceptance.target, 'the receipt names the saved acceptance target');
-    assert.deepEqual(held, action === 'stuck' ? [['hold', 'ai-job:1']] : [['hold', 'ai-job:1'], ['let go', 'ai-job:1']], 'a stuck job stays held');
+  const acceptance = { outcome: 'Said hi', target: { type: 'note', id: 'note:1' }, rules: [{ id: 'outcome', path: 'text', equals: ['Said hi'] }] };
+  const scenarios = [
+    { name: 'finished', value: { outcome: 'Said hi', acceptance }, result: { ok: true, output: 'hi', check: true }, action: 'finish', status: 'Done', held: [['hold', task], ['let go', task]] },
+    { name: 'no receipt', value: { outcome: 'Said hi', acceptance }, result: { ok: true, output: 'hi' }, action: 'wait', status: 'Waiting', held: [['hold', task], ['let go', task]] },
+    { name: 'no acceptance', value: { outcome: 'Said hi' }, result: { ok: true, output: 'hi', check: true }, action: 'wait', status: 'Waiting', held: [['hold', task], ['let go', task]] },
+    { name: 'failed', value: { outcome: 'Said hi', acceptance }, result: { ok: false, output: 'failed' }, action: 'wait', status: 'Waiting', held: [['hold', task], ['let go', task]] },
+    { name: 'stuck', value: { outcome: 'Said hi', acceptance }, result: { ok: true, output: 'x', stuck: 'Which bank?' }, action: 'stuck', status: 'In progress', held: [['hold', task]] },
+  ];
+  for (const scenario of scenarios) {
+    const store = recordStore([['ai:claude-code-on-mac', 'ai', {}], ['note:1', 'note', { text: 'Said hi' }], taskOf('record:calendar-task:1', scenario.value)]);
+    const ops = taskDoorOps(store);
+    const client = { wait: noWait, op: async (address, method, input) => {
+      calls.push({ address, method, tool: input?.tool, action: input?.input?.action });
+      const handler = ops[`${address ?? (method.startsWith('tools:') ? '@tools' : '')} ${method}`];
+      const answer = await handler(input, { address, method });
+      if (answer?.refused) throw new Error(answer.refused);
+      return answer;
+    } };
+    const held = [];
+    const state = { hold: (agent, task) => held.push(['hold', task.id]), letGo: (agent, id) => held.push(['let go', id]) };
+    calls.length = 0;
+    const runImpl = async () => (scenario.result.check ? { ...scenario.result, check: { outcome: 'Said hi', checked_at: new Date().toISOString(), evidence: [{ ref: 'note:1', observation: 'Read back.' }], obligations: [] } } : scenario.result);
+    assert.equal(await serveOnce({ client, me, command: ['cat'], state, log: () => {}, runImpl }), true, scenario.name);
+    assert.ok(calls.some(call => call.tool === settings.tasks.tools.take), `${scenario.name}: the task is taken by its take row`);
+    const moved = calls.find(call => call.action === scenario.action || (scenario.action === 'finish' && call.tool === settings.tasks.tools.finish));
+    assert.ok(moved, `${scenario.name}: the move is made by its row`);
+    assert.equal(store.get('record:calendar-task:1').status, scenario.status, scenario.name);
+    if (scenario.action === 'wait' && scenario.value.acceptance) assert.equal(store.get('record:calendar-task:1').continuation.owner, me.ai_id, 'a run that cannot finish is blocked on a next step this AI owns');
+    if (scenario.action === 'stuck') assert.deepEqual([store.get('record:calendar-task:1').stuck.words, store.get('record:calendar-task:1').stuck.by], ['Which bank?', me.ai_id], 'a stuck task says what is in the way, and who said it');
+    assert.deepEqual(held, scenario.held, `${scenario.name}: the hold`);
   }
-  const none = { op: async () => ran({ taken: null, tried: 0 }) };
-  assert.equal(await serveOnce({ client: none, me, command: ['cat'], state, log: () => {} }), false);
+  const none = { wait: noWait, op: async (address, method) => (method === 'records:list' ? { records: [], next: null } : null) };
+  assert.equal(await serveOnce({ client: none, me, command: ['cat'], state: { hold: () => {}, letGo: () => {} }, log: () => {} }), false);
   assert.equal(await waitFor(async () => 'found', { seconds: 1, sleep: noWait }), 'found');
   assert.equal(await waitFor(async () => null, { seconds: 0, sleep: noWait }), null);
   const workClient = { op: async (address, method, input, options) => ({ address, method, input, options }) };
-  const bare = await workCall(workClient, 'see', { id: 'ai-job:1' }, { idempotent: true });
+  const bare = await toolCall(workClient, settings.tasks.tools.see, { id: task }, { idempotent: true });
   assert.match(bare.options.requestKey, /^[0-9a-f-]{36}$/, 'the call has one key, which any further page of its answer is asked under');
   assert.deepEqual({ ...bare, options: { idempotent: bare.options.idempotent } },
-    { address: null, method: 'tools:run', input: { tool: 'tool:see-ai-work', input: { id: 'ai-job:1' } }, options: { idempotent: true } }, 'an answer with no result is the answer itself');
+    { address: null, method: 'tools:run', input: { tool: 'tool:see-tasks', input: { id: task } }, options: { idempotent: true } }, 'an answer with no result is the answer itself');
 });
 
 test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key route is asked', async () => {
@@ -745,10 +787,10 @@ test('a refused call names the request key it was sent under, so the caller can 
   await assert.rejects(opWhole(client, null, 'tools:run', {}, { requestKey: 'quote-me-7' }), error => /Reference: quote-me-7\./.test(error.message));
 });
 
-test('a job shows its own words, and its label on a line of its own', () => {
-  const lines = jobLines({ id: 'ai-job:k', status: 'waiting', to: 'ai:codex-on-mac', job: 'Fix the build', label: 'build-fix' });
-  assert.deepEqual(lines.slice(1), ['  job: Fix the build', '  label: build-fix']);
-  assert.deepEqual(jobLines({ id: 'ai-job:k', status: 'waiting', label: 'only-a-label' }).slice(1), ['  label: only-a-label']);
+test('a task shows its own words, and its title on a line of its own', () => {
+  const lines = taskLines({ id: task, status: 'To do', assignees: ['ai:codex-on-mac'], description: 'Fix the build', title: 'build-fix' });
+  assert.deepEqual(lines.slice(1), ['  description: Fix the build', '  title: build-fix']);
+  assert.deepEqual(taskLines({ id: task, status: 'To do', title: 'only-a-title' }).slice(1), ['  title: only-a-title']);
 });
 
 // The account files as the door answers them, in memory: a resumable upload takes sequential pieces and its finish keeps the file.
@@ -774,43 +816,48 @@ function filesDoor() {
   };
 }
 
-test('keep: a 10-byte result stays on the job row and a 50 MB one is kept as a file the row names, each read back whole through one call', async () => {
-  const kept = filesDoor(), jobs = {};
-  const fake = await fakeDoor({ ops: { ...kept.ops,
-    '@tools tools:list': () => changeTool,
-    '@tools tools:run': input => ran(input.tool === 'tool:change-an-ai-job'
-      ? (jobs[input.input.id] = { id: input.input.id, status: 'done', result: input.input.result }, { job_id: input.input.id, moved: true, from: 'taken', to: 'done', job: jobs[input.input.id] })
-      : { jobs: [jobs[input.input.id]], more: false }),
-  } });
+test('keep: a 10-byte result stays on the task row and a 50 MB one is kept as a file the row names, each read back whole through one call', async () => {
+  const kept = filesDoor();
+  const store = recordStore([taskOf('record:calendar-task:small', { status: 'In progress', taken_by: me.ai_id, taken_at: '2026-11-19T12:00:00.000Z' }), taskOf('record:calendar-task:big', { status: 'In progress', taken_by: me.ai_id, taken_at: '2026-11-19T12:00:00.000Z' })]);
+  const overrides = {
+    [settings.tasks.tools.finish]: input => {
+      const value = store.get(input.input.id);
+      store.put(input.input.id, 'calendar-task', { ...value, status: 'Done', result: input.input.result });
+      return { id: input.input.id, moved: true, from: 'In progress', to: 'Done', task: { id: input.input.id, ...store.get(input.input.id) } };
+    },
+    [settings.tasks.tools.see]: input => ({ tasks: [{ id: input.input.id, ...store.get(input.input.id) }], more: false }),
+  };
+  const fake = await fakeDoor({ ops: { ...kept.ops, ...taskDoorOps(store, { overrides }) } });
   try {
     const stdinOf = bytes => { const stream = new PassThrough(); stream.end(bytes); return stream; };
     const seams = stdin => seamsFor(home(), { localDoor: () => fake.mcp, stdin });
-    await main(['finish', 'ai-job:small'], seams(stdinOf(Buffer.from('0123456789'))));
-    assert.equal(jobs['ai-job:small'].result, '0123456789', 'a result that fits is the row\'s own text');
+    await main(['finish', 'record:calendar-task:small'], seams(stdinOf(Buffer.from('0123456789'))));
+    assert.equal(store.get('record:calendar-task:small').result, '0123456789', 'a result that fits is the row\'s own text');
     assert.equal(kept.files.size, 0, 'nothing is kept as a file for it');
-    assert.equal(await main(['work', 'ai-job:small', '--result'], seams()), '0123456789');
+    assert.equal(await main(['tasks', 'record:calendar-task:small', '--result'], seams()), '0123456789');
     const text = Buffer.alloc(50 * 1024 * 1024, 'abcdefghij\n');
-    await main(['finish', 'ai-job:big'], seams(stdinOf(text)));
-    assert.match(jobs['ai-job:big'].result, /^Kept as file \/ai-job-results\/ai-job-big\/result \(52428800 bytes, 1f:[0-9a-f]{64}\)\. Read it whole: example work ai-job:big --result$/);
-    assert.ok(jobs['ai-job:big'].result.length < 300, 'the row holds the pointer, not the bytes');
-    assert.equal(kept.files.get('/ai-job-results/ai-job-big/result').length, text.length);
+    await main(['finish', 'record:calendar-task:big'], seams(stdinOf(text)));
+    assert.match(store.get('record:calendar-task:big').result, /^Kept as file \/task-results\/record-calendar-task-big\/result \(52428800 bytes, 1f:[0-9a-f]{64}\)\. Read it whole: example tasks record:calendar-task:big --result$/);
+    assert.ok(store.get('record:calendar-task:big').result.length < 300, 'the row holds the pointer, not the bytes');
+    assert.equal(kept.files.get('/task-results/record-calendar-task-big/result').length, text.length);
     assert.equal(kept.pieces.length, Math.ceil(text.length / settings.keep.piece_bytes));
-    const back = await main(['work', 'ai-job:big', '--result'], seams());
+    const back = await main(['tasks', 'record:calendar-task:big', '--result'], seams());
     assert.equal(back.length, text.length, 'the whole 50 MB comes back through one call');
     assert.equal(back, text.toString('utf8'));
     const before = kept.pieces.length;
-    await main(['finish', 'ai-job:big'], seams(stdinOf(text)));
+    await main(['finish', 'record:calendar-task:big'], seams(stdinOf(text)));
     assert.equal(kept.pieces.length, before, 'a retried keep is the same upload: the file already kept is not sent again');
-    assert.equal(fake.calls.filter(call => call.method === 'tools:list').every(call => call.input.tool === 'tool:change-an-ai-job'), true, 'the limit is read from the finishing tool, never typed');
+    assert.equal(fake.calls.filter(call => call.method === 'tools:list').every(call => call.input.tool === settings.tasks.tools.finish), true, 'the limit is read from the finishing tool, never typed');
   } finally { await fake.close(); }
 });
 
 test('keep: a door that states no most length for the result refuses before anything is kept or finished', async () => {
   const kept = filesDoor();
-  const fake = await fakeDoor({ ops: { ...kept.ops, '@tools tools:list': () => ({ id: 'tool:change-an-ai-job', input_schema: { properties: { result: { type: 'string' } } } }),
+  const store = recordStore([taskOf('record:calendar-task:x', { status: 'In progress', taken_by: me.ai_id, taken_at: '2026-11-19T12:00:00.000Z' })]);
+  const fake = await fakeDoor({ ops: { ...kept.ops, ...taskDoorOps(store), '@tools tools:list': () => ({ id: settings.tasks.tools.finish, input_schema: { properties: { result: { type: 'string' } } } }),
     '@tools tools:run': () => { throw new Error('finish must not run'); } } });
   try {
-    await assert.rejects(main(['finish', 'ai-job:x', 'done'], seamsFor(home(), { localDoor: () => fake.mcp })), /states no most length/);
+    await assert.rejects(main(['finish', 'record:calendar-task:x', 'done'], seamsFor(home(), { localDoor: () => fake.mcp })), /states no most length/);
     assert.equal(kept.files.size, 0);
   } finally { await fake.close(); }
 });

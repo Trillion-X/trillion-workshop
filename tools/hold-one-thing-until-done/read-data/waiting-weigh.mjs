@@ -5,7 +5,7 @@
 //   (src/waiting-on-you.json, read by src/card-sections.mjs) is weighed here by src/who-does-it.mjs before anyone sees
 //   it: the reader (person-store waitingOnYou) shows only what is left, and the reminder (src/waiting-nudge.mjs) and the
 //   hold (trillion-workshop tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs) hand the rest to the AIs. 2026-10-11: drafts the person already approved, files from AI tests,
-//   AI jobs that were stuck and decisions their AIs opened from their own words were all shown to them as theirs.
+//   tasks that were stuck and decisions their AIs opened from their own words were all shown to them as theirs.
 //
 // Non-negotiable invariants
 //   1. The AIs are the default doer. A card stays the person's only when who-does-it says `you` (a reason from its

@@ -1,12 +1,12 @@
 {
-  "_what": "Settings for do-work/command.mjs (moved from an older repository; moved-from.json names where), the `{cli}` command any AI with a shell runs to see the person's AIs and their AI jobs, run their Workshop tools and hand and take work. Every command is one call of the engine's one MCP tool `engine.tool` (do_one_thing_in_my_account {address, method, request_key, input}) at the account's door; nothing here decides work. The door is the Mac app's local door when the app `mac_app` names declares one on this computer (local-door.mjs reads its computer-reader.json and private adoption descriptor), else the address --origin or {CLI}_ORIGIN names (no address is built in). whoami reads the account from MCP initialize (`engine.account_meta` in result._meta). `engine` names what the engine serves: `records` (records:read and records:write of this AI's own `ai_type` record, records:history of a job) and `tools` (the Workshop tools:list and tools:run), and how many pages a list may take. `work` is the one table of the AI-job commands: each names the Workshop work tool (tools/hand-work-to-ais) that does it, and a claim is that tool's conditioned write, never one made here. `words` are every refusal: a refusal names the door, and only `no_credential` and `sign_in_ended` say to log in. The account key is the existing one: the Keychain item `keychain_item` the site's Mac app keeps, or, where there is no Keychain, `key_file` (0600). With no key, `login` signs in once in the browser (OAuth with PKCE to a loopback address, at the address given) and keeps that sign-in (access and refresh tokens) in the Keychain item `grant.keychain_item`, or the 0600 file `grant.file` in `state_folder`; it is renewed at /oauth/token `grant.refresh_before_seconds` before it ends and is used at the public door. `who` shows the AIs tool:see-my-ais answers that were seen within `who.seen_within_days` (all of them with --all), grouped by owner (the record's `owner`, else the account the door answers for; yours first) and then by name, one line per AI with its ready chats beneath (every chat with --all), and says how many it hid; liveness is the tool's, computed when read, never stored. An AI's name is the formula title field of the person's list `who.ai_list`, evaluated by `who.formula_tool` over the stored values in one call; it is never built or stored here, and a missing list is said by name. `install` is where `setup` copies this program and the link it puts on PATH. `skills` are the instruction files `setup` writes for each AI app, one row per app: `folder` under the home folder (or `home_variable`), the file under it, and `detect` (paths whose presence says the app is on this computer). `agents` name the AI running the command from its environment; `session_env` are the variables that app sets to one value per chat session, in order (Claude Code sets CLAUDE_CODE_SESSION_ID, Codex sets CODEX_THREAD_ID; the Cursor agent sets only CURSOR_AGENT=1 for its commands, so a Cursor chat has no session and keeps the computer id). `agent_id` builds the id: `session` when a session variable is set (its last `session_chars` letters and digits, the random end of a UUID v4 or v7), else `computer`; --as or {CLI}_AGENT replace it. `most_chars` is the longest agent id the engine keeps (src/agents.mjs reads agent_id as trimmed text of at most 200 characters and cuts a longer one, so a longer one is refused here). A job taken under the computer id before sessions were added is still finished, released or said stuck under the id that took it (held.json says which). `agent_card` and `ai_record` shape this AI's own `ai` record, which publish writes conditioned on the value just read (a person's edit made meanwhile is kept), facts only: `owner` the account the door answered for, `app` and `model` from the running app's `agents` row (`model_env`, else the setting `model_config` names in the app's own config file, with `model_suffix` removed), `provider` from the model's family (else the row's), `computer` the computer's own name (`computer_name`: the system program per platform, with the duplicate counter `strip` removes), `where` the repository (the last part of the origin remote, else the top folder's name) and branch, and `working_on` the title of the job it holds (`working_on`, `working_on_more`) or null. `live.seen_at` is set to now on every write, and serve writes it again every `serve.contact_seconds`. `send_note` is what `send` says about when the receiver sees the job.",
+  "_what": "Settings for do-work/command.mjs (moved from an older repository; moved-from.json names where), the `{cli}` command any AI with a shell runs to see the person's AIs and their tasks, run their Workshop tools, and give, take and hand on tasks. Every command is one call of the engine's one MCP tool `engine.tool` (do_one_thing_in_my_account {address, method, request_key, input}) at the account's door; nothing here decides tasks. The door is the Mac app's local door when the app `mac_app` names declares one on this computer (local-door.mjs reads its computer-reader.json and private adoption descriptor), else the address --origin or {CLI}_ORIGIN names (no address is built in). whoami reads the account from MCP initialize (`engine.account_meta` in result._meta). `engine` names what the engine serves: `records` (records:read and records:write of this AI's own `ai_type` record, records:history of a task) and `tools` (the Workshop tools:list and tools:run), and how many pages a list may take. `tasks` is the one table of the task commands: each names the Workshop task tool (tools/plan-tasks-and-todo-lists, packed under ./packs) that does it; the task rows decide every move, and this command reads the records a move needs (run-a-task-move.mjs) and applies only the writes the row answers, each conditioned on the value it was read at. `words` are every refusal: a refusal names the door, and only `no_credential` and `sign_in_ended` say to log in. The account key is the existing one: the Keychain item `keychain_item` the site's Mac app keeps, or, where there is no Keychain, `key_file` (0600). With no key, `login` signs in once in the browser (OAuth with PKCE to a loopback address, at the address given) and keeps that sign-in (access and refresh tokens) in the Keychain item `grant.keychain_item`, or the 0600 file `grant.file` in `state_folder`; it is renewed at /oauth/token `grant.refresh_before_seconds` before it ends and is used at the public door. `who` shows the AIs tool:see-my-ais answers that were seen within `who.seen_within_days` (all of them with --all), grouped by owner (the record's `owner`, else the account the door answers for; yours first) and then by name, one line per AI with its ready chats beneath (every chat with --all), and says how many it hid; liveness is the tool's, computed when read, never stored. An AI's name is the formula title field of the person's list `who.ai_list`, evaluated by `who.formula_tool` over the stored values in one call; it is never built or stored here, and a missing list is said by name. `install` is where `setup` copies this program and the link it puts on PATH. `skills` are the instruction files `setup` writes for each AI app, one row per app: `folder` under the home folder (or `home_variable`), the file under it, and `detect` (paths whose presence says the app is on this computer). `agents` name the AI running the command from its environment; `session_env` are the variables that app sets to one value per chat session, in order (Claude Code sets CLAUDE_CODE_SESSION_ID, Codex sets CODEX_THREAD_ID; the Cursor agent sets only CURSOR_AGENT=1 for its commands, so a Cursor chat has no session and keeps the computer id). `agent_id` builds the id: `session` when a session variable is set (its last `session_chars` letters and digits, the random end of a UUID v4 or v7), else `computer`; --as or {CLI}_AGENT replace it. `most_chars` is the longest agent id the engine keeps (src/agents.mjs reads agent_id as trimmed text of at most 200 characters and cuts a longer one, so a longer one is refused here). A task taken under the computer id before sessions were added is still finished, released or said stuck under the id that took it (held.json says which). `agent_card` and `ai_record` shape this AI's own `ai` record, which publish writes conditioned on the value just read (a person's edit made meanwhile is kept), facts only: `owner` the account the door answered for, `app` and `model` from the running app's `agents` row (`model_env`, else the setting `model_config` names in the app's own config file, with `model_suffix` removed), `provider` from the model's family (else the row's), `computer` the computer's own name (`computer_name`: the system program per platform, with the duplicate counter `strip` removes), `where` the repository (the last part of the origin remote, else the top folder's name) and branch, and `working_on` the title of the task it holds (`working_on`, `working_on_more`) or null. `live.seen_at` is set to now on every write, and serve writes it again every `serve.contact_seconds`. `give_note` is what `give` says about when the receiver sees the task.",
   "mac_app": "/Applications/{site_name}.app",
   "keychain_item": "{cli}-agent-work-key",
   "keychain_account": "{cli}",
   "key_file": "~/.{cli}/cli/key",
   "state_folder": "~/.{cli}/cli",
   "site_file": "site.json",
-  "env": {"_what": "The environment names this command reads and sets, filled from the site ({CLI} is its command in capitals): a key given to a computer with no Keychain or file, the address of another engine, the AI it acts as, the job a serve run is working, and the mark a run started again under the app\u0027s own node carries, so it never starts another.", "key": "{CLI}_KEY", "origin": "{CLI}_ORIGIN", "agent": "{CLI}_AGENT", "job_id": "{CLI}_JOB_ID", "rerun": "{CLI}_RERUN"},
+  "env": {"_what": "The environment names this command reads and sets, filled from the site ({CLI} is its command in capitals): a key given to a computer with no Keychain or file, the address of another engine, the AI it acts as, the task a serve run is working and the terms it is handed, and the mark a run started again under the app\u0027s own node carries, so it never starts another.", "key": "{CLI}_KEY", "origin": "{CLI}_ORIGIN", "agent": "{CLI}_AGENT", "task_id": "{CLI}_TASK_ID", "task_context": "{CLI}_TASK_CONTEXT", "rerun": "{CLI}_RERUN"},
   "made_key_file": "made-key.json",
   "connection": {
     "schema": "connection/v1",
@@ -91,6 +91,8 @@
       "keep-the-connection.mjs",
       "packs/read-data/identity.mjs",
       "packs/read-data/blake3.mjs",
+      "packs/tools/plan-tasks-and-todo-lists/task-moves.json",
+      "packs/tools/plan-tasks-and-todo-lists/run-a-task-move.mjs",
       "settled-write.mjs",
       "packs/node_modules/@noble/hashes/_blake.js",
       "packs/node_modules/@noble/hashes/_md.js",
@@ -249,9 +251,9 @@
     "working_on": "{doing}",
     "working_on_more": "{doing} (and {more} more)"
   },
-  "send_note": {
-    "any": "Any of your AIs can take it. An AI in a terminal sees it the next time it runs {cli} work or {cli} take, or at once while {cli} serve runs there; an AI app sees it when it next reads its {site_name} work.",
-    "to": "{to} sees it the next time it runs {cli} work or {cli} take, or at once while {cli} serve runs for it."
+  "give_note": {
+    "any": "Anyone may take it. An AI in a terminal sees it the next time it runs {cli} tasks or {cli} take, or at once while {cli} serve runs there; an AI app sees it when it next reads its {site_name} tasks.",
+    "to": "Assigned to {to}: each sees it the next time it runs {cli} tasks or {cli} take, or at once while {cli} serve runs for it."
   },
   "serve": {
     "contact_seconds": 60,
@@ -260,19 +262,13 @@
     "result_chars": 20000
   },
   "wait": {
-    "poll_seconds": 20,
-    "finished_states": [
-      "done",
-      "failed",
-      "finished",
-      "withdrawn"
-    ]
+    "poll_seconds": 20
   },
   "update": {
     "workshop": "The installed {cli} command follows the Workshop: each run it finds the Workshop copy this computer's engine has installed (install.follow) and runs that copy instead of itself, so a Workshop update reaches every command at once. `{cli} setup` run from the Workshop copy also refreshes the installed files, which stay as the fallback when no Workshop copy is found. The command never fetches code by itself."
   },
   "ag_ui": {
-    "_what": "`{cli} serve --ag-ui URL` (ag-ui-agent.mjs): any AG-UI agent at URL runs each job this AI takes. tools: the tools the agent is offered as AG-UI frontend tools; each call it makes of one is made by this program as this AI. max_turns: the most runs of the agent one job gets (each answered tool call starts the next). run_seconds: the longest one run is waited for. quiet_seconds: the longest the agent may send nothing while it is waited on (a silence watchdog; time spent running its tools here does not count). answer_chars: the most characters of a tool's answer given back to the agent. max_frame_chars and max_events bound what one run may send. context is the ambient line every run is given ({handoff_id}). words: what is recorded when something goes wrong, in plain words.",
+    "_what": "`{cli} serve --ag-ui URL` (ag-ui-agent.mjs): any AG-UI agent at URL runs each task this AI takes. tools: the tools the agent is offered as AG-UI frontend tools; each call it makes of one is made by this program as this AI. max_turns: the most runs of the agent one task gets (each answered tool call starts the next). run_seconds: the longest one run is waited for. quiet_seconds: the longest the agent may send nothing while it is waited on (a silence watchdog; time spent running its tools here does not count). answer_chars: the most characters of a tool's answer given back to the agent. max_frame_chars and max_events bound what one run may send. context is the ambient line every run is given ({handoff_id}). words: what is recorded when something goes wrong, in plain words.",
     "tools": [
       "search",
       "read_handoff",
@@ -293,8 +289,8 @@
     "answer_chars": 20000,
     "max_frame_chars": 1000000,
     "max_events": 20000,
-    "context_description": "The job",
-    "context": "This is the person's job {handoff_id} in their {site_name}. Your answer is recorded as its result. To use what is in their {site_name}, call the tools you are given; each call is made as you, for this job.",
+    "context_description": "The task",
+    "context": "This is the person's task {handoff_id} in their {site_name}. Your answer is recorded as its result. To use what is in their {site_name}, call the tools you are given; each call is made as you, for this task.",
     "words": {
       "agent_refused": "The AG-UI agent answered {status}.",
       "run_failed": "The AG-UI agent's run failed: {error}",
@@ -303,7 +299,7 @@
       "no_words": "The AG-UI agent finished without saying anything.",
       "not_offered": "{tool} is not a tool offered here. Use only the tools you were given.",
       "tool_failed": "{tool} did not work: {error}",
-      "too_many_turns": "The AG-UI agent called tools for {turns} runs without answering, so the job was given back."
+      "too_many_turns": "The AG-UI agent called tools for {turns} runs without answering, so the task was given back."
     }
   },
   "engine": {
@@ -314,7 +310,6 @@
     "tools_list": "tools:list",
     "tools_run": "tools:run",
     "ai_type": "ai",
-    "job_type": "ai-job",
     "page_limit": 100,
     "most_pages": 1000,
     "cancel": "tools:cancel",
@@ -322,24 +317,16 @@
     "_need_refusal": "The exact refusal an engine older than trillion-rust 9133c735e gives a call that carries `need` (its parse_operation names every argument that is not a call's, as invalid params). Only this refusal makes the command send the same call once more without `need`; every other refusal is passed through.",
     "need_refusal": { "code": -32602, "message": "Addressed resource arguments are incomplete: `need` is not an argument of a call." }
   },
-  "work": {
-    "_what": "Each AI-job command runs one Workshop work tool (trillion-workshop tools/hand-work-to-ais) with tools:run at @tools: `tools` names the tool for who (ais), send, work (see), take and every move (change); `actions` maps a move command to the action tool:change-an-ai-job takes.",
+  "tasks": {
+    "_what": "Each task command is one read or one move through a Workshop task tool (trillion-workshop tools/plan-tasks-and-todo-lists, packed under ./packs). `tools` names the tool for see (tasks), give, take, who (who-can-take), change (every move by id except finish) and finish (its own row, so it may name only the saved target). `actions` maps each move command to the action the task row takes. `holder_commands` are the moves the AI holding a task makes: the claim (taken_at) is read from the task's own row. `who_types` are the record types who-can-take reads (the people and AIs that may take a task). `list_limit` is how many tasks `tasks` shows when no limit is given.",
     "tools": {
-      "ais": "tool:see-my-ais",
-      "send": "tool:hand-a-job-to-an-ai",
-      "see": "tool:see-ai-work",
-      "take": "tool:take-an-ai-job",
-      "change": "tool:change-an-ai-job"
+      "see": "tool:see-tasks",
+      "give": "tool:give-a-task",
+      "take": "tool:take-a-task",
+      "who": "tool:see-who-can-take-work",
+      "change": "tool:change-a-task",
+      "finish": "tool:finish-a-task"
     },
-    "holder_commands": [
-      "finish",
-      "fail",
-      "release",
-      "stuck",
-      "wait",
-      "resume",
-      "plan"
-    ],
     "actions": {
       "plan": "plan",
       "finish": "finish",
@@ -347,12 +334,28 @@
       "stuck": "stuck",
       "unstuck": "unstuck",
       "release": "release",
+      "hand-on": "hand-on",
       "wait": "wait",
       "resume": "resume",
       "edit": "edit",
       "withdraw": "withdraw",
       "remove": "remove"
-    }
+    },
+    "holder_commands": [
+      "finish",
+      "fail",
+      "release",
+      "hand-on",
+      "stuck",
+      "wait",
+      "resume",
+      "plan"
+    ],
+    "who_types": [
+      "ai",
+      "person"
+    ],
+    "list_limit": 20
   },
   "bearers": {
     "_what": "The shapes of credential the door accepts as a bearer, one row each: a `pattern` the whole value must match. The command sends whatever bearer it is given ({CLI}_KEY, the kept key, a key read on standard input) as it is, and refuses only a value no row matches, so a new kind of key or pass is one row here and no change in code. nm_ is the Mac app's account key; tr_ is a Better Auth API key (the prefix and 64 letters, no digits or separators, as the apiKey plugin mints it: better-auth-official, Nov 14); the third is an access token that is a signed JWT (three base64url parts).",
@@ -373,23 +376,22 @@
     "refused": "That is not a kind of key or token the door takes ({kinds})."
   },
   "keep": {
-    "_what": "Where a result too long for the job row is kept (keep-result.mjs): one file of the person's files, named {folder}/<job id>/result by the program, never by the caller; the job row's result then holds the `pointer` line. The inline limit is not here: it is the `maxLength` of the result input of the tool that finishes jobs, read from the door. piece_bytes is the account files' fixed span size (pages-32k-v1) a resumable upload takes at a time; read_bytes is how much one read asks for (the door answers at most its own most).",
-    "folder": "/ai-job-results",
-    "token_prefix": "ai-job-result",
+    "_what": "Where a result too long for the task row is kept (keep-result.mjs): one file of the person's files, named {folder}/<task id>/result by the program, never by the caller; the task row's result then holds the `pointer` line. The inline limit is not here: it is the `maxLength` of the result input of the tool that finishes tasks, read from the door. piece_bytes is the account files' fixed span size (pages-32k-v1) a resumable upload takes at a time; read_bytes is how much one read asks for (the door answers at most its own most).",
+    "folder": "/task-results",
+    "token_prefix": "task-result",
     "piece_bytes": 32768,
     "read_bytes": 262144,
     "text_type": "text/plain; charset=utf-8",
     "binary_type": "application/octet-stream",
-    "pointer": "Kept as file {name} ({bytes} bytes, {identity}). Read it whole: {cli} work {id} --result",
+    "pointer": "Kept as file {name} ({bytes} bytes, {identity}). Read it whole: {cli} tasks {id} --result",
     "pointer_pattern": "^Kept as file (\\S+) \\((\\d+) bytes, (1f:[0-9a-f]{64})\\)\\.",
     "words": {
       "no_limit": "The door states no most length for the result of {tool}, so nothing was kept or finished.",
       "not_started": "The upload of {name} did not start (state {state}); nothing was finished.",
-      "mismatch": "{name} did not read back with the identity and size of the bytes sent; the job was not finished.",
+      "mismatch": "{name} did not read back with the identity and size of the bytes sent; the task was not finished.",
       "read_broken": "{name} could not be read back whole and exact at byte {offset}."
     }
   },
-  "work_list_limit": 20,
   "words": {
     "no_result": "{id} has no result to show.",
     "unknown_flag": "{cli} {command} does not take --{flag}. It takes {known}. Nothing was sent.",
@@ -415,18 +417,21 @@
     "no_answer": "{which} did not answer after {tries} tries. Try again in a minute.",
     "byte_page_broken": "{site_name}'s answer came back broken, so none of it was used. Try again.",
     "byte_page_mismatch": "{site_name}'s answer did not match what it said it sent, so none of it was used. Try again.",
-    "more_jobs": "More jobs: {cli} work --limit N, or --status, --to, --from, --taker.",
-    "no_jobs": "No AI jobs.",
-    "sent": "Sent {id}.",
-    "sent_before": "{id} was sent before; here it is as it now is.",
+    "more_tasks": "More tasks: {cli} tasks --limit N, or --status, --from, --taken-by, --assignee.",
+    "no_tasks": "No tasks.",
+    "gave": "Gave {id}.",
+    "gave_before": "{id} was given before; here it is as it now is.",
+    "not_written": "The task was not written; nothing was given.",
+    "no_task": "No task {id} is there.",
     "took": "Took {id}.",
     "take_lost": "Another AI ({taker}) moved {id} first.",
     "another_ai": "another AI",
     "take_gone": "{id} is gone.",
-    "nothing_to_take": "No waiting job you may take.",
+    "nothing_to_take": "No waiting task you may take.",
+    "no_takers": "No one can take a task.",
     "moved": "{id}: {from} -> {to}.",
     "not_moved": "{id} was not moved ({reason}); here it is as it now is.",
-    "not_finished": "Not finished after {seconds} seconds; read it later with {cli} work {id}.",
+    "not_finished": "Not finished after {seconds} seconds; read it later with {cli} tasks {id}.",
     "refused_code": "{which} did not do that.",
     "schedule_input_object": "--input is one saved object of your own data, for example {cli} schedule on TOOL WAKE_ID --input FILE (FILE may be - for standard input).",
     "schedule_input_size": "--input may hold at most {limit} bytes; this one holds {size}.",
@@ -562,6 +567,7 @@
     "account_chars": 8,
     "ai_line": "{name}  {ready} of {chats} chats ready{seen}",
     "seen": "  last seen {at}",
+    "tool": "tool:see-my-ais",
     "ai_list": "list:ais",
     "formula_kind": "formula",
     "formula_tool": "tool:evaluate-a-formula",
@@ -586,6 +592,8 @@
     "files": [
       { "owner": "content-identity/read-data/identity.mjs", "packed": "packs/read-data/identity.mjs" },
       { "owner": "content-identity/read-data/blake3.mjs", "packed": "packs/read-data/blake3.mjs" },
+      { "owner": "plan-tasks-and-todo-lists/task-moves.json", "packed": "packs/tools/plan-tasks-and-todo-lists/task-moves.json" },
+      { "owner": "plan-tasks-and-todo-lists/run-a-task-move.mjs", "packed": "packs/tools/plan-tasks-and-todo-lists/run-a-task-move.mjs" },
       { "owner": "carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs", "packed": "packs/tools/carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs" },
       { "owner": "carry-a-computer-to-a-meeting-point/read-data/ways.json", "packed": "packs/tools/carry-a-computer-to-a-meeting-point/read-data/ways.json" },
       { "owner": "carry-a-computer-to-a-meeting-point/read-data/ports.json", "packed": "packs/tools/carry-a-computer-to-a-meeting-point/read-data/ports.json" },

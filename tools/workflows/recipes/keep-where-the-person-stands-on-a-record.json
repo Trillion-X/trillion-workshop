@@ -1,16 +1,16 @@
 {
-  "about": "workflow:keep-where-the-person-stands-on-a-record: the person's own stand on one of their own records, kept in the person's store with its history; a disagreement with a decision reopens it and hands one AI its job. It replaces tools/record-where-i-stand-on-one-of-my-records-agree/src/record-stance.mjs, whose whole job except the hand-off was keeping stands in the retired record store (rule a-tool-is-only-what-the-store-cannot-do).",
+  "about": "workflow:keep-where-the-person-stands-on-a-record: the person's own stand on one of their own records, kept in the person's store with its history; a disagreement with a decision reopens it and gives one AI its task. It replaces tools/record-where-i-stand-on-one-of-my-records-agree/src/record-stance.mjs, whose whole job except the hand-off was keeping stands in the retired record store (rule a-tool-is-only-what-the-store-cannot-do).",
   "records": [
     {
       "payload": {
         "kind": "workflow-recipe",
         "id": "workflow:keep-where-the-person-stands-on-a-record",
         "label": "Keep where the person stands on a record",
-        "job": "Keep the person's own stand (agree or disagree, with their words why) on one of their own records in the person's own store, keep every earlier stand as history, and when they disagree with a decision, open it for a corrected decision and hand one AI the job of making it, once.",
-        "produces": "The store's own objects for stands, proven on the example attempts, and each new stand kept or refused and read back; a disagreement with a decision opens it for a corrected one and hands one AI its job.",
+        "job": "Keep the person's own stand (agree or disagree, with their words why) on one of their own records in the person's own store, keep every earlier stand as history, and when they disagree with a decision, open it for a corrected decision and give one AI the task of making it, once.",
+        "produces": "The store's own objects for stands, proven on the example attempts, and each new stand kept or refused and read back; a disagreement with a decision opens it for a corrected one and gives one AI its task.",
         "source": {
           "from": "tools/record-where-i-stand-on-one-of-my-records-agree (src/record-stance.mjs, ported from the decision engine's record-stance owner), read on trillion-workshop origin/main aea60ccfd1",
-          "note": "Only the record keeping is the store's job (one stand per record, its history, refusals). The reopening of a decision and the hand-off of its job reach outside the store: they use the decision owner's own tools (tool:start-a-decision, tool:make-the-decision) and tool:hand-a-job-to-an-ai, never a tool of this recipe. The stance words and the hand-off text are the ones the old owner read from src/record-stance.json (agree: \"You agree with this.\", disagree: \"You disagree with this.\", reopens decision)."
+          "note": "Only the record keeping is the store's job (one stand per record, its history, refusals). The reopening of a decision and the hand-off of its task reach outside the store: they use the decision owner's own tools (tool:start-a-decision, tool:make-the-decision) and tool:give-a-task, never a tool of this recipe. The stance words and the hand-off text are the ones the old owner read from src/record-stance.json (agree: \"You agree with this.\", disagree: \"You disagree with this.\", reopens decision)."
         },
         "input_schema": {
           "type": "object",
@@ -103,7 +103,7 @@
           {
             "id": "prove",
             "title": "Prove the objects on the example attempts",
-            "do": "In a throwaway place in the same store, with the same objects, keep these attempts in order, each through the store's own objects, with the decision decision:d1 decided at decision_generation 1 before the first attempt: [{\"record\": \"decision:d1\", \"stance\": \"agree\", \"answered_by\": \"person\", \"by\": \"person\", \"at\": \"2026-11-10T10:00:00Z\"}, {\"record\": \"decision:d1\", \"stance\": \"agree\", \"answered_by\": \"person\", \"by\": \"person\"}, {\"record\": \"decision:d1\", \"stance\": \"disagree\", \"why\": \"the cost is wrong\", \"answered_by\": \"person\", \"by\": \"person\", \"at\": \"2026-11-11T10:00:00Z\"}, {\"record\": \"decision:d1\", \"stance\": \"disagree\", \"why\": \"the cost is wrong\", \"answered_by\": \"person\", \"by\": \"person\"}, {\"record\": \"message:m1\", \"stance\": \"agree\", \"answered_by\": \"person\", \"by\": \"person\", \"at\": \"2026-11-12T10:00:00Z\"}, {\"record\": \"message:m1\", \"stance\": \"maybe\", \"answered_by\": \"person\", \"by\": \"person\"}, {\"record\": \"message:m1\", \"stance\": \"agree\", \"answered_by\": \"ai\", \"by\": \"ai\"}, {\"record\": \"other-person:x1\", \"stance\": \"disagree\", \"answered_by\": \"person\", \"by\": \"person\"}, {\"record\": \"message:m1\", \"stance\": null, \"answered_by\": \"person\", \"by\": \"person\"}, {\"record\": \"message:m1\", \"stance\": null, \"answered_by\": \"person\", \"by\": \"person\"}]. Rules: a stance other than agree, disagree or null is refused. answered_by other than \"person\" is refused. A record that is not the person's own is refused. A stand the same as the current one (same stance, same why, same by) is repeated and changes nothing, unless the decision was decided again since that stand was taken: then it is a new stand on the new decision. A stand taken on a decision keeps the decision's generation as it is at that time. The same stand with a different why or by replaces them and keeps the first time; the earlier one is kept as history. A different stand keeps the earlier one as history and takes the new time. null takes the stand back: the stand stays in the history; a null on a record with no stand is repeated. A disagreement with a decision that is decided at its current generation opens the decision for a corrected decision (generation plus one, decision_state open) and hands one AI the job once: \"The person disagrees with the decision {case_id} ({goal}), which chose: {chosen}. In their words: \\\"{why}\\\". Read it, add what they said as evidence, decide again, then say what was done for {case_id}.\" A disagreement with a decision that is open for a corrected decision (not decided again yet) and is the same as the current stand is repeated. Then remove the throwaway place. Submit outcomes (one of kept, repeated, refused per attempt, in order) and answer: for decision:d1 its stance, why, decision_generation, decision_state, reopened_to, jobs_handed and earlier_stances (oldest first), for message:m1 its stance and earlier_stances, and kept_count.",
+            "do": "In a throwaway place in the same store, with the same objects, keep these attempts in order, each through the store's own objects, with the decision decision:d1 decided at decision_generation 1 before the first attempt: [{\"record\": \"decision:d1\", \"stance\": \"agree\", \"answered_by\": \"person\", \"by\": \"person\", \"at\": \"2026-11-10T10:00:00Z\"}, {\"record\": \"decision:d1\", \"stance\": \"agree\", \"answered_by\": \"person\", \"by\": \"person\"}, {\"record\": \"decision:d1\", \"stance\": \"disagree\", \"why\": \"the cost is wrong\", \"answered_by\": \"person\", \"by\": \"person\", \"at\": \"2026-11-11T10:00:00Z\"}, {\"record\": \"decision:d1\", \"stance\": \"disagree\", \"why\": \"the cost is wrong\", \"answered_by\": \"person\", \"by\": \"person\"}, {\"record\": \"message:m1\", \"stance\": \"agree\", \"answered_by\": \"person\", \"by\": \"person\", \"at\": \"2026-11-12T10:00:00Z\"}, {\"record\": \"message:m1\", \"stance\": \"maybe\", \"answered_by\": \"person\", \"by\": \"person\"}, {\"record\": \"message:m1\", \"stance\": \"agree\", \"answered_by\": \"ai\", \"by\": \"ai\"}, {\"record\": \"other-person:x1\", \"stance\": \"disagree\", \"answered_by\": \"person\", \"by\": \"person\"}, {\"record\": \"message:m1\", \"stance\": null, \"answered_by\": \"person\", \"by\": \"person\"}, {\"record\": \"message:m1\", \"stance\": null, \"answered_by\": \"person\", \"by\": \"person\"}]. Rules: a stance other than agree, disagree or null is refused. answered_by other than \"person\" is refused. A record that is not the person's own is refused. A stand the same as the current one (same stance, same why, same by) is repeated and changes nothing, unless the decision was decided again since that stand was taken: then it is a new stand on the new decision. A stand taken on a decision keeps the decision's generation as it is at that time. The same stand with a different why or by replaces them and keeps the first time; the earlier one is kept as history. A different stand keeps the earlier one as history and takes the new time. null takes the stand back: the stand stays in the history; a null on a record with no stand is repeated. A disagreement with a decision that is decided at its current generation opens the decision for a corrected decision (generation plus one, decision_state open) and gives one AI the task once: \"The person disagrees with the decision {case_id} ({goal}), which chose: {chosen}. In their words: \\\"{why}\\\". Read it, add what they said as evidence, decide again, then say what was done for {case_id}.\" A disagreement with a decision that is open for a corrected decision (not decided again yet) and is the same as the current stand is repeated. Then remove the throwaway place. Submit outcomes (one of kept, repeated, refused per attempt, in order) and answer: for decision:d1 its stance, why, decision_generation, decision_state, reopened_to, tasks_given and earlier_stances (oldest first), for message:m1 its stance and earlier_stances, and kept_count.",
             "submit": {
               "type": "object",
               "required": [
@@ -160,7 +160,7 @@
                       "decision_generation": 1,
                       "decision_state": "open",
                       "reopened_to": 2,
-                      "jobs_handed": 1,
+                      "tasks_given": 1,
                       "earlier_stances": [
                         "agree"
                       ]
@@ -180,13 +180,13 @@
           {
             "id": "keep",
             "title": "Keep this run's stands",
-            "do": "Keep each item of stands through the store's own objects, in order, and read every kept record back. A kept stand on a decision the person disagrees with reopens it and hands one AI the job once (the prove step's text, filled from the decision's goal, its chosen option and the person's why, or \"no reason given\"). Submit kept_records (kept or repeated, by record), refused (each refused stand's record and the store's own words for why), jobs_handed (the ids of the AI jobs handed this run) and found_records (each record's stance read back). With no stands, submit empty lists.",
+            "do": "Keep each item of stands through the store's own objects, in order, and read every kept record back. A kept stand on a decision the person disagrees with reopens it and gives one AI the task once (the prove step's text, filled from the decision's goal, its chosen option and the person's why, or \"no reason given\"). Submit kept_records (kept or repeated, by record), refused (each refused stand's record and the store's own words for why), tasks_given (the ids of the tasks given to AIs this run) and found_records (each record's stance read back). With no stands, submit empty lists.",
             "submit": {
               "type": "object",
               "required": [
                 "kept_records",
                 "refused",
-                "jobs_handed",
+                "tasks_given",
                 "found_records"
               ],
               "properties": {
@@ -202,7 +202,7 @@
                     "type": "object"
                   }
                 },
-                "jobs_handed": {
+                "tasks_given": {
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -232,7 +232,7 @@
             ]
           }
         ],
-        "erase": "On the person's request the store deletes every version of the stand on that record, its history included; a job already handed to an AI is that AI's own record and is ended with its own tool (tool:end-a-decision for a decision's job)."
+        "erase": "On the person's request the store deletes every version of the stand on that record, its history included; a task already given to an AI is that AI's own record and is ended with its own tool (tool:end-a-decision for a decision's task)."
       }
     }
   ]

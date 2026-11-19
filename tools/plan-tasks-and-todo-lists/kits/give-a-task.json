@@ -1,0 +1,73 @@
+{
+  "drafted_from": "tool:give-a-task's own row (its words, input schema, sample run and steps) and what its sample run answered here; read it before relying on it",
+  "start_here": "Give a task to one of my AIs: \"Write a made-up sample report\", for ai:sample-taker, with the key sample-1. It runs tool:give-a-task and answers {\"task_id\":\"record:calendar-task:sample-1\",\"status\":\"written\",\"task\":{\"id\":\"record:calendar-task:sample-1\",\"title\":\"Write a made-up sample report\",\"status\":\"To do\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-19T21:25:24.646Z\",\"description\":\"Write a made-up sample report\"},\"keep\":[{\"id\":\"record:calendar-task:sample-1\",\"type\":\"calendar-task\",\"value\":{\"title\":\"Write a made-up sample report\",\"status\":\"To do\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-19T21:25:24.646Z\",\"description\":\"Write a made-up sample report\"},\"expected\":null}]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps only its own task rows (calendar-task) in your own store. Its records come in as input.records (ai) and its writes go back as keep.",
+  "workflows": [],
+  "tools": [
+    "tool:give-a-task"
+  ],
+  "instructions": [
+    "Say to your AI: \"Give this task to the one I name, or to anyone\", and give it as (who gives it), description, assignees (the record ids who may take it; left out means anyone) and key.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:give-a-task and its input (the worked example shows one).",
+    "3. Read what comes back: Writes one task waiting for the named assignees (or anyone) and answers its id, once per key."
+  ],
+  "worked_examples": [
+    {
+      "title": "Give a task to anyone: a person, an AI, another record, or whoever takes it first on its own sample",
+      "ask": "Make a new task for the ones I name to take it, or for anyone",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:give-a-task",
+            "input": {
+              "as": "ai:sample-sender",
+              "description": "Write a made-up sample report",
+              "assignees": [
+                "ai:sample-taker"
+              ],
+              "key": "sample-1",
+              "records": [
+                {
+                  "id": "ai:sample-sender",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sender",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 1,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "ai:sample-taker",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample taker",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 2,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"as\":\"ai:sample-sender\",\"description\":\"Write a made-up sample report\",\"assignees\":[\"ai:sample-taker\"],\"key\":\"sample-1\"}, with 2 example records (ai) already kept in the store that the run reads.",
+      "hands_back": "It answered {\"task_id\":\"record:calendar-task:sample-1\",\"status\":\"written\",\"task\":{\"id\":\"record:calendar-task:sample-1\",\"title\":\"Write a made-up sample report\",\"status\":\"To do\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-19T21:25:24.646Z\",\"description\":\"Write a made-up sample report\"},\"keep\":[{\"id\":\"record:calendar-task:sample-1\",\"type\":\"calendar-task\",\"value\":{\"title\":\"Write a made-up sample report\",\"status\":\"To do\",\"assignees\":[\"ai:sample-taker\"],\"sent_by\":\"ai:sample-sender\",\"priority\":\"medium\",\"sent_at\":\"2026-11-19T21:25:24.646Z\",\"description\":\"Write a made-up sample report\"},\"expected\":null}]}"
+    }
+  ]
+}

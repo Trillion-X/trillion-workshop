@@ -3,8 +3,8 @@
 // PURPOSE
 //   The hold's read, worked out from what the request carries and nothing else: the waiting answer (`things`, or the
 //   person's must-do rows), the hold setting (`state`), the hold rules, the cover and the held thing last kept. It
-//   reads and keeps nothing. What it makes comes back in the answer for the caller to keep: the AI jobs the doer gate and
-//   the walk-away nudge hand off (`jobs`, ai-job records), the held fact (`held_fact`, { key, title } or null) and the
+//   reads and keeps nothing. What it makes comes back in the answer for the caller to keep: the tasks the doer gate and
+//   the walk-away nudge hand off (`jobs`, calendar-task records), the held fact (`held_fact`, { key, title } or null) and the
 //   device tool runs a change of the held thing starts (`device_runs`).
 //
 // NON-NEGOTIABLE INVARIANTS
@@ -21,7 +21,7 @@ import { inOrder, sameOnce, weighCards } from './waiting-weigh.mjs';
 import { whoDoesEachStep } from '../../who-does-each-step/read-data/who-does.mjs';
 import WHO from '../../shared-code/src/who-does-it.json' with { type: 'json' };
 import { waitingSentence } from '../../what-is-waiting-on-me/read-data/waiting.mjs';
-import { prepareProducedJob } from '../../hand-work-to-ais/read-data/ai-work.mjs';
+import { prepareProducedTask } from '../../plan-tasks-and-todo-lists/task-moves.mjs';
 import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
 
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
@@ -47,16 +47,16 @@ export function answerOfRows(records, section = {}) {
   return { sections: [{ ...section, id: section.id ?? kind.section, total: cards.length, cards }] };
 }
 
-/** The AI jobs to keep, prepared through the AI-work owner with the real trigger and no invented AI sender. */
+/** The tasks to keep, prepared through the task owner with the real trigger and no invented sender. */
 export function holdJobRecords(jobs, now) {
   const records = new Map();
   for (const job of jobs) {
     if (!job.job?.trim()) continue;
-    if (typeof job.once_per !== 'string' || !job.once_per) throw new Error('A hold job needs its stable once_per source.');
+    if (typeof job.once_per !== 'string' || !job.once_per) throw new Error('A hold task needs its stable once_per source.');
     const source = { kind: 'record', ref: job.input?.card_id ?? ROWS.state.id };
-    const record = prepareProducedJob({ key: `hold-${makeHashCodeHexFromJson({ source, source_job: job.once_per })}`, job: job.job,
-      source, source_job: job.once_per, ...(object(job.input) ? { input: job.input } : {}),
-      ...(job.said ? { label: job.said } : {}) }, new Date(now));
+    const record = prepareProducedTask({ key: `hold-${makeHashCodeHexFromJson({ source, source_job: job.once_per })}`, description: job.job,
+      source, source_task: job.once_per, ...(object(job.input) ? { input: job.input } : {}),
+      ...(job.said ? { title: job.said } : {}) }, new Date(now));
     if (!records.has(record.id)) records.set(record.id, record);
   }
   return [...records.values()];

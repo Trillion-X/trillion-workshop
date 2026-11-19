@@ -1,0 +1,70 @@
+{
+  "drafted_from": "tool:see-who-can-take-work's own row (its words, input schema, sample run and steps) and what its sample run answered here; read it before relying on it",
+  "start_here": "Say which of my people, AIs and other records are live now, and what each can do, with {\"can\":[\"code\"]}. It runs tool:see-who-can-take-work and answers {\"who\":[{\"id\":\"ai:sample-sender\",\"type\":\"ai\",\"value\":{\"label\":\"Sample sender\",\"can\":[\"code\"],\"order\":1,\"live\":{\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"minutes\":10}},\"live\":false,\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"busy\":0},{\"id\":\"ai:sample-taker\",\"type\":\"ai\",\"value\":{\"label\":\"Sample taker\",\"can\":[\"code\"],\"order\":2,\"live\":{\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"minutes\":10}},\"live\":false,\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"busy\":0}]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps only its own task rows (calendar-task) in your own store. Its records come in as input.records (ai) and its writes go back as keep.",
+  "workflows": [],
+  "tools": [
+    "tool:see-who-can-take-work"
+  ],
+  "instructions": [
+    "Say to your AI: \"Say which of my people, AIs and other records are live now, and what each can do\", and give it can (the words each must be able to do).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:see-who-can-take-work and its input (the worked example shows one).",
+    "3. Read what comes back: Reads the records handed in that are not tasks and answers who is live first, with what each can do and how many tasks each holds."
+  ],
+  "worked_examples": [
+    {
+      "title": "See who can take my work: which people, AIs and other records are live, what each can do and how many tasks each holds on its own sample",
+      "ask": "Show me who I can hand a task to: which are live now, what each can do and how many tasks each is doing",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:see-who-can-take-work",
+            "input": {
+              "can": [
+                "code"
+              ],
+              "records": [
+                {
+                  "id": "ai:sample-sender",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sender",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 1,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "ai:sample-taker",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample taker",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 2,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"can\":[\"code\"]}, with 2 example records (ai) already kept in the store that the run reads.",
+      "hands_back": "It answered {\"who\":[{\"id\":\"ai:sample-sender\",\"type\":\"ai\",\"value\":{\"label\":\"Sample sender\",\"can\":[\"code\"],\"order\":1,\"live\":{\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"minutes\":10}},\"live\":false,\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"busy\":0},{\"id\":\"ai:sample-taker\",\"type\":\"ai\",\"value\":{\"label\":\"Sample taker\",\"can\":[\"code\"],\"order\":2,\"live\":{\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"minutes\":10}},\"live\":false,\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"busy\":0}]}"
+    }
+  ]
+}

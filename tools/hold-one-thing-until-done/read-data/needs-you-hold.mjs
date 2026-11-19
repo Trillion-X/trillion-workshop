@@ -262,7 +262,7 @@ const delayOf = (settings, stake) => (stakeRow(settings, stake?.id ?? settings.o
 export const stakesOf = (state, settings, now) => {
   const inForce = stakeNow(state, settings, now)?.id ?? settings.off?.default_stake;
   const waiting = state?.stake_next && Date.parse(state.stake_next.from) > now ? state.stake_next : null;
-  // Only what the person chooses between: the stake's AI jobs and their words stay in the settings (stakeJob reads them).
+  // Only what the person chooses between: the stake's tasks and their words stay in the settings (stakeJob reads them).
   return (settings.off?.stakes ?? []).map(({ id, label, delay_minutes: delay, fields }) => ({ id, label, delay_minutes: delay, ...(fields ? { fields } : {}), chosen: inForce === id, ...(waiting?.stake.id === id ? { from: waiting.from } : {}) }));
 };
 

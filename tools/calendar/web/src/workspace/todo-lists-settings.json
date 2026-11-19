@@ -25,7 +25,7 @@
   "no_color": "No colour",
   "default_calendar": "Default calendar",
   "default_calendar_none": "No default calendar",
-  "ai_scheduling": "AI scheduling for this list",
+  "plan_automatically": "AI scheduling for this list",
   "ai_inherit": "Follow my planning setting",
   "ai_on": "Schedule this list",
   "ai_off": "Never schedule this list",

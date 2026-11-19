@@ -144,7 +144,7 @@ test('a new account with no setup run reads its workflow as not started, not as 
   assert.equal(runtime.workflow.exists, false);
   assert.equal(runtime.workflow.state, 'not_started');
   assert.equal(runtime.workflow.verified, false);
-  assert.match(runtime.workflow.run_id, /^ai-job:workflow:[^:]+:account-setup:v1$/);
+  assert.match(runtime.workflow.run_id, /^record:calendar-task:workflow:[^:]+:account-setup:v1$/);
   for (const id of ['defaults', 'timed_work', 'event_intake', 'agents']) {
     assert.equal(runtime.components.find(row => row.id === id).state, 'unknown', `${id} has no reader here, so it is unknown`);
   }

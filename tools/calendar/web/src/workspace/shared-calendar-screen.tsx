@@ -789,10 +789,10 @@ export function mountSharedCalendarScreen(element: HTMLElement, props: { surface
     const query = `from=${encodeURIComponent(dayStart(start).toISOString())}&to=${encodeURIComponent(dayStart(addDays(start, screenData.planning.days)).toISOString())}&check=${crypto.randomUUID()}`;
     const [calendar, tasks] = await Promise.all([
       readJson<Calendar>(`/work/api/calendar?${query}&fresh=1`),
-      readJson<{ tasks: Task[]; page: TaskPage; collections: TaskCollection[]; collections_page: TaskPage; day_hours?: DayHours[]; preferences?: { external_display?: string; default_todo_visibility?: string; ai_scheduling?: boolean }; capacity?: { default_minutes: number | null; caution_band_minutes: number; weekdays: Record<string, number> } | null }>(`/work/api/calendar/tasks?${query}`),
+      readJson<{ tasks: Task[]; page: TaskPage; collections: TaskCollection[]; collections_page: TaskPage; day_hours?: DayHours[]; preferences?: { external_display?: string; default_todo_visibility?: string; plan_automatically?: boolean }; capacity?: { default_minutes: number | null; caution_band_minutes: number; weekdays: Record<string, number> } | null }>(`/work/api/calendar/tasks?${query}`),
     ]);
     const unread = calendar.sources.filter(source => source.connected !== false && (!source.read || source.complete === false));
-    if (tasks.preferences?.ai_scheduling === false) throw new Error(trayData.words.plan_off);
+    if (tasks.preferences?.plan_automatically === false) throw new Error(trayData.words.plan_off);
     externalDisplay = tasks.preferences?.external_display ?? 'off';
     todoPrivacy = tasks.preferences?.default_todo_visibility ?? 'private';
     // A list can opt out of planning or keep its tasks to some hours of the day, so every list's settings are read, page by page.
@@ -813,7 +813,7 @@ export function mountSharedCalendarScreen(element: HTMLElement, props: { surface
     const sliced = new Set(tasks.tasks.filter(task => task.status !== 'Done' && task.slice_of).map(task => task.slice_of));
     const listOf = (task: Task) => (task.collection_id ? collections.get(task.collection_id) : undefined);
     const unscheduled = tasks.tasks
-      .filter(task => task.status !== 'Done' && !sliced.has(task.id) && (!task.starts_at || task.auto_placed) && listOf(task)?.ai_scheduling !== false)
+      .filter(task => task.status !== 'Done' && !sliced.has(task.id) && (!task.starts_at || task.auto_placed) && listOf(task)?.plan_automatically !== false)
       .map(task => (listOf(task)?.preferred_times ? { ...task, preferred_window: listOf(task)!.preferred_times } : task));
     if (unscheduled.length > screenData.planning.max_tasks) throw new Error(fill(words.plan_too_many, { count: screenData.planning.max_tasks }));
     const handedBack = new Set(unscheduled.filter(task => task.starts_at && !(task.pinned_until && Date.parse(task.pinned_until) > Date.now())).map(task => task.id));

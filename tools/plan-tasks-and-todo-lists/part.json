@@ -1,0 +1,7 @@
+{
+  "public": [
+    "task-moves.mjs",
+    "task-moves.json",
+    "run-a-task-move.mjs"
+  ]
+}

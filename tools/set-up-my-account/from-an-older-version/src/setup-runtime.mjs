@@ -17,7 +17,7 @@ import { withoutSecrets } from '../../../keep-and-wake-ai-sessions-on-this-compu
 import { workResultWords } from '../../../see-what-my-ais-did/from-an-older-version/src/work-results.mjs';
 import { nativeSourceReturn, setupCapabilityEvidence } from '../../../show-each-setup-step-with-the-real-things-found/from-an-older-version/src/setup-capability-evidence.mjs';
 // A setup run's id: the setup recipe and the request key it is run under.
-const runId = (recipe, requestKey) => `ai-job:${recipe}:${requestKey}`;
+const runId = (recipe, requestKey) => `record:calendar-task:${recipe}:${requestKey}`;
 
 export const SETUP_RUNTIME_PATH = '/setup/runtime';
 const toolCall = (tool, args = {}, reason = null) => ({ tool, arguments: args, ...(reason ? { reason } : {}) });
