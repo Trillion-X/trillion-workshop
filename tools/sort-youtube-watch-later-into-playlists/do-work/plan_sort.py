@@ -2,7 +2,7 @@
 
 Request: {"settings_record": RECORD or FILE, "person": scope_id, "settings": {"channels": [...]}, "accounts_dir": DIR, "watch_later": {slug: [items]}, "out_dir": DIR}
 The sort settings are the person's row record:setting:sort-youtube-watch-later-into-playlists~<scope_kind>~<scope_id> in their
-list:settings, given as settings_record exactly as the door read it (or a JSON file holding it), and checked by the one shared
+list:settings, given as settings_record exactly as the person's own store holds it (or a JSON file holding it), and checked by the one shared
 reader, tools/settings; a request may instead give them inline as settings.
 Each sorted channel's Watch Later is taken from watch_later, else from <accounts_dir>/<slug>/watch-later.json (do-work/read_channel.py
 writes it). With out_dir, writes sort-plan.json and SORT-PLAN.md there; without it, the plan is in the answer.
@@ -33,7 +33,7 @@ def sort_settings(req):
     except person_settings.SettingError as e:
         raise Refusal(str(e))
     if not isinstance(settings, dict):
-        raise Refusal('give the person\'s sort settings as settings_record: their row record:setting:sort-youtube-watch-later-into-playlists~person~<them> from list:settings, as the door read it (or settings inline)')
+        raise Refusal('give the person\'s sort settings as settings_record: their row record:setting:sort-youtube-watch-later-into-playlists~person~<them> from list:settings, as their own store holds it (or settings inline)')
     if not isinstance(settings.get('channels'), list) or not settings['channels']:
         raise Refusal('the sort settings name no channels: give {"channels": [...]} in the person\'s settings row (or inline settings)')
     return settings

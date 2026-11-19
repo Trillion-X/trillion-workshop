@@ -1,8 +1,8 @@
 """Read the Watch Later, subscriptions and playlists of each signed-in channel the request names. Reads only.
 
 Request: {"cookies": FILE, "channels": [{"slug", "label", "sign_in_as" or "authuser", "page_id"}], "out_dir": DIR, "only": [slug, ...]}
-Instead of channels, the request may give the person's sort settings (settings_record, their list:settings row as the door
-read it, or inline settings): every channel they name is read.
+Instead of channels, the request may give the person's sort settings (settings_record, their list:settings row as their own store
+holds it, or inline settings): every channel they name is read.
 Writes <out_dir>/<slug>/watch-later.json, subscriptions.json and playlists.json; answers with the counts per channel.
 Ported from launch-video tools/yt-library/read_accounts.py, whose channels were a list in the code.
 """

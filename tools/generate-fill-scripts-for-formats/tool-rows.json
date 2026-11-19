@@ -196,7 +196,7 @@
             "index": { "type": "object", "description": "Optional: { file, page, matrix: { row, column, cell }, buckets?, counts? }." },
             "rows": { "type": "array", "items": { "type": "object" }, "description": "Instead of the above: the person's list rows of a batch." },
             "batch": { "type": "string", "description": "With rows: the batch row's id, or its end." },
-            "settings_record": { "description": "The person's settings row from list:settings (record:setting:generate-fill-scripts-for-formats~<scope_kind>~<scope_id>, as records:read gives it, its value, or a list of rows), read through tools/settings: it gives every setting the request's own settings leave out." },
+            "settings_record": { "description": "The person's settings row from list:settings (record:setting:generate-fill-scripts-for-formats~<scope_kind>~<scope_id>, as their own store holds it, its value, or a list of rows), read through tools/settings: it gives every setting the request's own settings leave out." },
             "settings_scopes": { "type": "array", "items": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 2 }, "description": "Which settings row to read: [scope_kind, scope_id] pairs, most specific first. Default [[\"account\", \"main\"]]." }
           }
         },
