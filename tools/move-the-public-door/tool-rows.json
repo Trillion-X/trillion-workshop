@@ -116,7 +116,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -214,12 +213,11 @@
               "at": "/opt/start-a-computer"
             },
             {
-              "package": "records-door",
+              "package": "workflows",
               "paths": [
-                "do-work",
-                "read-data"
+                "do-work/run-a-function.mjs"
               ],
-              "at": "/opt/records-door"
+              "at": "/opt/workflows"
             },
             {
               "package": "content-identity",
@@ -229,7 +227,9 @@
               "at": "/opt/content-identity"
             },
             {
-              "packages": ["node_modules/@noble/hashes"],
+              "packages": [
+                "node_modules/@noble/hashes"
+              ],
               "paths": [
                 "LICENSE",
                 "package.json",
@@ -241,25 +241,11 @@
                 "utils.js"
               ],
               "at": "/opt/node_modules/@noble/hashes"
-            },
-            {
-              "package": "browse-and-upload-my-files",
-              "paths": [
-                "built-stored-bytes/content-chunks/content_chunks.js",
-                "do-work/content-chunks.mjs",
-                "do-work/namespace-client.mjs",
-                "do-work/send-a-file-to-a-namespace.mjs",
-                "do-work/send-retry.mjs",
-                "do-work/send-window.mjs",
-                "do-work/shared-file-reference.mjs",
-                "send-settings.json"
-              ],
-              "at": "/opt/browse-and-upload-my-files"
             }
           ] },
           "workdir": "/opt/move-the-public-door",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "seeWhereTheDoorRuns"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "seeWhereTheDoorRuns"],
           "stdin": { "fill": { "from": "input" } }
         },
         "result_selector": "$.result",
@@ -391,7 +377,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -502,12 +487,11 @@
               "at": "/opt/start-a-computer"
             },
             {
-              "package": "records-door",
+              "package": "workflows",
               "paths": [
-                "do-work",
-                "read-data"
+                "do-work/run-a-function.mjs"
               ],
-              "at": "/opt/records-door"
+              "at": "/opt/workflows"
             },
             {
               "package": "content-identity",
@@ -517,7 +501,9 @@
               "at": "/opt/content-identity"
             },
             {
-              "packages": ["node_modules/@noble/hashes"],
+              "packages": [
+                "node_modules/@noble/hashes"
+              ],
               "paths": [
                 "LICENSE",
                 "package.json",
@@ -529,25 +515,11 @@
                 "utils.js"
               ],
               "at": "/opt/node_modules/@noble/hashes"
-            },
-            {
-              "package": "browse-and-upload-my-files",
-              "paths": [
-                "built-stored-bytes/content-chunks/content_chunks.js",
-                "do-work/content-chunks.mjs",
-                "do-work/namespace-client.mjs",
-                "do-work/send-a-file-to-a-namespace.mjs",
-                "do-work/send-retry.mjs",
-                "do-work/send-window.mjs",
-                "do-work/shared-file-reference.mjs",
-                "send-settings.json"
-              ],
-              "at": "/opt/browse-and-upload-my-files"
             }
           ] },
           "workdir": "/opt/move-the-public-door",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "rentAHost"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "rentAHost"],
           "stdin": { "fill": { "from": "input" } },
           "credential_mounts": [{ "secret_name_from_input": "hosting.rents_a_host.vault_key", "env": "HOSTING_API_TOKEN", "only_when": { "input": "hosting.rents_a_host.vault_key", "present": true } }]
         },
@@ -687,7 +659,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -791,12 +762,11 @@
               "at": "/opt/start-a-computer"
             },
             {
-              "package": "records-door",
+              "package": "workflows",
               "paths": [
-                "do-work",
-                "read-data"
+                "do-work/run-a-function.mjs"
               ],
-              "at": "/opt/records-door"
+              "at": "/opt/workflows"
             },
             {
               "package": "content-identity",
@@ -806,7 +776,9 @@
               "at": "/opt/content-identity"
             },
             {
-              "packages": ["node_modules/@noble/hashes"],
+              "packages": [
+                "node_modules/@noble/hashes"
+              ],
               "paths": [
                 "LICENSE",
                 "package.json",
@@ -818,25 +790,11 @@
                 "utils.js"
               ],
               "at": "/opt/node_modules/@noble/hashes"
-            },
-            {
-              "package": "browse-and-upload-my-files",
-              "paths": [
-                "built-stored-bytes/content-chunks/content_chunks.js",
-                "do-work/content-chunks.mjs",
-                "do-work/namespace-client.mjs",
-                "do-work/send-a-file-to-a-namespace.mjs",
-                "do-work/send-retry.mjs",
-                "do-work/send-window.mjs",
-                "do-work/shared-file-reference.mjs",
-                "send-settings.json"
-              ],
-              "at": "/opt/browse-and-upload-my-files"
             }
           ] },
           "workdir": "/opt/move-the-public-door",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "releaseAHost"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "releaseAHost"],
           "stdin": { "fill": { "from": "input" } },
           "credential_mounts": [{ "secret_name_from_input": "hosting.rents_a_host.vault_key", "env": "HOSTING_API_TOKEN", "only_when": { "input": "hosting.rents_a_host.vault_key", "present": true } }]
         },
@@ -973,7 +931,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1083,12 +1040,11 @@
               "at": "/opt/start-a-computer"
             },
             {
-              "package": "records-door",
+              "package": "workflows",
               "paths": [
-                "do-work",
-                "read-data"
+                "do-work/run-a-function.mjs"
               ],
-              "at": "/opt/records-door"
+              "at": "/opt/workflows"
             },
             {
               "package": "content-identity",
@@ -1098,7 +1054,9 @@
               "at": "/opt/content-identity"
             },
             {
-              "packages": ["node_modules/@noble/hashes"],
+              "packages": [
+                "node_modules/@noble/hashes"
+              ],
               "paths": [
                 "LICENSE",
                 "package.json",
@@ -1110,25 +1068,11 @@
                 "utils.js"
               ],
               "at": "/opt/node_modules/@noble/hashes"
-            },
-            {
-              "package": "browse-and-upload-my-files",
-              "paths": [
-                "built-stored-bytes/content-chunks/content_chunks.js",
-                "do-work/content-chunks.mjs",
-                "do-work/namespace-client.mjs",
-                "do-work/send-a-file-to-a-namespace.mjs",
-                "do-work/send-retry.mjs",
-                "do-work/send-window.mjs",
-                "do-work/shared-file-reference.mjs",
-                "send-settings.json"
-              ],
-              "at": "/opt/browse-and-upload-my-files"
             }
           ] },
           "workdir": "/opt/move-the-public-door",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "cutAHostnameOver"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "cutAHostnameOver"],
           "stdin": { "fill": { "from": "input" } },
           "credential_mounts": [{ "secret_name_from_input": "dns.vault_key", "env": "DNS_API_TOKEN" }]
         },

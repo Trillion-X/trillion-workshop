@@ -41,6 +41,6 @@ The door tools rent and release through the one lease owner, `tools/start-a-comp
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (`run-an-export.mjs`, which runs each row's function), Node's `fetch`, `node:dns`, `node:net`, and `/usr/bin/curl` for the move's proof. Tests only: `@electric-sql/pglite`.
+**Depends on:** `tools/records-door` (`run-a-function.mjs`, which runs each row's function), Node's `fetch`, `node:dns`, `node:net`, and `/usr/bin/curl` for the move's proof. Tests only: `@electric-sql/pglite`.
 
 **Depended on by:** `tool-rows.json`, run on the person's computer by Trillion's local engine (trillion-rust `src/runtime/workshop.rs`).

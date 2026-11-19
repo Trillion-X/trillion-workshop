@@ -1,6 +1,6 @@
 // tools/move-the-public-door/do-work/door-tools.mjs
 //
-// The rows' functions, run by tools/records-door/do-work/run-an-export.mjs as fn(input, context): see where the public
+// The rows' functions, run by tools/workflows/do-work/run-a-function.mjs as fn(input): see where the public
 // door runs and the rows it can move between, rent or release one host lease, and cut one hostname over to a new
 // address (prepare, activate, roll back, or read where a cutover stands) or keep it answering with the front-door computers that pass their health check. The rent, release and cutover functions
 // keep nothing: the person's Service connections rows (`connections`) and any receipt of an earlier run (`lease`,
