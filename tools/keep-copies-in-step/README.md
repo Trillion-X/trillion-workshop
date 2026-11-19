@@ -16,14 +16,14 @@ Whether every copy of a person's things is in step, as their own store knows it:
 | `read-data/catch-up.mjs` | `catchUp` (`here`, `settle`, `read`), `apartOf`, `KEPT_APART`, `handleCatchUpRequest` |
 | `read-data/catch-up.json` | How often a device row is written again, how many are read, the words of each version |
 | `read-data/copies-rows.json` | Which record holds the device rows, and the read bounds |
-| `do-work/copies.mjs` | `seeIfMyCopiesAreInStep`, `sayHowThisDeviceStands`, `settleTwoVersions`, run by `tools/records-door/do-work/run-an-export.mjs` |
+| `do-work/copies.mjs` | `seeIfMyCopiesAreInStep`, `sayHowThisDeviceStands`, `settleTwoVersions`, run by `tools/workflows/do-work/run-a-function.mjs` |
 | `do-work/catch-up-routes.mjs` | `answerCatchUpRoute`: the page route POST /work/api/catch-up/here as a route tool (`{ path, method, query, body, browser }` in, `{ status, body }` out), answering as old trillion's `handleCatchUpRequest` did |
 | `ports/catch-up.json` | The port contract for the move |
 | `part.json` | The public modules |
 | `tool-rows.json` | The four Workshop rows |
 | `test/catch-up.test.mjs` | The original trillion tests, assertions unchanged |
-| `test/catch-up-routes.test.mjs` | The route tool against the values door stand-in: a report (200), the same report again (not written), refused reports (400), other paths (404), a report decided again after another device's write |
-| `test/copies.test.mjs` | Each row over made-up rows against the values door stand-in: the read, a report, keep one, keep both, a conflict, a resent report |
+| `test/catch-up-routes.test.mjs` | The route tool over the device row the request carries: a report (200), the same report again (not written), refused reports (400), other paths (404), a report decided on the row it is handed, the other device rows kept |
+| `test/copies.test.mjs` | Each row over made-up rows handed in as input: the read, a report, keep one, keep both, a conflict, a resent report |
 | `show/catch-up-mount.tsx`, `show/catch-up-status-mount.tsx`, `show/two-versions-mount.tsx` | The module entries of `tool:screen-catch-up` and `tool:screen-catch-up-preview` (both `mountCatchUpScreen`), `tool:screen-catch-up-status` (`mountCatchUpStatusScreen`) and `tool:screen-two-versions` (`mountTwoVersionsScreen`). |
 | `web/src/workspace/catch-up.tsx`, `web/src/workspace/catch-up.json` | What the page knows about whether every copy is in step, handed to the shared catch-up part as its sources: this device, the person's other devices and the records kept as two versions, the sidebar row, the screens, the pane mark and the ⋯ menu's Two versions rows. The page's start-up code imports `keepCatchUp`, `thisDeviceId` and `versionsRows` from here. Moved byte for byte from the web client (`moved-from.json`). |
 
@@ -40,7 +40,7 @@ GET /work/api/catch-up and POST /work/api/catch-up/settle are not route tools ye
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (`do-work/run-an-export.mjs` and its values door), `tools/content-identity`.
+**Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`), `tools/content-identity`.
 
 
 ## Optional current presentation

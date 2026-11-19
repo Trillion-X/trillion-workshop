@@ -1,7 +1,7 @@
 // tools/keep-copies-in-step/do-work/copies.mjs
 //
 // PURPOSE
-//   The three rows of this tool, run by tools/records-door/do-work/run-an-export.mjs: seeIfMyCopiesAreInStep answers every
+//   The three rows of this tool, run by tools/workflows/do-work/run-a-function.mjs: seeIfMyCopiesAreInStep answers every
 //   device and each record two copies changed apart, sayHowThisDeviceStands answers the device list after one device's
 //   report, and settleTwoVersions answers the writes that settle a record kept apart. None reads or keeps anything:
 //   the device rows and the records come in with the request and what to keep comes back in the answer.
@@ -26,7 +26,7 @@ function thingTypeOf(input) {
   return input.thing_type;
 }
 
-function nowOf(input) {
+export function nowOf(input) {
   if (input.now === undefined) return () => Date.now();
   const at = Date.parse(input.now);
   if (!Number.isFinite(at)) throw new Error('now must be an ISO time, for example 2026-01-01T00:00:00.000Z.');
