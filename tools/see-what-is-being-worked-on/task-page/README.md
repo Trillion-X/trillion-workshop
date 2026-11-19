@@ -24,7 +24,7 @@ The page reads these columns. A pursuit whose tables keep them under other names
 
 | Table | Columns read |
 |-------|--------------|
-| tasks (`calendar_tasks`) | `id`, `title`, `plain_title`, `plain_detail`, `parent_id` (text or a one-item list), `status`, `waiting_on`, `made_at`, `changed_at`, and `evidence` when the table has it (what the status rests on; Now draws it in an opened row as "Why it is <status>") |
+| tasks (`calendar_tasks`) | `id`, `title`, `plain_title`, `plain_detail`, `parent_id` (text or a one-item list), `status`, `waiting_on`, `made_at`, `changed_at`, and `evidence` when the table has it (what the status rests on). An opened row shows one paragraph, its plain detail (or the evidence when it has none); the evidence and the exact task wait behind one "How we know" link, in the same type, never stacked under the paragraph |
 | changes (`task_changes`) | `id`, `task_id`, `at`, `kind`, `status`, `title` (read for kind `from transcript`) |
 | shows (`task_shows`) | `task_id`, `ref`, `label`, `made_at`; primary key (`task_id`, `ref`). A ref is any address the shower can open: an https address, or a file the host can reach. Its way of being drawn is chosen by `show-any-file-as-itself`, never here. |
 | statuses (`task_statuses`) | `name`, `mark`, `tone`, `counts_as_done`, `closed`, `place` |

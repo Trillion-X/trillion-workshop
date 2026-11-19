@@ -51,15 +51,25 @@ export const Chevron = ({ open }: { open: boolean }) => (
 export const Word = ({ look }: { look: Status | undefined }) =>
   look ? <span className="flex-none text-[13px]" style={{ color: look.tone ?? muted }}>{look.name}</span> : null;
 
-/** A row's plain detail, why its status stands (the row's evidence) and the exact task row's title, drawn when the row
- *  is opened. The evidence is what a status rests on, so a status word on the row is never left unexplained. */
-export const Detail = ({ id, detail, evidence, look, title, shows }: { id: string; detail?: string | null; evidence?: string | null; look?: Status; title: string; shows: Show[] }) => (
-  <>
-    <div id={id} className="flex flex-col gap-1.5 pb-3 pl-8 pr-6">
-      {detail && <p className="m-0 text-[14px] leading-[1.55]" style={{ textWrap: 'pretty' }}>{detail}</p>}
-      {evidence && <p className="m-0 text-[13px] leading-[1.55]" style={{ textWrap: 'pretty' }}><span style={{ color: look?.tone ?? muted }}>Why it is {look ? look.name.toLowerCase() : 'here'}:</span> {evidence}</p>}
-      <p className="m-0 text-[12px] leading-4" style={{ color: muted }}>The exact task: {title}</p>
-    </div>
-    <OpenedShows shows={shows} />
-  </>
-);
+/** An opened row: one plain paragraph saying what the work is and where it stands (the row's plain detail). The record
+ *  behind it (the evidence the status rests on, and the exact task as it was written) is the same thing said again in
+ *  working terms, so it waits behind one "How we know" link, in the same type, and is never stacked under the paragraph.
+ *  A row with no plain detail shows its evidence as the paragraph. */
+export const Detail = ({ id, detail, evidence, title, shows }: { id: string; detail?: string | null; evidence?: string | null; look?: Status; title: string; shows: Show[] }) => {
+  const [record, setRecord] = React.useState(false);
+  const said = detail ?? evidence ?? null;
+  const behind = [detail ? evidence : null, title !== said ? title : null].filter((text): text is string => !!text);
+  return (
+    <>
+      <div id={id} className="flex flex-col gap-2 pb-3 pl-8 pr-6">
+        {said && <p className="m-0 text-[14px] leading-[1.55]" style={{ textWrap: 'pretty' }}>{said}</p>}
+        {behind.length > 0 && (
+          record
+            ? behind.map(text => <p key={text} className="m-0 text-[14px] leading-[1.55]" style={{ textWrap: 'pretty' }}>{text}</p>)
+            : <button type="button" className="self-start cursor-pointer border-0 bg-transparent p-0 text-[13px] leading-5 underline underline-offset-2" style={{ color: 'inherit', font: 'inherit', fontSize: 13 }} onClick={() => setRecord(true)}>How we know</button>
+        )}
+      </div>
+      <OpenedShows shows={shows} />
+    </>
+  );
+};
