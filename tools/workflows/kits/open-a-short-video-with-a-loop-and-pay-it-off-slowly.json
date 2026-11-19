@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:open-a-short-video-with-a-loop-and-pay-it-off-slowly for a 40-second video about why my bakery sourdough keeps failing for beginners.\" It goes step by step, handing back what it found with where each thing came from, and what is still open.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "workflows": [
+    "workflow:open-a-short-video-with-a-loop-and-pay-it-off-slowly"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Say what the run is for in plain words, and what is already known, as the input: {\"about\": \"a 40-second video about why my bakery sourdough keeps failing for beginners\", \"known\": \"what you already know or decided\"}.",
+    "2. Run workflow:open-a-short-video-with-a-loop-and-pay-it-off-slowly with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:open-a-short-video-with-a-loop-and-pay-it-off-slowly\", about, known}. Each step waits for its answer: what was found, each with where it came from, in found, and what is not settled yet in open with what would settle it.",
+    "3. Answer a step by giving its answer under answers by its step id and running again.",
+    "4. Read what the run kept and what is open; the last step says what matters most next, and choosing what runs next is up to you or your AI."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start to open a short video with a loop and pay it off slowly for a 40-second video about why my bakery sourdough keeps failing for beginners",
+      "ask": "Run open a short video with a loop and pay it off slowly for a 40-second video about why my bakery sourdough keeps failing for beginners.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:open-a-short-video-with-a-loop-and-pay-it-off-slowly",
+              "about": "a 40-second video about why my bakery sourdough keeps failing for beginners"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:open-a-short-video-with-a-loop-and-pay-it-off-slowly",
+      "step": "write-the-hook-to-break-the-scroll",
+      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"write-the-hook-to-break-the-scroll\",\"asks\":\"ai\"}]}: the run waits at 'Write the first second so it breaks the viewer's scan' for what was found (found) and what is still open (open)."
+    }
+  ],
+  "drafted_from": "workflow:open-a-short-video-with-a-loop-and-pay-it-off-slowly's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+}

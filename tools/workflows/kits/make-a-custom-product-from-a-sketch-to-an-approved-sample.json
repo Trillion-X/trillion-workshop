@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:make-a-custom-product-from-a-sketch-to-an-approved-sample for a custom canvas jacket I sketched for my climbing club.\" It goes step by step, handing back what it found with where each thing came from, and what is still open.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "workflows": [
+    "workflow:make-a-custom-product-from-a-sketch-to-an-approved-sample"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Say what the run is for in plain words, and what is already known, as the input: {\"about\": \"a custom canvas jacket I sketched for my climbing club\", \"known\": \"what you already know or decided\"}.",
+    "2. Run workflow:make-a-custom-product-from-a-sketch-to-an-approved-sample with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:make-a-custom-product-from-a-sketch-to-an-approved-sample\", about, known}. Each step waits for its answer: what was found, each with where it came from, in found, and what is not settled yet in open with what would settle it.",
+    "3. Answer a step by giving its answer under answers by its step id and running again.",
+    "4. Read what the run kept and what is open; the last step says what matters most next, and choosing what runs next is up to you or your AI."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start to make a custom product from a sketch to an approved sample for a custom canvas jacket I sketched for my climbing club",
+      "ask": "Run make a custom product from a sketch to an approved sample for a custom canvas jacket I sketched for my climbing club.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:make-a-custom-product-from-a-sketch-to-an-approved-sample",
+              "about": "a custom canvas jacket I sketched for my climbing club"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:make-a-custom-product-from-a-sketch-to-an-approved-sample",
+      "step": "sketch-the-product",
+      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"sketch-the-product\",\"asks\":\"ai\"}]}: the run waits at 'Make a clear sketch of the product' for what was found (found) and what is still open (open)."
+    }
+  ],
+  "drafted_from": "workflow:make-a-custom-product-from-a-sketch-to-an-approved-sample's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+}

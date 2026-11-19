@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:run-a-sale-weekend-with-a-staged-offer-and-primed-lists for a three-day sale on my hand-bound notebooks before the holidays.\" It goes step by step, handing back what it found with where each thing came from, and what is still open.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "workflows": [
+    "workflow:run-a-sale-weekend-with-a-staged-offer-and-primed-lists"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Say what the run is for in plain words, and what is already known, as the input: {\"about\": \"a three-day sale on my hand-bound notebooks before the holidays\", \"known\": \"what you already know or decided\"}.",
+    "2. Run workflow:run-a-sale-weekend-with-a-staged-offer-and-primed-lists with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:run-a-sale-weekend-with-a-staged-offer-and-primed-lists\", about, known}. Each step waits for its answer: what was found, each with where it came from, in found, and what is not settled yet in open with what would settle it.",
+    "3. Answer a step by giving its answer under answers by its step id and running again.",
+    "4. Read what the run kept and what is open; the last step says what matters most next, and choosing what runs next is up to you or your AI."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start to run a sale weekend with a staged offer and primed lists for a three-day sale on my hand-bound notebooks before the holidays",
+      "ask": "Run run a sale weekend with a staged offer and primed lists for a three-day sale on my hand-bound notebooks before the holidays.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:run-a-sale-weekend-with-a-staged-offer-and-primed-lists",
+              "about": "a three-day sale on my hand-bound notebooks before the holidays"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:run-a-sale-weekend-with-a-staged-offer-and-primed-lists",
+      "step": "design-an-offer-that-is-not-just-a-percent",
+      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"design-an-offer-that-is-not-just-a-percent\",\"asks\":\"ai\"}]}: the run waits at 'Design the offer to add urgency, scarcity or exclusivity' for what was found (found) and what is still open (open)."
+    }
+  ],
+  "drafted_from": "workflow:run-a-sale-weekend-with-a-staged-offer-and-primed-lists's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+}
