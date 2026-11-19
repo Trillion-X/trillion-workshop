@@ -2,7 +2,7 @@
   "drafted_from": "tool:hand-a-request-to-its-owner's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Ask an owner to run an action with what a form, a check or a person supplied, once\", with {\"action\":{\"owner\":\"owner-1\",\"action_ref\":\"action-1\"},\"context\":{\"operation_id\":\"operation-1\"}}. It runs tool:hand-a-request-to-its-owner and answers {\"handed\":[\"owner-action-request:operation-1:0\"],\"already\":[],\"said\":\"Asked owner-1: 1 request kept.\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (owner-action-request) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes the owner-action-request rows already kept as records in its input, and gives back the owner-action-request rows to keep as keep.",
   "workflows": [],
   "tools": [
     "tool:hand-a-request-to-its-owner"
@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Ask an owner to run an action with what a form, a check or a person supplied, once\", and give it action; context.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:hand-a-request-to-its-owner and its input (the worked example shows one).",
     "3. Read what comes back: action names the owner and what is asked: owner, action_ref (or action_refs, one request each), optionally id, a fixed input, and copy rows { key, from } or { key, value } where from reads request.<field>, answers.<field> or fields.<field> of the context.",
-    "4. It reads and writes only its own rows through the records door: owner-action-request (records:read, records:write)."
+    "4. It reads no store and keeps nothing: give it the owner-action-request rows already kept as records (each { id, type, value }, read from your own store), so asking again is seen. Write the keep rows it returns to your own store."
   ],
   "worked_examples": [
     {

@@ -1,7 +1,7 @@
 {
  "kind": "tool-rows",
  "record_set": "take-requests-tool-rows",
- "what_this_is": "The Workshop rows for taking requests, in tools/take-requests: each kept as a record, handed to the owner who can act on it and closed by the owner's receipt, in the person's own records through the run's records door.",
+ "what_this_is": "The Workshop rows for taking requests, in tools/take-requests: each request is kept as a record, handed to the owner who can act on it, and closed by the owner's receipt. The rows read the records the caller gives them and give back what to keep as keep; the caller writes it to the person's own store. Recording the owner's receipt is workflow:keep-the-owners-receipt (tools/workflows).",
  "records": [
   {
    "id": "package::take-requests::tool::take-a-request",
@@ -239,10 +239,7 @@
        }
       },
       "max_text_chars": { "type": "integer", "minimum": 1, "description": "The most characters of the request's text to keep (default 65536)" },
-      "stored": {
-        "type": "object",
-        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of intake-origins, intake-owner, intake-request, owner-action-request, as this row's `stored` lists. What is not given is not there."
-      }
+      "records": { "type": "array", "description": "The rows the caller read from the person's own store and gives here, each { id, type, value }, as the store returned them: intake-origins (id intake-origins:accepted), intake-owner, intake-request and owner-action-request. What is not given is not there.", "items": { "type": "object", "required": ["id", "type", "value"], "properties": { "id": { "type": "string" }, "type": { "type": "string" }, "value": {} } } }
      }
     },
     "output_schema": {
@@ -324,35 +321,7 @@
     },
     "provenance": { "source": "bitfield-packages request-intake do-work/request-intake-actions.ts decideSourceMessageIntake (whole request, accepted origin, same id from one source, owner on file, one hand-off), ported to the records door with the origin list, owners and action in the person's records" },
     "verify": [{ "kind": "sample-run", "input": { "request": { "request_id": "request-1", "source_ref": "source-1", "atom_ref": "atom-1", "text": "Two loaves for Friday.", "origin_ref": "origin-1" }, "decision": { "disposition": "recorded", "reason": "A customer asked." } }, "output_selector": "$.request_id", "contains": "request-1" }],
-    "result_selector": "$.result",
-    "stored": [
-      {
-        "kind": "intake-origins",
-        "operations": [
-          "records:read"
-        ]
-      },
-      {
-        "kind": "intake-owner",
-        "operations": [
-          "records:read"
-        ]
-      },
-      {
-        "kind": "intake-request",
-        "operations": [
-          "records:read",
-          "records:write"
-        ]
-      },
-      {
-        "kind": "owner-action-request",
-        "operations": [
-          "records:read",
-          "records:write"
-        ]
-      }
-    ]
+    "result_selector": "$.result"
    }
   },
   {
@@ -576,10 +545,7 @@
         "requested_at": { "type": "string" }
        }
       },
-      "stored": {
-        "type": "object",
-        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of owner-action-request, as this row's `stored` lists. What is not given is not there."
-      }
+      "records": { "type": "array", "description": "The rows the caller read from the person's own store and gives here, each { id, type, value }, as the store returned them: owner-action-request rows, so asking again is seen. What is not given is not there.", "items": { "type": "object", "required": ["id", "type", "value"], "properties": { "id": { "type": "string" }, "type": { "type": "string" }, "value": {} } } }
      }
     },
     "output_schema": {
@@ -651,320 +617,7 @@
     },
     "provenance": { "source": "bitfield-packages request-intake do-work/request-intake-actions.ts buildRequestIntakeActionRequests (action input, answers and copy rows into one request per definition), ported to owner-action-request records in the records door" },
     "verify": [{ "kind": "sample-run", "input": { "action": { "owner": "owner-1", "action_ref": "action-1" }, "context": { "operation_id": "operation-1" } }, "output_selector": "$.said", "contains": "owner-1" }],
-    "result_selector": "$.result",
-    "stored": [
-      {
-        "kind": "owner-action-request",
-        "operations": [
-          "records:read",
-          "records:write"
-        ]
-      }
-    ]
-   }
-  },
-  {
-   "id": "package::take-requests::tool::record-the-owners-receipt",
-   "address": "package::take-requests::tool::record-the-owners-receipt",
-   "path": ["current-item", "published-record"],
-   "payload": {
-    "uses_tools": [
-      "trillion-workshop/account-session",
-      "trillion-workshop/addressed-marks",
-      "trillion-workshop/agents-hub",
-      "trillion-workshop/ai-execution-history",
-      "trillion-workshop/ai-guided-work",
-      "trillion-workshop/ai-memory",
-      "trillion-workshop/ai-records-producer",
-      "trillion-workshop/ai-tool-catalog",
-      "trillion-workshop/ambience",
-      "trillion-workshop/arrange-screens-in-panes",
-      "trillion-workshop/ask-a-small-model-for-a-verdict",
-      "trillion-workshop/ask-questions-sort-answers-follow-up",
-      "trillion-workshop/audio-transcription",
-      "trillion-workshop/away-summary",
-      "trillion-workshop/background-runner-control",
-      "trillion-workshop/bring-in-new-items-from-this-computer",
-      "trillion-workshop/browse-and-upload-my-files",
-      "trillion-workshop/browse-inspiration-clips",
-      "trillion-workshop/browse-public-page",
-      "trillion-workshop/build-a-screen-from-patches",
-      "trillion-workshop/build-engine-modules-for-web-hosts",
-      "trillion-workshop/calibrate-a-camera-frame",
-      "trillion-workshop/chat",
-      "trillion-workshop/check-a-packages-declared-permissions",
-      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
-      "trillion-workshop/check-bundle-package-boundaries",
-      "trillion-workshop/choose-and-publish-screen-looks",
-      "trillion-workshop/command-palette",
-      "trillion-workshop/composition-scene-renderer",
-      "trillion-workshop/computer-programs",
-      "trillion-workshop/connect-a-service-and-seal-its-key",
-      "trillion-workshop/content-identity",
-      "trillion-workshop/content-media-evidence",
-      "trillion-workshop/conversations",
-      "trillion-workshop/copy-a-site",
-      "trillion-workshop/decide-when-things-show",
-      "trillion-workshop/decide-with-a-method",
-      "trillion-workshop/delight-moments",
-      "trillion-workshop/describe-the-workshop",
-      "trillion-workshop/documents",
-      "trillion-workshop/documents-as-list-rows",
-      "trillion-workshop/draw-lists-on-a-canvas",
-      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
-      "trillion-workshop/drive-the-screen",
-      "trillion-workshop/edit-a-document-together",
-      "trillion-workshop/edit-a-site-visually",
-      "trillion-workshop/feel",
-      "trillion-workshop/file-content-renderer",
-      "trillion-workshop/find-anything-from-one-box",
-      "trillion-workshop/formula-engine",
-      "trillion-workshop/formulas",
-      "trillion-workshop/founder-growth-engine-screens",
-      "trillion-workshop/funnel-offer-graph",
-      "trillion-workshop/funnels-screen",
-      "trillion-workshop/graph-canvas",
-      "trillion-workshop/guided-overlay",
-      "trillion-workshop/hand-off-jobs-between-agents",
-      "trillion-workshop/hand-work-to-ais",
-      "trillion-workshop/headless-browser",
-      "trillion-workshop/hold-one-thing-until-done",
-      "trillion-workshop/http-client",
-      "trillion-workshop/introduce-two-people",
-      "trillion-workshop/judge-words",
-      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
-      "trillion-workshop/keep-copies-in-step",
-      "trillion-workshop/keep-lists-of-rows",
-      "trillion-workshop/keep-records-only-my-devices-can-read",
-      "trillion-workshop/know-the-projects-on-this-computer",
-      "trillion-workshop/know-who-is-in-this",
-      "trillion-workshop/learn-a-workflow-from-a-job",
-      "trillion-workshop/learn-from-everyones-results",
-      "trillion-workshop/leave-a-makers-private-starting-values-out",
-      "trillion-workshop/let-someone-look-at-my-account-read",
-      "trillion-workshop/list-tools-for-an-ai",
-      "trillion-workshop/listen-for-a-while",
-      "trillion-workshop/live-namespace",
-      "trillion-workshop/local-files",
-      "trillion-workshop/look-at-screen",
-      "trillion-workshop/make-a-video-playable-at-ingest",
-      "trillion-workshop/make-screen-layouts-and-controls",
-      "trillion-workshop/make-things-feel-good",
-      "trillion-workshop/marketplace-defaults",
-      "trillion-workshop/media-composition",
-      "trillion-workshop/media-identity",
-      "trillion-workshop/media-playback",
-      "trillion-workshop/messages-screen",
-      "trillion-workshop/move-records-through-declared-states",
-      "trillion-workshop/native-space-source-release",
-      "trillion-workshop/operation-records",
-      "trillion-workshop/organize-my-files",
-      "trillion-workshop/organize-the-sidebar",
-      "trillion-workshop/outside-conversations",
-      "trillion-workshop/paid-access",
-      "trillion-workshop/pair-unknown-senders",
-      "trillion-workshop/permission-lease",
-      "trillion-workshop/person-list",
-      "trillion-workshop/pick-a-screen-as-you-type",
-      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
-      "trillion-workshop/pin-files-by-content",
-      "trillion-workshop/process-session",
-      "trillion-workshop/query-and-change-list-rows",
-      "trillion-workshop/quote-untrusted-words",
-      "trillion-workshop/read-and-write-mail",
-      "trillion-workshop/recently-deleted-and-storage",
-      "trillion-workshop/record-audio",
-      "trillion-workshop/record-graph",
-      "trillion-workshop/record-log",
-      "trillion-workshop/record-video",
-      "trillion-workshop/record-video-with-teleprompter",
-      "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
-      "trillion-workshop/refuse-requests-to-private-addresses",
-      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
-      "trillion-workshop/review-what-a-list-says",
-      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
-      "trillion-workshop/run-experiments",
-      "trillion-workshop/run-on-a-persons-computer",
-      "trillion-workshop/run-tools-in-my-signed-in-browser",
-      "trillion-workshop/run-work-later-or-on-a-repeat",
-      "trillion-workshop/screen-arrangement",
-      "trillion-workshop/screen-look",
-      "trillion-workshop/screen-looks",
-      "trillion-workshop/screen-ready-records",
-      "trillion-workshop/screen-recording",
-      "trillion-workshop/sealed-records",
-      "trillion-workshop/see-a-pursuit-through-the-lens",
-      "trillion-workshop/see-what-is-being-worked-on",
-      "trillion-workshop/see-what-my-ais-did",
-      "trillion-workshop/selected-agent",
-      "trillion-workshop/send-requests-to-an-engine",
-      "trillion-workshop/send-to-trillion-from-my-browser",
-      "trillion-workshop/serialized-content",
-      "trillion-workshop/set-up-my-account",
-      "trillion-workshop/set-up-my-devices-and-cameras",
-      "trillion-workshop/settings",
-      "trillion-workshop/settle-amounts-and-reconcile",
-      "trillion-workshop/shared-code",
-      "trillion-workshop/show-any-file-as-itself",
-      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
-      "trillion-workshop/show-ideas-as-records",
-      "trillion-workshop/sidebar",
-      "trillion-workshop/slot-table",
-      "trillion-workshop/social-posts",
-      "trillion-workshop/start-from-any-landing-page",
-      "trillion-workshop/starting-set",
-      "trillion-workshop/stream-an-answer-in-keyed-parts",
-      "trillion-workshop/take-pictures-out-of-a-zip-archive",
-      "trillion-workshop/tell-one-person-something-through-every-way-they",
-      "trillion-workshop/tell-the-person",
-      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
-      "trillion-workshop/tours-screen",
-      "trillion-workshop/transcript-reader",
-      "trillion-workshop/turn-a-list-column-that-holds-names-into",
-      "trillion-workshop/turn-frames-into-slides",
-      "trillion-workshop/tweak-live-controls",
-      "trillion-workshop/ui",
-      "trillion-workshop/view-as",
-      "trillion-workshop/walk-a-new-person-through-first-setup",
-      "trillion-workshop/walk-nested-input-within-limits",
-      "trillion-workshop/wall-time",
-      "trillion-workshop/watch-my-sources",
-      "trillion-workshop/what-is-waiting-on-me",
-      "trillion-workshop/where-a-person-stands",
-      "trillion-workshop/who-does-each-step",
-      "trillion-workshop/work-map",
-      "trillion-workshop/workflow-canvas",
-      "trillion-workshop/workflow-interruptions",
-      "trillion-workshop/workflows",
-      "trillion-workshop/workspace-pieces",
-      "trillion-workshop/workspace-screens",
-      "trillion-workshop/write-a-job-done-in-several-steps-have",
-      "trillion-workshop/write-a-post-for-each-place"
-    ],
-    "kind": "ai-tool-descriptor",
-    "status": "active",
-    "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
-    "maker": "maker:take-requests",
-    "needs": { "expected_seconds": 1, "network_egress": false },
-    "id": "tool:record-the-owners-receipt",
-    "listed_on": "2026-10-30T20:00:00Z",
-    "label": "Record what the owner gave back",
-    "job": "Link an owner's receipt to the request it answers",
-    "description": "request_id is a request kept by tool:take-a-request; receipt has ref, owner_ref, title and optionally summary, process_ref, observed_at and raw. Returns { request_id, receipt_ref, linked, said }; the same receipt again changes nothing, a receipt that already answers another request is refused, and a request that is not kept is said in words with nothing linked (linked false).",
-    "input_schema": {
-     "type": "object",
-     "required": ["request_id", "receipt"],
-     "additionalProperties": false,
-     "properties": {
-      "request_id": { "type": "string", "minLength": 1 },
-      "receipt": {
-       "type": "object",
-       "required": ["ref", "owner_ref", "title"],
-       "additionalProperties": false,
-       "properties": {
-        "ref": { "type": "string", "minLength": 1 },
-        "owner_ref": { "type": "string", "minLength": 1 },
-        "title": { "type": "string", "minLength": 1 },
-        "summary": { "type": "string" },
-        "process_ref": { "type": "string" },
-        "observed_at": { "type": "string" },
-        "raw": {}
-       }
-      },
-      "stored": {
-        "type": "object",
-        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of intake-request, intake-receipt, as this row's `stored` lists. What is not given is not there."
-      }
-     }
-    },
-    "output_schema": {
-     "type": "object",
-     "required": ["request_id", "receipt_ref", "linked", "said"],
-     "properties": { "request_id": { "type": "string" }, "receipt_ref": { "type": "string" }, "linked": { "type": "boolean" }, "said": { "type": "string" }, "keep": { "type": "array", "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing." } }
-    },
-    "invoke": {
-     "kind": "container",
-     "files": {
-      "package_files": [
-       {
-        "package": "take-requests",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/take-requests"
-       },
-       {
-        "package": "records-door",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/records-door"
-       },
-       {
-        "package": "content-identity",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/content-identity"
-       },
-       {
-        "packages": ["node_modules/@noble/hashes"],
-        "paths": [
-         "LICENSE",
-         "package.json",
-         "blake3.js",
-         "blake2.js",
-         "_blake.js",
-         "_md.js",
-         "_u64.js",
-         "utils.js"
-        ],
-        "at": "/opt/node_modules/@noble/hashes"
-       },
-       {
-        "package": "browse-and-upload-my-files",
-        "paths": [
-         "built-stored-bytes/content-chunks/content_chunks.js",
-         "do-work/content-chunks.mjs",
-         "do-work/namespace-client.mjs",
-         "do-work/send-a-file-to-a-namespace.mjs",
-         "do-work/send-retry.mjs",
-         "do-work/send-window.mjs",
-         "do-work/shared-file-reference.mjs",
-         "send-settings.json"
-        ],
-        "at": "/opt/browse-and-upload-my-files"
-       }
-      ]
-     },
-     "workdir": "/opt/take-requests",
-     "internet": false,
-     "stdout": "json",
-     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/take-requests/read-data/requests.mjs", "recordTheOwnersReceipt"],
-     "stdin": { "fill": { "from": "input" } }
-    },
-    "provenance": { "source": "bitfield-packages request-intake do-work/request-intake-actions.ts recordRequestIntakeOwnerReceipt (an owner receipt linked to the record it answers), ported to the records door" },
-    "verify": [{ "kind": "sample-run", "input": { "request_id": "request-1", "receipt": { "ref": "receipt-1", "owner_ref": "owner-1", "title": "Done" } }, "output_selector": "$.request_id", "contains": "request-1" }],
-    "result_selector": "$.result",
-    "stored": [
-      {
-        "kind": "intake-request",
-        "operations": [
-          "records:read",
-          "records:write"
-        ]
-      },
-      {
-        "kind": "intake-receipt",
-        "operations": [
-          "records:read",
-          "records:write"
-        ]
-      }
-    ]
+    "result_selector": "$.result"
    }
   },
   {
@@ -1163,7 +816,7 @@
      "additionalProperties": false,
      "required": ["records"],
      "properties": {
-      "records": { "type": "array", "description": "The intake-request rows (type intake-request) and the intake-receipt rows (type intake-receipt) the store returned, each { id, type, value }; read them from the store's own tool server", "items": { "type": "object", "required": ["id", "type", "value"], "properties": { "id": { "type": "string" }, "type": { "type": "string" }, "value": {} } } },
+      "records": { "type": "array", "description": "The intake-request rows (type intake-request) and the intake-receipt rows (type intake-receipt) the store returned, each { id, type, value }; as the store that holds them returned them", "items": { "type": "object", "required": ["id", "type", "value"], "properties": { "id": { "type": "string" }, "type": { "type": "string" }, "value": {} } } },
       "owner": { "type": "string" }, "waiting": { "type": "boolean" }, "limit": { "type": "integer", "minimum": 1, "maximum": 100 }
      }
     },

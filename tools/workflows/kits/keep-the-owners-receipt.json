@@ -1,0 +1,53 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-the-owners-receipt with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"}, request_id note-1 and receipt {\\\"ref\\\": \\\"receipt-1\\\", \\\"owner_ref\\\": \\\"oven-manager\\\", \\\"title\\\": \\\"Added to the Friday list\\\"}.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the requests and receipts are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-the-owners-receipt"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-the-owners-receipt\" with store, request_id (the request the receipt answers) and receipt (its ref, owner_ref and title, with summary, process_ref, observed_at and raw when the owner gave them).",
+    "3. The first run makes the store's own objects once and proves them on the example attempts: every answer must be the one the intent says, or the run stops and says which.",
+    "4. Read what came back: linked, already, refused or absent. Absent means there is no request with that id, so no receipt was kept; refused means the receipt already answers another request. Nothing is changed for either."
+  ],
+  "worked_examples": [
+    {
+      "title": "Link the oven manager's receipt to the sourdough request",
+      "ask": "Link the oven manager's receipt Added to the Friday list to the request note-1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-the-owners-receipt",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "request_id": "note-1",
+              "receipt": {
+                "ref": "receipt-1",
+                "owner_ref": "oven-manager",
+                "title": "Added to the Friday list",
+                "summary": "Done"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-the-owners-receipt",
+      "step": "keep",
+      "given": "The look step found intake-request:note-1 at version 1 with receipt_refs [] and no intake-receipt:receipt-1.",
+      "hands_back": "linked, written intake-receipt:receipt-1 and intake-request:note-1 at version 2 with receipt_refs [\"receipt-1\"]."
+    }
+  ],
+  "drafted_from": "tool:record-the-owners-receipt's own row (its words, input schema and steps, retired in this commit) and tools/take-requests read-data/requests.mjs recordTheOwnersReceipt; the proof is the recipe's prove step, run on PGlite and a JSON folder."
+}

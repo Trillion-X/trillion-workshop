@@ -1,0 +1,244 @@
+{
+  "about": "workflow:keep-the-owners-receipt: links an owner's receipt to the request it answers, in the person's own store, each receipt written once. It replaces tool:record-the-owners-receipt in tools/take-requests, whose whole job was those reads and writes through the records door (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-the-owners-receipt",
+        "label": "Keep the owner's receipt",
+        "job": "Link what an owner gave back to the request it answers, in the person's own store: the receipt is kept once, the same receipt asked again changes nothing, a receipt that already answers another request is refused, and a request that is not there links nothing.",
+        "produces": "The store's own objects for intake-request and intake-receipt records, proven on the example attempts: a receipt written and its request's receipt_refs changed in one batch only when both are unchanged since they were read.",
+        "source": {
+          "from": "tools/take-requests read-data/requests.mjs recordTheOwnersReceipt (read on trillion-workshop origin/main 21dc53d97) and tool:record-the-owners-receipt (its row, retired in this commit).",
+          "note": "Only the keeping is the store's job: the two records, their versions, and a batch that writes only while both are at the version read. The rules (a request must exist, a receipt answers one request only, the same receipt again is no change) are the steps below, worked out by the AI from what the store holds. The records door and its runner are not used."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "request_id",
+            "receipt"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "request_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The request the receipt answers (its intake-request id, without the prefix)"
+            },
+            "receipt": {
+              "type": "object",
+              "required": [
+                "ref",
+                "owner_ref",
+                "title"
+              ],
+              "properties": {
+                "ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "owner_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "summary": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "process_ref": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "observed_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "raw": {}
+              }
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Operations to run this time instead, in the store's terms: read {address}, write {address, value, expected_version (null when the record must not exist)}, batch {writes, preconditions}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Read the intake-request record with id intake-request:<request_id> (its value and version, or none), and the intake-receipt record with id intake-receipt:<receipt.ref> (its value and version, or none). Submit where the requests and receipts are kept (kept_in, or null), the names of the objects that keep them, and the two records as read.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects",
+                "request",
+                "receipt"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "request": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "description": "{value, version} of intake-request:<request_id>, or null when there is none"
+                },
+                "receipt": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "description": "{value, version} of intake-receipt:<receipt.ref>, or null when there is none"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: intake-request and intake-receipt records (address, value as a JSON object, version), where a version rises by one with each write and starts at 1. A write is made in one transaction only when the record's current version is the expected one (null: the record does not exist yet); otherwise it is a conflict and nothing changes. A batch makes all its writes, and checks all its preconditions, in one transaction; if any precondition or write conflicts, the whole batch is a conflict and nothing changes. A value that is not a JSON object is refused. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, first make two requests, intake-request:note-1 (text \"Bake sourdough on Fridays\", owner oven-manager, receipt_refs []) and intake-request:note-2 (text \"Wipe the counter\", owner counter-staff, receipt_refs []), then run these in order, each through the store's own objects: [{\"op\": \"link\", \"receipt\": {\"ref\": \"receipt-1\", \"owner_ref\": \"oven-manager\", \"title\": \"Added to the Friday list\", \"summary\": \"Done\", \"process_ref\": \"run-9\", \"raw\": {\"loaves\": 12}}, \"request_id\": \"note-1\"}, {\"op\": \"link\", \"receipt\": {\"ref\": \"receipt-1\", \"owner_ref\": \"oven-manager\", \"title\": \"Added to the Friday list\", \"summary\": \"Done\", \"process_ref\": \"run-9\", \"raw\": {\"loaves\": 12}}, \"request_id\": \"note-1\"}, {\"op\": \"link\", \"receipt\": {\"ref\": \"receipt-2\", \"owner_ref\": \"counter-staff\", \"title\": \"Told the counter\"}, \"request_id\": \"note-1\"}, {\"op\": \"link\", \"receipt\": {\"ref\": \"receipt-1\", \"owner_ref\": \"oven-manager\", \"title\": \"Added to the Friday list\"}, \"request_id\": \"note-2\"}, {\"op\": \"link\", \"receipt\": {\"ref\": \"receipt-3\", \"owner_ref\": \"oven-manager\", \"title\": \"Done\"}, \"request_id\": \"missing\"}, {\"op\": \"read\", \"address\": \"intake-request:note-1\"}, {\"op\": \"read\", \"address\": \"intake-request:note-2\"}, {\"op\": \"read\", \"address\": \"intake-receipt:receipt-1\"}]. A link is the same work as the keep step below, on the receipt and request it names, and gives linked, already, refused or absent, as that step says. Answers: linked (receipt-1 kept at version 1, intake-request:note-1 at version 2 with receipt_refs [\"receipt-1\"]); already (nothing written); linked (receipt-2 kept, intake-request:note-1 at version 3 with receipt_refs [\"receipt-1\", \"receipt-2\"]); refused (receipt-1 already answers intake-request:note-1, so nothing written to note-2); absent (no intake-request:missing, linked false, nothing written); then intake-request:note-1 reads version 3 with receipt_refs [\"receipt-1\", \"receipt-2\"], intake-request:note-2 reads version 1 with receipt_refs [], intake-receipt:receipt-1 reads its record at version 1 with request_id \"note-1\". Then remove the throwaway place. Submit answers: one per attempt, in order, with what each gave.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt gives the answer the intent says: the first link is linked, the same receipt again is already, a second receipt for the same request is linked, a receipt that answers another request is refused, and a request that is not there is absent; the refused and absent attempts write nothing; the reads show the two requests and the receipt as the attempts leave them",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    "linked",
+                    "already",
+                    "linked",
+                    "refused",
+                    "absent",
+                    "n1 v3 [\"receipt-1\",\"receipt-2\"]",
+                    "n2 v1 []",
+                    "r1 v1 note-1"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's receipt",
+            "do": "Work out the receipt from the request_id and receipt given, with these rules, and run it through the store's own objects in one batch: (1) when intake-request:<request_id> is absent, answer absent and write nothing; the receipt is not kept and nothing is linked. (2) When intake-receipt:<receipt.ref> is held and its request_id is not <request_id>, answer refused and write nothing. (3) When the request's receipt_refs already holds receipt.ref, answer already and write nothing. (4) Otherwise write the receipt record intake-receipt:<receipt.ref> as {kind: \"intake-receipt\", ref, request_id, owner_ref, title, summary, process_ref, observed_at, raw} (missing fields null) with expected_version null, and write intake-request:<request_id> with its value unchanged except receipt_refs, which gains receipt.ref at its end, with expected_version the version the look step read; both in one batch whose preconditions are the receipt at null and the request at its read version. A batch conflict is reported and nothing is changed. Submit answers (linked, already, refused or absent), the objects written with their versions, and the request as it reads now.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answer",
+                "written",
+                "request"
+              ],
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "linked",
+                    "already",
+                    "refused",
+                    "absent",
+                    "conflict"
+                  ]
+                },
+                "written": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "request": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes an intake-receipt record and removes its ref from the request's receipt_refs in one batch; the request itself is kept."
+      }
+    }
+  ]
+}

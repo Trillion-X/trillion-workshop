@@ -1,8 +1,11 @@
 // tools/take-requests/read-data/requests.mjs
 //
 // Requests that arrive from people or from checks, each kept as a record, handed to the owner who can act on it, and
-// closed by the receipt that owner gives back. Three of the tools keep their rows through the run's records door
-// (tools/records-door); tool:my-requests keeps nothing: it works over the rows handed to it.
+// closed by the receipt that owner gives back. The tools here do the work of deciding a request is whole and of building
+// the owner's request; they read no store and write none. The caller reads the rows they need from the person's own
+// store and gives them as `records` ({ id, type, value }, as the store returned them); what this run makes comes back as
+// `keep` ({ id, type, value }) for the caller to write there. Recording the owner's receipt is a recipe now:
+// workflow:keep-the-owners-receipt (tools/workflows/recipes).
 // Nothing here names an owner, an action, an origin or a disposition: which origins count as a person asking, who the
 // owners are, what the owner is asked to run and how a request was decided are the person's records and the caller's
 // words.
@@ -12,7 +15,7 @@
 //   intake-owner     id intake-owner:<owner_ref>       { owner_ref, active }
 //   intake-request   id intake-request:<request_id>    the request, how it was decided, who owns it, its receipts
 //                    (kept only when it can be acted on; a request that must wait for an owner or a shorter text is not kept)
-//   intake-receipt   id intake-receipt:<ref>           what an owner gave back for a request
+//   intake-receipt   id intake-receipt:<ref>           what an owner gave back for a request (written by the receipt recipe)
 //   owner-action-request  id owner-action-request:<operation_id>:<n>
 //                    { kind, owner, actionRef, input, status, requested_at } the shape forms (tools/ask-questions-sort-answers-follow-up)
 //                    also write when an answer hands work to an owner; the owner named reads its own requests.
@@ -32,6 +35,16 @@ const words = (count, one, many) => `${count} ${count === 1 ? one : many}`;
 const sorted = value => (Array.isArray(value) ? value.map(sorted) : object(value)
   ? Object.fromEntries(Object.keys(value).sort().map(key => [key, sorted(value[key])])) : value);
 const same = (a, b) => JSON.stringify(sorted(a)) === JSON.stringify(sorted(b));
+
+// The rows the caller gave (`records`, each { id, type, value }) read by type and id: the value, or null when there is none.
+function givenRows(records) {
+  if (records === undefined) return { read: () => null };
+  if (!Array.isArray(records) || !records.every(record => object(record) && text(record.id) && text(record.type) && record.value !== undefined)) {
+    throw new Error('records is a list of { id, type, value }, the rows as the store that holds them returned them.');
+  }
+  const byId = new Map(records.map(record => [record.id, record]));
+  return { read: (type, id) => { const record = byId.get(id); return record && record.type === type ? record.value : null; } };
+}
 
 function readPath(context, path) {
   const [root, ...rest] = String(path).split('.').filter(Boolean);
@@ -82,28 +95,23 @@ export function ownerActionRequests(action, context) {
   }));
 }
 
-async function handOff(door, requests) {
-  const fresh = [];
-  const already = [];
-  for (const request of requests) ((await door.read(ACTION, request.id)) === null ? fresh : already).push(request);
-  return { fresh, already };
-}
-
 /** tool:hand-a-request-to-its-owner: asks the owner the action names, once; asking again leaves the first request as it is. */
-export async function handARequestToItsOwner(input, { door }) {
+export function handARequestToItsOwner(input) {
+  const { read } = givenRows(object(input) ? input.records : undefined);
   const requests = ownerActionRequests(object(input) ? input.action : null, object(input) ? input.context : null);
-  const { fresh, already } = await handOff(door, requests);
-  if (fresh.length) await door.write(fresh, { key: `${ACTION}:${input.context.operation_id}` });
+  const fresh = requests.filter(request => read(ACTION, request.id) === null);
+  const already = requests.filter(request => read(ACTION, request.id) !== null);
   return {
     handed: fresh.map(request => request.id), already: already.map(request => request.id),
     said: fresh.length ? `Asked ${input.action.owner}: ${words(fresh.length, 'request', 'requests')} kept.` : `${input.action.owner} was already asked.`,
+    keep: fresh,
   };
 }
 
 // What the owner is told success looks like when the decision does not say.
 const DEFAULT_SUCCESS = 'The requested outcome is verified.';
 const NEEDED = ['request_id', 'source_ref', 'atom_ref', 'text', 'origin_ref'];
-const refused = (id, problems) => ({ status: 'refused', request_id: id, problems, owner_request: null, said: problems.map(problem => problem.said).join(' ') });
+const refused = (id, problems) => ({ status: 'refused', request_id: id, problems, owner_request: null, said: problems.map(problem => problem.said).join(' '), keep: [] });
 
 /**
  * tool:take-a-request: keeps one request as its own record and, when the decision hands it to an owner, asks that owner.
@@ -114,7 +122,8 @@ const refused = (id, problems) => ({ status: 'refused', request_id: id, problems
  * complete and acts on it, it does not make it. A decision that points at an existing task is refused: a task reference
  * alone says nothing about who is running it now.
  */
-export async function takeARequest(input, { door }) {
+export function takeARequest(input) {
+  const given = givenRows(object(input) ? input.records : undefined);
   const request = object(input) ? input.request : null;
   const decision = object(input) ? input.decision : null;
   if (!object(request) || !object(decision)) throw new Error('Pass request (what arrived) and decision (what to do with it).');
@@ -124,7 +133,7 @@ export async function takeARequest(input, { door }) {
   const handOffAction = object(input.hand_off) ? input.hand_off : {};
   if (handing) actionRefs(handOffAction);
   const missing = NEEDED.filter(key => !text(request[key]) || !text(request[key]).trim());
-  const origins = await door.read(ORIGINS, `${ORIGINS}:accepted`);
+  const origins = given.read(ORIGINS, `${ORIGINS}:accepted`);
   const accepted = object(origins) && Array.isArray(origins.origins) ? origins.origins.filter(text) : [];
   const problems = [];
   if (!accepted.length) problems.push({ code: 'no_accepted_origins', said: `No accepted origins are on file. Save a ${ORIGINS} record with id ${ORIGINS}:accepted and the origins that count as someone asking.` });
@@ -134,20 +143,20 @@ export async function takeARequest(input, { door }) {
   if (problems.length) return refused(text(request.request_id) || null, problems);
 
   const id = request.request_id;
-  const existing = await door.read(REQUEST, `${REQUEST}:${id}`);
+  const existing = given.read(REQUEST, `${REQUEST}:${id}`);
   if (object(existing)) {
     const same = ['source_ref', 'message_ref', 'atom_ref', 'content_revision'].every(key => existing[key] === (request[key] ?? null));
     if (!same) return refused(id, [{ code: 'source_identity_conflict', said: `${id} was already taken from a different source, message, place or version.` }]);
-    return { status: 'already-taken', request_id: id, problems: [], owner_request: existing.owner_request ?? null, said: `${id} was already taken.` };
+    return { status: 'already-taken', request_id: id, problems: [], owner_request: existing.owner_request ?? null, said: `${id} was already taken.`, keep: [] };
   }
 
-  const owner = handing ? await door.read(OWNER, `${OWNER}:${text(decision.owner_ref)}`) : null;
+  const owner = handing ? given.read(OWNER, `${OWNER}:${text(decision.owner_ref)}`) : null;
   const ownerKnown = object(owner) && owner.active === true;
   const chars = [...request.text];
   const waiting = [];
   if (handing && !ownerKnown) waiting.push({ code: 'owner_not_resolved', said: `${text(decision.owner_ref) || 'No owner'} is not an active owner on file, so ${id} was not kept; take it again once the owner is on file.` });
   if (handing && chars.length > bound) waiting.push({ code: 'text_too_long', said: `The text of ${id} is longer than ${bound} characters, so it was not kept or handed over; give a shorter view of it.` });
-  if (waiting.length) return { status: 'deferred', request_id: id, problems: waiting, owner_request: null, said: waiting.map(problem => problem.said).join(' ') };
+  if (waiting.length) return { status: 'deferred', request_id: id, problems: waiting, owner_request: null, said: waiting.map(problem => problem.said).join(' '), keep: [] };
   if (text(decision.existing_task_ref)) {
     return refused(id, [{ code: 'current_task_executor_not_verified', said: `${decision.existing_task_ref} says nothing about who is running it now, so ${id} was not kept; give the decision without an existing task.` }]);
   }
@@ -169,33 +178,10 @@ export async function takeARequest(input, { door }) {
     writes.push(owned);
   }
   writes.push({ id: `${REQUEST}:${id}`, type: REQUEST, value: record });
-  await door.write(writes, { key: `${REQUEST}:${id}` });
   return {
     status: record.status, request_id: id, problems: [], owner_request: record.owner_request,
-    said: handing ? `${id} is kept and ${decision.owner_ref} is asked.` : `${id} is kept.`,
+    said: handing ? `${id} is kept and ${decision.owner_ref} is asked.` : `${id} is kept.`, keep: writes,
   };
-}
-
-/** tool:record-the-owners-receipt: links what an owner gave back to the request it answers. */
-export async function recordTheOwnersReceipt(input, { door }) {
-  const id = object(input) ? text(input.request_id) : '';
-  const receipt = object(input) && object(input.receipt) ? input.receipt : null;
-  if (!id || !receipt || !['ref', 'owner_ref', 'title'].every(key => text(receipt[key]))) throw new Error('Pass request_id and receipt with ref, owner_ref and title.');
-  const request = await door.read(REQUEST, `${REQUEST}:${id}`);
-  if (!object(request)) return { request_id: id, receipt_ref: receipt.ref, linked: false, said: `There is no request ${id}, so nothing was linked. Take the request first.` };
-  const held = await door.read(RECEIPT, `${RECEIPT}:${receipt.ref}`);
-  if (object(held) && held.request_id !== id) throw new Error(`The receipt ${receipt.ref} already answers a different request.`);
-  const linked = Array.isArray(request.receipt_refs) && request.receipt_refs.includes(receipt.ref);
-  if (object(held) && linked) return { request_id: id, receipt_ref: receipt.ref, linked: false, said: `${receipt.ref} was already linked to ${id}.` };
-  const value = {
-    kind: RECEIPT, ref: receipt.ref, request_id: id, owner_ref: receipt.owner_ref, title: receipt.title,
-    summary: receipt.summary ?? null, process_ref: receipt.process_ref ?? null, observed_at: receipt.observed_at ?? null, raw: receipt.raw ?? null,
-  };
-  await door.write([
-    { id: `${RECEIPT}:${receipt.ref}`, type: RECEIPT, value },
-    { id: `${REQUEST}:${id}`, type: REQUEST, value: { ...request, receipt_refs: linked ? request.receipt_refs : [...(request.receipt_refs ?? []), receipt.ref] } },
-  ], { key: `${RECEIPT}:${receipt.ref}:${id}` });
-  return { request_id: id, receipt_ref: receipt.ref, linked: true, said: `${receipt.ref} is linked to ${id}.` };
 }
 
 /**
