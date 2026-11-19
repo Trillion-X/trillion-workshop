@@ -79,3 +79,12 @@ test('a fact whose own key is longer than the door takes is told under a fixed-l
   assert.equal(keys[0], keys[1], 'the same fact keeps one key, so a retry is answered as the first call was');
   assert.equal(keys[2], 'fact:tick@1', 'a key within the bound is sent as it is');
 });
+
+test('a JSON-RPC error from the door is a refusal, so the fact stays untold', async () => {
+  const fetchImpl = async () => new Response(JSON.stringify({ jsonrpc: '2.0', id: 1, error: { code: -32602, message: 'Addressed resource arguments are incomplete: request_key is 283 bytes.' } }), { status: 200 });
+  const lines = [];
+  const carrier = engineCarrier({ door: { url: 'http://door.test/mcp', capability: 'run-capability' }, waiters: [], fetchImpl, say: line => lines.push(line) });
+  await assert.rejects(carrier.writeRecord({ addressLabel: 'due', payload: { kind: 'due-time' }, eventKey: 'x' }), /request_key is 283 bytes/);
+  assert.equal(carrier.answer.told.length, 0);
+  assert.match(lines[0], /"refused":"due-time"/);
+});

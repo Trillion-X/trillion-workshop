@@ -107,7 +107,11 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
       'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': '2025-06-18' } });
     const raw = await response.text();
     const json = raw.trim().startsWith('{') ? raw : raw.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5).trim()).join('');
-    return { response, result: JSON.parse(json || '{}').result ?? {} };
+    // A JSON-RPC error (the door refusing the call itself, such as a request key over its bound) carries no result: it
+    // is a refusal, never an empty success, or an occurrence the engine never took would be kept as told.
+    const answer = JSON.parse(json || '{}');
+    if (answer.error) return { response, result: { isError: true, structuredContent: { code: answer.error.code, detail: answer.error.message } } };
+    return { response, result: answer.result ?? {} };
   }
   async function arrive(fact) {
     const { response, result } = await operate(ARRIVE, fact, `fact:${fact.event_id}`);
