@@ -5,6 +5,10 @@ Legacy command: python3 -I wordtime.py <source media> <out.json> [<from> [<to]]
 Request form: send one JSON object to stdin with source, out, and optional from, to and model fields.
 
 The output keeps {source, timing: "word", words: [{text, start, end}]}, with bounds in source seconds.
+
+Each window is decoded without the previous window's text as its prompt: given it, Whisper can repeat one phrase until the
+recording ends ("I'll say I'll say ...") and pile those words on the last second, which no later reader can tell from speech.
+A request may still ask for it with "condition_on_previous_text": true.
 """
 from __future__ import annotations
 
@@ -49,12 +53,16 @@ def run(request: dict[str, object], print_count: bool = False) -> dict[str, obje
     model = request.get('model', DEFAULT_MODEL)
     if not isinstance(model, str) or not model.strip():
         raise ValueError('the "model" field must be a non-empty public model id')
+    condition = request.get('condition_on_previous_text', False)
+    if not isinstance(condition, bool):
+        raise ValueError('the "condition_on_previous_text" field must be true or false')
     window = ['-ss', f'{start:.2f}', '-to', f'{float(end):.2f}'] if end is not None else []
     with tempfile.TemporaryDirectory() as tmp:
         wav = f'{tmp}/a.wav'
         subprocess.run(['ffmpeg', '-nostdin', '-loglevel', 'error', '-y', *window, '-i', source,
                         '-vn', '-ac', '1', '-ar', '16000', wav], check=True)
-        result = whisper_here.transcribe(wav, path_or_hf_repo=model, language='en', word_timestamps=True)
+        result = whisper_here.transcribe(wav, path_or_hf_repo=model, language='en', word_timestamps=True,
+                                         condition_on_previous_text=condition)
     words = [{'text': w['word'].strip(), 'start': round(w['start'] + start, 2), 'end': round(w['end'] + start, 2)}
              for s in result['segments'] for w in s.get('words', [])]
     pathlib.Path(out).write_text(json.dumps({'source': source, 'timing': 'word', 'words': words}))

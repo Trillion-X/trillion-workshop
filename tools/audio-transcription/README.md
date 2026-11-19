@@ -44,7 +44,7 @@ The audio-transcription package's local Whisper transcription with word times, a
 
 ## Word-time a recording
 
-Send one JSON object on stdin to `do-work/wordtime.py`, for example `{"source":"./take.wav","out":"./take.words.json","from":100,"to":130}`. The optional `model` defaults to `mlx-community/whisper-large-v3-turbo`. It uses `whisper_here.py` for the selected local engine and writes word times in source seconds. The legacy positional command remains available.
+Send one JSON object on stdin to `do-work/wordtime.py`, for example `{"source":"./take.wav","out":"./take.words.json","from":100,"to":130}`. The optional `model` defaults to `mlx-community/whisper-large-v3-turbo`. Each window is decoded with `condition_on_previous_text` off (a request may set it true): with it on, Whisper can repeat one phrase until the recording ends and pile those words on the last second; on 112 lesson videos 18 transcripts had such a pile (up to 224 words) and none did with it off. It uses `whisper_here.py` for the selected local engine and writes word times in source seconds. The legacy positional command remains available.
 
 ## How to run it
 

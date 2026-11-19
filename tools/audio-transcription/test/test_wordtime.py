@@ -48,6 +48,7 @@ class WordtimeTests(unittest.TestCase):
         self.assertTrue(options["check"])
         self.assertEqual(provider["language"], "en")
         self.assertTrue(provider["word_timestamps"])
+        self.assertIs(provider["condition_on_previous_text"], False, "a window is not prompted with the one before, so Whisper cannot loop to the end")
         self.assertEqual(provider["path_or_hf_repo"], wordtime.DEFAULT_MODEL)
         self.assertTrue(provider["audio"].endswith("/a.wav"))
         self.assertEqual(json.loads(Path(out).read_text()), {
