@@ -12,14 +12,15 @@
 //
 // Settings (environment): SITE_BUNDLE (the bundle's index.js), SITE_FILES (the built folder), SOCKET or PORT, SITE_SETTINGS (a JSON file:
 // { vars, run_worker_first, email_account, kv_table }). Held values come from the unit's credentials folder
-// ($CREDENTIALS_DIRECTORY): site-database (the Postgres connection), email-sending-token (optional) and job-run-key.
+// ($CREDENTIALS_DIRECTORY): site-database (the Postgres connection) and email-sending-token (optional); every other file there is
+// one of the Worker's secrets, named in the env the way its file is named in capitals (mail-link-key is env.MAIL_LINK_KEY).
 // GET /readyz answers 200 once the Worker is loaded and the database answers, 503 while this process drains (SIGTERM).
 import { createServer } from 'node:http';
-import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { extname, join, normalize, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import pg from 'pg';
-import { HTMLRewriter, WorkerEntrypoint, cachesDefault, d1, emailSending, kv } from '../read-data/workers-stand-ins.mjs';
+import { HTMLRewriter, WorkerEntrypoint, cachesDefault, d1, emailSending, kv, workerSecrets } from '../read-data/workers-stand-ins.mjs';
 
 const settings = JSON.parse(readFileSync(process.env.SITE_SETTINGS, 'utf8'));
 const files = resolve(process.env.SITE_FILES);
@@ -92,7 +93,7 @@ function assetResponse(found, url, method) {
 
 const env = {
   ...settings.vars,
-  JOB_RUN_KEY: held('job-run-key') ?? undefined,
+  ...workerSecrets(process.env.CREDENTIALS_DIRECTORY, { readdirSync, readFileSync }),
   DB: d1(pool),
   SHARED_LISTS: kv(pool, settings.kv_table ?? 'site_shared_lists'),
   EMAIL: emailSending({ account: settings.email_account, token: held('email-sending-token') }),

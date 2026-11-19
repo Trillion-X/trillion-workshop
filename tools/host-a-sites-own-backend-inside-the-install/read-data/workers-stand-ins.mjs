@@ -13,6 +13,8 @@
 //   cachesDefault     caches.default: match(request) and put(request, response), held in this process's memory for the
 //                     answer's own max-age (s-maxage first), never longer.
 //   WorkerEntrypoint  the base class `cloudflare:workers` exports: { ctx, env }.
+//   workerSecrets     the Worker's secrets from the unit's credentials folder: each file but the two this host reads itself
+//                     (site-database, email-sending-token) is env[NAME], its name in capitals with - as _.
 import { HTMLRewriter as Lol } from 'html-rewriter-wasm';
 
 // Postgres numbers its placeholders; D1 takes `?`. Quoted strings and identifiers are copied as they are.
@@ -106,6 +108,19 @@ export function cachesDefault(now = () => Date.now()) {
     },
     async delete(request) { return held.delete(keyOf(request)); },
   };
+}
+
+// The files the host reads for itself are not the Worker's: the database connection and the Email Sending token.
+const HOST_HELD = new Set(['site-database', 'email-sending-token']);
+export function workerSecrets(folder, { readdirSync, readFileSync }) {
+  if (!folder) return {};
+  const secrets = {};
+  for (const name of readdirSync(folder).sort()) {
+    if (HOST_HELD.has(name) || name.startsWith('.')) continue;
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(name)) throw new Error(`The credential ${name} is not named in lowercase words joined by -, so it names no Worker secret.`);
+    secrets[name.toUpperCase().replaceAll('-', '_')] = readFileSync(`${folder}/${name}`, 'utf8').trim();
+  }
+  return secrets;
 }
 
 export class WorkerEntrypoint { constructor(ctx, env) { this.ctx = ctx; this.env = env; } }

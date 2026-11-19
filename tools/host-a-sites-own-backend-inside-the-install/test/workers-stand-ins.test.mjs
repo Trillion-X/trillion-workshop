@@ -1,7 +1,10 @@
 // tools/host-a-sites-own-backend-inside-the-install/read-data/workers-stand-ins.mjs: the Workers APIs a site's bundle reads, on a plain computer.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { HTMLRewriter, cachesDefault, d1, emailSending, kv, numbered } from '../read-data/workers-stand-ins.mjs';
+import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { HTMLRewriter, cachesDefault, d1, emailSending, kv, numbered, workerSecrets } from '../read-data/workers-stand-ins.mjs';
 
 const fakePool = answer => { const asked = []; return { asked, query: async (sql, values) => { asked.push([sql, values]); return answer(sql, values); } }; };
 
@@ -65,4 +68,13 @@ test('caches.default keeps an answer only for its own max-age', async () => {
   assert.equal(await cache.match('https://x/b'), undefined);
   now = 61000;
   assert.equal(await cache.match('https://x/a'), undefined);
+});
+
+test('each credential file but the two the host reads is a Worker secret named in capitals', () => {
+  const folder = mkdtempSync(join(tmpdir(), 'held-'));
+  for (const [name, value] of [['site-database', 'postgres://x'], ['email-sending-token', 't'], ['mail-link-key', 'k'.repeat(40) + '\n'], ['job-run-key', 'j']]) writeFileSync(join(folder, name), value);
+  assert.deepEqual(workerSecrets(folder, { readdirSync, readFileSync }), { JOB_RUN_KEY: 'j', MAIL_LINK_KEY: 'k'.repeat(40) });
+  assert.deepEqual(workerSecrets(undefined, { readdirSync, readFileSync }), {});
+  writeFileSync(join(folder, 'Bad_Name'), 'x');
+  assert.throws(() => workerSecrets(folder, { readdirSync, readFileSync }), /names no Worker secret/);
 });
