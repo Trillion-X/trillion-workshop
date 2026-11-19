@@ -1,7 +1,7 @@
 // tools/tours-screen/do-work/tours.mjs
 //
 // PURPOSE
-//   The rows of the Tours screen, run by tools/records-door/do-work/run-an-export.mjs over the records the caller hands in
+//   The rows of the Tours screen, run by tools/workflows/do-work/run-a-function.mjs over the records the caller hands in
 //   (the person's AI read them from the store that holds them; the tool has no records door and keeps nothing): list
 //   the workspace tours with where the person stands in each, list the tours waiting to start by themselves with how the
 //   person's show rules leave each one, and dismiss waiting tours (mark them seen without showing them). A person, an AI
