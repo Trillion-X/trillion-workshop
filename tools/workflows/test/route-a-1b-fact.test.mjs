@@ -25,7 +25,7 @@ test('a changed row (not added) does not choose the added-only condition', async
   assert.equal(chosen.some(item => item.workflow === 'workflow:rewrite-a-broad-condition'), false);
 });
 
-test('a place no condition names chooses no added-only workflow', async () => {
+test('a place no condition names chooses no added-only workflow, only the history keeper, which keeps what its own rules name', async () => {
   const chosen = await chosenFor(fact('nothing_names_this', 'added'));
-  assert.equal(chosen.length, 0, JSON.stringify(chosen.map(item => [item.workflow, item.label])));
+  assert.deepEqual(chosen.map(item => item.workflow), ['workflow:keep-each-told-change-in-the-history'], JSON.stringify(chosen.map(item => [item.workflow, item.label])));
 });

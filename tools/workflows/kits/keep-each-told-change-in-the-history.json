@@ -1,6 +1,6 @@
 {
   "drafted_from": "workflow:keep-each-told-change-in-the-history's own file (tools/workflows/recipes/keep-each-told-change-in-the-history.json) and its run in the change-chain proof: a made-up booking service told booking 101 added, changed and cancelled, and each became one statement of a history on PGlite.",
-  "start_here": "Say to your AI: \"Keep every change my sources tell in my history.\" The AI switches on this workflow's wake (chosen--a-change-a-source-told-carries-kinds) with your own input {history: {credential_name: <your history's vault name>}}, and workflow:route-each-row-change's wake a-row-changed; then each change a source's waiter row gives kinds to is kept once in your history.",
+  "start_here": "Say to your AI: \"Keep every change my sources tell in my history.\" The AI switches on this workflow's wake (chosen--a-change-a-source-told) with your own input {history: {credential_name: <your history's vault name>}}, and workflow:route-each-row-change's wake a-row-changed; then each change a source's waiter row gives kinds to is kept once in your history.",
   "lists": [],
   "no_lists_because": "It writes one row of the person's own history (the statements table of the history-and-identity mechanism), in the person's own database, with one statement; it keeps no list of its own.",
   "workflows": [
@@ -12,9 +12,9 @@
   ],
   "instructions": [
     "1. Have the history in your own database (statements, mentions and their rule rows) and its connection in your vault; switch this wake on with {history: {credential_name: <that vault name>}}.",
-    "2. Give the waiter row of each source shape.kinds rules (service-lists) so its changes carry kinds, and shape.carry for the values your readers need (a booking's starts_at, email, cancelled_at).",
+    "2. Give your history a meaning or mention rule for each source it keeps (meaning_rules and mention_rules, source = the source's vault name, place = its table or list): a told change is kept only when a rule names its source and place, or names none. Give a service's waiter row shape.kinds rules too when other workflows should be chosen by its kinds, and shape.carry for the values your readers need (a booking's starts_at, email, cancelled_at).",
     "3. Add meaning_rules and mention_rules rows to your history for that source, so a kept change gets its meaning (booked, moved, cancelled) and the addresses it names.",
-    "4. Switch on chosen--a-change-a-source-told-carries-kinds here and a-row-changed on workflow:route-each-row-change."
+    "4. Switch on chosen--a-change-a-source-told here and a-row-changed on workflow:route-each-row-change."
   ],
   "worked_examples": [
     {
@@ -35,7 +35,7 @@
               },
               "fact": {
                 "workflow": "workflow:keep-each-told-change-in-the-history",
-                "condition": "a change a source told carries kinds",
+                "condition": "a change a source told",
                 "where": "my-booking-service-key",
                 "place": "booking",
                 "change": "added",

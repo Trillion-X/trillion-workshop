@@ -2,6 +2,7 @@
 // person is told once with one ready action (a call when the next call is soon, else a draft read from what was sent
 // and the calendar, scored and saved in the owner's mailbox, which he sends himself); a failed draft step still tells
 // what changed; a failed notice gives its claim back and removes its draft. Made-up rows; nothing is sent.
+import { PGlite } from '@electric-sql/pglite';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -52,7 +53,7 @@ test('a change handed to the router directly, with no fact behind it, is named b
   const run = await runAsTheTool({ run: { row: ROUTER.id, start_at: 'choose', fact: { where: 'w', place: 'booking', change: 'added', key: 'k-1', kinds: '["call-booked"]' } } }, d);
   assert.equal(run.status, 'completed', run.error_message);
   const kept = d.calls.find(call => call.name === 'wake:arrive' && call.input.payload.workflow === KEEP.id);
-  assert.equal(kept.input.event_id, `k-1:${KEEP.id}:a change a source told carries kinds`);
+  assert.equal(kept.input.event_id, `k-1:${KEEP.id}:a change a source told`);
 });
 
 test('a thought with kinds but no source and no change is not a told change', async () => {
@@ -63,12 +64,35 @@ test('a thought with kinds but no source and no change is not a told change', as
 test('a kept change is one statement of the told change, keyed by where, place, key, change and what it carried', async () => {
   const d = door(() => ({ columns: ['id', 'meaning'], rows: [{ id: 1, meaning: 'booked' }], row_count: 1 }));
   const fact = { workflow: KEEP.id, where: 'my-booking-service-key', place: 'booking', change: 'added', key: '101', after: '{"id":101}', at: '2026-11-19T13:00:00.000Z' };
-  const run = await runAsTheTool(wake(KEEP, 'chosen--a-change-a-source-told-carries-kinds', fact, 'f1', { history: { credential_name: 'my-history-connection' } }), d);
+  const run = await runAsTheTool(wake(KEEP, 'chosen--a-change-a-source-told', fact, 'f1', { history: { credential_name: 'my-history-connection' } }), d);
   assert.equal(run.status, 'completed', run.error_message);
   assert.equal(d.calls.length, 1);
   assert.equal(d.calls[0].input.credential_name, 'my-history-connection', 'the history is the one the person switched on with');
   assert.deepEqual(d.calls[0].input.params, ['my-booking-service-key', 'booking', 'added', '101', '{"id":101}', '2026-11-19T13:00:00.000Z'], 'the statement is at the time the source says it happened');
   assert.match(d.calls[0].input.sql, /ON CONFLICT \(source, told\) DO NOTHING/);
+});
+
+test('a database row change with no kinds is chosen too, and the keep step keeps only what the history has rules for', async () => {
+  const row = { kind: 'something-changed', where: 'my-shop-database', place: 'payment_events', change: 'added', at: '2026-11-19T13:00:00.000Z', key: '7', after: JSON.stringify({ customer_email: 'bo@example.test' }), by: 'shop' };
+  const d = door(() => ({}));
+  const run = await runAsTheTool(wake(ROUTER, 'a-row-changed', row, 'where::something-changed@my-shop-database:payment_events:7:added:a'), d);
+  assert.equal(run.status, 'completed', run.error_message);
+  assert.ok(d.calls.some(call => call.name === 'wake:arrive' && call.input.payload.workflow === KEEP.id), 'a row change with a source, a place and a change is chosen for the history');
+  const db = new PGlite();
+  await db.exec(`CREATE TABLE statements (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, source text, told text, place text, change text, at timestamptz, key text, after jsonb, meaning text, UNIQUE (source, told));
+    CREATE TABLE meaning_rules (position int PRIMARY KEY, source text, place text, change text, path text, meaning text NOT NULL);
+    CREATE TABLE mention_rules (source text, place text, path text NOT NULL, role text NOT NULL, scheme text NOT NULL);
+    INSERT INTO meaning_rules VALUES (1, 'my-shop-database', 'payment_events', 'added', null, 'paid');
+    INSERT INTO mention_rules VALUES (null, 'message', '$.after.to', 'with', 'email');`);
+  const keep = KEEP.definition.steps.find(step => step.id === 'keep').config.input.sql;
+  const told = (where, place, key) => db.query(keep, [where, place, 'added', key, '{}', '2026-11-19T13:00:00.000Z']);
+  assert.equal((await told('my-shop-database', 'payment_events', '7')).rows.length, 1, 'a source and place a meaning rule names is kept');
+  assert.equal((await told('my-shop-database', 'payment_events', '7')).rows.length, 0, 'told again, it is kept once');
+  assert.equal((await told('my-own-rows', 'tasks', '1')).rows.length, 0, 'a source no rule names is not kept');
+  assert.equal((await told('my-shop-database', 'people', '2')).rows.length, 0, 'a place of a ruled source that no rule names is not kept');
+  assert.equal((await told('any-mail-source', 'message', '3')).rows.length, 1, 'a rule that names no source keeps its place from any source');
+  assert.deepEqual((await db.query('SELECT source, place, key FROM statements ORDER BY id')).rows, [
+    { source: 'my-shop-database', place: 'payment_events', key: '7' }, { source: 'any-mail-source', place: 'message', key: '3' }]);
 });
 
 // The person's own switch input: everything this row names none of.

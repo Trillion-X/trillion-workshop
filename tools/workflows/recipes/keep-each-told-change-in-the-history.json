@@ -23,14 +23,14 @@
         },
         "fires_when": [
           {
-            "label": "a change a source told carries kinds",
+            "label": "a change a source told",
             "condition": {
               "fields": [
                 {
-                  "id": "kinds",
-                  "kind": "tags",
+                  "id": "place",
+                  "kind": "text",
                   "path": [
-                    "kinds"
+                    "place"
                   ]
                 },
                 {
@@ -55,7 +55,7 @@
                 "rules": [
                   {
                     "kind": "rule",
-                    "field": "kinds",
+                    "field": "place",
                     "operator": "is_not_empty"
                   },
                   {
@@ -83,12 +83,12 @@
             "input": {
               "start_at": "keep"
             },
-            "evidence": "Written 2026-11-19 for the change chain (lane change-chain): a source's own waiter row gives a change its kinds (service-lists shape.kinds) from the whole thing, which only the noticer holds, so any labelled change is worth keeping, whatever workflow its kinds also choose. A seed part with kinds but no source (where) and no change (a thought, a note) is not a told change, so it is not kept here."
+            "evidence": "Written 2026-11-19 for the change chain (lane change-chain): a source's own waiter row gives a change its kinds (service-lists shape.kinds) from the whole thing, which only the noticer holds, so any labelled change is worth keeping, whatever workflow its kinds also choose. A seed part with kinds but no source (where) and no change (a thought, a note) is not a told change, so it is not kept here. Changed 2026-11-19 1:40 PM CST: a database's own row changes (the row-changes waiter) carry no kinds, since a fact holds 8 fields and theirs are where, place, change, at, key, before, after and by, so a payment told by a pursuit's database never reached the history. Any told change with a source, a place and a change is now chosen, and the keep step itself keeps only what the history has a meaning or mention rule for (its source and place, or a rule that names none): the history's own rule rows say which sources it keeps."
           }
         ],
         "wakes": [
           {
-            "id": "chosen--a-change-a-source-told-carries-kinds",
+            "id": "chosen--a-change-a-source-told",
             "on": {
               "fact": {
                 "kind": "workflow-chosen",
@@ -97,7 +97,7 @@
                 ],
                 "match": {
                   "workflow": "workflow:keep-each-told-change-in-the-history",
-                  "condition": "a change a source told carries kinds"
+                  "condition": "a change a source told"
                 }
               }
             },
@@ -130,7 +130,7 @@
                       "path": "history.credential_name"
                     }
                   },
-                  "sql": "INSERT INTO statements (source, told, place, change, at, key, after)\nVALUES ($1::text, concat_ws(':', $2::text, $4::text, $3::text, coalesce($5::text, '')), $2::text, $3::text, coalesce($6::timestamptz, clock_timestamp()), $4::text, $5::jsonb)\nON CONFLICT (source, told) DO NOTHING RETURNING id, meaning",
+                  "sql": "INSERT INTO statements (source, told, place, change, at, key, after)\nSELECT $1::text, concat_ws(':', $2::text, $4::text, $3::text, coalesce($5::text, '')), $2::text, $3::text, coalesce($6::timestamptz, clock_timestamp()), $4::text, $5::jsonb\nWHERE EXISTS (SELECT 1 FROM meaning_rules r WHERE (r.source = $1::text OR r.source IS NULL) AND (r.place = $2::text OR r.place IS NULL)\n  UNION ALL SELECT 1 FROM mention_rules r WHERE (r.source = $1::text OR r.source IS NULL) AND (r.place = $2::text OR r.place IS NULL))\nON CONFLICT (source, told) DO NOTHING RETURNING id, meaning",
                   "params": [
                     {
                       "$kind": "binding",
