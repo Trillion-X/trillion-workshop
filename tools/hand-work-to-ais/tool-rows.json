@@ -114,7 +114,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -278,7 +277,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/hand-work-to-ais/read-data/ai-work.mjs",
             "seeMyAis"
           ],
@@ -319,12 +318,11 @@
                 "at": "/opt/move-records-through-declared-states"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -441,14 +439,6 @@
               ]
             }
           }
-        ],
-        "stored": [
-          {
-            "kind": "ai"
-          },
-          {
-            "kind": "ai-job"
-          }
         ]
       }
     },
@@ -563,7 +553,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -831,7 +820,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/hand-work-to-ais/read-data/ai-work.mjs",
             "handAJob"
           ],
@@ -872,12 +861,11 @@
                 "at": "/opt/move-records-through-declared-states"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -979,14 +967,6 @@
                 }
               ]
             }
-          }
-        ],
-        "stored": [
-          {
-            "kind": "ai"
-          },
-          {
-            "kind": "ai-job"
           }
         ]
       }
@@ -1102,7 +1082,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1259,7 +1238,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/hand-work-to-ais/read-data/ai-work.mjs",
             "seeAiWork"
           ],
@@ -1300,12 +1279,11 @@
                 "at": "/opt/move-records-through-declared-states"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -1387,11 +1365,6 @@
                 }
               ]
             }
-          }
-        ],
-        "stored": [
-          {
-            "kind": "ai-job"
           }
         ]
       }
@@ -1507,7 +1480,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1672,7 +1644,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/hand-work-to-ais/read-data/ai-work.mjs",
             "takeAJob"
           ],
@@ -1713,12 +1685,11 @@
                 "at": "/opt/move-records-through-declared-states"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -1800,11 +1771,6 @@
                 }
               ]
             }
-          }
-        ],
-        "stored": [
-          {
-            "kind": "ai-job"
           }
         ]
       }
@@ -1920,7 +1886,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -2375,7 +2340,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/hand-work-to-ais/read-data/ai-work.mjs",
             "moveAJob"
           ],
@@ -2416,12 +2381,11 @@
                 "at": "/opt/move-records-through-declared-states"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -2509,14 +2473,6 @@
                 }
               ]
             }
-          }
-        ],
-        "stored": [
-          {
-            "kind": "ai-job"
-          },
-          {
-            "kind": "ai"
           }
         ]
       }
@@ -2632,7 +2588,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -2923,7 +2878,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/hand-work-to-ais/read-data/ai-work.mjs",
             "finishAJob"
           ],
@@ -2972,12 +2927,11 @@
                 "at": "/opt/move-records-through-declared-states"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -3080,22 +3034,6 @@
                 }
               ]
             }
-          }
-        ],
-        "stored": [
-          {
-            "kind": "ai-job"
-          },
-          {
-            "kind": {
-              "fill": {
-                "from": "input",
-                "field": "check.target.type"
-              }
-            }
-          },
-          {
-            "kind": "ai"
           }
         ]
       }

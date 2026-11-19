@@ -3,7 +3,7 @@
 // Work handed between a person's AIs. A job is one record of kind ai-job, an AI one record of kind ai (read-data/ai-work.json
 // names both). No store is reached from here: the caller reads the records this call needs from the person's own store
 // (the AIs, the jobs, and any consumer a finish checks) and hands them in as `input.records` ([{ id, type, value }]).
-// Each exported function is one Workshop row, run by tools/records-door/do-work/run-an-export.mjs as fn({ input, task }, context):
+// Each exported function is one Workshop row, run by tools/workflows/do-work/run-a-function.mjs as fn({ input, task }):
 //
 //   seeMyAis      -> { ais: [{ id, value, live, seen_at, busy }] }                  the AIs, live first, then their order
 //   handAJob      -> { job_id, status: 'written' | 'already-there', job, keep? }    a new waiting job, once per key
