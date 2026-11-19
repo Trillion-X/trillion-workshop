@@ -19,12 +19,13 @@
     "shared-code/crates/slot-protocol",
     "shared-code/crates/trigger-ast",
     "workflows/crates/journal-ast",
+    "workflows/crates/workflow-component",
     "workflows/crates/workflow-core",
     "workflows/crates/workflow-engine"
   ],
   "source_files": [],
-  "fingerprint": "d07bed26518fcffccc39b840beaf3515482625293665e726e43abf0e2696105b",
+  "fingerprint": "92991018618d59454fe683a28914aa466f6bb669b4edac9565dd25bd6dc10eec",
   "workspace_commits": {
-    "../../trillion-rust/crates": "3078dac32ceb7f87d43aefccc8fd3d8c10855466"
+    "../../trillion-rust/crates": "f622fd79433ed720dfe4203471926ae92acd5c22"
   }
 }

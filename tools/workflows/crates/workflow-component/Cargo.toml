@@ -1,0 +1,19 @@
+[package]
+name = "workflow-component"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "The workflow engine as one WebAssembly component: a run in on standard input, where it stands and what it needs next out"
+
+[[bin]]
+name = "workflow_component"
+path = "src/main.rs"
+
+[dependencies]
+workflow-engine = { path = "../workflow-engine" }
+workflow-core = { path = "../workflow-core", default-features = false }
+async-trait.workspace = true
+serde_json.workspace = true
+futures.workspace = true
+chrono.workspace = true

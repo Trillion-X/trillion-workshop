@@ -31,6 +31,12 @@ export const PAGE_COMPILED_MODULES = [
   { crate: 'composition-engine', target: 'wasm32-wasip1', folder: 'composition-engine' },
   { crate: 'composition-engine', folder: 'composition-engine' },
 ];
+// Run by the engine as a tool on any computer: a row naming a `target` built as a WASI component with no bindings, which a
+// tool row lays out from here and names as its component (tools/workflows/tool-rows.json `tool:run-workflow-definition`,
+// argv ["component", ...]; the engine's src/tool_runs/tools/component.rs).
+export const ENGINE_COMPONENTS = [
+  { crate: 'workflow-component', target: 'wasm32-wasip2', folder: 'workflow-component' },
+];
 
 // The crate-built modules are committed under BUILT_CRATES_FOLDER, so a build (Cloudflare's included) never needs Rust:
 // build-compiled-modules.mjs compiles them once when a crate changes and writes fingerprint.json, the BLAKE3
@@ -185,7 +191,7 @@ export function lockClosureMeasure(lock, crateNames) {
 
 /** The files supplied by the crate rows; copied parts keep their own directory owner. */
 export function compiledModuleFiles() {
-  const rows = [...COMPILED_MODULES, ...PAGE_COMPILED_MODULES].filter(row => row.crate);
+  const rows = [...COMPILED_MODULES, ...PAGE_COMPILED_MODULES, ...ENGINE_COMPONENTS].filter(row => row.crate);
   return rows.flatMap(({ crate, folder, target }) => {
     const name = crate.replaceAll('-', '_');
     return (target ? [`${name}.wasm`] : [`${name}.js`, `${name}_bg.wasm`])

@@ -20,14 +20,14 @@ import { execFileSync } from 'node:child_process';
 import { copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { crateWorkspaces, withCrateBuilds, workspaceOf } from './build-crate-for-a-web-host.mjs';
-import { BUILT_CRATES_FOLDER, COMPILED_MODULES, PAGE_COMPILED_MODULES, TOOLS, WORKSHOP, committedModulesCurrent, crateSourceFingerprint, recoverCompiledModulePublication } from './compiled-modules.mjs';
+import { BUILT_CRATES_FOLDER, COMPILED_MODULES, ENGINE_COMPONENTS, PAGE_COMPILED_MODULES, TOOLS, WORKSHOP, committedModulesCurrent, crateSourceFingerprint, recoverCompiledModulePublication } from './compiled-modules.mjs';
 
 // One existing target ownership scope covers source validation, every crate and
 // publication. A caller that waited for an identical build rechecks only after
 // acquiring ownership and does not delete or rebuild that completed output.
 await withCrateBuilds(async builds => {
   await recoverCompiledModulePublication();
-  const crateRows = [...COMPILED_MODULES, ...PAGE_COMPILED_MODULES].filter(row => row.crate);
+  const crateRows = [...COMPILED_MODULES, ...PAGE_COMPILED_MODULES, ...ENGINE_COMPONENTS].filter(row => row.crate);
   // Each crate's closure comes from its own workspace's resolution (an engine crate resolves in the engine's workspace).
   const metadataOf = new Map();
   const crateDirSet = new Set();

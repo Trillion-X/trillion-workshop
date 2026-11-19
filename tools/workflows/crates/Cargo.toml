@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["journal-ast", "workflow-core", "workflow-engine"]
+members = ["journal-ast", "workflow-core", "workflow-engine", "workflow-component"]
 
 [workspace.package]
 version = "0.1.0"

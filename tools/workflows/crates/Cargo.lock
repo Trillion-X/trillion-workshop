@@ -2315,6 +2315,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "workflow-component"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "futures",
+ "serde_json",
+ "workflow-core",
+ "workflow-engine",
+]
+
+[[package]]
 name = "workflow-core"
 version = "0.1.0"
 dependencies = [
