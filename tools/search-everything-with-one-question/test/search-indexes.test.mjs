@@ -10,7 +10,7 @@ const RECORDS_SOURCE = settings.lanes.find(lane => lane.match === 'records').sou
 
 // The values a run is handed (the records of the index kind and the one list row, and each file as base64).
 const given = fx => ({ records: fx.records(), files: Object.fromEntries(Object.entries(fx.files).map(([name, bytes]) => [name, { base64: bytes.toString('base64') }])) });
-const ask = (input, fx) => searchEverything({ ...input, ...given(fx) }, { door: fx.door });
+const ask = (input, fx) => searchEverything({ ...input, ...given(fx) });
 
 const KIND = 'semantic-index-descriptor';
 const lines = items => Buffer.from(items.map(item => JSON.stringify(item)).join('\n') + '\n');
@@ -62,39 +62,64 @@ function fixture(endpoint) {
   // The file names the search sees: the shared clip, the notes file, and the sets (named, so their descriptor is held).
   files['/shared/Quartzbeacon.mp4'] = Buffer.from('made-up clip');
   files['/notes/field.txt'] = Buffer.from('made-up notes');
-  const door = { run: async () => { throw new Error('no tool run in this fixture'); } };
   // Records as the caller hands them in: one list row, and each index descriptor as its own kind.
   const records = () => [{ id: 'r1', type: 'note', value: { title: 'Quartzbeacon list row' } },
     ...descriptors.map((value, at) => ({ id: `descriptor:${at}`, type: KIND, value }))];
-  return { door, descriptors, files, records };
+  return { descriptors, files, records };
 }
 
-test('picture query encoding is model-checked and reused across that model indexes', async () => {
+test('a picture model is asked with the query vector handed in, reused across its indexes, size-checked, and named when missing and the run may run no tool', async () => {
   const fx = fixture('http://127.0.0.1:9');
   const picture = fx.descriptors.find(item => item.index_id === 'pictures');
   Object.assign(picture, { model_id: 'open_clip ViT-B-32', model_version: 'openai' });
-  const vector = Array(512).fill(0); vector[0] = 1;
+  const encoder = settings.encoders.find(item => item.model_id === picture.model_id);
+  const vector = Array(encoder.dims).fill(0); vector[0] = 1;
   fx.files['/sets/pictures.npy'] = npy([vector]);
   fx.descriptors.push({ ...picture, index_id: 'pictures-second' });
-  let encoded = 0;
-  fx.door.run = async (tool, input) => {
-    encoded++;
-    assert.equal(tool, 'tool:words-as-picture-vector');
-    assert.deepEqual(input, { texts: ['Quartzbeacon'] });
-    return { result: { model: { name: 'ViT-B-32', pretrained: 'openai' }, dims: 512, vectors: [vector] } };
-  };
-  const answer = await ask({ question: 'Quartzbeacon', places: ['seen'] }, fx);
-  assert.equal(encoded, 1);
+  const handed = values => [{ model_id: encoder.model_id, model_version: encoder.model_version, vector_base64: Buffer.from(JSON.stringify({ vector: values })).toString('base64') }];
+
+  const answer = await ask({ question: 'Quartzbeacon', places: ['seen'], query_vectors: handed(vector) }, fx);
   assert.deepEqual(answer.unavailable, []);
   assert.equal(answer.results.length, 1);
   assert.equal(answer.results[0].moments[0].evidence.length, 2);
   assert.ok(answer.results[0].moments[0].evidence.every(item => item.score === 1 && item.model_id === 'open_clip ViT-B-32'));
 
-  fx.door.run = async () => ({ model: { name: 'ViT-B-32', pretrained: 'different-weights' }, dims: 512, vectors: [vector] });
-  const refused = await ask({ question: 'Quartzbeacon', places: ['seen'] }, fx);
+  const missing = await ask({ question: 'Quartzbeacon', places: ['seen'] }, fx);
+  assert.deepEqual(missing.results, []);
+  assert.equal(missing.unavailable.length, 2);
+  assert.ok(missing.unavailable.every(item => item.reason === 'query_vector_not_handed_in'));
+  assert.deepEqual(missing.unavailable[0].needs, { tool: encoder.tool, input: { texts: ['Quartzbeacon'] }, model_id: encoder.model_id, model_version: encoder.model_version });
+
+  const refused = await ask({ question: 'Quartzbeacon', places: ['seen'], query_vectors: handed(vector.slice(1)) }, fx);
   assert.deepEqual(refused.results, []);
   assert.equal(refused.unavailable.length, 2);
   assert.ok(refused.unavailable.every(item => item.reason === 'query_model_mismatch'));
+});
+
+test('a run whose host may run the picture encoder asks it once per question and model, and refuses a different model', async () => {
+  const fx = fixture('http://127.0.0.1:9');
+  const picture = fx.descriptors.find(item => item.index_id === 'pictures');
+  Object.assign(picture, { model_id: 'open_clip ViT-B-32', model_version: 'openai' });
+  const encoder = settings.encoders.find(item => item.model_id === picture.model_id);
+  const vector = Array(encoder.dims).fill(0); vector[0] = 1;
+  fx.files['/sets/pictures.npy'] = npy([vector]);
+  fx.descriptors.push({ ...picture, index_id: 'pictures-second' });
+  let encoded = 0;
+  const host = { door: { run: async (tool, input) => {
+    encoded++;
+    assert.equal(tool, encoder.tool);
+    assert.deepEqual(input, { texts: ['Quartzbeacon'] });
+    return { result: { model: { name: encoder.name, pretrained: encoder.pretrained }, dims: encoder.dims, vectors: [vector] } };
+  } } };
+  const answer = await searchEverything({ question: 'Quartzbeacon', places: ['seen'], ...given(fx) }, host);
+  assert.equal(encoded, 1);
+  assert.deepEqual(answer.unavailable, []);
+  assert.equal(answer.results[0].moments[0].evidence.length, 2);
+
+  const other = { door: { run: async () => ({ model: { name: encoder.name, pretrained: 'different-weights' }, dims: encoder.dims, vectors: [vector] }) } };
+  const refused = await searchEverything({ question: 'Quartzbeacon', places: ['seen'], ...given(fx) }, other);
+  assert.deepEqual(refused.results, []);
+  assert.ok(refused.unavailable.length === 2 && refused.unavailable.every(item => item.reason === 'query_model_mismatch'));
 });
 
 test('carried namespace identities fuse a source path with its named account file', async () => {
@@ -109,7 +134,7 @@ test('carried namespace identities fuse a source path with its named account fil
     assert.equal(answer.results.length, 1);
     assert.equal(answer.results[0].identity, '/shared/Quartzbeacon.mp4');
     assert.deepEqual([...answer.results[0].found_in].sort(), ['name', 'seen']);
-    assert.deepEqual(answer.results[0].address, { resource: 'own-files', input: { name: '/shared/Quartzbeacon.mp4' } });
+    assert.deepEqual(answer.results[0].address, { path: '/shared/Quartzbeacon.mp4' });
   } finally { await model.close(); }
 });
 
@@ -223,10 +248,10 @@ test('an explicit descriptor place overrides its field-based classification', as
 
 test('index descriptors not handed in name every index place unavailable instead of claiming a complete search', async () => {
   const fx = fixture('http://127.0.0.1:9');
-  const answer = await searchEverything({ question: 'Quartzbeacon', files: given(fx).files }, { door: fx.door });
+  const answer = await searchEverything({ question: 'Quartzbeacon', files: given(fx).files });
   assert.deepEqual(answer.unavailable.filter(item => item.lane.startsWith('index-')).map(item => [item.lane, item.reason]).sort(), []);
   assert.ok(answer.results.some(hit => hit.record === undefined && hit.identity), 'file names still answer without the records');
-  const bare = await searchEverything({ question: 'Quartzbeacon', records: [], files: given(fx).files }, { door: fx.door });
+  const bare = await searchEverything({ question: 'Quartzbeacon', records: [], files: given(fx).files });
   assert.equal(bare.results.filter(hit => hit.lane?.match === 'indexes').length, 0);
   assert.deepEqual(bare.results.filter(hit => hit.source === 'files').map(hit => hit.path), ['/shared/Quartzbeacon.mp4']);
 });

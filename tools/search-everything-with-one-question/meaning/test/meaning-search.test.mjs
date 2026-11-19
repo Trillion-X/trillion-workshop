@@ -1,4 +1,4 @@
-// The Workshop seam of meaning-search on synthetic vector sets: a stand-in door holds one descriptor record and the
+// The Workshop seam of meaning-search on synthetic vector sets: the values handed in are one descriptor record and the
 // set's files, and the package's own scripts index and rank them. Nothing here is anyone's data.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -34,7 +34,7 @@ function npy(rows, type = '<f4') {
 const lines = items => Buffer.from(items.map(item => JSON.stringify(item)).join('\n') + '\n');
 
 // The values a run is handed: records of one kind, and files read a short span at a time so every read pages.
-function standInDoor({ descriptors, files, span = 7 }) {
+function handedIn({ descriptors, files, span = 7 }) {
   const calls = [];
   return {
     calls,
@@ -65,8 +65,8 @@ const VECTORS = [[1, 0, 0, 0], [0.9, 0.1, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0.
 const asQuery = vector => Buffer.from(JSON.stringify({ vector })).toString('base64');
 
 test('a query vector finds the closest items of the vector set, with the file and time each points to', async () => {
-  const door = standInDoor({ descriptors: [descriptor(SET)], files: { '/Sets/frames.jsonl': lines(ITEMS), '/Sets/frames.npy': npy(VECTORS) } });
-  const answer = await findSimilarVector({ index_id: 'synthetic-pictures', query_vector_base64: asQuery([1, 0, 0, 0]) }, { given: door });
+  const given = handedIn({ descriptors: [descriptor(SET)], files: { '/Sets/frames.jsonl': lines(ITEMS), '/Sets/frames.npy': npy(VECTORS) } });
+  const answer = await findSimilarVector({ index_id: 'synthetic-pictures', query_vector_base64: asQuery([1, 0, 0, 0]) }, { given });
   assert.equal(answer.model_id, 'synthetic-picture-model');
   const addresses = answer.result.items.map(item => item.address);
   assert.equal(addresses[0], '/Sets/frames.jsonl#0', 'the identical vector ranks first');
@@ -79,7 +79,7 @@ test('a query vector finds the closest items of the vector set, with the file an
     assert.match(item.payload_hash, /^1f:[0-9a-f]{64}$/);
     assert.equal(item.index_id, 'synthetic-pictures');
   }
-  assert.ok(door.calls.filter(call => call.method === 'read_file').length > 2, 'files are read a span at a time');
+  assert.ok(given.calls.filter(call => call.method === 'read_file').length > 2, 'files are read a span at a time');
 });
 
 // Model the VM's whole-string ceiling at a small size: the same failure must be
@@ -91,7 +91,7 @@ test('bounded indexing keeps one ANN state and candidate order across plan batch
   const items = ITEMS.map((item, at) => ({ ...item, clip: `synthetic-${at}.mp4`, text }));
   const set = { ...SET, points_to: { ...SET.points_to, text: 'text' } };
   const d = descriptor(set, { result_limit: 6, ann_params: { hyperplane_count: 2, table_count: 4, seed: 7, candidate_limit: 4 } });
-  const door = standInDoor({ descriptors: [d], files: { '/Sets/frames.jsonl': lines(items), '/Sets/frames.npy': npy(items.map(() => [1, 0, 0, 0])) }, span: 262144 });
+  const given = handedIn({ descriptors: [d], files: { '/Sets/frames.jsonl': lines(items), '/Sets/frames.npy': npy(items.map(() => [1, 0, 0, 0])) }, span: 262144 });
   const stringify = JSON.stringify;
   const batches = [];
   JSON.stringify = function(value, ...args) {
@@ -105,7 +105,7 @@ test('bounded indexing keeps one ANN state and candidate order across plan batch
   };
   let answer;
   try {
-    answer = await findSimilarVector({ index_id: d.index_id, query_vector_base64: asQuery([1, 0, 0, 0]) }, { given: door });
+    answer = await findSimilarVector({ index_id: d.index_id, query_vector_base64: asQuery([1, 0, 0, 0]) }, { given });
   } finally { JSON.stringify = stringify; }
   assert.ok(batches.length > 1, 'the complete plan never crosses one process boundary');
   assert.equal(batches.reduce((sum, count) => sum + count, 0), 6);
@@ -193,38 +193,38 @@ test('exact mode scans every stored vector with the existing ranker and no ANN p
   let planWrites = 0;
   JSON.stringify = function(value, ...args) { if (Array.isArray(value?.upserts)) planWrites += 1; return stringify.call(this, value, ...args); };
   let answer;
-  try { answer = await findSimilarVector(query, { given: standInDoor({ descriptors: [d], files, span: 4096 }) }); }
+  try { answer = await findSimilarVector(query, { given: handedIn({ descriptors: [d], files, span: 4096 }) }); }
   finally { JSON.stringify = stringify; }
   assert.equal(planWrites, 0, 'precomputed exact search must not make an indexing plan');
   assert.equal(answer.result.considered, 2);
   assert.deepEqual(answer.result.items.map(item => [answer.points_to[item.address].file, item.score]), [['best-later.mp4', 1]]);
   assert.deepEqual(d, before, 'exact mode must not modify descriptor settings');
-  const floor = await findSimilarVector(query, { given: standInDoor({ descriptors: [{ ...d, min_score: 1.01 }], files, span: 4096 }) });
+  const floor = await findSimilarVector(query, { given: handedIn({ descriptors: [{ ...d, min_score: 1.01 }], files, span: 4096 }) });
   assert.deepEqual(floor.result.items, [], 'exact search never pads below the floor');
-  await assert.rejects(findSimilarVector(query, { given: standInDoor({ descriptors: [{ ...d, search_mode: 'invented' }], files }) }), /search_mode must be exact or approximate/);
+  await assert.rejects(findSimilarVector(query, { given: handedIn({ descriptors: [{ ...d, search_mode: 'invented' }], files }) }), /search_mode must be exact or approximate/);
 });
 
 test('half-precision vectors are read as their numbers, and a smaller limit asks for fewer', async () => {
   const halves = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [-1, 0, 0, 0], [0, -1, 0, 0]];
-  const door = standInDoor({ descriptors: [descriptor(SET)], files: { '/Sets/frames.jsonl': lines(ITEMS), '/Sets/frames.npy': npy(halves, '<f2') } });
-  const answer = await findSimilarVector({ index_id: 'synthetic-pictures', query_vector_base64: asQuery([0, 0, 1, 0]), limit: 1 }, { given: door });
+  const given = handedIn({ descriptors: [descriptor(SET)], files: { '/Sets/frames.jsonl': lines(ITEMS), '/Sets/frames.npy': npy(halves, '<f2') } });
+  const answer = await findSimilarVector({ index_id: 'synthetic-pictures', query_vector_base64: asQuery([0, 0, 1, 0]), limit: 1 }, { given });
   assert.deepEqual(answer.result.items.map(item => [item.address, item.score]), [['/Sets/frames.jsonl#2', 1]]);
 });
 
 test('min_score keeps out what is not close enough, and the package never pads the answer', async () => {
-  const door = standInDoor({ descriptors: [descriptor(SET, { min_score: 0.95 })], files: { '/Sets/frames.jsonl': lines(ITEMS), '/Sets/frames.npy': npy(VECTORS) } });
-  const answer = await findSimilarVector({ index_id: 'synthetic-pictures', query_vector_base64: asQuery([0, 0, 0, 1]) }, { given: door });
+  const given = handedIn({ descriptors: [descriptor(SET, { min_score: 0.95 })], files: { '/Sets/frames.jsonl': lines(ITEMS), '/Sets/frames.npy': npy(VECTORS) } });
+  const answer = await findSimilarVector({ index_id: 'synthetic-pictures', query_vector_base64: asQuery([0, 0, 0, 1]) }, { given });
   assert.deepEqual(answer.result.items.map(item => item.address), ['/Sets/frames.jsonl#5']);
 });
 
 test('the package refuses an index with no descriptor or two, and the seam refuses a set whose files disagree', async () => {
   const files = { '/Sets/frames.jsonl': lines(ITEMS), '/Sets/frames.npy': npy(VECTORS) };
   const query = { index_id: 'synthetic-pictures', query_vector_base64: asQuery([1, 0, 0, 0]) };
-  await assert.rejects(findSimilarVector(query, { given: standInDoor({ descriptors: [], files }) }), /exactly one current row/);
-  await assert.rejects(findSimilarVector(query, { given: standInDoor({ descriptors: [descriptor(SET), descriptor(SET)], files }) }), /exactly one current row/);
+  await assert.rejects(findSimilarVector(query, { given: handedIn({ descriptors: [], files }) }), /exactly one current row/);
+  await assert.rejects(findSimilarVector(query, { given: handedIn({ descriptors: [descriptor(SET), descriptor(SET)], files }) }), /exactly one current row/);
   const short = { ...files, '/Sets/frames.jsonl': lines(ITEMS.slice(1)) };
-  await assert.rejects(findSimilarVector(query, { given: standInDoor({ descriptors: [descriptor(SET)], files: short }) }), /6 vectors and .* 5 items/);
-  await assert.rejects(findSimilarVector({ index_id: 'synthetic-pictures' }, { given: standInDoor({ descriptors: [], files }) }), /query_vector_base64/);
+  await assert.rejects(findSimilarVector(query, { given: handedIn({ descriptors: [descriptor(SET)], files: short }) }), /6 vectors and .* 5 items/);
+  await assert.rejects(findSimilarVector({ index_id: 'synthetic-pictures' }, { given: handedIn({ descriptors: [], files }) }), /query_vector_base64/);
 });
 
 // A stand-in for the descriptor's embedding endpoint: each word list becomes a vector by which synthetic words it holds.
@@ -255,8 +255,8 @@ test('a set of spoken lines with no vectors is embedded by the descriptor model,
       { clip: 'zorblax-b.mp4', t: 0, end: 2, text: 'A frumple on the table.' },
     ];
     const set = { items: { file: '/Sets/said.jsonl' }, points_to: { file: 'clip', start: 't', end: 'end', text: 'text' } };
-    const door = standInDoor({ descriptors: [descriptor(set, { index_id: 'synthetic-said', model_id: 'synthetic-words-model', model_endpoint: embedder.url })], files: { '/Sets/said.jsonl': lines(said) } });
-    const answer = await findSimilar({ index_id: 'synthetic-said', query_text: 'a frumple', limit: 1 }, { given: door });
+    const given = handedIn({ descriptors: [descriptor(set, { index_id: 'synthetic-said', model_id: 'synthetic-words-model', model_endpoint: embedder.url })], files: { '/Sets/said.jsonl': lines(said) } });
+    const answer = await findSimilar({ index_id: 'synthetic-said', query_text: 'a frumple', limit: 1 }, { given });
     const [top] = answer.result.items;
     assert.equal(top.address, '/Sets/said.jsonl#2');
     assert.deepEqual(answer.points_to[top.address], { file: 'zorblax-b.mp4', start: 0, end: 2, text: 'A frumple on the table.' });
@@ -272,7 +272,7 @@ test('exact mode also ranks embedded text batches with the same query model', as
     const set = { items: { file: '/Sets/said.jsonl' }, points_to: { file: 'clip', text: 'text' } };
     const d = descriptor(set, { search_mode: 'exact', model_endpoint: embedder.url });
     delete d.ann_params;
-    const answer = await findSimilar({ index_id: d.index_id, query_text: 'frumple', limit: 1 }, { given: standInDoor({ descriptors: [d], files: { '/Sets/said.jsonl': lines(said) }, span: 4096 }) });
+    const answer = await findSimilar({ index_id: d.index_id, query_text: 'frumple', limit: 1 }, { given: handedIn({ descriptors: [d], files: { '/Sets/said.jsonl': lines(said) }, span: 4096 }) });
     assert.equal(answer.result.considered, 2);
     assert.equal(answer.points_to[answer.result.items[0].address].file, 'answer.mp4');
     assert.deepEqual(embedder.asked.map(call => call.path), ['/api/embed', '/api/embeddings']);
@@ -302,7 +302,7 @@ test('the rows run the seam\'s exports with no store right: the search hands its
   for (const row of callers) {
     assert.equal(row.invoke.internet, false);
     assert.equal(row.stored, undefined, 'no declared store rights');
-    assert.equal(row.invoke.records.rights, undefined, 'no records rights');
+    assert.deepEqual(row.invoke.records, { fd: 3, runs: ['tool:words-as-picture-vector'] }, 'no records rights: the run may only run the picture query encoder');
     assert.ok(!JSON.stringify(row).includes('"records:'), 'no records method');
   }
 });
@@ -314,11 +314,11 @@ test('a spread keeps one recording from filling the answer: per_file, seconds_ap
   ];
   const vectors = [[1, 0, 0, 0], [0.99, 0.01, 0, 0], [0.98, 0.02, 0, 0], [0.97, 0.03, 0, 0], [0.5, 0.5, 0, 0], [0.9, 0, 0.1, 0], [0.89, 0, 0.11, 0]];
   const files = { '/Sets/frames.jsonl': lines(items), '/Sets/frames.npy': npy(vectors) };
-  const door = () => standInDoor({ descriptors: [descriptor(SET, { result_limit: 7 })], files });
+  const given = () => handedIn({ descriptors: [descriptor(SET, { result_limit: 7 })], files });
   const query = { index_id: 'synthetic-pictures', query_vector_base64: asQuery([1, 0, 0, 0]) };
-  const plain = await findSimilarVector({ ...query, limit: 3 }, { given: door() });
+  const plain = await findSimilarVector({ ...query, limit: 3 }, { given: given() });
   assert.deepEqual(plain.result.items.map(item => item.address.split('#')[1]), ['0', '1', '2'], 'without a spread, three frames of one take');
-  const spread = await findSimilarVector({ ...query, limit: 4, spread: { per_file: 2, seconds_apart: 5 } }, { given: door() });
+  const spread = await findSimilarVector({ ...query, limit: 4, spread: { per_file: 2, seconds_apart: 5 } }, { given: given() });
   assert.deepEqual(spread.result.items.map(item => item.address.split('#')[1]), ['0', '2', '5', '4'],
     'a: t 0 and t 9 (t 2 is too near, t 20 is past two); one of the untimed picture; then b');
   assert.deepEqual(spread.result.spread, { per_file: 2, seconds_apart: 5, set_aside: 3 });
@@ -335,13 +335,13 @@ test('spreadItems is pure and stops at the limit', () => {
 });
 
 test('a spread that is not { per_file >= 1, seconds_apart >= 0 } is refused before anything is read', async () => {
-  const door = standInDoor({ descriptors: [descriptor(SET)], files: {} });
+  const given = handedIn({ descriptors: [descriptor(SET)], files: {} });
   const query = { index_id: 'synthetic-pictures', query_vector_base64: asQuery([1, 0, 0, 0]) };
   for (const spread of [{}, { per_file: 0 }, { per_file: 1.5 }, { per_file: 1, seconds_apart: -1 }, 'two']) {
-    await assert.rejects(findSimilarVector({ ...query, spread }, { given: door }), /spread must be/);
+    await assert.rejects(findSimilarVector({ ...query, spread }, { given }), /spread must be/);
   }
-  await assert.rejects(findSimilarVector({ ...query, spread: { per_file: 1 }, limit: 0 }, { given: door }), /limit must be/);
-  assert.deepEqual(door.calls, [], 'nothing was read');
+  await assert.rejects(findSimilarVector({ ...query, spread: { per_file: 1 }, limit: 0 }, { given }), /limit must be/);
+  assert.deepEqual(given.calls, [], 'nothing was read');
 });
 
 const picturesHelper = fileURLToPath(new URL('./synthetic_picture_set.py', import.meta.url));
@@ -379,18 +379,18 @@ test('a set the builder made is searched by the seam as it is, and a spread give
   assert.equal(helper('build', join(work, 'v'), join(work, 'set')).status, 0);
   const { vector_set: set } = JSON.parse(readFileSync(join(work, 'set', 'vector-set.json'), 'utf8'));
   const files = { [set.items.file]: readFileSync(set.items.file), [set.vectors.file]: readFileSync(set.vectors.file) };
-  const door = () => standInDoor({ descriptors: [descriptor(set, { result_limit: 7 })], files, span: 4096 });
+  const given = () => handedIn({ descriptors: [descriptor(set, { result_limit: 7 })], files, span: 4096 });
   const query = { index_id: 'synthetic-pictures', query_vector_base64: asQuery([1, 0, 0]), limit: 3 };
-  const plain = await findSimilarVector(query, { given: door() });
+  const plain = await findSimilarVector(query, { given: given() });
   assert.ok(plain.result.items.every(item => plain.points_to[item.address].file.endsWith('.mp4') && item.score > 0.99));
-  const spread = await findSimilarVector({ ...query, spread: { per_file: 1 } }, { given: door() });
+  const spread = await findSimilarVector({ ...query, spread: { per_file: 1 } }, { given: given() });
   assert.deepEqual(spread.result.items.map(item => spread.points_to[item.address].file.split('/').pop()).slice(0, 2).sort(), ['red-one.mp4', 'red-two.mp4']);
   assert.equal(spread.points_to[spread.result.items[2].address].file.split('/').pop(), 'blue-one.mp4', 'the third place goes to another video');
 });
 
 // Two sets of one model: the "pictures" set holds timed frames, the "stills" set untimed pictures with a readable name.
 const FRAMES_B = { items: { file: '/Sets/b.jsonl' }, vectors: { file: '/Sets/b.npy' }, points_to: { file: 'path', carry: ['name'] } };
-const acrossWorld = ({ second = {} } = {}) => standInDoor({
+const acrossWorld = ({ second = {} } = {}) => handedIn({
   descriptors: [descriptor(SET), descriptor(FRAMES_B, { index_id: 'synthetic-stills', result_limit: 3, ...second })],
   files: {
     '/Sets/frames.jsonl': lines(ITEMS), '/Sets/frames.npy': npy(VECTORS),
@@ -422,14 +422,14 @@ test('one index with a spread keeps the direct search result before its final li
   const input = { query_vector_base64: asQuery([1, 0, 0, 0]), limit: 3, spread: { per_file: 1, seconds_apart: 10 } };
   for (const resultLimit of [6, 3]) {
     const d = descriptor(SET, { result_limit: resultLimit });
-    const world = () => standInDoor({ descriptors: [d], files, span: 4096 });
+    const world = () => handedIn({ descriptors: [d], files, span: 4096 });
     const direct = await findSimilarVector({ ...input, index_id: d.index_id }, { given: world() });
     const across = await findSimilarAcross({ ...input, index_ids: [d.index_id] }, { given: world() });
     assert.deepEqual(across.result, direct.result, 'across must rank to the existing descriptor limit before spreading, just as direct search does');
     assert.deepEqual(across.points_to, direct.points_to);
     assert.deepEqual(across.result.items.map(item => [across.points_to[item.address].file, item.score]), resultLimit === 6 ? [['cluster.mp4', 1], ['distinct-a.mp4', 1], ['distinct-b.mp4', 1]] : [['cluster.mp4', 1]], 'the descriptor limit stays in force even when it cannot fill the requested spread');
   }
-  const plain = await findSimilarAcross({ index_ids: ['synthetic-pictures'], query_vector_base64: input.query_vector_base64, limit: 3 }, { given: standInDoor({ descriptors: [descriptor(SET, { result_limit: 6 })], files, span: 4096 }) });
+  const plain = await findSimilarAcross({ index_ids: ['synthetic-pictures'], query_vector_base64: input.query_vector_base64, limit: 3 }, { given: handedIn({ descriptors: [descriptor(SET, { result_limit: 6 })], files, span: 4096 }) });
   assert.deepEqual(plain.result.items.map(item => item.address), [0, 1, 2].map(at => `/Sets/frames.jsonl#${at}`), 'without a spread the requested limit still applies to each descriptor');
 });
 
@@ -441,7 +441,7 @@ test('exact aggregation spreads the global qualified pool before its final limit
   const files = { '/Sets/frames.jsonl': lines(items), '/Sets/frames.npy': npy([[1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [0.8, 0.2, 0, 0]]) };
   const exact = descriptor(SET, { search_mode: 'exact', result_limit: 3 });
   const before = structuredClone(exact);
-  const world = d => standInDoor({ descriptors: [d], files, span: 4096 });
+  const world = d => handedIn({ descriptors: [d], files, span: 4096 });
   const query = { query_vector_base64: asQuery([1, 0, 0, 0]), limit: 2, spread: { per_file: 1, seconds_apart: 10 } };
   const direct = await findSimilarVector({ ...query, index_id: exact.index_id }, { given: world(exact) });
   assert.equal(direct.result.items.length, 1, 'the direct-search result_limit still bounds its result');
@@ -477,18 +477,18 @@ test('words said: every word longer than two letters, case ignored, in the order
     { clip: 'b.mp4', t: 1, end: 2, text: 'Only a table.' }, { clip: 'b.mp4', t: 4, end: 6, text: 'Table, and a zorblax again' },
   ];
   const set = { items: { file: '/Sets/said.jsonl' }, points_to: { file: 'clip', start: 't', end: 'end', text: 'text' } };
-  const door = () => standInDoor({ descriptors: [descriptor(set, { index_id: 'synthetic-said' })], files: { '/Sets/said.jsonl': lines(said) } });
-  const all = await findWordsSaid({ index_ids: ['synthetic-said'], query_text: 'a Zorblax table' }, { given: door() });
+  const given = () => handedIn({ descriptors: [descriptor(set, { index_id: 'synthetic-said' })], files: { '/Sets/said.jsonl': lines(said) } });
+  const all = await findWordsSaid({ index_ids: ['synthetic-said'], query_text: 'a Zorblax table' }, { given: given() });
   assert.deepEqual(all.lines.map(line => line.address), ['/Sets/said.jsonl#0', '/Sets/said.jsonl#1', '/Sets/said.jsonl#3']);
   assert.deepEqual(all.lines[0], { address: '/Sets/said.jsonl#0', file: 'a.mp4', start: 0, end: 2, text: 'The ZORBLAX is on the table.' });
-  assert.equal((await findWordsSaid({ index_ids: ['synthetic-said'], query_text: 'zorblax', limit: 1 }, { given: door() })).lines.length, 1);
-  assert.deepEqual((await findWordsSaid({ index_ids: ['synthetic-said'], query_text: 'it is' }, { given: door() })).lines, [], 'no word longer than two letters matches nothing');
-  await assert.rejects(findWordsSaid({ index_ids: ['synthetic-said'] }, { given: door() }), /query_text/);
+  assert.equal((await findWordsSaid({ index_ids: ['synthetic-said'], query_text: 'zorblax', limit: 1 }, { given: given() })).lines.length, 1);
+  assert.deepEqual((await findWordsSaid({ index_ids: ['synthetic-said'], query_text: 'it is' }, { given: given() })).lines, [], 'no word longer than two letters matches nothing');
+  await assert.rejects(findWordsSaid({ index_ids: ['synthetic-said'] }, { given: given() }), /query_text/);
 });
 
 test('words said refuses a set that names no text field', async () => {
-  const door = standInDoor({ descriptors: [descriptor(SET, { index_id: 'synthetic-pictures' })], files: { '/Sets/frames.jsonl': lines(ITEMS) } });
-  await assert.rejects(findWordsSaid({ index_ids: ['synthetic-pictures'], query_text: 'zorblax' }, { given: door }), /needs vector_set/);
+  const given = handedIn({ descriptors: [descriptor(SET, { index_id: 'synthetic-pictures' })], files: { '/Sets/frames.jsonl': lines(ITEMS) } });
+  await assert.rejects(findWordsSaid({ index_ids: ['synthetic-pictures'], query_text: 'zorblax' }, { given }), /needs vector_set/);
 });
 
 const keptHelper = fileURLToPath(new URL('./kept_vectors_check.py', import.meta.url));

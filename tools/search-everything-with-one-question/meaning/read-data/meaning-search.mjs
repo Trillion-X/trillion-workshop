@@ -7,9 +7,8 @@
 //   descriptor's model) and `findSimilarVector` is action:find-similar-vector (a query vector the caller already has,
 //   such as the answer of tool:words-as-picture-vector). Both answer what the actions answered, `{ index_id, result,
 //   model_id, model_version }`, plus `points_to`: for each address in the result, the file and time span its item
-//   names.
-//
-//   node tools/records-door/do-work/run-an-export.mjs tools/search-everything-with-one-question/meaning/read-data/meaning-search.mjs findSimilarVector
+//   names. Each is called with `{ given }`: the records and file spans the caller handed in (searchEverything's input, or
+//   the local CLI's own files in do-work/search-kept-vector-sets.mjs).
 //
 //   `findSimilarAcross` and `findWordsSaid` below ask the same question of several of the person's descriptors at once
 //   (see their headers); they add no ranking of their own.
@@ -441,8 +440,21 @@ export async function findWordsSaid(input, { given }) {
 // literal reader as an independent ranking for the account search finisher.
 export function searchIndexPlaces(given, config, options = {}) {
   let descriptors;
+  // For a model with an encoder in the settings, the query is the vector the caller made with that encoder and handed
+  // in, refused when its size differs from the encoder's. Without one, a run whose host lets it run another tool asks the
+  // encoder once per question and model and checks the model it answers; a run that cannot names the encoder to run first.
   const encodings = new Map();
-  const encoded = (encoder, question) => {
+  const encoded = (encoder, supplied, question) => {
+    if (supplied) {
+      let vector;
+      try { ({ vector } = JSON.parse(Buffer.from(supplied.vector_base64, 'base64').toString('utf8'))); } catch { vector = null; }
+      if (!Array.isArray(vector) || vector.length !== encoder.dims || !vector.every(Number.isFinite)) {
+        throw Object.assign(new Error('The query vector handed in is not one this model makes.'), { code: 'query_model_mismatch' });
+      }
+      return supplied.vector_base64;
+    }
+    if (!given.run) throw Object.assign(new Error('No query vector for this model was handed in.'), { code: 'query_vector_not_handed_in',
+      needs: { tool: encoder.tool, input: { texts: [question] }, model_id: encoder.model_id, model_version: encoder.model_version } });
     const key = JSON.stringify([encoder, question]);
     if (!encodings.has(key)) encodings.set(key, (async () => {
       const answer = await given.run(encoder.tool, { texts: [question] });
@@ -477,7 +489,7 @@ export function searchIndexPlaces(given, config, options = {}) {
         name: point.name ?? point.file.split('/').at(-1), path: point.file, file: point.file,
         start: point.start ?? 0, end: point.end ?? point.start ?? 0,
         timed: Number.isFinite(point.start), said: point.text ?? null,
-        address: { resource: 'own-files', input: { name: identity } },
+        address: { path: identity },
         evidence: { index_id: index, address: item.address, match, model_id: descriptor.model_id, model_version: descriptor.model_version },
         lane: { ...lane, id: `${lane.id}:${index}:${match}` } });
     };
@@ -490,14 +502,14 @@ export function searchIndexPlaces(given, config, options = {}) {
     try {
       const encoder = config.encoders?.find(item => item.model_id === descriptor.model_id && item.model_version === descriptor.model_version);
       const supplied = options.query_vectors?.find(item => item.model_id === descriptor.model_id && item.model_version === descriptor.model_version);
-      const answer = supplied
+      const answer = encoder
+        ? await findSimilarVector({ index_id: index, query_vector_base64: await encoded(encoder, supplied, question), limit }, { given })
+        : supplied
         ? await findSimilarVector({ index_id: index, query_vector_base64: supplied.vector_base64, limit }, { given })
-        : encoder
-        ? await findSimilarVector({ index_id: index, query_vector_base64: await encoded(encoder, question), limit }, { given })
         : await findSimilar({ index_id: index, query_text: question, limit }, { given });
       if (answer.result.skipped > 0) report.unavailable({ ...lane, id: `${lane.id}:${index}:meaning` }, 'unqualified_candidates');
       for (const item of answer.result.items) add(answer.points_to[item.address], item, 'meaning');
-    } catch (error) { report.unavailable({ ...lane, id: `${lane.id}:${index}:meaning` }, reasonOf(error)); }
+    } catch (error) { report.unavailable({ ...lane, id: `${lane.id}:${index}:meaning` }, reasonOf(error), error?.needs); }
   }
   return hits;
   };

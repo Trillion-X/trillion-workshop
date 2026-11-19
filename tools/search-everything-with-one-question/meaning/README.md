@@ -69,7 +69,7 @@ Until 2026-11-15 these originals sat in a second folder, `tools/meaning-search`,
 ## Dependencies
 
 **Depends on:**
-- `tools/records-door` (`run-an-export.mjs`, and the run's door for another tool's run);
+- `tools/workflows` (`do-work/run-a-function.mjs`, the runner of the parent's rows that run no other tool) and `tools/records-door` (`run-an-export.mjs`, for the two rows whose host runs the picture query encoder);
 - `tools/content-identity` (BLAKE3);
 - Node, and Python 3 for `make-embedding-facts-from-command-output.py` (standard library only);
 - for `findSimilar`, an Ollama-compatible endpoint the run can reach;

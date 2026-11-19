@@ -22,7 +22,6 @@ export function localGiven(descriptors) {
         return { content: bytes.subarray(0, count).toString('base64'), encoding: 'base64', byte_length };
       } finally { closeSync(file); }
     },
-    run: async () => { throw new Error('This local CLI runs no tools.'); },
   };
 }
 

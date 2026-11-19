@@ -13,7 +13,7 @@
     "1. Name the folder of videos (input) and the folder for the set (output); the same output folder again adds only new videos.",
     "2. Your AI reads the row with tools:list {tool: \"tool:make-a-picture-vector-set-of-my-videos\"} and runs python3 trillion-workshop/tools/search-everything-with-one-question/meaning/do-work/make_picture_vector_set.py --videos {input} --out {output}.",
     "3. Read the last line {\"result\": {\"frames\", \"added\", \"videos_done\", \"out\"}}; output/vector-set.json holds the vector_set member for the index descriptor.",
-    "4. Search the set by what the pictures show with tool:search-everything-with-one-question; words are turned into the same kind of vector by tool:words-as-picture-vector."
+    "4. Search the set by what the pictures show with tool:search-everything-with-one-question; words are turned into the same kind of vector by tool:words-as-picture-vector, handed in to the search as query_vectors."
   ],
   "worked_examples": [
     {

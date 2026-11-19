@@ -183,7 +183,7 @@
         "label": "Search everything I keep",
         "status": "active",
         "job": "Find anything in my account with one question across every list and file, by what was said, seen, named or written",
-        "description": "One question over every record and file name the caller hands in, and each installed semantic index among them. The caller reads the person's records and files from the person's own store and gives them as `records` and `files`; this run searches them and reads no store, and changes nothing. Results are fused by rank, never by scores across models, with addresses (the person's own record by id and kind, or a file by path), places (said, seen, name, written), timed moments and their original evidence scores. Semantic-index-descriptor records are discovered automatically; no index choice is needed. places and sources narrow the requested search. unavailable names every source or model that could not answer (a source not handed in too); pending names work still in progress. A missing model leaves literal words usable.",
+        "description": "One question over every record and file name the caller hands in, and each installed semantic index among them. The caller reads the person's records and files from the person's own store and gives them as `records` and `files`; this run searches them and reads no store, and changes nothing. Results are fused by rank, never by scores across models, with addresses (the person's own record by id and kind, or a file by path), places (said, seen, name, written), timed moments and their original evidence scores. Semantic-index-descriptor records are discovered automatically; no index choice is needed. places and sources narrow the requested search. unavailable names every source or model that could not answer (a source not handed in too); pending names work still in progress. A missing model leaves literal words usable. A model with an encoder in the settings (a picture model) is asked with the query vector handed in as query_vectors; without one this row runs that encoder (the one other tool it may run).",
         "input_schema": {
           "type": "object",
           "required": [
@@ -239,7 +239,7 @@
             "query_vectors": {
               "type": "array",
               "minItems": 1,
-              "description": "Optional encoded queries from a model. Each vector is used only for indexes with the exact same model identity; other models still encode the question.",
+              "description": "Encoded queries the caller made with a model. Each vector is used only for indexes with the exact same model identity and is checked against the size of the encoder in read-data/settings.json. Without one, a model with an encoder there is asked through that encoder when the run may run it, and is otherwise unavailable with needs naming the encoder tool and its input; other models embed the question themselves.",
               "items": {
                 "type": "object",
                 "required": [
@@ -587,7 +587,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -753,12 +752,11 @@
                 "at": "/opt/search-everything-with-one-question"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -782,20 +780,6 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -804,7 +788,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/search-everything-with-one-question/do-work/search-everything.mjs",
             "searchEverything"
           ],
@@ -989,7 +973,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1157,12 +1140,11 @@
                 "at": "/opt/search-everything-with-one-question"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -1186,20 +1168,6 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -1208,7 +1176,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/search-everything-with-one-question/do-work/search-everything.mjs",
             "searchEverything"
           ],
@@ -1490,6 +1458,35 @@
             "files": {
               "type": "object",
               "description": "The person's files the search reads, by path (under /): each name maps to its text, or to {base64}, as the caller read it from its own store. What is not given is not there."
+            },
+            "query_vectors": {
+              "type": "array",
+              "minItems": 1,
+              "description": "Encoded queries the caller made with a model. Each vector is used only for indexes with the exact same model identity and is checked against the size of the encoder in read-data/settings.json. Without one, a model with an encoder there is asked through that encoder when the run may run it, and is otherwise unavailable with needs naming the encoder tool and its input; other models embed the question themselves.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "model_id",
+                  "model_version",
+                  "vector_base64"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "model_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "model_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "vector_base64": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Base64 JSON containing {vector: number[]}."
+                  }
+                }
+              }
             }
           }
         },

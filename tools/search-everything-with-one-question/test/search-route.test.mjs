@@ -9,35 +9,34 @@ const RECORDS_SOURCE = settings.lanes.find(lane => lane.match === 'records').sou
 
 const RECORDS = [{ id: 'k1', type: 'note', value: { title: 'Kiln notes', body: 'kiln at the studio' } }];
 const FILES = { '/Notes/kiln plan.txt': 'made-up plan' };
-const door = { run: async () => { throw new Error('no tool run in this test'); } };
 const GET = (query, extra = {}) => ({ path: '/search', method: 'GET', query, body: {}, browser: {}, records: RECORDS, files: FILES, ...extra });
 
 test('GET /search answers the one search with its question, and places narrow the lanes', async () => {
-  const every = await answerTheSearchRoute(GET({ q: 'kiln' }), { door });
+  const every = await answerTheSearchRoute(GET({ q: 'kiln' }));
   assert.equal(every.status, 200);
   assert.equal(every.body.question, 'kiln');
   assert.deepEqual(every.body.results.map(hit => hit.source).sort(), ['files', RECORDS_SOURCE].sort());
-  const names = await answerTheSearchRoute(GET({ q: 'kiln', places: 'name' }), { door });
+  const names = await answerTheSearchRoute(GET({ q: 'kiln', places: 'name' }));
   assert.deepEqual(names.body.results.map(hit => hit.path), ['/Notes/kiln plan.txt']);
-  const written = await answerTheSearchRoute(GET({ q: 'kiln', places: 'written' }), { door });
+  const written = await answerTheSearchRoute(GET({ q: 'kiln', places: 'written' }));
   assert.deepEqual(written.body.results.map(hit => hit.record), ['k1']);
 });
 
 test('sources and matches narrow the answer, and a limit is a whole number at most 200', async () => {
-  const sourced = await answerTheSearchRoute(GET({ q: 'kiln', sources: 'files, ', limit: '5' }), { door });
+  const sourced = await answerTheSearchRoute(GET({ q: 'kiln', sources: 'files, ', limit: '5' }));
   assert.deepEqual(sourced.body.results.map(hit => hit.source), ['files']);
-  const many = await answerTheSearchRoute(GET({ q: 'kiln', limit: '900' }), { door });
+  const many = await answerTheSearchRoute(GET({ q: 'kiln', limit: '900' }));
   assert.equal(many.status, 200);
-  const none = await answerTheSearchRoute(GET({ q: 'kiln', limit: '0', matches: 'indexes' }), { door });
+  const none = await answerTheSearchRoute(GET({ q: 'kiln', limit: '0', matches: 'indexes' }));
   assert.deepEqual(none.body.results, []);
 });
 
 test('a question left out is the empty question, which asks no lane; any other request is no route of this one', async () => {
-  const empty = await answerTheSearchRoute({ path: '/search', method: 'GET', query: {} }, { door });
+  const empty = await answerTheSearchRoute({ path: '/search', method: 'GET', query: {} });
   assert.equal(empty.status, 200);
   assert.deepEqual(empty.body.results, []);
-  assert.deepEqual(await answerTheSearchRoute({ path: '/search', method: 'POST', query: { q: 'kiln' } }, { door }), { status: 404, body: { error: 'Not found' } });
-  assert.deepEqual(await answerTheSearchRoute({ path: '/search/lanes', method: 'GET', query: {} }, { door }), { status: 404, body: { error: 'Not found' } });
+  assert.deepEqual(await answerTheSearchRoute({ path: '/search', method: 'POST', query: { q: 'kiln' } }), { status: 404, body: { error: 'Not found' } });
+  assert.deepEqual(await answerTheSearchRoute({ path: '/search/lanes', method: 'GET', query: {} }), { status: 404, body: { error: 'Not found' } });
 });
 
 test('a route row takes the records and files it is handed and declares no store right', () => {
