@@ -41,7 +41,7 @@ import { requests } from './publisher-requests.mjs';
 import { substack } from './publisher-substack.mjs';
 import { shaped } from './post-shape.mjs';
 import { slugOf } from './place-variants.mjs';
-import { recordsIn, withKept } from './records-in.mjs';
+import { keepRows, recordsIn, valueAt, withKept } from './records-in.mjs';
 
 // The publishers this tool carries, bound by the names place rows use (`adapter`). A place whose adapter is not here
 // is refused in plain words.
@@ -235,8 +235,8 @@ export async function sendAPost(input = {}, { now = () => new Date(), send = fet
   const { post_id: postId, place: placeSlug, account_id: accountId, resend = false, armed_at: armedAt, media_url: mediaUrl } = input;
   if (typeof postId !== 'string' || !postId.trim() || typeof accountId !== 'string' || !accountId.trim()) throw new Error('Give post_id and account_id (one of the post\'s destinations).');
   if (typeof placeSlug !== 'string' || !placeSlug.trim()) throw new Error('Give place (the slug of the place account_id belongs to).');
-  const { door, kept } = recordsIn(input);
-  let post = await door.read(TYPE, postId.trim());
+  const { records, kept } = recordsIn(input);
+  let post = valueAt(records, TYPE, postId.trim());
   if (!post) throw new Error(`There is no post ${postId.trim()} among the records handed in, so nothing was sent.`);
   if (armedAt !== undefined && (post.armed_at !== armedAt || !settings.at_its_time.sends_while.includes(post.status))) {
     return { post_id: post.post_id, status: post.status, said: settings.at_its_time.words.no_longer_set };
@@ -251,7 +251,7 @@ export async function sendAPost(input = {}, { now = () => new Date(), send = fet
   if (!(settings.resend_states.includes(state) || (state === 'not known' && resend === true))) {
     return { post_id: post.post_id, status: post.status, post: shaped(post), said: state === 'posted' ? 'This destination already has the post.' : state === 'not known' ? fillWords(settings.not_known_words, { platform: earlier.label ?? accountId }) : 'This destination is already taking the post.' };
   }
-  const connection = await door.read(settings.connection_type, `${settings.connection_prefix}${encodeURIComponent(accountId)}`);
+  const connection = valueAt(records, settings.connection_type, `${settings.connection_prefix}${encodeURIComponent(accountId)}`);
   if (!connection) throw new Error(`${accountId} has no connection record among the records handed in, so nothing was sent.`);
   const place = PLACES.find(item => item.connection_vendor === connection.vendor) ?? null;
   if (!place) throw new Error(`${accountId} is a ${connection.vendor} connection, and no place takes that, so nothing was sent.`);
@@ -285,7 +285,7 @@ export async function sendAPost(input = {}, { now = () => new Date(), send = fet
     const beforeSending = deliveries[accountId]?.status !== 'not known' || refusedHere || error?.issues?.length || error?.retryDisposition?.kind === 'never';
     if (beforeSending) deliveries[accountId] = { platform: place.platform, label: place.label, status: 'failed', attempt, error: refusedHere?.message ?? wordsFor(place, { code: error?.code, message: error?.issues?.map(issue => issue.message).join(' ') || error?.message, retry: error?.retryDisposition?.kind }) };
   }
-  await door.write(settle());
+  keepRows(kept, settle());
   const shown = shaped(post);
   const mine = shown.destinations.find(item => item.account_id === accountId);
   return withKept({ post_id: post.post_id, status: post.status, post: shown, said: mine.status === 'posted' ? `Posted to ${place.label}.` : mine.error ?? `${place.label}: ${mine.status}.` }, kept);

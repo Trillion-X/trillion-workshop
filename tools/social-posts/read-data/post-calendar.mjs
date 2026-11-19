@@ -5,14 +5,14 @@
 // approved post with neither is unscheduled. Each post says whether it can still be moved.
 import settings from './post-calendar.json' with { type: 'json' };
 import { KIND, changeable, shaped } from './post-shape.mjs';
-import { recordsIn } from './records-in.mjs';
+import { recordsOfType, recordsIn } from './records-in.mjs';
 
 const DAY_MS = 86_400_000;
 
 /** tool:read-post-calendar: the posts between `from` and `to`, earliest first, and the unscheduled ones, newest first. */
 export async function readPostCalendar(input = {}) {
   const { from, to } = input;
-  const { door } = recordsIn(input);
+  const { records } = recordsIn(input);
   const start = Date.parse(from);
   const end = Date.parse(to);
   if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) throw new Error('from and to are dates and times with their zone, from before to, like 2026-10-01T00:00:00-04:00 and 2026-11-01T00:00:00-04:00.');
@@ -20,7 +20,7 @@ export async function readPostCalendar(input = {}) {
   const at = post => post.scheduled_for ?? post.sent_at ?? null;
   // The records are listed a kind greatest id first, so the newest posts come first.
   const every = [];
-  for await (const record of door.list({ type: KIND })) if (record.value) every.push(record.value);
+  for (const record of recordsOfType(records, KIND)) if (record.value) every.push(record.value);
   const onIt = every.filter(post => { const time = Date.parse(at(post)); return time >= start && time < end; }).sort((a, b) => Date.parse(at(a)) - Date.parse(at(b)));
   const unscheduled = every.filter(post => !at(post) && ['draft', 'approved'].includes(post.status)).slice(0, settings.list_limit);
   const shown = post => ({ ...shaped(post), at: at(post), can_move: changeable(post) });

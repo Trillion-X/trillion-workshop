@@ -11,7 +11,7 @@
 // the place's account (account_id) and the place's own id for it (platform_post_id).
 import { readPostPerformanceAttributionRows } from './post-performance-attribution.ts';
 import { KIND } from './post-shape.mjs';
-import { recordsIn } from './records-in.mjs';
+import { recordsOfType, recordsIn } from './records-in.mjs';
 
 const plainObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const placeAddress = (postId, accountId) => `post:${postId}:${accountId}`;
@@ -54,14 +54,14 @@ const conversionRow = conversion => ({ role: 'attribution_conversions', payload:
 /** tool:see-how-each-post-did: one row per place a post was published to that has a count, a visit or a conversion. */
 export async function seeHowEachPostDid(input = {}) {
   const { post_ids, observations = [], visits = [], conversions = [] } = input;
-  const { door } = recordsIn(input);
+  const { records } = recordsIn(input);
   for (const [name, list] of [['observations', observations], ['visits', visits], ['conversions', conversions]]) {
     if (!Array.isArray(list)) throw new Error(`${name} must be a list.`);
   }
   if (post_ids !== undefined && (!Array.isArray(post_ids) || post_ids.some(id => typeof id !== 'string'))) throw new Error('post_ids must be a list of post_id values from tool:read-post-calendar.');
   const wanted = post_ids ? new Set(post_ids) : null;
   const published = [];
-  for await (const record of door.list({ type: KIND })) {
+  for (const record of recordsOfType(records, KIND)) {
     if (record.value && (!wanted || wanted.has(record.value.post_id))) published.push(...publishedRows(record.value));
   }
   const rows = readPostPerformanceAttributionRows([...published, ...observations.map(observationRow), ...visits.map(visitRow), ...conversions.map(conversionRow)]);

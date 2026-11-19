@@ -54,7 +54,7 @@ adapter is historical evidence, not a second implementation of the current owner
 |------|---------|
 | `read-data/records-in.mjs` | `recordsIn(input)`: the records handed in as a read-only door for the readers here, and the rows a call would keep (`keep`); nothing is stored. |
 | `read-data/post-shape.mjs` | The one shape of a post: the approval fields, whether it can still change, and the post as every reader sees it. |
-| `read-data/posts.mjs` | `listPostDestinations`, `draftAPost`, `checkAPost`, `approveAPost`, `setAPostToGoAtItsTime`, `takeBackAPost`, run by `tools/records-door/do-work/run-an-export.mjs`. |
+| `read-data/posts.mjs` | `listPostDestinations`, `draftAPost`, `checkAPost`, `approveAPost`, `setAPostToGoAtItsTime`, `takeBackAPost`, run by `tools/workflows/do-work/run-a-function.mjs`. |
 | `read-data/posts.json` | The record kinds, link tags, limits, ready-check limits and words, the first-contact rule, how a file reaches a place (`media`), the markups a place may take words in (`markup`) and the states a timed send still sends in and the words a send says once its post is no longer set (`at_its_time`). |
 | `read-data/post-places.json` | One row per place: the connection vendor that reaches it, how its publisher is filled (held and readable fields), its hosts, its default settings, what it takes (`format`), how the engine renews its access token (`refresh`) and how a connection is asked who it is (`check`). |
 | `read-data/place-variants.mjs` | `sendVariants` and `checkVariants`: the by_input variants of `tool:send-a-post` and `tool:check-a-connection` (connection kind, renewal, mounted held fields; or the check request and its one injection) made from the place rows. `node tools/social-posts/read-data/place-variants.mjs --write` rewrites them in `tool-rows.json`. A new place is a row; no tool id or code names it. |
@@ -104,7 +104,7 @@ adapter is historical evidence, not a second implementation of the current owner
 
 ## Dependencies
 
-**Depends on:** `tools/records-door`; `@opencoredev/social-sdk` 0.5.0 (MIT, locked in the Workshop's package-lock.json), packed by the send rows.
+**Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`); `@opencoredev/social-sdk` 0.5.0 (MIT, locked in the Workshop's package-lock.json), packed by the send rows.
 
 ## Moved from Trillion
 

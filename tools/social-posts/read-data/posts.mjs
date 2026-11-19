@@ -37,7 +37,7 @@ import settings from './posts.json' with { type: 'json' };
 import placeRows from './post-places.json' with { type: 'json' };
 import { mediaFacts, readyFor, readyOverall } from './post-ready.mjs';
 import { APPROVAL_FIELDS, changeable, contentOf, shaped } from './post-shape.mjs';
-import { recordsIn, withKept } from './records-in.mjs';
+import { keepRows, recordAt, recordsIn, recordsOfType, withKept } from './records-in.mjs';
 
 const TYPE = settings.record_type;
 const PLACES = placeRows.places;
@@ -64,25 +64,25 @@ function timeZoneName(zone) {
   try { return new Intl.DateTimeFormat('en-US', { timeZone: zone }).resolvedOptions().timeZone; } catch { return null; }
 }
 
-async function readPostRecord(door, postId) {
+function readPostRecord(records, postId) {
   if (typeof postId !== 'string' || !postId.trim()) return null;
-  return door.readRecord(TYPE, idOf(postId.trim()));
+  return recordAt(records, TYPE, idOf(postId.trim()));
 }
 
-async function readPost(door, postId) {
-  return (await readPostRecord(door, postId))?.value ?? null;
+function readPost(records, postId) {
+  return (readPostRecord(records, postId))?.value ?? null;
 }
 
-// The post as it ends: taken into the rows to keep (door.write), never stored by this run.
-async function keep(door, post) {
-  await door.write([{ id: post.post_id, type: TYPE, value: post }]);
+// The post as it ends: taken into the rows to keep (records.write), never stored by this run.
+function keep(kept, post) {
+  keepRows(kept, [{ id: post.post_id, type: TYPE, value: post }]);
   return post;
 }
 
 // The person's connection records, each { connection_id, vendor, ... }.
-async function connectionsOf(door) {
+function connectionsOf(records) {
   const found = [];
-  for await (const record of door.list({ type: settings.connection_type })) {
+  for (const record of recordsOfType(records, settings.connection_type)) {
     const value = record.value;
     if (object(value) && typeof value.connection_id === 'string' && typeof value.vendor === 'string') found.push(value);
   }
@@ -116,8 +116,8 @@ function destinationOf(place, connection) {
   return { account_id: connection.connection_id, platform: place.platform, label: place.label, name: connection.account_label ?? null, ready: !said, ...(said ? { said } : {}) };
 }
 
-async function destinationsOf(door, listed = null) {
-  const all = listed ?? await connectionsOf(door);
+function destinationsOf(records, listed = null) {
+  const all = listed ?? connectionsOf(records);
   const destinations = [];
   const notConnected = [];
   for (const place of PLACES) {
@@ -130,8 +130,8 @@ async function destinationsOf(door, listed = null) {
 
 /** tool:list-post-destinations: the person's accounts a post can go to, and each place they have no account for. */
 export async function listPostDestinations(input) {
-  const { door } = recordsIn(input);
-  const { destinations, not_connected } = await destinationsOf(door);
+  const { records } = recordsIn(input);
+  const { destinations, not_connected } = destinationsOf(records);
   return { destinations, not_connected,
     said: destinations.length ? `${destinations.length} ${destinations.length === 1 ? 'account is' : 'accounts are'} connected for posting.` : 'No account is connected for posting yet. Connect one, then list again.' };
 }
@@ -164,9 +164,9 @@ export function wordsOf(post, place, accountId) {
 
 // Whether the post is ready for each place it is going: the words and settings exactly as each place is sent them,
 // the file as the post knows it, the account as the person's connection record says it.
-async function checksOf(door, post) {
-  const listed = await connectionsOf(door);
-  const { destinations: accounts, not_connected: notConnected } = await destinationsOf(door, listed);
+function checksOf(records, post) {
+  const listed = connectionsOf(records);
+  const { destinations: accounts, not_connected: notConnected } = destinationsOf(records, listed);
   const byId = new Map(accounts.map(item => [item.account_id, item]));
   const all = new Map(listed.map(item => [item.connection_id, item]));
   const media = post.media ? { found: true, media_type: post.media.media_type ?? null, facts: mediaFacts({ byte_length: post.media.byte_length }, post.media.facts) } : null;
@@ -203,8 +203,8 @@ function mediaOf(given, facts) {
 /** tool:draft-a-post: keeps a draft for the person to look at. Nothing is posted. */
 export async function draftAPost(input = {}, { now = () => new Date() } = {}) {
   if (!object(input)) throw new Error('Give the post as an object: caption, and optionally media, destinations, link and scheduled_for.');
-  const { door, kept } = recordsIn(input);
-  const earlierRecord = input.post_id === undefined ? null : await readPostRecord(door, input.post_id);
+  const { records, kept } = recordsIn(input);
+  const earlierRecord = input.post_id === undefined ? null : readPostRecord(records, input.post_id);
   const earlier = earlierRecord?.value ?? null;
   if (input.post_id !== undefined && !earlier) throw new Error(`There is no post ${input.post_id}. Leave post_id out to draft a new one.`);
   if (earlier && !changeable(earlier)) throw new Error(`${earlier.post_id} is already on its way, so it cannot change. Draft a new post instead.`);
@@ -224,7 +224,7 @@ export async function draftAPost(input = {}, { now = () => new Date() } = {}) {
   if (!Array.isArray(given) || given.some(item => typeof item !== 'string' || !item.trim())) throw new Error('destinations is a list of account_id values from tool:list-post-destinations.');
   const destinationIds = [...new Set(given.map(item => item.trim()))];
   if (destinationIds.length > settings.max_destinations) throw new Error(`A post goes to at most ${settings.max_destinations} destinations.`);
-  const known = new Set((await connectionsOf(door)).filter(item => placeFor(item.vendor)).map(item => item.connection_id));
+  const known = new Set((connectionsOf(records)).filter(item => placeFor(item.vendor)).map(item => item.connection_id));
   const unknown = destinationIds.filter(id => !known.has(id));
   if (unknown.length) throw new Error(`${unknown.join(', ')} ${unknown.length === 1 ? 'is not an account' : 'are not accounts'} this person can post to. tool:list-post-destinations shows the ones they can.`);
   if (!caption.trim() && !media) throw new Error('A post needs words (caption) or a video or picture (media).');
@@ -250,28 +250,28 @@ export async function draftAPost(input = {}, { now = () => new Date() } = {}) {
     created_at: base.created_at ?? at, updated_at: at,
     ...(drafter ? { drafted_by: drafter } : base.drafted_by ? { drafted_by: base.drafted_by } : {}),
   };
-  if (earlier && contentOf(earlier) === contentOf(post)) return { post: shaped(earlier), ready: await checksOf(door, earlier), said: 'Nothing changed in the post.' };
-  await keep(door, post);
+  if (earlier && contentOf(earlier) === contentOf(post)) return { post: shaped(earlier), ready: checksOf(records, earlier), said: 'Nothing changed in the post.' };
+  keep(kept, post);
   const said = earlier?.status === 'approved' || earlier?.status === 'scheduled' ? 'The post changed, so it is a draft again: approve it once it has been looked at.'
     : destinationIds.length ? 'The post is kept as a draft. Show it to the person, then approve it with tool:approve-a-post.'
       : 'The post is kept as a draft that goes nowhere yet. Pick where it goes (destinations from tool:list-post-destinations) before it can be approved.';
-  return withKept({ post: shaped(post), ready: await checksOf(door, post), said }, kept);
+  return withKept({ post: shaped(post), ready: checksOf(records, post), said }, kept);
 }
 
 /** tool:check-a-post: whether the post is ready for each place it is going. It changes nothing. */
 export async function checkAPost(input = {}) {
   const { post_id: postId } = input;
-  const { door } = recordsIn(input);
-  const post = await readPost(door, postId);
+  const { records } = recordsIn(input);
+  const post = readPost(records, postId);
   if (!post) return { post_id: String(postId ?? ''), status: 'missing', said: `There is no post ${postId ?? ''}, so nothing was checked.` };
-  return { post_id: post.post_id, status: post.status, ...(await checksOf(door, post)) };
+  return { post_id: post.post_id, status: post.status, ...(checksOf(records, post)) };
 }
 
 /** tool:approve-a-post: approves the post exactly as it was reviewed. */
 export async function approveAPost(input = {}, { now = () => new Date() } = {}) {
   const { post_id: postId, expected_values: expected, approved_by: approvedBy } = input;
-  const { door, kept } = recordsIn(input);
-  const current = await readPostRecord(door, postId);
+  const { records, kept } = recordsIn(input);
+  const current = readPostRecord(records, postId);
   const post = current?.value ?? null;
   if (!post) throw new Error(`There is no post ${postId ?? ''}.`);
   // The reviewed snapshot is compared with the post as it is now, so newer words, destinations or timing are never
@@ -282,7 +282,7 @@ export async function approveAPost(input = {}, { now = () => new Date() } = {}) 
   if (!post.destinations?.length) throw nowhere(post);
   const at = now().toISOString();
   const by = text(approvedBy, 100);
-  const approved = await keep(door, { ...post, status: 'approved', approved_at: at, ...(by ? { approved_by: by } : {}), updated_at: at });
+  const approved = keep(kept, { ...post, status: 'approved', approved_at: at, ...(by ? { approved_by: by } : {}), updated_at: at });
   return withKept({ post: shaped(approved), said: 'Approved. tool:set-a-post-to-go-at-its-time sets it to go at its scheduled time.' }, kept);
 }
 
@@ -290,8 +290,8 @@ export async function approveAPost(input = {}, { now = () => new Date() } = {}) 
  *  the send and delivery receipt. This action never reports a queued post as published. */
 export async function publishAPostNow(input = {}, { now = () => new Date() } = {}) {
   const { post_id: postId, expected_values: expected } = input;
-  const { door, kept } = recordsIn(input);
-  const current = await readPostRecord(door, postId);
+  const { records, kept } = recordsIn(input);
+  const current = readPostRecord(records, postId);
   const post = current?.value ?? null;
   if (!post) throw new Error(`There is no post ${postId ?? ''}.`);
   const at = now();
@@ -311,11 +311,11 @@ export async function publishAPostNow(input = {}, { now = () => new Date() } = {
     throw new Error(`${post.post_id} is ${post.status}. Only an approved post can be queued to publish now.`);
   }
   if (!post.destinations?.length) throw nowhere(post);
-  const ready = await checksOf(door, post);
+  const ready = checksOf(records, post);
   if (!ready.ready) return { post_id: post.post_id, status: post.status, post: shaped(post), ready, said: `It was not queued. ${ready.said} ${ready.destinations.filter(item => !item.ready).map(item => item.said).join(' ')}`.trim() };
 
   const timestamp = at.toISOString();
-  const scheduled = await keep(door, { ...post, scheduled_for: timestamp, status: 'scheduled', armed_at: timestamp, updated_at: timestamp });
+  const scheduled = keep(kept, { ...post, scheduled_for: timestamp, status: 'scheduled', armed_at: timestamp, updated_at: timestamp });
   return withKept({ post_id: scheduled.post_id, status: scheduled.status, post: shaped(scheduled), ready, said: 'Queued for the send wake now. Each destination will show its own outcome; this action did not send the post.' }, kept);
 }
 
@@ -323,8 +323,8 @@ export async function publishAPostNow(input = {}, { now = () => new Date() } = {
  *  is scheduled. Nothing is sent now. */
 export async function setAPostToGoAtItsTime(input = {}, { now = () => new Date() } = {}) {
   const { post_id: postId } = input;
-  const { door, kept } = recordsIn(input);
-  const current = await readPostRecord(door, postId);
+  const { records, kept } = recordsIn(input);
+  const current = readPostRecord(records, postId);
   const post = current?.value ?? null;
   if (!post) throw new Error(`There is no post ${postId ?? ''}.`);
   if (post.status === 'scheduled') return { post_id: post.post_id, status: post.status, post: shaped(post), said: `It is already set to go at ${post.scheduled_for}.` };
@@ -333,18 +333,18 @@ export async function setAPostToGoAtItsTime(input = {}, { now = () => new Date()
   if (!post.scheduled_for || !(Date.parse(post.scheduled_for) > now().getTime())) {
     throw new Error(`${post.post_id} has no time still ahead. Give it one with tool:draft-a-post (scheduled_for), approve it again, then set it.`);
   }
-  const ready = await checksOf(door, post);
+  const ready = checksOf(records, post);
   if (!ready.ready) return { post_id: post.post_id, status: post.status, post: shaped(post), ready, said: `It was not set to go. ${ready.said} ${ready.destinations.filter(item => !item.ready).map(item => item.said).join(' ')}`.trim() };
   const at = now().toISOString();
-  const scheduled = await keep(door, { ...post, status: 'scheduled', armed_at: at, updated_at: at });
+  const scheduled = keep(kept, { ...post, status: 'scheduled', armed_at: at, updated_at: at });
   return withKept({ post_id: scheduled.post_id, status: scheduled.status, post: shaped(scheduled), ready, said: `It goes out at ${scheduled.scheduled_for}. Nothing was sent now.` }, kept);
 }
 
 /** tool:take-back-a-post: a scheduled post that nothing was sent for is a draft again, so its time sends nothing. */
 export async function takeBackAPost(input = {}, { now = () => new Date() } = {}) {
   const { post_id: postId } = input;
-  const { door, kept } = recordsIn(input);
-  const current = await readPostRecord(door, postId);
+  const { records, kept } = recordsIn(input);
+  const current = readPostRecord(records, postId);
   const post = current?.value ?? null;
   if (!post) throw new Error(`There is no post ${postId ?? ''}.`);
   if (post.status !== 'scheduled' || post.sent_at || Object.keys(post.deliveries ?? {}).length) {
@@ -352,6 +352,6 @@ export async function takeBackAPost(input = {}, { now = () => new Date() } = {})
   }
   const at = now().toISOString();
   const { armed_at: _armed, ...rest } = post;
-  const back = await keep(door, { ...rest, status: 'draft', cancelled_because: 'taken back', updated_at: at });
+  const back = keep(kept, { ...rest, status: 'draft', cancelled_because: 'taken back', updated_at: at });
   return withKept({ post: shaped(back), said: 'Taken back: it is a draft again and nothing will be sent at its time.' }, kept);
 }
