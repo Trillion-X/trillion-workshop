@@ -115,7 +115,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -336,7 +335,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -407,7 +405,7 @@
         "description": "Makes a sound of `text` with a speech model on the person's computer (read-data/speak.json programs and engines: mlx-audio with Qwen3-TTS for a voice cloned from a reference recording, Kokoro for the neutral voice), in the voice asked for, else the voice chosen for `place` or the chosen voice, else the shared voices in order; a voice that cannot be made is passed over with why. The sound is made at its natural pace and handed to the engine's declared Files output owner. Completion returns its exact byte identity only after persistence; retry an unavailable or unknown result with the original request key so generation is not repeated. The answer carries the place's speed for the player to apply with the pitch kept. The person's voices and places are their own list rows, which their AI reads from a store and hands in as `voices` and `places`; a voice row's `reference` is a file on this computer. This tool reads and keeps no records. Scratch is removed; the private output remains until delivery succeeds. Nothing is sent to a paid service and no system voice substitutes. It plays nothing: the sound is a file.",
         "input_schema": {"type":"object","required":["text"],"additionalProperties":false,"properties":{"text":{"type":"string","minLength":1,"maxLength":2000,"description":"The words to say","x-free-text-because":"The words to say out loud."},"voice":{"type":"string","maxLength":80,"description":"A voice id from the voices rows handed in, or a shared voice (default: the place's voice, else the chosen one)"},"place":{"type":"string","maxLength":80,"description":"Where it is said, a row of the Where Trillion speaks list (for example said-out-loud, calls, car)"},"voices":{"type":"array","maxItems":200,"description":"The rows of the person's Voices list ({ id, values }) the voice is chosen from; none means the shared voices only","items":{"type":"object"}},"places":{"type":"array","maxItems":200,"description":"The rows of the person's Where Trillion speaks list ({ id, values }) the place and its speed come from","items":{"type":"object"}},"speech_python":{"type":"string","maxLength":400,"description":"The python on this computer that has mlx-audio and soundfile (default: the first found)","x-free-text-because":"A file path on this computer."}}},
         "output_schema": {"type":"object","required":["file","files","voice","speed"],"properties":{"file":{"type":"string","pattern":"^1f:[a-f0-9]{64}$"},"files":{"type":"array","minItems":1,"maxItems":1,"items":{"type":"object","required":["name","bytes","blake3"],"additionalProperties":false,"properties":{"name":{"const":"said.wav"},"bytes":{"type":"integer","minimum":0,"maximum":536870912},"blake3":{"type":"string","pattern":"^[a-f0-9]{64}$"}}}},"seconds":{"type":"number"},"voice":{"type":"object"},"engine":{"type":"string"},"produced_by":{"type":"string"},"passed_over":{"type":"array"},"speed":{"type":["number","null"]},"text":{"type":"string"}}},
-        "invoke": {"kind":"computer","capabilities":["start-a-program"],"workdir":"/opt/generate-speech","stdout":"json","argv":["node","/opt/records-door/do-work/run-an-export.mjs","/opt/generate-speech/read-data/speak.mjs","say"],"stdin":{"fill":{"from":"input"}},"files":{"package_files":[
+        "invoke": {"kind":"computer","capabilities":["start-a-program"],"workdir":"/opt/generate-speech","stdout":"json","argv":["node","/opt/workflows/do-work/run-a-function.mjs","/opt/generate-speech/read-data/speak.mjs","say"],"stdin":{"fill":{"from":"input"}},"files":{"package_files":[
           {
             "package": "generate-speech",
             "paths": [
@@ -417,12 +415,11 @@
             "at": "/opt/generate-speech"
           },
           {
-            "package": "records-door",
+            "package": "workflows",
             "paths": [
-              "do-work",
-              "read-data"
+              "do-work/run-a-function.mjs"
             ],
-            "at": "/opt/records-door"
+            "at": "/opt/workflows"
           },
           {
             "package": "content-identity",
@@ -581,7 +578,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -652,7 +648,7 @@
         "description": "Makes the person's own voice from `recording`, a recording of them on this computer: the speech model on this computer picks the stretch that ends where a sentence ends and makes a reference sound of it. The answer holds `voice` (the row { id, values } for their Voices list: label, engine, reference_text, made_from, made_at) and the reference sound as the run's declared output (`files`), the file the row's `reference` then names. This tool keeps nothing: the person's AI keeps the row in a store, chooses or removes voices there, and hands the rows to tool:say-with-a-voice-model.",
         "input_schema": {"type":"object","additionalProperties":false,"required":["recording"],"properties":{"recording":{"type":"string","maxLength":400,"description":"A recording of the person speaking, a file on this computer","x-free-text-because":"A file path on this computer."},"label":{"type":"string","maxLength":80,"x-free-text-because":"The name the person gives their voice."},"speech_python":{"type":"string","maxLength":400,"description":"The python on this computer that has mlx-audio and soundfile (default: the first found)","x-free-text-because":"A file path on this computer."}}},
         "output_schema": {"type":"object","required":["voice","file","files","said"],"properties":{"voice":{"type":"object","required":["id","values"]},"file":{"type":"string","pattern":"^1f:[a-f0-9]{64}$"},"files":{"type":"array","minItems":1,"maxItems":1,"items":{"type":"object","required":["name","bytes","blake3"],"additionalProperties":false,"properties":{"name":{"const":"reference.wav"},"bytes":{"type":"integer","minimum":0,"maximum":536870912},"blake3":{"type":"string","pattern":"^[a-f0-9]{64}$"}}}},"said":{"type":"string"}}},
-        "invoke": {"kind":"computer","capabilities":["start-a-program"],"workdir":"/opt/generate-speech","stdout":"json","argv":["node","/opt/records-door/do-work/run-an-export.mjs","/opt/generate-speech/read-data/speak.mjs","voices"],"stdin":{"fill":{"from":"input"}},"files":{"package_files":[
+        "invoke": {"kind":"computer","capabilities":["start-a-program"],"workdir":"/opt/generate-speech","stdout":"json","argv":["node","/opt/workflows/do-work/run-a-function.mjs","/opt/generate-speech/read-data/speak.mjs","voices"],"stdin":{"fill":{"from":"input"}},"files":{"package_files":[
           {
             "package": "generate-speech",
             "paths": [
@@ -662,12 +658,11 @@
             "at": "/opt/generate-speech"
           },
           {
-            "package": "records-door",
+            "package": "workflows",
             "paths": [
-              "do-work",
-              "read-data"
+              "do-work/run-a-function.mjs"
             ],
-            "at": "/opt/records-door"
+            "at": "/opt/workflows"
           },
           {
             "package": "content-identity",

@@ -2,8 +2,8 @@
 //
 // Purpose
 //   Says words in a natural voice made by a speech model on the person's own computer: their own cloned voice or a
-//   neutral one, never a paid service. Run as functions by tools/records-door's run-an-export.mjs, which opens no
-//   door here: this file reads and writes no records.
+//   neutral one, never a paid service. Run as functions by tools/workflows/do-work/run-a-function.mjs, which hands
+//   them only their input: this file reads and writes no records.
 //     say    (tool:say-with-a-voice-model) { text, voice?, place?, voices?, places?, speech_python? } -> the sound, as the run's declared output
 //     voices (tool:voices)                 { recording, label?, speech_python? } -> the voice made from that recording, with its reference sound as the run's declared output
 //   Moved from the product repo's computer/speak.mjs (speakTools, sayHere, voiceOrder) with the voice and speed of a

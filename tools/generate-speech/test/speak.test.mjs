@@ -93,7 +93,7 @@ test('when no voice can be made the answer is an error with every reason, so the
   await assert.rejects(sayHere({ text: 'x'.repeat(settings.longest_text + 1), out: path.join(folder, 'none.wav') }, { settings, ask: modelFor() }), /split it/);
 });
 
-test('tool:say-with-a-voice-model hands exact bytes to the original-result-bound output owner and is handed no records door', async () => {
+test('tool:say-with-a-voice-model hands exact bytes to the original-result-bound output owner and reads no store', async () => {
   let made = null;
   const outputFolder = path.join(folder, 'said-output');
   const places = [{ id: 'car', values: { speed: 3 } }];
