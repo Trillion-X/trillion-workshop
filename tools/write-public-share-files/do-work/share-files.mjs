@@ -4,8 +4,8 @@
 //   The public files of every live public share, as data: what a public server serves read-only from one folder for
 //   /share/. Moved from Trillion's src/record-share-pages.mjs (the listed documents, the data read and the list and
 //   row pages), src/record-sharing.mjs (a link's admission, listRows, latestDay, one row of a list) and
-//   src/list-public-comparison.mjs (comparisonRows). Pure: the shell (write-share-files.mjs) reads the records and
-//   writes the folder; this reads and writes nothing.
+//   src/list-public-comparison.mjs (comparisonRows). Pure: the shell (write-share-files.mjs) takes the records handed in
+//   and writes the folder; this reads and writes nothing.
 //
 //   <code>.json (and <name>.json)   the share as data: { kind: "list", title, about, changed, fields,
 //                                   rows: [{ id, title, address, url, values }], files: [{ identity, name, url, media_type }] },

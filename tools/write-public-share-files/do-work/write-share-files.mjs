@@ -1,16 +1,18 @@
 // tools/write-public-share-files/do-work/write-share-files.mjs
 //
-// The thin shell around share-files.mjs: reads the person's sharing rows, the Lists they share, those Lists' rows and
-// the files the shown rows name through the run's records door (records:list, records:read, read_file), hands them to
-// the pure core, and writes the public files into the folder the caller names, at the paths the public server serves
-// under /share/. It then writes manifest.json: every file with its BLAKE3 content identity (tools/content-identity),
-// and which files of the last run it removed because their link was revoked, expired, narrowed or changed.
+// The thin shell around share-files.mjs: takes the person's sharing rows, the Lists they share and those Lists' rows as
+// the records the caller read from the person's own store and handed in (input.records), reads the files the shown
+// rows name through the run's files door (read_file), hands them to the pure core, and writes the public files into
+// the folder the caller names, at the paths the public server serves under /share/. It then writes manifest.json: every
+// file with its BLAKE3 content identity (tools/content-identity), and which files of the last run it removed because
+// their link was revoked, expired, narrowed or changed. It holds no records method: the store is never read here.
 //
-//   writeShareFiles({ input: { origin, row_kind }, folder }, { door, now?, filterRows? })
+//   writeShareFiles({ input: { origin, row_kind, records? }, folder }, { door, now?, filterRows? })
 //     → { written, unchanged, removed, published, left_out, ended, next_change_at, wake_effects, host_files }
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Records, rows and files are read only through the run's door; nothing else of the person's is read.
+//   1. Records are the ones handed in as input.records; files are read only through the run's files door (read_file).
+//      Nothing else of the person's is read.
 //   2. A file is written whole under a temporary name and renamed into place, and the bytes of a shared file must
 //      have the identity the row names, or the run stops before the manifest changes.
 //   3. Every path the last manifest names that this run did not write is removed: no stale copy of an ended link or a
@@ -70,19 +72,22 @@ async function fileBytes(door, identity) {
   return bytes;
 }
 
+// The records of one type the caller handed in as input.records: { id, type, value }.
+const recordsOf = (records, type) => records.filter(record => record?.type === type && record.value && typeof record.value === 'object');
+
 // The shares as the core takes them: each link grant with the List (or the List of the row) it shares and its rows.
-async function readShares(door, rowKind) {
+async function readShares(records, rowKind, door) {
   const shares = [];
   const lists = new Map();
-  const listOf = async ref => {
+  const listOf = ref => {
     if (!lists.has(ref)) {
-      const list = await door.read(data.list_kind, ref);
+      const found = recordsOf(records, data.list_kind).find(record => record.id === ref);
+      const list = found ? found.value : null;
       let rows = [];
       if (list?.row_type && `record:${list.row_type}` !== rowKind) rows = null;
       else if (list?.row_type) {
         const type = `record:${list.row_type}`;
-        for await (const record of door.list({ type })) {
-          if (!record?.value) continue;
+        for (const record of recordsOf(records, type)) {
           const id = String(record.id).startsWith(`${type}:`) ? String(record.id).slice(type.length + 1) : String(record.id);
           const title = record.value[list.title_field] ?? record.value[list.fields?.[0]?.id] ?? null;
           rows.push({ id, title: typeof title === 'string' ? title : null, values: record.value });
@@ -100,11 +105,11 @@ async function readShares(door, rowKind) {
     }
     return facts.get(name);
   };
-  for await (const record of door.list({ type: 'sharing' })) {
-    const sharing = record?.value;
+  for (const record of recordsOf(records, 'sharing')) {
+    const sharing = record.value;
     if (!sharing?.record || !Array.isArray(sharing.link_grants) || !sharing.link_grants.length) continue;
     const ref = partOf(sharing.record)?.whole ?? sharing.record;
-    const { list, rows } = ref.startsWith(`${data.list_kind}:`) ? await listOf(ref) : { list: null, rows: [] };
+    const { list, rows } = ref.startsWith(`${data.list_kind}:`) ? listOf(ref) : { list: null, rows: [] };
     for (const grant of sharing.link_grants) shares.push({ sharing, grant, list, rows, fileOf });
   }
   return shares;
@@ -112,9 +117,12 @@ async function readShares(door, rowKind) {
 
 export async function writeShareFiles({ input = {}, folder } = {}, { door, now = Date.now(), filterRows = defaultFilter } = {}) {
   if (typeof folder !== 'string' || !folder) throw say('bad_input', 'Name the folder the public share files are written to.');
-  if (!door) throw say('bad_input', 'This tool reads the shares through the run\'s records door.');
+  if (!door) throw say('bad_input', 'This tool reads the shared files through the run\'s files door.');
   if (typeof input.row_kind !== 'string' || !input.row_kind.startsWith('record:')) throw say('bad_input', 'row_kind is the record kind of the shared Lists\' rows, record:<the List\'s row_type>.');
-  const result = await shareFiles({ origin: input.origin, now, shares: await readShares(door, input.row_kind), filterRows });
+  // The records are never read here: a run without them is refused, so it never publishes or removes from a partial view.
+  if (!Array.isArray(input.records)) throw say('bad_input', 'records are required: the caller reads the sharing, List and row records from the person\'s own store and hands them in.');
+  const records = input.records;
+  const result = await shareFiles({ origin: input.origin, now, shares: await readShares(records, input.row_kind, door), filterRows });
   const before = await readManifest(folder);
   const held = new Map((before?.files ?? []).map(file => [file.path, file.identity]));
   const files = [];
@@ -146,7 +154,8 @@ export async function writeShareFiles({ input = {}, folder } = {}, { door, now =
     files: files.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0)), removed }, null, 2)}\n`));
   const at = result.next_change_at ? Date.parse(result.next_change_at) : null;
   return { written, unchanged, removed, published: result.published, left_out: result.left_out, ended: result.ended, next_change_at: result.next_change_at,
-    wake_effects: at === null ? [] : [{ wake: { tool: TOOL, at_ms: at, input } }],
+    // The wake carries no records: it must be given fresh ones from the person's store, never this run's snapshot.
+    wake_effects: at === null ? [] : [{ wake: { tool: TOOL, at_ms: at, input: { origin: input.origin, row_kind: input.row_kind } } }],
     // A caller composing export + host configuration uses the same current file
     // list, including types for content identities which have no extension. This
     // is desired DATA, not a claim that nginx received it or that a remote host

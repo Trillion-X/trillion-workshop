@@ -39,9 +39,10 @@ A server maps `/share/<name>` and `/share/<name>/<row>` to their `index.html`, b
 
 `tool:write-public-share-files` declares two wakes on the person's own records: one when a `sharing` row (a link's grant) changes and one when a `list` changes. When a published link will expire, it answers a `wake_effects` run of itself at that time, through the engine's existing wake. It has no scheduler and does not poll.
 
-It reads through the run's records door (`records:list`, `records:read`), and reads the bytes of shared files with the files door's `read_file`. Its input is `{ origin, row_kind }`:
+It holds no records method and reads no store. The caller reads the person's sharing rows, List rows and row_kind rows from the person's own store and hands them in as `input.records` (`{id, type, value}`); the bytes of shared files are read with the files door's `read_file`. Its input is `{ origin, row_kind, records }`:
 - `origin` is the https address the server answers on.
 - `row_kind` is the one row record kind (`record:<row_type>`) the run is granted to list.
+- `records` are the sharing rows (type `sharing`), the shared List rows (type `list`) and the row_kind rows (type `record:<row_type>`).
 
 A List whose rows are another kind is left out of that folder.
 
@@ -54,7 +55,7 @@ This result does not deploy a server. A workflow applying it must prove that the
 ## Code
 
 - `do-work/share-files.mjs`: the pure core. It reads and writes nothing; it turns the shares into the files above.
-- `do-work/write-share-files.mjs`: the thin shell. It reads through the door, writes whole files under temporary names, keeps unchanged files, removes ended ones and writes the manifest.
+- `do-work/write-share-files.mjs`: the thin shell. It takes the records handed in, reads shared bytes through the files door, writes whole files under temporary names, keeps unchanged files, removes ended ones and writes the manifest.
 - `read-data/`: the moved `list-copy.mjs`, `shareable-copy.mjs` and the DATA.
 
 ## Checks
