@@ -1,12 +1,11 @@
 {
-  "_what": "What the pages remember on a device: a way the person said Not now to (passkey, password) is not offered again for this many days (the old product's after_sign_in.skip_days). `remembered_seconds`: an AI the person already allowed is shown \"Connecting\" with an Undo for this long before it is let through. `read_only_drops`: the method patterns the Read only switch on the consent screen leaves out (every other pattern asked for is kept); `read_only_swaps`: a pattern with a reading-only narrower pattern, given in its place when Read only is on.",
+  "_what": "What the pages remember on a device: a way the person said Not now to (passkey, password) is not offered again for this many days (the old product's after_sign_in.skip_days). `remembered_seconds`: a sign-in the person already allowed is shown \"Connecting\" with an Undo for this long before it is let through. `read_only_drops`: the method patterns the Read only switch on the consent screen leaves out (every other pattern asked for is kept; grants:offer is kept too, because an offer grants nothing until the person accepts it with their passkey); `read_only_swaps`: a pattern with a reading-only narrower pattern, given in its place when Read only is on.",
   "skip_days": 400,
   "remembered_seconds": 4,
   "read_only_drops": [
     "wake:*",
     "sharing.*",
-    "secrets:*",
-    "grants:offer"
+    "secrets:*"
   ],
   "read_only_swaps": {
     "tools:*": "tools:list"
