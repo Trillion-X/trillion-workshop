@@ -26,7 +26,7 @@ const recipe = steps => ({ kind: 'workflow-recipe', id: 'workflow:fixture', job:
 
 const explicitStep = () => ({
   ...step('read'), when: 'The input names a public source record id.',
-  do: 'Call records:read at @own-records with { id: input.source_id }.',
+  do: 'Read the record input.source_id from the person\'s own store, in that store\'s own query language.',
   submit: { type: 'object', properties: { quote: { type: 'string' } }, required: ['quote'] },
   done_when: 'The returned quote is visible in this step answer.',
   if_missing: 'If source_id is absent, return { quote: "missing source" }; do not invent one.',
