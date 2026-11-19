@@ -1,13 +1,13 @@
 {
-  "_what": "Tells the person when one of their wakes stops, through tool:tell-the-person (every way they chose for needs-you). It wakes on the wake-failed fact the engine keeps (trillion-rust e9f19e41c) and names no store: the fact carries the tool, the wake and the cause. Switching the wake off and on again resumes it, which the notice says.",
+  "_what": "Tells the person when one of their wakes stops, through tool:tell-the-person (every way they chose for needs-you). It wakes on the wake-failed fact the engine keeps (engine commit e9f19e41c) and names no store: the fact carries the tool, the wake and the cause. The notice says what stopped and what to read before switching the wake on again.",
   "records": [
     {
       "payload": {
         "kind": "workflow-recipe",
         "id": "workflow:tell-when-a-wake-stops",
         "label": "Tell me when a wake stops",
-        "job": "Tell the person when one of their wakes stops, with its cause, and that switching it off and on resumes it. It names no store: it hears the wake-failed fact the engine keeps whenever a wake turns failed.",
-        "produces": "One notice to the person per wake-failed fact, kind needs-you, titled '<tool> <wake> stopped: <cause>'.",
+        "job": "Tell the person when one of their wakes stops, with its cause, and what to read before switching it on again. It names no store: it hears the wake-failed fact the engine keeps whenever a wake turns failed.",
+        "produces": "One notice to the person per wake-failed fact, kind needs-you, titled '<tool> <wake> stopped: <cause>', whose body says what the cause means.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -90,7 +90,54 @@
                       }
                     ]
                   },
-                  "body": "Switch it off and on to resume it.",
+                  "body": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "fact.cause"
+                    },
+                    "resolve_nested_bindings": true,
+                    "transform": [
+                      {
+                        "op": "op:core.contains",
+                        "args": {
+                          "value": "declaration_changed_switch_on_again"
+                        }
+                      },
+                      {
+                        "op": "op:core.if",
+                        "args": {
+                          "then": "Its tool row changed since you switched it on. Read what it asks for now (wake:list shows it) and switch it on again only if you still want that.",
+                          "else": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "fact.cause"
+                            },
+                            "resolve_nested_bindings": true,
+                            "transform": [
+                              {
+                                "op": "op:core.concat",
+                                "args": {
+                                  "values": [
+                                    "It stopped because: ",
+                                    {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "input",
+                                        "path": "fact.cause"
+                                      }
+                                    },
+                                    "."
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  },
                   "kind": "needs-you"
                 },
                 "context": {
