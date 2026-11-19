@@ -38,7 +38,8 @@ test('a free row lets a person in once; the member row comes back under keep and
   const { keep, ...said } = first.result;
   assert.deepEqual(said, { space: 'sample-club', subject: ANA, joined: true, state: 'member', member_type: 'member', how: 'free' });
   assert.equal(memberOf(keep).name, 'Ana');
-  assert.equal(first.calls.filter(call => call.method.startsWith('records:')).length, 0, 'the run touched no records');
+  assert.equal(keep.length, 1, 'one row comes back under keep');
+  assert.equal(keep[0].expected, null, 'a new member row expects no record there');
   const second = await run(join, { space: 'sample-club', subject: ANA }, stored(records, first));
   assert.equal(second.result.joined, false);
   assert.equal(second.result.keep, undefined, 'the second ask has nothing to keep');
@@ -107,7 +108,7 @@ test('a member chooses the name they show and the row comes back under keep; a s
   assert.equal(named.result.keep.length, 1);
   assert.equal(named.result.keep[0].id, rowId('member', 'sample-club', OWNER));
   assert.equal(named.result.keep[0].value.name, 'Sample Owner');
-  assert.deepEqual(named.kept, named.result.keep.map(({ id, type, value }) => ({ id, type, value })), 'only what the run answers to keep is kept, by the caller');
+  assert.deepEqual(named.result.keep[0].expected, owner, 'the row expects the record it was handed in, so a store refuses it if that record moved');
   const stranger = await run(naming, { space: 'sample-club', subject: BO, name: 'Bo' }, records);
   assert.notEqual(stranger.status, 0);
 });
@@ -119,7 +120,10 @@ test('the space\'s own words replace the standard ones', async () => {
 });
 
 test('no row holds a records right', () => {
-  for (const one of [join, leave, check, list, naming]) assert.equal(one.invoke.records, undefined, `${one.id} is handed no door`);
+  for (const one of [join, leave, check, list, naming]) {
+    assert.equal(one.invoke.records, undefined, `${one.id} is handed no door`);
+    assert.ok(!JSON.stringify(one.invoke).includes('records-door'), `${one.id} names no records door`);
+  }
 });
 
 test('the join reader: rows are DATA, any row that holds admits, a row the DATA does not name admits nobody', () => {

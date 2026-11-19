@@ -121,7 +121,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -253,7 +252,7 @@
        "items": {
         "type": "object"
        },
-       "description": "The rows to store, each { id, type, value } with the whole row as value; absent when nothing changed"
+       "description": "The rows to store, each { id, type, value, expected } with the whole row as value and expected the record as it was handed in (null for a new row); absent when nothing changed"
       }
      }
     },
@@ -268,14 +267,6 @@
          "read-data"
         ],
         "at": "/opt/space-members"
-       },
-       {
-        "package": "records-door",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/records-door"
        },
        {
         "package": "content-identity",
@@ -355,8 +346,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
-      "/opt/space-members/do-work/space-members.mjs",
+      "/opt/space-members/do-work/space-members-run.mjs",
       "joinASpace"
      ],
      "stdin": {
@@ -538,7 +528,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -660,7 +649,7 @@
        "items": {
         "type": "object"
        },
-       "description": "The rows to store, each { id, type, value } with the whole row as value; absent when nothing changed"
+       "description": "The rows to store, each { id, type, value, expected } with the whole row as value and expected the record as it was handed in (null for a new row); absent when nothing changed"
       }
      }
     },
@@ -675,14 +664,6 @@
          "read-data"
         ],
         "at": "/opt/space-members"
-       },
-       {
-        "package": "records-door",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/records-door"
        },
        {
         "package": "content-identity",
@@ -762,8 +743,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
-      "/opt/space-members/do-work/space-members.mjs",
+      "/opt/space-members/do-work/space-members-run.mjs",
       "leaveASpace"
      ],
      "stdin": {
@@ -945,7 +925,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -1095,14 +1074,6 @@
         "at": "/opt/space-members"
        },
        {
-        "package": "records-door",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/records-door"
-       },
-       {
         "package": "content-identity",
         "paths": [
          "read-data"
@@ -1180,8 +1151,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
-      "/opt/space-members/do-work/space-members.mjs",
+      "/opt/space-members/do-work/space-members-run.mjs",
       "checkSomeoneIsInASpace"
      ],
      "stdin": {
@@ -1363,7 +1333,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -1494,14 +1463,6 @@
         "at": "/opt/space-members"
        },
        {
-        "package": "records-door",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/records-door"
-       },
-       {
         "package": "content-identity",
         "paths": [
          "read-data"
@@ -1579,8 +1540,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
-      "/opt/space-members/do-work/space-members.mjs",
+      "/opt/space-members/do-work/space-members-run.mjs",
       "listASpacesMembers"
      ],
      "stdin": {
@@ -1762,7 +1722,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -1885,7 +1844,7 @@
        "items": {
         "type": "object"
        },
-       "description": "The rows to store, each { id, type, value } with the whole row as value; absent when nothing changed"
+       "description": "The rows to store, each { id, type, value, expected } with the whole row as value and expected the record as it was handed in (null for a new row); absent when nothing changed"
       }
      }
     },
@@ -1900,14 +1859,6 @@
          "read-data"
         ],
         "at": "/opt/space-members"
-       },
-       {
-        "package": "records-door",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/records-door"
        },
        {
         "package": "content-identity",
@@ -1987,8 +1938,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
-      "/opt/space-members/do-work/space-members.mjs",
+      "/opt/space-members/do-work/space-members-run.mjs",
       "chooseTheNameIShowInASpace"
      ],
      "stdin": {

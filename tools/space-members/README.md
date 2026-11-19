@@ -17,15 +17,16 @@ Ported from old Trillion (tag `old-trillion-before-worker-retire`): `src/communi
 
 | File | Purpose |
 |------|---------|
-| `read-data/space-rows.mjs` | The one owner of the record kinds (`record:space`, `record:space-member`, `record:space-invitation`, `record:space-item`, `record:space-reaction`, `record:space-rsvp`, `record:space-fact`, `record:space-reward-claim`), their ids, and `keepRow`, a compare-and-set write that reports whether anything changed. Other space tools import it. |
+| `read-data/space-rows.mjs` | The one owner of the record kinds (`record:space`, `record:space-member`, `record:space-invitation`, `record:space-item`, `record:space-reaction`, `record:space-rsvp`, `record:space-fact`, `record:space-reward-claim`), their ids, and `keepRow`, the keep of one changed row: `{ id, type, value, expected }`, where `expected` is the record as it was handed in, or nothing when the row changed to the same value. Other space tools import it. |
 | `read-data/member-now.mjs` | `memberNow`, `admission`, `joinRowProblems`, `howToJoin`, `wordsFor`: the join rule and the one membership reader. |
 | `read-data/join-rows.json` | The join row keys, their comparisons and the standard words (DATA). |
 | `read-data/member-types.mjs` | The member types of a space (its label's from `tools/space-member-types`, its own, its roles), inheritance with missing parents and cycles refused, the type a joiner gets. |
 | `read-data/held-access.mjs` | What each person holds, from one read of the account's access records. |
 | `do-work/space-members.mjs` | The functions the five rows run: `(input) => result`, over the `records` handed in; join, leave and choose-a-name answer the member row under `keep`. |
+| `do-work/space-members-run.mjs` | The command the rows run: one JSON request on standard input, the function named by the first argument, `{ result }` or `{ error }` as the last line. |
 | `tool-rows.json` | The five rows: `tool:join-a-space`, `tool:leave-a-space`, `tool:check-someone-is-in-a-space`, `tool:list-a-spaces-members`, `tool:choose-the-name-i-show-in-a-space`. |
 | `kits/` | One kit per row. |
-| `test/space-members.test.mjs` | The rows run as the container runs them with the records handed in and no door: join by a free row, by held access, refused without it, lapse on refund and back, leave and rejoin, a person put out stays out, only members list members. |
+| `test/space-members.test.mjs` | The rows run as the container runs them with the records handed in: join by a free row, by held access, refused without it, lapse on refund and back, leave and rejoin, a person put out stays out, only members list members. |
 
 ## Key Types / Functions
 
@@ -33,7 +34,7 @@ Ported from old Trillion (tag `old-trillion-before-worker-retire`): `src/communi
 |---|---|---|
 | `memberNow` | `({ space, subject, member, held_access_refs }) => { member, state, reason }` | state is member, lapsed, left, removed or none. |
 | `admission` | `(space, { invited, held_access }) => { admitted, how }` | Which join row, if any, lets a person in. |
-| `keepRow` | `(door, kind, id, value, existing?) => { written, value }` | Create or replace one row, refused by the door if it changed since it was read. |
+| `keepRow` | `(kind, id, value, handed) => { id, type, value, expected } \| null` | The keep of one row a run changes; `handed` is the record as the caller handed it in (null for a new row), so the store refuses the write if it moved. |
 | `record:space-member` | `{ space, subject, member_type, state, how, invitation?, joined_at, ended_at?, name? }` | One row per person per space; the id is made from the space and the person. |
 
 ## Not carried, and why
@@ -44,6 +45,6 @@ Ported from old Trillion (tag `old-trillion-before-worker-retire`): `src/communi
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (packed), `tools/paid-access` (the held-access reader), `tools/formulas` (the row filter), `tools/space-member-types` (DATA).
+**Depends on:** `tools/paid-access` (the held-access reader), `tools/formulas` (the row filter), `tools/space-member-types` (DATA).
 
 **Depended on by:** every other space tool.
