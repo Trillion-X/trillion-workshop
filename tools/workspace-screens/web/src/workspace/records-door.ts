@@ -16,6 +16,7 @@ import { postJson, postNothingRead, readItemJson } from './api';
 
 import { recordScope, sameRecordScope as sameScope, type RecordScope, type RecordContext } from './record-history';
 export { recordScope, type RecordScope, type RecordContext } from './record-history';
+type Written = { changed: boolean; write_count: number };
 export type StoredRecord = { id: string; type?: string; value: Record<string, unknown> | null; expected?: null | { type: string; value?: unknown; identity?: string }; scope?: RecordScope; context?: RecordContext };
 type Page = { records?: StoredRecord[]; next?: string | null; scope?: RecordScope; context?: RecordContext };
 
@@ -28,8 +29,28 @@ function returnedContext<T extends { scope?: RecordScope; context?: RecordContex
   return { ...answer, ...(scope ? { scope } : {}) };
 }
 
+/** Where the page's records door answers: the Workshop Worker's door by default (the signed-in page), or a page's own
+ *  records (setRecordsDoor, records-door-seeded.ts). The read, list and write calls keep their shapes whichever answers. */
+export type RecordsDoor = {
+  read(input: Record<string, unknown>): Promise<unknown>;
+  list(input: Record<string, unknown>): Promise<unknown>;
+  write(body: { records: StoredRecord[]; scope?: unknown }, quiet: boolean): Promise<Written>;
+};
+
+const workerRecordsDoor: RecordsDoor = {
+  read: input => readItemJson(`/work/api/door/records:read?input=${encodeURIComponent(JSON.stringify(input))}`),
+  list: input => readItemJson(`/work/api/door/records:list?input=${encodeURIComponent(JSON.stringify(input))}`),
+  write: (body, quiet) => (quiet ? postNothingRead<Written>('/work/api/records', body) : postJson<Written>('/work/api/records', body)),
+};
+let mountedDoor: RecordsDoor = workerRecordsDoor;
+
+/** The page's records door: mounted once at its entry, before any screen reads a record. */
+export function setRecordsDoor(door: RecordsDoor): void {
+  mountedDoor = door;
+}
+
 const door = <T>(operation: 'list' | 'read', input: Record<string, unknown>) =>
-  readItemJson<T>(`/work/api/door/records:${operation}?input=${encodeURIComponent(JSON.stringify(input))}`);
+  (operation === 'list' ? mountedDoor.list(input) : mountedDoor.read(input)) as Promise<T>;
 const tooLarge = () => new Error('A record is too large to show here. Ask your AI to read it.');
 
 /** One record's value as kept now, or null when there is none of that type. */
@@ -76,7 +97,6 @@ export async function listRecords(input: Record<string, unknown>, most = Infinit
   return (await listRecordsFrom(input, most)).records;
 }
 
-type Written = { changed: boolean; write_count: number };
 /** Writes each record whole (a value of null erases it), in one write. A `quiet` write leaves every read this page
  *  keeps standing (api.ts postNothingRead), for a write no screen draws, such as a timing kept in the background. */
 export const writeRecords = (records: StoredRecord[], { quiet = false, scope, create = false }: { quiet?: boolean; scope?: RecordScope; create?: boolean } = {}) => {
@@ -91,5 +111,5 @@ export const writeRecords = (records: StoredRecord[], { quiet = false, scope, cr
   // Context is transport custody, never part of a user record or a second write.
   const writes = records.map(({ scope: _scope, context: _context, ...record }) => record);
   const input = { records: writes, ...(selected ? { scope: { ...selected, ...(create ? { create: true } : {}) } } : {}) };
-  return quiet ? postNothingRead<Written>('/work/api/records', input) : postJson<Written>('/work/api/records', input);
+  return mountedDoor.write(input, quiet);
 };

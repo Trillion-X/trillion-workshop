@@ -24,6 +24,14 @@ type Hosted = HTMLElement & { _thingToPutOnScreenCleanup?: Unmount | null };
 /** What a page draws around a screen it mounts: given the pane, what it shows and the mount of the screen itself. */
 export type Around = (element: HTMLElement, shown: { entry: string; input: Record<string, unknown> }, mount: (element: HTMLElement) => Unmount) => Unmount;
 
+/** The screens key a label names: this app's own entry, or `<package>/<entry>` for a screen another package offers
+ *  (a lesson opened from a course list). Empty when the label names no screen. */
+function keyOfLabel(label: string, prefix: string): string {
+  if (label.startsWith(prefix)) return label.slice(prefix.length);
+  const foreign = /^package::([^:]+)::entry-bytes::(.+)$/.exec(label);
+  return foreign ? `${foreign[1]}/${foreign[2]}` : '';
+}
+
 /** Installs the runner for an app whose screens list is `addressLabel` (`placeable-surface-list::<app>`). */
 export function installScreenRunner(screens: Record<string, WarmMount>, addressLabel: string, around: Around = (element, _shown, mount) => mount(element)): void {
   const prefix = `package::${addressLabel.split('::').at(-1)}::entry-bytes::`;
@@ -32,13 +40,14 @@ export function installScreenRunner(screens: Record<string, WarmMount>, addressL
       const place = request.screenPlace;
       const element = (place && 'element' in place ? place.element : place) as Hosted;
       const label = request.sourceBytes?.address_label ?? '';
-      const mount = label.startsWith(prefix) ? screens[label.slice(prefix.length)] : undefined;
+      const key = keyOfLabel(label, prefix);
+      const mount = key ? screens[key] : undefined;
       if (!mount) {
         mountScreenState(element, { status: 'empty', icon: 'LayoutPanelLeft', title: 'This screen is not part of Trillion', description: 'Close this tab and open a screen from the sidebar.', action: goTo('Open Home', 'trillion.home') });
         element._thingToPutOnScreenCleanup = () => element.replaceChildren();
         return undefined;
       }
-      const entry = label.slice(prefix.length);
+      const entry = key;
       const input = request.props?.surfaceInput ?? {};
       // Which screen this pane holds, so a tour step can point inside it (`[data-trillion-screen="tool-screen"] ...`).
       element.dataset.trillionScreen = typeof input.screen === 'string' ? input.screen : entry;

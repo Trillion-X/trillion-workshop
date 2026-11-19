@@ -2,11 +2,10 @@
 //
 // PURPOSE
 //   The one place the workspace's shared screens (sidebar, screen arrangement, screen look, ui) read and write the
-//   person's saved state. Those screens were written against a record engine and ask for records by name
-//   (`useBitfieldData('layout-state')`) and change them with label-addressed read and write requests
-//   (`sendRequestToBitfieldTarget`). Here those two calls are answered by this page: records live in memory, start
-//   from the page's own DATA (the screens this app offers) plus the person's saved records, and every write is kept in
-//   the person's own store on the Worker (`/work/api/records`), so the next visit opens the same arrangement.
+//   person's saved state. Those screens ask for records by name (`useBitfieldData('layout-state')`) and change them with
+//   label-addressed read and write requests (`sendRequestToBitfieldTarget`). Here those two calls are answered: records
+//   are held in memory, and every read and write goes to the source the page mounted (records-source.ts). This file
+//   names no server; the Workshop Worker's source (records-worker-source.ts) keeps each write in the person's own store.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. One record per address label. A read and a write of the same label reach the same value, whatever address
@@ -19,7 +18,7 @@
 //      graph, the chat's conversations); several may answer one target, each naming the requests it handles; a target
 //      nobody registered is refused with the words callers already recognise
 //      (`unknown target: <target>`), and each caller falls back as it always has.
-//   5. Saving is last-write-wins per label, through the page's one outbox for small writes (quiet-writes.ts): a change
+//   5. Saving is last-write-wins per label, through the page's one outbox for small writes (records-source.ts): a change
 //      is sent at once when nothing was sent in the last moment, changes made within that moment ride together in one
 //      batch, and a change the store has not accepted yet is kept on this device and sent again by itself (a busy
 //      store, a reload, a page left) until it is. A page that opens with changes an earlier page left unsent shows them.
@@ -34,7 +33,7 @@
 //      history path (any path but the current record, such as a save's version note) is not kept: the person's store
 //      keeps one current value per label.
 //   9. A label a row of record-places.json claims (`<prefix><room>/<address>`) lives in that live room, not in the
-//      person's store (live-room.ts): a read waits for the room to open and answers what the room holds; a write is
+//      person's store (a source's live room): a read waits for the room to open and answers what the room holds; a write is
 //      kept by the room (merged with any member's change made at the same moment) and never sent to the person's store;
 //      and once a screen has read such a label, every change the room hears to it is taken here and told to
 //      subscribeSavedChanges like a change from another device, so every screen showing it sees it live.
@@ -47,15 +46,13 @@ import { bytesToHex } from '@noble/hashes/utils.js';
 import { makeHashCodeHexFromBytes } from './content-identity.mjs';
 export { makeHashCodeHexFromBytes } from './content-identity.mjs';
 import { jsonExpansionBytes } from 'trillion-workshop/tools/json-expansion.mjs';
-import inputs from './inputs.json';
-import { onRecordsChange, type ReadDepends } from './store-changes';
-import liveKeys from '../live-keys.json' with { type: 'json' };
-import { bodyOf, readJson } from './api';
-import { isQuietWriteCurrent, isQuietWritePendingVersion, isQuietWriteWaiting, onQuietWriteAccepted, onQuietWriteRefusedReceipt, quietWritesAreReadOnly, restoreQuietWrites, sendQuietly, trackQuietWriteAcceptance, type QuietWriteReceipt } from './quiet-writes';
-import { openLiveRoom, type LiveRoom } from './live-room';
-import recordPlaces from './record-places.json';
-import cacheData from './record-cache.json';
-import { startupRecordLabels, startupRecordsPath } from './startup-records.mjs';
+import inputs from './inputs.json' with { type: 'json' };
+import { activeRecordsSource, onRecordsSourceMounted, RECORDS_OP, setWorkspaceRecordsSource, type RecordsAdmin, type RecordsLiveRoom, type RecordsOutbox, type RecordsReceipt, type WorkspaceDocumentRevision } from './records-source.ts';
+import recordPlaces from './record-places.json' with { type: 'json' };
+import cacheData from './record-cache.json' with { type: 'json' };
+import { startupRecordLabels } from './startup-records.mjs';
+import { workerRecordsSource } from './records-worker-source.ts';
+export type { WorkspaceDocumentRevision } from './records-source.ts';
 
 type Selector = string | { input: string; params?: Record<string, unknown> } | undefined;
 type InputRow = { address?: string; address_from_param?: string; missing?: 'empty-list' };
@@ -94,19 +91,19 @@ const appliedSavedRecordReads = new Map<string, number>();
 export function beginSavedRecordRead(): SavedRecordReadStart {
   return { changeCount, generation: ++savedRecordReadGeneration };
 }
-const RECORDS_PATH = '/work/api/records';
+const outbox = (): RecordsOutbox => activeRecordsSource().outbox;
 const outboxKey = (label: string) => `records:${label}`;
 const LABEL_OF_KEY = /^records:/;
 
 /** A checked outbox snapshot proves a device copy only while this exact record version still remains in it. */
-export const isSavedRecordPending = (label: string, identity: string): boolean => isQuietWritePendingVersion(outboxKey(label), identity);
+export const isSavedRecordPending = (label: string, identity: string): boolean => outbox().isPendingVersion(outboxKey(label), identity);
 
 export type SavedRecordAcceptance = { label: string; payload: unknown; identity: string; generation: number };
 /** Observe only a current record version's permanent remote refusal. */
 export function subscribeSavedRecordRefusal(label: string, listener: (receipt: SavedRecordAcceptance & { status: number; expectedIdentity?: string | null }) => void): () => void {
-  return onQuietWriteRefusedReceipt((writes, status) => {
+  return outbox().onRefusedReceipt((writes, status) => {
     for (const write of writes) {
-      if (write.path !== RECORDS_PATH || write.key !== outboxKey(label) || !isQuietWriteCurrent(write) || !Array.isArray(write.body.writes)) continue;
+      if (write.path !== RECORDS_OP || write.key !== outboxKey(label) || !outbox().isCurrent(write) || !Array.isArray(write.body.writes)) continue;
       for (const row of write.body.writes as Write[]) if ((row.address_label ?? row.address) === label) {
         listener({ label, payload: row.payload, identity: identityOfValue(row.payload), generation: write.generation, status,
           ...(row.expected_identity !== undefined ? { expectedIdentity: row.expected_identity } : {}) });
@@ -126,9 +123,9 @@ export function subscribeSavedRecordAcceptance(label: string, listener: (receipt
   };
 }
 
-function publishSavedRecordAcceptance(writes: QuietWriteReceipt[], result: unknown): void {
+function publishSavedRecordAcceptance(writes: RecordsReceipt[], result: unknown): void {
   if (!result || typeof result !== 'object' || Array.isArray(result)
-      || !writes.every(write => write.path === RECORDS_PATH && Array.isArray(write.body.writes))) return;
+      || !writes.every(write => write.path === RECORDS_OP && Array.isArray(write.body.writes))) return;
   const reply = result as { written?: unknown; write_count?: unknown; conflicts?: unknown };
   const rows = writes.flatMap(write => write.body.writes as Write[]);
   const conflicts = reply.conflicts ?? [];
@@ -156,7 +153,7 @@ function publishSavedRecordAcceptance(writes: QuietWriteReceipt[], result: unkno
       // The older accepted write is the remote basis even while a newer local
       // generation owns the screen. Keep it for a later refusal's Retry.
       if (!newerAccepted) cacheWithAcceptedRecord(label, { found: true, value: row.payload, generation: write.generation });
-      if (!isQuietWriteCurrent(write)) continue;
+      if (!outbox().isCurrent(write)) continue;
       const listeners = recordAcceptanceListeners.get(label);
       if (!listeners?.size) continue;
       const receipt = { label, payload: row.payload, identity: identityOfValue(row.payload), generation: write.generation };
@@ -167,41 +164,44 @@ function publishSavedRecordAcceptance(writes: QuietWriteReceipt[], result: unkno
 
 /** Track a label's next saved-record write through the shared outbox to remote acceptance. */
 export function trackSavedRecordAcceptance(label: string, payload: unknown, expectedIdentity?: string | null, conflictPolicy?: 'preserve' | 'retry') {
-  if (quietWritesAreReadOnly()) return null;
-  return trackQuietWriteAcceptance({
+  if (outbox().readOnly()) return null;
+  return outbox().track({
     key: outboxKey(label),
-    path: RECORDS_PATH,
+    path: RECORDS_OP,
     body: { ...(conflictPolicy ? { conflict_policy: conflictPolicy } : {}), writes: [{ address_label: label, payload, ...(expectedIdentity !== undefined ? { expected_identity: expectedIdentity } : {}) }] },
     ...(expectedIdentity !== undefined ? { compare: { path: ['writes', 0, 'expected_identity'], before: expectedIdentity, after: identityOfValue(payload), replaceableSnapshot: true as const } } : {}),
   });
 }
-export const savedRecordWritesAreReadOnly = quietWritesAreReadOnly;
+export const savedRecordWritesAreReadOnly = (): boolean => outbox().readOnly();
 
-/** Read one saved record from the Worker without using this page's optimistic cache. */
+/** Read one saved record from the source's store without using this page's optimistic cache. */
 export async function readSavedRecordFromOwner(label: string): Promise<{ found: boolean; value?: unknown }> {
   if (typeof label !== 'string' || !label || placeOf(label)) throw new Error('This record cannot be read from the saved-record owner.');
-  const query = new URLSearchParams({ label });
-  const answer = await readJson<{ records?: Record<string, unknown> }>(`${RECORDS_PATH}?${query}`, { method: 'GET', cache: 'no-store' });
+  const answer = await activeRecordsSource().read([label], { fresh: true });
   if (!answer.records || typeof answer.records !== 'object' || Array.isArray(answer.records)) throw new Error('The saved record could not be read.');
   return Object.hasOwn(answer.records, label) ? { found: true, value: answer.records[label] } : { found: false };
 }
 
-export type WorkspaceDocumentRevision = { id: string; number: number; at: string | null; by: string | null; words: string | null; current: boolean };
+/** The admin reads a source keeps (history, revisions, erase, conflicts). A source that keeps none refuses them by name. */
+function adminOf(): RecordsAdmin {
+  const admin = activeRecordsSource().admin;
+  if (!admin) throw new Error('This page\'s records source keeps no document history, revisions or conflicts.');
+  return admin;
+}
 export async function readWorkspaceDocumentHistory(address: string, { scope_id, before, limit = 50 }: { scope_id: string; before?: number; limit?: number }): Promise<{ revisions: WorkspaceDocumentRevision[]; current_identity: string | null; next_cursor: number | null; limited: boolean }> {
-  const query = new URLSearchParams({ address, scope_id, limit: String(limit), ...(before ? { before: String(before) } : {}) });
-  const answer = await readJson<{ revisions?: WorkspaceDocumentRevision[]; current_identity?: string | null; next_cursor?: number | null; limited?: boolean }>(`${RECORDS_PATH}/history?${query}`, { method: 'GET', cache: 'no-store' });
+  const answer = await adminOf().history({ address, scope_id, limit, ...(before ? { before } : {}) });
   if (!Array.isArray(answer.revisions)) throw new Error('Document history could not be read.');
   return { revisions: answer.revisions, limited: answer.limited === true, current_identity: answer.current_identity ?? null, next_cursor: answer.next_cursor ?? null };
 }
 export async function readWorkspaceDocumentRevision(id: string): Promise<{ value: unknown } | null> {
-  const answer = await readJson<{ id?: string; value?: unknown } | null>(`${RECORDS_PATH}/revisions/${encodeURIComponent(id)}`, { method: 'GET', cache: 'no-store' });
+  const answer = await adminOf().revision(id);
   return answer && Object.hasOwn(answer, 'value') ? { value: answer.value } : null;
 }
 export async function restoreWorkspaceDocumentRevision(input: { address: string; id: string; scope_id: string; expected_identity: string | null }): Promise<{ restored: boolean; conflict?: boolean }> {
-  return readJson(`${RECORDS_PATH}/revisions/restore`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(input) });
+  return adminOf().restoreRevision(input);
 }
 export async function eraseWorkspaceDocument(address: string, expected_identity?: string | null, scope_id?: string): Promise<{ erased: boolean }> {
-  return readJson('/work/api/records/erase', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ record: address, ...(expected_identity !== undefined ? { expected_identity } : {}), ...(scope_id ? { scope_id } : {}) }) });
+  return adminOf().erase(address, expected_identity, scope_id);
 }
 
 const encode = (value: unknown) => new TextEncoder().encode(JSON.stringify(value));
@@ -241,7 +241,7 @@ function evictRecord(label: string): void {
   acceptedRecords.delete(label);
   appliedSavedRecordReads.delete(label);
   unfollow(label);
-  if (!loadingLabels.has(label) && !isQuietWriteWaiting(outboxKey(label))) changedAt.delete(label);
+  if (!loadingLabels.has(label) && !outbox().isWaiting(outboxKey(label))) changedAt.delete(label);
 }
 
 /** Make room in the byte-and-item bounded cache without displacing an open consumer or a waiting local write. */
@@ -256,7 +256,7 @@ function reserveRecords(requests: Array<{ label: string; bytes: number }>): bool
   const victims: string[] = [];
   const candidates = [...cachedRecords]
     .filter(([label]) => !wanted.has(label) && !startupLabels.has(label) && (activeRecordReaders.get(label) ?? 0) === 0
-      && !loadingLabels.has(label) && !isQuietWriteWaiting(outboxKey(label)))
+      && !loadingLabels.has(label) && !outbox().isWaiting(outboxKey(label)))
     .sort(([, left], [, right]) => left.used - right.used);
   for (const [label, row] of candidates) {
     if (items <= recordCache.max_items && bytes <= recordCache.max_bytes) break;
@@ -401,7 +401,7 @@ export function startRecords(seed: Record<string, unknown>, saved: Record<string
   notify();
   followSavedRecords();
   // Changes an earlier page made that the store has not accepted yet are shown again (they are on their way).
-  void restoreQuietWrites().then(restored => {
+  void outbox().restore().then(restored => {
     let shown = 0;
     for (const write of restored) {
       if (!LABEL_OF_KEY.test(write.key) || !Array.isArray(write.body.writes)) continue;
@@ -449,33 +449,31 @@ export function showMissing(records: Record<string, unknown>) {
   if (changed) notify();
 }
 
-// What the saved records depend on: every row of the saved records' table, whatever the label (a change elsewhere is
-// compared label by label once read, invariant 6).
-const SAVED_RECORDS_DEPEND: ReadDepends = { version: null, ids: [], rows: [], members: liveKeys.tables.filter(row => row.table === 'workspace_records').map(row => ({ prefix: row.key, fields: null })) };
 let following = false;
 let savedRefresh: Promise<void> | null = null;
 let savedRefreshAgain = false;
 function followSavedRecords() {
   if (following || typeof window === 'undefined') return;
+  const subscribe = activeRecordsSource().subscribe;
+  if (!subscribe) return;
   following = true;
-  // Read again only when a revision names the saved records' table (src/live-keys.mjs `tables`), or after a gap, or when
-  // only the saved records changed (a label no other screen draws, src/live-screen.mjs changedFor).
-  onRecordsChange(() => readSavedRecords(), () => SAVED_RECORDS_DEPEND, undefined, [RECORDS_PATH]);
+  // Read again when the source says a record changed elsewhere (invariant 6); the source decides what it can hear.
+  subscribe(() => readSavedRecords());
 }
 
 // A server-side compare can find a fork after this page's optimistic check passed. The write reply carries just the
 // authoritative branch for each refused address, so the page repairs that value without rereading every record.
-onQuietWriteAccepted((writes, result) => {
+onRecordsSourceMounted(source => source.outbox.onAccepted((writes, result) => {
   // A receipt belongs to the submitted version. A newer local version must keep
   // its read protection, including when the older write reports a conflict.
-  const currentWrites = writes.filter(isQuietWriteCurrent);
+  const currentWrites = writes.filter(write => outbox().isCurrent(write));
   // Keep the local-change fence until a tracked owner read completes. Startup
   // snapshots can have begun before this acknowledgement but arrive afterward.
   publishSavedRecordAcceptance(writes, result);
-  if (!writes.some(write => write.path === RECORDS_PATH) || !result || typeof result !== 'object') return;
+  if (!writes.some(write => write.path === RECORDS_OP) || !result || typeof result !== 'object') return;
   const conflicts = (result as { conflicts?: Array<{ address?: string; current?: { found?: boolean; value?: unknown } }> }).conflicts;
   if (!Array.isArray(conflicts) || !conflicts.length) return;
-  const currentLabels = new Set(currentWrites.flatMap(write => write.path === RECORDS_PATH && Array.isArray(write.body.writes)
+  const currentLabels = new Set(currentWrites.flatMap(write => write.path === RECORDS_OP && Array.isArray(write.body.writes)
     ? (write.body.writes as Write[]).map(row => row.address_label ?? row.address)
       .filter(label => typeof label === 'string' && write.key === outboxKey(label)) : []));
   const changed: string[] = [];
@@ -501,15 +499,15 @@ onQuietWriteAccepted((writes, result) => {
   notify();
   for (const listener of savedListeners) listener(changed);
   tellChanged(changed);
-});
+}));
 
 // A permanent refusal removed the outbox entry, but its optimistic payload is not the store's current record.
 // Restore only the latest refused generation to the last accepted baseline, so a user-initiated Retry derives the
 // same conditional identity the store still has. A refusal for an older generation must never replace newer edits.
-onQuietWriteRefusedReceipt((writes) => {
+onRecordsSourceMounted(source => source.outbox.onRefusedReceipt((writes) => {
   const changed: string[] = [];
   for (const write of writes) {
-    if (!isQuietWriteCurrent(write) || write.path !== RECORDS_PATH || !Array.isArray(write.body.writes)) continue;
+    if (!outbox().isCurrent(write) || write.path !== RECORDS_OP || !Array.isArray(write.body.writes)) continue;
     for (const row of write.body.writes as Write[]) {
       const label = row.address_label ?? row.address;
       if (typeof label !== 'string' || write.key !== outboxKey(label)) continue;
@@ -531,7 +529,7 @@ onQuietWriteRefusedReceipt((writes) => {
   // This is recovery from our own rejected optimistic write, not a new remote
   // version. Announcing it as an external save would open a false conflict in
   // the editor that is retaining the refused draft for Retry.
-});
+}));
 
 /** Read the person's saved records again and take each one changed elsewhere (invariant 6). */
 export async function readSavedRecords(): Promise<void> {
@@ -559,16 +557,16 @@ export function addressLabelForInput(selector: Selector): string {
  */
 export async function readStartupRecords(): Promise<Record<string, unknown>> {
   const readStart = beginSavedRecordRead();
-  const { records } = await readJson<{ records?: Record<string, unknown> }>(startupRecordsPath);
-  takeRecords(records ?? {}, readStart, new Set([...changedAt.keys()].filter(label => isQuietWriteWaiting(outboxKey(label)))), startupRecordLabels);
+  const { records } = await activeRecordsSource().read(startupRecordLabels);
+  takeRecords(records ?? {}, readStart, new Set([...changedAt.keys()].filter(label => outbox().isWaiting(outboxKey(label)))), startupRecordLabels);
   return Object.fromEntries(startupRecordLabels.flatMap(label => values.has(label) ? [[label, values.get(label)]] : []));
 }
 
 /** The startup read answered again differently from the copy kept on this device: take what changed, in place. */
 export async function takeStartupRecords(): Promise<void> {
   const readStart = beginSavedRecordRead();
-  const { records } = await readJson<{ records?: Record<string, unknown> }>(startupRecordsPath);
-  takeRecords(records ?? {}, readStart, new Set([...changedAt.keys()].filter(label => isQuietWriteWaiting(outboxKey(label)))), startupRecordLabels);
+  const { records } = await activeRecordsSource().read(startupRecordLabels);
+  takeRecords(records ?? {}, readStart, new Set([...changedAt.keys()].filter(label => outbox().isWaiting(outboxKey(label)))), startupRecordLabels);
 }
 
 /** Load a bounded set of saved labels before startup decisions depend on their current values. */
@@ -605,10 +603,8 @@ async function readLabels(labels: string[], refresh: boolean): Promise<void> {
 async function readBatch(labels: string[]): Promise<void> {
   if (labels.length === 1) return readOneLabel(labels[0]);
   const readStart = beginSavedRecordRead();
-  const notInStoreYet = new Set([...changedAt.keys()].filter(key => isQuietWriteWaiting(outboxKey(key))));
-  const query = new URLSearchParams();
-  for (const label of labels) query.append('label', label);
-  const request = withReadSlot(() => readJson<{ records?: Record<string, unknown> }>(`${RECORDS_PATH}?${query}`).then(async ({ records }) => {
+  const notInStoreYet = new Set([...changedAt.keys()].filter(key => outbox().isWaiting(outboxKey(key))));
+  const request = withReadSlot(() => activeRecordsSource().read(labels).then(async ({ records }) => {
     // A batch that says most of what this page holds is gone looks like a broken answer, not that many deletions: the
     // absences are not applied from it, each is asked alone instead, and only that answer may remove a record.
     const present = labels.filter(label => records && Object.hasOwn(records, label));
@@ -629,9 +625,8 @@ async function readBatch(labels: string[]): Promise<void> {
 async function readOneLabel(label: string): Promise<void> {
   if (loadingLabels.has(label)) return loadingLabels.get(label);
   const readStart = beginSavedRecordRead();
-  const notInStoreYet = new Set([...changedAt.keys()].filter(key => isQuietWriteWaiting(outboxKey(key))));
-  const query = new URLSearchParams({ label });
-  const request = withReadSlot(() => readJson<{ records?: Record<string, unknown> }>(`${RECORDS_PATH}?${query}`).then(({ records }) => {
+  const notInStoreYet = new Set([...changedAt.keys()].filter(key => outbox().isWaiting(outboxKey(key))));
+  const request = withReadSlot(() => activeRecordsSource().read([label]).then(({ records }) => {
     takeRecords(records && Object.hasOwn(records, label) ? records : {}, readStart, notInStoreYet, [label]);
   })).finally(() => {
     loadingLabels.delete(label);
@@ -643,7 +638,7 @@ async function readOneLabel(label: string): Promise<void> {
 /** Capture before requesting saved records, then pass the token with that answer. This rejects both writes made after
  *  the read began and older reads that finish after a newer owner answer. */
 export function takeSavedRecords(records: Record<string, unknown>, readStart: SavedRecordReadStart): void {
-  takeRecords(records, readStart, new Set([...changedAt.keys()].filter(label => isQuietWriteWaiting(outboxKey(label)))));
+  takeRecords(records, readStart, new Set([...changedAt.keys()].filter(label => outbox().isWaiting(outboxKey(label)))));
 }
 
 function takeRecords(records: Record<string, unknown>, readStart: SavedRecordReadStart, notInStoreYet: Set<string>, scope = Object.keys(records)): void {
@@ -651,7 +646,7 @@ function takeRecords(records: Record<string, unknown>, readStart: SavedRecordRea
   for (const label of scope) {
     if (cachedRecords.get(label)?.shown) continue;
     if ((appliedSavedRecordReads.get(label) ?? 0) >= readStart.generation
-        || notInStoreYet.has(label) || isQuietWriteWaiting(outboxKey(label))
+        || notInStoreYet.has(label) || outbox().isWaiting(outboxKey(label))
         || (changedAt.get(label) ?? 0) > readStart.changeCount) continue;
     if (!Object.hasOwn(records, label)) {
       const before = values.get(label);
@@ -798,7 +793,7 @@ export async function writeConfirmedWorkspacePreference(key: string, value: unkn
     if (!error || error.name === 'QuietWriteSupersededError') return;
     // Refresh only this refused version. A newer local choice is never replaced
     // by a late failure, and transient/offline failures remain in the outbox.
-    if (writtenAt === changedAt.get(label) && !isQuietWriteWaiting(outboxKey(label))) {
+    if (writtenAt === changedAt.get(label) && !outbox().isWaiting(outboxKey(label))) {
       try { await readLabels([label], true); } catch { /* The caller retains its last accepted choice. */ }
     }
     throw error;
@@ -838,7 +833,7 @@ export async function updateSavedLabelValueDurably<T>(address: string, transform
   const began = changeCount;
 
   for (let attempt = 0; attempt < 16; attempt += 1) {
-    if (isQuietWriteWaiting(outboxKey(address))) throw new Error('A change to this record is still being saved. Try again.');
+    if (outbox().isWaiting(outboxKey(address))) throw new Error('A change to this record is still being saved. Try again.');
     const current = await readSavedRecordFromOwner(address);
     const expectedIdentity = current.found ? identityOfValue(current.value) : null;
     const next = transform(current.found ? current.value : undefined);
@@ -846,19 +841,16 @@ export async function updateSavedLabelValueDurably<T>(address: string, transform
     // An earlier local durable update may finish after this call began. Publish over it only when the
     // cache still matches the fresh owner value this compare was based on (or already has our result).
     const canPublish = () => {
-      if (isQuietWriteWaiting(outboxKey(address))) return false;
+      if (outbox().isWaiting(outboxKey(address))) return false;
       if ((changedAt.get(address) ?? 0) <= began) return true;
       const cachedIdentity = values.has(address) ? identityOfValue(values.get(address)) : null;
       return cachedIdentity === expectedIdentity || cachedIdentity === nextIdentity;
     };
     let reply: { written?: number; write_count?: number; conflicts?: Array<{ address?: string }> };
     try {
-      reply = await readJson(RECORDS_PATH, {
-        method: 'POST',
-        body: JSON.stringify({
-          conflict_policy: 'retry',
-          writes: [{ address_label: address, payload: next, expected_identity: expectedIdentity }],
-        }),
+      reply = await activeRecordsSource().write({
+        conflict_policy: 'retry',
+        writes: [{ address_label: address, payload: next, expected_identity: expectedIdentity }],
       });
     } catch (error) {
       const status = (error as { status?: number; upgrade_needed?: unknown } | null)?.status;
@@ -918,7 +910,7 @@ function applyWrites(writes: Write[], conflictPolicy?: 'preserve' | 'retry') {
     // The worker compares the same expected identities against its authoritative rows and keeps both branches when
     // another writer won. Sending this refused batch is safe to retry: the conflict address is deterministic.
     const kept = writes.filter(write => !write.path || write.path.join('/') === CURRENT_RECORD_PATH).map(write => ({ ...write }));
-    if (kept.length) sendQuietly({ key: `workspace-conflict-attempt:${identityOfValue(kept)}`, path: RECORDS_PATH, body: { ...(conflictPolicy ? { conflict_policy: conflictPolicy } : {}), writes: kept } });
+    if (kept.length) outbox().send({ key: `workspace-conflict-attempt:${identityOfValue(kept)}`, path: RECORDS_OP, body: { ...(conflictPolicy ? { conflict_policy: conflictPolicy } : {}), writes: kept } });
     return 0;
   }
   const cacheWrites = writes.flatMap(write => {
@@ -936,7 +928,7 @@ function applyWrites(writes: Write[], conflictPolicy?: 'preserve' | 'retry') {
     commitCachedRecord(label, write.payload);
     labels.push(label);
     changedAt.set(label, ++changeCount);
-    sendQuietly({ key: outboxKey(label), path: RECORDS_PATH, body: { ...(conflictPolicy ? { conflict_policy: conflictPolicy } : {}), writes: [{ address_label: label, payload: write.payload, ...(write.expected_identity !== undefined ? { expected_identity: write.expected_identity } : {}) }] }, together: 'writes',
+    outbox().send({ key: outboxKey(label), path: RECORDS_OP, body: { ...(conflictPolicy ? { conflict_policy: conflictPolicy } : {}), writes: [{ address_label: label, payload: write.payload, ...(write.expected_identity !== undefined ? { expected_identity: write.expected_identity } : {}) }] }, together: 'writes',
       ...(write.expected_identity !== undefined ? { compare: { path: ['writes', 0, 'expected_identity'], before: write.expected_identity, after: identityOfValue(write.payload), replaceableSnapshot: true as const } } : {}),
     });
     changed += 1;
@@ -993,10 +985,10 @@ async function appendSavedRecord({ address_label: label, field, identity_field: 
     tellChanged([label]);
   };
   for (let attempt = 0; attempt < 16; attempt++) {
-    if (isQuietWriteWaiting(outboxKey(label))) throw new Error('A change to this record is still being saved. Try again.');
+    if (outbox().isWaiting(outboxKey(label))) throw new Error('A change to this record is still being saved. Try again.');
     const began = changeCount;
     // Explicit GET bypasses page/device answers and read coalescing in api.ts: every compare uses the store's value.
-    const answer = await readJson<{ records: Record<string, unknown> }>(`${RECORDS_PATH}?${new URLSearchParams({ label })}`, { method: 'GET', cache: 'no-store' });
+    const answer = await activeRecordsSource().read([label], { fresh: true });
     if (!answer.records || typeof answer.records !== 'object' || Array.isArray(answer.records)) throw new Error('The saved record could not be read.');
     const found = Object.hasOwn(answer.records, label);
     const before = found ? answer.records[label] : {};
@@ -1011,14 +1003,12 @@ async function appendSavedRecord({ address_label: label, field, identity_field: 
     if (!reserveRecords([{ label, bytes: retainedRecordBytes(label, next) }])) throw new Error('The workspace record cache is full. Close another screen and try again.');
     let result: { written?: number; conflicts?: { address?: string }[] };
     try {
-      result = await readJson(RECORDS_PATH, {
-        method: 'POST', body: JSON.stringify({ conflict_policy: 'retry', writes: [{ address_label: label, payload: next, expected_identity: found ? identityOfValue(before) : null }] }),
-      });
+      result = await activeRecordsSource().write({ conflict_policy: 'retry', writes: [{ address_label: label, payload: next, expected_identity: found ? identityOfValue(before) : null }] });
     } catch (error) {
       // A lost response can follow a successful write. Reconcile the same immutable item against a fresh owner
       // read before reporting failure; never infer success from the attempted value or an optimistic local copy.
       try {
-        const confirmed = await readJson<{ records: Record<string, unknown> }>(`${RECORDS_PATH}?${new URLSearchParams({ label })}`, { method: 'GET', cache: 'no-store' });
+        const confirmed = await activeRecordsSource().read([label], { fresh: true });
         if (!confirmed.records || typeof confirmed.records !== 'object' || Array.isArray(confirmed.records)) throw new Error('The saved record could not be read.');
         const kept = confirmed.records?.[label];
         if (kept && listOf(kept).some(row => row[identityField] === entry[identityField] && identityOfValue(row) === entryIdentity)) {
@@ -1041,10 +1031,7 @@ const lexical = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
 
 /** Read one bounded page of open workspace forks, ordered by their hybrid logical clock and stable identity. */
 export async function readWorkspaceConflicts({ limit = 25, after = '' }: { limit?: number; after?: string } = {}): Promise<{ conflicts: Record<string, unknown>[]; next_cursor: string | null }> {
-  const query = new URLSearchParams({ limit: String(Math.max(1, Math.min(50, Math.trunc(limit)))), ...(after ? { after } : {}) });
-  const reply = await fetch(`/work/api/records/conflicts?${query}`, { credentials: 'same-origin' });
-  if (!reply.ok) throw new Error('Could not read workspace conflicts.');
-  const page = await bodyOf(reply, body => body.json()) as { conflicts?: Record<string, unknown>[]; next_cursor?: string | null };
+  const page = await adminOf().conflicts({ limit: Math.max(1, Math.min(50, Math.trunc(limit))), after });
   return { conflicts: (page.conflicts ?? [])
     .sort((a, b) => {
       const ac = a.clock as { wall_ms?: number; logical?: number; device_id?: string };
@@ -1056,19 +1043,12 @@ export async function readWorkspaceConflicts({ limit = 25, after = '' }: { limit
 
 /** Read both values for one conflict only when the person opens it. */
 export async function readWorkspaceConflict(id: string): Promise<Record<string, unknown>> {
-  const reply = await fetch(`/work/api/records/conflicts/${encodeURIComponent(id)}`, { credentials: 'same-origin' });
-  const body = await bodyOf(reply, answer => answer.json()) as { conflict?: Record<string, unknown>; error?: string };
-  if (!reply.ok || !body.conflict) throw new Error(body.error ?? 'Could not read those workspace versions.');
-  return body.conflict;
+  return adminOf().conflict(id);
 }
 
 /** Keep one of a workspace fork's stored versions, or make a new fork if the record changed again meanwhile. */
 export async function resolveWorkspaceConflict(id: string, branchIdentity: string): Promise<{ resolved: boolean; address?: string; kept?: string; conflict_id?: string }> {
-  const reply = await fetch(RECORDS_PATH, { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ resolve_conflict: { id, branch_identity: branchIdentity } }) });
-  const result = await bodyOf(reply, answer => answer.json()) as { resolved?: boolean; address?: string; kept?: string; conflict_id?: string; error?: string };
-  if (!reply.ok) throw new Error(result.error ?? 'Could not resolve workspace conflict.');
-  return result as { resolved: boolean; address?: string; kept?: string; conflict_id?: string };
+  return adminOf().resolveConflict(id, branchIdentity);
 }
 
 type Answer = (payload: unknown) => unknown | Promise<unknown>;
@@ -1095,6 +1075,8 @@ type Placed = { label: string; path: string; room: string; address: string };
 const PLACES = (recordPlaces as { places: Place[] }).places;
 /** Where a label lives when a row of record-places.json claims it; null for a label of the person's own store. */
 export function placeOf(label: string): Placed | null {
+  // A source with no live rooms keeps no placed labels: its records are ordinary records of its own store.
+  if (!activeRecordsSource().openRoom) return null;
   const place = PLACES.find(one => label.startsWith(one.prefix));
   if (!place) return null;
   const rest = label.slice(place.prefix.length);
@@ -1108,13 +1090,18 @@ export function placedLabel(prefix: string, room: string, address: string): stri
   return `${prefix}${room}/${address}`;
 }
 // The rooms this page reads placed labels from (open for the page's life), and the labels screens have read there.
-type HeldRoom = { room: LiveRoom; stop: () => void; release: () => void };
+type HeldRoom = { room: RecordsLiveRoom; stop: () => void; release: () => void };
 const placedRooms = new Map<string, HeldRoom>();
 const followed = new Set<string>();
-function roomOf(placed: Placed): LiveRoom {
+function openRoom(path: string): { room: RecordsLiveRoom; release: () => void } {
+  const open = activeRecordsSource().openRoom;
+  if (!open) throw new Error('This page\'s records source keeps no live rooms, so no placed record can be read from one.');
+  return open(path);
+}
+function roomOf(placed: Placed): RecordsLiveRoom {
   let held = placedRooms.get(placed.path);
   if (held) return held.room;
-  const opened = openLiveRoom(placed.path);
+  const opened = openRoom(placed.path);
   const room = opened.room;
   held = { room, stop: () => {}, release: opened.release };
   placedRooms.set(placed.path, held);
@@ -1209,6 +1196,11 @@ async function writePlaced(writes: Write[], conflictPolicy?: 'preserve' | 'retry
   notify();
   return written;
 }
+
+// Until a host mounts its own source (setWorkspaceRecordsSource), the page's records are the Workshop Worker's store, the
+// same road every signed-in page has always taken. Mounted here, after the hooks above are registered, so each hook
+// attaches to it.
+setWorkspaceRecordsSource(workerRecordsSource());
 
 // Label-addressed reads and writes of the person's records (and of records placed in a room, invariant 9).
 answerTarget(LABEL_ADDRESSED, request => {

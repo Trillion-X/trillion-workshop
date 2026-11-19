@@ -10,6 +10,8 @@ import {
   Text,
 } from '../../../../ui';
 import { FilePreview } from '../../../../ui/show/file-preview/FilePreview';
+import { MediaPlaybackSurface } from '../../../../media-playback/show/lazy-playback-surface';
+import type { MediaSourceRecord } from '../../../../show-any-file-as-itself/read-data/read-media-playback';
 
 export type CourseResource = {
   id: string;
@@ -28,6 +30,8 @@ export type CourseLessonInput = {
   do_now?: string;
   primary_resource_id?: string;
   resources?: CourseResource[];
+  video?: MediaSourceRecord;
+  done?: boolean;
 };
 
 export type LessonBlock =
@@ -234,7 +238,7 @@ function PrimaryResource({ resource }: { resource: CourseResource }) {
   );
 }
 
-export function CourseLessonSurface({ input }: { input: CourseLessonInput }) {
+export function CourseLessonSurface({ input, onMarkDone }: { input: CourseLessonInput; onMarkDone?: () => void | Promise<void> }) {
   const blocks = React.useMemo(() => parseLessonBody(input.body ?? ''), [input.body]);
   const resources = Array.isArray(input.resources) ? input.resources.filter((item) => item?.id && item?.url) : [];
   const primaryResource = resources.find((resource) => resource.id === input.primary_resource_id)
@@ -251,6 +255,12 @@ export function CourseLessonSurface({ input }: { input: CourseLessonInput }) {
           <Text variant="heading-xl" color="strong" leading="tight">{input.title || 'Lesson'}</Text>
           {input.summary ? <Text variant="body-lg" color="secondary">{input.summary}</Text> : null}
         </Container>
+
+        {input.video ? (
+          <Container className="aspect-video w-full overflow-hidden rounded-lg" data-lesson-video>
+            <MediaPlaybackSurface media={input.video} showFrameChrome={false} preload="metadata" />
+          </Container>
+        ) : null}
 
         {primaryResource ? <PrimaryResource resource={primaryResource} /> : null}
 
@@ -278,6 +288,14 @@ export function CourseLessonSurface({ input }: { input: CourseLessonInput }) {
               </Container>
             </Container>
           </Card>
+        ) : null}
+
+        {onMarkDone ? (
+          <Container layout="horizontal" gap="sm" alignItems="center">
+            <Button variant="primary" size="md" onClick={() => void onMarkDone()} disabled={input.done === true}>
+              <CheckCircle2 aria-hidden="true" size={16} /> {input.done ? 'Done' : 'Mark done'}
+            </Button>
+          </Container>
         ) : null}
 
         {supportingResources.length ? (

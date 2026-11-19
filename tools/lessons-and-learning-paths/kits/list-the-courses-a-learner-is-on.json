@@ -1,0 +1,108 @@
+{
+  "drafted_from": "tool:list-the-courses-a-learner-is-on's own row (its words, input schema, sample runs and steps), the course screens' reads in web/course-list-screen-mount.tsx, and the lesson and done rows they read (read-data/lesson-input.mjs, read-data/lesson-done.mjs); read it before relying on it",
+  "start_here": "Say to your AI: \"Show my courses as a list: each course, how many lessons are done, and each lesson as complete, active or locked\", with the courses in list:courses, their lessons in list:lessons and the finished lessons in list:lesson-done (the example rows below show their shape). It runs tool:list-the-courses-a-learner-is-on and answers each course with its lessons and their status. Opening a lesson in the course list opens it on its own screen.",
+  "lists": [
+    {
+      "list": "list:courses",
+      "label": "Courses",
+      "row_type": "record:course",
+      "holds": "One course per row: its title, what it is about, and its lessons' ids in the order they run.",
+      "fields": [
+        { "id": "title", "kind": "text", "label": "Title", "alike": ["name", "course name", "heading"] },
+        { "id": "about", "kind": "long-text", "label": "About", "alike": ["description", "summary", "notes"] },
+        { "id": "lesson_ids", "kind": "tags", "label": "Lessons in order", "alike": ["modules", "chapters", "sequence"] }
+      ],
+      "example_rows": [
+        { "id": "bread", "values": { "title": "Baking bread", "about": "Two short lessons.", "lesson_ids": ["knead", "proof"] } },
+        { "id": "sauce", "values": { "title": "Pan sauces", "about": "One lesson on deglazing.", "lesson_ids": ["deglaze"] } }
+      ],
+      "alike": ["a course outline in a spreadsheet", "a playlist of lessons", "a course list in a learning app"]
+    },
+    {
+      "list": "list:lessons",
+      "label": "Lessons",
+      "row_type": "record:lesson",
+      "holds": "One lesson per row: its title, its words, and the address of its video when it has one.",
+      "fields": [
+        { "id": "title", "kind": "text", "label": "Title", "alike": ["name", "heading"] },
+        { "id": "body", "kind": "long-text", "label": "Words", "alike": ["notes", "content", "text", "description"] },
+        { "id": "video_url", "kind": "url", "label": "Video", "alike": ["video", "link", "recording"] }
+      ],
+      "example_rows": [
+        { "id": "knead", "values": { "title": "Knead", "body": "Work the dough.", "video_url": "https://example.com/videos/knead.mp4" } },
+        { "id": "proof", "values": { "title": "Proof", "body": "Let the dough rise until doubled." } }
+      ],
+      "alike": ["a lesson sheet", "module notes in a document", "a list of videos to watch"]
+    },
+    {
+      "list": "list:lesson-done",
+      "label": "Finished lessons",
+      "row_type": "record:lesson-done",
+      "holds": "One row per lesson a learner has finished: which course and lesson, and when. The lesson screen writes it on Mark done.",
+      "fields": [
+        { "id": "course_id", "kind": "text", "label": "Course", "alike": ["course", "course id"] },
+        { "id": "lesson_id", "kind": "text", "label": "Lesson", "alike": ["lesson", "lesson id"] },
+        { "id": "done_at", "kind": "date", "label": "Done on", "alike": ["completed", "finished", "date"] }
+      ],
+      "example_rows": [
+        { "id": "bread-knead", "values": { "course_id": "course:bread", "lesson_id": "knead", "done_at": "2026-11-19T10:00:00-06:00" } },
+        { "id": "sauce-deglaze", "values": { "course_id": "course:sauce", "lesson_id": "deglaze", "done_at": "2026-11-19T11:30:00-06:00" } }
+      ],
+      "alike": ["a checklist of finished lessons", "a progress tracker sheet", "a completion log"]
+    }
+  ],
+  "workflows": [],
+  "no_workflows_because": "It runs no workflow: one tool answers from the rows the person keeps.",
+  "tools": [
+    "tool:list-the-courses-a-learner-is-on"
+  ],
+  "instructions": [
+    "1. Make list:courses, list:lessons and list:lesson-done from their example rows (or pour the course rows into a course list you already keep, see pour). A lesson row's id is the lesson's id, and a course row lists its lessons' ids in lesson_ids.",
+    "2. Say to your AI: \"Show my courses as a list: each course, how many lessons are done, and each lesson as complete, active or locked\", and give it the courses, their lessons and the finished ones as the worked example shows.",
+    "3. Read what comes back: each course with its done count and each lesson's status. Open a lesson from the Courses screen to read it and mark it done."
+  ],
+  "worked_examples": [
+    {
+      "title": "List the courses of a learner, with the first lesson done",
+      "ask": "Show my courses as a list: each course, how many lessons are done, and each lesson as complete, active or locked",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-the-courses-a-learner-is-on",
+            "input": {
+              "courses": [
+                {
+                  "id": "course:bread",
+                  "title": "Baking bread",
+                  "about": "Two short lessons.",
+                  "lessons": [
+                    { "id": "knead", "title": "Knead", "body": "Work the dough." },
+                    { "id": "proof", "title": "Proof" }
+                  ]
+                }
+              ],
+              "done": [
+                { "course_id": "course:bread", "lesson_id": "knead" }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The courses in list:courses with their lessons in list:lessons, and the rows in list:lesson-done (here one finished lesson, knead).",
+      "hands_back": "Each course with its done count: \"Baking bread\", 1 of 2 done, with knead complete and proof active."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the course list you already keep for the same job and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than least_coverage of the kit's fields match, and otherwise answers the records:write that adds the example rows to your list, leaving your own rows untouched.",
+    "example": {
+      "kit_list": "list:courses",
+      "into": { "list": "list:my-courses", "row_type": "record:course", "fields": [ { "id": "name", "label": "Title" }, { "id": "notes", "label": "About" }, { "id": "lessons", "label": "Lessons in order" } ] },
+      "field_map": { "title": "name", "about": "notes", "lesson_ids": "lessons" }
+    }
+  }
+}

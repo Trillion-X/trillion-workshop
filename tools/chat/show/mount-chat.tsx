@@ -19,7 +19,8 @@ function ChatMaterial({ props }: { props: Record<string, unknown> }) {
       ? (props.surfaceInput as Record<string, unknown>)
       : undefined;
   return (
-    <FloatingMaterialFrame frame={props.floating_frame} className="h-full min-h-0 overflow-hidden">
+    // A pane gives no frame, so the chat fills it; a floating window passes its own frame (`fixed`, placed by its numbers).
+    <FloatingMaterialFrame frame={props.floating_frame ?? { mode: 'fill' }} className="h-full min-h-0 overflow-hidden">
       <ErrorBoundary zoneName="chat material">
         <div className="h-full min-h-0 overflow-hidden">
           <ChatView surfaceInput={surfaceInput} />
