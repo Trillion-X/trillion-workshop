@@ -223,6 +223,41 @@ test('a login for someone else is made from the verifier they sent: they sign in
   assert.deepEqual(await roles(), []);
 });
 
+test('where the database\'s owner may not make logins, the computer\'s role maker makes the login from the verifier and the owner gives it rights in its own database; leaving takes the rights back, then the login', async () => {
+  // A pursuit's owner as a computer makes one: no right to make roles, a database closed to everyone else, the role maker too.
+  const admin = new pg.Client({ ...ADMIN, database: 'postgres' });
+  await admin.connect();
+  await admin.query("CREATE ROLE p_example_plain_owner LOGIN PASSWORD 'made-up-plain-owner-pw'");
+  await admin.query('CREATE DATABASE p_plain OWNER p_example_plain_owner');
+  await admin.query('REVOKE ALL ON DATABASE p_plain FROM PUBLIC');
+  await admin.end();
+  const plainOwner = `postgres://p_example_plain_owner:made-up-plain-owner-pw@127.0.0.1:${PORT}/p_plain`;
+  await runSql({ connection: plainOwner, input: { sql: 'CREATE TABLE payments (id text PRIMARY KEY, email text)' } });
+  const member = 'p_example_share_coach';
+  const password = randomBytes(32).toString('base64url');
+  const kept = `postgres://${member}:${password}@127.0.0.1:${PORT}/p_plain`;
+  const password_verifier = verifierOf(password);
+  await assert.rejects(runSql({ connection: plainOwner, input: { recipe: { name: 'may-change-rows', action: 'create', role: member, password_verifier } } }), /permission denied to create role/, 'the owner alone cannot make the login');
+  await assert.rejects(runSql({ connection: `postgres://${OWNER}:${OWNER_PW}@127.0.0.1:${PORT}/p_plain`, input: { sql: 'SELECT 1' } }), /permission denied for database|not have CONNECT/, 'the role maker cannot reach the pursuit\'s database');
+  const login = await runSql({ connection: ownerConnection, input: { recipe: { name: 'a-login', action: 'create', role: member, password_verifier } } });
+  assert.deepEqual(login.rows, [{ role: member, recipe: 'a-login', action: 'create', valid_until: 'infinity' }]);
+  await assert.rejects(runSql({ connection: kept, input: { sql: 'SELECT 1' } }), /permission denied for database|not have CONNECT/, 'a login alone reaches nothing');
+  const rights = await runSql({ connection: plainOwner, input: { recipe: { name: 'may-change-rows-for-a-login', action: 'create', role: member } } });
+  assert.deepEqual(rights.rows, [{ role: member, recipe: 'may-change-rows-for-a-login', action: 'create', valid_until: 'infinity' }]);
+  await runSql({ connection: kept, input: { sql: "INSERT INTO payments VALUES ('pay-1', 'bo@example.test')" } });
+  await runSql({ connection: plainOwner, input: { sql: 'CREATE TABLE later (id int)' } });
+  await runSql({ connection: kept, input: { sql: 'INSERT INTO later VALUES (1)' } });
+  await assert.rejects(runSql({ connection: kept, input: { sql: 'DROP TABLE payments' } }), /must be owner/);
+  await assert.rejects(runSql({ connection: plainOwner, input: { recipe: { name: 'may-change-rows-for-a-login', action: 'create' } } }), /give recipe.role/);
+  await assert.rejects(runSql({ connection: plainOwner, input: { recipe: { name: 'may-change-rows-for-a-login', action: 'create', role: member, password_verifier } } }), /makes no login/);
+  await runSql({ connection: plainOwner, input: { recipe: { name: 'may-change-rows-for-a-login', action: 'drop', role: member } } });
+  await assert.rejects(runSql({ connection: kept, input: { sql: 'SELECT 1' } }), /permission denied for database|not have CONNECT/, 'with its rights taken back the login reaches nothing');
+  await runSql({ connection: ownerConnection, input: { recipe: { name: 'a-login', action: 'drop', role: member } } });
+  await assert.rejects(runSql({ connection: kept, input: { sql: 'SELECT 1' } }), /password authentication failed|does not exist/);
+  assert.deepEqual((await runSql({ connection: plainOwner, input: { sql: 'SELECT id FROM payments' } })).rows, [{ id: 'pay-1' }], 'what they made stays');
+  assert.deepEqual(await roles(), []);
+});
+
 test('a verifier is checked before any connection: its shape, its iterations, a role and create only, and never with a held role connection', async () => {
   const verifier = verifierOf(randomBytes(32).toString('base64url'));
   assert.match(verifier, /^SCRAM-SHA-256\$4096:/);

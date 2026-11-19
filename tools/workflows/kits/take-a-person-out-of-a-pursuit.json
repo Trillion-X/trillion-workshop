@@ -12,7 +12,8 @@
   "instructions": [
     "1. Name the pursuit's database and the login to end.",
     "2. Run workflow:take-a-person-out-of-a-pursuit.",
-    "3. Their rights are taken back and the login dropped; the changes they made stay, still told as theirs."
+    "3. When their login was made by the computer's login that may make logins (login_maker when they were let in), give that same login_maker: the pursuit's owner takes back their rights, then it drops the login.",
+    "4. Their rights are taken back and the login dropped; the changes they made stay, still told as theirs."
   ],
   "worked_examples": [
     {

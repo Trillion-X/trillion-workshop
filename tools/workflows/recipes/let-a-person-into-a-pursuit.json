@@ -155,6 +155,11 @@
             "until": {
               "type": "string",
               "description": "When their login stops working, as a time; they stay until they leave when none"
+            },
+            "login_maker": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The vault name of the computer's login that may make logins (CREATEROLE), when the pursuit's own owner may not: it makes the login, and the pursuit's owner gives it rights. Leave it out when the pursuit's owner may make logins itself."
             }
           }
         },
@@ -162,7 +167,7 @@
           {
             "id": "let-them-in",
             "title": "Make their login from the verifier they sent",
-            "do": "Run tool:run-sql-in-my-database with database = input.database and recipe {name: \"may-change-rows\", action: \"create\", role: input.role, password_verifier: input.password_verifier, valid_until: input.until (leave it out when none)}. The database keeps the verifier as their password; the answer is the role alone. When the role already exists, the database says so: answer that, and change nothing. Submit {role, valid_until} from the answer's row.",
+            "do": "When input.login_maker is given: run tool:run-sql-in-my-database with credential_name = input.login_maker and recipe {name: \"a-login\", action: \"create\", role: input.role, password_verifier: input.password_verifier, valid_until: input.until (leave it out when none)}, which makes only the login; then run tool:run-sql-in-my-database with database = input.database and recipe {name: \"may-change-rows-for-a-login\", action: \"create\", role: input.role}, which gives it its rights in the pursuit's own database. When the second fails, run the first again with action \"drop\" so no login is left without its rights, and answer the failure. When input.login_maker is not given: run tool:run-sql-in-my-database with database = input.database and recipe {name: \"may-change-rows\", action: \"create\", role: input.role, password_verifier: input.password_verifier, valid_until: input.until (leave it out when none)}; this needs the pursuit's owner to be allowed to make logins, and the database says so when it is not (permission denied to create role): then answer that a login_maker is needed. Either way the database keeps the verifier as their password and the answer is the role alone. When the role already exists, the database says so: answer that, and change nothing. Submit {role, valid_until} from the login's answer row.",
             "submit": {
               "type": "object",
               "required": [
@@ -274,6 +279,11 @@
               "type": "string",
               "pattern": "^[a-z_][a-z0-9_]{0,62}$",
               "description": "The login to end"
+            },
+            "login_maker": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The vault name of the login that made their login (as given when they were let in); leave it out when the pursuit's owner made it."
             }
           }
         },
@@ -281,7 +291,7 @@
           {
             "id": "take-them-out",
             "title": "Take back their rights and drop their login",
-            "do": "Run tool:run-sql-in-my-database with database = input.database and recipe {name: \"may-change-rows\", action: \"drop\", role: input.role}. Then run the statement named gone of this step's sql with params [role]; it must return gone true. Answer {role, gone: true, said: \"<role> no longer works in <database>; their changes stay in its history.\"}.",
+            "do": "When input.login_maker is given: run tool:run-sql-in-my-database with database = input.database and recipe {name: \"may-change-rows-for-a-login\", action: \"drop\", role: input.role}, which takes back their rights, then with credential_name = input.login_maker and recipe {name: \"a-login\", action: \"drop\", role: input.role}. When it is not given: run tool:run-sql-in-my-database with database = input.database and recipe {name: \"may-change-rows\", action: \"drop\", role: input.role}. Then run the statement named gone of this step's sql, through the same login that dropped the role, with params [role]; it must return gone true. Answer {role, gone: true, said: \"<role> no longer works in <database>; their changes stay in its history.\"}.",
             "sql": [
               {
                 "name": "gone",

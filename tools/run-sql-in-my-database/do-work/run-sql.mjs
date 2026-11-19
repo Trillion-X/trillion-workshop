@@ -90,6 +90,12 @@ const loginOf = connection => {
 // connection's (descriptor 4); someone else's is the verifier they sent, with the role they named (and valid_until if given);
 // a minted one is made up here and needs valid_until; a drop needs only the role.
 const recipeLogin = (shape, roleConnection) => {
+  if (RECIPES[shape.name].grants_only) {
+    if (shape.role === undefined) throw new Error(`The ${shape.name} recipe gives rights to a login made elsewhere: give recipe.role.`);
+    if (roleConnection || shape.verifier !== undefined || shape.validUntil !== undefined) throw new Error(`The ${shape.name} recipe makes no login: give only recipe.role (and limits are the login's own).`);
+    if (Object.keys(shape.limits ?? {}).length) throw new Error(`The ${shape.name} recipe has no limits: a login's limits are set where it is made.`);
+    return { role: shape.role, password: '', validUntil: 'infinity', minted: false };
+  }
   if (shape.verifier !== undefined) {
     if (roleConnection) throw new Error('Give one of: role_credential_name (a login this computer holds) or recipe.password_verifier (one someone else holds).');
     return { role: shape.role, password: shape.verifier, validUntil: shape.validUntil ?? 'infinity', minted: false };

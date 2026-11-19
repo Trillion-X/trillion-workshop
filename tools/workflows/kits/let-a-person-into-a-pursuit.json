@@ -14,8 +14,9 @@
     "1. Tell the person the database's address, its name and a login name for them.",
     "2. They run workflow:join-a-pursuit-with-a-password-only-i-keep: their computer makes the password, keeps it in their own vault and sends you only the verifier.",
     "3. You run workflow:let-a-person-into-a-pursuit with database, role and password_verifier (and until, if it should stop on a date).",
-    "4. Every change they make is told with their login as who made it.",
-    "5. To end it, run workflow:take-a-person-out-of-a-pursuit with database and role; their changes stay."
+    "4. When the pursuit's own owner may not make logins (a computer's pursuit database), also give login_maker: the vault name of the computer's login that may. It makes only the login; the pursuit's owner gives it its rights.",
+    "5. Every change they make is told with their login as who made it.",
+    "6. To end it, run workflow:take-a-person-out-of-a-pursuit with database and role; their changes stay."
   ],
   "worked_examples": [
     {

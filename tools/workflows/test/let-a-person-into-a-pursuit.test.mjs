@@ -26,6 +26,12 @@ test('the verifier the join workflow makes is what the let-in workflow and the t
   const until = shapeOf({ database: 'p', recipe: { name: 'may-change-rows', action: 'create', role: 'sam_coach', password_verifier: verifier, valid_until: '2027-01-01T00:00:00Z' } });
   assert.equal(until.validUntil, '2027-01-01T00:00:00Z');
   assert.equal(shapeOf({ database: 'p', recipe: { name: 'may-change-rows', action: 'drop', role: 'sam_coach' } }).action, 'drop');
+  // Where the pursuit's owner may not make logins: the login maker makes only the login, the owner gives its rights.
+  assert.equal(shapeOf({ credential_name: 'maker', recipe: { name: 'a-login', action: 'create', role: 'sam_coach', password_verifier: verifier } }).verifier, verifier);
+  assert.equal(shapeOf({ database: 'p', recipe: { name: 'may-change-rows-for-a-login', action: 'create', role: 'sam_coach' } }).role, 'sam_coach');
+  assert.equal(shapeOf({ database: 'p', recipe: { name: 'may-change-rows-for-a-login', action: 'drop', role: 'sam_coach' } }).action, 'drop');
+  assert.equal(shapeOf({ credential_name: 'maker', recipe: { name: 'a-login', action: 'drop', role: 'sam_coach' } }).action, 'drop');
+  for (const recipe of [letIn, takeOut]) for (const name of ['a-login', 'may-change-rows-for-a-login', 'may-change-rows']) assert.ok(recipe.steps[0].do.includes(`"${name}"`), `${recipe.id} names ${name}`);
 });
 
 test('a role name the workflows take is one Postgres takes unquoted, and a name it would not take is refused', () => {

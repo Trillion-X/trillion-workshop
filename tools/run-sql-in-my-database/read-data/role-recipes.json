@@ -70,6 +70,39 @@
         "connection_limit": "ALTER ROLE %1$I CONNECTION LIMIT %6$s",
         "statement_timeout_ms": "ALTER ROLE %1$I SET statement_timeout = %6$s"
       }
+    },
+    "a-login": {
+      "_what": "Only a login: the role and its password, with no right in any database, made by a login that may make roles (CREATEROLE) where the database's own owner may not. Its rights come from a grants-only recipe the database's owner runs in that database (may-change-rows-for-a-login). The drop takes the login away once its rights are taken back.",
+      "create": [
+        "CREATE ROLE %1$I LOGIN PASSWORD %2$L VALID UNTIL %3$L"
+      ],
+      "drop": [
+        "DROP ROLE %1$I"
+      ],
+      "limits": {
+        "connection_limit": "ALTER ROLE %1$I CONNECTION LIMIT %6$s",
+        "statement_timeout_ms": "ALTER ROLE %1$I SET statement_timeout = %6$s"
+      }
+    },
+    "may-change-rows-for-a-login": {
+      "_what": "The rights of may-change-rows given to a login another login made (a-login), run by the database's owner in that database: read, add, change and remove rows of every table of its public schema, now and later, and use their counters; never change a table, make a login or reach another database. It makes and drops no login, so its owner needs no right to make roles. The drop takes the rights back and leaves the login.",
+      "grants_only": true,
+      "create": [
+        "GRANT CONNECT ON DATABASE %4$I TO %1$I",
+        "GRANT USAGE ON SCHEMA public TO %1$I",
+        "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO %1$I",
+        "GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO %1$I",
+        "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO %1$I",
+        "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO %1$I"
+      ],
+      "drop": [
+        "ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE USAGE, SELECT ON SEQUENCES FROM %1$I",
+        "ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE SELECT, INSERT, UPDATE, DELETE ON TABLES FROM %1$I",
+        "REVOKE USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public FROM %1$I",
+        "REVOKE SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public FROM %1$I",
+        "REVOKE USAGE ON SCHEMA public FROM %1$I",
+        "REVOKE CONNECT ON DATABASE %4$I FROM %1$I"
+      ]
     }
   }
 }
