@@ -64,3 +64,16 @@ test('a repository that breaks a rule is one notice, and one that keeps every ru
   assert.deepEqual(rows.map(row => [Number(row.id), row.title, row.body]),
     [[1, 'My rules found something in https://code-host.example/broken.tar.gz', 'said for https://code-host.example/broken.tar.gz']]);
 });
+
+test('a stop the run explained says the run\'s own words; one it did not explain says its cause', async () => {
+  const stops = recipe('tell-when-a-wake-stops');
+  const db = new PGlite();
+  const told = (fact, fact_id) => runWorkflow({ recipe: stops, input: { ...stops.wakes[0].input, store: STORE, fact, fact_id } }, door(db));
+  const said = 'This run was woken by a fact and stopped waiting on list (asks tool:list-running-programs: The native side refused the request.)';
+  for (const run of [await told({ tool: 'workflow:a', wake: 'w', cause: 'engine::a@src/a.rs:1:1:condition: process_exit_unsuccessful#unknown', said }, 'one'),
+    await told({ tool: 'workflow:b', wake: 'w', cause: 'engine::b@src/b.rs:1:1:condition: run_answered_an_error#unknown' }, 'two')]) {
+    assert.equal(run.status, 'completed', run.error_message ?? JSON.stringify(run.waiting));
+  }
+  assert.deepEqual((await kept(db)).map(row => row.body), [`It stopped because: ${said}.`,
+    'It stopped because: engine::b@src/b.rs:1:1:condition: run_answered_an_error#unknown.']);
+});

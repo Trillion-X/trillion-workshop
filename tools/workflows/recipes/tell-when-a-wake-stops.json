@@ -7,13 +7,13 @@
         "id": "workflow:tell-when-a-wake-stops",
         "label": "Tell me when a wake stops",
         "job": "Tell the person when one of their wakes stops, with its cause, and what to read before switching it on again. It keeps each notice in the person's own store (notices, the table workflow:read-my-notices reads), named by the switch's input; it names no store of its own: it hears the wake-failed fact the engine keeps whenever a wake turns failed.",
-        "produces": "One notice kept in the person's store per wake-failed fact, once per fact, kind needs-you, titled '<tool> <wake> stopped: <cause>', whose body says what the cause means.",
+        "produces": "One notice kept in the person's store per wake-failed fact, once per fact, kind needs-you, titled '<tool> <wake> stopped: <cause>', whose body says what the cause means, in the run's own words when it gave them.",
         "input_schema": {
           "type": "object",
           "properties": {
             "fact": {
               "type": "object",
-              "description": "The wake-failed fact the engine kept: tool (the tool the wake belongs to), wake (the wake's id), cause (why it stopped)"
+              "description": "The wake-failed fact the engine kept: tool (the tool the wake belongs to), wake (the wake's id), cause (where it stopped, a cause id) and said (why, in the run's own words, when it gave them)"
             },
             "store": {
               "type": "object",
@@ -139,7 +139,7 @@
                       "path": "store.credential_name"
                     }
                   },
-                  "sql": "insert into notices (title, body, kind, key) select coalesce($2::text, ''), coalesce($3::text, ''), $1::text, $4::text where $4::text is null or not exists (select 1 from notices where key = $4::text)",
+                  "sql": "insert into notices (title, body, kind, key) select coalesce($2::text, ''), coalesce('It stopped because: ' || $5::text || '.', $3::text, ''), $1::text, $4::text where $4::text is null or not exists (select 1 from notices where key = $4::text)",
                   "params": [
                     "needs-you",
                     {
@@ -235,6 +235,13 @@
                       "select": {
                         "from": "input",
                         "path": "fact_id"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.said"
                       }
                     }
                   ]
