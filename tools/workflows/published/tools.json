@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:a3101326bf01f3e0579a7caa5513a5c8bdc63ebb0c8c1e950dd3dbab41b2ad93"
+  "blake3": "1f:72ae78a08594b370e2818eddf9a9f5c25bb8fdd6dd0ef834388fa37ada31bef2"
  },
  "fields": [
   {
@@ -90,22 +90,6 @@
    }
   },
   {
-   "id": "tool:act-on-my-notice",
-   "values": {
-    "title": "Act on one of my notices",
-    "job": "Perform one action explicitly offered by one of this person’s kept notices",
-    "description": "Pass a notice id (told:<seq>) and the exact action id it offers; include text and a stable submission_id UUID for a reply. An explicit local open action returns done=true and its local path. Actions whose effect belongs to another source owner are refused unless that owner is available to this run; this tool never claims a post or agent action ran without its owner’s result.",
-    "status": "active",
-    "maker": "maker:tell-the-person",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "listed_on": "2026-10-31T00:00:00Z",
-    "folder": "tell-the-person"
-   }
-  },
-  {
    "id": "tool:add-a-customer",
    "values": {
     "title": "Add a customer",
@@ -118,21 +102,6 @@
      "placement:small-container"
     ],
     "folder": "customer-follow-up"
-   }
-  },
-  {
-   "id": "tool:add-a-pooled-result",
-   "values": {
-    "title": "Add a private result to the pool",
-    "job": "Keep one person's noisy yes or no about a shared situation in the pool everyone learns from, under their random contributor id",
-    "description": "Runs in the account that holds the pool. Keeps one row of the pooled results list: { contributor, situation, worked, embedding, day }. The embedding is read from the shared situation's own row (list pooled-situations), never taken from the sender, so a result lands only on a situation that is shared and is linked to no shared text. contributor is the person's random id (64 lowercase hex), kept only in their own store; worked is the randomized bit tool:randomize-a-result gave. The row holds no account.",
-    "status": "active",
-    "maker": "maker:learn-from-everyones-results",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "learn-from-everyones-results"
    }
   },
   {
@@ -321,7 +290,7 @@
    "values": {
     "title": "Answer the yes or no questions my checks ask, with a small model on my computer (runs on your computer)",
     "job": "Answer the questions a check of my writing asks a model, one line at a time, with the small model, adapter or hosted model each of my check rows names, keeping every answer so a line is never asked twice",
-    "description": "Give settings_record (the person's setting row for this tool, record:setting:ask-a-small-model-for-a-verdict~<scope_kind>~<scope_id>, as records:read gives it), asks, the questions tool:check-against-a-persons-rules-and-verdicts lists: each { question, options, text } with the row's adapter ({ name, blake3 }: decider-2b with that LoRA adapter, its folder the setting's adapters[name], checked by BLAKE3 before loading), model ({ mlx: repo id } a downloaded MLX chat model at its one snapshot, { consult: name } a hosted model through the consult-model route, or { stand_in } fixed answers), examples ({ items: <set>, bad_for }: the person's ruled lines of that set, shown first and never the judged line) and line_rows (the person's labelled-line check rows of the sets the examples name, read by the caller's AI from list:checks) and context (where the line sits in its film). mode live asks a model for what the answer cache lacks; cache answers only from it. Answers one { option: probability } or null per ask, in order.",
+    "description": "Give settings_record (the person's setting row for this tool, record:setting:ask-a-small-model-for-a-verdict~<scope_kind>~<scope_id>, as the person's store gives it), asks, the questions tool:check-against-a-persons-rules-and-verdicts lists: each { question, options, text } with the row's adapter ({ name, blake3 }: decider-2b with that LoRA adapter, its folder the setting's adapters[name], checked by BLAKE3 before loading), model ({ mlx: repo id } a downloaded MLX chat model at its one snapshot, { consult: name } a hosted model through the consult-model route, or { stand_in } fixed answers), examples ({ items: <set>, bad_for }: the person's ruled lines of that set, shown first and never the judged line) and line_rows (the person's labelled-line check rows of the sets the examples name, read by the caller's AI from list:checks) and context (where the line sits in its film). mode live asks a model for what the answer cache lacks; cache answers only from it. Answers one { option: probability } or null per ask, in order.",
     "status": "active",
     "maker": "maker:ask-a-small-model-for-a-verdict",
     "licence_class": "licence:maker-own",
@@ -380,8 +349,8 @@
    "id": "tool:answer-the-calendar-page-route",
    "values": {
     "title": "Answer the calendar page routes",
-    "job": "Answer the page's calendar routes that read (GET /work/api/calendar, GET /calendar/tasks, GET /calendar/task-proposals, GET /calendar/connections) from my own records",
-    "description": "The page's calendar routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. Each is answered by old trillion's own calendar owner (src/native-calendar-owner.mjs calendar:request) over the person's calendar task lists, read through the records door. GET /calendar reads every source; the person's tasks are read here, and a source only another route or a connected calendar tool can read is said unread in the calendar's own words. Keeping tasks, proposals, dates and selections is not answered here: a POST to those routes answers 405 and that keeping is workflow:keep-my-calendar-tasks-and-proposals. /calendar/actions and /calendar/availability are not answered here (404).",
+    "job": "Answer the page's calendar routes (GET /work/api/calendar, GET and POST /work/api/calendar/tasks, and the task proposal and date-shift routes) from the calendar rows handed in",
+    "description": "The page's calendar routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body, browser, records } in, { status, body, keep } out. Each read is answered by old trillion's own calendar owner (src/native-calendar-owner.mjs calendar:request) over the calendar rows the caller hands in as `records` ([{id, type, value}]); this run reads no store of its own. A read may answer in `keep` the starting calendar list definitions it finds missing, rows for the caller to keep where the person keeps them, conditional on the rows it read. GET /calendar reads every source; the person's tasks are read here, and a source only another route or a connected calendar tool can read is said unread in the calendar's own words. A POST to the task, proposal or date-shift routes answers 405: keeping those is workflow:keep-my-calendar-tasks-and-proposals. /calendar/actions and /calendar/availability are not answered here (404).",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -411,7 +380,7 @@
    "values": {
     "title": "Answer the saved configurations routes",
     "job": "Answer the saved configurations routes: list, read, save, remove and copy my saved configurations",
-    "description": "The /configurations routes, as the old account owner answered them (tools/query-and-change-list-rows/src/configurations.mjs): GET /configurations?target=&limit=&before= lists this account's own configurations, newest id first, with next_before; GET /configurations/<id> reads one (404 configuration_not_found); POST /configurations saves one ({ label, target, settings, aspects, field_ids, format, open_path }); POST /configurations/<id> updates it at expected_revision (409 configuration_conflict when stale) or removes it with { remove: true, expected_revision }; POST /configurations/<id>/duplicate copies it. Each is one record:configuration record, and the Saved configurations list record is made with the first. Configurations shared with this account by link or offer, and the time-bound context, answer 503 configuration_unavailable: they are reached through record sharing, which no records-door run reaches. Answers { status, body }.",
+    "description": "The /configurations routes, as the old account owner answered them (tools/query-and-change-list-rows/src/configurations.mjs): GET /configurations?target=&limit=&before= lists this account's own configurations, newest id first, with next_before; GET /configurations/<id> reads one (404 configuration_not_found); POST /configurations saves one ({ label, target, settings, aspects, field_ids, format, open_path }); POST /configurations/<id> updates it at expected_revision (409 configuration_conflict when stale) or removes it with { remove: true, expected_revision }; POST /configurations/<id>/duplicate copies it. Each is one record:configuration record, and the Saved configurations list record is made with the first. Configurations shared with this account by link or offer, and the time-bound context, answer 503 configuration_unavailable: they are reached through record sharing, which this run does not reach. Answers { status, body, keep }.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -474,7 +443,7 @@
    "values": {
     "title": "Answer the web chat message routes",
     "job": "Answer the web chat's message routes (GET /work/api/messages, /messages/threads and /messages/thread, POST /work/api/messages/send and /messages/send-all) and keep each message the person sends as a message row in my own records, and wake the AI it is for",
-    "description": "The web chat's message routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. GET /messages and /messages/threads answer the person's conversations newest first ({conversations, next_before}); GET /messages/thread answers one conversation's messages (app and conversation_id). POST /messages/send keeps the person's words to one AI (app, conversation_id, text, client_id?) and POST /messages/send-all keeps them once in the shared Trillion conversation, each as one `message` row in the person's own records, written through the records door only, conditional on what was read. The same client_id sent again is the message already kept. Files ride by reference (each must be one of the person's own, linked in the message). An AI is woken the way the person's AIs take work: a waiting ai-job row kept in the same write (send with agent_id: for that AI; send-all: for any AI, or for the AIs @-mentioned). The answer says the message is kept and read on the AI's next connection; it never says delivered.",
+    "description": "The web chat's message routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. GET /messages and /messages/threads answer the person's conversations newest first ({conversations, next_before}); GET /messages/thread answers one conversation's messages (app and conversation_id). POST /messages/send keeps the person's words to one AI (app, conversation_id, text, client_id?) and POST /messages/send-all keeps them once in the shared Trillion conversation, each as one `message` row, given back in `keep` for the caller to write as new rows: the route holds no database, so it reads only the rows the caller gives as `stored` and writes nothing. The same client_id sent again is the message already kept. Files ride by reference (each must be one of the person's own, linked in the message). An AI is woken the way the person's AIs take work: a waiting ai-job row kept in the same write (send with agent_id: for that AI; send-all: for any AI, or for the AIs @-mentioned). The answer says the message is kept and read on the AI's next connection; it never says delivered.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -489,7 +458,7 @@
    "values": {
     "title": "Answer the page that shows the one thing that holds me",
     "job": "Answer the Trillion page routes GET and POST /work/api/needs-you-hold: the one thing held for me now, and setting it aside, handing it back, choosing a stake, asking off or turning it on",
-    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. GET /needs-you-hold answers 200 with the hold over the person's Waiting on you rows (record:waiting-on-you), their hold setting (setting:needs_you_hold) and their hold rules (setting:needs_you_hold_rules): { on, held, ranked, ..., said, words }; a read that fails answers 503 { error, busy: true }. POST /needs-you-hold with { op, key?, title?, reason?, way?, stake?, values? } (op: read, seen, aside, hand_back, stake, off or on) changes the hold setting on condition of what was read (409 when it changed meanwhile), keeps each job the change hands to the person's AIs as an ai-job record once, and answers the change with the read after it; seen marks read the notices the held thing's own device runs told, on this page's surface. Every read keeps the held thing as setting:needs_you_held when it changed; a refused change answers 400 { error }. Any other path or method answers 404.",
+    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser, stored } and answers the page with { status, body }; it reads and writes no store: stored.records are the person's records it works from, and it answers the rows to keep (keep) and the device runs to start (runs). GET /needs-you-hold answers 200 with the hold over the person's Waiting on you rows (record:waiting-on-you), their hold setting (setting:needs_you_hold) and their hold rules (setting:needs_you_hold_rules): { on, held, ranked, ..., said, words }; a read that fails answers 503 { error, busy: true }. POST /needs-you-hold with { op, key?, title?, reason?, way?, stake?, values? } (op: read, seen, aside, hand_back, stake, off or on) changes the hold setting on condition of what was read (409 when the store refuses the kept setting), keeps each job the change hands to the person's AIs as an ai-job record once, and answers the change with the read after it; seen marks read the notices the held thing's own device runs told, on this page's surface. Every read keeps the held thing as setting:needs_you_held when it changed; a refused change answers 400 { error }. Any other path or method answers 404.",
     "status": "active",
     "maker": "maker:hold-one-thing-until-done",
     "licence_class": "licence:maker-own",
@@ -520,7 +489,7 @@
    "values": {
     "title": "Answer the Saved examples page",
     "job": "Answer the Saved examples page: list my saved examples, save one from its link, remove one",
-    "description": "The Saved examples page's routes (GET /saved-examples lists every example newest first with its count; POST /saved-examples saves one from { url, title?, words?, pictures?, why_it_worked?, collection?, added_from? }, filling what was not given from the public link itself the first time; POST /saved-examples/remove { id } removes one). Each example is one saved-example record. Answers { status, body } as the old account route did: a refused save is 400 with { error }, and the example stays as it was.",
+    "description": "The Saved examples page's routes (GET /saved-examples lists every example newest first with its count; POST /saved-examples saves one from { url, title?, words?, pictures?, why_it_worked?, collection?, added_from? }, filling what was not given from the public link itself the first time; POST /saved-examples/remove { id } removes one). Each example is one saved-example record. The records it reads are the ones handed in as stored.records; the records it makes are handed back in keep (a removed example as a null value), and the run writes nothing itself. Answers { status, body } as the old account route did: a refused save is 400 with { error }, and the example stays as it was.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -669,7 +638,7 @@
    "values": {
     "title": "Approve words to show",
     "job": "Work out the approval, decline or withdrawal of one row of words exactly as it was reviewed, so only approved words are ever shown",
-    "description": "decision approve needs reviewed_words equal to the words now in the row, a received row, and a consent that allows showing: then the row to write is approved and pinned to the speaker, the words and the consent together. decline marks a received row declined. withdraw (the person took their consent back, or the owner took the words down) works on any row and stops it showing at once. The row is found among the `rows` handed in. Nothing is written by this tool: `write` holds the record for the caller's AI to put in a store, conditional on the row as handed in, so a store refuses it when the row changed since. Returns row_id, status and write.",
+    "description": "decision approve needs reviewed_words equal to the words now in the row, a received row, and a consent that allows showing: then the row to keep is approved and pinned to the speaker, the words and the consent together. decline marks a received row declined. withdraw (the person took their consent back, or the owner took the words down) works on any row and stops it showing at once. The row is found among the `rows` handed in. Nothing is written by this tool: `keep` holds the records the caller's AI keeps in its store, conditional on the row as handed in, so a store refuses it when the row changed since. Returns row_id, status and keep.",
     "status": "active",
     "maker": "maker:gather-words-from-people",
     "licence_class": "licence:maker-own",
@@ -760,8 +729,8 @@
    "id": "tool:ask-people-for-words",
    "values": {
     "title": "Ask people for their words",
-    "job": "Ask people, each after their own good word, to say in their own words how it went: the asked row to write for each person for a case, and their draft",
-    "description": "For each person who may be asked, answers the asked row to write in the list and the person's draft ({to, subject, body}) from the words the list's gathers.ask holds, with {name} filled in. Sends nothing and writes nothing: the draft goes out through a sending tool the person chose, and the caller's AI puts `write` in a store. A person is asked once for a case (the same person and case, found among the `rows` handed in, is skipped as already_asked), and only with `win`, a reference to the person's own positive word that made this the time to ask (otherwise skipped as no_win). The address is in the draft only, never in the row to write. Returns asked ({row_id, person, draft}), skipped ({person, reason}) and write.",
+    "job": "Ask people, each after their own good word, to say in their own words how it went: the asked row to keep for each person for a case, and their draft",
+    "description": "For each person who may be asked, answers the asked row to keep in the list and the person's draft ({to, subject, body}) from the words the list's gathers.ask holds, with {name} filled in. Sends nothing and keeps nothing: the draft goes out through a sending tool the person chose, and the caller's AI keeps the `keep` rows in its store. A person is asked once for a case (the same person and case, found among the `rows` handed in, is skipped as already_asked), and only with `win`, a reference to the person's own positive word that made this the time to ask (otherwise skipped as no_win). The address is in the draft only, never in the row to keep. Returns asked ({row_id, person, draft}), skipped ({person, reason}) and keep.",
     "status": "active",
     "maker": "maker:gather-words-from-people",
     "licence_class": "licence:maker-own",
@@ -1045,7 +1014,7 @@
    "values": {
     "title": "Prepare records for my lists with their sources and basis (runs on your computer)",
     "job": "Take records I keep in files and prepare everything to put them into my lists as records, each value with where it came from and how sure we are, in batches I can send",
-    "description": "Reads the mapping and source files from the one folder the person granted this tool. The records a mapping reads (a lists_read or a `kind: records` source, by type and id prefix) are not read here: the caller's AI reads them from a store and hands them in as `records`. Maps each source by the person's rules, then returns counts, pending or diverted items and the records:write commands as result data. It writes no local file and sends no records. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
+    "description": "Reads the mapping and source files from the one folder the person granted this tool. The records a mapping reads (a lists_read or a `kind: records` source, by type and id prefix) are not read here: the caller's AI reads them from a store and hands them in as `records`. Maps each source by the person's rules, then returns counts, pending or diverted items and the write commands as result data. It writes no local file and sends no records. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -1106,7 +1075,7 @@
    "values": {
     "title": "Measure whether a small model can answer my check's question, on lines I already ruled on (runs on your computer)",
     "job": "Ask a small model my check rows' questions about every line I already ruled good or bad, and fit where each row should pass and fail a line, and whether it is usable at all",
-    "description": "Give settings_record (the person's setting row for this tool as records:read gives it: its fit bars, good_sets, frame and models), rules (the person's check rows with an ask, { id: record:check:<id>, value }), lines (the name of the set of labelled lines) and line_rows (the labelled-line check rows of that set and of the sets the asks' examples name, read by the caller's AI from list:checks). Ruled lines (each with good) count by their own ruling, optionally only one split and only those with context (context_only); lines kept by set count as good when a set the setting's good_sets names holds them. Each line is asked one question a sentence and scored by its worst sentence, then tool:fit-pass-and-fail-lines fits t_fail, t_pass, AUC, recall and the held-out shares with the setting's bars (fpr overrides fail_good_share_at_most). Answers { <rule id>: finding } and keeps nothing; the person's AI writes a finding into that row's ask.calibration. Lines a model was trained on must never calibrate it.",
+    "description": "Give settings_record (the person's setting row for this tool as the person's store gives it: its fit bars, good_sets, frame and models), rules (the person's check rows with an ask, { id: record:check:<id>, value }), lines (the name of the set of labelled lines) and line_rows (the labelled-line check rows of that set and of the sets the asks' examples name, read by the caller's AI from list:checks). Ruled lines (each with good) count by their own ruling, optionally only one split and only those with context (context_only); lines kept by set count as good when a set the setting's good_sets names holds them. Each line is asked one question a sentence and scored by its worst sentence, then tool:fit-pass-and-fail-lines fits t_fail, t_pass, AUC, recall and the held-out shares with the setting's bars (fpr overrides fail_good_share_at_most). Answers { <rule id>: finding } and keeps nothing; the person's AI writes a finding into that row's ask.calibration. Lines a model was trained on must never calibrate it.",
     "status": "active",
     "maker": "maker:ask-a-small-model-for-a-verdict",
     "licence_class": "licence:maker-own",
@@ -1166,7 +1135,7 @@
    "values": {
     "title": "Cancel prepared resource usage report",
     "job": "Release only an unsent usage report; retain possible provider charges for reconciliation",
-    "description": "Release only an unsent usage report; retain possible provider charges for reconciliation",
+    "description": "Release only an unsent usage report; retain possible provider charges for reconciliation. Takes the report row and the cash row its cash_id names, as the caller read them, and answers the rows to keep (the cancelled report and the released cash) for the caller to write while both are still at the versions it read.",
     "status": "active",
     "maker": "maker:take-payments",
     "licence_class": "licence:maker-own",
@@ -1304,7 +1273,7 @@
    "values": {
     "title": "Finish, fail, give back, withdraw, flag or remove a job handed between my AIs",
     "job": "Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it",
-    "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (any AI, so a watcher can flag it; needs words) and unstuck clears that (any AI); withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why. A finish also needs check: the exact saved outcome, checked_at during this take, consumer evidence ({ref, observation}), and one matching check per saved obligation. This records accountable observation and does not itself prove its truth. wait keeps recoverable work blocked on this same job with continuation {owner, action, after, reason}. resume returns it to waiting when due for its taker, sender or continuation owner. release may retain that same bounded continuation, which delays the next take. No completion automatically creates another job. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+    "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (any AI, so a watcher can flag it; needs words) and unstuck clears that (any AI); withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why. A finish also needs check: the exact saved outcome, checked_at during this take, consumer evidence ({ref, observation}), and one matching check per saved obligation. This records accountable observation and does not itself prove its truth. wait keeps recoverable work blocked on this same job with continuation {owner, action, after, reason}. resume returns it to waiting when due for its taker, sender or continuation owner. release may retain that same bounded continuation, which delays the next take. No completion automatically creates another job. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -1334,7 +1303,7 @@
    "values": {
     "title": "Change my groups: add, move, order, nest and remove",
     "job": "Add things to my groups, lists or collections, move and reorder them, put some into a new group inside, take a group apart, or bring a whole folder tree in as groups",
-    "description": "A group is any list of addresses (records, pages, people, other groups) in an order; a member whose address is a group nests that group. changes is a list applied in order as one change: ensure-group, add-member (nodeRef, memberId, role?, presentation?, placement?), remove-member (memberId), reorder-member (memberId, placement), move-member (memberId, toGroupRef, placement?), set-member-fields (memberId, role and presentation, null clears), patch-member-presentation (memberId, presentation merged into what is there), group-members (memberIds, toGroupRef: the new group, wrapperMemberId), ungroup-members (wrapperMemberId), delete-group. Every change names groupRef { family, parts }; a placement is { index }, { before: memberId }, { after: memberId } or { at: start | end }. Member ids are yours: nothing is invented. tree (optional) is { family, records: [{ node_id, parent_id, ordinal, role, title, external_identity, attributes }] }: nodes with role group become groups and every node is placed in its parent by ordinal, its title and attributes kept as presentation. The groups touched are read first; a group can never end up inside itself, and a repeated member id is refused, so the whole change is refused and nothing is written. Only groups that changed are written; a group that is gone is removed. Returns groups (every group the change read or made, as it is now), written, removed (record ids) and unplaced (tree nodes not placed, with why).",
+    "description": "A group is any list of addresses (records, pages, people, other groups) in an order; a member whose address is a group nests that group. changes is a list applied in order as one change: ensure-group, add-member (nodeRef, memberId, role?, presentation?, placement?), remove-member (memberId), reorder-member (memberId, placement), move-member (memberId, toGroupRef, placement?), set-member-fields (memberId, role and presentation, null clears), patch-member-presentation (memberId, presentation merged into what is there), group-members (memberIds, toGroupRef: the new group, wrapperMemberId), ungroup-members (wrapperMemberId), delete-group. Every change names groupRef { family, parts }; a placement is { index }, { before: memberId }, { after: memberId } or { at: start | end }. Member ids are yours: nothing is invented. tree (optional) is { family, records: [{ node_id, parent_id, ordinal, role, title, external_identity, attributes }] }: nodes with role group become groups and every node is placed in its parent by ordinal, its title and attributes kept as presentation. The groups touched are found among the records handed in; a group can never end up inside itself, and a repeated member id is refused, so the whole change is refused and nothing is written. Only groups that changed are kept: keep holds each changed group record { id, type, value, expected } (value null removes a group that is gone, expected is the record as it was handed in, null for a new one). The run writes no store. Returns groups (every group the change read or made, as it is now), written (how many records changed), removed (record ids), unplaced (tree nodes not placed, with why) and keep.",
     "status": "active",
     "maker": "maker:form-groups-and-matches",
     "licence_class": "licence:maker-own",
@@ -1517,7 +1486,7 @@
    "values": {
     "title": "Check a film's copy against a person's rules and verdicts",
     "job": "Check every line of a film's copy files (a script table, titles, cards, a post, a description, prose or narration) against the person's own branch of their checks, with their film readers and settings",
-    "description": "Takes the person's settings row for this tool (list:settings, the record itself as settings_record) and reads the rules of one branch of their one Checks list (its own rows and every row of the branches above it; the nearest branch with judge_settings makes their verdict rows) through their records door, read only. Reads the lines of each file handed in by the layouts their settings name (Markdown table columns by file name, fenced post text, blockquotes, paragraph files, plain lines, JSON lines), or by a declared reader (sectioned prose, cue narration, a JSON owner's paths). Marks a line the person's own recorded words when every word is in a recording span the piece's plan cites, so a row written for added words only holds there; attaches each line's context and the reader-knowledge findings it is handed. Answers per line pass, fail or uncertain with every finding, the questions a model should answer by id (send them back as answers), the report with the BLAKE3 identity of each file, the reader settings, the rules and the checker, and exit_code (0 passed, 1 failed, 2 unqualified, 3 uncertain). Nothing is written.",
+    "description": "Takes the person's settings row for this tool (list:settings, the record itself as settings_record) and reads the rules of one branch of their one Checks list (its own rows and every row of the branches above it; the nearest branch with judge_settings makes their verdict rows) from the records handed in (`records`; the run reads no store). Reads the lines of each file handed in by the layouts their settings name (Markdown table columns by file name, fenced post text, blockquotes, paragraph files, plain lines, JSON lines), or by a declared reader (sectioned prose, cue narration, a JSON owner's paths). Marks a line the person's own recorded words when every word is in a recording span the piece's plan cites, so a row written for added words only holds there; attaches each line's context and the reader-knowledge findings it is handed. Answers per line pass, fail or uncertain with every finding, the questions a model should answer by id (send them back as answers), the report with the BLAKE3 identity of each file, the reader settings, the rules and the checker, and exit_code (0 passed, 1 failed, 2 unqualified, 3 uncertain). Nothing is written.",
     "status": "active",
     "maker": "maker:check-against-a-persons-rules-and-verdicts",
     "licence_class": "licence:maker-own",
@@ -1783,7 +1752,7 @@
    "values": {
     "title": "Check words or anything made against a person's own rules and verdicts",
     "job": "Check words, a title, a script line or a plan against a person's own rules and the verdicts they already gave, and say pass, fail or uncertain for each, with why",
-    "description": "Give the units to check (each { text, kind } or { view, kind } for JSON such as a plan, with optional facts, field, context and findings you already have), rules (rule rows judge-words runs, and ask rows a model answers), and the person's own rule document (verdict_rules) and stands (stances, as tool:read-where-you-stand gives them), read at run time from their records or files. Or give a branch in place of rules and verdict_rules: one of the person's branch rows (a node of kind branch in their one Checks list, list:checks, such as the kind of thing being made: a book, a script, an article, a post), and the rules are read from their own records: one tree in one list, every node naming the node it is part_of; the rows part_of that branch or a branch it is part_of, each branch read on its own (a branch below is never judged), plus the rows of every list a branch names in check_lists; step rows (questions of a decision step) and rows set Off are left out, a row that states no test (no words, pattern, exact, check, groups, path, evidence, ask or part) but says something is a reading row: a question a model answers once for each whole unit, made from the tool's own DATA over the row's words, carrying the calibration and model of the nearest branch's reading_settings, and listed in read_by_a_model; a piece of a source file, or a row that says nothing, is never judged: it is counted in rows_used.skipped.no_test, and a branch with only such rows answers no-applicable-rule; and the rows of the nearest branch carrying judge_settings (and of the branches extending it) are their verdict rows under those settings, the inherited rows generic rules. The answer then adds branch, lineage (nearest first) and rows_used. Their exact stand on a thing decides first: disagree fails, partly holds at review and fails at final, agree passes and clears the generic rules they named. Then their stated rows fail and their inferred rows (at_most uncertain) only hold. Nothing passes on silence: a thing nothing of theirs judges is novel, and an ask row never passes without a calibrated answer. The answer lists the questions a model may answer, by id; send the answers back in answers to use them. With branch the questions of a branch of hundreds of reading rows come in pages that each fit one answer: one entry for each rule (its ask said once, what every rule shares once in ask_all, a unit's own words never copied), and questions_page.next is the questions_after of the next call. Nothing about any person is built in.",
+    "description": "Give the units to check (each { text, kind } or { view, kind } for JSON such as a plan, with optional facts, field, context and findings you already have), rules (rule rows judge-words runs, and ask rows a model answers), and the person's own rule document (verdict_rules) and stands (stances, as tool:read-where-you-stand gives them), read from the records handed in (`records`) or the files given. Or give a branch in place of rules and verdict_rules: one of the person's branch rows (a node of kind branch in their one Checks list, list:checks, such as the kind of thing being made: a book, a script, an article, a post), and the rules are read from the records handed in: one tree in one list, every node naming the node it is part_of; the rows part_of that branch or a branch it is part_of, each branch read on its own (a branch below is never judged), plus the rows of every list a branch names in check_lists; step rows (questions of a decision step) and rows set Off are left out, a row that states no test (no words, pattern, exact, check, groups, path, evidence, ask or part) but says something is a reading row: a question a model answers once for each whole unit, made from the tool's own DATA over the row's words, carrying the calibration and model of the nearest branch's reading_settings, and listed in read_by_a_model; a piece of a source file, or a row that says nothing, is never judged: it is counted in rows_used.skipped.no_test, and a branch with only such rows answers no-applicable-rule; and the rows of the nearest branch carrying judge_settings (and of the branches extending it) are their verdict rows under those settings, the inherited rows generic rules. The answer then adds branch, lineage (nearest first) and rows_used. Their exact stand on a thing decides first: disagree fails, partly holds at review and fails at final, agree passes and clears the generic rules they named. Then their stated rows fail and their inferred rows (at_most uncertain) only hold. Nothing passes on silence: a thing nothing of theirs judges is novel, and an ask row never passes without a calibrated answer. The answer lists the questions a model may answer, by id; send the answers back in answers to use them. With branch the questions of a branch of hundreds of reading rows come in pages that each fit one answer: one entry for each rule (its ask said once, what every rule shares once in ask_all, a unit's own words never copied), and questions_page.next is the questions_after of the next call. Nothing about any person is built in.",
     "status": "active",
     "maker": "maker:check-against-a-persons-rules-and-verdicts",
     "licence_class": "licence:maker-own",
@@ -1997,7 +1966,7 @@
    "values": {
     "title": "Check every piece of a person's files has a check or a reason",
     "job": "Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered",
-    "description": "Reads, through the person's records door, read only and in bounded pages, the ids of their Checks list and then its rows whose kind is piece (as the person's AI kept them from tool:split-a-document-into-pieces, without their text), folding each page into a running tally, so a list of any size (40,000 rows and more) is read in one call. A piece is covered when checked_by names check rows that all exist, or when no_check has a reason (and every row its covered_by names exists). The answer: totals over every file, and per source file its pieces, those with a check, those with a reason and how many are uncovered, naming the first uncovered pieces by id, section and lead; status failed when any piece is uncovered. Checks and covered_by naming rows that do not exist are counted and the first named. The answer fits one door message (at most most_bytes of JSON): when more files remain, next is the after of the next page; with file, the page names that file's uncovered pieces by id, after after. Nothing is written.",
+    "description": "Reads the Checks rows handed in as records (the person's AI reads them from its own store: the ids of their Checks list and its rows whose kind is piece, as tool:split-a-document-into-pieces kept them, without their text), folding each piece into a running tally, so the run holds counts and a bounded number of named pieces. The run reads and writes no store. A piece is covered when checked_by names check rows that all exist, or when no_check has a reason (and every row its covered_by names exists). The answer: totals over every file, and per source file its pieces, those with a check, those with a reason and how many are uncovered, naming the first uncovered pieces by id, section and lead; status failed when any piece is uncovered. Checks and covered_by naming rows that do not exist are counted and the first named. The answer fits at most most_bytes of JSON: when more files remain, next is the after of the next page; with file, the page names that file's uncovered pieces by id, after after. Nothing is written.",
     "status": "active",
     "maker": "maker:check-against-a-persons-rules-and-verdicts",
     "licence_class": "licence:maker-own",
@@ -2324,8 +2293,8 @@
    "id": "tool:check-where-work-is-kept",
    "values": {
     "title": "Check that an AI keeps its work in Trillion, not on disk",
-    "job": "Check whether a file an AI is about to write belongs on disk or in the person's Trillion lists, and say which list and which records:write call keeps it instead",
-    "description": "Give rules ({ source_repositories: [owner/name], scratch?: '.git/scratch', new_files_refused?: [{ why, pattern, except?, list? }], list_copies?: [{ folder, list }], list_copy_sync?: regular expression, refused_places: [{ place, why, list? }] (place: a path, ~ the home folder, * one folder, ** any), lists: { <list id>: { type, id_prefix?, value } }, default_list, classifier?: { rubric, providers, timeout_seconds, pass_answers, lists_by_answer? }, says? }) and call: the tool call ({ tool_name, tool_input }: a Write or Edit's file_path, or a Bash command). Every path the call writes is found (redirects, tee, cp, mv, install, ln, mkdir, touch, dd, curl -o/-O, wget, mktemp, tar -x, unzip, git archive -o; a cd earlier in the command moves relative paths) and placed: in a checkout whose origin is a declared source repository it passes when tracked, when it is the scratch, or when new, not ignored and matching no new_files_refused row; a list_copies folder or a refused place (the longest match wins) refuses it naming its list. A path no rule places is asked of the classifier (tools/ask-a-small-model-for-a-verdict ask) with a timeout; a model that fails passes it with a warning. Returns valid, judged, passed [{ path, how, why }], refused [{ path, how, why, list, write: the records:write { records: [{ id, type, value }] } that keeps it instead }] and warnings.",
+    "job": "Check whether a file an AI is about to write belongs on disk or in the person's Trillion lists, and say which list and which row keeps it instead",
+    "description": "Give rules ({ source_repositories: [owner/name], scratch?: '.git/scratch', new_files_refused?: [{ why, pattern, except?, list? }], list_copies?: [{ folder, list }], list_copy_sync?: regular expression, refused_places: [{ place, why, list? }] (place: a path, ~ the home folder, * one folder, ** any), lists: { <list id>: { type, id_prefix?, value } }, default_list, classifier?: { rubric, providers, timeout_seconds, pass_answers, lists_by_answer? }, says? }) and call: the tool call ({ tool_name, tool_input }: a Write or Edit's file_path, or a Bash command). Every path the call writes is found (redirects, tee, cp, mv, install, ln, mkdir, touch, dd, curl -o/-O, wget, mktemp, tar -x, unzip, git archive -o; a cd earlier in the command moves relative paths) and placed: in a checkout whose origin is a declared source repository it passes when tracked, when it is the scratch, or when new, not ignored and matching no new_files_refused row; a list_copies folder or a refused place (the longest match wins) refuses it naming its list. A path no rule places is asked of the classifier (tools/ask-a-small-model-for-a-verdict ask) with a timeout; a model that fails passes it with a warning. Returns valid, judged, passed [{ path, how, why }], refused [{ path, how, why, list, keep: the row { id, type, value } that keeps it instead }] and warnings.",
     "status": "active",
     "maker": "maker:check-where-work-is-kept",
     "licence_class": "licence:maker-own",
@@ -2819,7 +2788,7 @@
    "values": {
     "title": "Count my AI conversations per app",
     "job": "Count the AI conversations in my records per app, and how many messages each app's conversations hold",
-    "description": "Reads the rows of the person's AI conversations list (record:ai-conversation) through the records door, only their app and messages fields, and answers the number of conversations and messages per app, most first. Reads nothing else.",
+    "description": "Reads the rows of the person's AI conversations list (record:ai-conversation) from the rows handed in, only their app and messages fields, and answers the number of conversations and messages per app, most first. Reads nothing else.",
     "status": "active",
     "maker": "maker:conversations",
     "licence_class": "licence:maker-own",
@@ -2834,7 +2803,7 @@
    "values": {
     "title": "Count the real bad rulings on lines",
     "job": "Count how many lines a person ruled bad, whether that is enough to let a model row fail lines, and how many of them each model row catches",
-    "description": "Give rulings (the person's ruling rows of list:checks, records:list type record:check prefix record:check:ruling-, as records or values) and settings_record (the person's setting for this tool: real, who counts; needs, fields a ruling must carry to count; needed, how many real bad rulings a model row needs before it may fail lines; and optionally verdict, the bad word, and default_kind), or those fields themselves. Returns real_bad_film (the real bad rulings), needed, promotion_allowed, counts (every \"<by> <verdict>\" of the log) and bad_lines (one per text: text, kind, where), the lines to check. Send again with rules (the model rows, [{ id, ask: { calibration: { t_fail } } }]) and results (the check's results on the bad lines: [{ text, uncertain: [{ rule, p_fail }] }]) to add escalated_by_any, per_rule (lines each row catches at its own t_fail) and unanswered. It runs no check and writes nothing.",
+    "description": "Give rulings (the person's ruling rows of list:checks, type record:check with id prefix record:check:ruling-, as records or values) and settings_record (the person's setting for this tool: real, who counts; needs, fields a ruling must carry to count; needed, how many real bad rulings a model row needs before it may fail lines; and optionally verdict, the bad word, and default_kind), or those fields themselves. Returns real_bad_film (the real bad rulings), needed, promotion_allowed, counts (every \"<by> <verdict>\" of the log) and bad_lines (one per text: text, kind, where), the lines to check. Send again with rules (the model rows, [{ id, ask: { calibration: { t_fail } } }]) and results (the check's results on the bad lines: [{ text, uncertain: [{ rule, p_fail }] }]) to add escalated_by_any, per_rule (lines each row catches at its own t_fail) and unanswered. It runs no check and writes nothing.",
     "status": "active",
     "maker": "maker:where-a-person-stands",
     "licence_class": "licence:maker-own",
@@ -3302,7 +3271,7 @@
    "values": {
     "title": "End shares whose condition failed",
     "job": "End the shares I let people run my tools by, once the end I gave each has passed, so none stays open past its time",
-    "description": "Lists every share that lets people run your tools, with the end rule you gave it (if any) and when it was last used, through your door's own share list, and withdraws each whose rule says it has ended: until, a time that has passed, or unused_days, that many days with no use counted from the later of when you set the rule and its last use (each use starts the days again). A share with no rule never ends here; it stands until you stop it. The engine keeps your rule beside the share and reads none of it: it admits a person while their share is kept, so a share ends when this withdraws it. A rule it cannot read is left alone and counted as waiting; a share the engine lists with no last use is judged by its until alone and counted as unjudged. Change a rule with tool:share-anything op end and the next run acts on it. Switch its wake on (wake:switch) and it runs every hour, the grain the engine writes a last use at; run it once by hand and it does the same.",
+    "description": "Judges every share that lets people run your tools, from the run shares the caller lists from your store (each with the end rule you gave it, if any, and when it was last used), and returns the withdrawal of each whose rule says it has ended: until, a time that has passed, or unused_days, that many days with no use counted from the later of when you set the rule and its last use (each use starts the days again). A share with no rule never ends here; it stands until you stop it. The engine keeps your rule beside the share and reads none of it: it admits a person while their share is kept, so a share ends when this withdraws it. A rule it cannot read is left alone and counted as waiting; a share the engine lists with no last use is judged by its until alone and counted as unjudged. Change a rule with tool:share-anything op end and the next run acts on it. It takes the listed runs as input (runs) and reads no store itself; a caller that runs it every hour, the grain the engine writes a last use at, gives it the runs and writes what it returns.",
     "status": "active",
     "maker": "maker:share-anything",
     "licence_class": "licence:maker-own",
@@ -3396,7 +3365,7 @@
    "values": {
     "title": "Evaluate a writing-voice classifier on labelled passages",
     "job": "Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source",
-    "description": "Give data, a challenge of labelled passages (schema book-voice-decider-challenge-v1, v2 or v3), and an action. validate checks the challenge (unique ids, one split per family, typed blocks, criteria, labels) and counts the model questions; plan returns the exact request each passage would send (the passage and only its criterion-scoped or pinned reference context, never the general context, which can hold labels); evaluate asks the classifier (the endpoint and model in the person's list:settings row for this tool, settings_record, as records:read gave it and tools/settings reads it) and answers the report: every choice with its full probabilities, a decision that is the choice only when its probability is over the criterion's diagnostic minimum (else uncertain), confusion matrices and abstentions by criterion, family and source kind, and errors kept as errors, never passes; a section heading is judged over every source-bound chunk of its section (one fail fails it, all pass passes it). A reply whose model or serving identity differs from the classifier's health is an error. replies plays recorded exchanges in place of the classifier (a stand-in: a request with no recording is refused). check-report checks a stored report against its challenge (identity, request policy, every captured request and raw response). Nothing is trained and nothing is written; the person's passages and labels are input only.",
+    "description": "Give data, a challenge of labelled passages (schema book-voice-decider-challenge-v1, v2 or v3), and an action. validate checks the challenge (unique ids, one split per family, typed blocks, criteria, labels) and counts the model questions; plan returns the exact request each passage would send (the passage and only its criterion-scoped or pinned reference context, never the general context, which can hold labels); evaluate asks the classifier (the endpoint and model in the person's list:settings row for this tool, settings_record, as the person's store gives it and tools/settings reads it) and answers the report: every choice with its full probabilities, a decision that is the choice only when its probability is over the criterion's diagnostic minimum (else uncertain), confusion matrices and abstentions by criterion, family and source kind, and errors kept as errors, never passes; a section heading is judged over every source-bound chunk of its section (one fail fails it, all pass passes it). A reply whose model or serving identity differs from the classifier's health is an error. replies plays recorded exchanges in place of the classifier (a stand-in: a request with no recording is refused). check-report checks a stored report against its challenge (identity, request policy, every captured request and raw response). Nothing is trained and nothing is written; the person's passages and labels are input only.",
     "status": "active",
     "maker": "maker:train-and-evaluate-a-writing-voice-classifier",
     "licence_class": "licence:maker-own",
@@ -4071,21 +4040,6 @@
    }
   },
   {
-   "id": "tool:find-snippets",
-   "values": {
-    "title": "Find snippets",
-    "job": "Find the snippets I saved, by a word in them or a tag, so I can put one into what I am writing",
-    "description": "Give query (every word must be in the title, words or tags) and tag, both optional, and limit (at most 100). Returns snippets, most recently used or saved first, each with snippet_id, title, text, tags, blanks (the {name} blanks in it), set_at, uses and used_at; and more, how many matched beyond limit. Changes nothing.",
-    "status": "active",
-    "maker": "maker:social-posts",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "social-posts"
-   }
-  },
-  {
    "id": "tool:find-the-event-that-starts-one-tour",
    "values": {
     "title": "Find the event that starts or replays one guided tour",
@@ -4165,7 +4119,7 @@
    "values": {
     "title": "Check the saved consumer and finish an AI job",
     "job": "Finish an AI job only after its saved acceptance checks pass on the actual persisted consumer",
-    "description": "Reads the exact record target saved in the job acceptance and applies the existing judge-words rules to its current value. Missing target, failed or unavailable checks, mismatched target, stale claim and changed job refuse completion. Receipt strings do not prove success. Keeps the actual consumer content identity and acceptance identity bound to this take. Rights are intersected by the engine with the caller authority; this tool grants no new account access. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+    "description": "Reads the exact record target saved in the job acceptance and applies the existing judge-words rules to its current value. Missing target, failed or unavailable checks, mismatched target, stale claim and changed job refuse completion. Receipt strings do not prove success. Keeps the actual consumer content identity and acceptance identity bound to this take. Rights are intersected by the engine with the caller authority; this tool grants no new account access. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -4180,7 +4134,7 @@
    "values": {
     "title": "Finish a waiting item",
     "job": "Complete the declared action on the same persisted waiting record",
-    "description": "Works out the declared same-record completion of waiting records and answers it as a records:write input; it writes nothing. Read the records first (records:read or records:list, each { id, type, value }) and hand them in as records; hand in the person's record:waiting-sources records as sources when they added any. Refuses items whose source has another owner. The built-in asks action is the original Waiting on you list status Done transition; no other source status is guessed. Answers completed (the ids), changed (how many records the write changes) and write: each record's new value expecting the value it was read with. Send write at @own-records with records:write, then run tool:verify-waiting-on-me-completion on the records read back. A record already carrying this request_key's receipt answers completed with no write.",
+    "description": "Works out the declared same-record completion of waiting records and answers the records that change as keep, each { id, type, value, expected } for the caller to store; it writes nothing. Read the records first from the person's own store (each { id, type, value }) and hand them in as records; hand in the person's record:waiting-sources records as sources when they added any. Refuses items whose source has another owner. The built-in asks action is the original Waiting on you list status Done transition; no other source status is guessed. Answers completed (the ids), changed (how many records change) and keep: each changed record as { id, type, value, expected }, expected being the record as it was read. Store each kept record in the person's own store, refused if the expected record has moved, then run tool:verify-waiting-on-me-completion on the records read back. A record already carrying this request_key's receipt answers completed with no write.",
     "status": "active",
     "maker": "maker:what-is-waiting-on-me",
     "licence_class": "licence:maker-own",
@@ -4256,21 +4210,6 @@
    }
   },
   {
-   "id": "tool:forget-voice",
-   "values": {
-    "title": "Forget how someone writes",
-    "job": "Forget part of what is kept about how this person writes",
-    "description": "Forgets one profile (profile_id from tool:read-voice), one edit (edit_id from tool:read-voice), or every edit (all_edits true, with kind to forget only one kind's). Returns forgot (how many) and said.",
-    "status": "active",
-    "maker": "maker:how-someone-does-their-thing",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "how-someone-does-their-thing"
-   }
-  },
-  {
    "id": "tool:form-matches",
    "values": {
     "title": "Form matches and small groups by grounded expected value",
@@ -4291,9 +4230,9 @@
   {
    "id": "tool:free-what-the-list-says-can-be-got-back",
    "values": {
-    "title": "Move eligible files from my list to Trash",
-    "job": "Move files and folders my list says I can get back to recoverable Trash after checking the listed sources and recipes",
-    "description": "Give 1 to 100 rows, each { id, value }, and the folder granted for change. Eligibility requires the saved state, no hold, a regular file or folder inside the grant, no top-level link or git-tracked files, at least one source address or recipe, every source answering, every recipe tracked, unchanged and pushed, and no changes within the quiet hours or during the check. A source answering proves availability only, not identical or complete recovery bytes. dry_run defaults to true and moves nothing. A real run asks the native macOS Trash service; it never permanently deletes or empties Trash, and a denied move returns no next_value. Only a confirmed move returns next_value with the moved-to-Trash state. path_bytes and trashed_path_bytes describe observed path allocation, not reclaimed storage; freed_bytes is null because it is unmeasured. The change-a-folder grant may refuse Trash access; this tool never widens it. Field names and state words are DATA in read-data/kept-file-shape.json, overridden by shape.",
+    "title": "Check which files from my list can go to Trash",
+    "job": "Check the files and folders my list says I can get back, and hand the ones that pass to the native Trash step",
+    "description": "Give 1 to 100 rows, each { id, value }. Eligibility requires the saved state, no hold, a regular file or folder inside the granted folder, no top-level link or git-tracked files, at least one source address or recipe, every source answering, every recipe tracked, unchanged and pushed, and no changes within the quiet hours or during the check. A source answering proves availability only, not identical or complete recovery bytes. This row moves nothing and writes no list. Each eligible row returns trash_handoff { path, expected_generation }; the native caller moves that path to recoverable Trash only while it still has that generation, and writes the moved state itself. path_bytes and eligible_path_bytes describe observed path allocation, not reclaimed storage. Field names and state words are DATA in read-data/kept-file-shape.json, overridden by shape. The folder comes from the change-a-folder grant in stdin, never from the rows.",
     "status": "active",
     "maker": "maker:free-what-the-list-says-can-be-got-back",
     "licence_class": "licence:maker-own",
@@ -4338,7 +4277,7 @@
    "values": {
     "title": "Hold a piece back until every check of its delivery checklist has a pass with evidence (runs on your computer)",
     "job": "Before I show or deliver a piece, tell me which checks of my delivery checklist are still open, failed or answered on old bytes, record each answer with its evidence, and hold back anything already linked for me to watch that has not passed",
-    "description": "Reads a person's delivery checklist (stages of checks, each routed by the piece header's tags, some asked once per option) through the schema they give, and holds a piece back until every routed MUST check has a pass row. A person's row carries evidence and a name; a machine's row (the rendered-video check, the sweep, the copy check on the person's own branch of their Checks list read through their records door, their verdict rows, their fact gate, the audio measure of an audition) carries the pin of the code and rules that measured it; every row carries the BLAKE3 of the files it judged, so a row on other bytes is open again. It records render-check reports, runs the sweep and the content gates, audits the files linked into watch folders (moving open ones aside with --hold) and lists the options a whole-lane gate covers. Every file name, folder, pattern, stage and rule id comes from the schema's delivery_gate.",
+    "description": "Reads a person's delivery checklist (stages of checks, each routed by the piece header's tags, some asked once per option) through the schema they give, and holds a piece back until every routed MUST check has a pass row. A person's row carries evidence and a name; a machine's row (the rendered-video check, the sweep, the copy check on the person's own branch of their Checks list read from the records they hand in, their verdict rows, their fact gate, the audio measure of an audition) carries the pin of the code and rules that measured it; every row carries the BLAKE3 of the files it judged, so a row on other bytes is open again. It records render-check reports, runs the sweep and the content gates, audits the files linked into watch folders (moving open ones aside with --hold) and lists the options a whole-lane gate covers. Every file name, folder, pattern, stage and rule id comes from the schema's delivery_gate.",
     "status": "active",
     "maker": "maker:keep-a-record-library-valid",
     "licence_class": "licence:maker-own",
@@ -4609,20 +4548,6 @@
     "description": "Port of OpenAI's Whisper model in C/C++ Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
     "status": "active",
     "licence_class": "licence:permissive",
-    "placements": [
-     "placement:caller-sandbox"
-    ],
-    "folder": "tools-from-github"
-   }
-  },
-  {
-   "id": "tool:github:gitroomhq-postiz-app",
-   "values": {
-    "title": "postiz-app (open source, runs on your computer)",
-    "job": "Schedule and publish posts to your own social media accounts from one place you host yourself",
-    "description": "📨 The ultimate agentic social media scheduling tool 🤖 Open source on GitHub under AGPL-3.0. It runs on the person's own computer: run_tool hands back how to get it and run it.",
-    "status": "active",
-    "licence_class": "licence:network-copyleft",
     "placements": [
      "placement:caller-sandbox"
     ],
@@ -4908,7 +4833,7 @@
    "values": {
     "title": "Hand a job to one of my AIs, or to whichever takes it first",
     "job": "Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take",
-    "description": "Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent. The write is conditioned on the record being absent, so the same key sends the job once: sending it again answers already-there with the job as it is. `key` defaults to the run's request key. An AI named in `to` must be one of the person's ai records. source {kind, ref} preserves incoming provenance; obligations [{id, outcome}] declare independently checked parts. Reuse the incoming stable key and existing source job; do not enqueue duplicate work. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+    "description": "Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent. The write is conditioned on the record being absent, so the same key sends the job once: sending it again answers already-there with the job as it is. `key` defaults to the run's request key. An AI named in `to` must be one of the person's ai records. source {kind, ref} preserves incoming provenance; obligations [{id, outcome}] declare independently checked parts. Reuse the incoming stable key and existing source job; do not enqueue duplicate work. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -4969,7 +4894,7 @@
    "values": {
     "title": "Hear a recording another of my devices made",
     "job": "Hear a recording one of my other devices made and tell me each person's turn in it as that device heard it",
-    "description": "Reads a recording one of the person's other devices made (`file`, its name or identity in the person's files) through the run's files door into the run's own folder, hears it on this computer with the Whisper model the person names, names each turn from the voices people enrolled (`voice_prints`; tool:enrol-a-voice-or-face), and answers one heard row per turn as tool:listen-for-a-while does, with `device` as the device and times counted from `at` (when the device began recording; now when left out). It keeps nothing: it writes no row and no file, so the person's AI takes the `heard` rows from the answer and keeps them where it chooses. The same `listening` name continues an earlier listening's unknown voices when the last answer's `voice_session` is handed back as `voice_session`. The person's recording rules and `listening_switch` are asked as for a live listening. The copy read for hearing is deleted once heard; the person's file is left where it is. Every answer lists what leaves this computer and what stays.",
+    "description": "Reads a recording one of the person's other devices made (`file`, its name or identity in the person's files) from the bytes handed in as stored.files into the run's own folder, hears it on this computer with the Whisper model the person names, names each turn from the voices people enrolled (`voice_prints`; tool:enrol-a-voice-or-face), and answers one heard row per turn as tool:listen-for-a-while does, with `device` as the device and times counted from `at` (when the device began recording; now when left out). It keeps nothing: it writes no row and no file, so the person's AI takes the `heard` rows from the answer and keeps them where it chooses. The same `listening` name continues an earlier listening's unknown voices when the last answer's `voice_session` is handed back as `voice_session`. The person's recording rules and `listening_switch` are asked as for a live listening. The copy read for hearing is deleted once heard; the person's file is left where it is. Every answer lists what leaves this computer and what stays.",
     "status": "active",
     "maker": "maker:listen-for-a-while",
     "licence_class": "licence:permissive",
@@ -5106,7 +5031,7 @@
    "values": {
     "title": "Import my conversations from one source",
     "job": "Bring every conversation of one app (an AI chat export, Google Takeout activity, or a local AI app's sessions) from this computer into my records completely, one row per conversation and every message, continuing where an earlier run stopped",
-    "description": "Runs on the person's computer over the folder they granted (their home folder). source is one id tool:list-the-conversation-sources-on-this-computer gives; files, when given, names the files (paths in the folder) instead of looking for them. Each conversation is kept as the person's messages (record message, with its source key, so bringing it in again adds nothing twice) and one row of their AI conversations list (record:ai-conversation: title, app, conversation, started, last, messages, models, original_file; labels, people, pursuits and follow-ups they set are never touched). Writes go through the records door in batches; a busy (503) or slow door is asked again after a growing wait with the same request key. Each file has a cursor row (conversation-import-cursor) that moves only past what was kept, so a run that stops, or reaches time_box_seconds, answers more: true and the next run goes on from there; a file already done and unchanged is skipped. Files the messages carried are copied into the person's files through the files door under /messages: an export's file (ChatGPT's file-XXXX, Grok's asset) found beside the export as /messages/<app>/<name>, an image pasted into a session as /messages/<conversation>/<message>-<n>; a file already there with the same bytes is not written again, and a file not found beside the export is counted (attachments_not_kept), never an error.",
+    "description": "Runs on the person's computer over the folder they granted (their home folder). source is one id tool:list-the-conversation-sources-on-this-computer gives; files, when given, names the files (paths in the folder) instead of looking for them. Each conversation is kept as the person's messages (record message, with its source key, so bringing it in again adds nothing twice) and one row of their AI conversations list (record:ai-conversation: title, app, conversation, started, last, messages, models, original_file; labels, people, pursuits and follow-ups they set are never touched). Writes are handed back as keep, in batches, for the caller to write where the person keeps them. Each file has a cursor row (conversation-import-cursor) that moves only past what was kept, so a run that stops, or reaches time_box_seconds, answers more: true and the next run goes on from there; a file already done and unchanged is skipped. Files the messages carried are handed back as keep (file and base64) for the caller to write into the person's files under /messages: an export's file (ChatGPT's file-XXXX, Grok's asset) found beside the export as /messages/<app>/<name>, an image pasted into a session as /messages/<conversation>/<message>-<n>; a file the caller already holds with the same bytes is not written again, and a file not found beside the export is counted (attachments_not_kept), never an error.",
     "status": "active",
     "maker": "maker:conversations",
     "licence_class": "licence:maker-own",
@@ -5281,17 +5206,14 @@
    "values": {
     "title": "Keep a profile of how someone does their thing",
     "job": "Keep the profile of how a person does their thing, so drafts made for them are shaped by it and checked against it",
-    "description": "Give the profile's name, the subject's name, the items you derived (a non-empty list of objects) and, as refs, the feature schemas, evaluators, generators and validation policy that go with it. Returns and keeps one profile record under the profile's name; keeping it again replaces it. Empty items, or a ref that is not a non-empty string, are refused.",
+    "description": "Give the profile's name, the subject's name, the items you derived (a non-empty list of objects) and, as refs, the feature schemas, evaluators, generators and validation policy that go with it. Returns the one profile record to keep under the profile's name (the person's store keeps it: workflow:keep-how-someone-does-their-thing); keeping it again replaces it. Empty items, or a ref that is not a non-empty string, are refused.",
     "status": "active",
     "maker": "maker:how-someone-does-their-thing",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:small-container"
     ],
-    "folder": "how-someone-does-their-thing",
-    "flags": [
-     "keeps-records"
-    ]
+    "folder": "how-someone-does-their-thing"
    }
   },
   {
@@ -5299,7 +5221,7 @@
    "values": {
     "title": "Check a prospect row",
     "job": "Build one row of my prospect list from what a finder found, the researched profile, a status or my notes, checked, for my AI to keep",
-    "description": "One row per prospect, under the key you give, built over the row you hold (give its fields as held; a field you keep by hand stays). action keep (default): found = the facts a finder gave (name, url, place, source, size, signals, score) and/or profile = the research (profile, problems 1 to 3, triggers, case_study, channels). Every problem, trigger and channel carries basis stated (the material says it; evidence quotes it word for word) or inferred (a reading of it, with what it is read from). Send material with a profile and a stated quotation that is not in it is refused. A new row starts at the first status (found, or researched once a profile is checked). action mark: status (found, researched, drafted, contacted, replied, booked, won, lost, dropped) and/or notes, over the row you hold. The answer holds the row ({ id, type, value }); this keeps nothing, your AI keeps the row in your prospect list. The fields, statuses and rules are DATA in do-work/prospect-list.json. It contacts nobody.",
+    "description": "One row per prospect, under the key you give, built over the row you hold (give its fields as held; a field you keep by hand stays). action keep (default): found = the facts a finder gave (name, url, place, source, size, signals, score) and/or profile = the research (profile, problems 1 to 3, triggers, case_study, channels). Every problem, trigger and channel carries basis stated (the material says it; evidence quotes it word for word) or inferred (a reading of it, with what it is read from). Send material with a profile and a stated quotation that is not in it is refused. A new row starts at the first status (found, or researched once a profile is checked). action mark: status (found, researched, drafted, contacted, replied, booked, won, lost, dropped) and/or notes, over the row you hold. The answer holds the row as keep ([{ id, type, value, expected }], expected being the row as you handed it in, null for a new prospect); this keeps nothing, your AI keeps the row in your prospect list. The fields, statuses and rules are DATA in do-work/prospect-list.json. It contacts nobody.",
     "status": "active",
     "maker": "maker:research-a-creator-or-topic",
     "licence_class": "licence:maker-own",
@@ -5355,26 +5277,11 @@
    }
   },
   {
-   "id": "tool:keep-a-thread-summary",
-   "values": {
-    "title": "Keep a conversation summary",
-    "job": "Keep a short summary of this conversation, so the next AI that opens it reads a few lines instead of every message",
-    "description": "Give conversation_id (and app), summary (at most 4000 characters) and latest: { id, at } of the conversation's newest message now, as the messages owner shows it (its newest message from reading the conversation). The summary covers through that message; keeping again replaces it. Returns summary (summary_id, app, conversation_id, summary, through_message_id, through_at, set_at) and said. Refuses a missing conversation_id, an empty summary, and a conversation with no latest message. The messages themselves are not touched; the words it says name trillion's read_messages and save_thread_summary tools.",
-    "status": "active",
-    "maker": "maker:social-posts",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "social-posts"
-   }
-  },
-  {
    "id": "tool:keep-a-voice-edit",
    "values": {
     "title": "Keep the person's edit of an AI's words",
     "job": "Keep what the person changed in words an AI wrote for them, so their voice is learned from it",
-    "description": "Run when the person themselves changed words an AI wrote (a draft's caption): kind (like post), subject_id (what was edited), before (the AI's words), after (theirs) and before_by (the AI that wrote them). Nothing is kept when the words did not really change. Only the newest edits are kept. Returns edit, or edit null.",
+    "description": "Run when the person themselves changed words an AI wrote (a draft's caption): kind (like post), subject_id (what was edited), before (the AI's words), after (theirs) and before_by (the AI that wrote them). Nothing is kept when the words did not really change. Returns edit (or edit null) and keep: the row the store writes. The store keeps only the newest keep_edits edits (workflow:keep-how-someone-does-their-thing retires the older ones).",
     "status": "active",
     "maker": "maker:how-someone-does-their-thing",
     "licence_class": "licence:maker-own",
@@ -5404,7 +5311,7 @@
    "values": {
     "title": "Keep the newest videos of channels and their captions",
     "job": "List the newest videos of each channel, tab or playlist I name and get each new video's captions with the times they are said, its description and, if I ask, its top comments, without downloading any video",
-    "description": "For each seed (a channel's @handle, id or link, a link to one of its tabs such as /shorts, or a playlist link) lists the newest `newest` videos with yt-dlp on this computer, then fetches the captions (in the first of caption_languages the video has; json3, else WebVTT), the site's description and, with also [\"comments\"], the top comments_per_video comments of every listed video not in skip_ids. It never downloads a video. It asks politely, one request at a time with a drawn wait between requests, at most a set number of requests and budget_seconds per run (the settings file harvest-settings.json in this folder holds every number), and it stops at the first refusal (a robot check or too many requests). It keeps three files in your files: listing (listing.json: every listed video of each seed, with kept_before), captions (captions.jsonl: one line per video settled now, { video_id, url, seed, status ready|empty|failed, language, format, lines [[second, words]], info }) and comments (comments.jsonl). With rows it also answers, as rows.records, one row per seed or per settled video for your sources list (record:sources:<id>), each field from a fact ({ fact }), a text with {fact} holes ({ text }) or a value ({ value }); give the rows you already hold as held and a row built over one keeps the fields this does not write. It keeps no row itself: your AI keeps the rows it answers. Facts of a video: video_id, title, url, published, duration, view_count, seed, listing_url, source, caption_status, caption_language. Facts of a seed: seed, listing_url, source, listed, kept, finished. The answer says what was done and, when anything is left, `again`: the input to send next; after a refusal wait `wait_minutes` first. Repeat until again is null.",
+    "description": "For each seed (a channel's @handle, id or link, a link to one of its tabs such as /shorts, or a playlist link) lists the newest `newest` videos with yt-dlp on this computer, then fetches the captions (in the first of caption_languages the video has; json3, else WebVTT), the site's description and, with also [\"comments\"], the top comments_per_video comments of every listed video not in skip_ids. It never downloads a video. It asks politely, one request at a time with a drawn wait between requests, at most a set number of requests and budget_seconds per run (the settings file harvest-settings.json in this folder holds every number), and it stops at the first refusal (a robot check or too many requests). It keeps three files in your files: listing (listing.json: every listed video of each seed, with kept_before), captions (captions.jsonl: one line per video settled now, { video_id, url, seed, status ready|empty|failed, language, format, lines [[second, words]], info }) and comments (comments.jsonl). With rows it also answers, as keep, one row per seed or per settled video for your sources list (record:sources:<id>), each field from a fact ({ fact }), a text with {fact} holes ({ text }) or a value ({ value }); give the rows you already hold as held and a row built over one keeps the fields this does not write; each keep row carries expected, the row as it was handed in (null for a new one). It keeps no row itself: your AI keeps the rows it answers. Facts of a video: video_id, title, url, published, duration, view_count, seed, listing_url, source, caption_status, caption_language. Facts of a seed: seed, listing_url, source, listed, kept, finished. The answer says what was done and, when anything is left, `again`: the input to send next; after a refusal wait `wait_minutes` first. Repeat until again is null.",
     "status": "active",
     "maker": "maker:research-a-creator-or-topic",
     "licence_class": "licence:maker-own",
@@ -5498,7 +5405,7 @@
    "values": {
     "title": "Keep public posts by link",
     "job": "Keep the text, numbers and media addresses of public posts I name by link, through a public mirror, without opening the posts' site",
-    "description": "For each link to a public post (x.com or twitter.com status links; the link pattern is in harvest-settings.json) asks a third-party public mirror for the post as JSON and keeps its text, counts, author and the addresses of its media, never the media themselves. This depends on that mirror staying up: its address is `posts.mirror_base` in harvest-settings.json and can be changed there. It asks politely with the same limits file as the channel harvest: one request at a time with a drawn wait, a bounded number of requests and budget_seconds per run, a stop at the first refusal. Links already kept (skip_ids) are not asked again. It keeps one file in your files (posts.jsonl: one line per post settled now: user, post_id, link, status ready or failed, the post's kept fields or the reason). A run that stops early answers `again`, the input to send next, and after a refusal `wait_minutes`; repeat until `again` is null. With rows one per post, the answer holds the posts as rows.records for your sources list, built over the rows you give as held; your AI keeps them, this keeps none.",
+    "description": "For each link to a public post (x.com or twitter.com status links; the link pattern is in harvest-settings.json) asks a third-party public mirror for the post as JSON and keeps its text, counts, author and the addresses of its media, never the media themselves. This depends on that mirror staying up: its address is `posts.mirror_base` in harvest-settings.json and can be changed there. It asks politely with the same limits file as the channel harvest: one request at a time with a drawn wait, a bounded number of requests and budget_seconds per run, a stop at the first refusal. Links already kept (skip_ids) are not asked again. It keeps one file in your files (posts.jsonl: one line per post settled now: user, post_id, link, status ready or failed, the post's kept fields or the reason). A run that stops early answers `again`, the input to send next, and after a refusal `wait_minutes`; repeat until `again` is null. With rows one per post, the answer holds the posts as keep for your sources list, built over the rows you give as held, each with expected (the row as it was handed in, null for a new one); your AI keeps them, this keeps none.",
     "status": "active",
     "maker": "maker:research-a-creator-or-topic",
     "licence_class": "licence:maker-own",
@@ -5528,7 +5435,7 @@
    "values": {
     "title": "Keep rulings on lines",
     "job": "Write down rulings on single lines of copy, such as a line a checker flagged for the person or a reviewer's good or bad, as rows of the person's Checks list",
-    "description": "Give rows (each ruling: text, verdict, by, and optionally rule, kind, at, where and any other field kept), existing (the rulings already in list:checks, as records:list type record:check prefix record:check:ruling- pages them, so a ruling is written once) and settings_record (the person's row of list:settings for this tool as records:read gives it: unruled_part_of, the check branch a ruling with no rule goes under; refuse, [{ field, one_of: [values] } or { field, contains_one_of: [path parts] }] such as a test piece or a temporary folder; place, { field, pattern } that reads a ruling's place from its where; hand_rulings, the words a ruling given by hand may use; escalated_verdicts), or those fields themselves. by_hand true checks hand_rulings. Returns write, the records:write input to send at @own-records: one record:check per text, verdict, by and rule (id record:check:ruling-<BLAKE3 hex>, kind labelled-line, or escalated-line for an escalated line, part_of its rule or unruled_part_of, its copy kind as line_kind), and fresh, how many are new. A write holding a refused row is refused whole. It writes nothing.",
+    "description": "Give rows (each ruling: text, verdict, by, and optionally rule, kind, at, where and any other field kept), existing (the rulings already in list:checks, read from where the person keeps them, so a ruling is written once) and settings_record (the person's row of list:settings for this tool as the person's store gives it: unruled_part_of, the check branch a ruling with no rule goes under; refuse, [{ field, one_of: [values] } or { field, contains_one_of: [path parts] }] such as a test piece or a temporary folder; place, { field, pattern } that reads a ruling's place from its where; hand_rulings, the words a ruling given by hand may use; escalated_verdicts), or those fields themselves. by_hand true checks hand_rulings. Returns write, { records } to keep where the person keeps its Checks list: one record:check per text, verdict, by and rule (id record:check:ruling-<BLAKE3 hex>, kind labelled-line, or escalated-line for an escalated line, part_of its rule or unruled_part_of, its copy kind as line_kind), and fresh, how many are new. A write holding a refused row is refused whole. It writes nothing.",
     "status": "active",
     "maker": "maker:where-a-person-stands",
     "licence_class": "licence:maker-own",
@@ -5543,7 +5450,7 @@
    "values": {
     "title": "Keep the words a person gave",
     "job": "Work out the row that keeps the words a person gave in reply, with the consent they gave and the words that gave it, as a received row of the list",
-    "description": "Answers the row that keeps words with one of the consents the list declares and consent_note, the person's own words that gave it (or where they are). With row_id it fills the row that asked them (found among the `rows` handed in); without it, `who` is required and the words become their own row, the same words from the same person always the same row. The row is received and any approval is taken away, so changed words are reviewed again. A withdrawn row takes no more words. The same call again changes nothing. Nothing is written by this tool: `write` holds the record for the caller's AI to put in a store, conditional on the row as handed in. Returns row_id, status, changed and write.",
+    "description": "Answers the row that keeps words with one of the consents the list declares and consent_note, the person's own words that gave it (or where they are). With row_id it fills the row that asked them (found among the `rows` handed in); without it, `who` is required and the words become their own row, the same words from the same person always the same row. The row is received and any approval is taken away, so changed words are reviewed again. A withdrawn row takes no more words. The same call again changes nothing. Nothing is written by this tool: `keep` holds the records the caller's AI keeps in its store, conditional on the row as handed in. Returns row_id, status, changed and keep.",
     "status": "active",
     "maker": "maker:gather-words-from-people",
     "licence_class": "licence:maker-own",
@@ -5592,17 +5499,14 @@
    "values": {
     "title": "Keep where you stand on something",
     "job": "Write down whether a person agrees, disagrees or partly agrees with something made for them, such as a title, a take, a plan or a file, in their own words",
-    "description": "Give kind (what the thing is: a title, a take, a plan, a file), the thing (artifact_ref, its identity: 1f: and 64 hex digits, or file: and that identity; or the thing itself: text, contains for a part of a text, or view for any JSON, with fold, how its owner says two texts are the same), stance (agree, disagree or partly, or null to take a stand back), why (the person's own words, kept exactly) and answered_by \"person\": only send what the person said. Returns the stance record, kept in the person's records as one record per kind and identity (stance:<kind>:<identity>), so a change of mind is a new version and every earlier stand stays in its history. Text is identified folded, so the same title typed again finds the same stand. A name instead of an identity, or a stand not answered by the person, is refused.",
+    "description": "Give kind (what the thing is: a title, a take, a plan, a file), the thing (artifact_ref, its identity: 1f: and 64 hex digits, or file: and that identity; or the thing itself: text, contains for a part of a text, or view for any JSON, with fold, how its owner says two texts are the same), stance (agree, disagree or partly, or null to take a stand back), why (the person's own words, kept exactly) and answered_by \"person\": only send what the person said. Returns the stance record, one per kind and identity (stance:<kind>:<identity>), for the caller to keep where the person keeps stances: a change of mind is a new version and every earlier stand stays in its history. Text is identified folded, so the same title typed again finds the same stand. A name instead of an identity, or a stand not answered by the person, is refused.",
     "status": "active",
     "maker": "maker:where-a-person-stands",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:small-container"
     ],
-    "folder": "where-a-person-stands",
-    "flags": [
-     "keeps-records"
-    ]
+    "folder": "where-a-person-stands"
    }
   },
   {
@@ -5897,7 +5801,7 @@
    "values": {
     "title": "List connections",
     "job": "List the services this account is connected to, with each connection's status and when it was last checked",
-    "description": "List the services this account is connected to, with each connection's status and when it was last checked. Returns connections: one row a connection in connection id order, { connection_id, service, vendor, account_label?, status?, can_send, connected_at?, grant_scopes_known, grant_scopes?, capabilityChoices?, last_checked?, connected_by? }, from the person's own connection records, which you hand in as connection_records (read them from the person's store: records of type connection, each { id, value }); a connection whose values the account holds and that has no record yet is listed from what its held names say (its id, service and vendor), its other facts left out as unknown. Reads only; it reads no store itself, keeps nothing and writes no row; it connects, checks and sends nothing, and shows no secret.",
+    "description": "List the services this account is connected to, with each connection's status and when it was last checked. Returns connections: one row a connection in connection id order, { connection_id, service, vendor, account_label?, status?, can_send, connected_at?, grant_scopes_known, grant_scopes?, capabilityChoices?, last_checked?, connected_by? }, from the person's own connection records, which you hand in as connection_records (read them from the person's store: records of type connection, each { id, value }), and from the connections the account's vault holds, which you hand in as held_connections (read from the vault's names, each { connection_id, fields }, never a value); a connection whose values the account holds and that has no record yet is listed from what its held names say (its id, service and vendor), its other facts left out as unknown. Reads only; it reads no store itself, keeps nothing and writes no row; it connects, checks and sends nothing, and shows no secret.",
     "status": "active",
     "maker": "maker:connections",
     "licence_class": "licence:maker-own",
@@ -6128,25 +6032,6 @@
      "placement:your-computer"
     ],
     "folder": "running-programs"
-   }
-  },
-  {
-   "id": "tool:list-saved-examples",
-   "values": {
-    "title": "Saved examples",
-    "job": "List every example this person saved of posts, videos and pages that worked, newest first, each with its link, words, pictures and why it worked",
-    "description": "Returns examples (each { id, url, host, site, title, words, pictures, why_it_worked, collection, added_from, added_at, updated_at }, newest first) and count. Read it before writing something for this person in a shape that already worked for someone.",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "listed_on": "2026-09-30T07:12:34Z",
-    "folder": "saved-examples",
-    "flags": [
-     "has-a-screen"
-    ]
    }
   },
   {
@@ -6867,7 +6752,7 @@
    "values": {
     "title": "Make examples from the options a person picked",
     "job": "Make labelled examples for calibrating a small model from which options of a piece a person picked or rejected, and the lines they named",
-    "description": "Give films (each piece: name, gate (its pick settings: picked_verdicts and pick_labels with spec_globs using {option}, and optionally words, exclude, rejected_lines, text_keys, spoken_lead_s), decisions (its pick rows: option_id, verdict, lines, reason_verbatim; the last row of an option governs), files (the piece's file paths) and units ({ <spec path>: [{ text, kind, context }] }, the lines of each spec read so far)), and optionally rulings with real and needs (a text ruled directly is left out: the ruling wins), bad_label and rejected (the pattern a rejecting verdict matches, default ^rejected). Units of a picked option are good except the lines its row names; a rejection labels bad only the lines it names. Returns items, left_out (excluded, ruled_directly, both_labels, no_spec, several_specs) and units_needed: the specs whose lines to read and send again. Any of these may come from settings_record, the person's setting for this tool (their row of list:settings as records:read gives it, read by tools/settings); the input's own fields win. It writes nothing.",
+    "description": "Give films (each piece: name, gate (its pick settings: picked_verdicts and pick_labels with spec_globs using {option}, and optionally words, exclude, rejected_lines, text_keys, spoken_lead_s), decisions (its pick rows: option_id, verdict, lines, reason_verbatim; the last row of an option governs), files (the piece's file paths) and units ({ <spec path>: [{ text, kind, context }] }, the lines of each spec read so far)), and optionally rulings with real and needs (a text ruled directly is left out: the ruling wins), bad_label and rejected (the pattern a rejecting verdict matches, default ^rejected). Units of a picked option are good except the lines its row names; a rejection labels bad only the lines it names. Returns items, left_out (excluded, ruled_directly, both_labels, no_spec, several_specs) and units_needed: the specs whose lines to read and send again. Any of these may come from settings_record, the person's setting for this tool (their row of list:settings as the person's store gives it, read by tools/settings); the input's own fields win. It writes nothing.",
     "status": "active",
     "maker": "maker:where-a-person-stands",
     "licence_class": "licence:maker-own",
@@ -6882,7 +6767,7 @@
    "values": {
     "title": "Make examples from rulings on lines",
     "job": "Make labelled examples for calibrating a small model from the rulings a person gave on lines of copy, and from lines they said themselves",
-    "description": "Give rulings (the person's ruling rows of list:checks, records:list type record:check prefix record:check:ruling-, as records or values), real (who counts), needs (fields a ruling must carry to count), and optionally speech (lines they said, each with sets), speech_set, exclude (lists of lines a model was trained on), bad_label (the label a bad example carries in bad_for), contexts ({ text: context }) and verdicts ({ bad, good }). Returns items ({ text, good, bad_for, split, source: ruling or speech, context }) and left_out (texts ruled both ways, texts in exclude). Only rulings by the people in real count. Any of these may come from settings_record, the person's setting for this tool (their row of list:settings as records:read gives it, read by tools/settings); the input's own fields win. It writes nothing.",
+    "description": "Give rulings (the person's ruling rows of list:checks, type record:check with id prefix record:check:ruling-, as records or values), real (who counts), needs (fields a ruling must carry to count), and optionally speech (lines they said, each with sets), speech_set, exclude (lists of lines a model was trained on), bad_label (the label a bad example carries in bad_for), contexts ({ text: context }) and verdicts ({ bad, good }). Returns items ({ text, good, bad_for, split, source: ruling or speech, context }) and left_out (texts ruled both ways, texts in exclude). Only rulings by the people in real count. Any of these may come from settings_record, the person's setting for this tool (their row of list:settings as the person's store gives it, read by tools/settings); the input's own fields win. It writes nothing.",
     "status": "active",
     "maker": "maker:where-a-person-stands",
     "licence_class": "licence:maker-own",
@@ -7049,7 +6934,7 @@
    "values": {
     "title": "Manage usage pricing",
     "job": "Read, list, set, supersede, retire or delete my resource pricing rules, with effective dates, resource, plan and client overrides, without changing purchased terms",
-    "description": "Read, list, set, supersede, retire or delete my resource pricing rules, with effective dates, resource, plan and client overrides, without changing purchased terms. With action list and versions true it lists every immutable rule version, the rules price-resource-usage takes as input.",
+    "description": "Read or list my resource pricing rules from the rows the caller hands in, or save, retire or delete a rule as its next immutable version. The answer holds the rows to keep (the rule head, its new version row and the receipt row): the caller writes them in its own store, in one transaction, while the head is still at the version it read. With action list and versions true it pages the rule versions it was given, the rules price-resource-usage takes as input. Purchased terms are never changed. Keeps nothing itself.",
     "status": "active",
     "maker": "maker:take-payments",
     "licence_class": "licence:maker-own",
@@ -7073,22 +6958,6 @@
      "placement:caller-sandbox"
     ],
     "folder": "walk-through-an-app-like-its-users"
-   }
-  },
-  {
-   "id": "tool:mark-my-notices-read",
-   "values": {
-    "title": "Mark my notices read",
-    "job": "Record which notices this person has read and the first surface they saw them on",
-    "description": "Pass ids such as told:12, or a notification key, and optionally read=false to undo. on.channel names the surface (in-app, browser, watch, apns or device-pull); device_id says which registered device saw it. The first read surface is retained, so repeated reads never move it. Returns ids, read, changed, on and said.",
-    "status": "active",
-    "maker": "maker:tell-the-person",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "listed_on": "2026-10-31T00:00:00Z",
-    "folder": "tell-the-person"
    }
   },
   {
@@ -7510,44 +7379,6 @@
    }
   },
   {
-   "id": "tool:my-device-notices",
-   "values": {
-    "title": "Notices for this device",
-    "job": "Read the newest notices kept for one registered device, oldest first after its cursor",
-    "description": "Pass the device_id returned by notification-device registration. channel must match its route: device-pull for live, web-push or apns; omitted channel uses the registered route. after is the last cursor seen. Returns only notices queued or positively delivered to that device, oldest first, including body and offered actions. It changes nothing.",
-    "status": "active",
-    "maker": "maker:tell-the-person",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "listed_on": "2026-10-31T00:00:00Z",
-    "folder": "tell-the-person",
-    "flags": [
-     "read-only"
-    ]
-   }
-  },
-  {
-   "id": "tool:my-notices",
-   "values": {
-    "title": "What I was told, where it reached me and where I saw it",
-    "job": "List what Trillion told this person, newest first: each notice with every way it went (sent, waiting its turn, turned off or unavailable) and the surface the person saw it on",
-    "description": "Optional limit (up to 100, default 20) and kind (only notices of that kind, such as take-me-there). Returns notices, each { id, kind, title, at, open, read, read_on: { channel, device_id, at } when the person saw it, told: { channel: sent | a stage | not-sent }, why: { channel: what its sender said } for each way that did not carry it }, and said, the count and how many were seen, in words. It reads every notice Trillion keeps, whichever ways it went, and kind is applied before the newest are taken, so one kind is found however many of another came after it; an AI reads where the person saw something instead of guessing. It changes nothing.",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "listed_on": "2026-10-11T07:50:00Z",
-    "folder": "tell-the-person",
-    "flags": [
-     "read-only"
-    ]
-   }
-  },
-  {
    "id": "tool:my-notification-choice",
    "values": {
     "title": "How I chose to be notified",
@@ -7676,7 +7507,7 @@
    "values": {
     "title": "Name the voices from the call app",
     "job": "Name the unnamed voices of a recorded call from who the call app showed as speaking on screen, only where the screen evidence is enough, one name to one voice",
-    "description": "Give turns ([{ start, end, who }] in seconds, such as tool:who-is-in-this answered) and samples ([{ at, names }] or [{ at, elements }] in milliseconds from the start of the recording, elements being the call window's accessibility elements), and app (the call app's name) when known. Only voices whose label is still unnamed (Someone (...), Unsure (...)) are laid over. Returns assignments ([{ voice, name, share, overlap_ms }]) and unnamed ([{ voice, candidates }]). Writing the names into the person's Trillion is the caller's (name_speaker).",
+    "description": "Give turns ([{ start, end, who }] in seconds, such as tool:who-is-in-this answered) and samples ([{ at, names }] or [{ at, elements }] in milliseconds from the start of the recording, elements being the call window's accessibility elements), and app (the call app's name) when known. Only voices whose label is still unnamed (Someone (...), Unsure (...)) are laid over. Returns assignments ([{ voice, name, share, overlap_ms }]) and unnamed ([{ voice, candidates }]). With apply, returns writes (each a name_speaker call's arguments, evidence included) for the caller to send; nothing is written here.",
     "status": "active",
     "maker": "maker:name-voices-from-the-call",
     "licence_class": "licence:maker-own",
@@ -8289,7 +8120,7 @@
    "values": {
     "title": "Plan the write that accepts an evaluation of a learner's step",
     "job": "Accept the result of judging a learner's work on a step: the receipt to keep and the learner's next progress state, without applying one twice",
-    "description": "Give the evaluation receipt, the learner's current progress state (leave out if none) and the revision you expect it to be at, and the receipt already stored under that evaluation id if there is one. Returns the writes to make through the records door, each with what it expects to find (the receipt not yet stored; the state at the revision you gave), then you read both back. The step is finished only if the receipt's decision says so. The same receipt again returns idempotent with no writes; a different receipt under the same id, a stale revision, a state that belongs to another learner or track, or an unsound receipt is refused with the reason.",
+    "description": "Give the evaluation receipt, the learner's current progress state (leave out if none) and the revision you expect it to be at, and the receipt already stored under that evaluation id if there is one. Returns the keep rows: the receipt and the next state, each with the value it expects to find in your store (the receipt not yet stored; the state as you gave it), so your store keeps each one only where it still holds that value. The step is finished only if the receipt's decision says so. The same receipt again returns idempotent with no keep rows; a different receipt under the same id, a stale revision, a state that belongs to another learner or track, or an unsound receipt is refused with the reason.",
     "status": "active",
     "maker": "maker:lessons-and-learning-paths",
     "licence_class": "licence:maker-own",
@@ -8488,7 +8319,7 @@
    "values": {
     "title": "Pour a kit's example rows into a list I already keep",
     "job": "Put the example rows that come with a workflow or tool into a list I already keep for the same job, matching its fields to mine",
-    "description": "Reads one kit list (its fields, each with the names it goes by, and its example rows) and the person's own list (its id, row type and fields). Matches each kit field to one of theirs by the map they give, the same id, the same label or a name it goes by. Under the least share of matched fields (0.8 unless they ask for more) it pours nothing and names the fields with no home. Otherwise it answers the one records:write at @own-records that adds the example rows, with ids <row type>:kit-<example id> so pouring twice changes nothing, leaving out rows already there and any choice value their field does not offer. It writes nothing itself.",
+    "description": "Reads one kit list (its fields, each with the names it goes by, and its example rows) and the person's own list (its id, row type and fields), both handed in by the caller from its own store. Reads and writes no store. Matches each kit field to one of theirs by the map they give, the same id, the same label or a name it goes by. Under the least share of matched fields (0.8 unless they ask for more) it pours nothing and names the fields with no home. Otherwise it answers keep: the example rows to add to their list, each { id, type, value, expected: null }, with ids <row type>:kit-<example id> so pouring twice changes nothing, leaving out rows already there and naming any choice value their field does not offer (not_an_option). The caller stores them; a store refuses a row that appeared since the list was read.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -8675,7 +8506,7 @@
    "values": {
     "title": "Publish what a saved view of my list shows into a file my site shows (runs on your computer)",
     "job": "Put the rows one saved view of my list shows (a changelog, the articles I marked public) into a file my website renders when it is next deployed, without opening my account to the internet",
-    "description": "Takes what tool:read-a-list-view read for one saved view (one page holding the whole view: the rows its rules keep, in its order, with the list's fields) and a config naming the view's record id, and writes { schema, source: { view, list, blake3 }, fields, rows: [{ id, values }] }. With media in the config, the pictures and recordings the rows name are copied into the site's own static files under the BLAKE3 of their bytes (never twice) and the rows name the site's address. The BLAKE3 of the fields and rows is the file's key, so publishing the same rows again writes nothing. A read that holds only part of the view publishes nothing. It names no list, view or field.",
+    "description": "Takes the read of one saved view that my AI takes directly from my own store (one page holding the whole view: the rows its rules keep, in its order, with the list's fields) and a config naming the view's record id, and writes { schema, source: { view, list, blake3 }, fields, rows: [{ id, values }] }. With media in the config, the pictures and recordings the rows name are copied into the site's own static files under the BLAKE3 of their bytes (never twice) and the rows name the site's address. The BLAKE3 of the fields and rows is the file's key, so publishing the same rows again writes nothing. A read that holds only part of the view publishes nothing. It names no list, view or field.",
     "status": "active",
     "maker": "maker:export-records-as-list-rows",
     "licence_class": "licence:maker-own",
@@ -8900,9 +8731,9 @@
   {
    "id": "tool:put-records-into-my-account",
    "values": {
-    "title": "Put prepared records into my account through my door, writing only what it lacks (runs on your computer)",
-    "job": "Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal",
-    "description": "Takes the result of tool:build-records-to-write directly. Through this run's separately scoped records door, it reads only the target record kinds declared on this row, skips records already held when keep_held is true, or merges source changes against an optional previous-import baseline while preserving live edits and deletions. It reports conflicts, writes bounded commands with fresh per-run request keys, reconciles unknown write outcomes and returns readback counts; a mismatching readback is never all_written. It reads no host payload file, config, keychain item or sender credential. The standalone send_record_write.py command remains available for a person who chooses the manual computer workflow.",
+    "title": "Work out which of my prepared records my account lacks (runs on your computer; writes nothing)",
+    "job": "Take the records I prepared and the target records my store holds now, and say which to write, in small commands, and whether my store matches after the writes",
+    "description": "Takes the result of tool:build-records-to-write and the target records (one record type and id prefix) that my store holds now, which my AI reads directly from my own store and hands in as held. It plans the writes: only the records the store lacks or holds with another value, or, when keep_held is true, only the records it lacks; or, with an optional previous-import baseline, source-field merges that keep live edits and deletions and report each conflict by id and field path. It returns commands of bounded size, each with a request key made from the BLAKE3 of its records. A record of a baseline refresh carries the value the store must still hold: the store's write has to check it and refuse any other value. The tool writes nothing: my AI writes each command into my store, then calls again with mode readback and the target records the store holds afterwards. A readback that differs is never all_equal. It reads no file, config file, keychain item or credential.",
     "status": "active",
     "maker": "maker:export-records-as-list-rows",
     "licence_class": "licence:maker-own",
@@ -9149,8 +8980,8 @@
    "id": "tool:read-a-list-view",
    "values": {
     "title": "Read a page of one of my lists or saved views, or refresh its row sources",
-    "job": "Read one page of what one of my lists or saved views shows, from my records, or refresh a list's row sources (a folder of documents, for one) into its records",
-    "description": "Reads the list (or the saved view and its list) through the person's door, from records only: the list's rows are the records of its row type, and each row source's rows are among them, written there by the last refresh (row id <source>~<its id>), so a read runs no tool. A page holds `limit` rows (read_page_rows when left out, never more than rows_per_read) and answers `next` while more remain. A view with rules keeps the rows its rules keep, decided in the same process by the rule filter of tools/formulas, ordered by its sort. With `refresh` it runs the tool each row source names (read-data/list-view.json), reads the whole source, and writes its rows as the list's records: only the rows that changed, removing the rows the source no longer has, in bounded writes. A source with more than rows_per_read rows, a source no tool serves, or a source that answers no rows is refused and nothing of it is written.",
+    "job": "Read one page of what one of my lists or saved views shows, from records handed in, or refresh a list's row sources (a folder of documents, for one) into keep rows for the caller to write",
+    "description": "Reads a list (or the saved view and its list) from the records the caller hands in as stored.records: the list's rows are the records of its row type, and each row source's rows are among them, written there by an earlier refresh (row id <source>~<its id>), so a read reads no folder. A refresh reads each row source's folder on this computer and answers keep rows (id, type, value, expected) for the caller to write back: a store refuses a row whose expected record has moved. A page holds limit rows (read_page_rows when left out, never more than rows_per_read) and answers next as the record id to pass as after.",
     "status": "active",
     "maker": "maker:read-a-list-view",
     "licence_class": "licence:maker-own",
@@ -9434,7 +9265,7 @@
    "values": {
     "title": "Read this account's business this month",
     "job": "Read what this account's business took in this month on the payment services it connected",
-    "description": "The one read of the Business screen (tool:business). Returns since_words (the first of this month), service_names (the payment services whose money can be read), connected ([{label, state: read | none | unread, currencies: [{currency, code, multi, service_label, money_in, fees, refunded, net}] written in each currency, payments, more, at_most}], one per payment service, each read with this account's own connection by running its money read, tool:stripe-events-read_money_since; a read that fails is unread, with no number) and operator (null: the operator's part has no owner here). Which services this account connected is read by running tool:list-connections: a service it did not connect is not read and is drawn as not connected; when that list cannot be read, each service is read and a failed read says the money could not be read. Reads only.",
+    "description": "The one read of the Business screen (tool:business). Returns since_words (the first of this month), service_names (the payment services whose money can be read), connected ([{label, state: read | none | unread, currencies: [{currency, code, multi, service_label, money_in, fees, refunded, net}] written in each currency, payments, more, at_most}], one per payment service, each read with this account's own connection by running its money read, tool:stripe-events-read_money_since; a read that fails is unread, with no number) and operator (null: the operator's part has no owner here). Which services this account connected is read by running tool:list-connections with the connection_records and held_connections it is handed: a service it did not connect is not read and is drawn as not connected; when either list is not handed in or the listing cannot be read, each service is read and a failed read says the money could not be read. Reads only.",
     "status": "active",
     "maker": "maker:see-what-my-business-took-in-this-month",
     "licence_class": "licence:maker-own",
@@ -9676,7 +9507,7 @@
    "values": {
     "title": "Read my groups and everything inside them",
     "job": "Show what is in my groups, lists or collections, with the groups inside them, in their order",
-    "description": "Give roots: the addresses of the groups to start from, each { family, parts: { name: text } }. Each group is read from the person's records (type group) and every member that is itself a group is followed, so the answer holds those groups and everything inside them at any depth. Returns groups (each { groupRef, memberOrder, members: { memberId: { memberId, nodeRef, role?, presentation? } } }, members in memberOrder), count, and skipped: the ids of records that were not a well-formed group or claimed another group's address. A root that is not a group yet is simply not in the answer. It changes nothing.",
+    "description": "Give roots: the addresses of the groups to start from, each { family, parts: { name: text } }. Each group is found among the records handed in (type group) and every member that is itself a group is followed, so the answer holds those groups and everything inside them at any depth. Returns groups (each { groupRef, memberOrder, members: { memberId: { memberId, nodeRef, role?, presentation? } } }, members in memberOrder), count, and skipped: the ids of records that were not a well-formed group or claimed another group's address. A root that is not a group yet is simply not in the answer. It changes nothing and reads no store: the caller hands the records in.",
     "status": "active",
     "maker": "maker:form-groups-and-matches",
     "licence_class": "licence:maker-own",
@@ -9790,7 +9621,7 @@
    "values": {
     "title": "Show a folder of my account's documents as the rows of a list",
     "job": "Read the markdown documents in a folder of my account's files as rows: each document's frontmatter is its fields, with the file's name, folder, size, dates, links, tags and identity, a page at a time",
-    "description": "The same rows as tool:read-documents-as-list-rows, read from the person's Namespace files through the run's records door (list_files and read_file, every file read by its name) instead of a folder on their computer. A page holds up to `limit` rows and answers `next` while more remain; `match` keeps the documents whose path fits a glob; `most_bytes` ends a page at the last row whose answer fits. It writes nothing: the files door has no write that checks a file is still the one read. Optional content:true adds exact complete UTF-8 text including frontmatter in bounded linked pieces, keeping the original parent ID and metadata. Child pieces name their parent, part number and total; pass the opaque next cursor unchanged. No body is silently truncated.",
+    "description": "The same rows as tool:read-documents-as-list-rows, read from the Namespace files the caller hands in as stored.files (every name under /, as text or {base64}) instead of a folder on their computer. A page holds up to `limit` rows and answers `next` while more remain; `match` keeps the documents whose path fits a glob; `most_bytes` ends a page at the last row whose answer fits. It writes nothing. Optional content:true adds exact complete UTF-8 text including frontmatter in bounded linked pieces, keeping the original parent ID and metadata. Child pieces name their parent, part number and total; pass the opaque next cursor unchanged. No body is silently truncated.",
     "status": "active",
     "maker": "maker:documents-as-list-rows",
     "licence_class": "licence:maker-own",
@@ -9902,7 +9733,7 @@
    "values": {
     "title": "Read resource usage report",
     "job": "Read a usage report and distinguish provider acceptance from actual payment collection",
-    "description": "Read a usage report and distinguish provider acceptance from actual payment collection",
+    "description": "Read a usage report and distinguish provider acceptance from actual payment collection. Takes the report row the caller read from its own store and answers it as the caller may show it; keeps nothing.",
     "status": "active",
     "maker": "maker:take-payments",
     "licence_class": "licence:maker-own",
@@ -9917,7 +9748,7 @@
    "values": {
     "title": "Read a resource usage settlement",
     "job": "Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money",
-    "description": "Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money",
+    "description": "Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money. Takes the settlement row and its allocation rows the caller read from the person's own store, and pages the allocations; keeps nothing.",
     "status": "active",
     "maker": "maker:take-payments",
     "licence_class": "licence:maker-own",
@@ -9969,7 +9800,7 @@
    "values": {
     "title": "Read my setup",
     "job": "Gather what my account's setup is made of and draw the Get started screen from it",
-    "description": "The one read of the Get started screen (tool:get-started). It is handed this account's setup facts as setup_facts (sign-ins and their app grants, notification devices, the AI connection, computers, the setup runtime, device releases, the last setup snapshot: what the caller can read of them, since no one owner answers them now), reads the account's own show rules (show-rules) and setup context (setup-context) from `stored`, and runs tool:see-what-is-left-to-set-up with them and the page's account id, answering the screen it draws. The setup run is handed in as setup_run (the status tool:run-workflow-definition answered and the answers so far), since no tool keeps a run. A source it could not read is left unknown, so the screen is not ready rather than opened on a guess. It writes nothing.",
+    "description": "The one read of the Get started screen (tool:get-started). It is handed this account's setup facts as setup_facts (sign-ins and their app grants, notification devices, the AI connection, computers, the setup runtime, device releases, the last setup snapshot: what the caller can read of them, since no one owner answers them now), is handed the account's own show rules (show-rules) and setup context (setup-context) as the caller read them from the person's own store, in stored.workspace, and draws the screen with tool:see-what-is-left-to-set-up's own function from them and the page's account id, in the same run. The setup run is handed in as setup_run (the status tool:run-workflow-definition answered and the answers so far), since no tool keeps a run. A source it could not read is left unknown, so the screen is not ready rather than opened on a guess. It writes nothing.",
     "status": "active",
     "maker": "maker:set-up-my-account",
     "licence_class": "licence:maker-own",
@@ -10088,21 +9919,6 @@
    }
   },
   {
-   "id": "tool:read-voice",
-   "values": {
-    "title": "Read how someone writes",
-    "job": "Read how this person writes before drafting anything for them: a post, an email, a message",
-    "description": "Read BEFORE you draft for this person. Returns how_to_use, the profile fields, the voice profiles saved so far (one per kind of writing), their newest edits to words an AI wrote (each with the draft as it was, before, and their words, after) and words they published (sent). Give kind to read one kind's profile and edits; limit is how many edits (1 to 50). Writes nothing.",
-    "status": "active",
-    "maker": "maker:how-someone-does-their-thing",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "how-someone-does-their-thing"
-   }
-  },
-  {
    "id": "tool:read-what-a-running-app-shows",
    "values": {
     "title": "Read what a running app really shows",
@@ -10137,8 +9953,8 @@
    "id": "tool:read-what-is-waiting-on-me",
    "values": {
     "title": "Read what is waiting on me",
-    "job": "Read every configured waiting source through its current owner and gather its cards",
-    "description": "Reads the person’s record:waiting-sources rows over declared source DATA, gathers each source through its record query or current reader tool, and uses the same source-row aggregator as what-is-waiting-on-me. Missing adapters and failed, partial or bounded reads stay unread; complete is true only when every declared source is read whole with no skipped cards. Answers sections, finishes, source coverage and problems. Source definitions are managed through their own record rows; source reads are read-only; AI-doable cards are delegated by the shared hold owner, which publishes their ai-job:hold-* records before hiding them. It returns the remaining human sections.",
+    "job": "Gather every configured waiting source's cards from the records and reader results handed in",
+    "description": "Reads the person's record:waiting-sources rows over declared source DATA and gathers each source's cards from what the caller hands in: stored (the person's record:waiting-sources rows and the records of each kind a source reads, each { id, type, value }, read by the caller from the person's own store) and pages ({ [reader tool id]: [result, ...] }, each reader tool a source names run by the caller, in order, following its cursor). Uses the same source-row aggregator as what-is-waiting-on-me. A source whose records or pages were not handed in, a store query the handed-in records cannot answer, and a failed, partial or bounded read stay unread; complete is true only when every declared source is read whole with no skipped cards. Answers sections, finishes, source coverage and problems. The tool reads and writes nothing.",
     "status": "active",
     "maker": "maker:what-is-waiting-on-me",
     "licence_class": "licence:maker-own",
@@ -10153,7 +9969,7 @@
    "values": {
     "title": "Note new releases or commits from a repository (runs on your computer)",
     "job": "Read a person's release mark or commit branch, stage each new entry once with its source identity, and let their mapping make list rows",
-    "description": "Reads settings the person gives: a program in the repository that prints JSON naming a release, a git ref for the newest release, or a commit branch where each commit is one entry. In commit mode, each entry has the commit identity, date and its own subject; the first run may start after an explicit commit, and skip_subjects are filters in the settings. The staged file is what the person's mapping turns into rows. The sender with keep_held writes only rows the list lacks, so an existing row or a person's edits are preserved. The tool does not infer push boundaries or group commits by day, and knows no product, list or road.",
+    "description": "Reads settings the person gives: a program in the repository that prints JSON naming a release, a git ref for the newest release, or a commit branch where each commit is one entry. In commit mode, each entry has the commit identity, date and its own subject; the first run may start after an explicit commit, and skip_subjects are filters in the settings. The staged file is what the person's mapping turns into rows. The planner with keep_held plans only the rows the list lacks, so an existing row or a person's edits are preserved. The tool does not infer push boundaries or group commits by day, and knows no product, list or road.",
     "status": "active",
     "maker": "maker:export-records-as-list-rows",
     "licence_class": "licence:maker-own",
@@ -10168,7 +9984,7 @@
    "values": {
     "title": "Read where you stand on things",
     "job": "See whether a person agrees, disagrees or partly agrees with one thing made for them, in their own words, with every time they changed their mind",
-    "description": "Two steps. First page records:history at @own-records for the thing's stance record (id stance:<kind>:<identity>, limit up to 100, before_version from next) until next is null; this tool cannot read the person's records itself. Then give the versions of every page together and next from the last page, exactly as records:history returns them. Returns stand: its stand now (the newest version), said, why in the person's own words, by, at, version, earlier (every version before it, oldest first, a tombstone as deleted) and complete (false while next is not null: earlier stands not yet read are unknown); and choices, the stands a person can take. No version, a tombstone or a stand taken back reads stance null with taken_back: silence is not agreement.",
+    "description": "Two steps. First read the thing's stance record's history from the store the person keeps it in (id stance:<kind>:<identity>, newest version first, up to 100 versions a page, each page from the next of the one before, until next is null); this tool cannot read the person's store itself. Then give the versions of every page together and next from the last page, as the store gave them. Returns stand: its stand now (the newest version), said, why in the person's own words, by, at, version, earlier (every version before it, oldest first, a tombstone as deleted) and complete (false while next is not null: earlier stands not yet read are unknown); and choices, the stands a person can take. No version, a tombstone or a stand taken back reads stance null with taken_back: silence is not agreement.",
     "status": "active",
     "maker": "maker:where-a-person-stands",
     "licence_class": "licence:maker-own",
@@ -10463,22 +10279,6 @@
    }
   },
   {
-   "id": "tool:record-the-owners-receipt",
-   "values": {
-    "title": "Record what the owner gave back",
-    "job": "Link an owner's receipt to the request it answers",
-    "description": "request_id is a request kept by tool:take-a-request; receipt has ref, owner_ref, title and optionally summary, process_ref, observed_at and raw. Returns { request_id, receipt_ref, linked, said }; the same receipt again changes nothing, a receipt that already answers another request is refused, and a request that is not kept is said in words with nothing linked (linked false).",
-    "status": "active",
-    "maker": "maker:take-requests",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "listed_on": "2026-10-30T20:00:00Z",
-    "folder": "take-requests"
-   }
-  },
-  {
    "id": "tool:record-the-screen",
    "values": {
     "title": "Record my screen",
@@ -10680,22 +10480,6 @@
    }
   },
   {
-   "id": "tool:remove-a-saved-example",
-   "values": {
-    "title": "Remove a saved example",
-    "job": "Remove one saved example this person no longer wants",
-    "description": "id is the example's id from tool:list-saved-examples. Returns { id, removed: true }.",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "listed_on": "2026-09-30T07:12:34Z",
-    "folder": "saved-examples"
-   }
-  },
-  {
    "id": "tool:remove-a-sending-key",
    "values": {
     "title": "Remove a sending key",
@@ -10708,36 +10492,6 @@
      "placement:your-computer"
     ],
     "folder": "email-sending-domains"
-   }
-  },
-  {
-   "id": "tool:remove-a-snippet",
-   "values": {
-    "title": "Remove a snippet",
-    "job": "Remove one of my saved snippets",
-    "description": "Give snippet_id (from tool:find-snippets). The snippet record is removed; words already sent are not touched. Returns removed, snippet_id and said. Refuses an unknown snippet_id.",
-    "status": "active",
-    "maker": "maker:social-posts",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "social-posts"
-   }
-  },
-  {
-   "id": "tool:remove-a-thread-summary",
-   "values": {
-    "title": "Remove a conversation summary",
-    "job": "Remove the summary kept of this conversation",
-    "description": "Give conversation_id (and app). Only the summary record is removed; the messages are not touched. Returns removed and said. Refuses a conversation with no summary kept.",
-    "status": "active",
-    "maker": "maker:social-posts",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "social-posts"
    }
   },
   {
@@ -11080,7 +10834,7 @@
    "values": {
     "title": "Resume importing all my conversations",
     "job": "Bring in every conversation from every app found on this computer, continuing each source from where its last run stopped, until all of them are in my records",
-    "description": "Runs on the person's computer over the folder they granted (their home folder). Every source tool:list-the-conversation-sources-on-this-computer finds here (or the ones sources names) is imported in turn the way tool:import-my-conversations-from-a-source imports one, each file from its cursor row. A run stops at time_box_seconds, or when the records door stays busy past its retries, and answers more: true; run it again until more is false.",
+    "description": "Runs on the person's computer over the folder they granted (their home folder). Every source tool:list-the-conversation-sources-on-this-computer finds here (or the ones sources names) is imported in turn the way tool:import-my-conversations-from-a-source imports one, each file from its cursor row. A run stops at time_box_seconds and answers more: true; run it again until more is false.",
     "status": "active",
     "maker": "maker:conversations",
     "licence_class": "licence:maker-own",
@@ -11302,21 +11056,6 @@
    }
   },
   {
-   "id": "tool:save-a-snippet",
-   "values": {
-    "title": "Save a snippet",
-    "job": "Save words I send again and again as a snippet, with blanks like {name} to fill each time, or change one I saved",
-    "description": "Give title (what you call it) and text (the words, with {name} where something changes each time; a blank is a lowercase name in braces), and tags (short words) if you like. Without snippet_id it makes a new snippet; with snippet_id (from tool:find-snippets) it changes that one, keeping the fields left out. Give expected_set_at (the set_at tool:find-snippets showed) to refuse the change when it was saved again since. Returns snippet: snippet_id, title, text, tags, blanks, set_at, uses. Refuses a snippet with no title or no words, an unknown snippet_id, and a 501st snippet. A snippet is the person's own snippet record; saving sends nothing anywhere.",
-    "status": "active",
-    "maker": "maker:social-posts",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "social-posts"
-   }
-  },
-  {
    "id": "tool:save-interest-in-an-email-update",
    "values": {
     "title": "Save someone's interest in one email update",
@@ -11336,7 +11075,7 @@
    "values": {
     "title": "Save how someone writes",
     "job": "Save what you learned about how this person writes, for one kind of writing",
-    "description": "Saves what you learned from tool:read-voice as the voice profile of one kind of writing (kind, like post or email; leave out for a general one). fields are named by tool:read-voice's fields list; a field you give replaces that field, an empty one removes it, and the rest are kept. builds_on names the kinds of the profiles this one sits on, earliest first. Pass expected_set_at (the set_at you read) so a profile saved since is not overwritten. by is person only when the person saved it themselves. Returns profile and said.",
+    "description": "Shapes what you learned into the voice profile of one kind of writing (kind, like post or email; leave out for a general one). earlier is the voice-profile the person's store holds for that kind (null when none), profiles_kept how many it holds. fields are named by voice.json's profile_fields; a field you give replaces that field, an empty one removes it, and the rest are kept. builds_on names the kinds of the profiles this one sits on, earliest first. Pass expected_set_at (the set_at you read) so a profile saved since is not overwritten. by is person only when the person saved it themselves. Returns profile, said and keep: the row the store writes, with the version it was read at.",
     "status": "active",
     "maker": "maker:how-someone-does-their-thing",
     "licence_class": "licence:maker-own",
@@ -11716,7 +11455,7 @@
    "values": {
     "title": "Search everything I keep with one question (runs in a small container)",
     "job": "Search every list, record and file name I keep with one question, in one ranked list, without my own computer",
-    "description": "Searches everything this person keeps with one question, as a Workshop run: every kind of record (each kind ranked as its own lane) and their files by name, merged by reciprocal rank into one list, best first. Each result has found_in (written for a record's text, name for a file's name), said (the words around the match), score and address (records:read for a record, find_file for a file). The run holds two read-only rights and nothing else: records:search over every kind ({kind: \"*\"}, which covers only a search that names no kind and never a write) and the files' name search over every name. unavailable names a lane that could not answer and why; pending names one still working.",
+    "description": "Searches the records and file names the caller hands in (`records` and `files`, read by the caller from the person's own store) with one question, as a Workshop run: every kind of record (each kind ranked as its own lane) and the file names, merged by reciprocal rank into one list, best first. Each result has found_in (written for a record's text, name for a file's name), said (the text it was found in), score and address (the person's own record by id and kind, or a file by path). The run reads no store and changes nothing. unavailable names a lane that was not handed its input and why; pending names one still working.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -11731,7 +11470,7 @@
    "values": {
     "title": "Search everything I keep",
     "job": "Find anything in my account with one question across every list and file, by what was said, seen, named or written",
-    "description": "One question over every list and file in this account. Combines record text, file names, literal transcript and document text, and each installed semantic index. Results are fused by rank, never by scores across models, with addresses, places (said, seen, name, written), timed moments and their original evidence scores. Discovers semantic-index-descriptor rows automatically; no index choice is needed. places and sources narrow the requested search. unavailable names every source or model that could not answer; pending names work still in progress. A missing model leaves literal words usable. Only read access is granted.",
+    "description": "One question over every record and file name the caller hands in, and each installed semantic index among them. The caller reads the person's records and files from the person's own store and gives them as `records` and `files`; this run searches them and reads no store, and changes nothing. Results are fused by rank, never by scores across models, with addresses (the person's own record by id and kind, or a file by path), places (said, seen, name, written), timed moments and their original evidence scores. Semantic-index-descriptor records are discovered automatically; no index choice is needed. places and sources narrow the requested search. unavailable names every source or model that could not answer (a source not handed in too); pending names work still in progress. A missing model leaves literal words usable.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -11794,7 +11533,7 @@
    "values": {
     "title": "Search one of my lists with one question",
     "job": "Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are",
-    "description": "Searches the records of one kind (one list) with one question through the records door's word index, which every write feeds: the rows holding every asked word, best first, each with said (the words around the match), score and address (the records:read that opens it). The whole list is searched in one call, never one page at a time. This run is granted that one kind only; to search every list and the files together, use tool:search-everything-with-one-question.",
+    "description": "Searches the records of one kind (one list) the caller hands in as `records` (read from the person's own store, that kind only) with one question: the rows holding every asked word, best first, each with said (the text it was found in), score and address (the person's own record, by id and kind). The whole list handed in is searched in one call, never one page at a time. This run is given that one kind only; to search every list and the files together, use tool:search-everything-with-one-question. The run reads no store and changes nothing.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -11891,7 +11630,7 @@
    "values": {
     "title": "See the work handed between my AIs: one job, or the newest that match",
     "job": "Show me the jobs my AIs handed each other: what is waiting, who took what, and what each finished with",
-    "description": "With `id`, reads that one ai-job record. Otherwise reads the person's ai-job records, kept to those whose status, to, from or taker equal what is given, and answers the newest `limit` of them by when they were sent (read-data/ai-work.json jobs_shown), with `more` true when more matched. A job comes back whole: its status, words, sender, the AI it is for, priority, outcome, taker and when taken, what blocks it, who gave it back and why, and its result and summary. Nothing is written. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read.",
+    "description": "With `id`, reads that one ai-job record. Otherwise reads the person's ai-job records, kept to those whose status, to, from or taker equal what is given, and answers the newest `limit` of them by when they were sent (read-data/ai-work.json jobs_shown), with `more` true when more matched. A job comes back whole: its status, words, sender, the AI it is for, priority, outcome, taker and when taken, what blocks it, who gave it back and why, and its result and summary. Nothing is written. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -11952,7 +11691,7 @@
    "values": {
     "title": "See my AIs: which are live, what each can do and how many jobs each holds",
     "job": "Show me my AIs and computers: which are live now, what each can do and how many jobs each is doing",
-    "description": "Reads the person's ai records and counts the ai-job records each AI holds as taker. Each AI comes back with its id and its whole stored value, every cell as kept (a caller names it from those cells by its own formula; no name is made here), whether it is live (seen within the minutes its record names, else read-data/ai-work.json live_minutes_default) and when it was last seen. Live AIs come first, then the person's order. `can` keeps only AIs that can do every word given (an AI that can do `any` can do all); `live_only` keeps only live ones. Nothing is written. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read.",
+    "description": "Reads the person's ai records and counts the ai-job records each AI holds as taker. Each AI comes back with its id and its whole stored value, every cell as kept (a caller names it from those cells by its own formula; no name is made here), whether it is live (seen within the minutes its record names, else read-data/ai-work.json live_minutes_default) and when it was last seen. Live AIs come first, then the person's order. `can` keeps only AIs that can do every word given (an AI that can do `any` can do all); `live_only` keeps only live ones. Nothing is written. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -12240,7 +11979,7 @@
    "values": {
     "title": "Send an email",
     "job": "Send an email, to one person or a list, through the email provider I connected",
-    "description": "Give recipients (a list of addresses; to for one), provider (the id of the email provider row in read-data/message-providers.json that the person's email connection is), the settings that provider's row asks for (region for Amazon SES, such as us-east-1) and the words: subject and text (drawn as an email in the look the person wears, read from their screen-look records (the shipped look until they choose one; an email whose look cannot be read is not sent), with its mark from the mail row's site and made_with) or your own html, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). Every email comes from the account's own mail row, which the caller hands in as mail_settings (read from the person's `mail-settings` row `settings:mail`; with none the shipped row names no sender and nothing is sent), never from the request; each address may be sent only so many emails of a kind (per_person, counted from the mail_sent rows handed in), the day keeps room for sign-in codes (daily, counted from the mail_day row handed in), a proof address is never sent, and every email is written down under its address: nothing is kept here, the answer's keep holds the mail-sent and mail-day rows as the send left them, each with the row it expected, for the caller to write. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with limited, unknown (it may have gone; it is not sent again) or suppressed. The held keys of the provider named reach the one process on private pipes; they are never shown.",
+    "description": "Give recipients (a list of addresses; to for one), provider (the id of the email provider row in read-data/message-providers.json that the person's email connection is), the settings that provider's row asks for (region for Amazon SES, such as us-east-1) and the words: subject and text (drawn as an email in the look the person wears, in the person's saved screen look, which the caller hands in as `saved` (the shipped look until they choose one; an email whose look cannot be read is not sent), with its mark from the mail row's site and made_with) or your own html, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). Every email comes from the account's own mail row, which the caller hands in as mail_settings (read from the person's `mail-settings` row `settings:mail`; with none the shipped row names no sender and nothing is sent), never from the request; each address may be sent only so many emails of a kind (per_person, counted from the mail_sent rows handed in), the day keeps room for sign-in codes (daily, counted from the mail_day row handed in), a proof address is never sent, and every email is written down under its address: nothing is kept here, the answer's keep holds the mail-sent and mail-day rows as the send left them, each with the row it expected, for the caller to write. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with limited, unknown (it may have gone; it is not sent again) or suppressed. The held keys of the provider named reach the one process on private pipes; they are never shown.",
     "status": "active",
     "maker": "maker:send-messages",
     "licence_class": "licence:maker-own",
@@ -12263,36 +12002,6 @@
      "placement:your-computer"
     ],
     "folder": "send-messages"
-   }
-  },
-  {
-   "id": "tool:send-each-post-at-its-time",
-   "values": {
-    "title": "Send each post at its time",
-    "job": "When the person's posts change, set each post that is set to go at its time to be sent then, to each of its destinations, by that place's send row",
-    "description": "Runs on its own once the person switches on its wake (at-its-time): each time their posts change, it reads the changed posts, and for each one set to go at its time (tool:set-a-post-to-go-at-its-time) it sets one run of tool:send-a-post (told the destination's place) per destination still to be sent, at the post's scheduled_for. That run sends only while the post is still set to go as it was then, so a post taken back, changed or set again sends nothing at the old time. It sends nothing itself, polls nothing and keeps nothing. It reads the person's posts and connections from the rows it is given as `stored`, writes no record, and each send answers the post it ends as `keep`. A wake that fires with no caller gives it no rows, so it finds no post; until a wake can hand a run the person's rows (a named gap), an AI runs it with them. A send it sets for a post with a file needs that file's address at the post's time, which no wake makes now (the same gap). Returns set (each post, destination, send row and time), left_out (each send not set, with why) and said.",
-    "status": "active",
-    "maker": "maker:social-posts",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "social-posts"
-   }
-  },
-  {
-   "id": "tool:send-list-row-batches",
-   "values": {
-    "title": "Send prepared batches into my lists, resuming where I stopped (runs on your computer)",
-    "job": "Put the batches of rows I prepared into my lists one at a time, wait and retry when the list is busy, split a batch that is too big, and remember what was already sent",
-    "description": "Reads a config the person gives (the command that writes rows into a list, optionally a command to wake the list first, the errors that mean wait and retry, the errors that mean the batch is too big, the waits and the order). Sends each batch of an export in order, counts what the command kept, writes progress to a status file and skips what it already sent when run again. A batch counts only when every row was kept; a refusal stops the run and the status file names the batch and the reason.",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "export-records-as-list-rows"
    }
   },
   {
@@ -12532,7 +12241,7 @@
    "values": {
     "title": "Make a decision safe to share",
     "job": "Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words",
-    "description": "In three turns. With only decision_id: the decision's facts with every private term already redacted, and how to rewrite them in general terms. With rewrite: the plain privacy pass (tools/learn-from-everyones-results) runs on it with the person's own private terms (their never-publish list rows and the proper names in the decision) and must find nothing; then reidentification, the whole answer tool:ask-a-small-model-for-a-verdict gave for the rubric and content this tool names, must be accepted and bound to exactly this rewrite. Only then is the entry kept on the decision as shared and answered with the pool tool to send it to (tool:add-a-shared-situation). Nothing leaves the person's records here.",
+    "description": "In three turns. With decision_id and never_publish (the words of the person's never-publish list, which the caller reads from its own rows; an empty list when there are none; a call without it is refused): the decision's facts with every private term already redacted, and how to rewrite them in general terms. With rewrite: the plain privacy pass (tools/learn-from-everyones-results) runs on it with the person's own private terms (the never_publish words and the proper names in the decision) and must find nothing; then reidentification, the whole answer tool:ask-a-small-model-for-a-verdict gave for the rubric and content this tool names, must be accepted and bound to exactly this rewrite. Only then is the entry kept on the decision as shared and answered with the pool tool to send it to (tool:add-a-shared-situation). Nothing leaves the person's records here.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",
@@ -12562,7 +12271,7 @@
    "values": {
     "title": "Share anything",
     "job": "Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link, or let named people and AIs run some of my tools at my door with no copy on their computer; show who has access; and stop it",
-    "description": "op share (the default job): give grant (sharing: plus the thing's label; read-data/share-label.mjs grantOf makes it, and the answer of any earlier call names it), thing (one of { type, id }, { list } for a list and all its rows, { text, title? } for a piece of text, or { items: [{ type, id? | prefix? }], title } for any mix) and who: with (a list of names of people or AIs, each given a key of its own) and/or link: true (one key anyone can hold). Optional until (a future ISO time the view share ends) and origin (https:// address that opens a link: url is then origin/share/<key>). A view share only lets people view (can: [\"view\"], the default). It keeps the share as one record of yours and answers each key once: the key itself is not kept anywhere, only a digest of it, so lose it and share again after stopping. A person or AI presents the key at your door (records:read and records:list inside what was shared) and a person opens the url in a browser. op stop: give grant, and principal to stop one person (principal \"link\" stops the link), or leave principal out to stop everyone. op access: give grant; answers who can open it now (people with when added, the link, until when, whether it is open, stopped or ended), never a key. To let people run tools instead: can [\"run\"] with grant (sharing: plus a name you choose), tools (Workshop tool ids, tool:...), with (names of people or AIs: letters, digits, _ or -), an optional end rule you choose (until, a future ISO time; unused_days, whole days with no use; or both, the earlier ends it; by default it has no end and stands until you stop it), identity (none, the default: your side learns nothing of who runs; self: the tool's input gets their name) and journal (input, the default, or none). Each person gets a key of their own, answered once; they or any MCP client of theirs present it at your door and can list and run only those tools there. op stop and op access take can [\"run\"] and grant the same way; stopping a person or everyone ends their next call. op end with can [\"run\"] and grant sets the end rule again (until and/or unused_days, or neither for no end), and the people keep their keys. The rule is kept beside the share and the engine never reads it: tool:end-shares-whose-condition-failed, once you switch its wake on, withdraws a share whose rule says it has ended.",
+    "description": "op share (the default job): give grant (sharing: plus the thing's label; read-data/share-label.mjs grantOf makes it, and the answer of any earlier call names it), thing (one of { type, id }, { list } for a list and all its rows, { text, title? } for a piece of text, or { items: [{ type, id? | prefix? }], title } for any mix) and who: with (a list of names of people or AIs, each given a key of its own) and/or link: true (one key anyone can hold). Optional until (a future ISO time the view share ends) and origin (https:// address that opens a link: url is then origin/share/<key>). A view share only lets people view (can: [\"view\"], the default). It keeps the share as one record of yours and answers each key once: the key itself is not kept anywhere, only a digest of it, so lose it and share again after stopping. A person or AI presents the key at your door, and the engine reads what was shared there; a person opens the url in a browser. op stop: give grant, and principal to stop one person (principal \"link\" stops the link), or leave principal out to stop everyone. op access: give grant; answers who can open it now (people with when added, the link, until when, whether it is open, stopped or ended), never a key. To let people run tools instead: can [\"run\"] with grant (sharing: plus a name you choose), tools (Workshop tool ids, tool:...), with (names of people or AIs: letters, digits, _ or -), an optional end rule you choose (until, a future ISO time; unused_days, whole days with no use; or both, the earlier ends it; by default it has no end and stands until you stop it), identity (none, the default: your side learns nothing of who runs; self: the tool's input gets their name) and journal (input, the default, or none). Each person gets a key of their own, answered once; they or any MCP client of theirs present it at your door and can list and run only those tools there. op stop and op access take can [\"run\"] and grant the same way; stopping a person or everyone ends their next call. op end with can [\"run\"] and grant sets the end rule again (until and/or unused_days, or neither for no end), and the people keep their keys. The rule is kept beside the share and the engine never reads it: tool:end-shares-whose-condition-failed, given the run shares the store lists, returns the withdrawal of each whose rule says it has ended.",
     "status": "active",
     "maker": "maker:share-anything",
     "licence_class": "licence:maker-own",
@@ -12577,7 +12286,7 @@
    "values": {
     "title": "Show how far my conversation import is",
     "job": "Show how far bringing in my conversations has got: for each source, files done, conversations and messages kept, and whether it stopped",
-    "description": "Reads the import's cursor rows (conversation-import-cursor) through the records door and answers, per source, the files seen and done, conversations kept, messages added and already kept, files the messages carried that were not copied, its state (done, more, stopped) and when it last moved. Reads nothing else.",
+    "description": "Reads the import's cursor rows (conversation-import-cursor) from the cursor rows handed in and answers, per source, the files seen and done, conversations kept, messages added and already kept, files the messages carried that were not copied, its state (done or more) and when it last moved. Reads nothing else.",
     "status": "active",
     "maker": "maker:conversations",
     "licence_class": "licence:maker-own",
@@ -13102,7 +12811,7 @@
    "values": {
     "title": "Take the next job waiting for me, or one job by its id",
     "job": "Take the next job another of my AIs left for me, so no other AI does it too",
-    "description": "Without `id`, reads the ai-job records a take may move (read-data/ai-work.json: waiting ones for any AI or for `as`, and taken ones held longer than the stale-take time), sorts them by take_order (priority, then oldest first), and takes the first: one write of the whole job as taken by `as` at this time, conditioned on the value it read. When another AI took that job first the write is refused and changes nothing, and the next one is tried, at most take_tries. `only_mine` keeps only jobs addressed to `as`. With `id`, takes that job or answers `taken: null` with reason changed (and the job as it now is) when another AI won it. `taken` is null when there was nothing to take. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+    "description": "Without `id`, reads the ai-job records a take may move (read-data/ai-work.json: waiting ones for any AI or for `as`, and taken ones held longer than the stale-take time), sorts them by take_order (priority, then oldest first), and takes the first: one write of the whole job as taken by `as` at this time, conditioned on the value it read. When another AI took that job first the write is refused and changes nothing, and the next one is tried, at most take_tries. `only_mine` keeps only jobs addressed to `as`. With `id`, takes that job or answers `taken: null` with reason changed (and the job as it now is) when another AI won it. `taken` is null when there was nothing to take. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -13731,7 +13440,7 @@
    "values": {
     "title": "Use your tools from any AI's shell: the site's own command (runs on your computer)",
     "job": "Let an AI that can run shell commands see my AIs and their jobs, hand and take work, and run my Workshop tools, with no MCP connection of its own",
-    "description": "The `{cli}` command. Every command is ONE call of the engine's one MCP tool (do_one_thing_in_my_account) at the account's door: the brand's Mac app's local door when this computer has one, else the public origin. setup signs in once, puts `{cli}` on the PATH and writes the skill for each AI app here; whoami, who, publish, send, work, take, finish, fail, stuck, release, withdraw, remove and serve move AI jobs through tools/hand-work-to-ais; tools and call list and run Workshop tools; op runs any engine operation; records replay-from-transcripts brings back the rows this computer's AIs wrote, from their own transcripts (a dry run lists them, --write writes them back in batches and reads a sample back). The credential is the account's existing key or the sign-in login kept, read into memory only, never printed or put on a command line. Every call carries one request key reused on every retry. A copy an owner installed (its install-owner.json marker beside it) is never rewritten by a bare copy, and `{cli} update` names who updates it: the command never updates itself.",
+    "description": "The `{cli}` command. Every command is ONE call of the engine's one MCP tool (do_one_thing_in_my_account) at the account's door: the brand's Mac app's local door when this computer has one, else the public origin. setup signs in once, puts `{cli}` on the PATH and writes the skill for each AI app here; whoami, who, send, work, take, finish, fail, stuck, release, withdraw, remove and serve move AI jobs through tools/hand-work-to-ais; publish answers this AI's own record as a keep row for the person's own store; tools and call list and run Workshop tools; op runs any engine operation; schedule lists and switches the wakes tool rows declare; records replay-from-transcripts lists the rows this computer's AIs wrote, from their own transcripts, for the person's own store (it writes nothing back). Nothing here reads or writes a row. The credential is the account's existing key or the sign-in login kept, read into memory only, never printed or put on a command line. Every call carries one request key reused on every retry. A copy an owner installed (its install-owner.json marker beside it) is never rewritten by a bare copy, and `{cli} update` names who updates it: the command never updates itself.",
     "status": "active",
     "maker": "maker:use-your-tools-from-a-shell",
     "licence_class": "licence:maker-own",
@@ -13746,7 +13455,7 @@
    "values": {
     "title": "Verify a waiting completion",
     "job": "Read the same persisted target and verify the current effect of a waiting completion",
-    "description": "Checks, on the waiting records handed in (read them again with records:read after the write, each { id, type, value }), the saved completion key and BLAKE3 effect identity against the source's declared fields, and answers completed/next_round only when that same effect still holds. A hidden card, unavailable feed or historical command result proves nothing here. Hand in the person's record:waiting-sources records as sources when they added any. Reads and changes nothing in the person's records.",
+    "description": "Checks, on the waiting records handed in (read them again from the person's own store after the keep, each { id, type, value }), the saved completion key and BLAKE3 effect identity against the source's declared fields, and answers completed/next_round only when that same effect still holds. A hidden card, unavailable feed or historical command result proves nothing here. Hand in the person's record:waiting-sources records as sources when they added any. Reads and changes nothing in the person's records.",
     "status": "active",
     "maker": "maker:what-is-waiting-on-me",
     "licence_class": "licence:maker-own",
@@ -13852,7 +13561,7 @@
    "values": {
     "title": "Watch my sources",
     "job": "Watch the places I follow (any site's feed, a YouTube channel, a blog, a changelog, a page, a best-seller or trending list) and keep each new item as a row, weighed against what I am pursuing; only what moves a pursuit is handed to my AIs",
-    "description": "Reads each source marked Yes in the person's list signal-sources (as handed in in records; a missing list is answered with its fields and its starter places turned off) and answers every item not kept before as a row of their list signals; a ranked-list source answers each item's rank in ranked-items and makes a signal of each entry, climb, fall or drop-out. The run reaches no store and keeps nothing: first read the person's lists with records:list (list:signal-sources, list:signals, list:ranked-items, their record:signal-sources, record:signals and record:ranked-items rows, and their pursuit records) and hand them in as records; the answer's write is the records:write input that keeps what the run found, each record expecting the value it was handed in with. Send write at @own-records, in batches if it is large, before the next run. A source's first read is a quiet baseline. A page is watched by whether its words changed; an X account needs a feed address; a YouTube channel is read from its feed or, when YouTube refuses that, its videos page; an address that answers 'not changed' costs nothing. Reads at most 25 sources and weighs at most 20 items a run; the rest wait. The run asks no model and hands nothing in itself: when new items wait it answers weigh_wanted, one question { purpose, identity, messages, max_tokens } for the oldest batch, the same until it is answered; send write, read the records again, answer the question and run again with weighed { identity, reply }. Each item that moves a pursuit comes back in arrivals, each exactly what the person's arrival door takes (route watch-sources, from_person false); the door keeps one arrival per route and source_id. Sends nothing outward and never writes to a source. Run it on a schedule (hourly) or when the person asks what is new in the places they follow. When the answer names weigh_wanted, answer that question yourself as the person's AI (reply with the JSON it asks for, nothing else) and run the tool again with weighed { identity, reply }. Hand each of arrivals to the person's arrival door as it is. Tell the person the moves; the rest is in their Signals list.",
+    "description": "Reads each source marked Yes in the person's list signal-sources (as handed in in records; a missing list is answered with its fields and its starter places turned off) and answers every item not kept before as a row of their list signals; a ranked-list source answers each item's rank in ranked-items and makes a signal of each entry, climb, fall or drop-out. The run reaches no store and keeps nothing: first read the person's lists from the store they keep them in (list:signal-sources, list:signals, list:ranked-items, their rows of types record:signal-sources, record:signals and record:ranked-items, and their pursuit records) and hand them in as records; the answer's keep is what the run found, each record { id, type, value, expected } expecting the value it was handed in with. Put keep in that store, refusing a record whose expected value moved, before the next run. A source's first read is a quiet baseline. A page is watched by whether its words changed; an X account needs a feed address; a YouTube channel is read from its feed or, when YouTube refuses that, its videos page; an address that answers 'not changed' costs nothing. Reads at most 25 sources and weighs at most 20 items a run; the rest wait. The run asks no model and hands nothing in itself: when new items wait it answers weigh_wanted, one question { purpose, identity, messages, max_tokens } for the oldest batch, the same until it is answered; put keep in the store, read the records again, answer the question and run again with weighed { identity, reply }. Each item that moves a pursuit comes back in arrivals, each exactly what the person's arrival door takes (route watch-sources, from_person false); the door keeps one arrival per route and source_id. Sends nothing outward and never writes to a source. Run it on a schedule (hourly) or when the person asks what is new in the places they follow. When the answer names weigh_wanted, answer that question yourself as the person's AI (reply with the JSON it asks for, nothing else) and run the tool again with weighed { identity, reply }. Hand each of arrivals to the person's arrival door as it is. Tell the person the moves; the rest is in their Signals list.",
     "status": "active",
     "maker": "maker:watch-my-sources",
     "licence_class": "licence:maker-own",
@@ -13970,21 +13679,6 @@
      "placement:deployed-container"
     ],
     "folder": "referral-codes-and-rewards"
-   }
-  },
-  {
-   "id": "tool:withdraw-pooled-results",
-   "values": {
-    "title": "Take a person's results out of the pool",
-    "job": "Remove every noisy result one person ever gave the pool when they stop sharing",
-    "description": "Runs in the account that holds the pool. Removes every pooled results row whose id starts with the contributor's id, in writes of at most the engine's cap, and says how many were removed. The next answer is worked out from what is left, with new noise for the shards it changed.",
-    "status": "active",
-    "maker": "maker:learn-from-everyones-results",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "learn-from-everyones-results"
    }
   },
   {
@@ -14177,7 +13871,7 @@
    "values": {
     "title": "Write a copy of a repository into my files, for citations to be checked against",
     "job": "Write the files of a repository, the dates of its commits and a stamp naming the commit into my own files under /source-copies/<root>/, so a check of what a finding cites can read them on any computer",
-    "description": "Takes a root name, the ref and head the copy was made from, a list of files ({path, text}, at most 64, each at most 4 MiB), the commit dates ({<full hash>: <ISO date>}) and whether the list is every tracked file. Writes each file, then .commit-dates.json, and the stamp .source-copy.json last, under /source-copies/<root>/, so a copy whose stamp is old never claims a new head. The stamp holds ref, head, copied_at and files: the sorted paths the copy holds (the earlier stamp's files plus these, or exactly these when complete is true; also_held paths, written by earlier runs of the same head, are added). A big copy can be sent in several runs: with final false a run writes only its files (no dates, no stamp) and answers final:false; the last run (final true, the default) writes the dates and the stamp. A path with .., ., an empty part, a leading / or a backslash is refused and nothing is written. The tool never reads a repository: the caller reads git and hands in the text.",
+    "description": "Takes a root name, the ref and head the copy was made from, a list of files ({path, text}, at most 64, each at most 4 MiB), the commit dates ({<full hash>: <ISO date>}), whether the list is every tracked file, and stored.files: the files already under /source-copies/<root>/ that the caller read from where the person keeps them (a file not handed in is not there). It reads and writes no store: it answers keep, each file { file, identity, base64, expected } in order (expected is the identity of the file as handed in, null when it was not there, so a store refuses a keep whose file moved): each file, then .commit-dates.json, and the stamp .source-copy.json last, under /source-copies/<root>/, so a copy whose stamp is old never claims a new head. A file handed in that already holds the bytes sent is left out of keep. The stamp holds ref, head, copied_at and files: the sorted paths the copy holds (the earlier stamp's files plus these, or exactly these when complete is true; also_held paths, written by earlier runs of the same head, are added). A big copy can be sent in several runs: with final false a run keeps only its files (no dates, no stamp) and answers final:false; the last run (final true, the default) keeps the dates and the stamp. A path with .., ., an empty part, a leading / or a backslash is refused and nothing is kept. The tool never reads a repository: the caller reads git and hands in the text.",
     "status": "active",
     "maker": "maker:workflows",
     "licence_class": "licence:maker-own",
@@ -14252,7 +13946,7 @@
    "values": {
     "title": "Write the public files of my share links",
     "job": "Write the public files of every share link of mine that anyone may open, into the folder my public server serves, and remove the files of links I revoked or that expired",
-    "description": "Reads the person's sharing rows (each link grant), the Lists those links share (a whole List, or one row of it), the List's rows and the files its shown rows name, through this run's records door, and writes into the folder the person granted: <code>.json (and <name>.json for a link with a readable address) in the shape { kind: \"list\", title, about, changed, fields, rows: [{ id, title, address, url, values }], files: [{ identity, name, url, media_type }] }, whole and never paged; <name>/index.html for the List and <name>/<row address>/index.html for each row; files/<identity> for each file a shown row names; sitemap.xml and llms.txt over every listed link; and manifest.json, every file with its BLAKE3 content identity and the files this run removed. A link has public files only while it is published, not revoked, not expired and open to anyone; a link for named people, an email, an audience or an access code has none. What leaves is the List's share rule less the fields the person left out, only the rows whose own rules hold and only the files they name. A link with its own condition, a match-only field, or a row rule that counts opens or reads the clock is left out with its reason, because a file on a public server cannot check it at each open. Runs on its own when a sharing row or a List changes, and again at the earliest expiry of a published link. Returns written, unchanged, removed, published, left_out, ended and next_change_at.",
+    "description": "Takes the person's sharing rows (each link grant), the Lists those links share (a whole List, or one row of it) and the List's rows as input.records, read by the caller from the person's own store, reads the files its shown rows name from the files the caller hands in as input.stored.files, and writes into the folder the person granted: <code>.json (and <name>.json for a link with a readable address) in the shape { kind: \"list\", title, about, changed, fields, rows: [{ id, title, address, url, values }], files: [{ identity, name, url, media_type }] }, whole and never paged; <name>/index.html for the List and <name>/<row address>/index.html for each row; files/<identity> for each file a shown row names; sitemap.xml and llms.txt over every listed link; and manifest.json, every file with its BLAKE3 content identity and the files this run removed. A link has public files only while it is published, not revoked, not expired and open to anyone; a link for named people, an email, an audience or an access code has none. What leaves is the List's share rule less the fields the person left out, only the rows whose own rules hold and only the files they name. A link with its own condition, a match-only field, or a row rule that counts opens or reads the clock is left out with its reason, because a file on a public server cannot check it at each open. Runs on its own when a sharing row or a List changes, and again at the earliest expiry of a published link. Returns written, unchanged, removed, published, left_out, ended and next_change_at.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",

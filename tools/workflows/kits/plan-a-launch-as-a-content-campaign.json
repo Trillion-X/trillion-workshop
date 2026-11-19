@@ -2,14 +2,16 @@
   "drafted_from": "workflow:plan-a-launch-as-a-content-campaign's published row and its steps (read-launch, phases, blitz-runbook, drafts, check-words, approve, schedule, readback) in published/workflows.json and published/workflow-steps.json.",
   "start_here": "Say to your AI: \"Plan the launch in my launch record spring-course for email, video and my feed, with Sam posting as himself.\" The AI reads that launch record, plans four dated phases backwards from its launch time, writes the launch-day runbook, drafts every post for its platform, checks each word against your own rules and shows you every post to approve before anything is scheduled.",
   "lists": [],
-  "no_lists_because": "It keeps nothing of its own: it reads the launch record you already wrote and earlier launch records from your own store, and writes its readback into that launch record's history.",
+  "no_lists_because": "It keeps nothing of its own: it reads the launch record you already wrote with records:read and earlier launch records with records:list, and writes its readback into that launch record's history.",
   "workflows": [
     "workflow:plan-a-launch-as-a-content-campaign"
   ],
   "tools": [
     "tool:check-against-a-persons-rules-and-verdicts",
     "tool:tell-the-person",
-    "tool:github:gitroomhq-postiz-app"
+    "tool:set-a-post-to-go-at-its-time",
+    "tool:draft-a-post",
+    "tool:send-each-post-at-its-time"
   ],
   "instructions": [
     "1. Write a launch record (kind launch) with what launches, the launch date and time with its time zone, the offer and why now, or let the launch workflow that writes it run first.",
@@ -31,8 +33,14 @@
               "row": "workflow:plan-a-launch-as-a-content-campaign",
               "input": {
                 "launch_record": "spring-course",
-                "channels": ["email list", "video channel", "feed"],
-                "supporting_voices": ["Sam"],
+                "channels": [
+                  "email list",
+                  "video channel",
+                  "feed"
+                ],
+                "supporting_voices": [
+                  "Sam"
+                ],
                 "list_target": 300
               }
             }

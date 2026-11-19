@@ -262,19 +262,6 @@
    "readme_quote": "gallery-dl [OPTIONS]... URLS..."
   },
   {
-   "repo": "gitroomhq/postiz-app",
-   "job": "Schedule and publish posts to your own social media accounts from one place you host yourself",
-   "install": [
-    "cd postiz-app",
-    "docker compose up -d"
-   ],
-   "run": "docker compose up -d",
-   "needs": [
-    "docker"
-   ],
-   "readme_quote": "Deploy with Docker / Coolify / Railway / any VPS; you configure Postgres, Redis, storage and env vars"
-  },
-  {
    "repo": "Blaizzy/mlx-video",
    "job": "Make a short video from a text prompt or an image on your own Mac with Apple silicon",
    "install": [

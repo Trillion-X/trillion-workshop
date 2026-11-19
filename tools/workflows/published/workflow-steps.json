@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "89b5f13a6b659716ef9e260cf05e8a1764c41fb10ede425e1ce3ab299b6a3379",
+  "blake3": "b4007c12d1311ec1789831eea6f37f878504485132bf7cf279872b4f79322ce6",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -5566,7 +5566,7 @@
    "id": "plan-a-launch-as-a-content-campaign--schedule",
    "values": {
     "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"scheduled\",\"*\",\"draft\"],\"of\":[\"steps\",\"approve\",\"approved\",\"*\"],\"says\":\"Only approved posts are scheduled\"},{\"kind\":\"covers\",\"path\":[\"this\",\"scheduled\",\"*\",\"draft\"],\"of\":[\"steps\",\"approve\",\"approved\",\"*\"],\"says\":\"Every approved post is scheduled or handed over\"}]",
-    "do": "For each approved draft, if the person has their own self-hosted Postiz (tool:github:gitroomhq-postiz-app) with that channel connected, schedule it there at its date and time and copy the scheduled post's id. Otherwise call tool:tell-the-person with the draft's words, channel and exact time so the person posts it. Give each supporting voice from the blitz runbook its own row's time and words with tool:tell-the-person, for the person to pass on. Never schedule a draft that is not approved, and never post from an account the person did not connect.",
+    "do": "For each approved draft, make it a post row with its channel, words and exact time (tool:draft-a-post), then set it to go at that time with tool:set-a-post-to-go-at-its-time, which the post sender sends from (tool:send-each-post-at-its-time), and copy the post id as scheduler_id. Where the channel has no connection the person made, call tool:tell-the-person with the draft's words, channel and exact time so the person posts it. Give each supporting voice from the blitz runbook its own row's time and words with tool:tell-the-person, for the person to pass on. Never schedule a draft that is not approved, and never post from an account the person did not connect.",
     "flags": [
      "public"
     ],
@@ -6932,7 +6932,7 @@
    "id": "run-a-slideshow-page-that-sells-a-small-digital-product--schedule",
    "values": {
     "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"scheduled\",\"*\",\"title\"],\"of\":[\"steps\",\"approve\",\"approved\",\"*\",\"title\"],\"says\":\"Only approved carousels are scheduled\"}]",
-    "do": "Use the person's own self-hosted Postiz (tool:github:gitroomhq-postiz-app) with the platform account the person connected to it; if they have none, give them each approved carousel's images and caption with its date and time, and they post it by hand. Schedule one or two carousels a day, only from the approved list, each with its caption unchanged. Copy each scheduled time.",
+    "do": "For each approved carousel, make a post row with its images, caption unchanged and time (tool:draft-a-post) and set it to go at that time with tool:set-a-post-to-go-at-its-time, on the platform account the person connected. Where the person connected none, give them each approved carousel's images and caption with its date and time, and they post it by hand. Schedule one or two carousels a day, only from the approved list. Copy each scheduled time.",
     "flags": [
      "public"
     ],
@@ -6941,7 +6941,7 @@
      "run-a-slideshow-page-that-sells-a-small-digital-product"
     ],
     "step": "schedule",
-    "submit": "{\"type\":\"object\",\"required\":[\"scheduled\"],\"properties\":{\"scheduled\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"required\":[\"title\",\"at\",\"how\"],\"properties\":{\"title\":{\"type\":\"string\",\"minLength\":3},\"at\":{\"type\":\"string\",\"format\":\"date-time\"},\"how\":{\"enum\":[\"postiz\",\"the-person-by-hand\"]}}}}}}",
+    "submit": "{\"type\":\"object\",\"required\":[\"scheduled\"],\"properties\":{\"scheduled\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"required\":[\"title\",\"at\",\"how\"],\"properties\":{\"title\":{\"type\":\"string\",\"minLength\":3},\"at\":{\"type\":\"string\",\"format\":\"date-time\"},\"how\":{\"enum\":[\"scheduler\",\"the-person-by-hand\"]}}}}}}",
     "title": "Schedule only the approved carousels"
    }
   },

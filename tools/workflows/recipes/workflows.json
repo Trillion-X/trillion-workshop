@@ -132644,7 +132644,7 @@
           {
             "id": "schedule",
             "title": "Schedule only the approved posts, or hand them to the person",
-            "do": "For each approved draft, if the person has their own self-hosted Postiz (tool:github:gitroomhq-postiz-app) with that channel connected, schedule it there at its date and time and copy the scheduled post's id. Otherwise call tool:tell-the-person with the draft's words, channel and exact time so the person posts it. Give each supporting voice from the blitz runbook its own row's time and words with tool:tell-the-person, for the person to pass on. Never schedule a draft that is not approved, and never post from an account the person did not connect.",
+            "do": "For each approved draft, make it a post row with its channel, words and exact time (tool:draft-a-post), then set it to go at that time with tool:set-a-post-to-go-at-its-time, which the post sender sends from (tool:send-each-post-at-its-time), and copy the post id as scheduler_id. Where the channel has no connection the person made, call tool:tell-the-person with the draft's words, channel and exact time so the person posts it. Give each supporting voice from the blitz runbook its own row's time and words with tool:tell-the-person, for the person to pass on. Never schedule a draft that is not approved, and never post from an account the person did not connect.",
             "submit": {
               "type": "object",
               "required": [
@@ -173215,7 +173215,7 @@
           {
             "id": "schedule",
             "title": "Schedule only the approved carousels",
-            "do": "Use the person's own self-hosted Postiz (tool:github:gitroomhq-postiz-app) with the platform account the person connected to it; if they have none, give them each approved carousel's images and caption with its date and time, and they post it by hand. Schedule one or two carousels a day, only from the approved list, each with its caption unchanged. Copy each scheduled time.",
+            "do": "For each approved carousel, make a post row with its images, caption unchanged and time (tool:draft-a-post) and set it to go at that time with tool:set-a-post-to-go-at-its-time, on the platform account the person connected. Where the person connected none, give them each approved carousel's images and caption with its date and time, and they post it by hand. Schedule one or two carousels a day, only from the approved list. Copy each scheduled time.",
             "submit": {
               "type": "object",
               "required": [
@@ -173243,7 +173243,7 @@
                       },
                       "how": {
                         "enum": [
-                          "postiz",
+                          "scheduler",
                           "the-person-by-hand"
                         ]
                       }

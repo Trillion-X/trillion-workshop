@@ -1203,66 +1203,6 @@
    }
   },
   {
-   "id": "package::ai-tool-catalog::github-index::gitroomhq-postiz-app",
-   "address": "package::ai-tool-catalog::github-index::gitroomhq-postiz-app",
-   "path": [
-    "current-item",
-    "published-record"
-   ],
-   "payload": {
-    "kind": "ai-tool-descriptor",
-    "id": "tool:github:gitroomhq-postiz-app",
-    "label": "postiz-app (open source, runs on your computer)",
-    "job": "Schedule and publish posts to your own social media accounts from one place you host yourself",
-    "description": "📨 The ultimate agentic social media scheduling tool 🤖 Open source on GitHub under AGPL-3.0. It runs on the person's own computer: run_tool hands back how to get it and run it.",
-    "status": "active",
-    "input_schema": {
-     "type": "object",
-     "properties": {
-      "input": {
-       "type": "string",
-       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
-      },
-      "output": {
-       "type": "string",
-       "description": "Where the result goes on the person's computer, put where {output} is in the command"
-      }
-     }
-    },
-    "output_schema": {
-     "type": "object"
-    },
-    "invoke": {
-     "kind": "on-your-computer",
-     "repository": "https://github.com/gitroomhq/postiz-app",
-     "get_it": [
-      "git clone https://github.com/gitroomhq/postiz-app.git",
-      "cd postiz-app",
-      "docker compose up -d"
-     ],
-     "run": "docker compose up -d",
-     "needs": [
-      "docker"
-     ],
-     "say": "This runs on the person's own computer, never on the site that lists it. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
-    },
-    "licence_class": "licence:network-copyleft",
-    "placements": [
-     "placement:caller-sandbox"
-    ],
-    "provenance": {
-     "repository": "https://github.com/gitroomhq/postiz-app",
-     "licence_spdx": "AGPL-3.0",
-     "licence_read_from": "GitHub's licence field for gitroomhq/postiz-app",
-     "read_on": "2026-11-19",
-     "stars": 41914,
-     "last_pushed_at": "2026-11-18T13:38:05Z",
-     "default_branch": "main",
-     "readme_quote": "Deploy with Docker / Coolify / Railway / any VPS; you configure Postgres, Redis, storage and env vars"
-    }
-   }
-  },
-  {
    "id": "package::ai-tool-catalog::github-index::blaizzy-mlx-video",
    "address": "package::ai-tool-catalog::github-index::blaizzy-mlx-video",
    "path": [
