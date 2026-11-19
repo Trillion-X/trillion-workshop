@@ -15,7 +15,7 @@
 // the `model` the input names ({ endpoint, model, timeout_seconds }); with none named, only the rules run and the answer says so.
 //
 // USAGE
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/check-words-for-personal-data/read-data/personal-data.mjs check
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/check-words-for-personal-data/read-data/personal-data.mjs check
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
