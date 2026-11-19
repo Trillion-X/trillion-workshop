@@ -13,7 +13,7 @@
 //   the shared new-post panel (new-post.tsx) beside it; with no post yet the screen says so and offers Write a post
 //   and Ask my AI, and while no place to post is connected it says drafts are kept and offers Connect a place.
 //   Reads and changes go through /work/api/posts, the same /posts routes a person's AI uses (list_post_calendar,
-//   draft_post, approve_post, publish_post), and the job is the Workshop tool tool:read-post-calendar.
+//   draft_post, approve_post, publish-a-post-now), and the job is the Workshop tool tool:read-post-calendar.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Every element is a shared component; this file writes no markup.

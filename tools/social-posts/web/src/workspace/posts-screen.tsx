@@ -8,7 +8,7 @@
 //   its link and time, who it contacts first and where each was found (reaches; only the person approves such a post),
 //   and each place it is going with that place's own words and settings, where its copy is, and
 //   that place's ready check in plain words (src/post-ready.mjs over the place's row). Approve and Publish send the
-//   same calls the AI's approve_post and publish_post send; a post that is not ready can be handed to the person's AI
+//   same calls the AI's approve_post and publish-a-post-now send; a post that is not ready can be handed to the person's AI
 //   to fix. The post's video, picture or sound is drawn by the one file preview (FilePreview) and plays in place, and
 //   each row shows it as its picture (file-picture.ts, file-previews.json), with a Cards view, so what the AI made is
 //   seen where it is approved, here and wherever this screen is shown (an AI chat's show_screen). A person writes a new draft here too (words and an optional time, new-post.tsx), and picks where a post

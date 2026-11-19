@@ -825,7 +825,7 @@
           "action": "publish-a-post"
         },
         "provenance": {
-          "source": "src/social-posts.mjs publish, the same function publish_post calls"
+          "source": "src/social-posts.mjs publish, the same function publish-a-post-now calls"
         },
         "verify": [
           {

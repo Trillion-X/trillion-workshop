@@ -29,7 +29,7 @@
 //      any of its words or anything key-shaped would appear in it. Those checks are run on the finished row itself.
 //
 import settings from './learned-workflows.json' with { type: 'json' };
-import { withoutSecrets } from './scheduler.mjs';
+import { withoutSecrets } from '../../keep-and-wake-ai-sessions-on-this-computer/src/scheduler.mjs';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 

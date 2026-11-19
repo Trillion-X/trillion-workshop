@@ -6,6 +6,7 @@
       "platform": "youtube",
       "label": "YouTube",
       "adapter": "youtube",
+      "platform_time": true,
       "connection_vendor": "youtube",
       "options": {
         "auth": {
@@ -244,6 +245,7 @@
       "platform": "facebook",
       "label": "Facebook Page",
       "adapter": "facebook-page",
+      "platform_time": true,
       "connection_vendor": "facebook-messenger",
       "options": {
         "auth": {
@@ -741,6 +743,7 @@
       "platform": "ghost",
       "label": "Ghost",
       "adapter": "requests",
+      "platform_time": true,
       "connection_vendor": "ghost",
       "options": {
         "platform": "ghost",
@@ -787,7 +790,15 @@
                     "post": "words",
                     "markup": "html"
                   },
-                  "status": "published",
+                  "status": {
+                    "when_scheduled": true,
+                    "then": "scheduled",
+                    "else": "published"
+                  },
+                  "published_at": {
+                    "scheduled_at": true,
+                    "optional": true
+                  },
                   "custom_excerpt": {
                     "setting": "excerpt",
                     "optional": true

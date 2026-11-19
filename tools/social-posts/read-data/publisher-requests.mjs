@@ -16,6 +16,10 @@
 //                                          wrapped as that markup's row says)
 //   { "setting": name, "optional"? }       the post's setting for this place (target options); an optional one left out
 //                                          drops its key
+//   { "when_scheduled": true, "then", "else"? }
+//                                          `then` when the post is set to go at a time (target.schedule), else `else`
+//                                          (an absent `else` drops its key)
+//   { "scheduled_at": true, "optional"? }  that time, as an ISO 8601 text; an optional one left out drops its key
 //   { "step": id, "at": path }             a field of an earlier step's reply (path "a.b.0.c")
 //   arrays and objects                     each value read the same way
 // The held, readable and fixed values of the person's connection ({held}, {plain}, {value}) are filled before this
@@ -63,6 +67,15 @@ function read(template, values) {
   if (!object(template)) return template;
   if ('join' in template) return template.join.map(item => read(item, values)).filter(item => item !== DROP).join('');
   if ('post' in template) return template.markup ? inMarkup(values.target.content.text, template.markup) : String(values.target.content.text ?? '');
+  if ('when_scheduled' in template) {
+    const picked = values.target.schedule ? template.then : template.else;
+    return picked === undefined ? DROP : read(picked, values);
+  }
+  if ('scheduled_at' in template) {
+    const at = values.target.schedule?.at;
+    if (at === undefined || at === null || at === '') return template.optional ? DROP : '';
+    return at;
+  }
   if ('setting' in template) {
     const found = values.target.options?.[template.setting];
     if (found === undefined || found === null || found === '') return template.optional ? DROP : '';
@@ -114,7 +127,6 @@ export function requests({ platform, account: accountId, steps, post_id: postIdA
         if (!mine(target.account)) add('target.account_mismatch', 'This post is not for the connected account.');
         if (!String(target.content.text ?? '').trim()) add('content.empty', 'This post needs words.');
         if (target.content.media?.length && formats.every(format => format === 'text')) add('media.unsupported', 'A post sent here carries words only.');
-        if (target.schedule) add('schedule.unsupported', 'A post is sent at its time by its own run.');
         return issues;
       },
       async publishTarget(target) {
@@ -128,7 +140,7 @@ export function requests({ platform, account: accountId, steps, post_id: postIdA
         }
         const url = urlAt === undefined ? null : read(urlAt, values);
         return {
-          state: 'published', targetIndex: target.targetIndex, account: target.account, observedAt: new Date().toISOString(),
+          state: target.schedule ? 'scheduled' : 'published', targetIndex: target.targetIndex, account: target.account, observedAt: new Date().toISOString(),
           ...(url ? { url: String(url) } : {}),
           post: platformPostRef({ backend, platform, accountId: target.account.accountId, postId: String(read(postIdAt, values)) }),
         };

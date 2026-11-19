@@ -243,7 +243,6 @@ export async function sendAPost(input = {}, { now = () => new Date(), send = fet
   }
   if (!['approved', 'scheduled', 'partial', 'failed', 'posted'].includes(post.status)) throw new Error(`${post.post_id} is ${post.status}. Only an approved post is sent.`);
   if (!post.approved_at) throw new Error(`${post.post_id} was never approved, so nothing was sent.`);
-  if (post.scheduled_for && Date.parse(post.scheduled_for) > now().getTime()) return { post_id: post.post_id, status: post.status, post: shaped(post), said: `Its time has not come: it goes out at ${post.scheduled_for}. Nothing was sent.` };
   if (!(post.destinations ?? []).includes(accountId)) throw new Error(`${accountId} is not one of ${post.post_id}'s destinations.`);
   const deliveries = { ...(post.deliveries ?? {}) };
   const earlier = deliveries[accountId] ?? {};
@@ -256,6 +255,10 @@ export async function sendAPost(input = {}, { now = () => new Date(), send = fet
   const place = PLACES.find(item => item.connection_vendor === connection.vendor) ?? null;
   if (!place) throw new Error(`${accountId} is a ${connection.vendor} connection, and no place takes that, so nothing was sent.`);
   if (slugOf(place) !== placeSlug.trim()) throw new Error(`${accountId} belongs to ${slugOf(place)}, not ${placeSlug.trim()}. Nothing was sent.`);
+  // A time still ahead: a place that takes the time itself gets the post now, with it (its own run publishes it then); any other place waits for its time.
+  const ahead = Boolean(post.scheduled_for) && Date.parse(post.scheduled_for) > now().getTime();
+  if (ahead && !place.platform_time) return { post_id: post.post_id, status: post.status, post: shaped(post), said: `Its time has not come: it goes out at ${post.scheduled_for}. Nothing was sent.` };
+  const schedule = ahead ? { at: post.scheduled_for } : undefined;
   // The post as it ends, written to the rows this run keeps for the caller to store.
   const settle = () => {
     const at = now().toISOString();
@@ -274,6 +277,7 @@ export async function sendAPost(input = {}, { now = () => new Date(), send = fet
     deliveries[accountId] = { platform: place.platform, label: place.label, status: 'not known', attempt, error: fillWords(settings.not_known_words, { platform: place.label }) };
     const result = await social.posts.publish({
       targets: [{ account, ...(Object.keys(chosen).length ? { options: chosen } : {}) }],
+      ...(schedule ? { schedule } : {}),
       content: { text: wordsOf(post, place, accountId), ...(media ? { media: [media] } : {}) },
       idempotencyKey: `${post.post_id}:${accountId}:${attempt}`,
     });

@@ -24,6 +24,11 @@ import { SocialError, platformPostRef } from '@opencoredev/social-sdk';
 
 const PLATFORM = 'facebook';
 const THROTTLED = new Set([4, 17, 32, 613]);
+// Graph API scheduled posts: a time from 10 minutes to 6 months ahead, sent as an unpublished post with its unix time.
+const SCHEDULE_MIN_MS = 10 * 60 * 1000;
+const SCHEDULE_MAX_MS = 182 * 24 * 60 * 60 * 1000;
+const scheduleAhead = target => (target.schedule ? Date.parse(target.schedule.at) - Date.now() : null);
+const timing = target => (target.schedule ? { published: false, scheduled_publish_time: Math.floor(Date.parse(target.schedule.at) / 1000) } : {});
 const fail = (operation, message, code = 'upstream_failure', extra = {}) => {
   throw new SocialError({ code, operation, message, retryDisposition: { kind: code === 'invalid_input' ? 'never' : code === 'unauthorized' ? 'after-reconnect' : 'reconcile-first' }, ...extra });
 };
@@ -71,21 +76,22 @@ export function facebookPage({ auth, pageId, apiVersion = 'v23.0', fetch: send, 
         if (!String(target.content.text ?? '').trim() && !media.length) add('content.empty', 'A Facebook post needs words, a picture or a video.');
         if (media.length > 1) add('media.too_many', 'A Facebook post sent here carries one picture or one video.');
         if (media.some(item => item.source?.kind !== 'https-url')) add('media.address', 'A Facebook post\'s picture or video must be at a public address.');
-        if (target.schedule) add('schedule.unsupported', 'A Facebook post is sent at its time by its own run.');
+        const ahead = scheduleAhead(target);
+        if (ahead !== null && (!Number.isFinite(ahead) || ahead < SCHEDULE_MIN_MS || ahead > SCHEDULE_MAX_MS)) add('schedule.range', 'Facebook takes a scheduled post from 10 minutes to 6 months ahead.');
         return issues;
       },
       async publishTarget(target) {
         const text = String(target.content.text ?? '');
         const media = target.content.media?.[0] ?? null;
         const made = !media
-          ? await call('facebook.feed.publish', `/${encodeURIComponent(pageId)}/feed`, { message: text })
+          ? await call('facebook.feed.publish', `/${encodeURIComponent(pageId)}/feed`, { message: text, ...timing(target) })
           : media.kind === 'image'
-            ? await call('facebook.photos.publish', `/${encodeURIComponent(pageId)}/photos`, { url: media.source.url, ...(text ? { caption: text } : {}) })
-            : await call('facebook.videos.publish', `/${encodeURIComponent(pageId)}/videos`, { file_url: media.source.url, ...(text ? { description: text } : {}) });
+            ? await call('facebook.photos.publish', `/${encodeURIComponent(pageId)}/photos`, { url: media.source.url, ...(text ? { caption: text } : {}), ...timing(target) })
+            : await call('facebook.videos.publish', `/${encodeURIComponent(pageId)}/videos`, { file_url: media.source.url, ...(text ? { description: text } : {}), ...timing(target) });
         const postId = String(made.post_id ?? made.id ?? '');
         if (!postId) fail('facebook.publish', 'Facebook kept no post for this.', 'ambiguous_outcome');
         return {
-          state: 'published', targetIndex: target.targetIndex, account: target.account, observedAt: new Date().toISOString(),
+          state: target.schedule ? 'scheduled' : 'published', targetIndex: target.targetIndex, account: target.account, observedAt: new Date().toISOString(),
           url: `https://www.facebook.com/${postId}`,
           post: platformPostRef({ backend, platform: PLATFORM, accountId: target.account.accountId, postId }),
         };
