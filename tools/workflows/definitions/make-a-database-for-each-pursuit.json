@@ -62,10 +62,11 @@
                 "action": "create",
                 "limits": {
                   "$kind": "binding",
-                  "select": {
-                    "from": "input",
-                    "path": "limits"
-                  }
+                  "values": [
+                    "input",
+                    "limits"
+                  ],
+                  "omit_if_missing": true
                 }
               }
             },

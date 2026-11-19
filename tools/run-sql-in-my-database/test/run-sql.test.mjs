@@ -240,6 +240,7 @@ test('own-database with limits: the login is made holding the connection limit a
   const create = limits => ({ recipe: { name: 'own-database', action: 'create', limits } });
   await assert.rejects(runSql({ connection: operator, roleConnection: pursuit, input: create({ max_rows: 5 }) }), /recipe.limits.max_rows is not a limit of the own-database recipe/);
   await assert.rejects(runSql({ connection: operator, roleConnection: pursuit, input: create({ connection_limit: 2.5 }) }), /whole number above zero/);
+  await assert.rejects(runSql({ connection: operator, roleConnection: pursuit, input: create(null) }), /recipe.limits must be an object/);
   await assert.rejects(runSql({ connection: operator, roleConnection: pursuit, input: create({ connection_limit: '5; DROP ROLE x' }) }), /whole number above zero/);
   await assert.rejects(runSql({ connection: operator, roleConnection: pursuit, input: { recipe: { name: 'own-database', action: 'drop', limits: { connection_limit: 5 } } } }), /give them with create/);
   await assert.rejects(runSql({ connection: operator, roleConnection: pursuit.replace('made-up-limited-password-of-forty-three-chars', 'short-pw'), input: create({}) }), /at least 43 characters/);
@@ -250,8 +251,8 @@ test('own-database with limits: the login is made holding the connection limit a
   await runSql({ connection: operator, roleConnection: pursuit, input: { recipe: { name: 'own-database', action: 'drop' } } });
 });
 
-test('a minted login\'s password is 32 random bytes, and limits given as null are none', async () => {
-  const minted = await runSql({ connection: ownerConnection, input: { recipe: { name: 'read-only', action: 'create', role: 'p_example_share_bytes', valid_until: '2099-01-01T00:00:00Z', limits: null } } });
+test('a minted login\'s password is 32 random bytes', async () => {
+  const minted = await runSql({ connection: ownerConnection, input: { recipe: { name: 'read-only', action: 'create', role: 'p_example_share_bytes', valid_until: '2099-01-01T00:00:00Z' } } });
   assert.equal(Buffer.from(decodeURIComponent(new URL(minted.rows[0].connection).password), 'base64url').length, 32);
   await runSql({ connection: ownerConnection, input: { recipe: { name: 'read-only', action: 'drop', role: 'p_example_share_bytes' } } });
 });

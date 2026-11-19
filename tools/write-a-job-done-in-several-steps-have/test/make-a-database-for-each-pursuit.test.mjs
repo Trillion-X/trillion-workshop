@@ -25,7 +25,7 @@ test('the pursuit\'s connection is kept first, by name and hosts only', async ()
 test('then the operator\'s login makes the login and the database it owns with the own-database recipe', async () => {
   const [asked] = (await run({ 'keep-the-login': kept })).waiting;
   assert.equal(asked.asks, 'tool:run-sql-in-my-database');
-  assert.deepEqual(asked.input, { credential_name: 'made-up-operator-connection', role_credential_name: 'made-up-pursuit-connection', recipe: { name: 'own-database', action: 'create', limits: null } });
+  assert.deepEqual(asked.input, { credential_name: 'made-up-operator-connection', role_credential_name: 'made-up-pursuit-connection', recipe: { name: 'own-database', action: 'create' } });
 });
 
 test('limits given to the run reach the recipe as the pursuit login\'s own, and no number is chosen in the workflow', async () => {

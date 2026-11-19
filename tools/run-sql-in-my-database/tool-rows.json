@@ -69,10 +69,7 @@
                   "description": "When a minted login stops working, as a time (2026-12-01T00:00:00Z)."
                 },
                 "limits": {
-                  "type": [
-                    "object",
-                    "null"
-                  ],
+                  "type": "object",
                   "additionalProperties": false,
                   "description": "Per-login limits set when the login is made, each only when given, as the recipe's limits rows say: connection_limit (the most connections this login may hold at once) and statement_timeout_ms (the longest one statement of this login may run). Give the numbers the computer's measured capacity allows; none is chosen here.",
                   "properties": {

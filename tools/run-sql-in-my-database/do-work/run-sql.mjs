@@ -47,8 +47,7 @@ export function shapeOf(input) {
   const hasRecipe = Object.hasOwn(asked, 'recipe');
   if (hasSql + hasRecipe > 1) throw new Error('Give one of: sql (with params), or recipe.');
   if (hasRecipe) {
-    const { name, action, role, valid_until: validUntil, limits: givenLimits } = asked.recipe ?? {};
-    const limits = givenLimits ?? {}; // null is none: a workflow binding an input it was not given hands null
+    const { name, action, role, valid_until: validUntil, limits = {} } = asked.recipe ?? {};
     if (!Object.hasOwn(RECIPES, name ?? '')) throw new Error(`recipe.name must be one of ${Object.keys(RECIPES).join(', ')}.`);
     if (!['create', 'drop'].includes(action)) throw new Error('recipe.action must be create or drop.');
     if (role !== undefined && (typeof role !== 'string' || role === '')) throw new Error('recipe.role must be a role name.');
