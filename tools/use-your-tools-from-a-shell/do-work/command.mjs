@@ -615,11 +615,32 @@ async function loadCarrier(rules = settings) {
   return null;
 }
 
+/** The doors a computer holds, as its announcement names them: each name reported with exactly one port. A name reported with
+ *  two different ports is not held (trillion-rust src/tool_runs/reach.rs `Have::held`), so it is not sent. */
+export function heldDoors(entries) {
+  const ports = new Map();
+  for (const [name, port] of entries) ports.set(name, new Set([...(ports.get(name) ?? []), port]));
+  return [...ports].filter(([, set]) => set.size === 1).map(([name, set]) => ({ name, port: [...set][0] }));
+}
+
+/** This computer's `have` for its announcement, built from what its engine config's `report` says of itself: its local ports
+ *  and its label. It sends only what the engine accepts (trillion-rust src/tool_runs/reach.rs `Have::parse`): a door name of
+ *  1 to 64 lowercase letters, digits and '-', a port from 1 to 65535, and a label of 1 to 128 characters with no control
+ *  character. */
+export function haveOf(report = {}) {
+  const doors = heldDoors(Object.entries(report?.local_ports ?? {}))
+    .filter(({ name, port }) => /^[a-z0-9-]{1,64}$/.test(name) && Number.isInteger(port) && port >= 1 && port <= 65535);
+  const label = report?.label;
+  const named = typeof label === 'string' && [...label].length >= 1 && [...label].length <= 128 && !/\p{Cc}/u.test(label);
+  return named ? { doors, label } : { doors };
+}
+
 /** Carries this computer to the meeting point of the site this command came from (command.json `carry`) when it runs its own
  *  engine: makes the carrier's key once, and installs the carrier under this computer's init row. Answers what the install
  *  answered, or null when this computer runs no engine, came from no site, or has no carrier. */
 export async function carryThisComputer(context, { rules = settings, home = homedir(), platform = process.platform, exec = run, load = loadCarrier, program = null } = {}) {
-  const listen = engineConfigHere({ rules, home })?.listen;
+  const engine = engineConfigHere({ rules, home });
+  const listen = engine?.listen;
   const site = context.state.site();
   if (typeof listen !== 'string' || !site) return null;
   const carrier = await load(rules);
@@ -636,7 +657,7 @@ export async function carryThisComputer(context, { rules = settings, home = home
   return carrier.installCarrier({
     label: rules.carry.label, way, relay_host: { id: 'site', hostname: new URL(site).hostname },
     computer_id: Buffer.from(blake3(new TextEncoder().encode(key.public))).toString('hex').slice(0, 16), local_port: Number(listen.split(':').at(-1)),
-    values: { public_key: key.public }, credential_command: [...self, 'carrier-key'],
+    values: { public_key: key.public, have: JSON.stringify(haveOf(engine.report)) }, credential_command: [...self, 'carrier-key'],
     announce: { argv: [...self, 'op', '--origin', site, '--address', announce.address, announce.method, announce.input], every_seconds: announce.every_seconds, settle_seconds: announce.settle_seconds, gives: announce.gives },
   }, state);
 }

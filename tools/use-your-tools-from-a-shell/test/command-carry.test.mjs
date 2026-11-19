@@ -6,7 +6,7 @@ import { mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'n
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { carrierKeyStore, carryThisComputer, speakFor } from '../do-work/command.mjs';
+import { carrierKeyStore, carryThisComputer, haveOf, heldDoors, speakFor } from '../do-work/command.mjs';
 import settings from '../do-work/command.json' with { type: 'json' };
 
 speakFor({ cli: 'example', site_name: 'Example' });
@@ -75,4 +75,26 @@ test('the site is filled into every part of the settings, so no part a person or
   const text = JSON.stringify(settings);
   for (const token of ['{cli}', '{CLI}', '{site_name}']) assert.ok(!text.includes(token), `a part still holds ${token}`);
   assert.match(settings.connection.recipes.find(row => row.id === 'cli').template, /^example setup/);
+});
+
+test('the announcement carries the doors the engine report names and its label, the way the carrier fills and sends it', async () => {
+  const home = homeWith({ listen: '127.0.0.1:8788', report: { local_ports: { gpu: 9001, browser: 9002 }, label: 'A Mac' } });
+  const { config } = await carryThisComputer(context('https://site.example.com'), { home, platform: 'linux', load: async () => fakeCarrier([]), program: ['/usr/bin/node', '/p/command.mjs'] });
+  const expected = { doors: [{ name: 'gpu', port: 9001 }, { name: 'browser', port: 9002 }], label: 'A Mac' };
+  assert.deepEqual(JSON.parse(config.values.have), expected);
+  const { fill } = await import('../do-work/packs/tools/start-a-computer/do-work/fill-fields.mjs');
+  const { valuesFor } = await import('../do-work/packs/tools/carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs');
+  const input = config.announce.argv.map(part => fill(part, { ...valuesFor(config), carried: true }, 'announce')).at(-1);
+  assert.deepEqual(JSON.parse(input).have, expected);
+  assert.equal(JSON.parse(input).carried, true);
+});
+
+test('a computer that reports no doors still sends a have with doors, and a name or label the engine refuses is not sent', () => {
+  assert.deepEqual(haveOf(undefined), { doors: [] });
+  assert.deepEqual(haveOf({ local_ports: { 'Bad Name': 9001, gpu: 9002, zero: 0 }, label: 'two\u0007' }), { doors: [{ name: 'gpu', port: 9002 }] });
+});
+
+test('a name reported with two different ports is not sent as held; the same name and port twice is held once', () => {
+  assert.deepEqual(heldDoors([['gpu', 9001], ['gpu', 9002], ['browser', 9003], ['browser', 9003]]), [{ name: 'browser', port: 9003 }]);
+  assert.deepEqual(haveOf({ local_ports: { gpu: 9001 } }), { doors: [{ name: 'gpu', port: 9001 }] });
 });
