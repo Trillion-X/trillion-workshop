@@ -5,6 +5,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { recipeProblems, CHECK_VOCABULARY, stepAnatomyProblems, STEP_ANATOMY } from '../read-data/recipe-problems.mjs';
 import { measureStepExplicitness } from '../do-work/measure-step-explicitness.mjs';
 import { spawnSync } from 'node:child_process';
+import { RUN_ACTOR } from '../../write-a-job-done-in-several-steps-have/read-data/workflows.mjs';
 
 const recipesFolder = new URL('../recipes/', import.meta.url);
 const files = readdirSync(recipesFolder).filter(name => name.endsWith('.json')).sort();
@@ -82,7 +83,7 @@ test('machine checked steps need examples when the recipe asks an AI to judge an
 });
 
 test('raw engine definitions cannot bypass strict anatomy for asks', () => {
-  const raw = { ...recipe([]), definition: { steps: [{ id: 'read', kind: 'ask', config: { name: 'ai', input: step('read') } }], edges: [] } };
+  const raw = { ...recipe([]), definition: { steps: [{ id: 'read', kind: 'ask', config: { name: RUN_ACTOR, input: step('read') } }], edges: [] } };
   assert.deepEqual(recipeProblems(raw), []);
   assert.ok(recipeProblems(raw, CHECK_VOCABULARY, { stepAnatomy: true }).some(problem => problem.includes('config.input.when')));
 });

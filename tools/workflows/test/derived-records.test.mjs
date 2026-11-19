@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { publicRecipes } from '../read-data/public-recipes.mjs';
 import { recordsOf, chosenWakesOf, withDerivedRecords } from '../read-data/derived-records.mjs';
+import { RUN_ACTOR } from '../../write-a-job-done-in-several-steps-have/read-data/workflows.mjs';
 
 test('every shipped recipe holds the rights and condition wakes its own steps and conditions make', () => {
   const off = publicRecipes().filter(recipe => JSON.stringify(withDerivedRecords(recipe)) !== JSON.stringify(recipe)).map(recipe => recipe.id);
@@ -13,12 +14,12 @@ test('every shipped recipe holds the rights and condition wakes its own steps an
 test('a row runs the tools its steps ask and tells only a fact kind a step names as a value', () => {
   const step = (id, name, input = {}) => ({ id, kind: 'ask', config: { name, input, context: { step_id: id } } });
   const recipe = { id: 'workflow:made-up', label: 'Made up', definition: { id: 'workflow:made-up', version: 1, edges: [], steps: [
-    step('a', 'tool:made-up-b'), step('b', 'tool:made-up-a'), step('c', 'tool:made-up-a'), step('d', 'ai'),
+    step('a', 'tool:made-up-b'), step('b', 'tool:made-up-a'), step('c', 'tool:made-up-a'), step('d', RUN_ACTOR),
     step('e', 'wake:arrive', { kind: 'made-up-fact', event_id: 'x', payload: {} }),
     step('f', 'wake:arrive', { kind: { $kind: 'binding', select: { from: 'input', path: 'kind' } } }),
   ] } };
   assert.deepEqual(recordsOf(recipe), { rights: [{ at: '@own-records', id: 'made-up-fact', operations: ['wake:arrive'] }], runs: ['tool:made-up-a', 'tool:made-up-b'] });
-  assert.equal(recordsOf({ ...recipe, definition: { ...recipe.definition, steps: [step('d', 'ai')] } }), null);
+  assert.equal(recordsOf({ ...recipe, definition: { ...recipe.definition, steps: [step('d', RUN_ACTOR)] } }), null);
 });
 
 test('each condition that is not off gets one wake on the chosen fact, with its own input', () => {

@@ -10,6 +10,9 @@ export { CHECK_VOCABULARY };
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
+// Who an ask asks is a literal or a binding the engine resolves (a step no tool runs asks the run's own actor).
+const toolNamed = name => typeof name === 'string' && name.startsWith('tool:');
+const named = name => nonempty(name) || (object(name) && name.$kind === 'binding');
 export const STEP_ANATOMY = JSON.parse(readFileSync(new URL('./step-anatomy.json', import.meta.url), 'utf8'));
 
 // Syntax only: references and extension keywords remain the execution owner's
@@ -109,7 +112,8 @@ function actorPolicyProblems(policy, { name, step_id, asks, prior }) {
   if (!object(policy) || policy.authenticated !== true || Object.keys(policy).some(key => !['authenticated', 'distinct_from', 'distinct_from_if_admitted'].includes(key)))
     return [`${name}.actor_policy must require authenticated: true with distinct_from or distinct_from_if_admitted prior step ids.`];
   const own = asks.get(step_id);
-  if (own?.name !== 'ai') problems.push(`${name}.actor_policy requires an AI ask.`);
+  // Actor evidence comes from whoever sends the answer; a tool's answer has none, so a tool step cannot carry the policy.
+  if (!own || toolNamed(own.name)) problems.push(`${name}.actor_policy requires a step someone answers, not a tool.`);
   for (const field of ['distinct_from', 'distinct_from_if_admitted']) {
     const refs = policy[field] ?? [];
     if (!Array.isArray(refs) || refs.length > 64 || refs.some(id => typeof id !== 'string') || new Set(refs).size !== refs.length)
@@ -139,14 +143,14 @@ export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY, { stepAnat
   problems.push(...conditionProblems(recipe[FIRES_WHEN.field]));
   if (recipe.definition !== undefined) {
     if (stepAnatomy) for (const [index, step] of (Array.isArray(recipe.definition?.steps) ? recipe.definition.steps : []).entries()) {
-      if (step?.kind === 'ask') problems.push(...stepAnatomyProblems(step.config?.input, { name: `definition.steps[${index}].config.input`, judged: step.config?.name === 'ai' }));
+      if (step?.kind === 'ask') problems.push(...stepAnatomyProblems(step.config?.input, { name: `definition.steps[${index}].config.input`, judged: !toolNamed(step.config?.name) }));
     }
     return [...problems, ...definitionProblems(recipe.definition, vocabulary)];
   }
   if (!Array.isArray(recipe.steps) || recipe.steps.length === 0) return [...problems, 'steps (or definition) must list at least one step.'];
   const seen = new Set();
   const submits = new Map();
-  const actorAsks = new Map(recipe.steps.map(step => [step?.id, { name: step?.run_tool?.tool_id ?? 'ai', policy: step?.actor_policy }]));
+  const actorAsks = new Map(recipe.steps.map(step => [step?.id, { name: step?.run_tool?.tool_id ?? null, policy: step?.actor_policy }]));
   recipe.steps.forEach((step, index) => {
     const name = `steps[${index}]`;
     if (!object(step)) { problems.push(`${name} must be an object.`); return; }
@@ -180,9 +184,9 @@ function definitionProblems(definition, vocabulary) {
     if (!object(step) || !/^[a-z0-9][a-z0-9_#-]*$/.test(step.id ?? '') || !nonempty(step.kind)) { problems.push(`${name} must have an id (lowercase letters, numbers, dashes, underscores or #) and a kind.`); return; }
     if (ids.has(step.id)) problems.push(`${name}.id "${step.id}" is used twice.`);
     ids.add(step.id);
-    if (step.kind === 'ask' && !nonempty(step.config?.name)) problems.push(`${name}.config.name must say who answers: "ai" or a tool id.`);
+    if (step.kind === 'ask' && !named(step.config?.name)) problems.push(`${name}.config.name must say who answers: a tool id, or a binding such as the run's own actor {"$kind":"binding","select":{"from":"context","path":"actor.user_id"}}.`);
     if (step.kind === 'ask') problems.push(...pinProblems(step.config?.context?.pinned, `${name}.config.context.pinned`));
-    if (step.kind === 'ask' && step.config?.name === 'ai' && !(nonempty(step.config.input?.do) && object(step.config.input?.submit) && step.config.input.submit.type === 'object')) problems.push(`${name}.config.input must say what the AI does (do) and the shape it hands back (submit, a JSON Schema with "type": "object").`);
+    if (step.kind === 'ask' && !toolNamed(step.config?.name) && !(nonempty(step.config.input?.do) && object(step.config.input?.submit) && step.config.input.submit.type === 'object')) problems.push(`${name}.config.input must say what is done (do) and the shape it hands back (submit, a JSON Schema with "type": "object").`);
     if (step.kind === 'check') {
       if (!nonempty(step.config?.subject)) problems.push(`${name}.config.subject must name the step whose output is checked.`);
       if (!Array.isArray(step.config?.rules)) problems.push(`${name}.config.rules must list the checks.`);

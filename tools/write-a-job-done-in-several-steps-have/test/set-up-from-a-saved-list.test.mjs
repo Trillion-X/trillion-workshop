@@ -5,6 +5,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { workflowEngine } from '../read-data/run-a-workflow.mjs';
 import { makeWorkflowDefinitionRunner } from '../../run-a-workflow-definition-on-the-workflow-engine-in-one-call/src/workflow-definition-runner.mjs';
+import { RUN_ACTOR } from '../read-data/workflows.mjs';
 
 const { definitions } = JSON.parse(await readFile(new URL('../../workflows/definitions/set-up-from-a-saved-list.json', import.meta.url), 'utf8'));
 // Example key shapes a caller keeps as its own rows; the workflow names none of them.
@@ -15,7 +16,7 @@ const exampleShapes = [
   { says: 'signed token', pattern: 'eyJ[A-Za-z0-9_-]{20,}\\.[A-Za-z0-9_-]{20,}\\.[A-Za-z0-9_-]{20,}' },
 ];
 const asking = id => ({ id, name: id, kind: 'workflow', is_active: true, version: 1, edges: [],
-  steps: [{ id: 'ask-the-person', kind: 'ask', config: { name: 'ai', input: { $kind: 'binding', select: { from: 'input' } }, context: { step_id: 'ask-the-person' } } }] });
+  steps: [{ id: 'ask-the-person', kind: 'ask', config: { name: RUN_ACTOR, input: { $kind: 'binding', select: { from: 'input' } }, context: { step_id: 'ask-the-person' } } }] });
 const chosen = [asking('workflow:made-up-rent-a-computer'), asking('workflow:made-up-use-a-computer-i-have'), asking('workflow:made-up-make-the-databases')];
 // The host answers a lookup of a workflow by id: the workflows the account has are the made-up ones above.
 const host = { read: async from => {

@@ -8,7 +8,8 @@ export function actorPolicyProblems(policy, { name, step_id, asks, prior }) {
   if (!object(policy) || policy.authenticated !== true || Object.keys(policy).some(key => !['authenticated', 'distinct_from', 'distinct_from_if_admitted'].includes(key)))
     return [`${name}.actor_policy must require authenticated: true with distinct_from or distinct_from_if_admitted prior step ids.`];
   const own = asks.get(step_id);
-  if (!(own?.name === 'ai' || own?.name?.startsWith('agent:'))) problems.push(`${name}.actor_policy requires an AI or agent ask.`);
+  // Actor evidence comes from whoever sends the answer; a tool's answer has none, so a tool step cannot carry the policy.
+  if (!own || (typeof own.name === 'string' && own.name.startsWith('tool:'))) problems.push(`${name}.actor_policy requires a step someone answers, not a tool.`);
   for (const field of ['distinct_from', 'distinct_from_if_admitted']) {
     const refs = policy[field] ?? [];
     if (!Array.isArray(refs) || refs.length > 64 || refs.some(id => typeof id !== 'string') || new Set(refs).size !== refs.length)

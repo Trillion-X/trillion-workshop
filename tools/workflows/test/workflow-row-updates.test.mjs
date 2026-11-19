@@ -42,3 +42,16 @@ test('refuses local fallback patches that claim account synchronization or intro
     account_row_sync: { status: 'pending', canonical_rows_readback: false }, workflow_rows: [], step_rows: [{ id: 'unlinked', values: { step: 'x' } }],
   }), /must include its recipe link/);
 });
+
+test('a workflow that now holds its own definition drops its step rows, and a removal of a row not in the view is refused', () => {
+  const workflows = view('workflows', [{ id: 'made-up', values: { recipe: 'workflow:made-up', job: 'Old' } }]);
+  const steps = view('workflow-steps', [
+    { id: 'made-up--a', values: { recipe: ['made-up'], step: 'a', position: 0, do: 'A', submit: '{"type":"object"}' } },
+    { id: 'other--b', values: { recipe: ['other'], step: 'b', position: 0, do: 'B', submit: '{"type":"object"}' } }]);
+  const definition = JSON.stringify({ steps: [{ id: 'a', kind: 'ask', config: { name: 'tool:made-up', input: {}, context: { step_id: 'a' } } }], edges: [] });
+  const sync = { status: 'pending', canonical_rows_readback: false };
+  const patched = workflowViewsWithRowUpdates(workflows, steps, { account_row_sync: sync, workflow_rows: [{ id: 'made-up', values: { definition } }], step_rows: [], step_row_removals: ['made-up--a'] });
+  assert.equal(patched.workflows.rows[0].values.definition, definition);
+  assert.deepEqual(patched.steps.rows.map(row => row.id), ['other--b'], 'only the converted workflow loses its step rows');
+  assert.throws(() => applyWorkflowRowUpdates(workflows, steps, { account_row_sync: sync, workflow_rows: [], step_rows: [], step_row_removals: ['made-up--gone'] }), /made-up--gone are not in the view/);
+});

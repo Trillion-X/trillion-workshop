@@ -5,7 +5,8 @@
 // `steps` or an engine `definition` ({ steps, edges }: the step graph workflow-core runs, with branches, parallel
 // steps, loops and checks). Ordered steps become an engine definition here (`definitionOf`), so every workflow runs
 // on the one engine:
-//   - a step the AI does becomes an `ask` named "ai": its answer is the output the AI sends with submit_workflow_step;
+//   - a step no tool runs becomes an `ask` of whoever the run belongs to (RUN_ACTOR, the engine's own context.actor): its
+//     answer is the output that person or their AI sends with submit_workflow_step;
 //   - a step with `run_tool: { tool_id, input }` becomes an `ask` named by the tool id: this person's Workshop runs it
 //     wherever the tool lives (the host's compute or a web address);
 //   - a step's `checks` become ordinary steps after it (tools/workflows/read-data/check-bindings.mjs): a `return` step
@@ -54,6 +55,11 @@ import { compareToPin, pinProblems, pinnedRecipe, runsKeepWords, stepVersionsOf,
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
+// Who an ask asks is data the engine resolves (workflow-core step_executor: config.name is a literal or a binding). A step
+// no tool runs asks the run's own actor, the one the host started the run for, so no kind of answerer is named anywhere.
+export const RUN_ACTOR = Object.freeze({ $kind: 'binding', select: { from: 'context', path: 'actor.user_id' } });
+const toolNamed = name => typeof name === 'string' && name.startsWith('tool:');
+const named = name => nonempty(name) || (object(name) && name.$kind === 'binding');
 function canonical(value) {
   if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
   if (object(value)) return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${canonical(value[key])}`).join(',')}}`;
@@ -90,7 +96,7 @@ export function recipeProblems(recipe) {
   if (recipe.definition !== undefined) return [...problems, ...definitionProblems(recipe.definition)];
   if (!Array.isArray(recipe.steps) || recipe.steps.length === 0) return [...problems, 'steps (or definition) must list at least one step.'];
   const seen = new Set();
-  const actorAsks = new Map(recipe.steps.map(step => [step?.id, { name: step?.run_tool?.tool_id ?? 'ai', policy: step?.actor_policy }]));
+  const actorAsks = new Map(recipe.steps.map(step => [step?.id, { name: step?.run_tool?.tool_id ?? RUN_ACTOR, policy: step?.actor_policy }]));
   recipe.steps.forEach((step, index) => {
     const name = `steps[${index}]`;
     if (!object(step)) { problems.push(`${name} must be an object.`); return; }
@@ -118,9 +124,9 @@ function definitionProblems(definition) {
     if (!object(step) || !/^[a-z0-9][a-z0-9_#-]*$/.test(step.id ?? '') || !nonempty(step.kind)) { problems.push(`${name} must have an id (lowercase letters, numbers, dashes, underscores or #) and a kind.`); return; }
     if (ids.has(step.id)) problems.push(`${name}.id "${step.id}" is used twice.`);
     ids.add(step.id);
-    if (step.kind === 'ask' && !nonempty(step.config?.name)) problems.push(`${name}.config.name must say who answers: "ai" or a tool id.`);
+    if (step.kind === 'ask' && !named(step.config?.name)) problems.push(`${name}.config.name must say who answers: a tool id, or a binding such as the run's own actor ${JSON.stringify(RUN_ACTOR)}.`);
     if (step.kind === 'ask') problems.push(...pinProblems(step.config?.context?.pinned, `${name}.config.context.pinned`));
-    if (step.kind === 'ask' && step.config?.name === 'ai' && !(nonempty(step.config.input?.do) && object(step.config.input?.submit) && step.config.input.submit.type === 'object')) problems.push(`${name}.config.input must say what the AI does (do) and the shape it hands back (submit, a JSON Schema with "type": "object").`);
+    if (step.kind === 'ask' && !toolNamed(step.config?.name) && !(nonempty(step.config.input?.do) && object(step.config.input?.submit) && step.config.input.submit.type === 'object')) problems.push(`${name}.config.input must say what is done (do) and the shape it hands back (submit, a JSON Schema with "type": "object").`);
     if (step.kind === 'check') problems.push(`${name} is a check step, which the engine no longer has: put the rules in a step's \`checks\`, or judge them with a \`return\` step and an \`on_result\` edge to a \`fail\` step.`);
   });
   if (!Array.isArray(definition.edges ?? [])) problems.push('definition.edges must be a list of { from, to, kind }.');
@@ -174,7 +180,7 @@ export function definitionOf(row) {
   let onwards = null;
   for (const step of row.steps) {
     const shown = { step_id: step.id, title: step.title ?? step.id, do: step.do, submit: step.submit, checks: (step.checks ?? []).map(check => check.says), ...(step.actor_policy ? { actor_policy: step.actor_policy } : {}), ...(step.run_tool?.pinned ? { pinned: step.run_tool.pinned } : {}) };
-    steps.push({ id: step.id, kind: 'ask', config: { name: step.run_tool?.tool_id ?? 'ai', input: step.run_tool ? bindingsOf(step.run_tool.input ?? {}) : { do: step.do, submit: step.submit, checks: shown.checks }, context: shown } });
+    steps.push({ id: step.id, kind: 'ask', config: { name: step.run_tool?.tool_id ?? RUN_ACTOR, input: step.run_tool ? bindingsOf(step.run_tool.input ?? {}) : { do: step.do, submit: step.submit, checks: shown.checks }, context: shown } });
     if (onwards) edges.push(onwards(step.id));
     onwards = to => ({ from: step.id, to, kind: 'always' });
     if (step.checks?.length) {
@@ -555,10 +561,10 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
         reachedActors.set(context.step_id, sent.actor_evidence ?? null);
         return bytesOf(sent.output);
       }
-      if (name === 'ai') return wait(name, payload, context);
       if (name === WAIT_ASK) return answerWait(name, payload, context, key, payloadIdentity);
-      if (name.startsWith('tool:')) return answerFromTool(name, payload, context, key, payloadIdentity);
-      throw new Error(`Nobody here answers "${name}": an ask is answered by "ai" or a tool id.`);
+      if (toolNamed(name)) return answerFromTool(name, payload, context, key, payloadIdentity);
+      // Whoever else is asked answers by sending the step's output; until then the run waits there.
+      return wait(name, payload, context);
     };
     const read = async from => {
       const { catalog, id } = JSON.parse(from);

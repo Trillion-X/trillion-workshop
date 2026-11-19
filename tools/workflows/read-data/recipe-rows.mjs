@@ -26,14 +26,20 @@ JSON_FIELDS.recipe.push('kit');
 
 const valuesOf = row => row?.values ?? row?.value ?? {};
 
-/** Apply a checked local patch to exact editable list rows, preserving their row order. */
+/** Apply a checked local patch to exact editable list rows, preserving their row order; `step_row_removals` names step
+ *  rows that go (a recipe that now holds its own definition keeps no step rows). */
 export function applyWorkflowRowUpdates(workflowsView, stepsView, updateData) {
   if (updateData?.account_row_sync?.status !== 'pending' || updateData.account_row_sync.canonical_rows_readback !== false) {
     throw new Error('Local workflow row updates require explicit pending account synchronization and no canonical row readback.');
   }
-  const apply = (view, updates, label, newFields = []) => {
+  const apply = (view, updates, label, newFields = [], removals = []) => {
     if (!Array.isArray(view?.rows) || !Array.isArray(updates)) throw new Error(`${label} view and updates must be arrays of rows.`);
-    const rows = view.rows.map(row => ({ ...row, values: { ...valuesOf(row) } }));
+    if (!Array.isArray(removals) || removals.some(id => typeof id !== 'string')) throw new Error(`${label} row removals must be a list of row ids.`);
+    // A removed row must be there to remove, so a patch made against another view is refused, not half applied.
+    const missing = removals.filter(id => !view.rows.some(row => row.id === id));
+    if (missing.length) throw new Error(`${label} rows ${missing.slice(0, 5).join(', ')} are not in the view, so they cannot be removed.`);
+    const removed = new Set(removals);
+    const rows = view.rows.filter(row => !removed.has(row.id)).map(row => ({ ...row, values: { ...valuesOf(row) } }));
     for (const update of updates) {
       if (!update || typeof update.id !== 'string' || !update.values || typeof update.values !== 'object' || Array.isArray(update.values)) {
         throw new Error(`Every ${label} row update needs an id and values object.`);
@@ -51,7 +57,7 @@ export function applyWorkflowRowUpdates(workflowsView, stepsView, updateData) {
   };
   return {
     workflows: apply(workflowsView, updateData.workflow_rows, 'workflow', updateData.workflow_fields),
-    steps: apply(stepsView, updateData.step_rows, 'workflow step', updateData.step_fields),
+    steps: apply(stepsView, updateData.step_rows, 'workflow step', updateData.step_fields, updateData.step_row_removals ?? []),
     account_row_sync: updateData.account_row_sync,
   };
 }

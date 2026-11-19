@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import { runAsTheTool, runAWorkflow, runWorkflow } from '../read-data/run-a-workflow.mjs';
 import { kitProblems } from '../../workflows/read-data/kit-problems.mjs';
+import { RUN_ACTOR } from '../read-data/workflows.mjs';
 
 const json = value => JSON.stringify(value);
 const row = {
@@ -53,15 +54,15 @@ test('(d) a row holding its own definition runs as that definition', async () =>
   const definition = {
     id: 'workflow:made-up-draft', name: 'Draft', kind: 'workflow', is_active: true, version: 1,
     steps: [
-      { id: 'draft', kind: 'ask', config: { name: 'ai', input: { do: 'Draft a line about rye', submit: { type: 'object' } }, context: { step_id: 'draft' } } },
-      { id: 'proof', kind: 'ask', config: { name: 'ai', input: {}, context: { step_id: 'proof' } } },
+      { id: 'draft', kind: 'ask', config: { name: RUN_ACTOR, input: { do: 'Draft a line about rye', submit: { type: 'object' } }, context: { step_id: 'draft' } } },
+      { id: 'proof', kind: 'ask', config: { name: RUN_ACTOR, input: {}, context: { step_id: 'proof' } } },
     ],
     edges: [{ from: 'draft', to: 'proof', kind: 'always' }],
   };
   const own = { id: 'record:workflow-recipe:made-up-draft', value: { recipe: 'workflow:made-up-draft', title: 'Draft', definition: json(definition) } };
   const first = await runAWorkflow({ row: own, steps: [] });
   assert.deepEqual(first.definition, definition);
-  assert.deepEqual(first.run.waiting, [{ step_id: 'draft', asks: 'ai', input: { do: 'Draft a line about rye', submit: { type: 'object' } } }]);
+  assert.deepEqual(first.run.waiting, [{ step_id: 'draft', asks: 'person', input: { do: 'Draft a line about rye', submit: { type: 'object' } } }]);
   const done = await runAWorkflow({ row: own, steps: [], answers: { draft: { text: 'Rye keeps.' }, proof: { ok: true } } });
   assert.equal(done.run.status, 'completed');
 });
@@ -119,7 +120,7 @@ test('a parallel loop asks every lane before it pauses, so every lane is waiting
     { id: 'workflow:made-up-fan', name: 'Fan', kind: 'workflow', is_active: true, version: 1,
       steps: [{ id: 'lanes', kind: 'loop', config: { source: Array.from({ length: lanes }, (_, index) => index), item_var: 'lane', definition_id: 'workflow:made-up-lane', parallel: true, max_concurrency: lanes } }] },
     { id: 'workflow:made-up-lane', name: 'Lane', kind: 'workflow', is_active: true, version: 1,
-      steps: [{ id: 'work', kind: 'ask', config: { name: 'ai', input: { do: 'Work the lane', submit: { type: 'object' } }, context: {} } }] },
+      steps: [{ id: 'work', kind: 'ask', config: { name: RUN_ACTOR, input: { do: 'Work the lane', submit: { type: 'object' } }, context: {} } }] },
   ];
   const run = await runWorkflow({ definitions, workflow_id: 'workflow:made-up-fan' });
   assert.equal(run.status, 'paused');
@@ -180,7 +181,7 @@ test('(z) a tool ask runs through the host, keyed by step and what it asks; othe
     id: 'workflow:made-up-two-tools', name: 'Two tools', kind: 'workflow', is_active: true, version: 1,
     steps: [
       { id: 'count', kind: 'ask', config: { name: 'tool:made-up-count', input: { words: bind('words') }, context: { step_id: 'count' } } },
-      { id: 'judge', kind: 'ask', config: { name: 'ai', input: {}, context: { step_id: 'judge' } } },
+      { id: 'judge', kind: 'ask', config: { name: RUN_ACTOR, input: {}, context: { step_id: 'judge' } } },
     ],
     edges: [{ from: 'count', to: 'judge', kind: 'always' }],
   };
@@ -214,15 +215,20 @@ test('a recipe holding its own definition keeps the definitions it uses, so its 
   assert.deepEqual(made.uses, [child]);
 });
 
-test('a recipe holding its own definition starts at its first step, the one its wake names; another step is refused', async () => {
+test('a recipe holding its own definition starts at the step its wake names, running only what that step reaches; an unknown step is refused', async () => {
   const recipe = { kind: 'workflow-recipe', id: 'workflow:made-up-graph', label: 'made up', definition: { steps: [
-    { id: 'first', kind: 'ask', config: { name: 'ai', input: { do: 'one', submit: { type: 'object' } } } },
-    { id: 'second', kind: 'ask', config: { name: 'ai', input: { do: 'two', submit: { type: 'object' } } } }],
+    { id: 'first', kind: 'ask', config: { name: RUN_ACTOR, input: { do: 'one', submit: { type: 'object' } } } },
+    { id: 'second', kind: 'ask', config: { name: RUN_ACTOR, input: { do: 'two', submit: { type: 'object' } } } }],
     edges: [{ from: 'first', to: 'second', kind: 'always' }] } };
   const run = await runWorkflow({ recipe, input: { start_at: 'first' } });
   assert.equal(run.status, 'paused');
   assert.deepEqual(run.waiting.map(item => item.step_id), ['first']);
-  await assert.rejects(runWorkflow({ recipe, input: { start_at: 'second' } }), /starts at its first step, "first"/);
+  const later = await runWorkflow({ recipe, input: { start_at: 'second' } });
+  assert.equal(later.status, 'paused');
+  assert.deepEqual(later.waiting.map(item => item.step_id), ['second'], 'the step before start_at is not run');
+  const done = await runWorkflow({ recipe, input: { start_at: 'second' }, answers: { second: { ok: true } } });
+  assert.equal(done.status, 'completed');
+  await assert.rejects(runWorkflow({ recipe, input: { start_at: 'third' } }), /start_at names "third", which is not a step of workflow:made-up-graph: first, second/);
 });
 
 
@@ -256,7 +262,7 @@ test('tools:list and an addressed tools:run step send the door its whole input; 
 test('a run woken by a change is given the change the fact carries, and reads nothing before its first step', async () => {
   const bind = path => ({ $kind: 'binding', select: { from: 'input', path } });
   const definition = { id: 'workflow:made-up-reader', name: 'Reader', kind: 'workflow', is_active: true, version: 1, edges: [],
-    steps: [{ id: 'see', kind: 'ask', config: { name: 'ai', input: { after: bind('fact.after'), op: bind('fact.op') }, context: { step_id: 'see' } } }] };
+    steps: [{ id: 'see', kind: 'ask', config: { name: RUN_ACTOR, input: { after: bind('fact.after'), op: bind('fact.op') }, context: { step_id: 'see' } } }] };
   const detail = { kind: 'workflow-chosen', from: 'run', event_id: 'd:9:4:w:c', coalesced: 0,
     payload: { workflow: 'workflow:made-up-reader', condition: 'c', where: 'made-up-connection', table_name: 'lesson_request', op: 'INSERT', key: 'd:9:4', after: '{"topic":"how tides work"}' } };
   const reads = [];
