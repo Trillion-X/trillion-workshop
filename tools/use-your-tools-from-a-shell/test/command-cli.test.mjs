@@ -572,7 +572,7 @@ test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key 
       seen.page = { status: back.status, location: back.headers.get('location') };
     };
     const grant = await signInWithBrowser({ origin: fake.origin, open, now: () => 1000 });
-    assert.deepEqual(grant, { access_token: pass, refresh_token: 'refresh-1', expires_at_ms: 1000 + 3600_000, client_id: `${fake.origin}${settings.client.id_path}`, origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, revocation_endpoint: `${fake.origin}/api/auth/oauth2/revoke`, resource: `${fake.origin}/mcp` });
+    assert.deepEqual(grant, { access_token: pass, refresh_token: 'refresh-1', expires_at_ms: 1000 + 3600_000, client_id: `${fake.origin}${settings.client.id_path}`, origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, revocation_endpoint: `${fake.origin}/api/auth/oauth2/revoke`, resource: `${fake.origin}/mcp`, asked: settings.scope });
     assert.equal(seen.verified, true, 'the code was exchanged with the verifier that matches the challenge');
     assert.equal(seen.authorize.code_challenge_method, 'S256');
     assert.equal(seen.authorize.scope, settings.scope);
@@ -904,7 +904,7 @@ test('login when already signed in and held: one line, nothing asked of the brow
   const fake = await fakeDoor({ bearers: [pass], holdsAddedOnly: true, oauth: signInServer(pass) });
   try {
     const opened = [];
-    const grants = grantsKept({ access_token: pass, refresh_token: 'refresh-1', expires_at_ms: Date.now() + 3600_000, client_id: 'c', origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, resource: `${fake.origin}/mcp` });
+    const grants = grantsKept({ access_token: pass, refresh_token: 'refresh-1', asked: settings.scope, expires_at_ms: Date.now() + 3600_000, client_id: 'c', origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, resource: `${fake.origin}/mcp` });
     const seams = { store: { read: () => null, where: 'no key' }, grants, state: stateOf({ home: home() }), open: openAndReturn(opened), env: {}, agentSocket: () => fake.socket, localDoor: () => fake.mcp, computerName: 'Mac', model: null, wait: noWait };
     assert.equal(await main(['login', '--origin', fake.origin], seams), "You're signed in to Example as person@example.com.");
     assert.deepEqual(fake.order, ['persons/add', 'whoami'], 'a sign-in the engine had not yet been told about is held first here too');

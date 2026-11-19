@@ -443,9 +443,21 @@ async function asJson(response, what, rules = settings) {
 }
 // A renewal answer that brings no new refresh token leaves the kept one in place (RFC 6749 section 6: the server MAY issue a new
 // one); dropping it signed this computer out an hour later (Nov 17 2026, 8:49 PM CST).
-const grantOf = (tokens, { client_id, origin, now = Date.now, found, rules = settings }) => ({ access_token: tokens.access_token, refresh_token: tokens.refresh_token ?? found?.refresh_token ?? null,
+// `asked` is the scope the sign-in asked for when the person approved it, kept so a command that now asks for more signs in again
+// (asksNothingNew); a renewal keeps what the first sign-in asked.
+const grantOf = (tokens, { client_id, origin, now = Date.now, found, rules = settings, asked = null }) => ({ access_token: tokens.access_token, refresh_token: tokens.refresh_token ?? found?.refresh_token ?? null,
   expires_at_ms: Number.isFinite(tokens.expires_in) ? now() + tokens.expires_in * 1000 : null, client_id, origin,
-  token_endpoint: found.token_endpoint, revocation_endpoint: found.revocation_endpoint ?? null, resource: found.resource });
+  token_endpoint: found.token_endpoint, revocation_endpoint: found.revocation_endpoint ?? null, resource: found.resource, asked });
+
+/** Whether a kept sign-in was asked for every scope this command asks for now (command.json `scope`). One kept before the
+ *  asked scope was recorded, or asked for less, is not: `login` signs in again, so a scope added to the command reaches the
+ *  person's next login without a flag (Nov 19 2026: grants:offer was added, and `login` kept the old sign-in). What the
+ *  person approved is the server's to say; this compares what was asked, so choosing Read only does not make every login
+ *  ask again. */
+export const asksNothingNew = (grant, scope = settings.scope) => {
+  const asked = new Set(typeof grant?.asked === 'string' ? grant.asked.split(' ').filter(Boolean) : []);
+  return String(scope).split(' ').filter(Boolean).every(word => asked.has(word));
+};
 
 /** What the sign-in server says about itself and the resource it signs in to. The resource's RFC 9728 document is read from the
  *  door the program will call (`resourceDoor`, an MCP address; the issuer's own /mcp when none is given), never from the issuer's
@@ -466,7 +478,7 @@ export async function refreshGrant(grant, { fetchImpl = fetch, rules = settings,
   if (response.status === 400 || response.status === 401) throw new CommandError(rules.words.sign_in_ended, { status: 3 });
   // A server that is busy or down has not ended the sign-in: say to wait, never to sign in again.
   if (response.status === 429 || response.status >= 500) throw new CommandError(rules.words.sign_in_busy, { status: 4, detail: fill(rules.words.details.sign_in_step_failed, { what: 'Renewing this computer\'s sign-in', why: response.status }) });
-  return grantOf(await asJson(response, 'Renewing this computer\'s sign-in', rules), { client_id: grant.client_id, origin: grant.origin, now, rules, found: grant });
+  return grantOf(await asJson(response, 'Renewing this computer\'s sign-in', rules), { client_id: grant.client_id, origin: grant.origin, now, rules, found: grant, asked: grant.asked ?? null });
 }
 
 const endsSoon = (grant, rules, now) => Boolean(grant.refresh_token) && Number.isFinite(grant.expires_at_ms) && grant.expires_at_ms - now() < rules.grant.refresh_before_seconds * 1000;
@@ -984,7 +996,7 @@ export async function signInWithBrowser({ origin, resourceDoor, rules = settings
     const code = await Promise.race([arrived, late]).finally(() => { clearTimeout(timer); pasted.stop(); });
     const tokens = await asJson(await fetchImpl(found.token_endpoint, form({ grant_type: 'authorization_code', code, redirect_uri: redirect, client_id: `${origin}${rules.client.id_path}`, code_verifier: verifier, resource: found.resource })), 'The sign-in exchange', rules);
     if (typeof tokens.access_token !== 'string' || !tokens.access_token) throw new CommandError(rules.words.sign_in_step_failed, { detail: fill(rules.words.details.sign_in_step_failed, { what: 'The sign-in exchange', why: 'no access token' }) });
-    return grantOf(tokens, { client_id: `${origin}${rules.client.id_path}`, origin, now, found, rules });
+    return grantOf(tokens, { client_id: `${origin}${rules.client.id_path}`, origin, now, found, rules, asked: rules.scope });
   } finally { server.close(); }
 }
 
@@ -1511,6 +1523,8 @@ async function login(context, { again = false } = {}) {
     try { client = await signedInClient(context); } catch (error) { if (!refusedBy(error)) throw error; refused = true; }
     // A sign-in made for another engine than the one named is not this one's: the named engine gets its own walk.
     if (client?.credential.kind === 'sign-in' && context.asked && client.door.mcp !== client.credential.resource) client = null;
+    // A sign-in this program made that was not asked for every scope the command asks for now is made again.
+    if (client?.credential.kind === 'sign-in' && !asksNothingNew(context.grants.read())) client = null;
     if (client) {
       try {
         const known = await knownAs(context, client);
