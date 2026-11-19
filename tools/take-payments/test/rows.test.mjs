@@ -1,4 +1,4 @@
-// The rows as the container runs them: each row's sample run is executed through the records-door command with the
+// The rows as the container runs them: each row's sample run is executed through the function runner with the
 // row's own argv, and the money rules are read off the rows themselves: a row that can reach Stripe mounts the
 // person's key by name and no row carries a key.
 import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
@@ -29,12 +29,13 @@ function runWithDoor(command, args, input) {
 const rows = JSON.parse(readFileSync(join(import.meta.dirname, '..', 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
 const onThisComputer = word => (word.startsWith('/opt/') ? join(tools, word.slice('/opt/'.length)) : word);
 
-const pointsAtRecords = row => row.invoke.argv.includes('/opt/records-door/do-work/run-an-export.mjs');
+const pointsAtRunner = row => row.invoke.argv[1] === '/opt/workflows/do-work/run-a-function.mjs';
 
-test('every row runs the one records-door command on a function this folder exports', async () => {
+test('every row runs the one function runner on a function this folder exports, and mounts no records door', async () => {
   const module = await import(join(import.meta.dirname, '..', 'do-work', 'take-payments.mjs'));
   for (const row of rows) {
-    assert.ok(pointsAtRecords(row), `${row.id} runs through the records-door command`);
+    assert.ok(pointsAtRunner(row), `${row.id} runs through the workflows function runner`);
+    assert.ok(!(row.invoke.files?.package_files ?? []).some(spec => spec.package === 'records-door'), `${row.id} mounts no records door`);
     const name = row.invoke.argv.at(-1);
     assert.equal(typeof module[name], 'function', `${row.id} names ${name}, which take-payments.mjs exports`);
   }

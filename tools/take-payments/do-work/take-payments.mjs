@@ -1,11 +1,11 @@
 // tools/take-payments/do-work/take-payments.mjs
 //
 // The functions the take-payments rows run, one per job. Each is `(input, { send, secrets }) => result`, run the
-// way the records-door tool runs a function:
+// way the workflows function runner runs a function:
 //
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/take-payments/do-work/take-payments.mjs <function> < input.json
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/take-payments/do-work/take-payments.mjs <function> < input.json
 //
-//   The tools keep nothing and open no records door: the person's offers, code adjustments, eligibility rules and
+//   The tools keep nothing and open no door: the person's offers, code adjustments, eligibility rules and
 //   suggested-amount rows are rows the caller's AI reads from its store and passes in the request (`offers`,
 //   `adjustments`, `rules`, `suggestions`).
 //   send     delivers one built Stripe request. By default it is made from the person's own Stripe key, which the row
@@ -101,7 +101,7 @@ export function priceASale(input) {
  * the checked payment event. `metadata` (text keys and values) is carried onto the session and its subscription. A code of
  * duration once is taken off the first invoice by a coupon made for it (the same amount the quote took off).
  */
-export async function startAStripeCheckout(input, context) {
+export async function startAStripeCheckout(input, context = {}) {
   const offers = offersOf(input);
   const adjustments = adjustmentsOf(input);
   const quote = serializeQuote(buildCheckoutQuote(offers, input, adjustments));
@@ -125,7 +125,7 @@ export async function startAStripeCheckout(input, context) {
  * invoices by itself. One credit per idempotency key, through the one send seam. Refuses before sending when the request is
  * malformed, and refuses the answer when Stripe did not book the credit asked for.
  */
-export async function giveACustomerCredit(input, context) {
+export async function giveACustomerCredit(input, context = {}) {
   const { customer, amount_cents: amount, currency, description, idempotency_key: key } = input ?? {};
   if (typeof customer !== 'string' || !customer.trim()) throw new Error('customer names the Stripe customer the credit is for.');
   if (!Number.isSafeInteger(amount) || amount <= 0) throw new Error('amount_cents must be a whole number of cents above 0.');
@@ -142,7 +142,7 @@ export async function giveACustomerCredit(input, context) {
 }
 
 /** A hosted checkout whose money goes to someone the person pays, with the person's fee kept back. */
-export async function startAPayeeCheckout(input, context) {
+export async function startAPayeeCheckout(input, context = {}) {
   const offers = offersOf(input);
   const offer = offers.find(item => item.id === input.offer_id);
   if (!offer) throw new Error(`Offer ${input.offer_id} is not one of your offers.`);
@@ -156,28 +156,28 @@ export async function startAPayeeCheckout(input, context) {
   return { providerSessionId: session.id, redirectUrl: session.url, platform_fee_cents: subject.metadata.platform_fee_cents ?? '0' };
 }
 
-export const lookUpAStripeCheckout = async (input, context) => readHostedSession(input, { send: sender(context) });
-export const findACompletedStripeCheckout = async (input, context) => findCompletedHostedSession(input, { send: sender(context) });
-export const scheduleLaterPayments = async (input, context) => createSubscriptionSchedule(input, { send: sender(context) });
-export const countAPaidInstallment = async (input, context) => advanceInstallment(input, { send: sender(context) });
-export const cancelAStripeSubscription = async (input, context) => cancelSubscription(input, { send: sender(context) });
-export const openABillingPage = async (input, context) => openBillingPage(input, { send: sender(context) });
+export const lookUpAStripeCheckout = async (input, context = {}) => readHostedSession(input, { send: sender(context) });
+export const findACompletedStripeCheckout = async (input, context = {}) => findCompletedHostedSession(input, { send: sender(context) });
+export const scheduleLaterPayments = async (input, context = {}) => createSubscriptionSchedule(input, { send: sender(context) });
+export const countAPaidInstallment = async (input, context = {}) => advanceInstallment(input, { send: sender(context) });
+export const cancelAStripeSubscription = async (input, context = {}) => cancelSubscription(input, { send: sender(context) });
+export const openABillingPage = async (input, context = {}) => openBillingPage(input, { send: sender(context) });
 /** Every completed checkout since a time, and every subscription that ended since a time: what a seller follows up. */
-export const listCompletedStripeCheckouts = async (input, context) => listCompletedHostedSessions(input, { send: sender(context) });
-export const listEndedStripeSubscriptions = async (input, context) => listEndedSubscriptions(input, { send: sender(context) });
+export const listCompletedStripeCheckouts = async (input, context = {}) => listCompletedHostedSessions(input, { send: sender(context) });
+export const listEndedStripeSubscriptions = async (input, context = {}) => listEndedSubscriptions(input, { send: sender(context) });
 
 /**
  * Stripe events of the kinds the event map names, from a time, as the payment rows the webhook check would keep for the
  * same events (see list-stripe-events.mjs). Nothing is kept here; the caller keeps each row once by its id.
  */
-export const listStripeEventsAsPaymentEvents = async (input, context) => listStripeEvents(input, {
+export const listStripeEventsAsPaymentEvents = async (input, context = {}) => listStripeEvents(input, {
   send: sender(context),
   eventMap: input.event_map ?? dataFile('webhook-event-map.json'),
 });
-export const tagAStripeSubscription = async (input, context) => updateSubscriptionMetadata(input, { send: sender(context) });
+export const tagAStripeSubscription = async (input, context = {}) => updateSubscriptionMetadata(input, { send: sender(context) });
 
 /** One lasting payment link per priced option of every offer, the plan-management page, and the percent-off codes. */
-export async function setUpStripePaymentLinks(input, context) {
+export async function setUpStripePaymentLinks(input, context = {}) {
   const offers = offersOf(input);
   const adjustments = adjustmentsOf(input);
   return ensureOfferPaymentLinks({
@@ -195,7 +195,7 @@ export async function setUpStripePaymentLinks(input, context) {
  * secret) and read it as payment events. Nothing unchecked is kept: an event that fails any step comes back with its
  * reason and no records.
  */
-export function checkAStripeEvent(input, context) {
+export function checkAStripeEvent(input, context = {}) {
   const secret = context.secrets?.webhookSecret ?? heldKey(WEBHOOK_SECRET_DESCRIPTOR, context.readKey);
   const verdict = admitStripeWebhook({
     payload: input.payload,
@@ -243,7 +243,7 @@ function checkoutAsStripeEvent(checkout) {
  * event. A checkout with no buyer email or no offer is left out, with the reason counted. Each event carries the
  * `pursuit_ids` of the offer it was bought under (the request's `offers` rows, matched by id or `earlier_ids`).
  */
-export async function listCompletedCheckoutsAsPaymentEvents(input, context) {
+export async function listCompletedCheckoutsAsPaymentEvents(input, context = {}) {
   const listed = await listCompletedHostedSessions(input, { send: sender(context) });
   const eventMap = input.event_map ?? dataFile('webhook-event-map.json');
   const offerRows = input.offers ?? [];
@@ -289,7 +289,7 @@ export function showOffersForABuyer(input) {
 }
 
 /** A person to pay through Stripe: their account (made when none is named), what Stripe still needs, and the onboarding page. */
-export async function setUpSomeoneIPay(input, context) {
+export async function setUpSomeoneIPay(input, context = {}) {
   const send = sender(context);
   const account = input.account
     ? await call(send, 'operation:read-connected-account', null, { ref: input.account })
@@ -306,7 +306,7 @@ export async function setUpSomeoneIPay(input, context) {
  * Pay a share on from the person's own Stripe balance to someone they pay. This moves money, so it needs the person's
  * explicit `confirm_moves_money: true` in the same request, and the key.
  */
-export async function paySomeoneAShare(input, context) {
+export async function paySomeoneAShare(input, context = {}) {
   if (input.confirm_moves_money !== true) {
     throw new Error('This pays real money out of your Stripe balance. Send confirm_moves_money: true to go ahead.');
   }
@@ -318,7 +318,7 @@ export async function paySomeoneAShare(input, context) {
  * Build the later payments of a schedule at Stripe in TEST MODE and report what Stripe says it will charge and when.
  * The key is the person's held test key; anything that is not a test key is refused before a request is built.
  */
-export async function rehearseASchedule(input, context) {
+export async function rehearseASchedule(input, context = {}) {
   return rehearseAPaymentSchedule(input, testSender(context));
 }
 
@@ -326,7 +326,7 @@ export async function rehearseASchedule(input, context) {
  * Make a subscription in Stripe TEST MODE and open its billing page, to see that the billing page comes back for a real
  * subscription at Stripe. The key is the person's held test key; anything that is not a test key is refused first.
  */
-export async function rehearseABillingPageInTestMode(input, context) {
+export async function rehearseABillingPageInTestMode(input, context = {}) {
   return rehearseABillingPage(input, testSender(context));
 }
 
@@ -335,9 +335,9 @@ export async function rehearseABillingPageInTestMode(input, context) {
 const readInputOf = ({ seller_connection: _mounted, ...input }) => input;
 
 /** The promotion codes of the account (one by its code, or those active or not), with the coupon each gives. Reads only. */
-export const readStripePromotionCodes = async (input, context) => readStripeObjects('read:promotion-codes', readInputOf(input), { send: sender(context) });
+export const readStripePromotionCodes = async (input, context = {}) => readStripeObjects('read:promotion-codes', readInputOf(input), { send: sender(context) });
 /** The same read against the person's Stripe test account; a key that is not a test key is refused first. */
-export const readStripePromotionCodesInTestMode = async (input, context) => readStripeObjects('read:promotion-codes', readInputOf(input), { send: testSender(context) });
+export const readStripePromotionCodesInTestMode = async (input, context = {}) => readStripeObjects('read:promotion-codes', readInputOf(input), { send: testSender(context) });
 
 export { observeLiveUsage } from './live-usage.mjs';
 export { reportResourceUsage, readResourceUsageReport, reconcileResourceUsageReport, cancelPreparedResourceUsageReport } from './resource-usage-reporting.mjs';

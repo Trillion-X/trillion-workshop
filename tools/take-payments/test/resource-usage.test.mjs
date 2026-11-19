@@ -251,7 +251,7 @@ test('two pricing edits made from the same version cannot both keep the same nex
 function throughRunner(name, input, descriptor) {
   return new Promise((resolve, reject) => {
     const fd = descriptor ? openSync(descriptor, 'r') : null;
-    const child = spawn(process.execPath, [new URL('../../records-door/do-work/run-an-export.mjs', import.meta.url).pathname, new URL('../do-work/take-payments.mjs', import.meta.url).pathname, name], { stdio: ['pipe', 'pipe', 'pipe', ...(fd === null ? [] : [fd])] });
+    const child = spawn(process.execPath, [new URL('../../workflows/do-work/run-a-function.mjs', import.meta.url).pathname, new URL('../do-work/take-payments.mjs', import.meta.url).pathname, name], { stdio: ['pipe', 'pipe', 'pipe', ...(fd === null ? [] : [fd])] });
     let stdout = '', stderr = '';
     child.stdout.on('data', x => { stdout += x; }); child.stderr.on('data', x => { stderr += x; });
     child.on('error', reject);

@@ -87,7 +87,7 @@ test('malformed provider success remains unknown and unrelated receipt cannot se
 });
 
 function throughRunner(name, input) {
- return new Promise((resolve,reject)=>{const child=spawn(process.execPath,[new URL('../../records-door/do-work/run-an-export.mjs',import.meta.url).pathname,new URL('../do-work/take-payments.mjs',import.meta.url).pathname,name],{stdio:['pipe','pipe','pipe']});let stdout='',stderr='';child.stdout.on('data',x=>stdout+=x);child.stderr.on('data',x=>stderr+=x);child.on('error',reject);child.on('close',code=>{try{resolve({code,answer:JSON.parse(stdout.trim().split('\n').at(-1)),stderr});}catch(error){reject(error);}});child.stdin.end(JSON.stringify(input));});
+ return new Promise((resolve,reject)=>{const child=spawn(process.execPath,[new URL('../../workflows/do-work/run-a-function.mjs',import.meta.url).pathname,new URL('../do-work/take-payments.mjs',import.meta.url).pathname,name],{stdio:['pipe','pipe','pipe']});let stdout='',stderr='';child.stdout.on('data',x=>stdout+=x);child.stderr.on('data',x=>stderr+=x);child.on('error',reject);child.on('close',code=>{try{resolve({code,answer:JSON.parse(stdout.trim().split('\n').at(-1)),stderr});}catch(error){reject(error);}});child.stdin.end(JSON.stringify(input));});
 }
 test('the export runner accrues a subcent source with no records door and answers the checkpoint to keep',async()=>{
  const s=setup();const out=await throughRunner('reportResourceUsage',s.input(s.source('a',{n:'3',d:'650'})));

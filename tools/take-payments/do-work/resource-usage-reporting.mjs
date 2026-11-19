@@ -95,7 +95,7 @@ function assertCheckpoint(report, input) {
   if (canonical(input.cash ?? null) !== canonical(report.cash_before) || canonical(input.applied ?? null) !== canonical(report.applied_before)) throw new Error('The cash/source checkpoint changed; give the cash and applied this report was prepared from.');
 }
 
-export async function reportResourceUsage(input, context) {
+export async function reportResourceUsage(input, context = {}) {
   const now = (context.now ?? Date.now)();
   const a = pinnedAgreement(input.agreement, input.payer_id); const { source, allocation } = sourceAllocation(input);
   const settlementId = source.id;
@@ -163,7 +163,7 @@ export function readResourceUsageReport(input) {
  * or a provider support receipt; its exact metadata/customer/amount are checked.
  * `report` is the frozen report an earlier answer returned, `cash` and `applied`
  * the state that report was prepared from. */
-export async function reconcileResourceUsageReport(input, context) {
+export async function reconcileResourceUsageReport(input, context = {}) {
   const report = input.report;
   if (!report || typeof report.id !== 'string' || !report.agreement) throw new Error('Give report, the frozen usage report an earlier answer returned.');
   if (COMMITTED.includes(report.state)) return answerOf(report);
