@@ -6,7 +6,6 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { keepWhoAppeared } from '../do-work/keep-who-appeared.mjs';
-import { whereSomeoneAppeared } from '../do-work/where-someone-appeared.mjs';
 import { ROW_PREFIX, ROW_TYPE, faceStretches, recordingKey } from '../read-data/appearances.mjs';
 import { memoryDoor } from '../../watch-my-sources/do-work/records-in-hand.mjs';
 
@@ -111,19 +110,3 @@ test('faces nobody could be are dropped, sightings join across one and a half sp
   assert.equal(recordingKey('Sample call.mp4'), 'sample-call-mp4');
 });
 
-test('the person\'s rows are read back by person, by recording and by words, with who and which recordings counted', async () => {
-  const door = memoryDoor(prints());
-  for (const answer of [run(), run({ recording: `1f:${'cd'.repeat(32)}`, recording_name: 'other.wav', seen: undefined, heard: [heard[0]] })]) {
-    for (const row of answer.rows) door.kept.set(`${ROW_PREFIX}${row.id}`, { id: `${ROW_PREFIX}${row.id}`, type: ROW_TYPE, value: row.values });
-  }
-  const rowsOf = from => [...from.kept.values()].filter(record => record.type === 'record:appearance');
-  door.search = async ({ question }) => ({ results: rowsOf(door).filter(record => JSON.stringify(record.value).toLowerCase().includes(question.toLowerCase())).map(record => ({ id: `record:${record.id}`, address: { input: { id: record.id, type: record.type } } })) });
-  const byPerson = await whereSomeoneAppeared({ person: 'ann' }, { door });
-  assert.deepEqual(byPerson.recordings.map(item => [item.label, item.appearances]), [['other.wav', 1], ['sample-call.mp4', 3]]);
-  assert.deepEqual(byPerson.people, [{ id: 'ann', label: 'Ann Sample', appearances: 4 }]);
-  const byRecording = await whereSomeoneAppeared({ recording, how: 'face' }, { door });
-  assert.deepEqual(byRecording.appearances.map(row => row.start), [0, 10]);
-  const byWords = await whereSomeoneAppeared({ words: 'sample room' }, { door });
-  assert.equal(byWords.appearances.length, 6);
-  await assert.rejects(() => whereSomeoneAppeared({}, { door }), error => error.code === 'bad_input');
-});

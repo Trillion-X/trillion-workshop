@@ -1,0 +1,182 @@
+{
+  "about": "workflow:find-where-someone-appeared: find where someone appeared, read from the person's own store. It is the store half of tools/know-who-is-in-this: its row for this reading reached records through the records door, which is retired, so the row is deleted and this recipe is its home (rule a-tool-is-only-what-the-store-cannot-do; L101: the recipe reads back first). The prints stay on the device they were made on.",
+  "records": [
+    {
+      "payload": {
+        "id": "workflow:find-where-someone-appeared",
+        "kind": "workflow-recipe",
+        "label": "Find where someone appeared",
+        "job": "Read back the rows of where people appeared from the person's own store: every recording and time a person was heard or seen, or the rows a recording holds, or the rows that name words, in recording order, with who and which recordings they name. Rows a later keep replaced are left out unless asked for.",
+        "produces": "The appearance rows and their tallies, read from the person's own store, proven on example rows in PostgreSQL and a JSON store.",
+        "source": {
+          "from": "tools/know-who-is-in-this do-work/where-someone-appeared.mjs (whereSomeoneAppeared) and read-data/appearances.mjs (ROW_TYPE, STATUS), read on trillion-workshop origin/main; the row reached record:appearance rows through the records door, which is retired",
+          "note": "Only the reading is the store's job: a filter, a sort and a tally over the rows. The keeping of the rows is workflow:keep-who-appeared-in-a-recording."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these rows: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "person": {
+              "type": "string"
+            },
+            "recording": {
+              "type": "string"
+            },
+            "how": {
+              "type": "string",
+              "enum": [
+                "voice",
+                "face"
+              ]
+            },
+            "words": {
+              "type": "string"
+            },
+            "include_superseded": {
+              "type": "boolean"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read the rows the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read the record:appearance rows already kept: each row's person, subject, how, recording, recording_name, start, end, words and status. Submit where they are kept (or null) and how many rows were read.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "rows_read"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "rows_read": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the read-back on the example rows",
+            "do": "In a throwaway place in the same store, with these made-up appearance rows (id, person, subject, how, recording, recording_name, start, end, words, status): [{\"id\": \"ann-heard-1\", \"person\": \"ann\", \"subject\": \"Ann Sample\", \"how\": \"voice\", \"recording\": \"rec-a\", \"recording_name\": \"call.mp4\", \"start\": 0, \"end\": 12.5, \"words\": \"Welcome to the call\", \"status\": \"named\"}, {\"id\": \"ann-seen-1\", \"person\": \"ann\", \"subject\": \"Ann Sample\", \"how\": \"face\", \"recording\": \"rec-a\", \"recording_name\": \"call.mp4\", \"start\": 10, \"end\": 11, \"words\": \"\", \"status\": \"named\"}, {\"id\": \"bo-heard-1\", \"person\": \"bo\", \"subject\": \"Bo Sample\", \"how\": \"voice\", \"recording\": \"rec-b\", \"recording_name\": \"other.wav\", \"start\": 1, \"end\": 2, \"words\": \"Sample room\", \"status\": \"superseded\"}, {\"id\": \"ann-heard-2\", \"person\": \"ann\", \"subject\": \"Ann Sample\", \"how\": \"voice\", \"recording\": \"rec-b\", \"recording_name\": \"other.wav\", \"start\": 3, \"end\": 5, \"words\": \"Sample room opens\", \"status\": \"named\"}], run these attempts in order: [{\"op\": \"by person, with the tallies\", \"person\": \"ann\", \"tally\": true}, {\"op\": \"by recording\", \"recording\": \"rec-a\", \"how\": \"face\"}, {\"op\": \"by words\", \"words\": \"sample room\"}, {\"op\": \"none given\"}, {\"op\": \"by person, superseded included\", \"person\": \"bo\", \"include_superseded\": true}]. A search leaves out superseded rows unless include_superseded is true, sorts by recording_name and then start, and a call with no person, recording or words is refused. Then remove the throwaway place. Submit answers, one per attempt in order, which are [{\"ids\": [\"ann-heard-1\", \"ann-seen-1\", \"ann-heard-2\"], \"people\": [{\"id\": \"ann\", \"label\": \"Ann Sample\", \"appearances\": 3}], \"recordings\": [{\"id\": \"rec-a\", \"label\": \"call.mp4\", \"appearances\": 2}, {\"id\": \"rec-b\", \"label\": \"other.wav\", \"appearances\": 1}]}, {\"ids\": [\"ann-seen-1\"]}, {\"ids\": [\"ann-heard-2\"]}, {\"reason\": \"Give a person, a recording or words to look for.\"}, {\"ids\": [\"bo-heard-1\"]}].",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt answers the rows, the tallies, or the refusal the intent gives",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    {
+                      "ids": [
+                        "ann-heard-1",
+                        "ann-seen-1",
+                        "ann-heard-2"
+                      ],
+                      "people": [
+                        {
+                          "id": "ann",
+                          "label": "Ann Sample",
+                          "appearances": 3
+                        }
+                      ],
+                      "recordings": [
+                        {
+                          "id": "rec-a",
+                          "label": "call.mp4",
+                          "appearances": 2
+                        },
+                        {
+                          "id": "rec-b",
+                          "label": "other.wav",
+                          "appearances": 1
+                        }
+                      ]
+                    },
+                    {
+                      "ids": [
+                        "ann-seen-1"
+                      ]
+                    },
+                    {
+                      "ids": [
+                        "ann-heard-2"
+                      ]
+                    },
+                    {
+                      "reason": "Give a person, a recording or words to look for."
+                    },
+                    {
+                      "ids": [
+                        "bo-heard-1"
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Answer where someone appeared",
+            "do": "Run the read the request names through the store's own rows and answer it. Submit answer: the rows' ids, the people and recordings tallies when asked, or the refusal reason.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "answer": {},
+                "reason": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

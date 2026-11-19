@@ -1,0 +1,157 @@
+{
+  "about": "workflow:list-the-people-my-prints-can-name: list the people my voice and face prints can name, read from the person's own store. It is the store half of tools/know-who-is-in-this: its row for this reading reached records through the records door, which is retired, so the row is deleted and this recipe is its home (rule a-tool-is-only-what-the-store-cannot-do; L101: the recipe reads back first). The prints stay on the device they were made on.",
+  "records": [
+    {
+      "payload": {
+        "id": "workflow:list-the-people-my-prints-can-name",
+        "kind": "workflow-recipe",
+        "label": "List the people my voice and face prints can name",
+        "job": "List the people the person's voice and face prints can name, from their own store: each person once, with how many voice and face samples they have, whether they are the person, and the consent words they gave, and never a print's numbers.",
+        "produces": "The people list, read from the person's own voice-print and face-print rows, proven on example prints in PostgreSQL and a JSON store, with no sample numbers in the answer.",
+        "source": {
+          "from": "tools/know-who-is-in-this read-data/people.mjs (summary, people) and do-work tool:people-listening-can-name, read on trillion-workshop origin/main; the row reached voice-print and face-print records through the records door, which is retired",
+          "note": "The prints stay on this computer (kind stays_on_this_device). The answer carries counts, names and consent words only; a sample's numbers never leave the store."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these rows: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read the rows the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read the voice-print and face-print rows already kept: each row's person, name, me flag, samples and consent words. The samples' numbers are read only to count them. Submit where they are kept (or null) and how many rows were read.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "rows_read"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "rows_read": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the list on the example prints",
+            "do": "In a throwaway place in the same store, with made-up prints, run these attempts in order: first hold these prints (voice-print:ann with person ann, name Ann Sample, me true, two samples of numbers, consent Agreed aloud on 2026-10-01; face-print:ann with the same person and name, one sample, consent Agreed for pictures on 2026-10-01; voice-print:sam with person sam, name Sam Sample, one sample, consent Agreed in writing on 2026-10-01), then list the people once, each person once across their kinds, sorted by name, with name, me, voice_samples, face_samples and consent, and never a sample number. Then remove the throwaway place. Submit answers: one list, exactly the answer the intent gives, which is [{\"id\": \"ann\", \"name\": \"Ann Sample\", \"me\": true, \"voice_samples\": 2, \"face_samples\": 1, \"consent\": [{\"kind\": \"voice\", \"said\": \"Agreed aloud\", \"at\": \"2026-10-01T00:00:00Z\"}, {\"kind\": \"face\", \"said\": \"Agreed for pictures\", \"at\": \"2026-10-01T00:00:00Z\"}]}, {\"id\": \"sam\", \"name\": \"Sam Sample\", \"me\": false, \"voice_samples\": 1, \"face_samples\": 0, \"consent\": [{\"kind\": \"voice\", \"said\": \"Agreed in writing\", \"at\": \"2026-10-01T00:00:00Z\"}]}].",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "The list holds each person once, with the counts and consent words the intent gives, and no sample numbers",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    {
+                      "id": "ann",
+                      "name": "Ann Sample",
+                      "me": true,
+                      "voice_samples": 2,
+                      "face_samples": 1,
+                      "consent": [
+                        {
+                          "kind": "voice",
+                          "said": "Agreed aloud",
+                          "at": "2026-10-01T00:00:00Z"
+                        },
+                        {
+                          "kind": "face",
+                          "said": "Agreed for pictures",
+                          "at": "2026-10-01T00:00:00Z"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "sam",
+                      "name": "Sam Sample",
+                      "me": false,
+                      "voice_samples": 1,
+                      "face_samples": 0,
+                      "consent": [
+                        {
+                          "kind": "voice",
+                          "said": "Agreed in writing",
+                          "at": "2026-10-01T00:00:00Z"
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Answer the people list",
+            "do": "Read each person's prints from the store, count their samples, and answer the list, with no sample numbers. Submit answer: the list.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answer"
+              ],
+              "properties": {
+                "answer": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

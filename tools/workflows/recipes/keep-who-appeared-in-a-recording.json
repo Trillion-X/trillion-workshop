@@ -218,7 +218,7 @@
           {
             "id": "read-back",
             "title": "Read the rows back by recording",
-            "do": "Run tool:where-someone-appeared with recording set to input.file, and submit every row id it returns as list-id/row-id and the people and recordings it counted. Every row the keep step kept must be among them; a row missing here was not kept.",
+            "do": "Run workflow:find-where-someone-appeared with recording set to input.file, and submit every row id it returns as list-id/row-id and the people and recordings it counted. Every row the keep step kept must be among them; a row missing here was not kept.",
             "submit": {
               "type": "object",
               "required": [

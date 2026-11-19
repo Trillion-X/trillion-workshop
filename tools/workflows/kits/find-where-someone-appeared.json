@@ -1,0 +1,45 @@
+{
+  "start_here": "Say to your AI: \"Where did Ann Sample appear?\", with {\"store\":{\"where\":\"postgresql database example_shop on my own computer\",\"language\":\"SQL (PostgreSQL)\",\"credential_name\":\"example-shop-postgres-connection\"},\"person\":\"ann\"}. It runs workflow:find-where-someone-appeared and answers every recording and time the person was heard or seen, with the recordings counted.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: the rows are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:find-where-someone-appeared"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:find-where-someone-appeared\" with store and the request.",
+    "3. The first run reads the store's own rows and proves the reading on the example rows: every answer must be the one the intent says, or the run stops and says which.",
+    "4. Each later run reads the store's rows the same way."
+  ],
+  "worked_examples": [
+    {
+      "title": "Where one person appeared, on a sample store",
+      "ask": "Where did Ann Sample appear?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:find-where-someone-appeared",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "person": "ann",
+              "tally": true
+            }
+          }
+        }
+      },
+      "workflow": "workflow:find-where-someone-appeared",
+      "step": "keep",
+      "given": "The look step found the appearance rows kept for ann in two recordings, one of them superseded.",
+      "hands_back": "answer {\"ids\": [\"ann-heard-1\", \"ann-seen-1\", \"ann-heard-2\"], \"people\": [{\"id\": \"ann\", \"label\": \"Ann Sample\", \"appearances\": 3}], \"recordings\": [{\"id\": \"rec-a\", \"label\": \"call.mp4\", \"appearances\": 2}, {\"id\": \"rec-b\", \"label\": \"other.wav\", \"appearances\": 1}]}."
+    }
+  ]
+}

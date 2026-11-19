@@ -12,7 +12,7 @@ const folder = fileURLToPath(new URL('..', import.meta.url));
 const python = args => spawnSync('python3', ['-B', ...args], { encoding: 'utf8' });
 const skip = python(['--version']).status === 0 ? false : 'needs python3';
 const allRows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
-const appearanceIds = ['tool:keep-who-appeared', 'tool:where-someone-appeared'];
+const appearanceIds = ['tool:keep-who-appeared'];
 const rows = allRows.filter(row => !appearanceIds.includes(row.id));
 
 test('the pure readers pass on made-up voices and faces', { skip }, () => {
@@ -49,7 +49,7 @@ test('enrol-a-print refuses without consent words or a known kind, before it mea
 });
 
 test('every row that reads or keeps a print kind says in its description that the kind stays on the device it was made on', () => {
-  assert.deepEqual(rows.map(row => row.id).sort(), ['tool:enrol-a-voice-or-face', 'tool:enroll-someone', 'tool:find-faces', 'tool:people-listening-can-name', 'tool:who-is-in-this']);
+  assert.deepEqual(rows.map(row => row.id).sort(), ['tool:enrol-a-voice-or-face', 'tool:enroll-someone', 'tool:find-faces', 'tool:who-is-in-this']);
   assert.deepEqual(allRows.map(row => row.id).filter(id => appearanceIds.includes(id)).sort(), appearanceIds);
   for (const row of allRows) {
     const text = JSON.stringify(row);
