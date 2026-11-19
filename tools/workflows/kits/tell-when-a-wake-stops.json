@@ -1,16 +1,16 @@
 {
   "drafted_from": "workflow:tell-when-a-wake-stops's own file, tools/workflows/recipes/tell-when-a-wake-stops.json (its wake, definition and steps), and the engine's wake-failed fact (trillion-rust e9f19e41c).",
-  "start_here": "Say to your AI: \"Tell me when one of my wakes stops.\" The AI turns on workflow:tell-when-a-wake-stops's wake a-wake-stopped. From then on, each wake that stops is told to you with its cause, and the notice says what to read before you switch that wake on again.",
+  "start_here": "Say to your AI: \"Tell me when one of my wakes stops.\" The AI turns on workflow:tell-when-a-wake-stops's wake a-wake-stopped with your store as its input. From then on, each wake that stops is told to you with its cause, and the notice says what to read before you switch that wake on again.",
   "lists": [],
-  "no_lists_because": "It keeps nothing and reads nothing: the wake-failed fact carries the tool, the wake and the cause, and the run tells one notice.",
+  "no_lists_because": "It reads nothing: the wake-failed fact carries the tool, the wake and the cause, and the run keeps one notice in the person's store (told_the_person), the table workflow:read-my-notices reads.",
   "workflows": [
     "workflow:tell-when-a-wake-stops"
   ],
   "tools": [
-    "tool:tell-the-person"
+    "tool:run-sql-in-my-database"
   ],
   "instructions": [
-    "1. Turn on this workflow's wake a-wake-stopped. The engine keeps a wake-failed fact whenever a wake turns failed.",
+    "1. Turn on this workflow's wake a-wake-stopped with store as the switch's input: where the person keeps their notices, its language and the vault name of its login. The engine keeps a wake-failed fact whenever a wake turns failed.",
     "2. Read each notice that comes: its title names the tool, the wake and the cause, and its body says what the cause means.",
     "3. When the notice says the tool row changed, read what the wake asks for now (wake:list shows it) and switch the wake on again only if you still want that; for any other cause, fix the cause it names, then switch the wake on again and read wake:list until it shows the wake running."
   ],
@@ -31,6 +31,11 @@
                 "tool": "tool:notice-when-something-shows-up",
                 "wake": "keep-noticing-row-changes",
                 "cause": "No waiter descriptor rows under packages/notice-when-something-shows-up/waiter-descriptor"
+              },
+              "store": {
+                "where": "the person's own database",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "the vault name of the person's database login"
               }
             }
           }
@@ -39,7 +44,7 @@
       "workflow": "workflow:tell-when-a-wake-stops",
       "step": "tell",
       "given": "The engine kept wake-failed {tool notice-when-something-shows-up, wake keep-noticing-row-changes, cause No waiter descriptor rows under packages/notice-when-something-shows-up/waiter-descriptor}.",
-      "hands_back": "One tool:tell-the-person call with title \"tool:notice-when-something-shows-up keep-noticing-row-changes stopped: No waiter descriptor rows under packages/notice-when-something-shows-up/waiter-descriptor\", body \"It stopped because: No waiter descriptor rows under packages/notice-when-something-shows-up/waiter-descriptor.\", kind needs-you."
+      "hands_back": "One notice kept in the person's store (a told_the_person row, made once, keyed by the fact so it is kept once), with title \"tool:notice-when-something-shows-up keep-noticing-row-changes stopped: No waiter descriptor rows under packages/notice-when-something-shows-up/waiter-descriptor\", body \"It stopped because: No waiter descriptor rows under packages/notice-when-something-shows-up/waiter-descriptor.\", kind needs-you."
     }
   ]
 }

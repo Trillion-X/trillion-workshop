@@ -6,11 +6,10 @@
     "workflow:stop-programs-left-running"
   ],
   "tools": [
+    "tool:choose-programs-left-running",
     "tool:list-running-programs",
     "tool:run-sql-in-my-database",
-    "tool:choose-programs-left-running",
-    "tool:stop-programs-left-running",
-    "tool:tell-the-person"
+    "tool:stop-programs-left-running"
   ],
   "instructions": [
     "1. Keep at least one never-stop row and one left-behind row in your own database, each one program_rules row: id, kind never-stop or left-behind, and rule (the rule as JSON). The first sweep makes program_rules and program_stops when they are missing, and refuses until a never-stop row is there. A never-stop row is {id, why, command_pattern and/or name_pattern}, like {\"id\": \"the-model-proxy\", \"why\": \"Every AI session on this computer talks through it\", \"command_pattern\": \"model-proxy\"}; name every program that must never be stopped, such as the programs your AI sessions talk through and the program that keeps them running. A left-behind row is {id, why, parent_pid and/or session_owner_gone, older_than_minutes, command_pattern and/or name_pattern, and optionally cpu_share_at_least}, like {\"id\": \"shell-loop-left-by-an-ended-session\", \"why\": \"A shell a closed session left behind, still busy\", \"parent_pid\": 1, \"session_owner_gone\": true, \"older_than_minutes\": 60, \"cpu_share_at_least\": 0.5, \"command_pattern\": \"^/bin/sh -c \"}. With no never-stop row the sweep refuses.",

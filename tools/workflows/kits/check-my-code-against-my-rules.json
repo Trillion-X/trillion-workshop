@@ -8,10 +8,10 @@
   ],
   "tools": [
     "tool:check-an-archive-against-my-rules",
-    "tool:tell-the-person"
+    "tool:run-sql-in-my-database"
   ],
   "instructions": [
-    "1. Turn on this workflow's wake hourly once, with checks: one item per repository, each {archive (the https address of the repository's archive, such as its host's archive of a branch), rules, recorded when some findings are already written down}. A wake has one switch, so to add a repository switch it on again with every check, the new one included.",
+    "1. Turn on this workflow's wake hourly once, with store (where the person keeps their notices, its language and its login's vault name) and checks: one item per repository, each {archive (the https address of the repository's archive, such as its host's archive of a branch), rules, recorded when some findings are already written down}. A wake has one switch, so to add a repository switch it on again with every check, the new one included.",
     "2. To catch callers of names another repository retired, add subjects_from to a check: was (that repository's archive at the older commit), now (its archive today), path_matches, pattern and capture naming where and how a name is declared; a rule then collects from that subject by name.",
     "3. Read each notice that comes: its body counts the findings; a finding whose name has a recorded new home says where it moved."
   ],
@@ -63,7 +63,12 @@
                     }
                   }
                 }
-              ]
+              ],
+              "store": {
+                "where": "the person's own database",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "the vault name of the person's database login"
+              }
             }
           }
         }
@@ -71,7 +76,7 @@
       "workflow": "workflow:check-my-code-against-my-rules",
       "step": "check-each",
       "given": "The archive holds one file calling tool:gone, an id the older tools archive declared and the newest one does not.",
-      "hands_back": "tool:check-an-archive-against-my-rules answers passed false with one finding naming the file and line; the run then calls tool:tell-the-person with title \"My rules found something in https://example.test/apps/main.tar.gz\", its body the run's count, kind needs-you."
+      "hands_back": "tool:check-an-archive-against-my-rules answers passed false with one finding naming the file and line; the run then keeps one notice in the person's store (a told_the_person row, made once), kind needs-you, with title \"My rules found something in https://example.test/apps/main.tar.gz\" and its body the run's count."
     }
   ]
 }

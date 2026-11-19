@@ -51,7 +51,6 @@ async function sweep(programs, { rules = { 'left-behind': LEFT_BEHIND, 'never-st
     },
     'tool:choose-programs-left-running': input => chooseProgramsLeftRunning(input, {}, { now: () => NOW, self: [] }),
     'tool:stop-programs-left-running': input => stopProgramsLeftRunning(input, {}, stopDeps),
-    'tool:tell-the-person': input => ({ told: true, said: input.title }),
   };
   const door = {
     async run(name, input) {
@@ -62,7 +61,10 @@ async function sweep(programs, { rules = { 'left-behind': LEFT_BEHIND, 'never-st
   };
   const run = await runWorkflow({ recipe, input: wake.input }, door);
   const kept = (await db.query('select address, stop from program_stops order by address')).rows.map(row => [row.address, row.stop]);
-  return { run, signals, calls, kept, told: calls.filter(name => name === 'tool:tell-the-person').length };
+  // Told is what the person's store keeps: one told_the_person row per notice, the table workflow:read-my-notices reads.
+  const notices = await db.query("select 1 from information_schema.tables where table_name = 'told_the_person'");
+  const told = notices.rows.length ? (await db.query('select count(*)::int as n from told_the_person')).rows[0].n : 0;
+  return { run, signals, calls, kept, told };
 }
 
 test('the recipe wakes every ten minutes at its first step, names no program, and holds the rights of exactly the tools it asks', () => {
@@ -70,7 +72,7 @@ test('the recipe wakes every ten minutes at its first step, names no program, an
   assert.deepEqual(wake.on.fact.watch.schedules[0].cadence, { unit: 'minute', interval: 10 });
   assert.equal(wake.on.fact.match.schedule_id, wake.on.fact.watch.schedules[0].schedule_id);
   assert.equal(wake.input.start_at, recipe.definition.steps[0].id);
-  assert.deepEqual(recipe.records.runs, ['tool:choose-programs-left-running', 'tool:list-running-programs', 'tool:run-sql-in-my-database', 'tool:stop-programs-left-running', 'tool:tell-the-person']);
+  assert.deepEqual(recipe.records.runs, ['tool:choose-programs-left-running', 'tool:list-running-programs', 'tool:run-sql-in-my-database', 'tool:stop-programs-left-running']);
   const definition = JSON.stringify(recipe.definition);
   assert.doesNotMatch(definition, /_pattern|parent_pid|older_than/, 'every judgment is a row the person keeps, read at every sweep');
   assert.match(definition, /create table if not exists program_rules/);

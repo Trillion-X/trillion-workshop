@@ -403,47 +403,83 @@
               "version": 1,
               "steps": [
                 {
-                  "id": "tell-the-person",
+                  "id": "make-notices",
                   "kind": "ask",
                   "config": {
-                    "name": "tool:tell-the-person",
+                    "name": "tool:run-sql-in-my-database",
                     "input": {
-                      "title": {
+                      "credential_name": {
                         "$kind": "binding",
                         "select": {
-                          "from": "loop",
-                          "path": "notice.title"
+                          "from": "input",
+                          "path": "store.credential_name"
                         }
                       },
-                      "body": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "loop",
-                          "path": "notice.body"
-                        }
-                      },
-                      "kind": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "loop",
-                          "path": "notice.kind"
-                        }
-                      },
-                      "key": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "loop",
-                          "path": "notice.key"
-                        }
-                      }
+                      "sql": "create table if not exists told_the_person (seq bigint primary key, item jsonb not null)"
                     },
                     "context": {
-                      "step_id": "tell-the-person"
+                      "step_id": "make-notices"
+                    }
+                  }
+                },
+                {
+                  "id": "tell",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "store.credential_name"
+                        }
+                      },
+                      "sql": "insert into told_the_person (seq, item) select next.n, jsonb_build_object('seq', next.n, 'kind', $1::text, 'title', $2::text, 'body', coalesce($3::text, ''), 'at', to_char(now() at time zone 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"'), 'open', null, 'read', false, 'actions', '[]'::jsonb, 'results', '{}'::jsonb) || case when $4::text is null then '{}'::jsonb else jsonb_build_object('key', $4::text) end from (select coalesce(max(seq), 0) + 1 as n from told_the_person) as next where $4::text is null or not exists (select 1 from told_the_person where item->>'key' = $4::text)",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "notice.kind"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "notice.title"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "notice.body"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "notice.key"
+                          }
+                        }
+                      ]
+                    },
+                    "context": {
+                      "step_id": "tell"
                     }
                   }
                 }
               ],
-              "edges": []
+              "edges": [
+                {
+                  "from": "make-notices",
+                  "to": "tell",
+                  "kind": "always"
+                }
+              ]
             }
           ]
         },
@@ -452,8 +488,7 @@
             "tool:choose-programs-left-running",
             "tool:list-running-programs",
             "tool:run-sql-in-my-database",
-            "tool:stop-programs-left-running",
-            "tool:tell-the-person"
+            "tool:stop-programs-left-running"
           ]
         }
       }

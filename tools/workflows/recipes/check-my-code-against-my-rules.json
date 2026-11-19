@@ -6,11 +6,12 @@
         "id": "workflow:check-my-code-against-my-rules",
         "label": "Check my code against my rules",
         "job": "Check each repository's commit the person names, as its host serves it, against rules the person wrote down, each hour, and tell the person when something breaks a rule: which file, which line, why the rule exists, and where a retired name moved to when that is recorded. The repositories, their rules and their recorded findings are the input the person switches the wake on with, one check per repository, so one workflow and one switch check any number of repositories.",
-        "produces": "Nothing when every rule holds. Otherwise one notice to the person per repository that broke a rule, kind needs-you, titled with its archive, whose body is that run's count of findings, rules and files.",
+        "produces": "Nothing when every rule holds. Otherwise one notice kept in the person's store (told_the_person) per repository that broke a rule, kind needs-you, titled with its archive, whose body is that run's count of findings, rules and files.",
         "input_schema": {
           "type": "object",
           "required": [
-            "checks"
+            "checks",
+            "store"
           ],
           "properties": {
             "checks": {
@@ -48,6 +49,28 @@
                     "type": "string",
                     "description": "The held name of a token that may read a private repository's archive, sent only to the archive's own host"
                   }
+                }
+              }
+            },
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language",
+                "credential_name"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the notices their workflows tell them (table told_the_person): the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses to keep a notice"
                 }
               }
             }
@@ -197,45 +220,76 @@
                   }
                 },
                 {
+                  "id": "make-notices",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "store.credential_name"
+                        }
+                      },
+                      "sql": "create table if not exists told_the_person (seq bigint primary key, item jsonb not null)"
+                    },
+                    "context": {
+                      "step_id": "make-notices"
+                    }
+                  }
+                },
+                {
                   "id": "tell",
                   "kind": "ask",
                   "config": {
-                    "name": "tool:tell-the-person",
+                    "name": "tool:run-sql-in-my-database",
                     "input": {
-                      "title": {
+                      "credential_name": {
                         "$kind": "binding",
                         "select": {
-                          "from": "loop",
-                          "path": "check.archive"
-                        },
-                        "resolve_nested_bindings": true,
-                        "transform": [
-                          {
-                            "op": "op:core.concat",
-                            "args": {
-                              "values": [
-                                "My rules found something in ",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "check.archive"
-                                  }
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      },
-                      "body": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "steps",
-                          "key": "check",
-                          "path": "output.said"
+                          "from": "input",
+                          "path": "store.credential_name"
                         }
                       },
-                      "kind": "needs-you"
+                      "sql": "insert into told_the_person (seq, item) select next.n, jsonb_build_object('seq', next.n, 'kind', $1::text, 'title', $2::text, 'body', coalesce($3::text, ''), 'at', to_char(now() at time zone 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"'), 'open', null, 'read', false, 'actions', '[]'::jsonb, 'results', '{}'::jsonb) || case when $4::text is null then '{}'::jsonb else jsonb_build_object('key', $4::text) end from (select coalesce(max(seq), 0) + 1 as n from told_the_person) as next where $4::text is null or not exists (select 1 from told_the_person where item->>'key' = $4::text)",
+                      "params": [
+                        "needs-you",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "check.archive"
+                          },
+                          "resolve_nested_bindings": true,
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  "My rules found something in ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "check.archive"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "steps",
+                            "key": "check",
+                            "path": "output.said"
+                          }
+                        },
+                        null
+                      ]
                     },
                     "context": {
                       "step_id": "tell"
@@ -246,7 +300,7 @@
               "edges": [
                 {
                   "from": "check",
-                  "to": "tell",
+                  "to": "make-notices",
                   "kind": "on_result",
                   "config": {
                     "$kind": "binding",
@@ -263,6 +317,11 @@
                       }
                     ]
                   }
+                },
+                {
+                  "from": "make-notices",
+                  "to": "tell",
+                  "kind": "always"
                 }
               ]
             }
@@ -271,7 +330,7 @@
         "records": {
           "runs": [
             "tool:check-an-archive-against-my-rules",
-            "tool:tell-the-person"
+            "tool:run-sql-in-my-database"
           ]
         }
       }
