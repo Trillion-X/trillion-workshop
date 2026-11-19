@@ -118,7 +118,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -224,12 +223,11 @@
               "at": "/opt/coordination-sessions"
             },
             {
-              "package": "records-door",
+              "package": "workflows",
               "paths": [
-                "do-work",
-                "read-data"
+                "do-work/run-a-function.mjs"
               ],
-              "at": "/opt/records-door"
+              "at": "/opt/workflows"
             },
             {
               "package": "content-identity",
@@ -270,7 +268,7 @@
           "workdir": "/opt/coordination-sessions",
           "internet": false,
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/coordination-sessions/do-work/coordination-sessions.mjs", "runASessionStep"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/coordination-sessions/do-work/coordination-sessions.mjs", "runASessionStep"],
           "stdin": { "fill": { "from": "input" } }
         },
         "needs": { "expected_seconds": 2, "network_egress": false },
@@ -417,7 +415,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -525,12 +522,11 @@
               "at": "/opt/coordination-sessions"
             },
             {
-              "package": "records-door",
+              "package": "workflows",
               "paths": [
-                "do-work",
-                "read-data"
+                "do-work/run-a-function.mjs"
               ],
-              "at": "/opt/records-door"
+              "at": "/opt/workflows"
             },
             {
               "package": "content-identity",
@@ -571,7 +567,7 @@
           "workdir": "/opt/coordination-sessions",
           "internet": false,
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/coordination-sessions/do-work/coordination-sessions.mjs", "workASessionCatalog"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/coordination-sessions/do-work/coordination-sessions.mjs", "workASessionCatalog"],
           "stdin": { "fill": { "from": "input" } }
         },
         "needs": { "expected_seconds": 2, "network_egress": false },
@@ -706,7 +702,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -826,12 +821,11 @@
               "at": "/opt/coordination-sessions"
             },
             {
-              "package": "records-door",
+              "package": "workflows",
               "paths": [
-                "do-work",
-                "read-data"
+                "do-work/run-a-function.mjs"
               ],
-              "at": "/opt/records-door"
+              "at": "/opt/workflows"
             },
             {
               "package": "content-identity",
@@ -872,7 +866,7 @@
           "workdir": "/opt/coordination-sessions",
           "internet": false,
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/coordination-sessions/do-work/coordination-sessions.mjs", "planAnEvent"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/coordination-sessions/do-work/coordination-sessions.mjs", "planAnEvent"],
           "stdin": { "fill": { "from": "input" } }
         },
         "needs": { "expected_seconds": 2, "network_egress": false },

@@ -1,6 +1,6 @@
 // tools/coordination-sessions/do-work/coordination-sessions.mjs
 //
-// The tool seam. Each export is run by tools/records-door/do-work/run-an-export.mjs as fn(input). Sessions, catalog
+// The tool seam. Each export is run by tools/workflows/do-work/run-a-function.mjs as fn(input). Sessions, catalog
 // entries and plans go in and come out as JSON; nothing is kept here, so the caller keeps what it wants as records.
 import { runASessionOperation } from './session-lifecycle.ts';
 import {

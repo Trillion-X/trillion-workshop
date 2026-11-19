@@ -15,7 +15,7 @@ A gathering a person organizes: its purpose, the times, places and modes it coul
 | `do-work/session-lifecycle.ts` | `createCoordinationSession`, `updateCoordinationSession`, `rescheduleCoordinationSession`, `forkCoordinationSession`, `mergeCoordinationSessions`, `cancel`, `confirm`, `recordCoordinationSessionNoShow`, `close`, `requestCoordinationSessionFeedback`, `supersedeCoordinationSession`, and `runASessionOperation` (one request, one named step). Copied; the owner-reference record, its defaults and the old target comment are gone, and the availability owner is optional. |
 | `read-data/session-catalog.ts` | `publishSessionCatalogEntry`, `readSessionCatalog`, `updateSessionCatalogEntry`, `retractSessionCatalogEntry`, `supersedeSessionCatalogEntry`, `crossOfferSessionCatalogEntry`. Copied; the access and recommendation delegates, the owner references and the screen-projection reference are gone, and `readSessionCatalog` takes its options second. |
 | `read-data/plan-an-event.ts` | `planAnEvent`: a draft to session, catalog entry, capacity ledger input and addresses. Rewritten from `materializeOrganizerEvent`: mode and visibility are open words, and the branding, access, intake, publication and projection plans (all references to other packages) and the sign-up copy are gone. |
-| `do-work/coordination-sessions.mjs` | The tool seam, run by `tools/records-door/do-work/run-an-export.mjs`. |
+| `do-work/coordination-sessions.mjs` | The tool seam, run by `tools/workflows/do-work/run-a-function.mjs`. |
 | `tool-rows.json` | Three rows. |
 | `part.json` | No public files. |
 | `test/session-lifecycle.test.mjs`, `test/session-catalog.test.mjs`, `test/plan-an-event.test.mjs` | The package's cases (with a made-up bakery club), plus refusals. |
@@ -32,6 +32,6 @@ A gathering a person organizes: its purpose, the times, places and modes it coul
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (packed by every row at `/opt/records-door`, for its command only; these rows read no records). Node 24 in the tool container runs the `.ts` files by stripping their types.
+**Depends on:** `tools/workflows` (its `do-work/run-a-function.mjs` is packed by every row at `/opt/workflows`; these rows read no records). Node 24 in the tool container runs the `.ts` files by stripping their types.
 
 **Depended on by:** Trillion's deploy reads `tool-rows.json`.
