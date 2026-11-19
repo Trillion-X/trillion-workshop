@@ -1,21 +1,22 @@
 {
-  "start_here": "Say to your AI: \"Run workflow:act-on-my-notice with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"}, id told:1 and action open.\"",
+  "start_here": "Say to your AI: \"Run workflow:act-on-my-notice with database <the name of my own account database>, id told:1 and action open.\"",
   "lists": [],
-  "no_lists_because": "The offered action is read from the notice in the store the person keeps; only a local open completes here, and marking the notice read writes that notice in the store, so no list of yours is needed.",
+  "no_lists_because": "The offered action is the notice's own url in the person's own database; no list of yours is needed.",
   "workflows": [
     "workflow:act-on-my-notice"
   ],
-  "tools": [],
+  "tools": [
+    "tool:run-sql-in-my-database"
+  ],
   "instructions": [
-    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
-    "2. Say \"Run workflow:act-on-my-notice\" with store, the notice id and the action id the notice offered.",
-    "3. The first run proves the actions on the example notices: every answer must be the one the intent says, or the run stops and says which.",
-    "4. A local open answers the path to open and marks the notice read; any other action is refused with the owner that must act."
+    "1. Name the database your account keeps its rows in.",
+    "2. Say \"Run workflow:act-on-my-notice\" with database, the notice id and the action it offered (open).",
+    "3. A local open answers the path to open and marks the notice read; any other action is refused with the owner that must act."
   ],
   "worked_examples": [
     {
       "title": "Open the report a notice offered",
-      "ask": "Open the report Trillion notice told:1 offered",
+      "ask": "Open the report notice told:1 offered",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -24,12 +25,7 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:act-on-my-notice",
-              "store": {
-                "where": "postgresql database example_shop on my own computer",
-                "language": "SQL (PostgreSQL)",
-                "credential_name": "example-shop-postgres-connection"
-              },
+              "database": "<my account database>",
               "id": "told:1",
               "action": "open"
             }
@@ -38,9 +34,9 @@
       },
       "workflow": "workflow:act-on-my-notice",
       "step": "act",
-      "given": "The store keeps told:1 unread, with an offered open action to /work/reports/1.",
-      "hands_back": "done true, said \"Opening Open report.\", open \"/work/reports/1\"; told:1 is now read."
+      "given": "The notice table holds told:1 with url /work/reports/1, unread.",
+      "hands_back": "done true, said \"Opening the notice.\", open \"/work/reports/1\"; told:1 is now read and acted."
     }
   ],
-  "drafted_from": "workflow:act-on-my-notice steps look, prove and act"
+  "drafted_from": "workflow:act-on-my-notice steps render, act"
 }

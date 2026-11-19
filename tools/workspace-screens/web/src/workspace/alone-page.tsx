@@ -21,13 +21,18 @@
 //   3. A host is told through one message channel, `window.webkit.messageHandlers[alone-page.json host_channel]`, with
 //      { kind: 'size', height } when the page's height changes, { kind: 'glance', count, working, running, now, list }
 //      when what the bell shows changes, and { kind: 'outside', url } for a link that is not a Trillion screen. A page
-//      with no host opens such a link in a new tab and tells nobody its size. The glance is read from the one
+//      with no host opens such a link in a new tab and tells nobody its size. The notices loop (alone-notices.mjs) tells
+//      { kind: 'notify', id, title, body } once for each new notice of this device, and { kind: 'register_device', device_id }
+//      once per page before its first read. The host answers a tap on a notice through the host(message) entry of
+//      invariant 4, as { kind: 'notice_tapped', id }. The kinds are listed in alone-page.json host_kinds; this page sends and takes no other. The
+//      native side accepts these messages only from the main frame of this page's own origin (macos/App/MenuBarPanel.swift
+//      userContentController), the same check every kind takes. The glance is read from the one
 //      notification center, whatever kind each thing is: `count` unread, `working` whether anything runs, `running`
 //      how many, `now` the thing most recently moving ({ title, kind, fraction } with fraction 0..1 or null when its
 //      amount is not known; with nothing running, the Calendar item now or next as kind 'next' with its countdown in the title) and `list` the titles of everything running, newest first, so a host's mark says what is
 //      happening and how far, never only that something is.
 //   4. A host reaches the page through `window.trillionAlone`: back() (closes what is open over the screen, as Escape
-//      in the page would, else steps back out of a screen opened in place; answers whether there was anything to do), open(address), and tell(lines): what only the host can see (a drive the Mac is still copying), each line
+//      in the page would, else steps back out of a screen opened in place; answers whether there was anything to do), open(address), host(message) (a message the host sends to the page, of a kind alone-page.json host_kinds.from_host lists: notice_tapped), and tell(lines): what only the host can see (a drive the Mac is still copying), each line
 //      { id, title, kind, running, percent? }, shown as the page's own notifications (kept, quiet, never a card that
 //      pops up), with its percent as the notification's progress; a line the host stops telling is taken away.
 //   5. The live channel is kept exactly as on the full page, so a glance is never staler than the workspace. Like the
@@ -67,6 +72,8 @@ import { PANEL_SETTINGS_EVENT } from './panel-settings';
 import { askPanelSettings, panelSettingValue, panelSettingsState } from './panel-settings.mjs';
 import { PANEL_PERMISSIONS_EVENT, PANEL_PLACEMENT_EVENT } from './panel-setup';
 import { hostChannel, tellHost } from './host-channel';
+import { deviceIdOf, keepNotices } from './alone-notices.mjs';
+import { keptAccount } from '../../../../ui/show/page-storage/page-storage';
 
 type Asked = { id: string; input?: Record<string, unknown> };
 type Routed = { row: ScreenRow; input: Record<string, string> | null };
@@ -228,7 +235,20 @@ export async function startAlone(first: Routed, offered: ScreenRow[], mountPerso
     const hours = Number(panelSettingValue(panelSettingsState(answer), 'meetings_within', reachHours ?? NaN));
     if (Number.isFinite(hours) && hours !== reachHours) { reachHours = hours; reachListeners.forEach(listener => listener()); }
   };
-  (window as unknown as { trillionAlone: unknown }).trillionAlone = { back, open: openHere, tell, shortcut, placement, permissions, panelSettings };
+  // The notices loop (alone-notices.mjs): each new notice of this device is told to the host; a tap is answered through
+  // host(). Read at the start, on its timer and when the page wakes; the cursor is kept in this browser.
+  const notices = keepNotices({
+    database: async () => keptAccount()?.store ?? null,
+    deviceId: async () => deviceIdOf(window.localStorage),
+    run: (row: string, input: Record<string, unknown>) => runWorkshopTool<Record<string, unknown>>('tool:run-workflow-definition', { row, ...input }).then(ran => ran.result ?? {}),
+    tell: tellHost,
+    open: path => openHere(path),
+    storage: window.localStorage,
+    settings: settings.notices,
+  });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') notices.wake(); });
+  void notices.readNew();
+  (window as unknown as { trillionAlone: unknown }).trillionAlone = { back, open: openHere, host: (message: unknown) => notices.host(message), tell, shortcut, placement, permissions, panelSettings };
 
   // The host's window is as tall as the page (up to what the host allows), told whenever that changes.
   new ResizeObserver(() => tellHost({ kind: 'size', height: Math.ceil(page.scrollHeight) })).observe(page);

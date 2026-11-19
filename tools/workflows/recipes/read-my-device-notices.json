@@ -1,57 +1,38 @@
 {
-  "about": "workflow:read-my-device-notices: reads the notices queued or positively delivered to one registered device (a browser, a phone, the Mac app or a watch), oldest first after its cursor, read straight from the person's own store (rule a-tool-is-only-what-the-store-cannot-do). It replaces tool:my-device-notices in tools/tell-the-person, which read the device registration and the told-the-person records through the retired records door. Nothing here writes: the cursor is answered, and the device that reads keeps it.",
+  "about": "tools/workflows/recipes: rebuilt on the notice tables (devices, notices) that every notice workflow renders. Replaces the reads of tools/tell-the-person, which read through the retired records door. The device's own registration writes its devices row (the app lane); this recipe only reads it, and it writes nothing.",
   "records": [
     {
       "payload": {
         "kind": "workflow-recipe",
         "id": "workflow:read-my-device-notices",
         "label": "Read the notices ready for one of my devices",
-        "job": "Read the notices ready for one registered device of the person (its route: live, web-push or apns), only those queued or positively delivered to that device, oldest first after its cursor, with the cursor the device should keep next.",
-        "produces": "The next notices for one registered device, oldest first, and the cursor to keep, read from the person's own store and answered as it was kept.",
+        "job": "Read the notices addressed to one registered device of the person (or to every device), oldest first after its cursor, with the cursor the device should keep next.",
+        "produces": "The next notices for one registered device, oldest first, and the cursor to keep, read from the person's own database.",
         "source": {
-          "from": "tools/tell-the-person read-data/told.mjs (myDeviceNotices, keptNotices, resultFor, channelRoute) and tool:my-device-notices, read on trillion-workshop origin/main 75fa3807fc",
-          "note": "The device registration is kept where the store keeps notification devices; the device's own registration writes it, and this recipe only reads it. The cursor rule (stop before a notice whose delivery to this route is still being attempted) and the device scoping (exact device_ids receipts, or the live fallback for a legacy channel-wide queue) are written out in the answer step."
+          "from": "tools/tell-the-person read-data/told.mjs (myDeviceNotices) and tool:my-device-notices, read on the Workshop's origin/main 75fa3807fc, then rebuilt on devices and notices",
+          "note": "A notice counts for a device when it is addressed to that device or to every device (device_id null), and was made at or after the device registered, so a new registration never receives older notices. The device keeps its cursor; the workflow answers it and writes nothing."
         },
         "input_schema": {
           "type": "object",
           "required": [
-            "store",
+            "database",
             "device_id"
           ],
           "properties": {
-            "store": {
-              "type": "object",
-              "required": [
-                "where",
-                "language"
-              ],
-              "properties": {
-                "where": {
-                  "type": "string",
-                  "description": "Where the person keeps these things: the store's own address"
-                },
-                "language": {
-                  "type": "string",
-                  "description": "How that store is spoken to, in its own terms"
-                },
-                "credential_name": {
-                  "type": "string",
-                  "description": "The vault name of the login the run uses, when it needs one"
-                }
-              }
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The name of the person's own database, the one the workflow's tables live in (the store the account keeps its rows in)."
             },
             "device_id": {
               "type": "string",
-              "description": "The registered device's device_id"
-            },
-            "channel": {
-              "type": "string",
-              "description": "The channel to read for: device-pull, mac-app, mac-voice, web-push or apns (default: device-pull for a live device, else the device's route)"
+              "minLength": 1,
+              "description": "The registered device's id"
             },
             "after": {
               "type": "integer",
               "minimum": 0,
-              "description": "The cursor the device kept: only notices with a seq above it (default 0)"
+              "description": "The cursor the device kept: only notices with a number above it (default 0)"
             },
             "limit": {
               "type": "integer",
@@ -63,51 +44,29 @@
         },
         "steps": [
           {
-            "id": "look",
-            "title": "Read what the store already keeps",
-            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the told notices are kept (told_kept_in, or null), where the notification device registrations are kept (device_kept_in, or null), and the names of the objects that keep them.",
-            "submit": {
-              "type": "object",
-              "required": [
-                "told_kept_in",
-                "device_kept_in",
-                "objects"
-              ],
-              "properties": {
-                "told_kept_in": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                },
-                "device_kept_in": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                },
-                "objects": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
+            "id": "render",
+            "title": "Make the notice tables if they are absent",
+            "do": "Run the statements of this step's sql, in order, through tool:run-sql-in-my-database with database = input.database. They only create what is missing, so a run where both tables exist changes nothing. Submit {rendered: true}.",
+            "sql": [
+              {
+                "name": "devices",
+                "params": [],
+                "text": "CREATE TABLE IF NOT EXISTS devices (id text PRIMARY KEY, platform text NOT NULL CHECK (platform IN ('live', 'web-push', 'apns')), token text, app_build text, registered_at timestamptz NOT NULL DEFAULT now(), last_seen_at timestamptz NOT NULL DEFAULT now())"
+              },
+              {
+                "name": "notices",
+                "params": [],
+                "text": "CREATE TABLE IF NOT EXISTS notices (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, device_id text REFERENCES devices (id), title text NOT NULL DEFAULT '', body text NOT NULL DEFAULT '', url text, made_at timestamptz NOT NULL DEFAULT now(), read_at timestamptz, acted_at timestamptz)"
               }
-            },
-            "checks": []
-          },
-          {
-            "id": "prove",
-            "title": "Prove the device reading on the example notices",
-            "do": "In a throwaway place in the same store, with the same objects, keep these example registrations and notices. Registrations: device-a {device_id: \"device-a\", route: \"live\"}; browser-a {device_id: \"browser-a\", route: \"web-push\"}; phone-a {device_id: \"phone-a\", route: \"apns\"}; late-device {device_id: \"late-device\", route: \"live\", added_at: \"2026-02-01T00:00:00Z\"}. Notices, one per seq, each at \"2026-01-01T00:0<seq>:00Z\", kind \"report\", title \"Notice <seq>\", with these results: seq 1 {device-pull: {sent: true, stage: \"queued\"}}; seq 2 {web-push: {sent: true, device_ids: [\"browser-a\"]}}; seq 3 {apns: {sent: true, device_ids: [\"phone-a\"]}}; seq 4 {web-push: {sent: true, device_ids: [\"browser-b\"]}}; seq 5 {device-pull: {sent: false, stage: \"unavailable\"}}; seq 6 {web-push: {sent: false, stage: \"attempting\"}}. Then answer these reads from those only. (1) device-a, channel mac-app, after 0: the notice told:1 only, cursor 6, said \"1 notice is ready for this device, oldest first.\". (2) device_id nobody: refused with \"This device is not registered to read notices.\". (3) browser-a, no channel, after 0: the notice told:2 only, cursor 5 (it stops before told:6, still attempting), said \"1 notice is ready for this device, oldest first.\". (4) phone-a, no channel, after 0: told:3 only, cursor 6, said \"1 notice is ready for this device, oldest first.\". (5) browser-a with channel apns: refused with \"channel apns does not match this registered device route.\". (6) late-device, channel device-pull, after 0: no notices, cursor 6, said \"0 notices are ready for this device, oldest first.\" (the registration was added after every notice it could have had). Then remove the throwaway place. Submit answers: one per read, in order, as above.",
+            ],
             "submit": {
               "type": "object",
               "required": [
-                "answers"
+                "rendered"
               ],
               "properties": {
-                "answers": {
-                  "type": "array"
+                "rendered": {
+                  "type": "boolean"
                 }
               }
             },
@@ -116,12 +75,37 @@
           {
             "id": "answer",
             "title": "Answer the notices ready for this device",
-            "do": "Read the device registration of input.device_id from where the store keeps notification devices. Trim input.device_id. When there is no registration, or its route is not live, web-push or apns, refuse: \"This device is not registered to read notices.\". Work out the channel: input.channel trimmed when given, else device-pull when the route is live, else the route. The channel's route is live for device-pull, mac-app and mac-voice, web-push for web-push, and apns for apns; when the channel's route is not the device's route, refuse: \"channel <channel> does not match this registered device route.\". The cursor input.after is a whole number from 0 (default 0). The limit is input.limit (default 20, at most 100). Read the told_the_person objects (when there are any; else none) in seq order. A notice counts when its seq is above the cursor and it has a result for this channel: that result is results[channel], or, for mac-app only, results[\"device-pull\"]. A notice with a result whose device_ids list is present counts when that list includes this device_id. Otherwise it counts when the channel is live and the result has sent true or stage \"queued\", and the device was not added after the notice (added_at is later than the notice's at). Take the first limit counted notices, oldest first. Each one is answered as {id: \"told:<seq>\", seq, kind, title (or \"\"), body (or \"\"), open (or null), at (or null), read (true only when read is true), actions (the item's actions when a list, else []), level (the item's level, else \"active\"), group (only when it has one), read_on (only when it has one)}. The cursor starts at the input's after. Walk every notice above after in seq order: stop at the first whose result for this channel has stage \"checking\" or \"attempting\"; otherwise the cursor becomes that notice's seq when it is higher. When the shown notices reach the limit, the cursor becomes the smaller of itself and the last shown notice's seq. Answer {device_id, channel, cursor, notices, said} where said is \"<n> notice is ready for this device, oldest first.\" when n is 1, and \"<n> notices are ready for this device, oldest first.\" otherwise. Nothing is written.",
+            "do": "Trim input.device_id; it is the device's id. Run the statement named device with params [device id]. When it returns no row, or its platform is not live, web-push or apns, refuse with \"This device is not registered to read notices.\". The platform column is the device's delivery route. The cursor input.after is a whole number from 0 (default 0); the limit input.limit is a whole number from 1 to 100 (default 20). Run the statement named notices with params [device id, after, limit]. Its rows are the notices, oldest first. Answer each one as {id: \"told:<id>\", title, body, open: url (or null when none), at: made_at as an ISO time, read: true only when read_at is not null}. The cursor: run the statement named last with params [after]. When the notices statement returned fewer rows than limit, the cursor is its last_id; when it returned limit rows, the cursor is the id of the last row returned. Answer {device_id, route: the platform, cursor, notices, said}, where said is \"1 notice is ready for this device, oldest first.\" when there is one notice and \"<n> notices are ready for this device, oldest first.\" otherwise. Nothing is written.",
+            "sql": [
+              {
+                "name": "device",
+                "params": [
+                  "device_id"
+                ],
+                "text": "SELECT id, platform FROM devices WHERE id = $1"
+              },
+              {
+                "name": "notices",
+                "params": [
+                  "device_id",
+                  "after",
+                  "limit"
+                ],
+                "text": "SELECT n.id, n.title, n.body, n.url, n.made_at, n.read_at FROM notices n JOIN devices d ON d.id = $1 WHERE n.id > $2::bigint AND (n.device_id = d.id OR n.device_id IS NULL) AND n.made_at >= d.registered_at ORDER BY n.id LIMIT $3"
+              },
+              {
+                "name": "last",
+                "params": [
+                  "after"
+                ],
+                "text": "SELECT greatest(coalesce(max(id), 0), $1::bigint) AS last_id FROM notices"
+              }
+            ],
             "submit": {
               "type": "object",
               "required": [
                 "device_id",
-                "channel",
+                "route",
                 "cursor",
                 "notices",
                 "said"
@@ -130,7 +114,7 @@
                 "device_id": {
                   "type": "string"
                 },
-                "channel": {
+                "route": {
                   "type": "string"
                 },
                 "cursor": {
