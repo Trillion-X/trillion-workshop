@@ -1,0 +1,100 @@
+{
+  "about": "workflow:decide-a-source-message: decides one positively attributed human message, keeps its Request, execution claim and work source once (each only when absent), and hands one owner-assigned Task to the task owner and its session to the session owner only after an admitted Request or a verified replay. It replaces workflow:decide-source-message-intake (action:decide-source-message-intake in tools/take-requests), whose reads and compare-and-set writes ran through the engine's record steps. The decision itself stays the pure planner in tools/take-requests do-work/process-scripts/decide-source-message.py, which touches no store.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:decide-a-source-message",
+        "label": "Decide one source message and keep its request",
+        "job": "Decide one message a person sent themselves (origin human-root-session, record_ref request:<source>:<native message>): read what is already kept for it, get the AI's decision and the work owner's readback, plan the writes, keep them in one all-or-nothing batch that writes each row only when it is absent, then hand the Task and the session on to their owners. A replay of the same message writes nothing again; a message that was not decided is kept as nothing.",
+        "produces": "The Request, the execution claim and the work source as the store keeps them, each written once; the Task and session handed to their owners once; and the outcome: written, unchanged, deferred, refused or conflict.",
+        "source": {
+          "from": "tools/take-requests things-to-store-and-run.json, action:decide-source-message-intake (read steps, run_producer, read_script, plan_process, cas write-batch, dispatch_task, start_session, persist_start_binding) and tools/take-requests do-work/process-scripts/decide-source-message.py (the planner), on trillion-workshop origin/main 662917e782.",
+          "note": "Only the reads and the keeping are the store's job. The planner decides; it writes nothing. The Task is created by action:create-task and the session by action:process-session:start-authorized-assigned-work-session, each from its own owner. The address of each row is the one the planner names: request at record_ref, claim at <record_ref>:execution-claim, work source at <record_ref>:assigned-work-source, Task under entity|<record_ref>, session at <record_ref>:execution-session."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["store", "candidate"],
+          "additionalProperties": false,
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": ["where", "language"],
+              "properties": {
+                "where": {"type": "string", "description": "Where the person keeps these rows: the store's own address"},
+                "language": {"type": "string", "description": "How that store is spoken to, in its own terms"},
+                "credential_name": {"type": "string", "description": "The vault name of the login the run uses, when it needs one"}
+              }
+            },
+            "candidate": {"type": "object", "description": "The message as the decoder read it: origin_ref, source_ref, native_message_ref, atom_ref, record_ref, content_revision, at and text"},
+            "owner_readback": {"type": "object", "description": "The work owner as the store reads it now (ai-agent-profile:founder-operator and its status); what is not given is not available"}
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what is already kept for this message",
+            "do": "Speak to the store in its own language, with the login under its credential_name. Read, without changing anything: the Request at candidate.record_ref; the Task under entity|<record_ref>; the claim at <record_ref>:execution-claim; the session at <record_ref>:execution-session; and the work owner's profile (ai-agent-profile:founder-operator) as it is now. Submit each one as the store keeps it, or null when there is none.",
+            "submit": {
+              "type": "object",
+              "required": ["existing_request", "existing_task", "existing_claim", "existing_session", "owner_readback"],
+              "properties": {
+                "existing_request": {"type": ["object", "null"]},
+                "existing_task": {"type": ["object", "null"]},
+                "existing_claim": {"type": ["object", "null"]},
+                "existing_session": {"type": ["object", "null"]},
+                "owner_readback": {"type": ["object", "null"]}
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "decide",
+            "title": "Get the decision and plan the writes",
+            "do": "Ask the AI for the decision on the candidate with the request-intake source-message instruction (the producer the record-producing action runs), and take its single item as model_result. Then run the planner: python3 -I tools/take-requests/do-work/process-scripts/decide-source-message.py with one JSON file holding {candidate, model_result, owner_readback, existing_request, existing_task, existing_claim, existing_session} from the look step. It prints {writes, tasks, claim_writes, start, record_ref, disposition_ref}. A planner error is a refusal and nothing is kept. A deferred decision (no writes, no tasks, no start) keeps nothing, so a later answer is a first decision. Submit the planner's output.",
+            "submit": {
+              "type": "object",
+              "required": ["writes", "claim_writes", "tasks", "start", "disposition_ref"],
+              "properties": {
+                "writes": {"type": "array"},
+                "claim_writes": {"type": "array"},
+                "tasks": {"type": "array"},
+                "start": {"type": ["object", "null"]},
+                "disposition_ref": {"type": "string"}
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Keep the rows once, then hand the work on",
+            "do": "Keep writes followed by claim_writes in one batch: each row is written only when its address is absent (its expected current payload is null), and the batch is all or nothing. If any row is present now, the whole batch is a conflict: nothing is written, and the outcome is conflict; the run stops and is taken again from the look step. When the batch is kept, hand each task in tasks to the task owner (action:create-task) and, when start is not null, start the session with start through action:process-session:start-authorized-assigned-work-session. A message whose Request already existed writes no row and hands over no task or session. The outcome is deferred when the planner deferred; refused when the planner raised an error; conflict when the batch conflicted; unchanged when the batch is empty; otherwise written. Submit the outcome, the number of rows kept, whether a task was handed over and whether a session was started.",
+            "submit": {
+              "type": "object",
+              "required": ["outcome", "rows_kept", "task_handed", "session_started"],
+              "properties": {
+                "outcome": {"type": "string", "enum": ["written", "unchanged", "deferred", "refused", "conflict"]},
+                "rows_kept": {"type": "integer", "minimum": 0},
+                "task_handed": {"type": "boolean"},
+                "session_started": {"type": "boolean"}
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the decision on the example attempts",
+            "do": "In a throwaway copy of the store with the same objects, seed store_before, then run look, decide and keep for each attempt in order. When race_after_look is given, write those rows into the store after look and before keep. Every outcome, row count, task and session answer must be the one expect says. Attempts: [{\"name\": \"fresh human request\", \"candidate\": {\"origin_ref\": \"human-root-session\", \"source_ref\": \"src-1\", \"native_message_ref\": \"native-1\", \"atom_ref\": \"atom-1\", \"record_ref\": \"request:src-1:native-1\", \"content_revision\": \"rev-1\", \"at\": \"2026-11-19T09:00:00Z\", \"text\": \"Fix the export button.\"}, \"model_result\": {\"status\": \"completed\", \"items\": [{\"disposition_ref\": \"disposition:request\", \"confidence\": 0.9, \"reason\": \"A clear request.\", \"effect_class\": \"private-local\", \"acceptance_criteria\": [\"The button exports the file.\"]}]}, \"owner_readback\": {\"id\": \"ai-agent-profile:founder-operator\", \"status\": \"available\"}, \"store_before\": {}, \"expect\": {\"outcome\": \"written\", \"rows_kept\": 3, \"task_handed\": true, \"session_started\": true}}, {\"name\": \"replay of the same message\", \"candidate\": {\"origin_ref\": \"human-root-session\", \"source_ref\": \"src-1\", \"native_message_ref\": \"native-1\", \"atom_ref\": \"atom-1\", \"record_ref\": \"request:src-1:native-1\", \"content_revision\": \"rev-1\", \"at\": \"2026-11-19T09:00:00Z\", \"text\": \"Fix the export button.\"}, \"model_result\": {\"status\": \"completed\", \"items\": [{\"disposition_ref\": \"disposition:request\", \"confidence\": 0.9, \"reason\": \"A clear request.\", \"effect_class\": \"private-local\", \"acceptance_criteria\": [\"The button exports the file.\"]}]}, \"owner_readback\": {\"id\": \"ai-agent-profile:founder-operator\", \"status\": \"available\"}, \"store_before\": {\"request:src-1:native-1\": {\"kind\": \"request-intake.source-message-decision\", \"record_ref\": \"request:src-1:native-1\", \"source_ref\": \"src-1\", \"native_message_ref\": \"native-1\", \"atom_ref\": \"atom-1\", \"content_revision\": \"rev-1\", \"disposition_ref\": \"disposition:request\", \"reason\": \"A clear request.\", \"owner_ref\": \"ai-agent-profile:founder-operator\", \"effect_class\": \"private-local\", \"task_ref\": \"request:src-1:native-1\", \"text\": \"Fix the export button.\"}, \"entity|request:src-1:native-1\": {\"task_id\": \"request:src-1:native-1\", \"task_number\": \"request:src-1:native-1\"}, \"request:src-1:native-1:execution-claim\": {\"kind\": \"request-intake.task-execution-claim\", \"claim_ref\": \"request:src-1:native-1:execution-claim\", \"task_ref\": \"request:src-1:native-1\", \"source_ref\": \"src-1\", \"status\": \"pending-start\"}, \"request:src-1:native-1:execution-session\": {\"task_ref\": \"request:src-1:native-1\"}}, \"expect\": {\"outcome\": \"unchanged\", \"rows_kept\": 0, \"task_handed\": false, \"session_started\": false}}, {\"name\": \"same id from another source\", \"candidate\": {\"origin_ref\": \"human-root-session\", \"source_ref\": \"src-9\", \"native_message_ref\": \"native-1\", \"atom_ref\": \"atom-9\", \"record_ref\": \"request:src-9:native-1\", \"content_revision\": \"rev-1\", \"at\": \"2026-11-19T09:00:00Z\", \"text\": \"Fix the export button.\"}, \"model_result\": {\"status\": \"completed\", \"items\": [{\"disposition_ref\": \"disposition:request\", \"confidence\": 0.9, \"reason\": \"A clear request.\", \"effect_class\": \"private-local\", \"acceptance_criteria\": []}]}, \"owner_readback\": {\"id\": \"ai-agent-profile:founder-operator\", \"status\": \"available\"}, \"store_before\": {\"request:src-9:native-1\": {\"kind\": \"request-intake.source-message-decision\", \"record_ref\": \"request:src-9:native-1\", \"source_ref\": \"src-other\", \"native_message_ref\": \"native-1\", \"atom_ref\": \"atom-1\", \"content_revision\": \"rev-1\", \"disposition_ref\": \"disposition:request\", \"reason\": \"A clear request.\", \"owner_ref\": \"ai-agent-profile:founder-operator\", \"effect_class\": \"private-local\", \"task_ref\": \"request:src-9:native-1\"}}, \"expect\": {\"outcome\": \"refused\", \"rows_kept\": 0, \"task_handed\": false, \"session_started\": false}}, {\"name\": \"decision not reliable yet\", \"candidate\": {\"origin_ref\": \"human-root-session\", \"source_ref\": \"src-2\", \"native_message_ref\": \"native-2\", \"atom_ref\": \"atom-2\", \"record_ref\": \"request:src-2:native-2\", \"content_revision\": \"rev-1\", \"at\": \"2026-11-19T09:05:00Z\", \"text\": \"Maybe look at it.\"}, \"model_result\": {\"status\": \"completed\", \"items\": [{\"disposition_ref\": \"disposition:request\", \"confidence\": 0.3, \"reason\": \"Unsure.\"}]}, \"owner_readback\": {\"id\": \"ai-agent-profile:founder-operator\", \"status\": \"available\"}, \"store_before\": {}, \"expect\": {\"outcome\": \"deferred\", \"rows_kept\": 0, \"task_handed\": false, \"session_started\": false}}, {\"name\": \"work owner not available\", \"candidate\": {\"origin_ref\": \"human-root-session\", \"source_ref\": \"src-3\", \"native_message_ref\": \"native-3\", \"atom_ref\": \"atom-3\", \"record_ref\": \"request:src-3:native-3\", \"content_revision\": \"rev-1\", \"at\": \"2026-11-19T09:10:00Z\", \"text\": \"Fix the import button.\"}, \"model_result\": {\"status\": \"completed\", \"items\": [{\"disposition_ref\": \"disposition:request\", \"confidence\": 0.9, \"reason\": \"A clear request.\", \"effect_class\": \"private-local\", \"acceptance_criteria\": []}]}, \"owner_readback\": {}, \"store_before\": {}, \"expect\": {\"outcome\": \"deferred\", \"rows_kept\": 0, \"task_handed\": false, \"session_started\": false}}, {\"name\": \"lost race to another decider\", \"candidate\": {\"origin_ref\": \"human-root-session\", \"source_ref\": \"src-4\", \"native_message_ref\": \"native-4\", \"atom_ref\": \"atom-4\", \"record_ref\": \"request:src-4:native-4\", \"content_revision\": \"rev-1\", \"at\": \"2026-11-19T09:15:00Z\", \"text\": \"Fix the save button.\"}, \"model_result\": {\"status\": \"completed\", \"items\": [{\"disposition_ref\": \"disposition:request\", \"confidence\": 0.9, \"reason\": \"A clear request.\", \"effect_class\": \"private-local\", \"acceptance_criteria\": []}]}, \"owner_readback\": {\"id\": \"ai-agent-profile:founder-operator\", \"status\": \"available\"}, \"store_before\": {}, \"race_after_look\": {\"request:src-4:native-4\": {\"kind\": \"request-intake.source-message-decision\", \"record_ref\": \"request:src-4:native-4\"}}, \"expect\": {\"outcome\": \"conflict\", \"rows_kept\": 0, \"task_handed\": false, \"session_started\": false}}]",
+            "submit": {
+              "type": "object",
+              "required": ["attempts_as_expected"],
+              "properties": {"attempts_as_expected": {"type": "boolean"}}
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes the Request, the execution claim, the work source, the Task and the session of the message; a replay after that decides it again as a first decision."
+      }
+    }
+  ]
+}

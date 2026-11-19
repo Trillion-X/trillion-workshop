@@ -1,0 +1,65 @@
+{
+  "about": "workflow:read-a-source-message-work: reads the exact Request, Task, execution claim and execution session of one source message from the person's own store, without changing them. It replaces workflow:read-source-message-work (action:read-source-message-work in tools/take-requests), whose four reads ran through the engine's read-current step on the records store. Nothing is kept, so only the reading is left and the store is spoken to directly.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:read-a-source-message-work",
+        "label": "Read the work of one source message",
+        "job": "Read the Request, Task, execution claim and execution session of one source message (record_ref request:<source>:<native message>) from the person's own store, exactly as they are, and say which of the four are there.",
+        "produces": "The four rows as the store keeps them, or null for each one that is absent, read by the store's own objects. Nothing is written.",
+        "source": {
+          "from": "tools/take-requests things-to-store-and-run.json, action:read-source-message-work (four engine.operation.label-addressed read-current steps and a return), on trillion-workshop origin/main 662917e782.",
+          "note": "The addresses are the ones the request-intake records keep: the Request at record_ref, the Task at entity|<record_ref> (label hash), the claim at <record_ref>:execution-claim and the session at <record_ref>:execution-session. The store is read directly; no tool sits between the reader and its rows."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["store", "record_ref"],
+          "additionalProperties": false,
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": ["where", "language"],
+              "properties": {
+                "where": {"type": "string", "description": "Where the person keeps these rows: the store's own address"},
+                "language": {"type": "string", "description": "How that store is spoken to, in its own terms"},
+                "credential_name": {"type": "string", "description": "The vault name of the login the run uses, when it needs one"}
+              }
+            },
+            "record_ref": {"type": "string", "pattern": "^request:[^:]+:.+", "description": "The source message's record_ref, request:<source_ref>:<native message ref>"}
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read the four rows",
+            "do": "Speak to the store in its own language, with the login under its credential_name. Read, without changing anything: the Request at record_ref; the Task whose id is record_ref (the task is kept under the label hash of entity|<record_ref>); the execution claim at <record_ref>:execution-claim; and the execution session at <record_ref>:execution-session. Each one read as it is kept, with its version. Submit each row's payload, or null when the store has no row there.",
+            "submit": {
+              "type": "object",
+              "required": ["request", "task", "claim", "session"],
+              "properties": {
+                "request": {"type": ["object", "null"]},
+                "task": {"type": ["object", "null"]},
+                "claim": {"type": ["object", "null"]},
+                "session": {"type": ["object", "null"]}
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the reads on the example rows",
+            "do": "In a throwaway copy of the store with the same objects, seed the rows in store_before, then run each read of the look step on it and compare with expect. Run the attempts in order; every answer must be the one the intent says. Attempts: [{\"name\": \"all four kept\", \"record_ref\": \"request:src-1:native-1\", \"store_before\": {\"request:src-1:native-1\": {\"kind\": \"request-intake.source-message-decision\", \"record_ref\": \"request:src-1:native-1\"}, \"entity|request:src-1:native-1\": {\"task_id\": \"request:src-1:native-1\"}, \"request:src-1:native-1:execution-claim\": {\"kind\": \"request-intake.task-execution-claim\"}, \"request:src-1:native-1:execution-session\": {\"task_ref\": \"request:src-1:native-1\"}}, \"expect\": {\"request\": true, \"task\": true, \"claim\": true, \"session\": true}}, {\"name\": \"no work yet\", \"record_ref\": \"request:src-2:native-2\", \"store_before\": {}, \"expect\": {\"request\": false, \"task\": false, \"claim\": false, \"session\": false}}, {\"name\": \"request only\", \"record_ref\": \"request:src-3:native-3\", \"store_before\": {\"request:src-3:native-3\": {\"kind\": \"request-intake.source-message-decision\", \"record_ref\": \"request:src-3:native-3\"}}, \"expect\": {\"request\": true, \"task\": false, \"claim\": false, \"session\": false}}]",
+            "submit": {
+              "type": "object",
+              "required": ["attempts_as_expected"],
+              "properties": {"attempts_as_expected": {"type": "boolean"}}
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes the Request, Task, claim and session rows of the source message; this recipe keeps nothing, so it has nothing of its own to erase."
+      }
+    }
+  ]
+}

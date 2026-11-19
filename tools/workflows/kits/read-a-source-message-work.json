@@ -1,0 +1,44 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:read-a-source-message-work with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and record_ref request:src-1:native-1.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the Request, Task, claim and session of one message are read from the person's own store, in whatever form that store keeps them, and store says where and in which language.",
+  "workflows": [
+    "workflow:read-a-source-message-work"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:read-a-source-message-work\" with store and record_ref (request:<source ref>:<native message ref>).",
+    "3. The first run proves the reads on the example attempts in the recipe's prove step: a row that is kept must be read as kept, and an absent row as null, or the run stops and says so.",
+    "4. Then it reads the four rows in the store and answers which of them are there and what they hold. Nothing is written."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the work of one source message",
+      "ask": "Run workflow:read-a-source-message-work with store and record_ref request:src-1:native-1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:read-a-source-message-work",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "record_ref": "request:src-1:native-1"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:read-a-source-message-work",
+      "step": "look",
+      "given": "The store keeps the Request, the Task, the execution claim and the execution session for request:src-1:native-1.",
+      "hands_back": "request true, task true, claim true, session true; nothing written."
+    }
+  ]
+}

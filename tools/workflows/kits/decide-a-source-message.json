@@ -1,0 +1,57 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:decide-a-source-message with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and candidate {\\\"origin_ref\\\": \\\"human-root-session\\\", \\\"source_ref\\\": \\\"src-1\\\", \\\"native_message_ref\\\": \\\"native-1\\\", \\\"atom_ref\\\": \\\"atom-1\\\", \\\"record_ref\\\": \\\"request:src-1:native-1\\\", \\\"content_revision\\\": \\\"rev-1\\\", \\\"at\\\": \\\"2026-11-19T09:00:00Z\\\", \\\"text\\\": \\\"Fix the export button.\\\"} and owner_readback {\\\"id\\\": \\\"ai-agent-profile:founder-operator\\\", \\\"status\\\": \\\"available\\\"}.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the Request, claim, work source, Task and session of one message are kept in the person's own store, in whatever form that store keeps them, and store says where and in which language.",
+  "workflows": [
+    "workflow:decide-a-source-message"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:decide-a-source-message\" with store, candidate (the message as the decoder read it) and owner_readback (the work owner as the store reads it now).",
+    "3. The first run proves the decision on the example attempts in the recipe's prove step (a fresh request, a replay, a conflicting source, an unreliable decision, an unavailable owner, a lost race). Every answer must be the one the intent says, or the run stops and says so.",
+    "4. Then it reads what the store already keeps for the message, plans the writes with the planner, keeps them in one all-or-nothing batch that writes each row only when it is absent, and hands the Task and the session to their owners. It answers the outcome: written, unchanged, deferred, refused or conflict."
+  ],
+  "worked_examples": [
+    {
+      "title": "Decide one message a person sent",
+      "ask": "Run workflow:decide-a-source-message with store, candidate and owner_readback (the example message from the recipe's prove step).",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:decide-a-source-message",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "candidate": {
+                "origin_ref": "human-root-session",
+                "source_ref": "src-1",
+                "native_message_ref": "native-1",
+                "atom_ref": "atom-1",
+                "record_ref": "request:src-1:native-1",
+                "content_revision": "rev-1",
+                "at": "2026-11-19T09:00:00Z",
+                "text": "Fix the export button."
+              },
+              "owner_readback": {
+                "id": "ai-agent-profile:founder-operator",
+                "status": "available"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:decide-a-source-message",
+      "step": "keep",
+      "given": "The store keeps none of the four rows for request:src-1:native-1, and the work owner is available.",
+      "hands_back": "outcome \"written\", rows_kept 3 (the Request, the execution claim and the work source), task_handed true, session_started true."
+    }
+  ]
+}
