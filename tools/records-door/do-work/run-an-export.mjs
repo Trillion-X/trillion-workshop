@@ -17,7 +17,8 @@
 // events). The engine reads them from the top of the last line, so they are printed beside the result, not in it.
 import { text } from 'node:stream/consumers';
 import { pathToFileURL } from 'node:url';
-import { openBearerDoor, openParentActions } from '../read-data/records-door.mjs';
+import { openBearerDoor } from '../read-data/records-door.mjs';
+import { openHostActions } from '../../workflows/read-data/host-actions.mjs';
 import { valuesDoor } from '../read-data/values-door.mjs';
 
 const EFFECTS = 'wake_effects';
@@ -39,7 +40,7 @@ try {
   const values = valuesDoor(stored, { other: (...asked) => (own ??= openBearerDoor()).call(...asked) });
   const context = {
     door: values.door,
-    get parentActions() { return (parentActions ??= openParentActions({ descriptor: parentActionsFd })); },
+    get parentActions() { return (parentActions ??= openHostActions({ descriptor: parentActionsFd }).parentActions); },
   };
   const answered = await fn(input, context);
   const keep = values.keep();

@@ -1,19 +1,22 @@
 // tools/free-what-the-list-says-can-be-got-back/do-work/free-what-the-list-says-can-be-got-back.mjs
 //
 // Purpose: Judge, row by row, which files or folders on the person's computer can go because their own list says how to
-// get them back, and check that way back NOW. It moves nothing and writes no store: an eligible path is handed back to the
-// native caller, which moves it to recoverable Trash and writes the list. Mechanism only: the list's field names, its
-// state words and how a source is asked are DATA (read-data/); no folder, film, tool or person is named here.
+// get them back, check that way back NOW, and move only the confirmed ones to recoverable Trash. Mechanism only: the list's
+// field names, its state words and how a source is asked are DATA (read-data/); no folder, film, tool or person is named here.
 //
 // Invariants:
-// - A row is eligible only if every one of these holds at run time: its state is the saved word; no hold is written;
+// - Dry run is the default. Nothing moves unless the request says dry_run: false.
+// - A row is freed only if every one of these holds at run time: its state is the saved word; no hold is written;
 //   it names a removable path (frees is file or folder, not none); the path is inside the granted folder, is not a link,
 //   and no file under it is tracked by git; at least one proof exists and every proof holds: each source address answers,
 //   and each recipe file is tracked, unchanged since its last commit, and pushed; nothing under the path changed in the
 //   quiet hours. Anything else stays, with the reason.
-// - Each eligible row carries trash_handoff { path, expected_generation }: the observed metadata of the path after every
-//   check. The caller moves only if the path still has that generation, and only a confirmed move earns a moved state.
-// - Moving to Trash keeps recovery and does not establish that any physical disk space was freed.
+// - Disposal asks this run's authenticated native parent once per row (`host.parentActions`, a host action: not a
+//   records operation). Unknown stops further disposal; there is no CLI fallback and no retry.
+//   Moving to Trash keeps recovery and does not establish that any physical disk space was freed.
+// - Each successful answer carries `next_value`, with the moved-to-Trash state. The tool does not write the list.
+// - Entry: freeWhatTheListSays({ folder, input }, host), run by the workflows run-a-function runner. The folder is the
+//   change-a-folder grant, given in stdin; a run without it is refused, never treated as an empty folder.
 import { execFileSync } from 'node:child_process';
 import { lstatSync, readdirSync, readFileSync, realpathSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
@@ -228,28 +231,59 @@ export async function judgeRow(row, { folder, shape, now = Date.now(), answers =
   return { id: row.id, free: true, bytes: bytesUnder(path), path, observed };
 }
 
-/** Judges every row. Returns the answers and the eligible paths; it never moves a path or writes a list. */
+/** Judges and, for a real run, moves each eligible row's path. `deps` carries `parentActions` (host action) and test seams. */
 export async function run(folder, request, deps = {}) {
   if (typeof folder !== 'string' || !folder) throw new Refusal('the granted folder is missing: the run needs the folder its change grant covers');
   if (!Array.isArray(request?.rows) || !request.rows.length || request.rows.length > MAX_ROWS) {
     throw new Refusal(`rows must be a list of 1 to ${MAX_ROWS} list rows, each { id, value }; send the list in pages of ${MAX_ROWS}`);
   }
+  const dryRun = request.dry_run !== false;
   const shape = shapeOf(request.shape);
-  const rows = [];
+  const results = [];
+  let trashedBytes = 0;
+  let uncertain = false;
   for (const row of request.rows) {
     let verdict;
     try { verdict = await judgeRow(row, { folder, shape, now: deps.now, answers: deps.answers }); }
     catch (error) { verdict = { id: row.id, free: false, bytes: 0, reason: `the path could not be checked: ${error.message}` }; }
     const answer = { id: verdict.id, eligible_for_trash: verdict.free, path_bytes: verdict.free ? verdict.bytes : null };
     if (verdict.reason) answer.reason = verdict.reason;
-    if (verdict.free) answer.trash_handoff = { path: verdict.path, expected_generation: verdict.observed };
-    rows.push(answer);
+    if (verdict.free && !dryRun) {
+      if (uncertain) {
+        answer.trashed = false;
+        answer.trash_outcome = 'not_started';
+        answer.reason = 'disposal stopped after an earlier unknown move; this path was not attempted';
+        results.push(answer);
+        continue;
+      }
+      try {
+        if (insideFolder(folder, verdict.path) !== verdict.path || observePath(verdict.path) !== verdict.observed) {
+          throw new Refusal('the path changed after its check');
+        }
+        const parent = deps.parentActions;
+        if (!parent || typeof parent.trashSource !== 'function') throw new Refusal('this run has no native parent action descriptor');
+        const moved = await parent.trashSource({ path: verdict.path, expected_generation: verdict.observed });
+        if (moved?.outcome !== 'moved' || pathExists(verdict.path)) throw new Error('the move was not confirmed');
+        answer.trashed = true;
+        answer.trash_outcome = 'moved';
+        trashedBytes += verdict.bytes;
+        answer.next_value = { ...row.value, [shape.fields.state]: shape.states.trashed, [shape.fields.checked]: new Date().toISOString().slice(0, 10) };
+      } catch (error) {
+        answer.trashed = false;
+        answer.trash_outcome = error instanceof Refusal || error?.outcome === 'not_started' ? 'not_started' : 'unknown';
+        uncertain ||= answer.trash_outcome === 'unknown';
+        answer.reason = error instanceof Refusal ? `the Trash move was not confirmed: ${error.message}`
+          : uncertain ? 'the Trash move outcome is unknown; disposal stopped without retrying'
+            : 'the native parent refused the Trash move; it was not confirmed';
+      }
+    }
+    results.push(answer);
   }
-  const can = rows.filter(r => r.eligible_for_trash);
-  return { rows, eligible_count: can.length, eligible_path_bytes: can.reduce((n, r) => n + r.path_bytes, 0) };
+  const can = results.filter(r => r.eligible_for_trash);
+  return { dry_run: dryRun, rows: results, eligible_count: can.length, eligible_path_bytes: can.reduce((n, r) => n + r.path_bytes, 0), trashed_count: results.filter(r => r.trashed).length, trashed_path_bytes: trashedBytes, freed_bytes: null };
 }
 
-/** The workflows runner calls this with the granted folder and the rows: { folder, input: { rows, shape? } }. */
-export async function freeWhatTheListSays({ folder, input } = {}) {
-  return run(folder, input);
+/** The workflows runner calls this with the stdin object { folder, input } and the run's host actions (`parentActions`). */
+export async function freeWhatTheListSays({ folder, input } = {}, host = {}) {
+  return run(folder, input, { parentActions: host.parentActions });
 }

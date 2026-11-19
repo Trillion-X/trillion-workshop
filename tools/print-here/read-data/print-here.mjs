@@ -2,8 +2,8 @@
 //
 // PURPOSE
 //   Prints a file from the person's files on a printer their Mac already has (`print`), and says which printers it
-//   has (`printers`). Runs on the person's own Mac as a `computer` row holding the print-system capability. `print` is
-//   given the file's bytes in `stored.files` (the caller reads them from the person's own files); it reads nothing itself.
+//   has (`printers`). Runs on the person's own Mac as a `computer` row holding the print-system capability; `print`
+//   reads the file by its name or identity through the run's host action `host.readWholeFile` (workflows read-data/host-actions.mjs).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Blind: the print commands, options and words are DATA (read-data/print-here.json); nothing here names a printer,
@@ -51,17 +51,9 @@ export function printArguments(settings, { printer, copies = 1, title, ...rest }
   return { command, args };
 }
 
-/** The file `file` names, from the bytes the caller handed in `stored.files` (text or { base64 }); none handed in is null. */
-export function fileGiven({ file, stored }, settings) {
-  const held = stored?.files?.[file];
-  if (held === undefined) return null;
-  const bytes = typeof held === 'string' ? Buffer.from(held, 'utf8') : Buffer.from(held.base64 ?? '', 'base64');
-  return { title: String(file).split('/').pop(), size: bytes.length, bytes: bytes.length > settings.most_bytes ? null : bytes };
-}
-
 /**
  * deps { settings?, list?: () → lpstat text, send?: ({ command, args, bytes }) → { job } }
- * print(input, effects?: { handoff_id?, recordEffect? }) — the file is input.stored.files[input.file]
+ * print(input, read: (file) → { bytes, title, size }, effects?: { handoff_id?, recordEffect? })
  */
 export function makePrintTools(deps = {}) {
   const settings = deps.settings ?? printSettings();
@@ -78,15 +70,15 @@ export function makePrintTools(deps = {}) {
   const w = settings.words;
   return {
     async printers() { return printersFrom(await list()); },
-    async print(input, effects = {}) {
+    async print(input, read, effects = {}) {
       if (!input?.file) return { printed: false, said: w.no_file };
       const { printers, default: fallback } = printersFrom(await list());
       if (!printers.length) return { printed: false, said: w.no_printer };
       const printer = input.printer ?? fallback ?? (printers.length === 1 ? printers[0].name : null);
       if (!printer) return { printed: false, said: fill(w.which_printer, { printers: printers.map(row => row.name).join(', ') }) };
       if (!printers.some(row => row.name === printer)) return { printed: false, said: fill(w.unknown_printer, { printer, printers: printers.map(row => row.name).join(', ') }) };
-      const file = fileGiven(input, settings);
-      if (!file) return { printed: false, said: fill(w.not_read, { file: input.file, error: w.not_handed_in }) };
+      let file;
+      try { file = await read(input.file); } catch (error) { return { printed: false, said: fill(w.not_read, { file: input.file, error: error.message }) }; }
       const title = input.title ?? file.title;
       if (!file.bytes) return { printed: false, said: fill(w.too_big, { title, mb: Math.round(file.size / 1e6), most: Math.round(settings.most_bytes / 1e6) }) };
       const copies = Math.max(1, Math.min(Number(input.copies) || 1, 100));
@@ -113,7 +105,9 @@ export async function printers() {
   return makePrintTools().printers();
 }
 
-/** `tool:print`: one file the caller handed in (`stored.files`) on one printer. */
-export async function print(input, { handoff_id, recordEffect } = {}) {
-  return makePrintTools().print(input, { handoff_id, recordEffect });
+/** `tool:print`: one file of the person's files on one printer, read by name through the run's host actions. */
+export async function print(input, { readWholeFile, handoff_id, recordEffect } = {}) {
+  const settings = printSettings();
+  return makePrintTools({ settings }).print(input,
+    file => readWholeFile(file, { readBytes: settings.read_bytes, mostBytes: settings.most_bytes }), { handoff_id, recordEffect });
 }

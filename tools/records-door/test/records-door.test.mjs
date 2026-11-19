@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:http';
-import { openBearerCall, openRecordsDoor, openParentActions, recordsDoorFromCall, RecordsDoorError } from '../read-data/records-door.mjs';
+import { openBearerCall, openRecordsDoor, recordsDoorFromCall, RecordsDoorError } from '../read-data/records-door.mjs';
 import { requestKeyForEngine } from '../../content-identity/read-data/identity.mjs';
 import { wholeAnswer } from '../read-data/byte-pages.mjs';
 import { startFakeDoor } from './fake-door.mjs';
@@ -22,8 +22,6 @@ function parentDescriptor(extra = {}) {
   return descriptor;
 }
 const sourceObservation = { path: '/synthetic/source', expected_generation: '[["","1","2"]]' };
-const parentResult = value => new Response(JSON.stringify({ jsonrpc: '2.0', id: 1, result: value }),
-  { headers: { 'content-type': 'application/json' } });
 
 test('caller cancellation ends a stalled fetch or body as unknown without another effect attempt', async () => {
   for (const stage of ['fetch', 'body']) {
@@ -93,68 +91,6 @@ test('canceling the caller also removes the default retry timer and releases an 
   assert.equal(process.getActiveResourcesInfo().filter(kind => kind === 'Timeout').length, before);
   assert.equal(calls, 1);
   assert.equal(canceled, 1);
-});
-
-test('parent actions use the descriptor route and exact observation through the existing MCP transport', async () => {
-  const calls = [];
-  const actions = openParentActions({ descriptor: parentDescriptor(), fetchImpl: async (url, options) => {
-    calls.push({ url, ...options, body: JSON.parse(options.body) });
-    return new Response('event: message\ndata: ' + JSON.stringify({ result: { structuredContent: { outcome: 'moved' } } }) + '\n\n',
-      { headers: { 'content-type': 'text/event-stream' } });
-  } });
-  assert.deepEqual(await actions.trashSource(sourceObservation), { outcome: 'moved' });
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].headers.authorization, 'Bearer synthetic-private-bearer');
-  assert.equal(calls[0].headers['mcp-protocol-version'], '2025-06-18');
-  assert.deepEqual(calls[0].body.params.arguments, { address: '@synthetic-parent', method: 'synthetic:trash',
-    request_key: calls[0].body.params.arguments.request_key, input: sourceObservation });
-  assert.match(calls[0].body.params.arguments.request_key, /^trash-source:/);
-  assert.deepEqual(Object.keys(actions), ['trashSource']);
-});
-
-test('parent actions never repeat busy, unknown, lost, malformed or paged answers and never echo private errors', async () => {
-  const answers = [
-    () => new Response(null, { status: 503 }),
-    () => parentResult({ isError: true, structuredContent: { code: 'selected_owner_unavailable', outcome: 'not_started' } }),
-    () => parentResult({ isError: true, structuredContent: { code: 'computer_action_unknown', outcome: 'unknown' } }),
-    () => { throw new TypeError('synthetic-private-bearer transport lost'); },
-    () => ({ ok: true, headers: new Headers(), text: async () => { throw new TypeError('synthetic-private-bearer body lost'); } }),
-    () => new Response('synthetic-private-bearer invalid JSON'),
-    () => new Response(JSON.stringify({ error: { message: 'synthetic-private-bearer RPC error' } })),
-    () => parentResult({ structuredContent: { byte_page: { next_after_byte: 1 } } }),
-    () => parentResult({ structuredContent: { outcome: 'refused' } }),
-  ];
-  for (const answer of answers) {
-    let calls = 0, waits = 0;
-    const actions = openParentActions({ descriptor: parentDescriptor(), fetchImpl: async () => { calls++; return answer(); },
-      wait: async () => { waits++; } });
-    await assert.rejects(actions.trashSource(sourceObservation), error => {
-      assert.equal(error.code, 'computer_action_unknown');
-      assert.equal(error.outcome, 'unknown');
-      assert.doesNotMatch(error.message, /synthetic-private-bearer/);
-      return true;
-    });
-    assert.equal(calls, 1);
-    assert.equal(waits, 0);
-  }
-});
-
-test('parent refusals and absent descriptors stay distinct from uncertain effects; JSON cannot supply authority', async () => {
-  for (const code of ['computer_action_refused', 'current_workspace_rights_refused', 'original_input_refused']) {
-    const actions = openParentActions({ descriptor: parentDescriptor(), fetchImpl: async () =>
-      parentResult({ isError: true, structuredContent: { code, outcome: 'not_started' } }) });
-    await assert.rejects(actions.trashSource(sourceObservation), { code, outcome: 'not_started' });
-  }
-  const gone = openParentActions({ descriptor: parentDescriptor(), fetchImpl: async () => new Response(null, { status: 401 }) });
-  await assert.rejects(gone.trashSource(sourceObservation), { code: 'capability_gone', outcome: 'not_started' });
-  assert.throws(() => openParentActions({ descriptor: parentDescriptor({ computer_actions: null }) }), { code: 'no_parent_actions' });
-  let calls = 0;
-  const actions = openParentActions({ descriptor: parentDescriptor(), fetchImpl: async () => { calls++; } });
-  for (const input of [null, {}, { ...sourceObservation, resource: '@forged' }, { ...sourceObservation, grant: 'forged' },
-    { ...sourceObservation, path: 'relative/source' }, { ...sourceObservation, expected_generation: '' }]) {
-    await assert.rejects(actions.trashSource(input), { code: 'original_input_refused', outcome: 'not_started' });
-  }
-  assert.equal(calls, 0);
 });
 
 test('the selected resource is read-only metadata and input cannot change its call target', async () => {

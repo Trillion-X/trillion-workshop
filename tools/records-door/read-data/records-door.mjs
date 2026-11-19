@@ -33,8 +33,6 @@
 // writes do not. result() reconciles records:write only, with its exact original command; file effects require their own
 // admitted result owner and remain unknown until that owner proves the outcome. A refusal comes back as RecordsDoorError
 // with the door's code and outcome. Large answers use byte pages (read-data/byte-pages.mjs).
-// openParentActions({ descriptor: 3 }) uses the same transport for a native run's declared computer_actions route;
-// its trashSource({ path, expected_generation }) makes one attempt and never retries or reads byte pages.
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -353,47 +351,6 @@ export function openProtectedActions(options) {
       // Never retry a protected effect after busy, unknown, fetch failure or
       // malformed response. Recovery is an explicit original-owner operation.
       return callOnce(protectedActions.operation, { method, input }, key, protectedActions.resource, false, false);
-    },
-  };
-}
-
-// The native runner hands this route through the same private pipe as a records door. Route metadata is not
-// authority: the parent independently checks this exact live run and its current folder grant at the effect.
-// Physical actions never use byte pages or any busy, unknown, fetch or response-body retry policy.
-export function openParentActions(options) {
-  let door;
-  try { door = openBearerDoor(options); }
-  catch { throw new RecordsDoorError('no_parent_actions', 'This run was not handed native parent actions.', 'not_started'); }
-  const { callOnce, computerActions } = door;
-  if (typeof computerActions?.resource !== 'string' || !computerActions.resource
-    || typeof computerActions.trash_source !== 'string' || !computerActions.trash_source) {
-    throw new RecordsDoorError('no_parent_actions', 'This run was not handed native parent actions.', 'not_started');
-  }
-  return {
-    async trashSource(input) {
-      if (!input || typeof input !== 'object' || Array.isArray(input)
-        || Object.keys(input).length !== 2 || !Object.hasOwn(input, 'path') || !Object.hasOwn(input, 'expected_generation')
-        || typeof input.path !== 'string' || !input.path.startsWith('/') || input.path.includes('\0')
-        || Buffer.byteLength(input.path) > 4096 || typeof input.expected_generation !== 'string'
-        || !input.expected_generation || Buffer.byteLength(input.expected_generation) > 16 * 1024 * 1024) {
-        throw new RecordsDoorError('original_input_refused', 'Supply only an absolute path and its exact generation observation.', 'not_started');
-      }
-      try {
-        const answer = await callOnce(computerActions.trash_source, input,
-          `trash-source:${randomUUID()}`, computerActions.resource, false, false);
-        if (answer?.outcome === 'moved') return { outcome: 'moved' };
-      } catch (error) {
-        if (error instanceof RecordsDoorError && error.outcome === 'not_started'
-          && ['computer_action_refused', 'current_workspace_rights_refused', 'original_input_refused'].includes(error.code)) {
-          throw new RecordsDoorError(error.code, 'The native parent refused the Trash move.', 'not_started');
-        }
-        if (error instanceof RecordsDoorError && error.code === 'capability_gone') {
-          throw new RecordsDoorError('capability_gone', 'This run\'s native parent has closed.', 'not_started');
-        }
-      }
-      // A missing, malformed or lost answer cannot establish that the effect did not happen. Never echo a
-      // transport/RPC error: it can contain private descriptor bytes. The caller must stop without retrying.
-      throw new RecordsDoorError('computer_action_unknown', 'The Trash move outcome is unknown. Stop without retrying.', 'unknown');
     },
   };
 }
