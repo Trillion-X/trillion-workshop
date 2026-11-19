@@ -115,7 +115,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -265,7 +264,7 @@
           "kind": "container",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/turn-a-folder-of-agent-skills-into-workflows/read-data/skills-into-workflows.mjs",
             "turnSkillsIntoWorkflows"
           ],
@@ -289,6 +288,7 @@
               {
                 "package": "workflows",
                 "paths": [
+                  "do-work/run-a-function.mjs",
                   "read-data/recipe-problems.mjs",
                   "read-data/check-bindings.mjs",
                   "read-data/step-anatomy.json",
@@ -316,14 +316,6 @@
                   "built-stored-bytes"
                 ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
