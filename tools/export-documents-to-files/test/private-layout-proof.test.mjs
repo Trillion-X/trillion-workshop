@@ -109,11 +109,7 @@ test('ordinary settings-row caller returns an unfinished non-delivery proof with
   const f = fixture(t);
   const row = makeRecord('export-documents-to-files', 'piece', 'synthetic-layout', f.settings,
     { name: 'Synthetic layout', tool: TOOL_ID, source: 'synthetic-test@1' });
-  const door = {
-    async read() { throw new Error('The settings row comes in the request; nothing is read for it.'); },
-    async *list() { throw new Error('The private scoped purpose must not run final-delivery checks.'); },
-  };
-  const answer = await exportABook({ book_id: 'synthetic-layout', settings_record: row, purpose: 'private_layout_proof', job_file: f.job_file, python }, { door });
+  const answer = await exportABook({ book_id: 'synthetic-layout', settings_record: row, purpose: 'private_layout_proof', job_file: f.job_file, python });
   assert.equal(answer.status, 'private_layout_proof', answer.reason);
   assert.equal(answer.delivery_eligible, false);
   assert.equal(answer.gate.purpose, 'private_layout_proof');

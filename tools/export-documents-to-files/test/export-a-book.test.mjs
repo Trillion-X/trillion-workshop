@@ -1,6 +1,6 @@
 // tools/export-documents-to-files: the book exporter moved from the launch-video private-book-reader. Runs its Python
-// tests (the exporter, the writing gate, the PDF verifier), then the door entry over a made-up book, a made-up checks
-// branch in an in-memory door and a made-up settings row.
+// tests (the exporter, the writing gate, the PDF verifier), then the entry over a made-up book, a made-up checks
+// branch handed in as records and a made-up settings row.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -30,25 +30,17 @@ const checks = [
   { id: 'no-glitter', part_of: 'made-up-writing', words: ['glitter'], says: 'No glitter.' },
   { id: 'no-zorblax', part_of: 'made-up-book', words: ['zorblax'], says: 'Never zorblax in this book.' },
 ];
-function memoryDoor(extra = []) {
-  const records = [...branches, ...checks].map(value => ({ id: `record:check:${value.id}`, type: 'record:check', value })).concat(extra);
-  const matches = (record, where) => !where || Object.entries(where).every(([name, value]) => JSON.stringify(record.value?.[name]) === JSON.stringify(value));
-  return {
-    async read(type, id) { return records.find(record => record.type === type && record.id === id)?.value ?? null; },
-    async *list(query) { for (const record of records) if (record.type === query.type && matches(record, query.where)) yield record; },
-    write() { throw new Error('the export writes no records'); },
-  };
-}
+const memoryRecords = () => [...branches, ...checks].map(value => ({ id: `record:check:${value.id}`, type: 'record:check', value }));
 const book = (words) => Buffer.from(`# A made-up book\n\n## Opening\n\n${words}\n`);
 
 test('the book\'s checks run the branch and every branch above it on the exact bytes', async () => {
-  const clean = await bookChecks(memoryDoor(), { branch: 'made-up-book', bytes: book('A plain made-up passage.') });
+  const clean = await bookChecks(memoryRecords(), { branch: 'made-up-book', bytes: book('A plain made-up passage.') });
   assert.equal(clean.status, 'passed');
   assert.equal(clean.passed, true);
   assert.deepEqual(clean.lineage, ['made-up-book', 'made-up-writing']);
   assert.match(clean.document_blake3, /^[0-9a-f]{64}$/);
   for (const words of ['A passage with glitter.', 'A passage with zorblax.']) {
-    const found = await bookChecks(memoryDoor(), { branch: 'made-up-book', bytes: book(words) });
+    const found = await bookChecks(memoryRecords(), { branch: 'made-up-book', bytes: book(words) });
     assert.equal(found.passed, false, words);
     assert.equal(found.status, 'failed');
   }
@@ -59,12 +51,17 @@ test('current prose whose checks fail is blocked before any DOCX is written', as
   const manuscript = join(work, 'book.md');
   writeFileSync(manuscript, book('Some glitter here.'));
   const answer = await exportABook({ book_id: 'made-up-book', manuscript, output: join(work, 'book.docx'),
-    settings: { role: 'current_prose', checks_branch: 'made-up-book', source_blake3: '0'.repeat(64) } }, { door: memoryDoor() });
+    settings: { role: 'current_prose', checks_branch: 'made-up-book', source_blake3: '0'.repeat(64) }, records: memoryRecords() });
   assert.equal(answer.status, 'blocked');
   assert.equal(answer.checks.status, 'failed');
   assert.ok(!existsSync(join(work, 'book.docx')));
-  const noBranch = await exportABook({ book_id: 'made-up-book', manuscript, settings: { role: 'current_prose' } }, { door: memoryDoor() });
+  const noBranch = await exportABook({ book_id: 'made-up-book', manuscript, settings: { role: 'current_prose' } });
   assert.match(noBranch.reason, /checks_branch/);
+  const noRecords = await exportABook({ book_id: 'made-up-book', manuscript, output: join(work, 'book.docx'),
+    settings: { role: 'current_prose', checks_branch: 'made-up-book', source_blake3: '0'.repeat(64) } });
+  assert.equal(noRecords.status, 'blocked');
+  assert.match(noRecords.reason, /give them as records/);
+  assert.ok(!existsSync(join(work, 'book.docx')));
 });
 
 test('a comparison copy bound by its bytes exports and reads back', { skip: noLibraries }, async () => {
@@ -76,12 +73,12 @@ test('a comparison copy bound by its bytes exports and reads back', { skip: noLi
   spawnSync('python3', ['-c', `import docx; docx.Document().save(${JSON.stringify(template)})`]);
   const { makeHashCodeHexFromBytes } = await import('../../content-identity/read-data/identity.mjs');
   const settings = { role: 'comparison', source_blake3: makeHashCodeHexFromBytes(bytes).split(':')[1], template, output_folder: work };
-  const answer = await exportABook({ book_id: 'made-up-book', manuscript, settings }, { door: memoryDoor() });
+  const answer = await exportABook({ book_id: 'made-up-book', manuscript, settings });
   assert.equal(answer.status, 'exported', answer.reason);
   assert.equal(answer.written, join(work, 'made-up-book.docx'));
   assert.equal(answer.tables, 1);
   assert.equal(answer.gate.status, 'declared_reference');
-  const changed = await exportABook({ book_id: 'made-up-book', manuscript, settings: { ...settings, source_blake3: '0'.repeat(64) } }, { door: memoryDoor() });
+  const changed = await exportABook({ book_id: 'made-up-book', manuscript, settings: { ...settings, source_blake3: '0'.repeat(64) } });
   assert.equal(changed.status, 'blocked');
   assert.match(changed.reason, /source changed/i);
 });

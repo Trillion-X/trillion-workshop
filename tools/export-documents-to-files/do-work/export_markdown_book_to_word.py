@@ -874,7 +874,7 @@ SETTINGS_READER = Path(__file__).resolve().parents[2] / "settings" / "read-data"
 
 
 def read_settings(settings_record: Path | None, book_id: str | None) -> dict | None:
-    """The book's settings row (the record records:read gave, saved as JSON), read through the one shared reader
+    """The book's settings row (the record the person's AI read from their store, saved as JSON), read through the one shared reader
     (tools/settings `setting`): only record:setting:export-documents-to-files~piece~<book_id>, active, for this tool."""
     if settings_record is None:
         return None
@@ -916,7 +916,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--page-map", type=Path, help="Optional bookmark to rendered page number mapping for cached contents values")
     parser.add_argument("--check", action="store_true", help="Parse and report structure without writing a DOCX")
     parser.add_argument("--book-id", help="The piece id of the book's settings row")
-    parser.add_argument("--settings-record", type=Path, help="The book's settings row as records:read gave it (a JSON file)")
+    parser.add_argument("--settings-record", type=Path, help="The book's settings row as the person's AI read it from their store (a JSON file)")
     parser.add_argument("--settings", type=Path, help="The already-read settings object (a JSON file); for tests and the node wrapper")
     parser.add_argument("--checks-receipt", type=Path, help="The book's checks branch result for these bytes (export-a-book.mjs writes it)")
     parser.add_argument("--purpose", choices=("final_delivery", "private_layout_proof"), default="final_delivery")

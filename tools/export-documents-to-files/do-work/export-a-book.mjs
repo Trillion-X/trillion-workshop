@@ -1,18 +1,17 @@
 // tools/export-documents-to-files/do-work/export-a-book.mjs
 //
-// tool:export-a-markdown-book-to-word, the one entry with the person's records door, which it uses only for the book's
-// checks. The book's settings row (record:setting:export-documents-to-files~piece~<book_id>) comes in the request as
+// tool:export-a-markdown-book-to-word. The book's settings row (record:setting:export-documents-to-files~piece~<book_id>) comes in the request as
 // settings_record, the record itself as the person's AI read it, and is read through tools/settings; it reads no row for
-// it. It runs the book's checks (the branch
-// of list:checks the settings name, through tools/check-against-a-persons-rules-and-verdicts in branch mode) on the exact
+// it. It runs the book's checks (the branch of list:checks the settings name, through tools/check-against-a-persons-rules-and-verdicts
+// in branch mode, with the rows the request carries as `records`) on the exact
 // manuscript bytes, and only when they pass hands the settings and that receipt to the Word exporter
 // (export_markdown_book_to_word.py), whose writing gate also checks the writing profile and source spans
 // (tools/pin-files-by-content) and the captured book-voice run (tools/train-and-evaluate-a-writing-voice-classifier).
 //
-// On the person's computer, with their door:
-//   node tools/records-door/do-work/run-with-stdio-mcp.mjs CLIENT.json \
-//     tools/export-documents-to-files/do-work/export-a-book.mjs exportABook REQUEST.json
-// REQUEST: { book_id, settings_record, manuscript?, template?, output?, page_map?, answers?, purpose?, job_file?, python? }
+// On the person's computer, from the root of the Workshop checkout:
+//   node tools/export-documents-to-files/do-work/export-a-book.mjs < REQUEST.json
+// REQUEST: { book_id, settings_record, records?, manuscript?, template?, output?, page_map?, answers?, purpose?, job_file?, python? }
+// records: the rows the person's AI read from their own store for the book's checks branch (its check rows, list rows and the branch rows), each { id, type, value }.
 // Answer: exported, blocked, or an explicitly admitted private_layout_proof with delivery_eligible=false.
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -21,6 +20,7 @@ import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { checkABranch } from '../../check-against-a-persons-rules-and-verdicts/do-work/check-a-branch.mjs';
+import { recordsHandedIn } from '../../check-against-a-persons-rules-and-verdicts/do-work/records-in-hand.mjs';
 import { distinctUnits, wordsOfMarkdown } from '../../check-against-a-persons-rules-and-verdicts/do-work/read-words.mjs';
 
 export const TOOL_FOLDER = 'export-documents-to-files';
@@ -45,18 +45,18 @@ export async function settingsOfBook(input) {
 }
 
 /** The book's checks on these exact bytes: the branch mode's answer, as the receipt the writing gate binds. */
-export async function bookChecks(door, { branch, bytes, answers = {}, reading = {} }) {
+export async function bookChecks(records, { branch, bytes, answers = {}, reading = {} }) {
   const read = wordsOfMarkdown(bytes.toString('utf8'), 'manuscript', reading);
   const units = distinctUnits(read.units);
   const document_blake3 = makeHashCodeHexFromBytes(bytes).split(':')[1];
   if (!units.length) return { branch, status: 'no-units', passed: false, document_blake3, issues: read.issues };
-  const answer = await checkABranch({ branch, units, answers }, door);
+  const answer = await checkABranch({ branch, units, answers }, records);
   return { branch, lineage: answer.lineage, status: answer.status, passed: answer.passed === true && answer.status === 'passed',
     document_blake3, rows_used: answer.rows_used, lines: answer.lines, questions: answer.questions,
     questions_page: answer.questions_page, issues: read.issues };
 }
 
-export async function exportABook(input, { door } = {}) {
+export async function exportABook(input) {
   const settings = await settingsOfBook(input);
   if (!settings || typeof settings !== 'object') return { status: 'blocked', reason: 'The settings row holds no settings object.' };
   const manuscript = input.manuscript ?? settings.manuscript;
@@ -73,7 +73,8 @@ export async function exportABook(input, { door } = {}) {
   let checks = null;
   if (settings.role === 'current_prose' && !privateProof) {
     if (typeof settings.checks_branch !== 'string') return { status: 'blocked', reason: 'Current prose needs checks_branch in its settings: the branch of list:checks for this book.' };
-    checks = await bookChecks(door, { branch: settings.checks_branch, bytes, answers: input.answers ?? {}, reading: settings.checks_reading ?? {} });
+    if (input.records === undefined) return { status: 'blocked', reason: 'The book\'s checks read the rows of its checks branch: give them as records, read by your AI from your own store. Nothing is checked against no rows.' };
+    checks = await bookChecks(recordsHandedIn(input.records), { branch: settings.checks_branch, bytes, answers: input.answers ?? {}, reading: settings.checks_reading ?? {} });
     if (!checks.passed) return { status: 'blocked', reason: `The book's checks answered ${checks.status}; no DOCX was created.`, checks };
   }
   const work = mkdtempSync(join(tmpdir(), 'export-a-book-'));
@@ -106,12 +107,11 @@ export async function exportABook(input, { door } = {}) {
   }
 }
 
-// One JSON request on standard input, one JSON answer on the last line, when there is no door (a comparison or
-// historical reference with `settings` given, or a test).
+// One JSON request on standard input, one { result } JSON line on standard output.
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   const { text } = await import('node:stream/consumers');
   try {
-    console.log(JSON.stringify({ result: await exportABook(JSON.parse((await text(process.stdin)) || '{}'), {}) }));
+    console.log(JSON.stringify({ result: await exportABook(JSON.parse((await text(process.stdin)) || '{}')) }));
   } catch (error) {
     console.log(JSON.stringify({ error: error.message }));
     process.exitCode = 1;

@@ -122,7 +122,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -523,7 +522,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -808,7 +806,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -1067,7 +1064,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -1150,7 +1146,11 @@
       },
       "settings_record": {
        "type": "object",
-       "description": "The book's settings row, record:setting:export-documents-to-files~piece~<book_id>, as records:read gives it, { id, type, value }. Your AI reads it and gives it here; an id alone is refused."
+       "description": "The book's settings row, record:setting:export-documents-to-files~piece~<book_id>, as the person's AI reads it from their own store, { id, type, value }. Your AI reads it and gives it here; an id alone is refused."
+      },
+      "records": {
+       "type": "array",
+       "description": "For current prose: the rows the person's AI read from their own store for the book's checks branch, each { id, type, value }: the branch rows of its lineage, the record:check rows and the list rows those branches name. The engine keeps none, and the run reads none. Comparison and historical copies need none."
       },
       "manuscript": {
        "type": "string",
@@ -1228,13 +1228,13 @@
       "npm install   # for @noble/hashes",
       "python3 with python-docx; pypdf and pypdfium2 for the PDF verifier; LibreOffice to render the PDF"
      ],
-     "run": "node tools/records-door/do-work/run-with-stdio-mcp.mjs {door_client} tools/export-documents-to-files/do-work/export-a-book.mjs exportABook {request}",
+     "run": "node tools/export-documents-to-files/do-work/export-a-book.mjs < {request}",
      "needs": [
       "node",
       "python",
-      "the person's records door (stdio client config)"
+      "the rows the person's AI reads from their own store, given as records"
      ],
-     "say": "This runs on the person's own computer, from the root of the Workshop checkout, with their records door. Write the request ({ book_id, settings_record }, plus a manuscript, template or output when they differ from the book's settings row) to a file and run `run`; the last line is { result }. status exported names the Word file; blocked says why (no settings row, changed source bytes, the book's checks failed or have unanswered reading questions, the writing profile or review evidence, the voice-classifier evidence). When the checks ask reading questions, answer them and send `answers`. Then render the Word file to PDF (soffice --headless --convert-to pdf) and run `python3 tools/export-documents-to-files/do-work/verify_book_against_its_source.py --source MD --docx DOCX --raw-pdf PDF --page-map-out MAP --report REPORT`; rebuild with page_map set to MAP, render and verify again. Tell the person what passed and every unresolved difference. Never say the book is approved: these are coverage checks. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request ({ book_id, settings_record }, plus records for current prose, a manuscript, template or output when they differ from the book's settings row) to a file and run `run`; the last line is { result }. status exported names the Word file; blocked says why (no settings row, changed source bytes, the book's checks failed or have unanswered reading questions, the writing profile or review evidence, the voice-classifier evidence). When the checks ask reading questions, answer them and send `answers`. Then render the Word file to PDF (soffice --headless --convert-to pdf) and run `python3 tools/export-documents-to-files/do-work/verify_book_against_its_source.py --source MD --docx DOCX --raw-pdf PDF --page-map-out MAP --report REPORT`; rebuild with page_map set to MAP, render and verify again. Tell the person what passed and every unresolved difference. Never say the book is approved: these are coverage checks. If you cannot run commands, give them these steps."
     },
     "verify": null,
     "result_selector": null,
