@@ -7,7 +7,7 @@ The workflow engine (`workflow-core`, through `workflow-engine`) as one WebAssem
 1. A listed workflow row (a `source:workflow-recipes` row) runs with its id as `input.row`. The component reads that row's `payload.definition` from the rows laid out at `/opt/workflows/recipes`. A run may instead carry its own `definition`, but a run by the tool's own name holds no records, so its tool steps start nothing (the engine's `src/tool_runs/tools.rs` `runs_as` and wake's `may_schedule`).
 2. The engine walks the definition. A step whose answer is held (`answers`, by step id) is answered with it.
 3. An ask whose name is a tool id is handed back as a wake effect `{"wake": {"tool", "input", "reply"}}`. When that run settles, wake tells its result (or why it failed) back as the fact `workflow-step-answered`, carrying the run (the engine's `src/wake.rs` `told_back`). The listed row's wake that hears that fact runs this again with the answer added.
-4. Any other ask waits for whoever it names (a step no tool runs names the run's actor). Its `waiting` entry says how its answer is told back (`told_as`).
+4. Any other ask (a step no tool runs names the run's actor) is told as the fact `workflow-step-waiting`: the step, what it asks, whom, and `told_as`, the envelope its answer is told back in. The component keeps nothing and names no store or tool: the person's own wakes decide what a waiting step becomes (none, one or many of them may hear it), and whatever they do ends by telling `workflow-step-answered` with that envelope and the answer, which runs this again.
 5. A told failure fails its step, in the words of the run that failed.
 
 ## In and out

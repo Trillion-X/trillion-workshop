@@ -8,13 +8,16 @@
 // The engine replays the definition from the start with the answers held. A step whose answer is held is answered with
 // it. Every other ask waits: one whose name is a tool id is handed back as a wake effect that runs that tool with the
 // step's input and tells its result back as the fact `workflow-step-answered` (wake's `reply`), which runs this again
-// with that answer; any other name waits for whoever it names to answer, told the same way (`told_as`). Nothing here
-// knows what a step is for.
+// with that answer. Any other name is told as the fact `workflow-step-waiting`, carrying what it asks, whom, and the
+// envelope its answer is told back in (`told_as`); whatever the person's own wakes do with it (none, one or many) ends by
+// telling `workflow-step-answered` with that envelope and the answer. This keeps nothing and names no store or tool:
+// it starts what the engine can start and tells everything else. Nothing here knows what a step is for.
 use std::{collections::{BTreeMap, BTreeSet}, io::Read, sync::{Arc, Mutex}};
 use serde_json::{json, Map, Value};
 use workflow_engine::Host;
 
 const ANSWERED: &str = "workflow-step-answered";
+const WAITING: &str = "workflow-step-waiting";
 const ROWS_AT: &str = "/opt/workflows/recipes";
 /// The fields of a run that are the run's own, not the workflow's input.
 const KEPT: [&str; 9] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused", "rows_at"];
@@ -169,8 +172,15 @@ fn main() {
     // the listed row's wake matches.
     let told_as = |step: &Value, name: &Value| json!({ "source": ANSWERED, "event_id": format!("{run_id}:{}", step.as_str().unwrap_or_default()),
         "payload": { "workflow": id, "run": run, "step": step, "for": name } });
-    let effects: Vec<Value> = waiting.iter().filter(|w| w["for"].as_str().is_some_and(|name| name.starts_with("tool:")))
-        .map(|w| json!({ "wake": { "tool": w["for"], "input": w["asks"], "reply": told_as(&w["step"], &w["for"]) } })).collect();
+    // A name the engine can start (a tool id) is started with a reply; every other ask is told as a fact.
+    let effects: Vec<Value> = waiting.iter().map(|w| {
+        let told = told_as(&w["step"], &w["for"]);
+        if w["for"].as_str().is_some_and(|name| name.starts_with("tool:")) {
+            json!({ "wake": { "tool": w["for"], "input": w["asks"], "reply": told } })
+        } else {
+            json!({ "arrive": { "source": WAITING, "event_id": told["event_id"], "payload": { "workflow": id, "step": w["step"], "for": w["for"], "asks": w["asks"], "told_as": told } } })
+        }
+    }).collect();
     let waiting: Vec<Value> = waiting.into_iter().map(|mut w| { w["told_as"] = told_as(&w["step"], &w["for"]); w }).collect();
     println!("{}", json!({ "result": { "status": walked["status"], "workflow": id, "run": run_id, "steps": steps, "waiting": waiting }, "wake_effects": effects }));
 }
