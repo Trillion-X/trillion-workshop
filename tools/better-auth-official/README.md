@@ -90,10 +90,14 @@ started again, its session removes users. The plugin's columns (`user.role`, `ba
 `session.impersonatedBy`) are in `schema.sql` and are added by the migration every start runs (store.mjs).
 test/admin-remove-user.test.mjs proves the refusals and one removal that leaves every other user.
 
-With `delete_user.enabled` true, a signed-in person deletes their own user with `POST /api/auth/delete-user {"password"}`
-(Better Auth's `user.deleteUser`, https://www.better-auth.com/docs/concepts/users-accounts#delete-user); off, the address
-answers 404. An admin cannot remove themself, so the last admin of a cleanup deletes itself this way, and the computer row
-then turns it off again. test/delete-user.test.mjs proves both.
+A signed-in person deletes their own user with `POST /api/auth/delete-user {"password"}` (Better Auth's `user.deleteUser`,
+https://www.better-auth.com/docs/concepts/users-accounts#delete-user), on by default (`delete_user.enabled`); a computer that must
+not offer it sets `false`, and the address then answers 404. An account with no password deletes on a sign-in that is fresh
+(`session.fresh_age_seconds`), which the page's Delete step turns into a sign-in and back. Before anything is deleted,
+`delete_user.before_delete_module` (a path from this folder, exporting `beforeDelete(user, request)`) removes the person's rows
+in the business's own database; a throw there keeps the account. The person's API keys are removed once the account is gone.
+An admin cannot remove themself, so the last admin of a cleanup deletes itself this way. test/delete-user.test.mjs proves the
+switch, the password, the business hook and the keys.
 
 ## The engine's API key check
 
@@ -202,6 +206,8 @@ From r6-sign-in-edge-cases.md, each with the old commit it comes from:
 - A passkey on another device: a one-time link by email (magic link, `add_passkey_link.expires_in_seconds`, a day) that signs
   that device in and opens `/sign-in/add-passkey` (21348b98b6, 9712729c52).
 - `/sign-in/change-email`: Better Auth's changeEmail, a link to the current address and one to the new (21348b98b6).
+- `/account`: the person's name, email and sign-in methods (passkeys, authenticator app, password, connected accounts), each with
+  the page that changes it, and Delete my account (confirm step, then delete-user). test/account-page.test.mjs proves the page.
 - Authenticator app and backup codes are asked after a password, where Better Auth's second step has its pending cookie; the pages
   that cannot start them no longer link them. Not ported here: rows 14 (Signal API), 20 (app association file), 26 (mail words).
 

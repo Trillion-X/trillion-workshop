@@ -95,6 +95,19 @@ function narrowConsent(ctx) {
   ctx.body.scope = asked.filter(scope => !leftOut.includes(scope)).join(' ');
 }
 
+// A person deletes their own account (POST /delete-user, settings.delete_user). Before Better Auth deletes it, the business's own module
+// (settings.delete_user.before_delete_module, a path from this folder) removes that person's rows in the business's own database; a throw
+// there keeps the account. After it is gone, this tool removes the API keys the person held (apikey names its owner by id, with no foreign
+// key). The consent and token rows go with the user by their foreign keys.
+const ownRowsModule = settings.delete_user?.before_delete_module ? new URL(settings.delete_user.before_delete_module, import.meta.url).href : null;
+const ownRowsHook = ownRowsModule ? (await import(ownRowsModule)).beforeDelete : null;
+async function deleteOwnRows(user, request) {
+  if (ownRowsHook) await ownRowsHook(user, request);
+}
+async function deleteKeysOf(user) {
+  await (await auth.$context).adapter.deleteMany({ model: 'apikey', where: [{ field: 'referenceId', value: user.id }] });
+}
+
 // The person's connected AIs (GET /connected) and the one write that ends one (POST /connected/revoke {clientId}): its refresh tokens
 // and access tokens and its consent are deleted together (a refresh token left behind could still be answered again inside the
 // replay window), so a pass it holds stops standing at once (credential standing reads these rows) and it must ask again.
@@ -202,9 +215,9 @@ export const auth = betterAuth({
   // The limits are kept per person, by the client address the front door forwards (the headers settings.rate_limit names, past its own
   // addresses in settings.rate_limit.trusted_proxies); with none found every person would share one bucket per path.
   advanced: { ...cookieOptions(settings), ipAddress: { ipAddressHeaders: settings.rate_limit.client_ip_headers, trustedProxies: settings.rate_limit.trusted_proxies } },
-  // A signed-in person deletes their own user (POST /delete-user) only while settings.json delete_user.enabled is true; off by default.
+  // A signed-in person deletes their own user (POST /delete-user) only while settings.delete_user.enabled is true (deleteOwnRows first, then deleteKeysOf).
   user: {
-    deleteUser: { enabled: settings.delete_user?.enabled === true },
+    deleteUser: { enabled: settings.delete_user?.enabled === true, beforeDelete: deleteOwnRows, afterDelete: deleteKeysOf },
     // A person changes their address behind a recent sign-in: a link to the current address approves it, a link to the new one proves it.
     changeEmail: { enabled: true, sendChangeEmailConfirmation: async ({ user, newEmail, url, token }) => { await sendEmail({ kind: 'change-email', to: user.email, newEmail, url, token }); } },
   },

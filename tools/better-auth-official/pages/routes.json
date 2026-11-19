@@ -172,6 +172,15 @@
       "description": "See which AIs can use your {{name}}, when they last did, and disconnect one."
     },
     {
+      "path": "/account",
+      "sections": [
+        "account",
+        "account-delete"
+      ],
+      "title": "Your account",
+      "description": "Your name, your email and how you sign in to {{name}}, and deleting your account."
+    },
+    {
       "path": "/device",
       "sections": [
         "device"

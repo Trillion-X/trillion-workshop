@@ -104,7 +104,9 @@
     "user_ids": []
   },
   "delete_user": {
-    "enabled": false
+    "_what": "A signed-in person deletes their own account from /account (POST /api/auth/delete-user). enabled: on by default, because a members app must let a person delete their account in the app; a computer that must not offer it sets false (the address then answers 404). before_delete_module: the business's own module (a path, read as an import from this folder) that exports beforeDelete(user, request) and removes that person's rows in the business's own database; it runs before anything is deleted, and a throw keeps the account. null: this tool keeps no rows of the business's own.",
+    "enabled": true,
+    "before_delete_module": null
   },
   "email_code": {
     "digits": 6,

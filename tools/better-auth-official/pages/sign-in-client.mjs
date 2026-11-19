@@ -210,6 +210,7 @@ async function submit(form) {
     const { error } = await client.updateUser({ name });
     return error ? (signedOut(error) ? toSignIn() : refusal(error)) : afterSignIn();
   }
+  if (action === '/account/delete') return deleteAccount(form);
   if (action === '/sign-in/change-email') {
     const { error } = await client.changeEmail({ newEmail: field(form, 'new_email'), callbackURL: '/' });
     return error ? (signedOut(error) ? toSignIn() : refusal(error)) : status(words.email_change_sent);
@@ -386,6 +387,59 @@ async function disconnect(button) {
   status(words.disconnected);
 }
 
+// /account: the person's name, email and how they sign in, each with the page that changes it, and deleting the account. Deleting asks for the
+// password when the account has one; an account with none is deleted on a sign-in that is still recent (Better Auth's delete-user).
+let accountHasPassword = false;
+const accountRow = (heading, detail, change) => {
+  const item = document.createElement('li'); item.className = 'page-item';
+  const title = document.createElement('h2'); title.className = 'page-item-heading'; title.textContent = heading;
+  const text = document.createElement('p'); text.className = 'page-item-detail'; text.textContent = detail;
+  item.append(title, text);
+  if (change) {
+    const actions = document.createElement('div'); actions.className = 'page-actions';
+    const link = document.createElement('a'); link.className = 'page-action page-action--link'; link.href = change.href; link.textContent = change.text;
+    actions.append(link); item.append(actions);
+  }
+  return item;
+};
+async function accountPage() {
+  const session = await signedInPerson();
+  if (!session) return;
+  const [passkeys, accounts] = await Promise.all([client.passkey.listUserPasskeys(), client.listAccounts()]);
+  const user = session.user;
+  const linked = accounts.data ?? [];
+  accountHasPassword = linked.some(account => account.providerId === 'credential');
+  const others = linked.filter(account => account.providerId !== 'credential').map(account => humane(account.providerId));
+  const count = passkeys.data?.length ?? 0;
+  const hasName = user.name?.trim() && user.name.trim() !== user.email;
+  document.querySelector('[data-fill-list="account"]').replaceChildren(
+    accountRow(words.account_name, hasName ? user.name.trim() : words.account_name_unset, { href: '/sign-in/your-name', text: words.account_change }),
+    accountRow(words.account_email, user.email, { href: '/sign-in/change-email', text: words.account_change }),
+    accountRow(words.account_passkeys, count === 0 ? words.account_passkeys_none : count === 1 ? words.account_passkeys_one : words.account_passkeys_some.replace('{count}', count), { href: '/sign-in/add-passkey', text: words.account_add_passkey }),
+    accountRow(words.account_authenticator, user.twoFactorEnabled ? words.account_on : words.account_off),
+    accountRow(words.account_password, accountHasPassword ? words.account_password_set : words.account_password_unset),
+    accountRow(words.account_other, others.length ? others.join(', ') : words.account_other_none),
+  );
+  const refused = passkeys.error ?? accounts.error;
+  if (refused) refusal(refused, words.unavailable);
+}
+// The confirm step: the password box only for an account that has a password, cleared each time it is opened.
+function deleteStart() {
+  const form = document.querySelector('form[action="/account/delete"]');
+  form.querySelector('[data-delete-password]').hidden = !accountHasPassword;
+  form.querySelector('[name="password"]').value = '';
+  show('confirm');
+}
+async function deleteAccount(form) {
+  const box = form.querySelector('[name="password"]');
+  if (accountHasPassword && !box.value) return fail(words.account_password_needed, undefined, box);
+  const { error } = await client.deleteUser(accountHasPassword ? { password: box.value } : {});
+  if (error?.code === 'INVALID_PASSWORD') return fail(words.account_wrong_password, undefined, box);
+  if (error?.code === 'SESSION_EXPIRED' || signedOut(error)) return toSignIn();
+  if (error) return refusal(error);
+  show('deleted');
+}
+
 // /device: the code a device showed (RFC 8628 user code), the app that asked and what it may do, then Allow or Deny.
 const deviceCode = query.get('user_code');
 // A device names itself by its client id (living-room-tv): said as words, and its code in the groups it was shown in.
@@ -457,6 +511,11 @@ document.addEventListener('click', event => {
   event.preventDefault();
   client.signOut().then(() => go('/sign-in'));
 });
+// /account: Delete my account opens the confirm step; Keep my account goes back to the details.
+document.addEventListener('click', event => {
+  if (event.target.closest('[data-delete-start]')) { event.preventDefault(); deleteStart(); }
+  else if (event.target.closest('[data-delete-cancel]')) { event.preventDefault(); show('details'); }
+});
 // "Not now" is remembered on this device and carries on to what comes next.
 document.addEventListener('click', event => {
   const link = event.target.closest('[data-page-skip]');
@@ -470,5 +529,5 @@ offerPasskeysInTheEmailBox();
 nameTheAsker().catch(() => {});
 // The pages that are for a signed-in person send one who is not to sign in and come back.
 const needsSession = async () => { await signedInPerson(); };
-const connectPage = { '/consent': consentPage, '/connected': connectedPage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/change-email': needsSession, '/sign-in/your-name': needsSession }[location.pathname];
+const connectPage = { '/consent': consentPage, '/connected': connectedPage, '/account': accountPage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/change-email': needsSession, '/sign-in/your-name': needsSession }[location.pathname];
 connectPage?.().catch(() => fail(words.unavailable, 'try-again'));
