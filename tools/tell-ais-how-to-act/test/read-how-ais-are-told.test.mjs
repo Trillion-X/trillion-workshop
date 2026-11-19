@@ -17,7 +17,8 @@ test('the row reads only, offline, on the person\'s computer', () => {
 
 test('every instruction row has a distinct id and order, text, and only known reaches', () => {
   const rows = instructionRows();
-  assert.ok(rows.length >= 70);
+  // 70 until Nov 18 2026, when the three rows that sent AIs to the job tools of the retired record store were removed.
+  assert.ok(rows.length >= 67);
   assert.equal(new Set(rows.map(item => item.id)).size, rows.length);
   assert.equal(new Set(rows.map(item => item.order)).size, rows.length);
   for (const item of rows) {
