@@ -31,13 +31,19 @@ const bigAnswer = () => {
 /**
  * A fake door that answers do_one_thing_in_my_account and pages any answer over `pageBytes`. `shape(page, args)` may change a
  * page before it is sent; `status(call)` may answer an HTTP status instead; `hash` is the BLAKE3 the door names. Every
- * call is kept in `seen`.
+ * call of the answer is kept in `seen`. A `call` first reads its tool's row (tools:list with `tool`, for the run's need,
+ * do-work/command.mjs); that read is answered with a row that names no need and kept in `listed`, apart from the pages.
  */
 function fakeDoor({ whole, pageBytes = Math.ceil(whole.length / 4), shape = page => page, status = () => 200, hash = makeHashCodeHexFromBytes(whole).slice(3) } = {}) {
   const seen = [];
+  const listed = [];
   const fetchImpl = async (url, init) => {
     const body = JSON.parse(init.body);
     const args = body.params.arguments;
+    if (args.method === 'tools:list' && typeof args.input?.tool === 'string') {
+      listed.push(args.input.tool);
+      return Response.json({ jsonrpc: '2.0', id: body.id, result: { structuredContent: { id: args.input.tool }, content: [] } });
+    }
     seen.push({ url, args, authorization: init.headers.authorization });
     const code = status(seen.length);
     if (code !== 200) return new Response('busy', { status: code });
@@ -48,7 +54,7 @@ function fakeDoor({ whole, pageBytes = Math.ceil(whole.length / 4), shape = page
     const answer = whole.length > pageBytes ? { byte_page: page } : JSON.parse(whole.toString('utf8'));
     return Response.json({ jsonrpc: '2.0', id: body.id, result: { structuredContent: answer, content: [] } });
   };
-  return { seen, fetchImpl };
+  return { seen, listed, fetchImpl };
 }
 
 const run = (argv, door, folder = home()) => main([...argv, '--origin', ORIGIN], {
@@ -66,6 +72,7 @@ test('example call reads every page of a byte-paged answer under one request key
   const printed = await run(['call', 'tool:check-against-a-persons-rules-and-verdicts', '{"person":"p"}'], door);
   assert.deepEqual(JSON.parse(printed), JSON.parse(whole.toString('utf8')));
   assert.equal(door.seen.length, 4);
+  assert.deepEqual(door.listed, ['tool:check-against-a-persons-rules-and-verdicts'], 'the tool\'s row is read once, before the run');
   const keys = new Set(door.seen.map(row => row.args.request_key));
   assert.equal(keys.size, 1, 'every page is asked under the first call\'s key');
   assert.match([...keys][0], /^[0-9a-f-]{36}$/, 'with no --request-key, a fresh key');

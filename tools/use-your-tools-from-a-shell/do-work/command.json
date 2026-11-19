@@ -431,7 +431,7 @@
     "schedule_input_object": "--input is one saved object of your own data, for example {cli} schedule on TOOL WAKE_ID --input FILE (FILE may be - for standard input).",
     "schedule_input_size": "--input may hold at most {limit} bytes; this one holds {size}.",
     "schedule_input_off": "--input goes only with schedule on; a wake switched off keeps no input.",
-    "schedule_input_old_engine": "If this computer's engine is older than engine commit 3bd6dc47a it does not take input at a switch; update it, then ask again. The wake was not switched on.",
+    "schedule_input_old_engine": "What runs your tools on this computer is too old to take your own input when switching a wake on. Update it, then ask again. The wake was not switched on.",
     "retry_with_key": "To ask again without doing it twice, add {flag} {key} to the command.",
     "request_key_line": "Reference: {key}.",
     "write_pending": "Your change was saved, but it has not shown up yet. Look again before you try again.",
@@ -464,6 +464,7 @@
       "original_command_conflict": "That changed in the meantime, so nothing was written."
     },
     "details": {
+      "schedule_input_old_engine": "An engine older than trillion-rust 3bd6dc47a refuses a wake:switch that carries input (engine.need_refusal).",
       "_what": "The technical line each refusal adds when the person runs the command with --verbose; no other run prints it. Not person-facing words, so the plain-words test skips this block.",
       "not_running": "Nothing answered at {mcp}: {why}.",
       "unreachable": "{mcp} could not be reached: {why}.",

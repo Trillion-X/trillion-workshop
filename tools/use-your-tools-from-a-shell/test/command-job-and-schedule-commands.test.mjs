@@ -125,7 +125,7 @@ test('an engine older than the input refuses the field: the refusal passes throu
   const error = await schedules(client, ['on', 'tool:x', 'daily'], { requestKey: 'req-1', rules: settings, inputFile: 'f', readInput: () => '{"a":1}' }).catch(refused => refused);
   assert.equal(error.answer.code, refusal.code);
   assert.ok(error.message.startsWith(refusal.message));
-  assert.match(error.message, /older than engine commit 3bd6dc47a/);
+  assert.ok(error.message.endsWith(settings.words.schedule_input_old_engine), error.message);
   assert.equal(calls.length, 1, 'sent once, never without the input');
   assert.ok(calls[0].input);
 });
