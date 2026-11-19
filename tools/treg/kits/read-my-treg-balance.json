@@ -1,5 +1,5 @@
 {
-  "start_here": "Say to your AI: \"Read my treg balance for team 42 and show the last 5 charges.\" It runs tool:read-my-treg-balance with {\"account\":\"service_connection:treg\",\"team_id\":42,\"limit\":5}.",
+  "start_here": "Say to your AI: \"Read my treg balance for team 42 and show the last 5 charges.\" It runs tool:read-my-treg-balance with {\"team_id\":42,\"limit\":5}.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads your treg team's prepaid balance and recent charges and writes nothing.",
   "workflows": [],
@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Get your team number with tool:read-my-treg-team (its org_id).",
-    "2. Say to your AI: \"Read my treg balance for team <number>\". It calls tools:run with tool tool:read-my-treg-balance, account, team_id and optionally limit (1 to 100, default 20).",
+    "2. Say to your AI: \"Read my treg balance for team <number>\". It calls tools:run with tool tool:read-my-treg-balance, team_id and optionally limit (1 to 100, default 20).",
     "3. Read balance_micro (millionths of a US dollar; 12000000 is 12 dollars), blocks, holds (amounts held for tasks still running) and the recent charges.",
     "4. Read it before a run's first paid call and after each step; what the run spent is the first balance less the last."
   ],
@@ -25,7 +25,6 @@
           "input": {
             "tool": "tool:read-my-treg-balance",
             "input": {
-              "account": "service_connection:treg",
               "team_id": 42,
               "limit": 5
             }

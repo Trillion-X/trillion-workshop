@@ -1,5 +1,5 @@
 {
-  "start_here": "Say to your AI: \"Call the treg endpoint dataforseo.web.backlinks.summary for example.com, spend at most 5 cents.\" It runs tool:call-a-treg-endpoint with max_cost_usd 0.05 from your treg connection.",
+  "start_here": "Say to your AI: \"Call the treg endpoint dataforseo.web.backlinks.summary for example.com, spend at most 5 cents.\" It runs tool:call-a-treg-endpoint with max_cost_usd 0.05 from your saved treg key.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it sends one call to treg and spends from your prepaid treg balance, under the ceiling you name.",
   "workflows": [],
@@ -9,9 +9,9 @@
     "tool:read-a-treg-endpoint-and-its-price"
   ],
   "instructions": [
-    "1. Connect treg once (service_connection:treg holds your key; the key is never shown or placed in the input).",
+    "1. Connect treg once with its API key (the connection seals it as treg-api-key; the key is never shown or placed in the input).",
     "2. Find the endpoint with tool:search-the-treg-catalog and read its price with tool:read-a-treg-endpoint-and-its-price; say the price to the person.",
-    "3. Say to your AI: \"Call <endpoint> with <inputs>, spend at most <dollars>\". It calls tools:run with tool tool:call-a-treg-endpoint, account, endpoint, method (from the catalog), query or body, and max_cost_usd (required, above 0, at most 10).",
+    "3. Say to your AI: \"Call <endpoint> with <inputs>, spend at most <dollars>\". It calls tools:run with tool tool:call-a-treg-endpoint, endpoint, method (from the catalog), query or body, and max_cost_usd (required, above 0, at most 10).",
     "4. Read the reply and its headers: x-treg-cost-micro (millionths of a dollar), x-treg-call-id (keep it). Tell the person the cost.",
     "5. A 202 with _treg.outcome \"pending\" is a task still running: follow it with tool:read-a-treg-call and the call id; never call again."
   ],
@@ -27,7 +27,6 @@
           "input": {
             "tool": "tool:call-a-treg-endpoint",
             "input": {
-              "account": "service_connection:treg",
               "endpoint": "made-up.video.generate",
               "method": "POST",
               "body": {

@@ -1,7 +1,8 @@
 // tools/treg: the rows keep their promises. The catalog reads carry no credential; every row that holds the token takes
-// it only from a treg connection the input names and places it only in the X-Treg-Token header; a paid call cannot be
-// asked without a cost ceiling, and the ceiling is the header treg reads; the endpoint id is a hole in treg's call path
-// that cannot leave it; and no row carries a held value or names a person or an account of its own.
+// it only from the vault key the treg service connection seals it under (treg-api-key, the key its descriptor in
+// tools/connect-a-service-and-seal-its-key/records.json stores) and places it only in the X-Treg-Token header; a paid call
+// cannot be asked without a cost ceiling, and the ceiling is the header treg reads; the endpoint id is a hole in treg's
+// call path that cannot leave it; and no row carries a held value or names a person or an account of its own.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -12,7 +13,9 @@ const text = readFileSync(file, 'utf8');
 const rows = new Map(JSON.parse(text).records.map(({ payload }) => [payload.id, payload]));
 const row = id => { assert.ok(rows.has(id), `${id} is a row`); return rows.get(id); };
 const holdsToken = payload => Array.isArray(payload.invoke.credential_injections);
-const accountPattern = new RegExp(row('tool:call-a-treg-endpoint').input_schema.properties.account.pattern);
+const descriptor = JSON.parse(readFileSync(new URL('../../connect-a-service-and-seal-its-key/records.json', import.meta.url), 'utf8'))
+  .things.find(({ address }) => address === 'package::service-connections::published-record::treg').payload;
+const vaultKey = descriptor.store.vault_key;
 
 test('every row is an http row on treg over https', () => {
   for (const payload of rows.values()) {
@@ -31,25 +34,26 @@ test('finding an endpoint and reading its price hold no credential and only read
   }
 });
 
-test('a row that holds the token takes it from the treg connection the input names, into X-Treg-Token only', () => {
+test('a row that holds the token reads the treg vault key the descriptor seals, into X-Treg-Token only', () => {
   const holding = [...rows.values()].filter(holdsToken);
   assert.deepEqual(holding.map(payload => payload.id).sort(),
     ['tool:call-a-treg-endpoint', 'tool:read-a-treg-call', 'tool:read-my-treg-balance', 'tool:read-my-treg-team']);
   for (const payload of holding) {
-    assert.deepEqual(payload.invoke.connection, { vendor: 'treg', from_input: 'account' }, payload.id);
-    assert.equal(payload.invoke.connection_id, undefined, `${payload.id} fixes no one account`);
+    assert.equal(payload.invoke.connection, undefined, `${payload.id} takes no connection`);
+    assert.equal(payload.invoke.connection_id, undefined, `${payload.id} fixes no connection`);
     assert.deepEqual(payload.invoke.credential_injections,
-      [{ field_id: 'api_key', hosts: ['treg.to'], placement: { kind: 'header', name: 'X-Treg-Token' } }], payload.id);
+      [{ secret_name: vaultKey, hosts: ['treg.to'], placement: { kind: 'header', name: 'X-Treg-Token' } }], payload.id);
     assert.equal(new URL(payload.invoke.url).hostname, 'treg.to', `${payload.id} names the declared host`);
-    assert.ok(payload.input_schema.required.includes('account'), `${payload.id} requires the account`);
-    assert.equal(payload.input_schema.properties.account.pattern, accountPattern.source, `${payload.id} reads one account shape`);
+    assert.equal(payload.input_schema.properties.account, undefined, `${payload.id} takes no account input`);
   }
 });
 
-test('the account names only a treg connection', () => {
-  for (const account of ['service_connection:treg', 'service_connection:treg:second-team']) assert.match(account, accountPattern);
-  for (const account of ['service_connection:x', 'service_connection:treg-other', 'service_connection:treg:', 'service_connection:treg:a:b', 'treg'])
-    assert.doesNotMatch(account, accountPattern);
+test('the vault key the rows read is the one the treg descriptor seals, and it is a plain key name', () => {
+  assert.equal(descriptor.vendor, 'treg');
+  assert.equal(vaultKey, 'treg-api-key');
+  assert.equal(descriptor.store.vault_target, `credentials-vault::${vaultKey}`);
+  assert.equal(descriptor.verifyRequest.url, 'https://treg.to/auth/me');
+  assert.match(vaultKey, /^[A-Za-z0-9_-]+$/);
 });
 
 test('a paid call cannot be asked without a cost ceiling, and the ceiling is the header treg reads', () => {
@@ -78,7 +82,7 @@ test('no row carries a held value, a person or an account of its own', () => {
   assert.doesNotMatch(text, /(?:Bearer|token)["\s:=]+[A-Za-z0-9_-]{20,}/, 'no token value');
   for (const payload of rows.values()) {
     for (const item of payload.invoke.credential_injections ?? []) {
-      assert.equal(item.secret_name, undefined, `${payload.id} names no fixed secret`);
+      assert.equal(item.secret_name, vaultKey, `${payload.id} names the descriptor's vault key and no other`);
       assert.equal(item.value, undefined, `${payload.id} holds no value`);
     }
   }
@@ -139,7 +143,7 @@ async function run(id, input, origin) {
 test('a call\'s cost and id are read from its answer\'s headers, and its task is followed by reading the call until it settles', async () => {
   const treg = await standInTreg();
   try {
-    const call = await run('tool:call-a-treg-endpoint', { account: 'service_connection:treg', endpoint: 'made-up.video.generate', method: 'POST', body: { prompt: 'A kite' }, max_cost_usd: 1 }, treg.origin);
+    const call = await run('tool:call-a-treg-endpoint', { endpoint: 'made-up.video.generate', method: 'POST', body: { prompt: 'A kite' }, max_cost_usd: 1 }, treg.origin);
     assert.equal(call.status, 202);
     assert.equal(call.result._treg.outcome, 'pending');
     assert.equal(Number(call.headers['x-treg-cost-micro']) / 1e6, 0.5, 'the amount held, in dollars');
@@ -147,7 +151,7 @@ test('a call\'s cost and id are read from its answer\'s headers, and its task is
     const descriptor = JSON.parse(call.headers['x-treg-async']);
     assert.deepEqual(descriptor.status.success, ['succeeded']);
     let read;
-    do read = await run('tool:read-a-treg-call', { account: 'service_connection:treg', call_id: call.headers['x-treg-call-id'] }, treg.origin);
+    do read = await run('tool:read-a-treg-call', { call_id: call.headers['x-treg-call-id'] }, treg.origin);
     while (read.result.async_task.status === 'pending');
     assert.equal(read.result.async_task.status, 'settled');
     assert.equal(read.result.async_task.result_url, 'https://media.example.test/made-up.mp4');

@@ -1,5 +1,5 @@
 {
-  "start_here": "Say to your AI: \"Which treg team does my connection pay from? I need the team number to read the balance.\" It runs tool:read-my-treg-team with {\"account\":\"service_connection:treg\"}.",
+  "start_here": "Say to your AI: \"Which treg team does my connection pay from? I need the team number to read the balance.\" It runs tool:read-my-treg-team with {}.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it asks treg who your held token is and writes nothing.",
   "workflows": [],
@@ -8,8 +8,8 @@
     "tool:read-my-treg-balance"
   ],
   "instructions": [
-    "1. Connect treg once as service_connection:treg (or service_connection:treg:<account> for another team).",
-    "2. Say to your AI: \"Which treg team does my connection pay from?\". It calls tools:run with tool tool:read-my-treg-team and {\"account\": \"service_connection:treg\"}.",
+    "1. Connect treg once with its API key; the connection seals the key as treg-api-key.",
+    "2. Say to your AI: \"Which treg team does my connection pay from?\". It calls tools:run with tool tool:read-my-treg-team and an empty input.",
     "3. Read org_id in the answer: that is the team_id tool:read-my-treg-balance takes.",
     "4. Nothing is spent and the token is never shown."
   ],
@@ -25,7 +25,6 @@
           "input": {
             "tool": "tool:read-my-treg-team",
             "input": {
-              "account": "service_connection:treg"
             }
           }
         }

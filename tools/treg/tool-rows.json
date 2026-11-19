@@ -1,7 +1,7 @@
 {
  "kind": "tool-rows",
  "record_set": "treg-tool-rows",
- "what_this_is": "The Workshop rows for treg (treg.to), a catalog of paid external endpoints (search and SEO data, ads libraries, social posts, company data, enrichment, generation) behind one address and one token. The catalog is treg's DATA: one row calls any endpoint by its id, so no endpoint has a row of its own. Finding an endpoint and reading its price are free and need no token; a call spends the person's treg balance, through their treg connection, under a cost ceiling the caller names.",
+ "what_this_is": "The Workshop rows for treg (treg.to), a catalog of paid external endpoints (search and SEO data, ads libraries, social posts, company data, enrichment, generation) behind one address and one token. The catalog is treg's DATA: one row calls any endpoint by its id, so no endpoint has a row of its own. Finding an endpoint and reading its price are free and need no token; a call spends the person's treg balance, with their saved treg key, under a cost ceiling the caller names.",
  "records": [
   {
    "id": "package::ai-tool-catalog::tool::search-the-treg-catalog",
@@ -118,14 +118,13 @@
     "id": "tool:call-a-treg-endpoint",
     "label": "Call a treg endpoint",
     "job": "Call any endpoint in treg's catalog by its id, with its inputs, paid from the person's treg balance, never above a cost ceiling the caller names",
-    "description": "Sends one call to treg for the endpoint id given, with the person's treg token from their treg connection (the token is placed as the request leaves and never shown), and answers the provider's reply as treg relays it (a routed treg.* endpoint answers {output, raw, _treg}). Send the method the catalog names (endpoint.method), its query fields in query and its body fields in body, exactly as tool:read-a-treg-endpoint-and-its-price lists them; a path field goes in query. max_cost_usd is sent as treg's X-Treg-Route-Max-Cost: treg documents that a call it would bill above it is refused with HTTP 402 route_max_cost before anything is charged. This SPENDS the person's treg balance: read the endpoint's price first, say it to the person, and keep max_cost_usd at what they agreed to. A reply outside 2xx is an error that quotes treg: 402 is an empty balance or the ceiling, 503 provider_capacity_unavailable names other providers of the job; failed calls are not billed. The answer's headers (beside the reply, lower case) say what the call cost and how to follow it: x-treg-cost-micro is the charge in millionths of a US dollar (on an asynchronous submission, the amount held until the task finishes, not a charge; on a replay 0, with x-treg-original-cost-micro), x-treg-call-id is the call's id (keep it), x-treg-served-by the provider a routed call used, x-treg-cache a cached answer, and x-treg-async the descriptor of an asynchronous task. Tell the person the cost with each answer. An answer of 202 with _treg.outcome pending is a task still running: follow it with tool:read-a-treg-call and its call id, never by calling again. A team's own registered tool is called the same way, as <tool-name>/<path>.",
+    "description": "Sends one call to treg for the endpoint id given, with the person's treg token from their saved treg key (the token is placed as the request leaves and never shown), and answers the provider's reply as treg relays it (a routed treg.* endpoint answers {output, raw, _treg}). Send the method the catalog names (endpoint.method), its query fields in query and its body fields in body, exactly as tool:read-a-treg-endpoint-and-its-price lists them; a path field goes in query. max_cost_usd is sent as treg's X-Treg-Route-Max-Cost: treg documents that a call it would bill above it is refused with HTTP 402 route_max_cost before anything is charged. This SPENDS the person's treg balance: read the endpoint's price first, say it to the person, and keep max_cost_usd at what they agreed to. A reply outside 2xx is an error that quotes treg: 402 is an empty balance or the ceiling, 503 provider_capacity_unavailable names other providers of the job; failed calls are not billed. The answer's headers (beside the reply, lower case) say what the call cost and how to follow it: x-treg-cost-micro is the charge in millionths of a US dollar (on an asynchronous submission, the amount held until the task finishes, not a charge; on a replay 0, with x-treg-original-cost-micro), x-treg-call-id is the call's id (keep it), x-treg-served-by the provider a routed call used, x-treg-cache a cached answer, and x-treg-async the descriptor of an asynchronous task. Tell the person the cost with each answer. An answer of 202 with _treg.outcome pending is a task still running: follow it with tool:read-a-treg-call and its call id, never by calling again. A team's own registered tool is called the same way, as <tool-name>/<path>.",
     "status": "active",
     "input_schema": {
      "type": "object",
-     "required": ["account", "endpoint", "method", "max_cost_usd"],
+     "required": ["endpoint", "method", "max_cost_usd"],
      "additionalProperties": false,
      "properties": {
-      "account": { "type": "string", "pattern": "^service_connection:treg(:[A-Za-z0-9._-]+)?$", "description": "Which of the person's treg connections pays, by its id: service_connection:treg, or service_connection:treg:<account> for another team" },
       "endpoint": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._~-]*(/(?!\\.{1,2}(/|$))[A-Za-z0-9._~-]+)*$", "maxLength": 300, "description": "The catalog endpoint's id (for example \"dataforseo.web.backlinks.summary\"), or a team's own tool as <tool-name>/<path>" },
       "method": { "type": "string", "enum": ["GET", "POST"], "description": "The method the catalog names for this endpoint (endpoint.method)" },
       "query": { "type": "object", "additionalProperties": { "type": ["string", "number", "boolean", "array"] }, "description": "The endpoint's query and path fields, by name" },
@@ -148,9 +147,8 @@
      "query": { "from": "query", "optional": true },
      "body": { "from": "body", "optional": true },
      "body_encoding": "json",
-     "connection": { "vendor": "treg", "from_input": "account" },
      "credential_injections": [
-      { "hosts": ["treg.to"], "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
+      { "hosts": ["treg.to"], "secret_name": "treg-api-key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
      ]
     },
     "result_selector": "$",
@@ -175,16 +173,14 @@
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:read-my-treg-team",
-    "label": "Read which treg team my connection pays from",
-    "job": "Read the treg team a connection's token belongs to, with the team's number that its balance is read by",
+    "label": "Read which treg team my saved key pays from",
+    "job": "Read the treg team the saved key belongs to, with the team's number that its balance is read by",
     "description": "Asks treg who the held token is (GET /auth/me, the request the treg command line makes when it needs the team's number). The answer's org_id is the team number tool:read-my-treg-balance takes. Reads only; spends nothing; the token is never shown.",
     "status": "active",
     "input_schema": {
      "type": "object",
-     "required": ["account"],
      "additionalProperties": false,
      "properties": {
-      "account": { "type": "string", "pattern": "^service_connection:treg(:[A-Za-z0-9._-]+)?$", "description": "Which of the person's treg connections, by its id: service_connection:treg, or service_connection:treg:<account>" }
      }
     },
     "output_schema": { "type": "object", "properties": { "org_id": { "type": ["integer", "string", "null"] } }, "additionalProperties": true },
@@ -194,9 +190,8 @@
      "method": "GET",
      "timeout_seconds": 30,
      "headers": { "accept": "application/json" },
-     "connection": { "vendor": "treg", "from_input": "account" },
      "credential_injections": [
-      { "hosts": ["treg.to"], "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
+      { "hosts": ["treg.to"], "secret_name": "treg-api-key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
      ]
     },
     "result_selector": "$",
@@ -226,10 +221,9 @@
     "status": "active",
     "input_schema": {
      "type": "object",
-     "required": ["account", "team_id"],
+     "required": ["team_id"],
      "additionalProperties": false,
      "properties": {
-      "account": { "type": "string", "pattern": "^service_connection:treg(:[A-Za-z0-9._-]+)?$", "description": "Which of the person's treg connections, by its id: service_connection:treg, or service_connection:treg:<account>" },
       "team_id": { "type": "integer", "minimum": 1, "description": "The team's number, the org_id tool:read-my-treg-team answers" },
       "limit": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20, "description": "How many recent charges to answer (default 20)" }
      }
@@ -242,9 +236,8 @@
      "timeout_seconds": 30,
      "headers": { "accept": "application/json" },
      "query": { "limit": { "from": "limit", "optional": true, "otherwise": { "const": 20 } } },
-     "connection": { "vendor": "treg", "from_input": "account" },
      "credential_injections": [
-      { "hosts": ["treg.to"], "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
+      { "hosts": ["treg.to"], "secret_name": "treg-api-key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
      ]
     },
     "result_selector": "$",
@@ -270,14 +263,13 @@
     "id": "tool:read-a-treg-call",
     "label": "Read one treg call by its id",
     "job": "Read one of the person's treg calls by the id it answered: what it cost, and how an asynchronous task it started is going and where its result is",
-    "description": "Give account and call_id, the x-treg-call-id header of a tool:call-a-treg-endpoint answer. Answers treg's own record of that call (GET /calls/<call id>): call (its endpoint, status and cost_charged_micro), async_task when it started an asynchronous task (status pending, settled, released or timed_out; reserved_micro, settled_micro, error, and once settled its result_url, which expires, or fetch_command), ledger (the money entries) and charged_micro. This is how a task is followed: treg itself polls the provider, so after a call answered 202 with _treg.outcome pending (its x-treg-async header says which statuses are final), read the call about 60 seconds later, then every 30 to 60 seconds, until async_task.status is no longer pending. Never send the call again or try another provider while it is pending: the task may still finish and charge. Reads only; spends nothing; the token is never shown.",
+    "description": "Give call_id, the x-treg-call-id header of a tool:call-a-treg-endpoint answer. Answers treg's own record of that call (GET /calls/<call id>): call (its endpoint, status and cost_charged_micro), async_task when it started an asynchronous task (status pending, settled, released or timed_out; reserved_micro, settled_micro, error, and once settled its result_url, which expires, or fetch_command), ledger (the money entries) and charged_micro. This is how a task is followed: treg itself polls the provider, so after a call answered 202 with _treg.outcome pending (its x-treg-async header says which statuses are final), read the call about 60 seconds later, then every 30 to 60 seconds, until async_task.status is no longer pending. Never send the call again or try another provider while it is pending: the task may still finish and charge. Reads only; spends nothing; the token is never shown.",
     "status": "active",
     "input_schema": {
      "type": "object",
-     "required": ["account", "call_id"],
+     "required": ["call_id"],
      "additionalProperties": false,
      "properties": {
-      "account": { "type": "string", "pattern": "^service_connection:treg(:[A-Za-z0-9._-]+)?$", "description": "Which of the person's treg connections made the call, by its id: service_connection:treg, or service_connection:treg:<account>" },
       "call_id": { "type": "string", "pattern": "^[0-9a-f]{32}$", "description": "The x-treg-call-id header of the call's answer" },
       "team": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$", "description": "The treg team slug, only when the held token is a person's sign-in token rather than one team's key" }
      }
@@ -289,9 +281,8 @@
      "method": "GET",
      "timeout_seconds": 30,
      "headers": { "accept": "application/json", "X-Treg-Org": { "from": "team", "optional": true } },
-     "connection": { "vendor": "treg", "from_input": "account" },
      "credential_injections": [
-      { "hosts": ["treg.to"], "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
+      { "hosts": ["treg.to"], "secret_name": "treg-api-key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
      ]
     },
     "result_selector": "$",

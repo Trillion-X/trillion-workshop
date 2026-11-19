@@ -7620,6 +7620,74 @@
    }
   },
   {
+    "type": "record",
+    "address": "package::service-connections::published-record::treg",
+    "path": [
+      "current-item",
+      "published-record"
+    ],
+    "payload": {
+      "kind": "service-connection-descriptor",
+      "vendor": "treg",
+      "name": "treg",
+      "instructions": "Pay for paid data and generation endpoints from one treg balance.",
+      "defaultScopes": [
+        "endpoints:call",
+        "balance:read"
+      ],
+      "store": {
+        "vault_target": "credentials-vault::treg-api-key",
+        "vault_key": "treg-api-key"
+      },
+      "credentialFields": [
+        {
+          "id": "api_key",
+          "label": "API key",
+          "required": true,
+          "secret": true,
+          "multiline": false,
+          "placeholder": "treg API key",
+          "help": "Sent as the X-Treg-Token header to treg.to.",
+          "autocomplete": "off",
+          "guideUrl": "https://treg.to",
+          "guideSteps": [
+            "Open treg.to and sign in.",
+            "Copy your treg API key.",
+            "Paste it here."
+          ]
+        }
+      ],
+      "helperLinks": [
+        {
+          "id": "docs",
+          "label": "treg integration guide",
+          "url": "https://treg.to/integrate.md",
+          "description": "How treg's catalog, calls and balance work."
+        }
+      ],
+      "domain": "treg.to",
+      "category": "AI",
+      "verifyRequest": {
+        "url": "https://treg.to/auth/me",
+        "method": "GET",
+        "headers": {},
+        "body": "",
+        "credential_injections": [
+          {
+            "field_id": "api_key",
+            "placement": {
+              "kind": "header",
+              "name": "X-Treg-Token",
+              "prefix": "",
+              "suffix": ""
+            }
+          }
+        ],
+        "timeout_ms": 15000
+      }
+    }
+  },
+  {
    "type": "record",
    "address": "package::service-connections::published-record::telnyx",
    "path": [

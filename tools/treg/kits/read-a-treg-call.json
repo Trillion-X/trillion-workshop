@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Keep the x-treg-call-id header that tool:call-a-treg-endpoint answered (32 hex characters).",
-    "2. About 60 seconds later, say to your AI: \"Read my treg call <id>\". It calls tools:run with tool tool:read-a-treg-call, account and call_id.",
+    "2. About 60 seconds later, say to your AI: \"Read my treg call <id>\". It calls tools:run with tool tool:read-a-treg-call and call_id.",
     "3. Read async_task.status: pending means read again every 30 to 60 seconds; settled has result_url (it expires, so fetch it at once); released and timed_out charged nothing.",
     "4. Never send the call again or try another provider while it is pending."
   ],
@@ -25,7 +25,6 @@
           "input": {
             "tool": "tool:read-a-treg-call",
             "input": {
-              "account": "service_connection:treg",
               "call_id": "0123456789abcdef0123456789abcdef"
             }
           }
