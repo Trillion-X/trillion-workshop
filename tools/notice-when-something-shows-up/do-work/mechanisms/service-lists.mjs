@@ -30,7 +30,7 @@
  *
  * Settings (mechanism_settings)
  *   where               the connection's name (no secret)
- *   credential_fd       the descriptor holding the credential (default 4)
+ *   credential_fd       the descriptor holding the credential (default 4; a waiter that names its own credential_name reads it from the descriptor the run gave it instead)
  *   request             { url, method?: "GET", headers?: { <name>: "<text with {credential}>" } }
  *   shape               { items: "<path to the list>", place: "<path>" | { value }, key: "<path>" | [..],
  *                         at?: "<path>", at_unit?: "seconds" | "ms" | "iso", next?: "<path to the next page's url>",
@@ -177,7 +177,7 @@ export async function watchForTransitions(settings, handlers) {
   const own = readSettings(settings);
   const signal = handlers.signal;
   const keepState = handlers.keepState ?? (async () => {});
-  const credential = handlers.credential ?? readFileSync(own.credential_fd, "utf8").trim();
+  const credential = handlers.credential ?? readFileSync(handlers.credentialFd ?? own.credential_fd, "utf8").trim();
   let state = handlers.state?.seen ? handlers.state : null;
   try {
     while (!signal?.aborted) {

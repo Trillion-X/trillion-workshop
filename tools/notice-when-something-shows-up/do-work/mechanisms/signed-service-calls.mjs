@@ -35,7 +35,7 @@
  * Settings (mechanism_settings)
  *   listen_host, listen_port, body_byte_ceiling   as inbound-http-delivery
  *   where       the connection's name (no secret)
- *   secret_fd   the descriptor holding the signing secret (default 4)
+ *   secret_fd   the descriptor holding the signing secret (default 4; a waiter that names its own credential_name reads it from the descriptor the run gave it instead)
  *   verify      { parts: { <name>: { header, match? } }, signed: "<text with {name} and {body}>",
  *                 signature: "<part name>", hash: "sha256", encoding: "hex" | "base64",
  *                 secret_prefix?: "<prefix the secret starts with>", secret_encoding?: "utf8" | "base64",
@@ -208,7 +208,7 @@ export function changesOf({ shape, where, body, receivedAt = new Date() }) {
 export async function watchForTransitions(settings, handlers) {
   const own = readSettings(settings);
   const signal = handlers.signal;
-  const secret = handlers.secret ?? readFileSync(own.secret_fd, "utf8").trim();
+  const secret = handlers.secret ?? readFileSync(handlers.credentialFd ?? own.secret_fd, "utf8").trim();
   const answer = (response, status, value) => { response.writeHead(status, { "Content-Type": "application/json" }); response.end(JSON.stringify(value)); };
   const server = (handlers.makeServer ?? createServer)(async (request, response) => {
     const chunks = [];

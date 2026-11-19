@@ -4,7 +4,8 @@
 // each a few text fields with an event id unique per tick, and a refused fact is said on standard output.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { engineCarrier, factOf } from '../do-work/tell-the-engine.mjs';
+import { readFileSync } from 'node:fs';
+import { engineCarrier, factOf, waitersWithTheirCredentials, EACH_WAITER_FD } from '../do-work/tell-the-engine.mjs';
 import { runResidentEmitter } from '../do-work/emit-arrival-fact.mjs';
 
 const clock = { kind: 'notice-when-something-shows-up.waiter-descriptor', id: 'waiter:elapsed-time', is_active: true,
@@ -87,4 +88,25 @@ test('a JSON-RPC error from the door is a refusal, so the fact stays untold', as
   await assert.rejects(carrier.writeRecord({ addressLabel: 'due', payload: { kind: 'due-time' }, eventKey: 'x' }), /request_key is 283 bytes/);
   assert.equal(carrier.answer.told.length, 0);
   assert.match(lines[0], /"refused":"due-time"/);
+});
+
+test('one run watches many places, each waiter reading with its own credential on the descriptor the engine mounts it on', async () => {
+  // The engine's rule for the row's `waiters[].credential_name` mount: the first descriptor plus the waiter's place.
+  const mount = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload.invoke.credential_mounts
+    .find(item => item.secret_name_from_input === 'waiters[].credential_name');
+  assert.equal(mount.fd, EACH_WAITER_FD);
+  const place = (id, credential_name) => ({ ...clock, id, ...(credential_name ? { credential_name } : {}),
+    mechanism_leaf: 'reads-its-credential.mjs', emitted_record: { ...clock.emitted_record, change_kind: 'something-changed', address_label: 'where::something-changed', payload_fields: ['where', 'read'] } });
+  const waiters = waitersWithTheirCredentials([place('waiter:my-database', 'my-database'), place('waiter:a-clock'), place('waiter:my-bookings', 'my-booking-service')]);
+  assert.deepEqual(waiters.map(waiter => waiter.credential_fd ?? null), [5, null, 7]);
+  const { told, fetchImpl } = door();
+  const controller = new AbortController();
+  const carrier = engineCarrier({ door: { url: 'http://door.test/mcp', capability: 'run-capability' }, waiters, fetchImpl, say: () => {} });
+  // Each waiter's mechanism reads the descriptor it is handed, as row-changes, service-lists and signed-service-calls do.
+  const loadModule = async () => ({ describeMechanism: () => ({ mechanism_ref: clock.mechanism_capability_ref }), async watchForTransitions(settings, handlers) {
+    await handlers.onTransition({ condition: 'became-reachable', observed_identity: {}, detail: { read: String(handlers.credentialFd) } });
+  } });
+  await runResidentEmitter({ carrier, signal: controller.signal, loadModule, connection: 'the-runs-one-credential' });
+  assert.deepEqual(told.map(fact => [fact.payload.where, fact.payload.read]).sort(),
+    [['my-booking-service', '7'], ['my-database', '5'], ['the-runs-one-credential', 'null']]);
 });

@@ -169,6 +169,10 @@ export function readWaiterRow(row) {
     },
     candidate_identity_feed: row.candidate_identity_feed ?? null,
     is_active: row.is_active !== false,
+    // A waiter that reads with its own credential: its vault name (the place its facts name as `where`) and the descriptor
+    // the run holds it on (tell-the-engine.mjs waitersWithTheirCredentials), so one run watches many places.
+    credential_name: nonEmpty(row.credential_name) ?? null,
+    credential_fd: Number.isInteger(row.credential_fd) && row.credential_fd >= 3 ? row.credential_fd : null,
   };
 }
 
@@ -581,8 +585,10 @@ async function recordRefusal(carrier, row, error, nowMs) {
   }
 }
 
-async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, connection }) {
+async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, connection: runs }) {
   const { declared, mechanism } = resolved;
+  // A waiter's own credential is the place it watches; one without reads with the run's one credential, if any.
+  const connection = declared.credential_name ?? runs;
   const emitted = declared.emitted_record;
 
   let current = null;
@@ -619,6 +625,7 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, c
     // What this waiter kept with its last fact (a carrier with a kept folder keeps it across restarts), and a way to
     // keep more before anything is told: a mechanism's own memory, never a second store.
     state: current?.state ?? null,
+    credentialFd: declared.credential_name ? declared.credential_fd : null,
     keepState: (state) => carrier.keepState?.(emitted.address_label, state, declared.waiter_ref),
     // Which switched-on wakes hear a kind of fact, as the engine lists them (a carrier over the engine's door).
     listening: (kind) => (carrier.listening ? carrier.listening(kind) : Promise.resolve([])),

@@ -30,7 +30,7 @@
  *     its own way (workflow:tell-me-when-something-changes).
  *
  * Settings (mechanism_settings)
- *   connection_fd       the descriptor holding the connection string (default 4)
+ *   connection_fd       the descriptor holding the connection string (default 4; a waiter that names its own credential_name reads it from the descriptor the run gave it instead)
  *   table, channel      the change table and its NOTIFY channel (row_changes)
  *   look_again_seconds  the longest wait between reads (default 30)
  *   most_per_read       the most changes one read takes (default 500)
@@ -100,7 +100,7 @@ export async function watchForTransitions(settings, handlers) {
   const own = readSettings(settings);
   const signal = handlers.signal;
   const keepState = handlers.keepState ?? (async () => {});
-  const connection = handlers.connection ?? readFileSync(own.connection_fd, "utf8").trim();
+  const connection = handlers.connection ?? readFileSync(handlers.credentialFd ?? own.connection_fd, "utf8").trim();
   const client = await (handlers.connect ?? connectWithPg)(connection);
   let state = handlers.state?.after !== undefined ? handlers.state : { after: null };
   let wake = () => {};

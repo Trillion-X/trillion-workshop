@@ -157,11 +157,24 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
   };
 }
 
+/** The first descriptor a waiter's own credential is held on: the row mounts each waiter's credential_name on this plus the
+ *  waiter's place in the input's list (tool-rows.json credential_mounts, `waiters[].credential_name`). */
+export const EACH_WAITER_FD = 5;
+
+/** The input's waiters, each that names its own credential_name told the descriptor the run holds it on, the engine's
+ *  rule for a `[]` mount: the first descriptor plus the waiter's place in the list, whether or not the waiters before it
+ *  name one. */
+export function waitersWithTheirCredentials(waiters, first = EACH_WAITER_FD) {
+  return (Array.isArray(waiters) ? waiters : []).map((waiter, index) =>
+    waiter && typeof waiter === 'object' && typeof waiter.credential_name === 'string' && waiter.credential_name
+      ? { ...waiter, credential_fd: first + index } : waiter);
+}
+
 const startedAsProgram = process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop());
 if (startedAsProgram) {
   try {
     const input = JSON.parse((await text(process.stdin)) || '{}');
-    const waiters = Array.isArray(input.waiters) ? input.waiters : [];
+    const waiters = waitersWithTheirCredentials(input.waiters);
     const controller = new AbortController();
     process.on('SIGTERM', () => controller.abort());
     const seconds = Number(input.for_seconds);

@@ -402,7 +402,8 @@ test("a change fact names where it happened and carries the change when it fits,
   const wake = rows.records[0].payload.wakes.find(w => w.id === "keep-noticing-row-changes");
   const waiter = wake.input.waiters[0];
   const transition = { condition: "became-reachable", observed_identity: {}, detail: { where: "d", place: "post", change: "added", at: "2026-11-18T00:00:00.000Z", key: "d:7:3", before: null, after: null, by: "may_change_rows_0a1b2c3d4e5f" } };
-  const scope = buildScope(readWaiterRow(waiter), transition, { observedAt: "2026-11-18T00:00:00.000Z", sequence: 1, matched: [], connection: wake.input.credential_name });
+  const scope = buildScope(readWaiterRow(waiter), transition, { observedAt: "2026-11-18T00:00:00.000Z", sequence: 1, matched: [], connection: "own-rows-postgres-connection" });
+  assert.equal(wake.input.credential_name, undefined, "the shared row names no vault name: the person's switch gives it");
   const payload = selectPayload(waiter.emitted_record.change_kind, waiter.emitted_record.payload_fields, scope);
   assert.equal(payload.where, "own-rows-postgres-connection");
   assert.equal(payload.after, null, "the leaf hands an after too big for a fact field as null, and a null field is not told");

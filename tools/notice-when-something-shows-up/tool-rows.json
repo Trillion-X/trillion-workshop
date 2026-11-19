@@ -226,7 +226,7 @@
             },
             "credential_name": {
               "type": "string",
-              "description": "The vault name of what a waiter reads with, handed to the run on descriptor 4: a database connection a row-changes waiter reads, a key a service-lists waiter asks a service's list with, or a signing secret a signed-service-calls waiter checks calls with. Only that credential's hosts are reached."
+              "description": "The vault name of what the waiters read with, when one credential serves them all, handed to the run on descriptor 4: a database connection a row-changes waiter reads, a key a service-lists waiter asks a service's list with, or a signing secret a signed-service-calls waiter checks calls with. Only that credential's hosts are reached. A waiter that names its own credential_name reads with that one instead, held on descriptor 5 plus its place in waiters, so one run watches many places, each with its own credential."
             }
           },
           "required": [
@@ -585,6 +585,10 @@
                 "input": "credential_name",
                 "present": true
               }
+            },
+            {
+              "secret_name_from_input": "waiters[].credential_name",
+              "fd": 5
             }
           ]
         },
@@ -643,7 +647,6 @@
               "wall_ms": 600000
             },
             "input": {
-              "credential_name": "own-rows-postgres-connection",
               "waiters": [
                 {
                   "kind": "notice-when-something-shows-up.waiter-descriptor",
@@ -677,7 +680,7 @@
                     ]
                   },
                   "candidate_identity_feed": null,
-                  "why": "Each change of a table the person's AI attached record_row_change() to, in the database whose connection the person keeps under own-rows-postgres-connection (made by workflow:make-a-database-for-each-pursuit), told once in commit order. The fact carries the change itself: where (the vault name of what is watched), table_name, op, at, key (the change's own key in that database), and before and after as JSON text when each fits the engine's 1,024 bytes a field (else left out, and a run that needs more reads it by key in the store's own language). No reader tool is needed. This waiter is one way a Postgres database tells its changes; another store tells its own (workflow:tell-me-when-something-changes). A tool hears it with a wake {fact: {kind: row-changes, from: [run], match: {table_name}}}."
+                  "why": "Each change of a table the person's AI attached record_row_change() to, in the database whose connection the person names as credential_name when switching this wake on (a vault name they keep, such as the one workflow:make-a-database-for-each-pursuit makes; a shared row names none), told once in commit order. The fact carries the change itself: where (the vault name of what is watched), table_name, op, at, key (the change's own key in that database), and before and after as JSON text when each fits the engine's 1,024 bytes a field (else left out, and a run that needs more reads it by key in the store's own language). No reader tool is needed. This waiter is one way a Postgres database tells its changes; another store tells its own (workflow:tell-me-when-something-changes). A tool hears it with a wake {fact: {kind: row-changes, from: [run], match: {table_name}}}."
                 }
               ]
             }
