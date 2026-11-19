@@ -70,9 +70,10 @@ test('a header that carries a credential is refused, and nothing is kept', async
   await assert.rejects(run({ add: { ...add, headers: { Authorization: 'secret' } }, request_key: 'k-10', receipt: null }), /connection owner/);
 });
 
-test('the tool holds no records door and its row names no records operation', () => {
+test('the tool holds no records door and no row names a records operation', () => {
   const source = readFileSync(new URL('../do-work/sources.mjs', import.meta.url), 'utf8');
   assert.doesNotMatch(source, /door\.|readRecord|records:/);
   const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(one => one.payload);
-  assert.equal(JSON.stringify(rows).includes('"records:'), rows.some(row => row.id === 'tool:read-my-api-descriptions'), 'only the read row still names records operations');
+  assert.equal(JSON.stringify(rows).includes('"records:'), false, 'no row names a records operation');
+  assert.equal(JSON.stringify(rows).includes('records-door'), false, 'no row mounts the records door');
 });

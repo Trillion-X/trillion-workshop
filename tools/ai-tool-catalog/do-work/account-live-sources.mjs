@@ -25,18 +25,19 @@
 //      account, source, config, logical-root and key witnesses through network effects and output. Only native
 //      credential owners place secrets; authenticated discovery carries public entries bound to the exact source.
 //   4. Only public addresses are read, through the existing postWithFetch/public-address owner and native egress.
-// The exact original is held in ports/source-baselines. The existing records door replaces retired SQL; native
-// derivation opens no records descriptor and writes no durable cache. Nothing here starts the retired runtime.
+// The exact original is held in ports/source-baselines. Nothing here opens a store: the source definitions and the cache
+// rows are given as values (the caller reads them from the person's own store), and a read answers the cache rows it
+// made as `keep`, each with the value it expected, for the caller to keep. Native derivation writes no durable cache.
+// Nothing here starts the retired runtime.
 import data from '../read-data/account-live-source-reads.json' with { type: 'json' };
 import { rowsFromList } from './derive-tool-rows-from-sources.mjs';
 import { openapiEntries } from './read-openapi.mjs';
 import { postWithFetch } from './public-post.mjs';
-import { canonicalJson, makeHashCodeHexFromJson, makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { makeHashCodeHexFromJson, makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { rowSourceOf } from './source-template.mjs';
 export { rowSourceOf } from './source-template.mjs';
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
-const same = (a, b) => canonicalJson(a) === canonicalJson(b);
 const fail = code => Object.assign(new Error(code), { code });
 const positive = (n, fallback) => Number.isFinite(n) && n > 0 ? Math.min(n, fallback) : fallback;
 const secretHeader = new RegExp(data.secret_header, 'i'), secretQuery = new RegExp(data.secret_query, 'i');
@@ -146,57 +147,36 @@ function builtRowSource(source) {
 /** `sourceConfig` and `requestKey` are native-owned context, not tool input. `wait:false` reads caches only.
  * A needed cold source is fetched under the native egress sandbox and the shared public-address reader.
  */
-export async function readAccountLiveSources(input = {}, { door, sourceConfig, requestKey, request = fetch,
-  now = () => new Date(), definitionSnapshot, cacheSnapshot = [], builtSources = [], cacheKeysOnly = false } = {}) {
+export async function readAccountLiveSources(input = {}, { sourceConfig, requestKey, request = fetch,
+  now = () => new Date(), definitionSnapshot, cacheSnapshot = [], builtSources = [], cacheKeysOnly = false, keepCache = false } = {}) {
   if (!object(input) || Object.keys(input).some(key => !['need', 'wait'].includes(key))
     || input.need !== undefined && typeof input.need !== 'string' && typeof input.need !== 'boolean'
     || input.wait !== undefined && typeof input.wait !== 'boolean') throw fail('source_input_refused');
-  const nativeSnapshot = definitionSnapshot !== undefined;
-  if (nativeSnapshot && (!Array.isArray(cacheSnapshot) || cacheSnapshot.length > data.max_sources
-    || cacheSnapshot.some(row => !object(row) || typeof row.id !== 'string' || !object(row.value)))) throw fail('source_owner_unavailable');
-  if (nativeSnapshot && (!Array.isArray(builtSources) || builtSources.length > data.max_sources
-    || typeof cacheKeysOnly !== 'boolean')) throw fail('source_owner_unavailable');
-  if (nativeSnapshot ? !Array.isArray(definitionSnapshot) : !door || !['readRecord', 'list', 'write'].every(key => typeof door[key] === 'function'))
-    throw fail('source_owner_unavailable');
+  if (!Array.isArray(cacheSnapshot) || cacheSnapshot.length > data.max_sources
+    || cacheSnapshot.some(row => !object(row) || typeof row.id !== 'string' || !object(row.value))) throw fail('source_owner_unavailable');
+  if (!Array.isArray(builtSources) || builtSources.length > data.max_sources || typeof cacheKeysOnly !== 'boolean'
+    || typeof keepCache !== 'boolean' || !Array.isArray(definitionSnapshot)) throw fail('source_owner_unavailable');
   if (!sourceConfig || typeof sourceConfig.config !== 'function') throw fail('source_owner_unavailable');
   const assertCurrent = async () => { if (typeof sourceConfig.assertCurrent === 'function') await sourceConfig.assertCurrent(); };
   await assertCurrent();
   const config = configOf(await sourceConfig.config()), configurationIdentity = makeHashCodeHexFromJson(config);
+  // The definitions as values: the caller's own tool-source rows, as read.
   const own = [];
-  if (nativeSnapshot) {
-    for (const value of definitionSnapshot) {
-      if (!object(value) || typeof value.id !== 'string') throw fail('source_owner_unavailable');
-      // An immutable value snapshot only; actual physical roots/keys/current caller/configuration remain
-      // in the native Source witness. No fake record identity or record-door permission is manufactured.
-      own.push({ value: structuredClone(value) });
-      if (own.length > data.max_sources) throw fail('source_read_bounds');
-    }
-  } else for await (const record of door.list({ type: data.source_type, prefix: data.source_prefix })) {
-    if (!object(record.value) || record.id !== `${data.source_prefix}${record.value.id}`) throw fail('source_owner_unavailable');
-    const exact = await door.readRecord(data.source_type, record.id);
-    if (!exact || !same(exact.value, record.value) || typeof exact.identity !== 'string' || !exact.identity) throw fail('source_definitions_changed');
-    own.push({ id: record.id, identity: exact.identity, value: structuredClone(record.value) });
+  for (const value of definitionSnapshot) {
+    if (!object(value) || typeof value.id !== 'string') throw fail('source_owner_unavailable');
+    own.push({ value: structuredClone(value) });
     if (own.length > data.max_sources) throw fail('source_read_bounds');
   }
   const active = own.filter(record => record.value.status !== 'deleted'), privateIds = new Set(active.map(record => record.value.id));
   const candidates = [...config.sources.filter(source => !privateIds.has(source.id)).map(source => ({ source, scope: 'default' })),
     ...active.map(record => ({ source: record.value, scope: 'account' })),
-    ...(nativeSnapshot ? builtSources.filter(source => source?.status !== 'deleted').map(source => ({ source, scope: 'account', built: true })) : [])];
+    ...builtSources.filter(source => source?.status !== 'deleted').map(source => ({ source, scope: 'account', built: true }))];
   if (candidates.length > data.max_sources || new Set(candidates.map(item => item.source.id)).size !== candidates.length) throw fail('source_read_bounds');
   const current = async () => {
     await assertCurrent();
     if (makeHashCodeHexFromJson(configOf(await sourceConfig.config())) !== configurationIdentity) throw fail('source_configuration_changed');
-    if (nativeSnapshot) return; // Its native owner fences effects and output using the retained real roots.
-    const rows = [];
-    for await (const record of door.list({ type: data.source_type, prefix: data.source_prefix })) {
-      rows.push({ id: record.id, value: record.value });
-      if (rows.length > data.max_sources) throw fail('source_read_bounds');
-    }
-    if (!same(rows, own.map(({ id, value }) => ({ id, value })))) throw fail('source_definitions_changed');
-    for (const pin of own) if ((await door.readRecord(data.source_type, pin.id))?.identity !== pin.identity) throw fail('source_definitions_changed');
-    await assertCurrent();
   };
-  const reads = [], cacheIds = [];
+  const reads = [], cacheIds = [], keep = [];
   // The original owner reads independent sources together. Keep source order for precedence and diagnostics.
   await Promise.all(candidates.map(async (candidate, at) => {
     const item = { ...candidate, definition_identity: makeHashCodeHexFromJson(candidate.source), configuration_identity: configurationIdentity };
@@ -209,11 +189,11 @@ export async function readAccountLiveSources(input = {}, { door, sourceConfig, r
     }
     item.key = makeHashCodeHexFromJson({ definition: candidate.source, configuration_identity: configurationIdentity, row_source: item.rowSource });
     const cacheId = `${data.record_prefix}${item.key.slice(3)}`;
-    if (nativeSnapshot && cacheKeysOnly) {
+    if (cacheKeysOnly) {
       if (typeof input.need !== 'string' || input.need.startsWith(item.rowSource.id_prefix)) cacheIds[at] = cacheId;
       return;
     }
-    const stored = nativeSnapshot ? cacheSnapshot.find(row => row.id === cacheId) ?? null : await door.readRecord(data.record_type, cacheId);
+    const stored = cacheSnapshot.find(row => row.id === cacheId) ?? null;
     const kept = cacheValid(stored?.value, item) ? stored.value : null;
     const needs = input.need === undefined || input.need === true || typeof input.need === 'string' && input.need.startsWith(item.rowSource.id_prefix);
     const every = kept?.error ? Math.min(positive(config.retry_ceiling_minutes, data.retry_ceiling_minutes), positive(config.check_every_minutes, data.check_every_minutes), 2 ** Math.max(0, Math.min(data.max_failures, kept.failures || 1) - 1))
@@ -253,11 +233,8 @@ export async function readAccountLiveSources(input = {}, { door, sourceConfig, r
       await current();
       const value = { ...read, source_id: item.source.id, source_key: item.key, definition_identity: item.definition_identity,
         configuration_identity: configurationIdentity, request_key: requestKey };
-      if (nativeSnapshot) cacheState = 'not_kept';
-      else try {
-        await door.write([{ id: cacheId, type: data.record_type, value, expected: stored ? { type: data.record_type, value: stored.value } : null }],
-          { key: `source-read:${requestKey}:${item.key}` });
-      } catch (error) { cacheState = error?.outcome === 'unknown' ? 'unknown' : 'not_kept'; }
+      if (keepCache) keep.push({ id: cacheId, type: data.record_type, value, expected: stored ? { type: data.record_type, value: stored.value } : null });
+      else cacheState = 'not_kept';
       await current();
     }
     read ??= { ...empty(), pending: true };
@@ -271,14 +248,22 @@ export async function readAccountLiveSources(input = {}, { door, sourceConfig, r
   }));
   await current();
   return { reads: reads.filter(Boolean), rows: rowsOf(reads), configuration_identity: configurationIdentity,
-    ...(nativeSnapshot && cacheKeysOnly ? { cache_ids: cacheIds.filter(Boolean) } : {}),
+    ...(cacheKeysOnly ? { cache_ids: cacheIds.filter(Boolean) } : {}), ...(keep.length ? { keep } : {}),
     unavailable: unavailableIn(reads) };
 }
 
-/** Static row creates this envelope from separate input and native task fields. */
-export function readLiveSourcesFromTask({ input = {}, source_data, request_key } = {}, { door } = {}) {
-  if (!object(source_data) || !object(source_data.config)) throw fail('source_owner_unavailable');
-  return readAccountLiveSources(input, { door, sourceConfig: { config: async () => source_data.config }, requestKey: request_key });
+/** The read row. `input.stored.records` are the caller's own rows ([{ id, type, value }]): tool-source rows (the source
+ *  definitions) and tool-source-read rows (the kept cache). Nothing else is read; the cache rows it made come back as keep. */
+export function readLiveSourcesFromTask({ input = {}, source_data, request_key } = {}, { request = fetch, now = () => new Date() } = {}) {
+  if (!object(source_data) || !object(source_data.config) || !object(input)) throw fail('source_owner_unavailable');
+  const { stored, ...need } = input;
+  const records = object(stored) && Array.isArray(stored.records) ? stored.records.filter(object) : [];
+  const sourceRows = records.filter(row => row.type === data.source_type);
+  if (sourceRows.some(row => !object(row.value) || row.id !== `${data.source_prefix}${row.value.id}`)) throw fail('source_owner_unavailable');
+  const cacheSnapshot = records.filter(row => row.type === data.record_type && typeof row.id === 'string' && object(row.value))
+    .map(row => ({ id: row.id, value: row.value }));
+  return readAccountLiveSources(need, { sourceConfig: { config: async () => source_data.config }, requestKey: request_key,
+    definitionSnapshot: sourceRows.map(row => row.value), cacheSnapshot, keepCache: true, request, now });
 }
 
 /** Exact installed inner row. No records descriptor is opened and no caller record permission is enlarged.

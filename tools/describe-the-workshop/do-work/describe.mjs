@@ -6,7 +6,7 @@
 // deleted when this tool took over its route), whose precedence it keeps: the person's own saved row, when it is not
 // deleted, replaces the shared row of the same id, even when the saved row cannot be described.
 //
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/describe-the-workshop/do-work/describe.mjs describeATool < input
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/describe-the-workshop/do-work/describe.mjs describeATool < input
 //
 // The shared rows are the ones the caller already holds (the page's tools:list answer, given as `shared`); the saved
 // row is the caller's too: its AI reads it from the person's store (record type tool, id tool:<tool id>) and gives it as

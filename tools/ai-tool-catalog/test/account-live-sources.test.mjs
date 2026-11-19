@@ -1,4 +1,6 @@
-// Isolated source owners and synthetic network answers, through the real derivation/protocol reader.
+// Synthetic source definitions, cache rows and network answers, through the real derivation/protocol reader. The caller's
+// store is a Map here: each read is given its rows and the keep rows it answers are written back with their expected
+// values, as the caller does in the real run.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readAccountLiveSources, readLiveSourcesFromTask, deriveLiveSourcesFromTask } from '../do-work/account-live-sources.mjs';
@@ -18,28 +20,30 @@ const document = { openapi: '3.0.0', servers: [{ url: 'https://fixture.example/a
 
 function owner(selected = config()) {
   const records = new Map(), writes = [], asks = [];
-  let time = Date.parse('2026-11-08T00:00:00Z'), revision = 0;
+  let time = Date.parse('2026-11-08T00:00:00Z');
   const state = {
     selected, records, writes, asks,
     now: () => new Date(time), advance: ms => { time += ms; },
     async request(url, init) { asks.push({ url, init }); return new Response(JSON.stringify(document), { headers: { etag: 'fixture-v1' } }); },
     sourceConfig: { config: async () => state.selected },
-    door: {
-      async readRecord(type, id) { const row = records.get(id); return row?.type === type ? structuredClone(row) : null; },
-      async *list({ type, prefix }) { for (const [id, row] of records) if (row.type === type && id.startsWith(prefix)) yield { id, ...structuredClone(row) }; },
-      async write(changes, options) {
-        for (const change of changes) {
-          const old = records.get(change.id), before = old ? { type: old.type, value: old.value } : null;
-          assert.deepEqual(before, change.expected);
-        }
-        for (const change of changes) records.set(change.id, { type: change.type, value: structuredClone(change.value), identity: `root-${++revision}` });
-        writes.push({ changes: structuredClone(changes), options });
-      },
-    },
   };
   return state;
 }
-const read = (state, input = {}, key = 'fixture-run') => readAccountLiveSources(input, { ...state, requestKey: key });
+
+// The caller's side: the rows the read is given, then its keep rows written back where each expected value still holds.
+const given = state => [...state.records].map(([id, row]) => ({ id, type: row.type, value: row.value }));
+function keepIn(state, answer) {
+  for (const row of answer.keep ?? []) {
+    const old = state.records.get(row.id) ?? null;
+    assert.deepEqual(old ? { type: old.type, value: old.value } : null, row.expected, `expected value moved for ${row.id}`);
+    state.records.set(row.id, { type: row.type, value: structuredClone(row.value) });
+  }
+  if (answer.keep?.length) state.writes.push(structuredClone(answer.keep));
+  return answer;
+}
+const read = (state, input = {}, key = 'fixture-run') => Promise.resolve(readLiveSourcesFromTask({
+  input: { ...input, stored: { records: given(state) } }, source_data: { config: state.selected }, request_key: key }, state))
+  .then(answer => keepIn(state, answer));
 
 test('independent cold reads start together and retain source precedence when replies arrive out of order', { timeout: 1000 }, async () => {
   const selected = config();
@@ -62,13 +66,14 @@ test('independent cold reads start together and retain source precedence when re
   assert.deepEqual(result.rows.map(row => row.id), ['tool:fixture:answer', 'tool:second:answer']);
 });
 
-test('public OpenAPI discovery derives current rows and a fresh process uses the conditional cache', async () => {
+test('public OpenAPI discovery derives current rows and a fresh run uses the conditional cache its caller gives back', async () => {
   const state = owner(), first = await read(state);
   assert.equal(first.reads[0].state, 'ready');
   assert.deepEqual(first.reads[0].tools, ['tool:fixture:answer']);
   assert.equal(first.rows[0].invoke.kind, 'http');
   assert.equal(first.rows[0].invoke.url, 'https://fixture.example/api/answer');
   assert.equal(state.writes.length, 1);
+  assert.equal(state.writes[0][0].expected, null, 'a first read expects no cache row');
   assert.equal([...state.records.values()][0].value.rows, undefined, 'cache keeps entries, not executable descriptors');
   assert.deepEqual((await read(state)).rows, first.rows);
   assert.equal(state.asks.length, 1);
@@ -78,6 +83,7 @@ test('public OpenAPI discovery derives current rows and a fresh process uses the
   assert.deepEqual(next.rows, first.rows);
   assert.equal(next.reads[0].read_at, first.reads[0].read_at);
   assert.equal(state.asks[1].init.headers['if-none-match'], 'fixture-v1');
+  assert.equal(state.writes[1][0].expected.value.etag, 'fixture-v1', 'the next keep names the row it replaces');
 });
 
 test('a failed first source is unavailable, persists backoff, and recovers after its bounded retry', async () => {
@@ -96,11 +102,10 @@ test('a failed first source is unavailable, persists backoff, and recovers after
 
 test('removal and changed template invalidate the old cache, including private/default collisions', async () => {
   const state = owner();
-  state.records.set('tool-source:fixture', { type: 'tool-source', identity: 'original-root', value: { id: 'fixture', kind: 'openapi', url: 'https://own.example/openapi', added_at: 'original-time' } });
+  state.records.set('tool-source:fixture', { type: 'tool-source', value: { id: 'fixture', kind: 'openapi', url: 'https://own.example/openapi', added_at: 'original-time' } });
   assert.equal((await read(state)).reads[0].scope, 'account');
   assert.equal(state.asks[0].url, 'https://own.example/openapi');
   state.records.get('tool-source:fixture').value.status = 'deleted';
-  state.records.get('tool-source:fixture').identity = 'removed-root';
   const after = await read(state, { wait: false }, 'fixture-after-remove');
   assert.equal(after.reads[0].scope, 'default');
   assert.equal(after.reads[0].state, 'pending');
@@ -109,18 +114,14 @@ test('removal and changed template invalidate the old cache, including private/d
   assert.deepEqual((await read(state, { wait: false }, 'fixture-after-template')).rows, []);
 });
 
-test('source root ABA or template change during fetch refuses cache and output', async () => {
-  for (const changed of ['root', 'config']) {
-    const state = owner();
-    state.records.set('tool-source:fixture', { type: 'tool-source', identity: 'root-one', value: { id: 'fixture', kind: 'openapi', url: 'https://own.example/openapi' } });
-    state.request = async () => {
-      if (changed === 'root') state.records.get('tool-source:fixture').identity = 'root-aba';
-      else state.selected.kinds.openapi.source.row.invoke.method = 'POST';
-      return new Response(JSON.stringify(document));
-    };
-    await assert.rejects(read(state), { code: changed === 'root' ? 'source_definitions_changed' : 'source_configuration_changed' });
-    assert.equal(state.writes.length, 0);
-  }
+test('a configuration change during fetch refuses the cache and the output', async () => {
+  const state = owner();
+  state.request = async () => {
+    state.selected.kinds.openapi.source.row.invoke.method = 'POST';
+    return new Response(JSON.stringify(document));
+  };
+  await assert.rejects(read(state), { code: 'source_configuration_changed' });
+  assert.equal(state.writes.length, 0);
 });
 
 test('private-address redirects, credentials and request-supplied source authority never reach fetch', async () => {
@@ -133,20 +134,28 @@ test('private-address redirects, credentials and request-supplied source authori
   assert.equal((await read(state, {}, 'credentials')).reads[0].error, 'source_credential_metadata_refused');
   assert.equal(state.asks.length, 1);
   await assert.rejects(read(state, { source_data: { config: config() } }), { code: 'source_input_refused' });
-  assert.throws(() => readLiveSourcesFromTask({ input: {} }, state), { code: 'source_owner_unavailable' });
+  assert.throws(() => readLiveSourcesFromTask({ input: {} }), { code: 'source_owner_unavailable' });
 });
 
-test('an acknowledged cache write with a lost answer keeps its key and is read back without another fetch', async () => {
-  const state = owner(), write = state.door.write;
-  state.door.write = async (...args) => { await write(...args); throw Object.assign(new Error('answer lost'), { outcome: 'unknown' }); };
-  const first = await read(state, {}, 'one-native-task');
-  assert.equal(first.reads[0].cache_state, 'unknown');
+test('a read given no source definitions or cache rows is a read with nothing kept, and names what it made as keep only', async () => {
+  const state = owner(), first = await read(state, {}, 'one-task');
   assert.equal(first.reads[0].state, 'ready');
-  const key = state.writes[0].options.key;
-  assert.match(key, /^source-read:one-native-task:1f:/);
-  assert.deepEqual((await read(state, {}, 'one-native-task')).rows, first.rows);
-  assert.equal(state.writes.length, 1);
-  assert.equal(state.asks.length, 1);
+  assert.equal(first.keep.length, 1);
+  assert.equal(first.keep[0].type, 'tool-source-read');
+  assert.match(first.keep[0].id, /^tool-source-read:/);
+  assert.deepEqual((await read(state, {}, 'one-task')).rows, first.rows);
+  assert.equal(state.asks.length, 1, 'the cache row given back is read without another fetch');
+});
+
+test('a cache row that no longer matches the caller\'s copy is refused by its expected value and nothing is kept over it', async () => {
+  const state = owner();
+  await read(state, {}, 'first');
+  const [id] = state.records.keys();
+  state.advance(61 * 60000);
+  const answer = await readLiveSourcesFromTask({ input: { stored: { records: given(state) } }, source_data: { config: state.selected }, request_key: 'second' }, state);
+  assert.equal(answer.keep.length, 1);
+  state.records.set(id, { type: 'tool-source-read', value: { moved: true } });
+  assert.throws(() => keepIn(state, answer), /expected value moved/);
 });
 
 test('cache descriptor fields cannot replace derivation from the current native-selected template', async () => {
@@ -167,26 +176,24 @@ test('body limits refuse complete-ready claims and a cold read requires native r
   assert.equal((await read(bounded)).reads[0].error, 'source_read_bounds');
   assert.deepEqual((await read(bounded)).rows, []);
   const missing = owner();
-  await assert.rejects(readAccountLiveSources({}, missing), { code: 'source_request_key_required' });
+  await assert.rejects(readAccountLiveSources({}, { definitionSnapshot: [], sourceConfig: missing.sourceConfig, request: missing.request, now: missing.now }), { code: 'source_request_key_required' });
   assert.equal(missing.asks.length, 0);
 });
 
-test('native source derivation opens no caller records and creates no fake root or cache write', async () => {
+test('native source derivation opens no caller records and creates no cache row', async () => {
   const state = owner(), nativeOwn = [{ id: 'fixture', kind: 'openapi', url: 'https://native-own.example/openapi', added_at: 'original-time' }];
-  const forbiddenDoor = Object.fromEntries(['readRecord', 'list', 'write'].map(name => [name, () => { throw new Error(`record ${name} must not open`); }]));
   const answer = await readAccountLiveSources({ need: 'tool:fixture:answer' }, {
-    door: forbiddenDoor, definitionSnapshot: nativeOwn, sourceConfig: state.sourceConfig,
+    definitionSnapshot: nativeOwn, sourceConfig: state.sourceConfig,
     request: state.request, requestKey: 'native-resolve-key', now: state.now,
   });
   assert.equal(answer.rows[0].id, 'tool:fixture:answer');
   assert.equal(answer.reads[0].scope, 'account');
   assert.equal(answer.reads[0].cache_state, 'not_kept');
-  assert.equal(state.writes.length, 0);
+  assert.equal(answer.keep, undefined);
   assert.equal(state.asks[0].url, 'https://native-own.example/openapi');
   assert.equal(answer.reads[0].root_identity, undefined);
-  const context = { get door() { throw new Error('descriptor must not open'); } };
   assert.deepEqual((await deriveLiveSourcesFromTask({ input: { need: 'tool:fixture:answer', wait: false },
-    source_data: { config: state.selected, own: nativeOwn }, request_key: 'native-resolve-key' }, context)).rows, []);
+    source_data: { config: state.selected, own: nativeOwn }, request_key: 'native-resolve-key' })).rows, []);
   assert.throws(() => deriveLiveSourcesFromTask({ input: {}, source_data: { config: state.selected } }), { code: 'source_owner_unavailable' });
   await assert.rejects(deriveLiveSourcesFromTask({ input: { source_data: { config: config() } },
     source_data: { config: state.selected, own: nativeOwn }, request_key: 'native-resolve-key' }), { code: 'source_input_refused' });
@@ -199,16 +206,14 @@ test('native raw cache snapshots derive current rows without records, network or
   cacheSnapshot[0].value.rows = [{ id: 'tool:fixture:answer', invoke: { kind: 'container', argv: ['unselected-program'] } }];
   const forbidden = () => { throw new Error('native cache read must not open records or network'); };
   const context = { definitionSnapshot: [], cacheSnapshot, sourceConfig: state.sourceConfig,
-    request: forbidden, requestKey: 'native-cache-read', now: state.now,
-    door: { readRecord: forbidden, list: forbidden, write: forbidden } };
+    request: forbidden, requestKey: 'native-cache-read', now: state.now };
   const answer = await readAccountLiveSources({ need: 'tool:fixture:answer', wait: false }, context);
   assert.deepEqual(answer.rows, original.rows);
   assert.equal(answer.rows[0].invoke.kind, 'http');
   assert.equal(answer.reads[0].state, 'ready');
-  const beforeWrites = state.writes.length;
+  assert.equal(answer.keep, undefined);
   assert.deepEqual((await deriveLiveSourcesFromTask({ input: { need: 'tool:fixture:answer', wait: false },
     source_data: { config: state.selected, own: [], cache: cacheSnapshot }, request_key: 'native-cache-wrapper' })).rows, original.rows);
-  assert.equal(state.writes.length, beforeWrites);
   assert.equal(state.asks.length, 1);
 
   state.selected.kinds.openapi.source.row.invoke.method = 'POST';
@@ -223,9 +228,9 @@ test('native cache key phase selects exact current identities without remote rea
   const state = owner();
   await read(state);
   const [expected] = state.records.keys();
-  const forbidden = () => { throw new Error('cache key phase must not open a remote or records owner'); };
+  const forbidden = () => { throw new Error('cache key phase must not open a remote'); };
   const context = { definitionSnapshot: [], sourceConfig: state.sourceConfig, cacheKeysOnly: true,
-    request: forbidden, postFor: forbidden, now: state.now };
+    request: forbidden, now: state.now };
   assert.deepEqual((await readAccountLiveSources({ need: 'tool:fixture:answer' }, context)).cache_ids, [expected]);
   const wrapped = await deriveLiveSourcesFromTask({ input: { need: 'tool:fixture:answer' },
     source_data: { config: state.selected, own: [], cache_keys_only: true } });

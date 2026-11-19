@@ -120,7 +120,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -253,20 +252,19 @@
           "files": {
             "package_files": [
               {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
                 "package": "describe-the-workshop",
                 "paths": [
                   "do-work",
                   "read-data"
                 ],
                 "at": "/opt/describe-the-workshop"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -312,7 +310,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/describe-the-workshop/do-work/describe.mjs",
             "describeATool"
           ],
@@ -475,7 +473,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -613,20 +610,19 @@
           "files": {
             "package_files": [
               {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
                 "package": "describe-the-workshop",
                 "paths": [
                   "do-work",
                   "read-data"
                 ],
                 "at": "/opt/describe-the-workshop"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -658,7 +654,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/describe-the-workshop/do-work/sources.mjs",
             "accountToolSourcesFromTask"
           ],
@@ -867,7 +863,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -989,7 +984,7 @@
           "workdir": "/opt/ai-tool-catalog",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/ai-tool-catalog/do-work/account-live-sources.mjs",
             "readLiveSourcesFromTask"
           ],
@@ -1015,9 +1010,17 @@
           "files": {
             "package_files": [
               {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
                 "package": "ai-tool-catalog",
                 "paths": [
                   "do-work/account-live-sources.mjs",
+                  "do-work/source-template.mjs",
                   "do-work/derive-tool-rows-from-sources.mjs",
                   "do-work/read-openapi.mjs",
                   "do-work/public-post.mjs",
@@ -1026,14 +1029,6 @@
                   "read-data/declared-effects.ts"
                 ],
                 "at": "/opt/ai-tool-catalog"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -1167,19 +1162,11 @@
         "stored": [
           {
             "kind": "tool-source",
-            "prefix": "tool-source:",
-            "operations": [
-              "records:read",
-              "records:list"
-            ]
+            "prefix": "tool-source:"
           },
           {
             "kind": "tool-source-read",
-            "prefix": "tool-source-read:",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "prefix": "tool-source-read:"
           }
         ]
       }
@@ -1301,7 +1288,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1418,7 +1404,7 @@
           "workdir": "/opt/ai-tool-catalog",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/ai-tool-catalog/do-work/account-live-sources.mjs",
             "deriveLiveSourcesFromTask"
           ],
@@ -1444,9 +1430,17 @@
           "files": {
             "package_files": [
               {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
                 "package": "ai-tool-catalog",
                 "paths": [
                   "do-work/account-live-sources.mjs",
+                  "do-work/source-template.mjs",
                   "do-work/derive-tool-rows-from-sources.mjs",
                   "do-work/read-openapi.mjs",
                   "do-work/public-post.mjs",
@@ -1455,14 +1449,6 @@
                   "read-data/declared-effects.ts"
                 ],
                 "at": "/opt/ai-tool-catalog"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",

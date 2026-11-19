@@ -9,11 +9,11 @@
   "output_schema": {"type":"object","required":["reads","rows","unavailable","configuration_identity"],"properties":{"reads":{"type":"array"},"rows":{"type":"array"},"unavailable":{"type":"array"},"configuration_identity":{"type":"string"}}},
   "invoke": {
     "kind": "container", "internet": true, "stdout": "json", "workdir": "/opt/ai-tool-catalog",
-    "argv": ["node","/opt/records-door/do-work/run-an-export.mjs","/opt/ai-tool-catalog/do-work/account-live-sources.mjs","readLiveSourcesFromTask"],
+    "argv": ["node","/opt/workflows/do-work/run-a-function.mjs","/opt/ai-tool-catalog/do-work/account-live-sources.mjs","readLiveSourcesFromTask"],
     "stdin": {"input":{"fill":{"from":"input"}},"source_data":{"fill":{"from":"task","field":"source_data"}},"request_key":{"fill":{"from":"task","field":"request_key"}}},
     "files": {"package_files":[
       {"package":"ai-tool-catalog","paths":["do-work/account-live-sources.mjs","do-work/source-template.mjs","do-work/derive-tool-rows-from-sources.mjs","do-work/read-openapi.mjs","do-work/public-post.mjs","read-data/account-live-source-reads.json","read-data/remote-call-protocol.json","read-data/read-ai-tool-catalog.ts","read-data/declared-effects.ts"],"at":"/opt/ai-tool-catalog"},
-      {"package":"records-door","paths":["do-work","read-data"],"at":"/opt/records-door"},
+      {"package":"workflows","paths":["do-work/run-a-function.mjs"],"at":"/opt/workflows"},
       {"package":"content-identity","paths":["read-data"],"at":"/opt/content-identity"},
       {"package":"ui","paths":["read-data/declared-selector.ts"],"at":"/opt/ui"},
       {"package":"refuse-requests-to-private-addresses","paths":["public-address.mjs","public-address.json"],"at":"/opt/refuse-requests-to-private-addresses"},
@@ -21,10 +21,6 @@
       {"module":"tldts","paths":["package.json","LICENSE","dist"],"at":"/opt/node_modules/tldts"},
       {"module":"tldts-core","paths":["package.json","LICENSE","dist"],"at":"/opt/node_modules/tldts-core"},
       {"module":"@noble/hashes","paths":["LICENSE","package.json","blake3.js","blake2.js","_blake.js","_md.js","_u64.js","utils.js"],"at":"/opt/node_modules/@noble/hashes"}
-    ]},
-    "records":{"fd":3,"rights":[
-      {"kind":"tool-source","prefix":"tool-source:","operations":["records:read","records:list"]},
-      {"kind":"tool-source-read","prefix":"tool-source-read:","operations":["records:read","records:write"]}
     ]}
   },
   "needs":{"expected_seconds":10,"network_egress":true},
