@@ -13,6 +13,11 @@ SPEC = importlib.util.spec_from_file_location("score_book_voice_draft", SCORER_P
 SCORER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(SCORER)
 KIT_PATH = Path(__file__).resolve().parents[1] / "kits" / "score-writing-with-a-voice-adapter.json"
+# The Workshop's own decider frame (no torch until configured): its settings reader is the one draft mode uses.
+FRAME_PATH = Path(__file__).resolve().parents[2] / "fine-tune-a-small-model-on-a-persons-rules" / "read-data" / "common.py"
+FRAME_SPEC = importlib.util.spec_from_file_location("workshop_decider_frame", FRAME_PATH)
+FRAME = importlib.util.module_from_spec(FRAME_SPEC)
+FRAME_SPEC.loader.exec_module(FRAME)
 
 CRITERION = {
     "id": "plain-voice", "question": "Does this passage read in the writer's own voice?", "primitive": "one-of",
@@ -118,6 +123,55 @@ class DraftModeTests(unittest.TestCase):
                  "paragraph_scores": [{**entry, **({"p_pass": round(entry["p_pass"], 4)} if "p_pass" in entry else {})}
                                       for entry in answer["paragraph_scores"]]}
         self.assertIn(json.dumps({"result": shown}, ensure_ascii=False), example["hands_back"])
+
+
+    def test_a_line_that_is_only_a_label_and_a_link_is_skipped_not_scored(self):
+        link = "Meeting link: https://meet.google.com/abc-defg-hij"
+        answer, seen = self.score(text=f"{GATE}\n\n{link}\n\nhttps://example.com/a/very/long/address/that/is/not/words")
+        self.assertEqual(SCORER.prose_chars(link), len("Meeting link:"))
+        self.assertEqual([entry.get("skipped", False) for entry in answer["paragraph_scores"]], [False, True, True])
+        self.assertEqual(answer["paragraph_scores"][1]["chars"], len(link), "chars still counts the whole paragraph")
+        self.assertEqual([item["row"]["state"]["target_text"] for item in seen], [GATE])
+
+    def test_the_persons_bar_is_handed_on_and_never_applied(self):
+        answer, _ = self.score(bar=0.5)
+        self.assertEqual(answer["bar"], 0.5)
+        self.assertEqual(round(answer["body_min"], 4), 0.2689, "a body_min under the bar is still answered as it is")
+        self.assertNotIn("bar", self.score()[0])
+        for bad in (1.5, -0.1, True, "0.5"):
+            with self.subTest(bar=bad), self.assertRaisesRegex(ValueError, "bar must be a number from 0 to 1"):
+                SCORER.draft_rows(request(bar=bad))
+
+    def test_the_settings_row_selected_from_the_persons_database_fills_the_request(self):
+        row = {"id": "record:setting:train-and-evaluate-a-writing-voice-classifier~person~someone", "name": "Their voice",
+               "tool": "tool:score-writing-with-a-voice-adapter", "scope_kind": "person", "scope_id": "someone",
+               "status": "active", "from": "made-up", "settings": json.dumps({"endpoint": "kept for another tool", "draft": {
+                   "adapter": "/work/voice/adapter-1", "base_model": "/work/decider/snapshot", "criterion": CRITERION,
+                   "min_paragraph_chars": 40, "bar": 0.5}})}
+        original = getattr(SCORER.common, "with_settings", None)
+        SCORER.common.with_settings = FRAME.with_settings
+        try:
+            given = SCORER.draft_request(json.dumps({"mode": "draft", "text": TEXT, "settings_record": row}))
+            self.assertEqual(given, request(bar=0.5))
+            self.assertEqual(SCORER.draft_snapshot_dir(given), Path("/work/decider/snapshot"))
+            own = SCORER.draft_request(json.dumps({"mode": "draft", "text": TEXT, "min_paragraph_chars": 0, "settings_record": row}))
+            self.assertEqual(own["min_paragraph_chars"], 0, "a key the request gives wins over the row")
+            other = {**row, "id": "record:setting:another-tool~person~someone"}
+            refused = SCORER.draft_request(json.dumps({"mode": "draft", "text": TEXT, "settings_record": other}))
+            self.assertIsInstance(refused, ValueError)
+        finally:
+            if original is None:
+                del SCORER.common.with_settings
+            else:
+                SCORER.common.with_settings = original
+
+    def test_a_request_that_is_not_json_is_an_error_in_words(self):
+        self.assertRegex(str(SCORER.draft_request("{not json")), "The request is not JSON")
+        self.assertRegex(str(SCORER.draft_request(OSError("gone"))), "cannot be read")
+
+    def test_draft_mode_takes_the_workshops_own_decider_frame(self):
+        self.assertEqual(SCORER.WORKSHOP_COMMON, FRAME_PATH.parent)
+        self.assertTrue(hasattr(FRAME, "configure"), "the frame draft mode loads has configure()")
 
 
 if __name__ == "__main__":

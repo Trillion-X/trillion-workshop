@@ -324,7 +324,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1241,7 +1243,7 @@
         "label": "Score labelled or unlabeled passages, or one draft, with a writing-voice adapter",
         "status": "active",
         "job": "Score passages with a trained writing-voice adapter and report every probability, with the exposure of the passages to the training rows, or score one draft paragraph by paragraph",
-        "description": "Runs on the person's computer that holds the decider model snapshot. Validates the challenge with the maintained validator before weights load, binds the adapter and its receipt by BLAKE3, keeps every row's probabilities and the audit of what the adapter was trained on, and never invents accuracy for unlabeled rows. Draft mode (mode \"draft\") scores one draft text instead: it splits the text at blank lines, keeps paragraphs shorter than min_paragraph_chars as skipped, scores every other one with the same request a v3 row gets, and answers paragraph_scores and body_min (the lowest p_pass) with no decision; the caller compares body_min with its own setting.",
+        "description": "Runs on the person's computer that holds the decider model snapshot. Validates the challenge with the maintained validator before weights load, binds the adapter and its receipt by BLAKE3, keeps every row's probabilities and the audit of what the adapter was trained on, and never invents accuracy for unlabeled rows. Draft mode (mode \"draft\") scores one draft text instead: its settings come from the person's own settings row (settings_record, the row record:setting:train-and-evaluate-a-writing-voice-classifier~person~<them> as selected from their database; its settings.draft gives adapter, base_model, criterion, min_paragraph_chars and bar) or the request itself, and it loads the Workshop's own decider frame. It splits the text at blank lines, keeps paragraphs whose words (web addresses left out) are shorter than min_paragraph_chars as skipped, scores every other one with the same request a v3 row gets, and answers paragraph_scores and body_min (the lowest p_pass) with no decision, and hands on the person's bar when their settings give one; the caller's check compares body_min with it.",
         "input_schema": {
           "type": "object",
           "anyOf": [
@@ -1256,11 +1258,17 @@
               "required": [
                 "mode",
                 "text",
+                "settings_record"
+              ]
+            },
+            {
+              "required": [
+                "mode",
+                "text",
                 "adapter",
                 "base_model",
                 "criterion",
-                "min_paragraph_chars",
-                "decider_common_dir"
+                "min_paragraph_chars"
               ]
             }
           ],
@@ -1288,7 +1296,7 @@
             "min_paragraph_chars": {
               "type": "integer",
               "minimum": 0,
-              "description": "draft mode: a paragraph shorter than this is answered as skipped and not scored"
+              "description": "draft mode: a paragraph whose words (web addresses left out) are shorter than this is answered as skipped and not scored"
             },
             "data": {
               "type": "string",
@@ -1304,11 +1312,21 @@
             },
             "decider_common_dir": {
               "type": "string",
-              "description": "the folder holding common.py"
+              "description": "the folder holding common.py; draft mode uses the Workshop's own (tools/fine-tune-a-small-model-on-a-persons-rules/read-data) when none is named"
             },
             "dataset_role": {
               "type": "string",
               "description": "what the run is for"
+            },
+            "settings_record": {
+              "type": "object",
+              "description": "draft mode: the person's settings row as selected from their database (record:setting:train-and-evaluate-a-writing-voice-classifier~person~<them>); its settings.draft gives every draft key the request does not"
+            },
+            "bar": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "draft mode: the lowest p_pass the person's voice accepts; handed back as given, for the caller's check"
             }
           }
         },
@@ -1329,7 +1347,7 @@
             "node",
             "the decider model snapshot"
           ],
-          "say": "Runs on the person's computer that holds the decider model snapshot. Validates the challenge with the maintained validator before weights load, binds the adapter and its receipt by BLAKE3, keeps every row's probabilities and the audit of what the adapter was trained on, and never invents accuracy for unlabeled rows. For draft mode write the request to a file and run python3 trillion-workshop/tools/train-and-evaluate-a-writing-voice-classifier/do-work/score-voice-adapter.py --decider-common-dir {decider_common_dir} --request <the request file, or - for standard input>; its last line is {\"result\": {paragraph_scores, body_min}} or {\"error\": why}."
+          "say": "Runs on the person's computer that holds the decider model snapshot. Validates the challenge with the maintained validator before weights load, binds the adapter and its receipt by BLAKE3, keeps every row's probabilities and the audit of what the adapter was trained on, and never invents accuracy for unlabeled rows. For draft mode select the person's settings row from their database, write {mode: \"draft\", text, settings_record: <that row>} to a file and run python3 trillion-workshop/tools/train-and-evaluate-a-writing-voice-classifier/do-work/score-voice-adapter.py --request <the request file, or - for standard input> with a Python that has torch, peft and transformers; its last line is {\"result\": {paragraph_scores, body_min, bar}} or {\"error\": why}."
         },
         "licence_class": "licence:maker-own",
         "placements": [
@@ -1343,4 +1361,3 @@
     }
   ]
 }
-

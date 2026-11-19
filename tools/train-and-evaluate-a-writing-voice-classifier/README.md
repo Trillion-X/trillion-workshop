@@ -49,10 +49,10 @@ node do-work/build-unlabeled-diagnostic.mjs --freeze <SOURCE-FREEZE.json> --crit
 python3 do-work/pack-section-chunks.py --data <v3.json> --out <packed.json> --tokenizer-model-dir <dir> --decider-dir <snapshot> [--tokens-only]
 python3 do-work/train-voice-adapter.py --decider-common-dir <dir> --data <train.jsonl> [--provenance <manifest.json>] --out <new-adapter-dir>
 python3 do-work/score-voice-adapter.py --decider-common-dir <dir> --data <v3.json> --adapter <adapter-dir> --out <report.json> --dataset-role <role>
-python3 do-work/score-voice-adapter.py --decider-common-dir <dir> --request <draft-request.json | ->
+python3 do-work/score-voice-adapter.py --request <draft-request.json | ->
 ```
 
-The draft request is `{"mode":"draft","text":...,"adapter":...,"base_model":...,"criterion":{...},"min_paragraph_chars":N}`. The answer is `{"result":{"paragraph_scores":[{"index","chars","p_pass" | "skipped"}],"body_min"}}`: each paragraph (split at blank lines) shorter than `min_paragraph_chars` is skipped, every other one is scored with the same request a v3 row gets, and `body_min` is the lowest `p_pass`. It decides nothing; the drafting step compares `body_min` with its own setting. Phrases a draft must not hold are `tool:judge-against-rules` with a `words` rule row on the same text.
+The draft request is `{"mode":"draft","text":...,"settings_record":<the person's settings row>}`: the row `record:setting:train-and-evaluate-a-writing-voice-classifier~person~<them>`, selected from their own database, whose `settings.draft` gives `adapter`, `base_model`, `criterion`, `min_paragraph_chars` and `bar` (any of them may be given in the request instead; the request's own key wins). Draft mode loads the Workshop's own decider frame, `../fine-tune-a-small-model-on-a-persons-rules/read-data/common.py`, unless `--decider-common-dir` names another. The answer is `{"result":{"paragraph_scores":[{"index","chars","p_pass" | "skipped"}],"body_min","bar"}}`: each paragraph (split at blank lines) whose words, web addresses left out, are shorter than `min_paragraph_chars` is skipped, every other one is scored with the same request a v3 row gets, and `body_min` is the lowest `p_pass`. It decides nothing: it hands the person's `bar` back, and the drafting step's check refuses a draft whose `body_min` is null or under it. Phrases a draft must not hold are `tool:judge-against-rules` with a `words` rule row on the same text.
 
 ## Files
 
@@ -69,7 +69,7 @@ The draft request is `{"mode":"draft","text":...,"adapter":...,"base_model":...,
 | `tool-rows.json` | The four rows. The evaluate row packs `tools/ask-a-small-model-for-a-verdict` (`do-work`), `tools/settings` (`read-data`), `tools/content-identity` and `@noble/hashes`; its sample reads a made-up settings row and plays recorded replies. |
 | `test/evaluation-integrity.test.mjs`, `test/scoring-input-mode.test.mjs`, `test/evaluate-voice-cli.test.mjs` | The old suites (15, 5 and 5 tests), on made-up fixtures and a loopback stand-in classifier. |
 | `test/tool-row.test.mjs`, `test/build-unlabeled-diagnostic.test.mjs` | New: the rows' samples, replay of recorded replies equals the recorded report, settings refusals; the unlabeled builder (it had no test). |
-| `test/test_*.py`, `test/python.test.mjs` | The Python suites (94 tests, 7 of them draft mode in `test/test_score_voice_draft.py`), run by the wrapper. `test/stand_in_decider.py` stands in for the decider frame (no weights) and puts a `b3sum` made from Python's `blake3` on PATH when the program is missing. |
+| `test/test_*.py`, `test/python.test.mjs` | The Python suites (99 tests, 12 of them draft mode in `test/test_score_voice_draft.py`), run by the wrapper. `test/stand_in_decider.py` stands in for the decider frame (no weights) and puts a `b3sum` made from Python's `blake3` on PATH when the program is missing. |
 | `test/fixtures/` | Made-up challenge sets, reports and training rows in the shapes the old runs kept. |
 
 ## Dropped, and why

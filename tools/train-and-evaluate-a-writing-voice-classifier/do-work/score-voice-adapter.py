@@ -56,35 +56,56 @@ def draft_request_text(argv):
     return None
 
 
-def draft_snapshot_dir(raw):
-    """The decider model snapshot a draft request names: its own `decider` package is imported from there."""
+def draft_request(raw):
+    """The draft request as given, with the person's settings row under it: its `draft` object gives every key the
+    request does not (settings_record, as selected from the person's database; common.with_settings). An error is
+    returned, not raised, so draft_main reports it in words."""
+    if isinstance(raw, OSError):
+        return ValueError(f"The request file cannot be read: {raw}")
     try:
-        base_model = json.loads(raw).get("base_model") if isinstance(raw, str) else None
-    except (ValueError, AttributeError):
-        return None
+        request = json.loads(raw)
+    except json.JSONDecodeError as error:
+        return ValueError(f"The request is not JSON: {error}")
+    if isinstance(request, dict) and ("settings_record" in request or "settings" in request):
+        try:
+            request = common.with_settings(request, "draft", "train-and-evaluate-a-writing-voice-classifier")
+        except Exception as error:  # common.Refused, or a stand-in frame with no settings reader
+            return ValueError(str(error))
+    return request
+
+
+def draft_snapshot_dir(request):
+    """The decider model snapshot a draft request names: its own `decider` package is imported from there."""
+    base_model = request.get("base_model") if isinstance(request, dict) else None
     return Path(base_model).expanduser() if isinstance(base_model, str) and base_model.strip() else None
 
 
-FINETUNE = decider_common_dir(sys.argv)
+# Draft mode's model frame is the Workshop's own common.py (the fine-tune folder beside this tool) unless the caller names
+# another: a person's settings that name an older frame with no configure() no longer break draft mode.
+WORKSHOP_COMMON = HERE.parents[1] / "fine-tune-a-small-model-on-a-persons-rules" / "read-data"
 DRAFT_REQUEST = draft_request_text(sys.argv)
+FINETUNE = decider_common_dir(sys.argv) or (WORKSHOP_COMMON if DRAFT_REQUEST is not None else None)
 if FINETUNE is not None:
     sys.path.insert(0, str(FINETUNE))
-if draft_snapshot_dir(DRAFT_REQUEST) is not None:
-    sys.path.insert(0, str(draft_snapshot_dir(DRAFT_REQUEST)))
 sys.path.insert(0, str(HERE))
 from exposure_audit import audit_exposure  # noqa: E402
+DRAFT = None
 try:
     import common  # noqa: E402
+    if DRAFT_REQUEST is not None:
+        DRAFT = draft_request(DRAFT_REQUEST)
+        if draft_snapshot_dir(DRAFT) is not None:
+            sys.path.insert(0, str(draft_snapshot_dir(DRAFT)))
     from decider.infer import Example, Q  # noqa: E402
     from decider.systemone import render_question, render_state  # noqa: E402
 except ModuleNotFoundError as missing:
     if DRAFT_REQUEST is None:
         raise
-    if isinstance(DRAFT_REQUEST, OSError):
-        print(json.dumps({"error": f"The request file cannot be read: {DRAFT_REQUEST}"}))
+    if isinstance(DRAFT, Exception):
+        print(json.dumps({"error": str(DRAFT)}, ensure_ascii=False))
         sys.exit(2)
-    print(json.dumps({"error": f"Cannot load the decider model frame ({missing.name}): give --decider-common-dir, the "
-                      "folder holding common.py, and base_model, the decider model snapshot holding decider/"}))
+    print(json.dumps({"error": f"Cannot load the decider model frame ({missing.name}): give base_model, the decider "
+                      "model snapshot holding decider/, in the request or the settings row"}))
     sys.exit(2)
 print("phase: scorer dependencies imported", file=sys.stderr, flush=True)
 
@@ -921,6 +942,15 @@ DRAFT_FAMILY = "draft"
 DRAFT_FRAME = "{text}"  # common.configure needs a frame; a scored request is built from the state, never from the frame
 
 
+LINK = re.compile(r"(?:https?://|www\.)\S+")
+
+
+def prose_chars(paragraph: str) -> int:
+    """How many characters of a paragraph are words a person wrote: a web address is not writing, so a line that is
+    only a link, or a label and a link, is as short as its words."""
+    return len(LINK.sub("", paragraph).strip())
+
+
 def split_paragraphs(text: str) -> list[str]:
     """A draft's paragraphs: the runs of lines between blank lines, each without its outer white space."""
     return [part.strip() for part in re.split(r"\n\s*\n", text.replace("\r\n", "\n")) if part.strip()]
@@ -929,7 +959,8 @@ def split_paragraphs(text: str) -> list[str]:
 def draft_rows(request: dict) -> tuple[list[dict], list[dict]]:
     """Check a draft request; return one entry per paragraph and the rows to score, projected by adapt_v3.
 
-    A paragraph shorter than min_paragraph_chars stays in the entries as skipped and is not scored. The rows are the
+    A paragraph whose words (web addresses left out, prose_chars) are fewer than min_paragraph_chars characters stays
+    in the entries as skipped and is not scored. The rows are the
     unlabeled v3 rows of a challenge holding the scored paragraphs and the given criterion, so each request is the one
     this scorer builds for any v3 row.
     """
@@ -953,10 +984,13 @@ def draft_rows(request: dict) -> tuple[list[dict], list[dict]]:
     _, options, _ = question_from_criterion(criterion)
     if "pass" not in options:
         raise ValueError("criterion needs an option named pass: each paragraph's answer is its p_pass")
+    bar = request.get("bar")
+    if bar is not None and (isinstance(bar, bool) or not isinstance(bar, (int, float)) or not 0 <= bar <= 1):
+        raise ValueError("bar must be a number from 0 to 1: the lowest p_pass the person's voice accepts")
     entries, items = [], []
     for index, paragraph in enumerate(split_paragraphs(text)):
         entries.append({"index": index, "chars": len(paragraph)})
-        if len(paragraph) < shortest:
+        if prose_chars(paragraph) < shortest:
             entries[-1]["skipped"] = True
             continue
         items.append({"id": f"paragraph-{index}", "family": DRAFT_FAMILY, "split": "unlabeled",
@@ -978,8 +1012,11 @@ def score_draft(request: dict, model, logits_of, temperature: float) -> dict:
         prepared_item = prepare_request(model, row, entry["index"], temperature)
         probabilities = _softmax_values([value / temperature for value in logits_of(prepared_item)])
         entry["p_pass"] = dict(zip(prepared_item["option_names"], probabilities))["pass"]
-    return {"paragraph_scores": entries,
-            "body_min": min(entry["p_pass"] for entry in scored) if scored else None}
+    answer = {"paragraph_scores": entries,
+              "body_min": min(entry["p_pass"] for entry in scored) if scored else None}
+    if request.get("bar") is not None:
+        answer["bar"] = request["bar"]  # the person's own bar, handed on for the caller's check; nothing is decided here
+    return answer
 
 
 def read_request(raw) -> dict:
@@ -1002,7 +1039,9 @@ def draft_main(argv: list[str]) -> int:
     parser.parse_args(argv)  # the request itself was read once, before the model frame was imported (DRAFT_REQUEST)
     refusals = (ValueError, OSError) + ((common.Refused,) if hasattr(common, "Refused") else ())
     try:
-        request = read_request(DRAFT_REQUEST)
+        if isinstance(DRAFT, Exception):
+            raise DRAFT
+        request = read_request(DRAFT_REQUEST) if DRAFT is None else DRAFT
         draft_rows(request)
         for key in ("adapter", "base_model"):
             if not isinstance(request.get(key), str) or not request[key].strip():
