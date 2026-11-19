@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "af4afdef562455c4ddffb5f86f7c4ea85fbf7adbabdb0aebfa9e8eaa93ffa750",
+  "blake3": "629dc251bd61a9945d923cdf8c0b87c0263a77713064aa0e287ad43da2ffef03",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -83,6 +83,7 @@
     "compare-designs-by-simulating-them-forward",
     "compare-several-designs-of-one-piece-of-interface",
     "compress-a-work-segment-into-observations-that-survive-context-loss",
+    "contact-a-booker-right-after-they-book",
     "cut-spending-in-one-expense-area",
     "deepen-a-request-like-a-top-professional",
     "deliver-a-finished-automation-project",
@@ -136,6 +137,7 @@
     "follow-up-with-people-who-engaged",
     "forecast-what-a-solution-will-change",
     "forge-a-skill-from-reference-data",
+    "gather-answers-before-a-sales-call",
     "get-a-first-client-with-free-tools-and-a-recorded-walkthrough",
     "get-a-needed-service-account-and-pay-for-it",
     "get-a-product-listed-in-the-directories-that-fit-it",
@@ -160,6 +162,7 @@
     "hand-to-an-agent",
     "handle-a-customer-access-case",
     "handle-every-inbox-daily",
+    "have-every-decision-maker-on-the-call",
     "hire-a-remote-worker-through-a-paid-trial",
     "hire-by-treating-applicants-like-customers",
     "hire-help-for-a-step",
@@ -179,6 +182,7 @@
     "keep-a-conversation-lively-with-someone-you-like",
     "keep-a-date-from-going-quiet-or-cancelling",
     "keep-a-product-positioning-record",
+    "keep-booked-calls-close-to-the-booking-day",
     "keep-customers-buying-by-fitting-the-repeat-purchase-to-the-product",
     "keep-customers-by-finding-why-they-leave",
     "keep-each-payment-where-the-seller-keeps-their-rows",
@@ -225,6 +229,7 @@
     "make-static-ads-one-change-at-a-time",
     "make-the-person-understand-a-result",
     "make-the-piece-without-waiting-for-the-person",
+    "make-the-pre-call-message-personal",
     "make-the-speech-sound-good",
     "manage-member-billing",
     "map-style-values-onto-existing-design-tokens",
@@ -306,6 +311,7 @@
     "recover-people-who-looked-at-a-product-and-left",
     "recreate-a-screen-from-a-screenshot",
     "refresh-measurement-coverage",
+    "remind-a-booker-on-a-timed-ladder",
     "report-a-result-the-reader-can-use",
     "report-how-stable-a-system-is-from-evidence",
     "repurpose-other-peoples-best-content-into-your-own-voice",
@@ -344,6 +350,7 @@
     "sell-more-to-each-customer-after-the-first-yes",
     "sell-what-the-pursuit-makes",
     "send-a-prospect-a-sample-made-for-them",
+    "send-a-video-before-the-call",
     "set-and-change-the-price-of-a-product",
     "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped",
     "set-up-a-business-on-the-account",
@@ -383,6 +390,7 @@
     "test-new-ads-apart-from-proven-ones",
     "test-prices-and-change-a-page-for-each-visitor",
     "trace-to-first-principles",
+    "track-show-rate-and-find-the-weak-stage",
     "train-a-sales-team-with-a-script-and-daily-practice",
     "treat-things-that-arrive-together-as-one-job",
     "turn-a-code-change-into-a-review-report",
@@ -68257,6 +68265,978 @@
     ],
     "part_of": [
      "workflow:change-a-databases-shape-without-stopping-what-uses-it"
+    ]
+   }
+  },
+  {
+   "id": "remind-a-booker-on-a-timed-ladder--set-the-three-reminder-times",
+   "values": {
+    "title": "Set the three reminder times",
+    "recipe": [
+     "remind-a-booker-on-a-timed-ladder"
+    ],
+    "position": 0,
+    "step": "set-the-three-reminder-times",
+    "do": "For every booking, schedule three reminders measured back from the call: 24 hours before, the morning of the call, and 1 hour before. Check that the morning-of reminder exists even when the call was booked days earlier, because with no reminder on the day the chance of showing is lower. Send these three by text message, since they are the ones that matter most.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "when a call is booked",
+    "done_when": "Each booking has all three reminders scheduled at the three times, and the morning-of one is present.",
+    "if_missing": "If the booking service cannot schedule three, send the missing ones by hand from the list of today's calls; do not leave the morning-of reminder out.",
+    "why": "Alex Hormozi's method, from 6 videos. The three times are the points where a booker is most likely to forget; leaving out the day-of reminder is what lowers show rate.",
+    "good_answer": "A call booked 3 days ago has reminders at 24 hours before, 8 AM on the day and 1 hour before. Fails: one confirmation sent at booking and nothing after.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:StVqS0jD7Ls@1026#17, record:library:JE2_7elAcxM@8123#162, record:library:4GQLJjH9-oA@308#5, record:library:c_6BrF7jOGk@425#9; Alex Hormozi's method, from 6 videos; quotes at https://www.youtube.com/watch?v=StVqS0jD7Ls, https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=4GQLJjH9-oA, https://www.youtube.com/watch?v=c_6BrF7jOGk, https://www.youtube.com/watch?v=A8p2HCI_23E"
+    ],
+    "part_of": [
+     "workflow:remind-a-booker-on-a-timed-ladder"
+    ]
+   }
+  },
+  {
+   "id": "remind-a-booker-on-a-timed-ladder--pair-the-automatic-reminder-with-a-person-check-in",
+   "values": {
+    "title": "Pair the automatic reminder with a person's check-in",
+    "recipe": [
+     "remind-a-booker-on-a-timed-ladder"
+    ],
+    "position": 1,
+    "step": "pair-the-automatic-reminder-with-a-person-check-in",
+    "do": "Keep the automatic reminders and add a manual reach-out by a person on each booking, so the booker sees that someone is expecting them. Where the booker's phone supports it, send as a chat-app message instead of a plain text message, because those feel more personal and are more likely to be seen.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "after the times are set",
+    "done_when": "Each booking has automatic reminders and at least one reach-out written or sent by a person.",
+    "if_missing": "If no one can send the manual reach-out, mark the booking as unchecked and show that count in the record.",
+    "why": "A person's message raises the sense that the call is worth showing up for; an automatic one alone is easy to ignore.",
+    "good_answer": "Automatic reminders at all three times, plus a note from the host that morning: 'Looking forward to 2 PM.' Fails: only automatic messages.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:QwEb78e5a8Y@305#4, record:library:StVqS0jD7Ls@1106#19; Alex Hormozi's method, from 6 videos; quotes at https://www.youtube.com/watch?v=StVqS0jD7Ls, https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=4GQLJjH9-oA, https://www.youtube.com/watch?v=c_6BrF7jOGk, https://www.youtube.com/watch?v=A8p2HCI_23E"
+    ],
+    "part_of": [
+     "workflow:remind-a-booker-on-a-timed-ladder"
+    ]
+   }
+  },
+  {
+   "id": "remind-a-booker-on-a-timed-ladder--confirm-the-preparation-in-the-reminder",
+   "values": {
+    "title": "Ask the booker to confirm their preparation in the reminder",
+    "recipe": [
+     "remind-a-booker-on-a-timed-ladder"
+    ],
+    "position": 2,
+    "step": "confirm-the-preparation-in-the-reminder",
+    "do": "Where the booker was asked to watch a video or bring another person to the call, use the 24-hour and morning-of reminders to ask them to confirm two things: that they watched the video and that the other person will be there. Treat a booker who confirms neither as unqualified and decide early whether to keep the slot.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "when a booker has something to do before the call",
+    "done_when": "Every reminder for a booking with preparation asks for the confirmation, and each answer or non-answer is noted before the call.",
+    "if_missing": "If the booker has nothing to prepare, skip this step and say so; do not invent a task.",
+    "why": "Asking for confirmation makes the call feel important and removes unqualified bookers before they take the slot.",
+    "good_answer": "Reminder: 'Just confirm two things for me: you watched the video, and your partner will be there.' Answer: yes to both, noted. Fails: a reminder that only repeats the time.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:A8p2HCI_23E@2280#33, record:library:A8p2HCI_23E@2281#34, record:library:A8p2HCI_23E@2286#35; Alex Hormozi's method, from 6 videos; quotes at https://www.youtube.com/watch?v=StVqS0jD7Ls, https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=4GQLJjH9-oA, https://www.youtube.com/watch?v=c_6BrF7jOGk, https://www.youtube.com/watch?v=A8p2HCI_23E"
+    ],
+    "part_of": [
+     "workflow:remind-a-booker-on-a-timed-ladder"
+    ]
+   }
+  },
+  {
+   "id": "remind-a-booker-on-a-timed-ladder--record-the-reminders-and-what-matters-now",
+   "values": {
+    "title": "Record which reminders were sent and what matters most now",
+    "recipe": [
+     "remind-a-booker-on-a-timed-ladder"
+    ],
+    "position": 3,
+    "step": "record-the-reminders-and-what-matters-now",
+    "do": "Record for the set of calls looked at: how many had all three reminders, how many had a person's check-in, how many confirmed their preparation, and how many showed. Name the one gap that most likely costs shows now.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "at the end of a run",
+    "done_when": "The record holds the four counts and one named gap.",
+    "if_missing": "If a count cannot be read from the booking service, write which one and why.",
+    "why": "Counts show whether the ladder was applied; without them a low show rate has no cause to look for.",
+    "good_answer": "'18 of 20 had all three reminders; 9 had a person's check-in; 14 showed. Biggest gap: no reminder on the morning of for 2 calls.' Fails: 'reminders fine'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:StVqS0jD7Ls@1026#17, record:library:c_6BrF7jOGk@425#9; Alex Hormozi's method, from 6 videos; quotes at https://www.youtube.com/watch?v=StVqS0jD7Ls, https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=4GQLJjH9-oA, https://www.youtube.com/watch?v=c_6BrF7jOGk, https://www.youtube.com/watch?v=A8p2HCI_23E"
+    ],
+    "part_of": [
+     "workflow:remind-a-booker-on-a-timed-ladder"
+    ]
+   }
+  },
+  {
+   "id": "gather-answers-before-a-sales-call--write-the-pre-call-questionnaire",
+   "values": {
+    "title": "Write the pre-call questionnaire",
+    "recipe": [
+     "gather-answers-before-a-sales-call"
+    ],
+    "position": 0,
+    "step": "write-the-pre-call-questionnaire",
+    "do": "Write a short digital form the booker fills in before the sales call, in the manner of an application. It collects the booker's pain, their background and what they want, so the person taking the call knows more than a name. It also makes the booker say out loud what the problem is, which raises how important it feels to them before any pitch.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "before any call is offered",
+    "done_when": "The form exists, asks about the booker's problem and background, and is sent to every booker before the call.",
+    "if_missing": "If the form cannot be built in the booking service, ask the same questions in a first message and note it.",
+    "why": "Alex Hormozi's method, from 5 videos. The answers let the caller tailor the call, and writing them down makes the booker aware of their own problem.",
+    "good_answer": "Form asks: what is the problem, how long, what you tried, what you want. Fails: a form with only name and phone.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:1UhvBSQFy6A@43#1, record:library:1UhvBSQFy6A@445#9, record:library:JE2_7elAcxM@11232#220, record:library:JE2_7elAcxM@11634#228; Alex Hormozi's method, from 5 videos; quotes at https://www.youtube.com/watch?v=1UhvBSQFy6A, https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=QgmRlzh0Y7M, https://www.youtube.com/watch?v=HGZOxBfnF-E, https://www.youtube.com/watch?v=Ds_Qp2U5I8U"
+    ],
+    "part_of": [
+     "workflow:gather-answers-before-a-sales-call"
+    ]
+   }
+  },
+  {
+   "id": "gather-answers-before-a-sales-call--ask-for-effort-before-the-conversation",
+   "values": {
+    "title": "Ask for effort before the conversation",
+    "recipe": [
+     "gather-answers-before-a-sales-call"
+    ],
+    "position": 1,
+    "step": "ask-for-effort-before-the-conversation",
+    "do": "Put some friction before the conversation, such as the questionnaire or a short challenge, so that the booker has already invested effort. Check that the friction is real work for the booker and not a long wait.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "when bookers are not yet committed",
+    "done_when": "A step needing the booker's effort sits between booking and the call, and the number who finish it is counted.",
+    "if_missing": "If bookers drop at the friction, shorten it by one question and count again; do not remove it without a measured reason.",
+    "why": "A person who has done work to reach a conversation is more likely to value and buy from it.",
+    "good_answer": "Questionnaire required before the call link is shown; 31 of 40 finished it. Fails: a form that is optional and unseen.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:QgmRlzh0Y7M@979#15; Alex Hormozi's method, from 5 videos; quotes at https://www.youtube.com/watch?v=1UhvBSQFy6A, https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=QgmRlzh0Y7M, https://www.youtube.com/watch?v=HGZOxBfnF-E, https://www.youtube.com/watch?v=Ds_Qp2U5I8U"
+    ],
+    "part_of": [
+     "workflow:gather-answers-before-a-sales-call"
+    ]
+   }
+  },
+  {
+   "id": "gather-answers-before-a-sales-call--ask-budget-authority-need-and-timing",
+   "values": {
+    "title": "Ask for budget, authority, need and timing in small messages",
+    "recipe": [
+     "gather-answers-before-a-sales-call"
+    ],
+    "position": 2,
+    "step": "ask-budget-authority-need-and-timing",
+    "do": "Ask four things in easy, short messages by text, or in a follow-up message after the video: do they have the money to spend, who decides (is a partner involved), what is the need, and when do they want it. Keep the tone light and not pushy. Only bookers with money, decision power, need and timing move forward to a full call.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "after the booker gives contact details",
+    "done_when": "Each booker has an answer or a noted gap for each of the four.",
+    "if_missing": "If a booker will not answer, note which of the four is missing and hand it to the caller to ask at the start.",
+    "why": "Four answers decide whether the call is worth anyone's time and what to say on it.",
+    "good_answer": "'Quick check: what budget are you working with, and will your partner be on the call?' Answers: 'about 500; yes'. Fails: no answers, call goes ahead anyway.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:HGZOxBfnF-E@506#11, record:library:HGZOxBfnF-E@961#19, record:library:Ds_Qp2U5I8U@1482#30; Alex Hormozi's method, from 5 videos; quotes at https://www.youtube.com/watch?v=1UhvBSQFy6A, https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=QgmRlzh0Y7M, https://www.youtube.com/watch?v=HGZOxBfnF-E, https://www.youtube.com/watch?v=Ds_Qp2U5I8U"
+    ],
+    "part_of": [
+     "workflow:gather-answers-before-a-sales-call"
+    ]
+   }
+  },
+  {
+   "id": "gather-answers-before-a-sales-call--read-the-answers-before-the-call",
+   "values": {
+    "title": "Read the answers before the call",
+    "recipe": [
+     "gather-answers-before-a-sales-call"
+    ],
+    "position": 3,
+    "step": "read-the-answers-before-the-call",
+    "do": "Before each call, the person taking it reads the questionnaire and the four answers and writes the booker's core problem in one line to open with. Where answers are missing, write the first question to ask.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "just before each call",
+    "done_when": "Each call has a one-line problem statement from the booker's own words, or the first question to ask.",
+    "if_missing": "If the form was not filled, say so in the record and use the first question.",
+    "why": "A caller who knows the problem can spend the call on it instead of finding it.",
+    "good_answer": "'Their words: the club courts are always full, and they keep losing the booking.' Fails: opening with 'tell me about yourself' when the form was filled.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:1UhvBSQFy6A@43#1, record:library:JE2_7elAcxM@11232#220; Alex Hormozi's method, from 5 videos; quotes at https://www.youtube.com/watch?v=1UhvBSQFy6A, https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=QgmRlzh0Y7M, https://www.youtube.com/watch?v=HGZOxBfnF-E, https://www.youtube.com/watch?v=Ds_Qp2U5I8U"
+    ],
+    "part_of": [
+     "workflow:gather-answers-before-a-sales-call"
+    ]
+   }
+  },
+  {
+   "id": "gather-answers-before-a-sales-call--record-what-the-answers-showed",
+   "values": {
+    "title": "Record what the answers showed and what matters now",
+    "recipe": [
+     "gather-answers-before-a-sales-call"
+    ],
+    "position": 4,
+    "step": "record-what-the-answers-showed",
+    "do": "Record how many bookers filled the form, how many gave the four answers, how many were passed forward, and the most common problem in their words. Name the one change to the form that matters most.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "at the end of a run",
+    "done_when": "The record holds the counts, the common problem and one change.",
+    "if_missing": "If counts cannot be read, say which and why.",
+    "why": "The common words feed the next messages and the counts show where bookers drop.",
+    "good_answer": "'31 of 40 filled the form; 22 gave all four; most common: no time to look for a coach. Change: ask the budget earlier.' Fails: 'form works'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:1UhvBSQFy6A@445#9; Alex Hormozi's method, from 5 videos; quotes at https://www.youtube.com/watch?v=1UhvBSQFy6A, https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=QgmRlzh0Y7M, https://www.youtube.com/watch?v=HGZOxBfnF-E, https://www.youtube.com/watch?v=Ds_Qp2U5I8U"
+    ],
+    "part_of": [
+     "workflow:gather-answers-before-a-sales-call"
+    ]
+   }
+  },
+  {
+   "id": "send-a-video-before-the-call--choose-what-the-call-should-not-have-to-teach",
+   "values": {
+    "title": "Choose what the call should not have to teach",
+    "recipe": [
+     "send-a-video-before-the-call"
+    ],
+    "position": 0,
+    "step": "choose-what-the-call-should-not-have-to-teach",
+    "do": "List the facts and explanations the person on the call repeats every time (price ranges, how it works, why it is worth it). These go into recorded material, so the call can be about closing and not teaching. Put as much education as possible into the lowest-cost, one-to-many touchpoints, such as after an opt-in or before a call.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "before building anything",
+    "done_when": "A list of repeated explanations exists and each is assigned to the video or to the call.",
+    "if_missing": "If nothing repeats, record that and stop; do not make a video for its own sake.",
+    "why": "Alex Hormozi's method, from 9 videos. Education delivered once to many is cheaper than the same hour delivered live to each.",
+    "good_answer": "List: price ranges, how long it takes, three customer stories. Video holds all three. Fails: 'we explain on the call as needed'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:U_s0ekwPK5g@3825#67, record:library:noE1MQPMvAc@2820#51; Alex Hormozi's method, from 9 videos; quotes at https://www.youtube.com/watch?v=tnDC4ZJ0oy8, https://www.youtube.com/watch?v=I82d3jxg_Aw, https://www.youtube.com/watch?v=Ds_Qp2U5I8U, https://www.youtube.com/watch?v=B2QbLzHvKbg, https://www.youtube.com/watch?v=U_s0ekwPK5g"
+    ],
+    "part_of": [
+     "workflow:send-a-video-before-the-call"
+    ]
+   }
+  },
+  {
+   "id": "send-a-video-before-the-call--make-the-video-frame-the-conversation",
+   "values": {
+    "title": "Make the video frame the conversation",
+    "recipe": [
+     "send-a-video-before-the-call"
+    ],
+    "position": 1,
+    "step": "make-the-video-frame-the-conversation",
+    "do": "Make one video that frames you and the conversation, gives price ranges and value, ends with real customer success stories as proof, and sets the expectation that a decision will be made on the call. After the proof, put the call-to-action.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "once the list is done",
+    "done_when": "The video covers the listed explanations, ends with proof and states that a decision comes on the call.",
+    "if_missing": "If the video cannot be made yet, send a short written version with the same four parts and say so.",
+    "why": "A booker who already knows the price and has seen proof brings fewer objections and a decision mindset.",
+    "good_answer": "A 6-minute video: who I am, price range, three customer stories, 'on the call you decide yes or no'. Fails: a general promotion with no price or proof.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:I82d3jxg_Aw@3598#60, record:library:Ds_Qp2U5I8U@1223#25, record:library:HGZOxBfnF-E@490#10, record:library:tnDC4ZJ0oy8@2318#33; Alex Hormozi's method, from 9 videos; quotes at https://www.youtube.com/watch?v=tnDC4ZJ0oy8, https://www.youtube.com/watch?v=I82d3jxg_Aw, https://www.youtube.com/watch?v=Ds_Qp2U5I8U, https://www.youtube.com/watch?v=B2QbLzHvKbg, https://www.youtube.com/watch?v=U_s0ekwPK5g"
+    ],
+    "part_of": [
+     "workflow:send-a-video-before-the-call"
+    ]
+   }
+  },
+  {
+   "id": "send-a-video-before-the-call--put-the-video-before-the-conversation",
+   "values": {
+    "title": "Put the video before the first conversation",
+    "recipe": [
+     "send-a-video-before-the-call"
+    ],
+    "position": 2,
+    "step": "put-the-video-before-the-conversation",
+    "do": "Place the video in the path so that a booker watches it before talking to anyone: after a lead magnet and before the booking is offered, or sent by text right after the opt-in. Tell the booker plainly to watch it before the call. Where useful, show a second video while they wait to be seen.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "at the booking path",
+    "done_when": "Every booker is sent the video before the call, and the sending point is named.",
+    "if_missing": "If the booker cannot watch beforehand, send it at booking and ask them to confirm they watched at the reminder.",
+    "why": "Context before the call is the whole purpose; a video no one sees is no video.",
+    "good_answer": "The video is the page after the lead magnet and is texted again after booking. Fails: the video lives on a page nobody is sent to.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:B2QbLzHvKbg@12746#186, record:library:B2QbLzHvKbg@21241#328, record:library:n6SHLmKcY0E@2995#51, record:library:tnDC4ZJ0oy8@809#5, record:library:Ds_Qp2U5I8U@1695#35; Alex Hormozi's method, from 9 videos; quotes at https://www.youtube.com/watch?v=tnDC4ZJ0oy8, https://www.youtube.com/watch?v=I82d3jxg_Aw, https://www.youtube.com/watch?v=Ds_Qp2U5I8U, https://www.youtube.com/watch?v=B2QbLzHvKbg, https://www.youtube.com/watch?v=U_s0ekwPK5g"
+    ],
+    "part_of": [
+     "workflow:send-a-video-before-the-call"
+    ]
+   }
+  },
+  {
+   "id": "send-a-video-before-the-call--check-whether-callers-still-need-many-calls",
+   "values": {
+    "title": "Check how many calls a sale needs",
+    "recipe": [
+     "send-a-video-before-the-call"
+    ],
+    "position": 3,
+    "step": "check-whether-callers-still-need-many-calls",
+    "do": "Count how many calls each sale took. If many sales need two to four calls, the education before the first call is not enough: add to the video what the later calls had to explain.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "after a set of calls",
+    "done_when": "The count of calls per sale is recorded and what was added to the video is named, or none was needed.",
+    "if_missing": "If calls per sale are not recorded, start recording them and say that now.",
+    "why": "A sale needing several calls means the first call was spent on teaching.",
+    "good_answer": "'7 of 10 sales took 3 calls; the second call always explained financing; added it to the video.' Fails: no count.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:StVqS0jD7Ls@8472#154; Alex Hormozi's method, from 9 videos; quotes at https://www.youtube.com/watch?v=tnDC4ZJ0oy8, https://www.youtube.com/watch?v=I82d3jxg_Aw, https://www.youtube.com/watch?v=Ds_Qp2U5I8U, https://www.youtube.com/watch?v=B2QbLzHvKbg, https://www.youtube.com/watch?v=U_s0ekwPK5g"
+    ],
+    "part_of": [
+     "workflow:send-a-video-before-the-call"
+    ]
+   }
+  },
+  {
+   "id": "send-a-video-before-the-call--record-the-video-results-and-what-matters-now",
+   "values": {
+    "title": "Record how the video worked and what matters now",
+    "recipe": [
+     "send-a-video-before-the-call"
+    ],
+    "position": 4,
+    "step": "record-the-video-results-and-what-matters-now",
+    "do": "Record how many bookers got the video, how many watched it if known, the calls per sale, and the one change to the video or the path that matters most.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "at the end of a run",
+    "done_when": "The record holds the counts and one change.",
+    "if_missing": "If watching cannot be known, say so and note the confirmation asked in reminders instead.",
+    "why": "The counts show whether bookers arrive informed.",
+    "good_answer": "'40 sent; 26 watched; 2.1 calls per sale; change: move price range earlier.' Fails: 'video is done'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:U_s0ekwPK5g@3825#67; Alex Hormozi's method, from 9 videos; quotes at https://www.youtube.com/watch?v=tnDC4ZJ0oy8, https://www.youtube.com/watch?v=I82d3jxg_Aw, https://www.youtube.com/watch?v=Ds_Qp2U5I8U, https://www.youtube.com/watch?v=B2QbLzHvKbg, https://www.youtube.com/watch?v=U_s0ekwPK5g"
+    ],
+    "part_of": [
+     "workflow:send-a-video-before-the-call"
+    ]
+   }
+  },
+  {
+   "id": "contact-a-booker-right-after-they-book--measure-the-wait-between-booking-and-first-contact",
+   "values": {
+    "title": "Measure the wait between booking and first contact",
+    "recipe": [
+     "contact-a-booker-right-after-they-book"
+    ],
+    "position": 0,
+    "step": "measure-the-wait-between-booking-and-first-contact",
+    "do": "For the last set of bookings, take the time of booking and the time of first contact by a person, and list the wait for each. The wait is a main lever on show rate: the shorter the wait, the more committed the booker.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "at the start",
+    "done_when": "Each booking has a booking time, a first-contact time and a wait.",
+    "if_missing": "If first contact is not timed, take the earliest message in the thread and say that.",
+    "why": "Alex Hormozi's method, from 6 videos. You cannot shorten a wait you have not measured.",
+    "good_answer": "'Booked 10:02 AM; first call 10:06 AM; wait 4 minutes.' Fails: 'we reply fast'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:B2QbLzHvKbg@19142#292; Alex Hormozi's method, from 6 videos; quotes at https://www.youtube.com/watch?v=B2QbLzHvKbg, https://www.youtube.com/watch?v=A8p2HCI_23E, https://www.youtube.com/watch?v=uaLNfijnp-8, https://www.youtube.com/watch?v=RdAKXJlMIZM, https://www.youtube.com/watch?v=fSbqaTlWaYI"
+    ],
+    "part_of": [
+     "workflow:contact-a-booker-right-after-they-book"
+    ]
+   }
+  },
+  {
+   "id": "contact-a-booker-right-after-they-book--make-first-contact-within-five-minutes",
+   "values": {
+    "title": "Make first contact within five minutes",
+    "recipe": [
+     "contact-a-booker-right-after-they-book"
+    ],
+    "position": 1,
+    "step": "make-first-contact-within-five-minutes",
+    "do": "Set a system that shows a new booking to a person at once, orders the people to call by who came in first, and prompts follow-up within five minutes. The first one to respond to a lead who is comparing options gets the customer.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "for each new booking",
+    "done_when": "A system shows new bookings at once and the share of first contacts within five minutes is counted.",
+    "if_missing": "If nobody can respond at the moment, name who will and the hours they cover.",
+    "why": "Speed of reply decides who wins the lead, and a short wait raises commitment.",
+    "good_answer": "'18 of 20 contacted within 5 minutes.' Fails: next-day replies.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:RdAKXJlMIZM@2000#32, record:library:uaLNfijnp-8@1523#24; Alex Hormozi's method, from 6 videos; quotes at https://www.youtube.com/watch?v=B2QbLzHvKbg, https://www.youtube.com/watch?v=A8p2HCI_23E, https://www.youtube.com/watch?v=uaLNfijnp-8, https://www.youtube.com/watch?v=RdAKXJlMIZM, https://www.youtube.com/watch?v=fSbqaTlWaYI"
+    ],
+    "part_of": [
+     "workflow:contact-a-booker-right-after-they-book"
+    ]
+   }
+  },
+  {
+   "id": "contact-a-booker-right-after-they-book--call-them-straight-after-they-give-their-details",
+   "values": {
+    "title": "Call straight after they give their details",
+    "recipe": [
+     "contact-a-booker-right-after-they-book"
+    ],
+    "position": 2,
+    "step": "call-them-straight-after-they-give-their-details",
+    "do": "Where the booker has just given their details, call them out loud at once, instead of waiting for them to call. The call confirms the details and the time and cuts the chance of a no-show.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "when the booker has just left their details",
+    "done_when": "Each booker who left details was called by a person, and the result is noted.",
+    "if_missing": "If they do not answer, leave a short message and send a text with the time; note it.",
+    "why": "A voice that answers right after the booking makes it real and starts a relationship.",
+    "good_answer": "'Called at once; confirmed Thursday 3 PM and their name spelling.' Fails: only an automatic email sent.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:A8p2HCI_23E@768#12; Alex Hormozi's method, from 6 videos; quotes at https://www.youtube.com/watch?v=B2QbLzHvKbg, https://www.youtube.com/watch?v=A8p2HCI_23E, https://www.youtube.com/watch?v=uaLNfijnp-8, https://www.youtube.com/watch?v=RdAKXJlMIZM, https://www.youtube.com/watch?v=fSbqaTlWaYI"
+    ],
+    "part_of": [
+     "workflow:contact-a-booker-right-after-they-book"
+    ]
+   }
+  },
+  {
+   "id": "contact-a-booker-right-after-they-book--confirm-the-lead-and-set-the-call-within-a-day",
+   "values": {
+    "title": "Confirm and qualify the lead, and set the call within 24 hours",
+    "recipe": [
+     "contact-a-booker-right-after-they-book"
+    ],
+    "position": 3,
+    "step": "confirm-the-lead-and-set-the-call-within-a-day",
+    "do": "For a lead who opted in to a free offer, confirm and qualify them and set the call for within 24 hours. A near call shortens the sales cycle.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "for leads who opted in to a free offer",
+    "done_when": "Each opted-in lead is confirmed and has a call set within 24 hours, or a note says why not.",
+    "if_missing": "If the next 24 hours are full, offer the first open slot and note it.",
+    "why": "A call set within a day keeps the interest that made them opt in.",
+    "good_answer": "'Opted in Monday, qualified by text, call set Tuesday 2 PM.' Fails: call set for next week.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:fSbqaTlWaYI@1647#27; Alex Hormozi's method, from 6 videos; quotes at https://www.youtube.com/watch?v=B2QbLzHvKbg, https://www.youtube.com/watch?v=A8p2HCI_23E, https://www.youtube.com/watch?v=uaLNfijnp-8, https://www.youtube.com/watch?v=RdAKXJlMIZM, https://www.youtube.com/watch?v=fSbqaTlWaYI"
+    ],
+    "part_of": [
+     "workflow:contact-a-booker-right-after-they-book"
+    ]
+   }
+  },
+  {
+   "id": "contact-a-booker-right-after-they-book--record-the-wait-and-what-matters-now",
+   "values": {
+    "title": "Record the waits and what matters now",
+    "recipe": [
+     "contact-a-booker-right-after-they-book"
+    ],
+    "position": 4,
+    "step": "record-the-wait-and-what-matters-now",
+    "do": "Record the median wait, the share contacted within five minutes, and the show rate for those contacted fast against the rest. Name the one change that matters most.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "at the end of a run",
+    "done_when": "The record holds the three numbers and one change.",
+    "if_missing": "If show rate cannot be split, record the waits and say why.",
+    "why": "A following checklist of this kind can raise show rate with no special sales skill.",
+    "good_answer": "'Median wait 6 minutes; 80% within 5; show 78% against 52%. Change: add a second person at lunchtime.' Fails: 'faster is better'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:6_CCutkM11g@4728#53, record:library:6_CCutkM11g@4742#54; Alex Hormozi's method, from 6 videos; quotes at https://www.youtube.com/watch?v=B2QbLzHvKbg, https://www.youtube.com/watch?v=A8p2HCI_23E, https://www.youtube.com/watch?v=uaLNfijnp-8, https://www.youtube.com/watch?v=RdAKXJlMIZM, https://www.youtube.com/watch?v=fSbqaTlWaYI"
+    ],
+    "part_of": [
+     "workflow:contact-a-booker-right-after-they-book"
+    ]
+   }
+  },
+  {
+   "id": "keep-booked-calls-close-to-the-booking-day--check-how-far-out-the-calendar-runs",
+   "values": {
+    "title": "Check how far out the calendar runs",
+    "recipe": [
+     "keep-booked-calls-close-to-the-booking-day"
+    ],
+    "position": 0,
+    "step": "check-how-far-out-the-calendar-runs",
+    "do": "List how far from the booking day each call is set, and whether the person taking calls is overbooked. Compare the show rate of calls at inconvenient or far-off times with the ones at convenient times. Overbooking lowers show rates, lowers total lead conversion and stops follow-up on leads worth following up.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "at the start",
+    "done_when": "Each call has its distance in days from booking and the show rate is split by near and far.",
+    "if_missing": "If the show status is not recorded, record it for the next set and say that now.",
+    "why": "Alex Hormozi's method, from 4 videos. A call booked too far out loses its booker; too many bookings per person is the usual cause.",
+    "good_answer": "'Calls within 1 day: 74% show; calls 4+ days out: 41% show.' Fails: 'we are busy'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:2nTkffKVnas@1742#18, record:library:A_tx40lNpf8@1539#28; Alex Hormozi's method, from 4 videos; quotes at https://www.youtube.com/watch?v=2nTkffKVnas, https://www.youtube.com/watch?v=A_tx40lNpf8, https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=cy2k1GdA-9o"
+    ],
+    "part_of": [
+     "workflow:keep-booked-calls-close-to-the-booking-day"
+    ]
+   }
+  },
+  {
+   "id": "keep-booked-calls-close-to-the-booking-day--move-each-call-to-the-earliest-open-slot",
+   "values": {
+    "title": "Move each call to the earliest open slot",
+    "recipe": [
+     "keep-booked-calls-close-to-the-booking-day"
+    ],
+    "position": 1,
+    "step": "move-each-call-to-the-earliest-open-slot",
+    "do": "When a call is booked for later in the week, move it to the earliest open slot, today if there is one: a call booked Thursday on a Monday goes to a free slot on Monday or Tuesday. Same-day calls show up and convert more.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "when a call is booked later in the week",
+    "done_when": "Each booked call that has an earlier open slot has been offered it and the result is noted.",
+    "if_missing": "If no earlier slot is open, leave the call and mark it as far-out for the record.",
+    "why": "A near call is a call the booker still remembers and cares about.",
+    "good_answer": "'Booked Thursday; offered Monday 3 PM; accepted.' Fails: leaving it on Thursday when Monday was free.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:JE2_7elAcxM@4816#88, record:library:cy2k1GdA-9o@172#3; Alex Hormozi's method, from 4 videos; quotes at https://www.youtube.com/watch?v=2nTkffKVnas, https://www.youtube.com/watch?v=A_tx40lNpf8, https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=cy2k1GdA-9o"
+    ],
+    "part_of": [
+     "workflow:keep-booked-calls-close-to-the-booking-day"
+    ]
+   }
+  },
+  {
+   "id": "keep-booked-calls-close-to-the-booking-day--go-straight-to-the-call-when-they-have-time-now",
+   "values": {
+    "title": "Go straight to the call when they have time now",
+    "recipe": [
+     "keep-booked-calls-close-to-the-booking-day"
+    ],
+    "position": 2,
+    "step": "go-straight-to-the-call-when-they-have-time-now",
+    "do": "Use two paths: if the booker has time right then, go straight into the call; if not, set a later time. Ask on first contact: 'do you have a few minutes now?'",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "when you reach a booker",
+    "done_when": "Each reached booker took path one or path two and which is noted.",
+    "if_missing": "If the person taking calls is busy, take path two and say so.",
+    "why": "A lead is most responsive when you first reach them.",
+    "good_answer": "'Had 10 minutes; held the call at once.' Fails: setting a call for Friday for someone who said they were free.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:JE2_7elAcxM@4891#92, record:library:cy2k1GdA-9o@267#5; Alex Hormozi's method, from 4 videos; quotes at https://www.youtube.com/watch?v=2nTkffKVnas, https://www.youtube.com/watch?v=A_tx40lNpf8, https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=cy2k1GdA-9o"
+    ],
+    "part_of": [
+     "workflow:keep-booked-calls-close-to-the-booking-day"
+    ]
+   }
+  },
+  {
+   "id": "keep-booked-calls-close-to-the-booking-day--rebook-a-silent-booker-and-use-the-slot",
+   "values": {
+    "title": "Re-book a booker who does not respond and use the slot",
+    "recipe": [
+     "keep-booked-calls-close-to-the-booking-day"
+    ],
+    "position": 3,
+    "step": "rebook-a-silent-booker-and-use-the-slot",
+    "do": "When a booker does not respond at the call time, reach out at once to book a later time, and use the open slot for a new, responsive lead.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "when a booker does not reply at call time",
+    "done_when": "Each silent booker was contacted at once with a new time, and the slot was used or marked.",
+    "if_missing": "If no new lead is ready, hold the slot for the next one and say so.",
+    "why": "An open slot filled with a responsive lead turns idle time into calls.",
+    "good_answer": "'No answer at 2 PM; texted new time Wednesday 10 AM; used the slot on a new lead.' Fails: waiting a day to reply.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:cy2k1GdA-9o@256#4, record:library:cy2k1GdA-9o@267#5; Alex Hormozi's method, from 4 videos; quotes at https://www.youtube.com/watch?v=2nTkffKVnas, https://www.youtube.com/watch?v=A_tx40lNpf8, https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=cy2k1GdA-9o"
+    ],
+    "part_of": [
+     "workflow:keep-booked-calls-close-to-the-booking-day"
+    ]
+   }
+  },
+  {
+   "id": "keep-booked-calls-close-to-the-booking-day--record-the-distance-and-what-matters-now",
+   "values": {
+    "title": "Record the distances and what matters now",
+    "recipe": [
+     "keep-booked-calls-close-to-the-booking-day"
+    ],
+    "position": 4,
+    "step": "record-the-distance-and-what-matters-now",
+    "do": "Record the median days from booking to call, how many calls moved earlier, how many silent bookers were re-booked, and the show rate by distance. Name the one change that matters most.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "at the end of a run",
+    "done_when": "The record holds the four numbers and one change.",
+    "if_missing": "If a number is unknown, say which.",
+    "why": "The split by distance shows whether near calls really show more.",
+    "good_answer": "'Median 2 days; 12 moved earlier; 5 rebooked; show 70% near, 40% far. Change: cap bookings per person.' Fails: 'calendar is full'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:2nTkffKVnas@1742#18, record:library:JE2_7elAcxM@4816#88; Alex Hormozi's method, from 4 videos; quotes at https://www.youtube.com/watch?v=2nTkffKVnas, https://www.youtube.com/watch?v=A_tx40lNpf8, https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=cy2k1GdA-9o"
+    ],
+    "part_of": [
+     "workflow:keep-booked-calls-close-to-the-booking-day"
+    ]
+   }
+  },
+  {
+   "id": "make-the-pre-call-message-personal--research-the-booker-for-five-minutes",
+   "values": {
+    "title": "Research the booker for five minutes",
+    "recipe": [
+     "make-the-pre-call-message-personal"
+    ],
+    "position": 0,
+    "step": "research-the-booker-for-five-minutes",
+    "do": "Spend five minutes looking up the booker's business or background before the call, and write down one specific thing you saw.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "before each call",
+    "done_when": "Each call has one written, specific finding about the booker.",
+    "if_missing": "If nothing can be found, write that and ask the booker one question at the start.",
+    "why": "Alex Hormozi's method, from 4 videos. Five minutes of preparation makes you appear competent and builds trust.",
+    "good_answer": "'Their site lists only one service and no prices.' Fails: 'looked them up, seemed fine'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:StVqS0jD7Ls@2816#46; Alex Hormozi's method, from 4 videos; quotes at https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=StVqS0jD7Ls, https://www.youtube.com/watch?v=cy2k1GdA-9o, https://www.youtube.com/watch?v=B2QbLzHvKbg"
+    ],
+    "part_of": [
+     "workflow:make-the-pre-call-message-personal"
+    ]
+   }
+  },
+  {
+   "id": "make-the-pre-call-message-personal--show-the-preparation-in-a-message",
+   "values": {
+    "title": "Show the preparation in a message to the booker",
+    "recipe": [
+     "make-the-pre-call-message-personal"
+    ],
+    "position": 1,
+    "step": "show-the-preparation-in-a-message",
+    "do": "Send the booker a message that shows the work: that you looked at their site and talked to your team about it, or offer a specific, actionable idea from their layout. Where it fits, prepare a small gift for the call. Check that the message is about their situation and could not be sent to anyone else.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "after the research",
+    "done_when": "Each booker got a message that names a specific thing about them.",
+    "if_missing": "If no specific idea comes, state what you reviewed and that you have a question.",
+    "why": "The proof of effort raises perceived value and the chance they show up.",
+    "good_answer": "'I looked at your studio layout; moving the desk by the window could fit two more clients.' Fails: 'looking forward to speaking'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:StVqS0jD7Ls@1066#18, record:library:cy2k1GdA-9o@940#19; Alex Hormozi's method, from 4 videos; quotes at https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=StVqS0jD7Ls, https://www.youtube.com/watch?v=cy2k1GdA-9o, https://www.youtube.com/watch?v=B2QbLzHvKbg"
+    ],
+    "part_of": [
+     "workflow:make-the-pre-call-message-personal"
+    ]
+   }
+  },
+  {
+   "id": "make-the-pre-call-message-personal--send-a-person-voice-or-video-not-a-generic-reminder",
+   "values": {
+    "title": "Send a person's voice or video, not a generic reminder",
+    "recipe": [
+     "make-the-pre-call-message-personal"
+    ],
+    "position": 2,
+    "step": "send-a-person-voice-or-video-not-a-generic-reminder",
+    "do": "Replace one generic automated reminder with a personal video or voice message from the person who will take the call. A setter may link the booker and the caller by a three-way connection so they meet before the call. Reconfirm the time with a 60-second selfie-style video text message.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "before the call",
+    "done_when": "Each booker got a personal voice or video message or a three-way connection from a named person.",
+    "if_missing": "If a video cannot be recorded, send a voice note and say so.",
+    "why": "A real person's face and voice cost little to send and are far less easy to ignore.",
+    "good_answer": "A 60-second selfie video: 'Hi Sam, I'll see you Thursday at 3. I looked at your site.' Fails: an automated 'your appointment is tomorrow'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:JE2_7elAcxM@14298#278, record:library:B2QbLzHvKbg@19575#301; Alex Hormozi's method, from 4 videos; quotes at https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=StVqS0jD7Ls, https://www.youtube.com/watch?v=cy2k1GdA-9o, https://www.youtube.com/watch?v=B2QbLzHvKbg"
+    ],
+    "part_of": [
+     "workflow:make-the-pre-call-message-personal"
+    ]
+   }
+  },
+  {
+   "id": "make-the-pre-call-message-personal--record-what-was-sent-and-what-matters-now",
+   "values": {
+    "title": "Record what was sent and what matters now",
+    "recipe": [
+     "make-the-pre-call-message-personal"
+    ],
+    "position": 3,
+    "step": "record-what-was-sent-and-what-matters-now",
+    "do": "Record how many calls had research, how many personal messages and videos were sent, and the show rate of those against the rest. Name the one change that matters most.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "at the end of a run",
+    "done_when": "The record holds the three numbers and one change.",
+    "if_missing": "If the split is unknown, say so.",
+    "why": "The comparison shows whether the effort is worth its time.",
+    "good_answer": "'15 of 20 had a personal video; show 85% against 55%. Change: add research for the other 5.' Fails: 'personal touch helps'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:JE2_7elAcxM@14298#278; Alex Hormozi's method, from 4 videos; quotes at https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=StVqS0jD7Ls, https://www.youtube.com/watch?v=cy2k1GdA-9o, https://www.youtube.com/watch?v=B2QbLzHvKbg"
+    ],
+    "part_of": [
+     "workflow:make-the-pre-call-message-personal"
+    ]
+   }
+  },
+  {
+   "id": "have-every-decision-maker-on-the-call--ask-who-else-decides",
+   "values": {
+    "title": "Ask who else decides",
+    "recipe": [
+     "have-every-decision-maker-on-the-call"
+    ],
+    "position": 0,
+    "step": "ask-who-else-decides",
+    "do": "Before the call, ask the booker: is there anyone else who would be needed to make a decision about this? Put the question in the questionnaire, a text message or the first reminder.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "when the booking is made or confirmed",
+    "done_when": "Every booker was asked, and the answer is noted.",
+    "if_missing": "If the booker will not say, note it and ask on the call.",
+    "why": "Alex Hormozi's method, from 4 videos. A call with only part of the deciders ends with 'I need to talk to my partner'.",
+    "good_answer": "'Will your partner be part of this decision?' Yes, noted. Fails: assuming the booker decides alone.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:JE2_7elAcxM@8946#179, record:library:c_6BrF7jOGk@1242#29, record:library:HGZOxBfnF-E@961#19; Alex Hormozi's method, from 4 videos; quotes at https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=c_6BrF7jOGk, https://www.youtube.com/watch?v=A8p2HCI_23E, https://www.youtube.com/watch?v=HGZOxBfnF-E"
+    ],
+    "part_of": [
+     "workflow:have-every-decision-maker-on-the-call"
+    ]
+   }
+  },
+  {
+   "id": "have-every-decision-maker-on-the-call--move-the-call-to-include-them",
+   "values": {
+    "title": "Move the call to include them",
+    "recipe": [
+     "have-every-decision-maker-on-the-call"
+    ],
+    "position": 1,
+    "step": "move-the-call-to-include-them",
+    "do": "If the answer is yes, push the appointment back and set a time when that person can be present, so all key people are there from the start. Require the other person to attend where the offer needs it, and confirm their attendance in the reminders.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "when the answer is yes",
+    "done_when": "Every call with another decider has a time that person confirmed.",
+    "if_missing": "If the other person cannot attend at all, record that and plan the call to give the booker what they need to explain it.",
+    "why": "Everyone who decides hears the same call once.",
+    "good_answer": "'Moved from Tuesday to Thursday 6 PM so your partner can join; both confirmed.' Fails: holding the call with one of two.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:JE2_7elAcxM@8946#179, record:library:A8p2HCI_23E@2280#33, record:library:A8p2HCI_23E@2286#35; Alex Hormozi's method, from 4 videos; quotes at https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=c_6BrF7jOGk, https://www.youtube.com/watch?v=A8p2HCI_23E, https://www.youtube.com/watch?v=HGZOxBfnF-E"
+    ],
+    "part_of": [
+     "workflow:have-every-decision-maker-on-the-call"
+    ]
+   }
+  },
+  {
+   "id": "have-every-decision-maker-on-the-call--record-who-attended-and-what-matters-now",
+   "values": {
+    "title": "Record who attended and what matters now",
+    "recipe": [
+     "have-every-decision-maker-on-the-call"
+    ],
+    "position": 2,
+    "step": "record-who-attended-and-what-matters-now",
+    "do": "Record how many calls needed another decider, how many were moved, how many had everyone present, and what happened to the ones who did not. Name the one change that matters most.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "at the end of a run",
+    "done_when": "The record holds the counts and one change.",
+    "if_missing": "If attendance is not recorded, say so.",
+    "why": "Counts show whether asking changes who is in the call.",
+    "good_answer": "'9 needed another; 7 moved; 6 had all present; 3 ended 'I'll talk to them'. Change: ask in the form.' Fails: 'we asked'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:c_6BrF7jOGk@1242#29; Alex Hormozi's method, from 4 videos; quotes at https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=c_6BrF7jOGk, https://www.youtube.com/watch?v=A8p2HCI_23E, https://www.youtube.com/watch?v=HGZOxBfnF-E"
+    ],
+    "part_of": [
+     "workflow:have-every-decision-maker-on-the-call"
+    ]
+   }
+  },
+  {
+   "id": "track-show-rate-and-find-the-weak-stage--get-the-baseline-numbers",
+   "values": {
+    "title": "Get the baseline numbers",
+    "recipe": [
+     "track-show-rate-and-find-the-weak-stage"
+    ],
+    "position": 0,
+    "step": "get-the-baseline-numbers",
+    "do": "Count, for a recent period: the share of leads who booked, the share of booked who showed, the share of shown who got an offer, the share offered who bought, the cash collected up front and the units sold. Show rate is the share of people with an appointment who show up for it. Collect the baseline first so the cause can be found.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "before changing anything",
+    "done_when": "Each rate is written with its counts, for one stated period.",
+    "if_missing": "If a count is missing, name where it should have been recorded and use the nearest count.",
+    "why": "Alex Hormozi's method, from 6 videos. Without a baseline you cannot tell where a loss starts.",
+    "good_answer": "'100 booked, 49 showed (49%), 40 offered, 14 bought.' Fails: 'close rate is okay'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:c_6BrF7jOGk@206#4, record:library:JE2_7elAcxM@7724#155, record:library:JE2_7elAcxM@7863#156, record:library:QTZsh3BgOwY@2330#43; Alex Hormozi's method, from 6 videos; quotes at https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=c_6BrF7jOGk, https://www.youtube.com/watch?v=cy2k1GdA-9o, https://www.youtube.com/watch?v=h6y0nYVZgwE, https://www.youtube.com/watch?v=QTZsh3BgOwY"
+    ],
+    "part_of": [
+     "workflow:track-show-rate-and-find-the-weak-stage"
+    ]
+   }
+  },
+  {
+   "id": "track-show-rate-and-find-the-weak-stage--multiply-the-stages-and-find-the-weakest",
+   "values": {
+    "title": "Multiply the stages and find the weakest",
+    "recipe": [
+     "track-show-rate-and-find-the-weak-stage"
+    ],
+    "position": 1,
+    "step": "multiply-the-stages-and-find-the-weakest",
+    "do": "Multiply the stage rates to see how many units result, then compare each stage with its benchmark. For show rate, set at least 70% as the lowest acceptable. Find the stage furthest below its benchmark and say whether it is leads or the people on calls.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "after the baseline",
+    "done_when": "The units result is written and one stage is named as weakest with its benchmark.",
+    "if_missing": "If no benchmark exists for a stage, use your own earlier period.",
+    "why": "Because stages multiply, the weakest low-rate stage gives the most for the work.",
+    "good_answer": "'Show 49% against 70%: weakest.' Fails: working on a stage already at benchmark.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:c_6BrF7jOGk@156#3, record:library:c_6BrF7jOGk@225#5, record:library:h6y0nYVZgwE@1267#23, record:library:JE2_7elAcxM@7724#155; Alex Hormozi's method, from 6 videos; quotes at https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=c_6BrF7jOGk, https://www.youtube.com/watch?v=cy2k1GdA-9o, https://www.youtube.com/watch?v=h6y0nYVZgwE, https://www.youtube.com/watch?v=QTZsh3BgOwY"
+    ],
+    "part_of": [
+     "workflow:track-show-rate-and-find-the-weak-stage"
+    ]
+   }
+  },
+  {
+   "id": "track-show-rate-and-find-the-weak-stage--size-the-gain-against-the-low-starting-number",
+   "values": {
+    "title": "Size the gain against the low starting number",
+    "recipe": [
+     "track-show-rate-and-find-the-weak-stage"
+    ],
+    "position": 2,
+    "step": "size-the-gain-against-the-low-starting-number",
+    "do": "Express a planned gain as a share of the starting number: raising show from 50 to 70 is a 40% improvement, bigger than the same step on a high rate. Pick the target for the weak stage and name how it will be reached.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "before picking a target",
+    "done_when": "A target is set as a number with its gain against the starting number.",
+    "if_missing": "If the target cannot be reached by one change, name the several changes that together reach it.",
+    "why": "Small improvements on a low rate matter more than the same percentage points on a high one.",
+    "good_answer": "'Show from 50% to 70%: 40% more calls held.' Fails: 'improve show rate'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:HKbFUWJwEG0@2768#47, record:library:6_CCutkM11g@4742#54; Alex Hormozi's method, from 6 videos; quotes at https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=c_6BrF7jOGk, https://www.youtube.com/watch?v=cy2k1GdA-9o, https://www.youtube.com/watch?v=h6y0nYVZgwE, https://www.youtube.com/watch?v=QTZsh3BgOwY"
+    ],
+    "part_of": [
+     "workflow:track-show-rate-and-find-the-weak-stage"
+    ]
+   }
+  },
+  {
+   "id": "track-show-rate-and-find-the-weak-stage--check-the-money-lost-to-the-low-rate",
+   "values": {
+    "title": "Check what the low rate costs",
+    "recipe": [
+     "track-show-rate-and-find-the-weak-stage"
+    ],
+    "position": 3,
+    "step": "check-the-money-lost-to-the-low-rate",
+    "do": "Write what the no-shows cost: the booked calls that the team had to cancel or that held an empty slot. A low show rate that cancels most appointments is money burned and must be fixed first.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "when show rate is far below target",
+    "done_when": "A cost of the low rate is written in calls and money.",
+    "if_missing": "If the value of a call is unknown, count only the calls and slots.",
+    "why": "A cost gives the fix priority over other work.",
+    "good_answer": "'51 of 100 no-show; 51 slots empty; about 51 times the value of a call.' Fails: no cost.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:JE2_7elAcxM@8047#158; Alex Hormozi's method, from 6 videos; quotes at https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=c_6BrF7jOGk, https://www.youtube.com/watch?v=cy2k1GdA-9o, https://www.youtube.com/watch?v=h6y0nYVZgwE, https://www.youtube.com/watch?v=QTZsh3BgOwY"
+    ],
+    "part_of": [
+     "workflow:track-show-rate-and-find-the-weak-stage"
+    ]
+   }
+  },
+  {
+   "id": "track-show-rate-and-find-the-weak-stage--record-the-numbers-and-what-matters-now",
+   "values": {
+    "title": "Record the numbers and what matters now",
+    "recipe": [
+     "track-show-rate-and-find-the-weak-stage"
+    ],
+    "position": 4,
+    "step": "record-the-numbers-and-what-matters-now",
+    "do": "Record the baseline, the weakest stage, the target and the change planned. Name the one stage that matters most now.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "at the end of a run",
+    "done_when": "The record holds the baseline, weakest stage, target and change.",
+    "if_missing": "If a figure is unknown, write which and why.",
+    "why": "A recorded baseline lets the next run show whether anything changed.",
+    "good_answer": "'Baseline 49% show; weakest: show; target 70%; change: reminders and speed.' Fails: 'tracking is set'.",
+    "came_from": [
+     "the person's old kept store, table library rows record:library:c_6BrF7jOGk@206#4, record:library:cy2k1GdA-9o@2737#55; Alex Hormozi's method, from 6 videos; quotes at https://www.youtube.com/watch?v=JE2_7elAcxM, https://www.youtube.com/watch?v=c_6BrF7jOGk, https://www.youtube.com/watch?v=cy2k1GdA-9o, https://www.youtube.com/watch?v=h6y0nYVZgwE, https://www.youtube.com/watch?v=QTZsh3BgOwY"
+    ],
+    "part_of": [
+     "workflow:track-show-rate-and-find-the-weak-stage"
     ]
    }
   }

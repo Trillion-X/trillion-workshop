@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "1423f45e292e1d1ff25688edc4fb2061596688b8f1d1009943f01cf25d4f60e1",
+  "blake3": "e66032c59960768a1ccc7186289e83672e9ce6d6d1e82b900ef13be1844c8d0a",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -83,6 +83,7 @@
     "compare-designs-by-simulating-them-forward",
     "compare-several-designs-of-one-piece-of-interface",
     "compress-a-work-segment-into-observations-that-survive-context-loss",
+    "contact-a-booker-right-after-they-book",
     "cut-spending-in-one-expense-area",
     "deepen-a-request-like-a-top-professional",
     "deliver-a-finished-automation-project",
@@ -136,6 +137,7 @@
     "follow-up-with-people-who-engaged",
     "forecast-what-a-solution-will-change",
     "forge-a-skill-from-reference-data",
+    "gather-answers-before-a-sales-call",
     "get-a-first-client-with-free-tools-and-a-recorded-walkthrough",
     "get-a-needed-service-account-and-pay-for-it",
     "get-a-product-listed-in-the-directories-that-fit-it",
@@ -160,6 +162,7 @@
     "hand-to-an-agent",
     "handle-a-customer-access-case",
     "handle-every-inbox-daily",
+    "have-every-decision-maker-on-the-call",
     "hire-a-remote-worker-through-a-paid-trial",
     "hire-by-treating-applicants-like-customers",
     "hire-help-for-a-step",
@@ -179,6 +182,7 @@
     "keep-a-conversation-lively-with-someone-you-like",
     "keep-a-date-from-going-quiet-or-cancelling",
     "keep-a-product-positioning-record",
+    "keep-booked-calls-close-to-the-booking-day",
     "keep-customers-buying-by-fitting-the-repeat-purchase-to-the-product",
     "keep-customers-by-finding-why-they-leave",
     "keep-each-payment-where-the-seller-keeps-their-rows",
@@ -225,6 +229,7 @@
     "make-static-ads-one-change-at-a-time",
     "make-the-person-understand-a-result",
     "make-the-piece-without-waiting-for-the-person",
+    "make-the-pre-call-message-personal",
     "make-the-speech-sound-good",
     "manage-member-billing",
     "map-style-values-onto-existing-design-tokens",
@@ -306,6 +311,7 @@
     "recover-people-who-looked-at-a-product-and-left",
     "recreate-a-screen-from-a-screenshot",
     "refresh-measurement-coverage",
+    "remind-a-booker-on-a-timed-ladder",
     "report-a-result-the-reader-can-use",
     "report-how-stable-a-system-is-from-evidence",
     "repurpose-other-peoples-best-content-into-your-own-voice",
@@ -344,6 +350,7 @@
     "sell-more-to-each-customer-after-the-first-yes",
     "sell-what-the-pursuit-makes",
     "send-a-prospect-a-sample-made-for-them",
+    "send-a-video-before-the-call",
     "set-and-change-the-price-of-a-product",
     "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped",
     "set-up-a-business-on-the-account",
@@ -383,6 +390,7 @@
     "test-new-ads-apart-from-proven-ones",
     "test-prices-and-change-a-page-for-each-visitor",
     "trace-to-first-principles",
+    "track-show-rate-and-find-the-weak-stage",
     "train-a-sales-team-with-a-script-and-daily-practice",
     "treat-things-that-arrive-together-as-one-job",
     "turn-a-code-change-into-a-review-report",
@@ -6983,6 +6991,126 @@
     "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
     "fires_when": "[{\"label\": \"a part asks to change a database's shape without stopping what uses it\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"deploy-request\", \"request-to-change\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from The roadmap's deploy item (a migration step that expands first and contracts later), Nov 18 2026; and the industry's expand-then-contract practice for changing a live store's shape while the old and new code both run; the label is the condition in words.\"}]",
     "source": "{\"from\": \"The roadmap's deploy item (a migration step that expands first and contracts later), Nov 18 2026; and the industry's expand-then-contract practice for changing a live store's shape while the old and new code both run, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "remind-a-booker-on-a-timed-ladder",
+   "values": {
+    "title": "Remind someone who booked a call so they show up",
+    "recipe": "workflow:remind-a-booker-on-a-timed-ladder",
+    "job": "Sets a ladder of reminders for each booked call, from a day before to an hour before, pairs automatic messages with a person's check-in and asks the booker to confirm what they were to prepare. For anyone who sells or serves by appointment.",
+    "produces": "Each booking's three reminders and person check-in set, the booker's preparation confirmed or marked unconfirmed, and a record of counts with the one gap that costs the most shows.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to remind someone who booked a call so they show up\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"call-booked\", \"booking-changed\", \"message-test\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table library; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table library, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "gather-answers-before-a-sales-call",
+   "values": {
+    "title": "Collect answers from a booker before the sales call",
+    "recipe": "workflow:gather-answers-before-a-sales-call",
+    "job": "Has the booker fill in a short form and give four short answers (money, who decides, need, timing) before the call, and has the caller read them first. For someone who sells by call and wants prepared, qualified callers.",
+    "produces": "A form sent to every booker, effort required before the call, four answers or noted gaps per booker, a one-line problem statement for each call and a record of counts.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to collect answers from a booker before the sales call\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"call-booked\", \"lead-generation\", \"message-arrived\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table library; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table library, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "send-a-video-before-the-call",
+   "values": {
+    "title": "Send an explainer video before the sales call",
+    "recipe": "workflow:send-a-video-before-the-call",
+    "job": "Finds what the call keeps explaining, puts it in one video that frames the call, shows price and proof and says a decision comes on the call, and places it so the booker watches before talking to anyone. For someone who sells by call.",
+    "produces": "A list of repeated explanations, a video covering them with proof, a sending point, the number of calls per sale and a record with one change.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to send an explainer video before the sales call\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"call-booked\", \"conversion-question\", \"lead-generation\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table library; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table library, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "contact-a-booker-right-after-they-book",
+   "values": {
+    "title": "Contact a booker within minutes of their booking",
+    "recipe": "workflow:contact-a-booker-right-after-they-book",
+    "job": "Measures the wait between a booking and the first human contact, cuts it to minutes, calls the booker straight after they leave details and sets the call within a day. For anyone who books calls from inquiries.",
+    "produces": "Each booking's wait measured, first contact within five minutes counted, calls made after details, calls set within 24 hours and a record of waits and show rate with one change.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to contact a booker within minutes of their booking\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"call-booked\", \"lead-generation\", \"message-arrived\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table library; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table library, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "keep-booked-calls-close-to-the-booking-day",
+   "values": {
+    "title": "Keep booked calls close to the day they were booked",
+    "recipe": "workflow:keep-booked-calls-close-to-the-booking-day",
+    "job": "Measures how far out booked calls sit, moves later calls to the earliest open slot, takes the call at once when the booker has time and re-books silent bookers into the freed slot. For anyone whose calendar is booking out.",
+    "produces": "Each call's distance, earlier slots offered, the path taken per booker, silent bookers re-booked and a record of distances and show rate with one change.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to keep booked calls close to the day they were booked\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"call-booked\", \"booking-changed\", \"capacity-question\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table library; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table library, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "make-the-pre-call-message-personal",
+   "values": {
+    "title": "Make the message before a call personal to the booker",
+    "recipe": "workflow:make-the-pre-call-message-personal",
+    "job": "Researches the booker for five minutes, sends a message that shows the work done on their situation, and replaces a generic reminder with a person's voice or short selfie video. For someone who takes sales or application calls.",
+    "produces": "One written finding per booker, a message naming something specific, a personal voice or video message and a record comparing show rate with and without.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to make the message before a call personal to the booker\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"call-booked\", \"message-arrived\", \"message-test\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table library; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table library, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "have-every-decision-maker-on-the-call",
+   "values": {
+    "title": "Have everyone who decides on the sales call",
+    "recipe": "workflow:have-every-decision-maker-on-the-call",
+    "job": "Asks every booker who else decides, moves the call so that person can attend and confirms their attendance in the reminders. For someone who sells by call to buyers who decide with others.",
+    "produces": "Each booker's answer about other deciders, calls moved to include them and confirmed, and a record of who attended with one change.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to have everyone who decides on the sales call\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"call-booked\", \"booking-changed\", \"case-to-close\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table library; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table library, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "track-show-rate-and-find-the-weak-stage",
+   "values": {
+    "title": "Track show rate and find the weakest stage of a sales path",
+    "recipe": "workflow:track-show-rate-and-find-the-weak-stage",
+    "job": "Counts the stages from lead to sale, with show rate as one of them, compares each with a benchmark, picks the weakest and sizes the gain against its low starting number. For anyone who sells by appointment.",
+    "produces": "Baseline rates with counts for a stated period, the weakest stage with its benchmark, a target with its relative gain, the cost of the low rate and a record with one stage named.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to track show rate and find the weakest stage of a sales path\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"conversion-question\", \"growth-question\", \"call-booked\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table library; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table library, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
    }
   }
  ]

@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:send-a-video-before-the-call for a video telling people what a piano lesson costs before they book.\" It goes step by step, handing back what it found with where each thing came from, and what is still open.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "workflows": [
+    "workflow:send-a-video-before-the-call"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Say what the run is for in plain words, and what is already known, as the input: {\"about\": \"a video telling people what a piano lesson costs before they book\", \"known\": \"what you already know or decided\"}.",
+    "2. Run workflow:send-a-video-before-the-call with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:send-a-video-before-the-call\", about, known}. Each step waits for its answer: what was found, each with where it came from, in found, and what is not settled yet in open with what would settle it.",
+    "3. Answer a step by giving its answer under answers by its step id and running again.",
+    "4. Read what the run kept and what is open; the last step says what matters most next, and choosing what runs next is up to you or your AI."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start to send an explainer video before the sales call for a video telling people what a piano lesson costs before they book",
+      "ask": "Run send an explainer video before the sales call for a video telling people what a piano lesson costs before they book.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:send-a-video-before-the-call",
+              "about": "a video telling people what a piano lesson costs before they book"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:send-a-video-before-the-call",
+      "step": "choose-what-the-call-should-not-have-to-teach",
+      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"choose-what-the-call-should-not-have-to-teach\",\"asks\":\"ai\"}]}: the run waits at 'Choose what the call should not have to teach' for what was found (found) and what is still open (open)."
+    }
+  ],
+  "drafted_from": "workflow:send-a-video-before-the-call's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+}
