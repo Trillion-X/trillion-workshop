@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { carried, clientOptions, describeMechanism, readSettings, readSql, watchForTransitions } from '../do-work/mechanisms/row-changes.mjs';
 
-const change = (txid, position, op = 'INSERT') => ({ database: 'p_made_up', txid: String(txid), position: String(position), at: '2026-11-18T14:00:00Z', table_name: 'notes', op, before: null, after: { id: position } });
+const change = (txid, position, op = 'INSERT', by = null) => ({ database: 'p_made_up', txid: String(txid), position: String(position), at: '2026-11-18T14:00:00Z', table_name: 'notes', op, before: null, after: { id: position }, by });
 // A stand-in client: answers each read with the committed changes after the place asked, and can announce on a channel.
 function client(changes) {
   const asked = [];
@@ -41,6 +41,14 @@ test('it declares its fields and reads its settings, refusing a table name that 
   assert.equal(readSettings({ table: 'x; DROP TABLE y' }).table, 'row_changes');
   assert.match(readSql('row_changes'), /txid < pg_snapshot_xmin\(pg_current_snapshot\(\)\)/);
   assert.match(readSql('row_changes'), /ORDER BY txid, position/);
+  assert.match(readSql('row_changes'), /to_jsonb\(c\) ->> 'changed_by' AS by/, 'a change table with no changed_by is read the same: by is null');
+});
+
+test('who made a change is told as by, and a change table that keeps no one tells null', async () => {
+  const stand = client([change(9, 1, 'INSERT', 'may_change_rows_0a1b2c3d4e5f'), change(9, 2, 'UPDATE')]);
+  const { done, told } = await run(stand, { stopAfter: 2 });
+  await done;
+  assert.deepEqual(told.map(item => item.detail.by), ['may_change_rows_0a1b2c3d4e5f', null]);
 });
 
 test('a change is told as where, place and change: INSERT is added, UPDATE changed, DELETE removed', async () => {

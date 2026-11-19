@@ -20,6 +20,8 @@
  *   - It names no table of the person's: the change table and channel are
  *     settings (row_changes by default), and each change says its own table.
  *   - It never writes to the database. Its login needs to read the change table.
+ *   - Who made each change is told as by: the change table's changed_by (a column the database fills with the login
+ *     that made the change, `changed_by text DEFAULT current_user`), null for a table that keeps none.
  *   - A change carries itself: before and after as JSON text when each fits a fact
  *     field (CARRIED_BYTES), else null, so a woken run needs no reader tool; key is
  *     the change's own key in this database's words, for a run that reads more.
@@ -50,7 +52,7 @@ export const carried = (value) => {
 export function describeMechanism() {
   return {
     mechanism_ref: MECHANISM_REF,
-    detail_fields: ["where", "place", "change", "at", "key", "before", "after"],
+    detail_fields: ["where", "place", "change", "at", "key", "before", "after", "by"],
     conditions: ["became-reachable"],
   };
 }
@@ -69,8 +71,8 @@ export function readSettings(settings = {}) {
 }
 
 /** The read that takes the next changes after `after` ({txid, position} or null), oldest first. */
-export const readSql = (table) => `SELECT position::text AS position, txid::text AS txid, at, table_name, op, before, after, current_database() AS database
-  FROM ${table}
+export const readSql = (table) => `SELECT position::text AS position, txid::text AS txid, at, table_name, op, before, after, to_jsonb(c) ->> 'changed_by' AS by, current_database() AS database
+  FROM ${table} c
   WHERE txid < pg_snapshot_xmin(pg_current_snapshot()) AND ($1::xid8 IS NULL OR (txid, position) > ($1::xid8, $2::bigint))
   ORDER BY txid, position LIMIT $3`;
 
@@ -118,7 +120,7 @@ export async function watchForTransitions(settings, handlers) {
           state: next,
           detail: { where: change.database, place: change.table_name, change: changeOf(change.op), at: new Date(change.at).toISOString(),
             key: `${change.database}:${change.txid}:${change.position}`,
-            before: carried(change.before), after: carried(change.after) },
+            before: carried(change.before), after: carried(change.after), by: change.by ?? null },
         });
         if (told === false) { refused = true; break; }
         state = next;
