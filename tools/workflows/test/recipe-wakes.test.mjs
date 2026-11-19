@@ -44,7 +44,7 @@ test('a cause the engine does not take, two causes, an unknown field and an extr
 test('a fact names a kind and who may tell it, from the engine\'s tellers only', () => {
   const fact = (fields) => [{ ...weekly, on: { fact: fields } }];
   assert.deepEqual(wakeProblems(fact({ kind: 'due-time', from: ['run'] }), context), []);
-  assert.deepEqual(wakeProblems(fact({ kind: 'due-time', from: ['the-neighbour'] }), context), ['wakes[0].on.fact.from must be one of: computer, run, sender, wake.']);
+  assert.deepEqual(wakeProblems(fact({ kind: 'due-time', from: ['the-neighbour'] }), context), ['wakes[0].on.fact.from must be one of: computer, run, sender, wake, door.']);
   assert.deepEqual(wakeProblems(fact({ kind: 'due-time', from: [] }), context), ['wakes[0].on.fact.from must be texts.']);
   assert.deepEqual(wakeProblems(fact({ from: ['run'] }), context), ['wakes[0].on.fact.kind is required.']);
   assert.deepEqual(wakeProblems(fact({ kind: 'due-time', from: ['run'], fold: 'yes' }), context), ['wakes[0].on.fact.fold must be flag.']);

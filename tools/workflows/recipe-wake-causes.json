@@ -19,7 +19,7 @@
     "work": { "steps": 2000, "wall_ms": 14400000 },
     "inbound": { "steps": 500, "wall_ms": 3600000 }
   },
-  "tellers": ["computer", "run", "sender", "wake"],
+  "tellers": ["computer", "run", "sender", "wake", "door"],
   "causes": [
     {
       "cause": "running",
@@ -29,8 +29,8 @@
     },
     {
       "cause": "fact",
-      "meaning": "A fact of this kind, told by one of the tellers in from (computer: the computer the engine runs on; run: one of the person's tool runs, such as the noticer's due times; sender: anyone else at the door; wake: the engine, telling the wake-failed fact it keeps when a wake turns failed), whose payload equals every field of match. fold folds a burst into the cause not yet started. watch is what the wake asks a teller to watch for, in the teller's own DATA (for due-time, timed-action schedule rows); the engine keeps it with the wake and lists it.",
-      "draws": { "by": "from", "ledgers": { "run": "work" }, "otherwise": "inbound" },
+      "meaning": "A fact of this kind, told by one of the tellers in from (computer: the computer the engine runs on; run: one of the person's tool runs, such as the noticer's due times; sender: anyone else at the door; wake: the engine, telling the wake-failed fact it keeps when a wake turns failed; door: the person's door, telling the tool-ran fact once per tool, state and day for a call of their own), whose payload equals every field of match. fold folds a burst into the cause not yet started. watch is what the wake asks a teller to watch for, in the teller's own DATA (for due-time, timed-action schedule rows); the engine keeps it with the wake and lists it.",
+      "draws": { "by": "from", "ledgers": { "run": "work", "wake": "work", "door": "work" }, "otherwise": "inbound" },
       "fields": [
         { "field": "kind", "shape": "text", "required": true },
         { "field": "from", "shape": "texts", "required": true, "in": "tellers" },

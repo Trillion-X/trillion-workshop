@@ -1,0 +1,163 @@
+{
+  "_what": "Keeps the person's record of the tools they used in their own store (table tools_i_used). It wakes on the tool-ran fact the person's door tells (trillion-rust ran_fact, once per tool, state and day for a call of their own; never a call a tool run made, nor one a share grant admitted) and names no store of its own: the switch's input names it.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-the-tools-i-used",
+        "label": "Keep the tools I used",
+        "job": "Keep the person's own record of the tools they ran, in their own store, so they or their AI can find the tool they used for something and when. It hears the tool-ran fact the person's door tells once per tool, state and day for a call of their own, and names no store of its own: the switch's input names it.",
+        "produces": "One row per tool and state (answered or refused) in the person's store's tools_i_used table: the first and last day it ran, on how many days, and the last address and refusal cause it named.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "fact": {
+              "type": "object",
+              "description": "The tool-ran fact the door told: tool (the tool's id), state (answered or refused), day_ms (the start of the day it ran, in milliseconds), address (the server the call named, when it named one) and cause (the refusal's cause id, when it was refused)"
+            },
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language",
+                "credential_name"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the record of the tools they used (table tools_i_used): the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses to keep the record"
+                }
+              }
+            }
+          }
+        },
+        "wakes": [
+          {
+            "id": "a-tool-ran",
+            "on": {
+              "fact": {
+                "kind": "tool-ran",
+                "from": [
+                  "door"
+                ]
+              }
+            },
+            "budget": {
+              "steps": 2,
+              "wall_ms": 120000
+            },
+            "input": {
+              "start_at": "make-table"
+            }
+          }
+        ],
+        "definition": {
+          "id": "workflow:keep-the-tools-i-used",
+          "name": "Keep the tools I used",
+          "kind": "workflow",
+          "is_active": true,
+          "version": 1,
+          "steps": [
+            {
+              "id": "make-table",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "create table if not exists tools_i_used (tool text not null, state text not null, first_day timestamptz not null, last_day timestamptz not null, days_used integer not null default 1, last_address text, last_cause text, primary key (tool, state))"
+                },
+                "context": {
+                  "step_id": "make-table"
+                }
+              }
+            },
+            {
+              "id": "keep",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "insert into tools_i_used (tool, state, first_day, last_day, last_address, last_cause) values ($1::text, $2::text, to_timestamp($3::bigint / 1000.0), to_timestamp($3::bigint / 1000.0), $4::text, $5::text) on conflict (tool, state) do update set days_used = tools_i_used.days_used + (excluded.last_day > tools_i_used.last_day)::int, last_day = greatest(tools_i_used.last_day, excluded.last_day), first_day = least(tools_i_used.first_day, excluded.first_day), last_address = coalesce(excluded.last_address, tools_i_used.last_address), last_cause = coalesce(excluded.last_cause, tools_i_used.last_cause)",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.tool"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.state"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.day_ms"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.address"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.cause"
+                      }
+                    }
+                  ]
+                },
+                "context": {
+                  "step_id": "keep"
+                }
+              }
+            }
+          ],
+          "edges": [
+            {
+              "from": "make-table",
+              "to": "keep",
+              "kind": "always"
+            }
+          ]
+        },
+        "records": {
+          "runs": [
+            "tool:run-sql-in-my-database"
+          ]
+        }
+      }
+    }
+  ]
+}

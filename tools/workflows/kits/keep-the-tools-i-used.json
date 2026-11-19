@@ -1,0 +1,50 @@
+{
+  "drafted_from": "workflow:keep-the-tools-i-used's own file, tools/workflows/recipes/keep-the-tools-i-used.json (its wake, definition and steps), and the engine's tool-ran fact (trillion-rust src/wake/wake.json ran_fact).",
+  "start_here": "Say to your AI: \"Keep a record of the tools I use.\" The AI turns on workflow:keep-the-tools-i-used's wake a-tool-ran with your store as its input. From then on, each tool you run is kept in your store once a day, so you can ask which tool you used for something and when.",
+  "lists": [],
+  "no_lists_because": "It reads nothing: the tool-ran fact carries the tool, whether it answered, the day and the address, and the run keeps one row per tool and state in the person's store (its tools_i_used table).",
+  "workflows": [
+    "workflow:keep-the-tools-i-used"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Turn on this workflow's wake a-tool-ran with store as the switch's input: where the person keeps the record, its language and the vault name of its login.",
+    "2. Run any tool yourself. The person's door tells a tool-ran fact the first time each tool answers (or is refused) each day, for a call of their own, and the run keeps or updates its row in tools_i_used.",
+    "3. Read the record in the store: select tool, state, first_day, last_day, days_used, last_address from tools_i_used order by last_day desc. A refused row's last_cause says why the tool did not run; wake:list shows the wake's last firing if a row did not come."
+  ],
+  "worked_examples": [
+    {
+      "title": "A tool the person ran is kept in their store",
+      "ask": "(the person's door told tool-ran for tool:find-tool-servers-in-a-catalog, answered, on Nov 19 2026)",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-the-tools-i-used",
+              "fact": {
+                "tool": "tool:find-tool-servers-in-a-catalog",
+                "state": "answered",
+                "day_ms": 1795053600000
+              },
+              "store": {
+                "where": "the person's own database",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "the vault name of the person's database login"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-the-tools-i-used",
+      "step": "keep",
+      "given": "The door told tool-ran {tool tool:find-tool-servers-in-a-catalog, state answered, day_ms of Nov 19 2026}.",
+      "hands_back": "One row of tools_i_used in the person's store: tool tool:find-tool-servers-in-a-catalog, state answered, first_day and last_day Nov 19 2026, days_used 1; told again on a later day, the same row's last_day moves and days_used becomes 2."
+    }
+  ]
+}
