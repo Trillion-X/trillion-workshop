@@ -1,6 +1,6 @@
 // tools/book-time/do-work/book-time.mjs
 //
-// The tool seam. Each export is run by tools/records-door/do-work/run-an-export.mjs as fn(input, context). Nothing here
+// The tool seam. Each export is run by tools/workflows/do-work/run-a-function.mjs as fn(input, context). Nothing here
 // keeps anything: a tool answers with its result and the person's AI keeps it where the person keeps such things. The
 // bookings a tool must look at arrive as its input (`bookings`, booking records as an earlier answer gave them). The
 // calendar exports also read the person's own calendar account from descriptor 4: one held value, a JSON object
