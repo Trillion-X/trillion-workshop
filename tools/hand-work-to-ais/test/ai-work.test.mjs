@@ -1,31 +1,58 @@
-// The work handed between a person's AIs, against the records door stand-in (tools/records-door/test/fake-door.mjs),
-// which checks `expected` the way the engine does: a write whose condition no longer holds is refused whole
-// (original_command_conflict) and changes nothing. Made-up AIs and jobs only.
+// The work handed between a person's AIs, run the way the Workshop runs it: each call gets the records its input carries
+// (`input.records`, read by the caller from the store), and its `keep` writes are applied to the store by the test (the
+// caller's part), each conditioned on the value it was read at, so a write whose condition no longer holds is refused
+// whole. Made-up AIs and jobs only.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
-import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import { handAJob, moveAJob as moveActual, requestedOutcome, seeAiWork, seeMyAis, takeAJob, workRules } from '../read-data/ai-work.mjs';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
+import { handAJob as handAJobRaw, moveAJob as moveRaw, requestedOutcome, seeAiWork as seeAiWorkRaw, seeMyAis as seeMyAisRaw, takeAJob as takeAJobRaw, workRules } from '../read-data/ai-work.mjs';
 
+const TOOLS = fileURLToPath(new URL('../../', import.meta.url));
+const rowOf = (rows, id) => rows.records.map(row => row.payload).find(row => row.id === id);
 
+// The store the caller keeps: records by id. Applying a call's keep writes it the way the caller's store does: each
+// write is refused whole when the record is not as it was read (null: must not exist), and a null value removes it.
+const CHANGED = 'original_command_conflict';
+const conflict = () => Object.assign(new Error('The record changed since it was read.'), { code: CHANGED });
+function applyKeep(store, keep = []) {
+  for (const { id, type, value, expected } of keep) {
+    const now = store.kept.get(id) ?? null;
+    if (expected === null) { if (now) throw conflict(); }
+    else if (!now || now.type !== expected.type || makeHashCodeHexFromJson(now.value) !== makeHashCodeHexFromJson(expected.value)) throw conflict();
+    if (value === null) store.kept.delete(id);
+    else store.kept.set(id, { id, type, value });
+  }
+}
+const recordsOf = store => [...store.kept.values()].map(({ id, type, value }) => ({ id, type, value }));
+
+// Each call of the module, over the store: the records go in, the keep writes are applied, the answer returns.
+function served(run) {
+  return async (args, { door, now } = {}) => {
+    const answer = await run({ ...args, input: { ...args.input, records: recordsOf(door) } }, { now });
+    applyKeep(door, answer.keep);
+    const { keep: _applied, ...shown } = answer;
+    return shown;
+  };
+}
+const handAJob = served(handAJobRaw);
+const takeAJob = served(takeAJobRaw);
+const seeAiWork = served(seeAiWorkRaw);
+const seeMyAis = served(seeMyAisRaw);
+const moveActual = served(moveRaw);
 // Valid fixture moves carry the take generation. Explicit stale/missing-fence controls call moveActual directly.
-async function moveAJob(args, context) {
+async function moveAJob(args, { door, now }) {
   const input = { ...args.input };
-  const current = await context.door.read('ai-job', input.id);
+  const current = door.kept.get(input.id)?.value;
   if (input.taken_at === undefined && current?.taker === input.as) input.taken_at = current.taken_at;
-  return moveActual({ ...args, input }, context);
+  return moveActual({ ...args, input }, { door, now });
 }
 const acceptance = (outcome, parts = []) => ({ outcome, target: { type: 'fixture:consumer', id: 'fixture:destination' }, rules: ['outcome', ...parts].map(id => ({ id, path: 'readable', equals: [true], says: 'The destination must be readable.' })) });
 
 const RULES = JSON.parse(readFileSync(new URL('../read-data/ai-work.json', import.meta.url), 'utf8'));
 const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
-const EVERYTHING = [
-  { kind: 'ai', operations: ['records:read', 'records:list'] },
-  { kind: 'ai-job', operations: ['records:read', 'records:list', 'records:write'] },
-  { kind: 'fixture:consumer', operations: ['records:read'] },
-];
 const T0 = Date.parse('2026-11-01T20:00:00.000Z');
 const at = minutes => () => new Date(T0 + minutes * 60000);
 const ai = (id, value) => ({ id, type: 'ai', value: { kind: 'cli', label: id.slice(3), ...value } });
@@ -35,27 +62,12 @@ const AIS = [
   ai('ai:east', { can: ['write'], live: { how: 'heartbeat', minutes: 60, seen_at: '2026-10-01T00:00:00.000Z' }, order: 3 }),
 ];
 
+// The store, seeded with the made-up AIs and one consumer the acceptance checks name.
 async function account(records = AIS) {
-  const fake = await startFakeDoor({ rights: EVERYTHING, records: [...records, { id: 'fixture:destination', type: 'fixture:consumer', value: { readable: true } }] });
-  return { fake, door: () => openRecordsDoor({ descriptor: fake.descriptor }) };
+  const fake = { kept: new Map([...records, { id: 'fixture:destination', type: 'fixture:consumer', value: { readable: true } }].map(record => [record.id, { ...record }])), async close() {} };
+  return { fake, door: () => fake };
 }
 const job = (fake, id) => fake.kept.get(id)?.value ?? null;
-
-// A door whose writes wait until `count` callers have read, so every caller reads before any writes: the race the
-// condition settles, made to happen every time.
-function afterAllRead(door, gate) {
-  return {
-    ...door,
-    async read(...args) { const answer = await door.read(...args); gate.read(); return answer; },
-    async *list(query) { for await (const record of door.list(query)) yield record; gate.read(); },
-    async write(...args) { await gate.all; return door.write(...args); },
-  };
-}
-function gateFor(count) {
-  let seen = 0; let open;
-  const all = new Promise(done => { open = done; });
-  return { all, read() { seen += 1; if (seen >= count) open(); } };
-}
 
 test('the shipped rules hold together: states once, no way out of a finished job, every action a row offers', () => {
   const rules = workRules(RULES);
@@ -63,9 +75,8 @@ test('the shipped rules hold together: states once, no way out of a finished job
   assert.deepEqual(new Set(rowOf(ROWS, 'tool:change-an-ai-job').input_schema.properties.action.enum), new Set(rules.actions));
   assert.throws(() => workRules({ ...RULES, transitions: [...RULES.transitions, { action: 'reopen', from: 'done', to: 'waiting' }] }), /terminal/);
   assert.throws(() => workRules({ ...RULES, transitions: [{ ...RULES.transitions[0], set: { taker: { from: 'clock' } } }] }), /not as, now, input or note/);
-  const models = ROWS.records.flatMap(row => row.payload.record_model?.kinds ?? []).filter(kind => kind.type === 'ai-job');
-  assert.equal(models.length, 1, 'the lifecycle owns one canonical replay-metadata declaration');
-  assert.deepEqual(models[0].guard_properties, { last_move: 'object', take_request: 'object' });
+  for (const row of ROWS.records.map(one => one.payload)) assert.equal(Object.hasOwn(row, 'record_model'), false, 'the store keeps the record shapes, not the tool row');
+  for (const row of ROWS.records.map(one => one.payload)) assert.equal(/records:(read|write|list|search)\b/.test(JSON.stringify(row)), false, `${row.id} names no records method`);
   for (const id of ['tool:take-an-ai-job', 'tool:change-an-ai-job', 'tool:finish-an-ai-job']) {
     const schema = rowOf(ROWS, id).input_schema;
     assert.equal(schema.additionalProperties, false);
@@ -98,44 +109,40 @@ test('a job is handed once per key, to a named AI or to any, and an unknown AI i
   } finally { await fake.close(); }
 });
 
-test('two AIs take the same waiting job at once: exactly one wins, the other is told and changes nothing', async () => {
+test('two AIs take the same waiting job at once: exactly one write is applied, the other is refused whole and changes nothing', async () => {
   const { fake, door } = await account();
   try {
     await handAJob({ input: { as: 'ai:east', job: 'Rename the photos', key: 'race' } }, { door: door(), now: at(0) });
-    const gate = gateFor(2);
-    const [north, south] = await Promise.all([
-      takeAJob({ input: { as: 'ai:north', id: 'ai-job:race' } }, { door: afterAllRead(door(), gate), now: at(1) }),
-      takeAJob({ input: { as: 'ai:south', id: 'ai-job:race' } }, { door: afterAllRead(door(), gate), now: at(1) }),
-    ]);
-    const winners = [north, south].filter(answer => answer.taken);
-    const losers = [north, south].filter(answer => !answer.taken);
-    assert.equal(winners.length, 1, 'exactly one take wins');
-    assert.equal(losers.length, 1);
-    assert.equal(losers[0].reason, 'changed');
-    assert.equal(losers[0].job.taker, winners[0].taken.taker, 'the loser sees who has it');
+    // Both AIs read the same store before either write lands.
+    const read = recordsOf(fake);
+    const north = await takeAJobRaw({ input: { as: 'ai:north', id: 'ai-job:race', records: read } }, { now: at(1) });
+    const south = await takeAJobRaw({ input: { as: 'ai:south', id: 'ai-job:race', records: read } }, { now: at(1) });
+    assert.equal(north.taken.status, 'taken');
+    assert.equal(south.taken.status, 'taken');
+    applyKeep(fake, north.keep);
+    assert.throws(() => applyKeep(fake, south.keep), { code: CHANGED }, 'the second take was conditioned on the waiting job it read, which is gone');
     assert.equal(job(fake, 'ai-job:race').status, 'taken');
-    assert.equal(job(fake, 'ai-job:race').taker, winners[0].taken.taker);
-    const writes = fake.calls.filter(call => call.method === 'records:write' && call.input.records[0].id === 'ai-job:race');
-    assert.equal(writes.length, 3, 'one send and two takes reached the door; the losing take changed nothing');
-    assert.deepEqual(writes.slice(1).map(call => call.input.records[0].expected.value.status), ['waiting', 'waiting'], 'both takes were conditioned on the waiting job they read');
+    assert.equal(job(fake, 'ai-job:race').taker, 'ai:north', 'the first take won');
+    assert.deepEqual(north.keep.map(write => write.expected.value.status), ['waiting']);
+    assert.deepEqual(south.keep.map(write => write.expected.value.status), ['waiting'], 'both takes were conditioned on the waiting job they read');
   } finally { await fake.close(); }
 });
 
-test('two AIs taking the next job at once get different jobs: the loser of the first tries the next', async () => {
+test('two AIs taking the next job at once: the loser of the write takes the next job when it decides again', async () => {
   const { fake, door } = await account();
   try {
     await handAJob({ input: { as: 'ai:east', job: 'First', key: 'one', priority: 7 } }, { door: door(), now: at(0) });
     await handAJob({ input: { as: 'ai:east', job: 'Second', key: 'two' } }, { door: door(), now: at(1) });
     await handAJob({ input: { as: 'ai:east', job: 'For east only', key: 'three', to: 'ai:east', priority: 9 } }, { door: door(), now: at(2) });
-    // Each taker lists the stored words of the two states a take leaves from (waiting, and taken or running past the
-    // stale time).
-    const gate = gateFor(6);
-    const [north, south] = await Promise.all([
-      takeAJob({ input: { as: 'ai:north' }, task: { request_key: 'n' } }, { door: afterAllRead(door(), gate), now: at(3) }),
-      takeAJob({ input: { as: 'ai:south' }, task: { request_key: 's' } }, { door: afterAllRead(door(), gate), now: at(3) }),
-    ]);
-    assert.deepEqual([north.taken.id, south.taken.id].sort(), ['ai-job:one', 'ai-job:two'], 'priority first, and never the job addressed to another AI');
-    assert.deepEqual([north.tried, south.tried].sort(), [1, 2], 'the loser of the first job tried the next one');
+    const read = recordsOf(fake);
+    const north = await takeAJobRaw({ input: { as: 'ai:north', records: read }, task: { request_key: 'n' } }, { now: at(3) });
+    const south = await takeAJobRaw({ input: { as: 'ai:south', records: read }, task: { request_key: 's' } }, { now: at(3) });
+    assert.equal(north.taken.id, 'ai-job:one', 'priority first, and never the job addressed to another AI');
+    assert.equal(south.taken.id, 'ai-job:one', 'from the same store both read the same first job');
+    applyKeep(fake, north.keep);
+    assert.throws(() => applyKeep(fake, south.keep), { code: CHANGED });
+    const again = await takeAJob({ input: { as: 'ai:south' }, task: { request_key: 's' } }, { door: door(), now: at(3) });
+    assert.equal(again.taken.id, 'ai-job:two', 'the next job, read fresh');
     assert.equal(job(fake, 'ai-job:three').status, 'waiting');
     assert.equal((await takeAJob({ input: { as: 'ai:north' } }, { door: door(), now: at(4) })).taken, null, 'nothing left for north');
     assert.equal((await takeAJob({ input: { as: 'ai:east', only_mine: true } }, { door: door(), now: at(4) })).taken.id, 'ai-job:three');
@@ -224,17 +231,11 @@ test('only the sender withdraws a waiting job; a move on a job that changed sinc
   try {
     await handAJob({ input: { as: 'ai:east', job: 'Book the room', key: 'room' } }, { door: door(), now: at(0) });
     await assert.rejects(moveAJob({ input: { as: 'ai:north', id: 'ai-job:room', action: 'withdraw' } }, { door: door(), now: at(1) }), /does not hold for ai:north/);
-    // North reads the job waiting; before its withdraw lands, south takes it.
-    const plain = door();
-    const meddling = {
-      ...plain,
-      async write(records, options) {
-        await takeAJob({ input: { as: 'ai:south', id: 'ai-job:room' } }, { door: door(), now: at(2) });
-        return plain.write(records, options);
-      },
-    };
-    const late = await moveAJob({ input: { as: 'ai:east', id: 'ai-job:room', action: 'withdraw', because: 'Not needed' } }, { door: meddling, now: at(2) });
-    assert.deepEqual({ moved: late.moved, reason: late.reason, status: late.job.status, taker: late.job.taker }, { moved: false, reason: 'changed', status: 'taken', taker: 'ai:south' });
+    // East reads the job waiting; before its withdraw lands, south takes it.
+    const read = recordsOf(fake);
+    const late = await moveRaw({ input: { as: 'ai:east', id: 'ai-job:room', action: 'withdraw', because: 'Not needed', records: read } }, { now: at(2) });
+    await takeAJob({ input: { as: 'ai:south', id: 'ai-job:room' } }, { door: door(), now: at(2) });
+    assert.throws(() => applyKeep(fake, late.keep), { code: CHANGED });
     assert.equal(job(fake, 'ai-job:room').status, 'taken', 'the withdraw changed nothing');
     await handAJob({ input: { as: 'ai:east', job: 'Order paper', key: 'paper' } }, { door: door(), now: at(3) });
     const withdrawn = await moveAJob({ input: { as: 'ai:east', id: 'ai-job:paper', action: 'withdraw', because: 'Found some' } }, { door: door(), now: at(4) });
@@ -342,7 +343,7 @@ test('a next-job take replays its original claim before a higher-priority arriva
   } finally { await fake.close(); }
 });
 
-test('a take replay reads the current claim after listing and refuses a replaced or removed claim', async () => {
+test('a take replay reads the current claim and refuses a replaced or removed claim', async () => {
   for (const change of ['replaced', 'same-ai-replaced', 'removed']) {
     const { fake, door } = await account();
     try {
@@ -350,21 +351,17 @@ test('a take replay reads the current claim after listing and refuses a replaced
       const request = { input: { as: 'ai:north' }, task: { request_key: 'replay-current-claim' } };
       const first = await takeAJob(request, { door: door(), now: at(1) });
       await handAJob({ input: { as: 'ai:east', key: 'fresh-current', job: 'Fresh urgent work', priority: 9 } }, { door: door(), now: at(2) });
-      const currentDoor = door();
-      let changed = false;
-      const racingDoor = { ...currentDoor, async read(type, id) {
-        if (!changed && id === first.taken.id) {
-          changed = true;
-          if (change === 'removed') fake.kept.delete(id);
-          else fake.kept.get(id).value = { ...job(fake, id), taken_at: at(4)().toISOString(), taker: change === 'same-ai-replaced' ? 'ai:north' : 'ai:south' };
-        }
-        return currentDoor.read(type, id);
-      } };
-      const replay = await takeAJob(request, { door: racingDoor, now: at(5) });
-      assert.equal(changed, true, 'ownership is re-read after the candidate listing');
-      assert.equal(replay.taken, null);
-      assert.equal(replay.reason, change === 'removed' ? 'gone' : 'changed');
-      assert.equal(job(fake, 'ai-job:fresh-current').status, 'waiting');
+      // The claim changes in the store before the replay reads it.
+      if (change === 'removed') fake.kept.delete(first.taken.id);
+      else fake.kept.get(first.taken.id).value = { ...job(fake, first.taken.id), taken_at: at(4)().toISOString(), taker: change === 'same-ai-replaced' ? 'ai:north' : 'ai:south' };
+      const replay = await takeAJob(request, { door: door(), now: at(5) });
+      if (change === 'removed') {
+        assert.equal(replay.taken.id, 'ai-job:fresh-current', 'a removed claim has nothing to replay: the next job is taken');
+      } else {
+        assert.equal(replay.taken, null);
+        assert.equal(replay.reason, 'changed');
+        assert.equal(job(fake, 'ai-job:fresh-current').status, 'waiting');
+      }
     } finally { await fake.close(); }
   }
 });
@@ -460,28 +457,36 @@ test('an owned bounded recovery resumes the same job; early and unrelated caller
   } finally { await fake.close(); }
 });
 
-test('each row runs as the container runs it, with exactly its own rights at the door', async () => {
+// The row runs as the Workshop runs it: its invoke argv through the engine's runner, with the input and task on standard input.
+function runRow(id, input, task = {}) {
+  const [node, runner, file, name] = rowOf(ROWS, id).invoke.argv;
+  const local = path => path.replace(/^\/opt\//, TOOLS);
+  const run = spawnSync(node, [local(runner), local(file), name], { input: JSON.stringify({ input, task }), encoding: 'utf8' });
+  return JSON.parse(run.stdout.trim().split('\n').at(-1));
+}
+
+test('each row runs as the container runs it, with its records in its input and its writes answered as keep', async () => {
   const records = [...AIS, { id: 'ai-job:row', type: 'ai-job', value: { kind: 'ai-job', status: 'waiting', job: 'From a row', to: null, from: 'ai:east', priority: 5, sent_at: '2026-11-01T20:00:00.000Z' } }];
-  const sent = await answerOf(rowOf(ROWS, 'tool:hand-a-job-to-an-ai'), { as: 'ai:east', job: 'Water the plants', to: 'ai:north' }, { records, task: { request_key: 'row-send' } });
-  assert.equal(sent.status, 0, JSON.stringify(sent));
-  assert.equal(sent.result.job_id, 'ai-job:row-send');
-  const taken = await answerOf(rowOf(ROWS, 'tool:take-an-ai-job'), { as: 'ai:north' }, { records, task: { request_key: 'row-take' } });
+  const sent = runRow('tool:hand-a-job-to-an-ai', { as: 'ai:east', job: 'Water the plants', to: 'ai:north', records }, { request_key: 'row-send' });
+  assert.equal(sent.result.job_id, 'ai-job:row-send', JSON.stringify(sent));
+  assert.equal(sent.result.keep[0].expected, null);
+  const taken = runRow('tool:take-an-ai-job', { as: 'ai:north', records }, { request_key: 'row-take' });
   assert.equal(taken.result.taken.id, 'ai-job:row');
-  assert.equal(taken.kept.find(record => record.id === 'ai-job:row').value.taker, 'ai:north');
-  const moved = await answerOf(rowOf(ROWS, 'tool:change-an-ai-job'), { as: 'ai:east', id: 'ai-job:row', action: 'withdraw' }, { records, task: { request_key: 'row-move' } });
+  assert.equal(taken.result.keep.find(record => record.id === 'ai-job:row').value.taker, 'ai:north');
+  const moved = runRow('tool:change-an-ai-job', { as: 'ai:east', id: 'ai-job:row', action: 'withdraw', records }, { request_key: 'row-move' });
   assert.equal(moved.result.to, 'withdrawn');
-  const work = await answerOf(rowOf(ROWS, 'tool:see-ai-work'), { status: 'waiting' }, { records });
+  const work = runRow('tool:see-ai-work', { status: 'waiting', records });
   assert.deepEqual(work.result.jobs.map(one => one.id), ['ai-job:row']);
-  const mine = await answerOf(rowOf(ROWS, 'tool:see-my-ais'), {}, { records });
+  const mine = runRow('tool:see-my-ais', { records });
   assert.deepEqual(mine.result.ais.map(one => one.id).sort(), ['ai:east', 'ai:north', 'ai:south']);
   const held = { ...records.at(-1), value: { ...records.at(-1).value, status: 'taken', taker: 'ai:north', taken_at: at(1)().toISOString(), acceptance: acceptance('From a row') } };
-  const checked = await answerOf(rowOf(ROWS, 'tool:finish-an-ai-job'), {
+  const checked = runRow('tool:finish-an-ai-job', {
     as: 'ai:north', id: held.id, taken_at: held.value.taken_at, result: 'Read the consumer',
     check: { target: held.value.acceptance.target, outcome: held.value.job, checked_at: at(2)().toISOString(), evidence: [{ ref: 'fabricated:claim', observation: 'The claim alone is never sufficient.' }] },
-  }, { records: [...AIS, held, { id: 'fixture:destination', type: 'fixture:consumer', value: { readable: true } }] });
-  assert.equal(checked.status, 0, JSON.stringify(checked));
-  assert.equal(checked.result.to, 'done');
-  assert.match(checked.result.job.check.consumer.identity, /^1f:/, 'the packaged action checked actual persisted consumer bytes');
+    records: [...AIS.filter(one => one.id !== 'ai:east'), held, { id: 'fixture:destination', type: 'fixture:consumer', value: { readable: true } }],
+  });
+  assert.equal(checked.result.to, 'done', JSON.stringify(checked));
+  assert.match(checked.result.job.check.consumer.identity, /^1f:/, 'the packaged action checked actual consumer bytes');
 });
 
 test('the most characters a result takes inline is one number: the rules\' most_chars for the result of finish and of fail is the maxLength the changing tool\'s schema states (the door\'s own limit, which trillion finish reads)', () => {

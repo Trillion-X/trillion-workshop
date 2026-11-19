@@ -182,32 +182,90 @@
         "label": "See my AIs: which are live, what each can do and how many jobs each holds",
         "status": "active",
         "job": "Show me my AIs and computers: which are live now, what each can do and how many jobs each is doing",
-        "description": "Reads the person's ai records and counts the ai-job records each AI holds as taker. Each AI comes back with its id and its whole stored value, every cell as kept (a caller names it from those cells by its own formula; no name is made here), whether it is live (seen within the minutes its record names, else read-data/ai-work.json live_minutes_default) and when it was last seen. Live AIs come first, then the person's order. `can` keeps only AIs that can do every word given (an AI that can do `any` can do all); `live_only` keeps only live ones. Nothing is written. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read.",
+        "description": "Reads the person's ai records and counts the ai-job records each AI holds as taker. Each AI comes back with its id and its whole stored value, every cell as kept (a caller names it from those cells by its own formula; no name is made here), whether it is live (seen within the minutes its record names, else read-data/ai-work.json live_minutes_default) and when it was last seen. Live AIs come first, then the person's order. `can` keeps only AIs that can do every word given (an AI that can do `any` can do all); `live_only` keeps only live ones. Nothing is written. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "can": { "type": "array", "items": { "type": "string", "minLength": 1 }, "description": "Words the AI must be able to do, such as [\"code\"]" },
-            "live_only": { "type": "boolean", "description": "Only AIs seen recently enough to count as live" },
-            "stored": {
-              "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of ai, ai-job, as this row's `stored` lists. What is not given is not there."
+            "can": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Words the AI must be able to do, such as [\"code\"]"
+            },
+            "live_only": {
+              "type": "boolean",
+              "description": "Only AIs seen recently enough to count as live"
+            },
+            "records": {
+              "type": "array",
+              "maxItems": 20000,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "description": "The person's records this run needs, read by the caller from the person's own store and handed in: [{id, type, value}] of ai and ai-job records (and, for a finish, the consumer record its saved acceptance names). The engine keeps none of them."
             }
           }
         },
         "output_schema": {
           "type": "object",
-          "required": ["ais"],
+          "required": [
+            "ais"
+          ],
           "properties": {
             "ais": {
               "type": "array",
               "items": {
                 "type": "object",
-                "required": ["id", "value", "live", "seen_at", "busy"],
+                "required": [
+                  "id",
+                  "value",
+                  "live",
+                  "seen_at",
+                  "busy"
+                ],
                 "properties": {
-                  "id": { "type": "string" }, "value": { "type": "object", "description": "The AI's whole stored record value, every cell as kept" },
-                  "live": { "type": "boolean" },
-                  "seen_at": { "type": ["string", "null"] }, "busy": { "type": "integer", "minimum": 0 }
+                  "id": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "object",
+                    "description": "The AI's whole stored record value, every cell as kept"
+                  },
+                  "live": {
+                    "type": "boolean"
+                  },
+                  "seen_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "busy": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
                 }
               }
             }
@@ -218,13 +276,32 @@
           "internet": false,
           "workdir": "/opt/hand-work-to-ais",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/hand-work-to-ais/read-data/ai-work.mjs", "seeMyAis"],
-          "stdin": { "input": { "fill": { "from": "input" } }, "task": { "fill": { "from": "task" } } },
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hand-work-to-ais/read-data/ai-work.mjs",
+            "seeMyAis"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
           "files": {
             "package_files": [
               {
                 "package": "formula-engine",
-                "paths": ["rules", "built-stored-bytes"],
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
@@ -265,7 +342,9 @@
                 "at": "/opt/judge-words"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -296,148 +375,79 @@
           }
         },
         "result_selector": "$.result",
-        "needs": { "expected_seconds": 10, "network_egress": false, "memory_mb": 256 },
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
         "licence_class": "licence:maker-own",
-        "placements": ["placement:small-container"],
+        "placements": [
+          "placement:small-container"
+        ],
         "maker": "maker:hand-work-to-ais",
-        "record_model": {
-          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
-          "kinds": [
-            {
-              "type": "ai",
-              "table": true,
-              "properties": {
-                "label": "text",
-                "kind": "text",
-                "runs_on": "object",
-                "agent_id": "text",
-                "can": "texts",
-                "order": "number",
-                "order_set_by_person": "boolean",
-                "live": "object",
-                "sign_ins": "texts",
-                "tool_id": "text",
-                "model": "text",
-                "ceiling": "object"
-              },
-              "parts": [
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "can": [
+                "code"
+              ],
+              "records": [
                 {
-                  "role": "agent",
-                  "path": [
-                    "agent_id"
-                  ]
+                  "id": "ai:sample-sender",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sample-sender",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 1,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
                 },
                 {
-                  "role": "runs on",
-                  "path": [
-                    "runs_on",
-                    "device"
-                  ]
+                  "id": "ai:sample-taker",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sample-taker",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 2,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
+                },
+                {
+                  "id": "ai-job:sample-1",
+                  "type": "ai-job",
+                  "value": {
+                    "kind": "ai-job",
+                    "status": "taken",
+                    "job": "Write a made-up sample report",
+                    "to": null,
+                    "from": "ai:sample-sender",
+                    "priority": 5,
+                    "sent_at": "2026-11-03T00:00:00.000Z",
+                    "taker": "ai:sample-taker",
+                    "taken_at": "2026-11-03T00:05:00.000Z"
+                  }
                 }
-              ],
-              "_read_by": "src/ais.mjs: one of the person's AIs (a chat, a CLI on a computer, a model on a device, a connected account); setup, routing, find_agents and the AI screens read only these"
-            },
-            {
-              "type": "device",
-              "table": true,
-              "properties": {
-                "label": "text",
-                "first_seen_at": "text"
-              },
-              "_read_by": "src/ais.mjs: a computer or phone of the person's an AI runs on; what holds it under runs on is what runs there"
-            },
-            {
-              "type": "agent-card",
-              "guard_properties": {
-                "activation_binding": "object",
-                "agent_id": "text",
-                "capacity_claim": "object",
-                "delivered": "number",
-                "delivery": "object",
-                "description": "text",
-                "finished": "number",
-                "first_published_at": "text",
-                "found_by": "object",
-                "harness": "text",
-                "kind": "text",
-                "last_delivered_at": "text",
-                "last_seen_at": "text",
-                "last_undelivered_at": "text",
-                "model": "text",
-                "name": "text",
-                "published_at": "text",
-                "reader": "text",
-                "runs": "list",
-                "skills": "list",
-                "source_id": "text",
-                "takes_any_by_name": "boolean",
-                "takes_work": "boolean",
-                "where": "text"
-              }
+              ]
             }
-          ],
-          "indexes": [
-            {
-              "type": "agent-card",
-              "name": "reader",
-              "paths": [
-                [
-                  "found_by",
-                  "reader"
-                ],
-                [
-                  "found_by",
-                  "takes_work"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs cardIdsOf"
-            },
-            {
-              "type": "agent-card",
-              "name": "taker",
-              "paths": [
-                [
-                  "found_by",
-                  "takes_work"
-                ],
-                [
-                  "found_by",
-                  "source_id"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs takerIds, cardsForSource, anyTaker"
-            },
-            {
-              "type": "agent-card",
-              "name": "reaches",
-              "paths": [
-                [
-                  "found_by",
-                  "reaches"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs reachableCards"
-            }
-          ],
-          "harness_hooks": {
-            "agent_card": "agent-card"
           }
-        },
-        "verify": [
-     {"kind":"sample-run","input":{"can":["code"]},"records":[{"id":"ai:sample-sender","type":"ai","value":{"label":"Sample sample-sender","can":["code"],"order":1,"live":{"seen_at":"2026-11-03T00:00:00.000Z","minutes":10}}},{"id":"ai:sample-taker","type":"ai","value":{"label":"Sample sample-taker","can":["code"],"order":2,"live":{"seen_at":"2026-11-03T00:00:00.000Z","minutes":10}}},{"id":"ai-job:sample-1","type":"ai-job","value":{"kind":"ai-job","status":"taken","job":"Write a made-up sample report","to":null,"from":"ai:sample-sender","priority":5,"sent_at":"2026-11-03T00:00:00.000Z","taker":"ai:sample-taker","taken_at":"2026-11-03T00:05:00.000Z"}}]}
-    ],
+        ],
         "stored": [
           {
-            "kind": "ai",
-            "operations": [
-              "records:list"
-            ]
+            "kind": "ai"
           },
           {
-            "kind": "ai-job",
-            "operations": [
-              "records:list"
-            ]
+            "kind": "ai-job"
           }
         ]
       }
@@ -621,74 +631,193 @@
         "label": "Hand a job to one of my AIs, or to whichever takes it first",
         "status": "active",
         "job": "Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take",
-        "description": "Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent. The write is conditioned on the record being absent, so the same key sends the job once: sending it again answers already-there with the job as it is. `key` defaults to the run's request key. An AI named in `to` must be one of the person's ai records. source {kind, ref} preserves incoming provenance; obligations [{id, outcome}] declare independently checked parts. Reuse the incoming stable key and existing source job; do not enqueue duplicate work. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+        "description": "Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent. The write is conditioned on the record being absent, so the same key sends the job once: sending it again answers already-there with the job as it is. `key` defaults to the run's request key. An AI named in `to` must be one of the person's ai records. source {kind, ref} preserves incoming provenance; obligations [{id, outcome}] declare independently checked parts. Reuse the incoming stable key and existing source job; do not enqueue duplicate work. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
         "input_schema": {
           "type": "object",
-          "required": ["as", "job"],
+          "required": [
+            "as",
+            "job"
+          ],
           "additionalProperties": false,
           "properties": {
-            "acceptance": {"type": "object", "required": ["outcome", "target", "rules"], "additionalProperties": false, "properties": {"outcome": {"type": "string", "minLength": 1}, "target": {"type": "object", "required": ["type", "id"], "additionalProperties": false, "properties": {"type": {"type": "string", "minLength": 1}, "id": {"type": "string", "minLength": 1}}}, "rules": {"type": "array", "minItems": 1, "maxItems": 65, "items": {"type": "object", "required": ["id", "path"], "description": "A shared judge-words rule directly testing persisted consumer data; id outcome or a saved obligation id."}}}},
-            "obligations": {
-                "type": "array",
-                "minItems": 1,
-                "maxItems": 64,
-                "items": {
+            "acceptance": {
+              "type": "object",
+              "required": [
+                "outcome",
+                "target",
+                "rules"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "target": {
                   "type": "object",
                   "required": [
-                    "id",
-                    "outcome"
+                    "type",
+                    "id"
                   ],
                   "additionalProperties": false,
                   "properties": {
-                    "id": {
+                    "type": {
                       "type": "string",
                       "minLength": 1
                     },
-                    "outcome": {
+                    "id": {
                       "type": "string",
                       "minLength": 1
                     }
                   }
+                },
+                "rules": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 65,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "path"
+                    ],
+                    "description": "A shared judge-words rule directly testing persisted consumer data; id outcome or a saved obligation id."
+                  }
                 }
-              },
-            "source": {
+              }
+            },
+            "obligations": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 64,
+              "items": {
                 "type": "object",
                 "required": [
-                  "kind",
-                  "ref"
+                  "id",
+                  "outcome"
                 ],
                 "additionalProperties": false,
                 "properties": {
-                  "kind": {
+                  "id": {
                     "type": "string",
                     "minLength": 1
                   },
-                  "ref": {
+                  "outcome": {
                     "type": "string",
                     "minLength": 1
                   }
                 }
-              },
-            "as": { "type": "string", "pattern": "^ai:", "description": "The sending AI's record id" },
-            "job": { "type": "string", "minLength": 1, "description": "What the AI is to do, in plain words" },
-            "to": { "type": ["string", "null"], "pattern": "^ai:", "description": "The AI it is for; left out or null, any AI" },
-            "priority": { "type": "integer", "minimum": 0, "maximum": 9 },
-            "outcome": { "type": "string", "minLength": 1, "description": "What done looks like" },
-            "label": { "type": "string", "minLength": 1, "description": "A short name for the job" },
-            "key": { "type": "string", "pattern": "^[A-Za-z0-9._:-]+$", "description": "The job's key; the same key sends it once" },
-            "stored": {
+              }
+            },
+            "source": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of ai, ai-job, as this row's `stored` lists. What is not given is not there."
+              "required": [
+                "kind",
+                "ref"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ref": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "as": {
+              "type": "string",
+              "pattern": "^ai:",
+              "description": "The sending AI's record id"
+            },
+            "job": {
+              "type": "string",
+              "minLength": 1,
+              "description": "What the AI is to do, in plain words"
+            },
+            "to": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^ai:",
+              "description": "The AI it is for; left out or null, any AI"
+            },
+            "priority": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9
+            },
+            "outcome": {
+              "type": "string",
+              "minLength": 1,
+              "description": "What done looks like"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A short name for the job"
+            },
+            "key": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._:-]+$",
+              "description": "The job's key; the same key sends it once"
+            },
+            "records": {
+              "type": "array",
+              "maxItems": 20000,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "description": "The person's records this run needs, read by the caller from the person's own store and handed in: [{id, type, value}] of ai and ai-job records (and, for a finish, the consumer record its saved acceptance names). The engine keeps none of them."
             }
           }
         },
         "output_schema": {
           "type": "object",
-          "required": ["job_id", "status", "job"],
+          "required": [
+            "job_id",
+            "status",
+            "job"
+          ],
           "properties": {
-            "job_id": { "type": "string" },
-            "status": { "type": "string", "enum": ["written", "already-there"] },
-            "job": { "type": ["object", "null"] },
+            "job_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "written",
+                "already-there"
+              ]
+            },
+            "job": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
             "keep": {
               "type": "array",
               "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
@@ -700,13 +829,32 @@
           "internet": false,
           "workdir": "/opt/hand-work-to-ais",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/hand-work-to-ais/read-data/ai-work.mjs", "handAJob"],
-          "stdin": { "input": { "fill": { "from": "input" } }, "task": { "fill": { "from": "task" } } },
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hand-work-to-ais/read-data/ai-work.mjs",
+            "handAJob"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
           "files": {
             "package_files": [
               {
                 "package": "formula-engine",
-                "paths": ["rules", "built-stored-bytes"],
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
@@ -747,7 +895,9 @@
                 "at": "/opt/judge-words"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -778,1136 +928,65 @@
           }
         },
         "result_selector": "$.result",
-        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 256
+        },
         "licence_class": "licence:maker-own",
-        "placements": ["placement:small-container"],
+        "placements": [
+          "placement:small-container"
+        ],
         "maker": "maker:hand-work-to-ais",
-        "record_model": {
-          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
-          "kinds": [
-            {
-              "type": "ai-job",
-              "guard_properties": {
-                "last_move": "object",
-                "take_request": "object"
-              },
-              "_read_by": "hand-work-to-ais/read-data/ai-work.mjs: lifecycle replay metadata generated from the authenticated tool task request key, action, caller and input identity; take_request retains the original claim across progress notes and is checked against the current taker and taken_at. No tool input can supply these metadata fields."
-            },
-            {
-              "type": "agent-delivery",
-              "guard_properties": {
-                "agent_id": "text",
-                "attempts": "number",
-                "created_at": "text",
-                "delivered_at": "text",
-                "event": "object",
-                "event_id": "text",
-                "found_by": "object",
-                "last_attempt_at": "text",
-                "last_error": "text",
-                "next_at": "text",
-                "said": "text",
-                "state": "text"
-              }
-            },
-            {
-              "type": "agent-delivery-secret",
-              "guard_properties": {
-                "found_by": "object",
-                "secret": "text"
-              }
-            },
-            {
-              "type": "agent-handoff",
-              "erasable": [
-                "job",
-                "said",
-                "asked",
-                [
-                  "input",
-                  "said"
-                ]
-              ],
-              "erasable_key": [
-                "input",
-                "arrived",
-                "message_id"
-              ],
-              "erase_with": [
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "as": "ai:sample-sender",
+              "job": "Write a made-up sample report",
+              "to": "ai:sample-taker",
+              "key": "sample-1",
+              "records": [
                 {
-                  "field": "result_record",
-                  "type": "agent-handoff-result"
+                  "id": "ai:sample-sender",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sample-sender",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 1,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
                 },
                 {
-                  "field": "corrections_record",
-                  "type": "agent-handoff-result"
-                },
-                {
-                  "type": "notice-list",
-                  "index": "handoff",
-                  "equal": "{key}"
-                },
-                {
-                  "field": [
-                    "input",
-                    "arrived",
-                    "message_id"
-                  ],
-                  "type": "message"
-                }
-              ],
-              "guard_properties": {
-                "asked": "object",
-                "attempts": "list",
-                "blocked_kind": "text",
-                "case_id": "text",
-                "closing": "object",
-                "corrections": "objects",
-                "corrections_record": "text",
-                "depends_on": "texts",
-                "done_when_rule": "object",
-                "effects": "object",
-                "finished_at": "text",
-                "found_by": "object",
-                "from_agent": "text",
-                "generation": "number",
-                "handed_at": "text",
-                "handed_by_reader": "text",
-                "handoff_id": "text",
-                "hold_minutes": "number",
-                "hold_until": "text",
-                "in_the_way": "text",
-                "in_the_way_at": "text",
-                "in_the_way_by": "text",
-                "input": "object",
-                "job": "text",
-                "max_attempts": "number",
-                "time_budget_seconds": "number",
-                "notice": "text",
-                "once_per": "text",
-                "outcome": "text",
-                "parent_handoff_id": "text",
-                "preferred_agent": "text",
-                "priority": "number",
-                "recovery": "text",
-                "released_because": "text",
-                "result": "any",
-                "result_record": "text",
-                "result_shape": "object",
-                "result_source_receipt": "object",
-                "review_at": "text",
-                "revision": "number",
-                "said": "text",
-                "schedule": "text",
-                "source_active_at": "text",
-                "source_return": "object",
-                "state": "text",
-                "success_condition": "text",
-                "summary": "text",
-                "take_by": "text",
-                "taken_at": "text",
-                "taken_by": "text",
-                "target": "object",
-                "to_agent": "text",
-                "waits_open": "number",
-                "wakes": "number",
-                "withdrawal": "object"
-              }
-            },
-            {
-              "type": "agent-handoff-result",
-              "erasable": [
-                "json"
-              ],
-              "guard_properties": {
-                "json": "text",
-                "json_encoding": "text",
-                "json_byte_length": "number"
-              },
-              "_read_by": "src/agent-records.mjs: complete answers and attributed correction history as sealed scalar JSON, referenced by their small handoff; result reopen removes the result payload, correction history persists, and handoff erasure erases both payloads"
-            },
-            {
-              "type": "agent-held-work",
-              "guard_properties": {
-                "found_by": "object",
-                "holds": "object",
-                "ids": "list"
-              }
-            },
-            {
-              "type": "agent-held-work-state",
-              "guard_properties": {
-                "enabled": "boolean",
-                "found_by": "object"
-              }
-            },
-            {
-              "type": "agent-review-mark",
-              "guard_properties": {
-                "after": "text",
-                "bestAt": "text",
-                "bestId": "text",
-                "cursor": "object",
-                "dirty": "boolean",
-                "done": "boolean",
-                "found_by": "object",
-                "index": "text",
-                "revision": "number",
-                "through": "text"
-              }
-            },
-            {
-              "type": "agent-schedule-state",
-              "guard_properties": {
-                "found_by": "object",
-                "revision": "number"
-              }
-            },
-            {
-              "type": "asked",
-              "parts": [
-                {
-                  "role": "moment",
-                  "path": [
-                    "moment"
-                  ]
-                }
-              ],
-              "_read_by": "src/queued-work.mjs",
-              "guard_properties": {
-                "at": "text",
-                "context": "object",
-                "item": "text",
-                "job": "text",
-                "job_id": "text",
-                "label": "text",
-                "moment": "text",
-                "priority": "number",
-                "said": "text",
-                "steps": "objects"
-              }
-            }
-          ],
-          "indexes": [
-            {
-              "type": "asked",
-              "name": "at",
-              "paths": [
-                [
-                  "at"
-                ]
-              ],
-              "_read_by": "src/moments.mjs gatherMoment (the recordings asked about in a range)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "time",
-              "backfill": "handoff-time-projection-v1",
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "found_by",
-                  "handed_at"
-                ]
-              ],
-              "carry": [
-                [
-                  "handoff_id"
-                ],
-                [
-                  "handed_at"
-                ],
-                [
-                  "state"
-                ],
-                [
-                  "from_agent"
-                ],
-                [
-                  "to_agent"
-                ],
-                [
-                  "taken_by"
-                ],
-                [
-                  "preferred_agent"
-                ],
-                [
-                  "in_the_way_by"
-                ],
-                [
-                  "finished_at"
-                ],
-                [
-                  "result_record"
-                ]
-              ],
-              "carry_presence": [
-                [
-                  "result",
-                  "withdrawn_by"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs openHandoffs, newestOpen, finishedHandoffs (exact scalar and withdrawal-presence projections from descriptor-attested index payloads; legacy and unsupported requests retain record projection)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "newest",
-              "backfill": "handoff-newest-task-map-v1",
-              "paths": [
-                [
-                  "found_by",
-                  "handed_at"
-                ]
-              ],
-              "carry": [
-                [
-                  "parent_handoff_id"
-                ],
-                [
-                  "case_id"
-                ],
-                [
-                  "state"
-                ],
-                [
-                  "input",
-                  "arrived",
-                  "message_id"
-                ],
-                [
-                  "input",
-                  "arrived",
-                  "asked_id"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs newestHandoffs ({ taskMap: true } answers what the task map draws of each job from the entries alone: a job's words and results are never read)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "notice_waiting",
-              "backfill": "work-notifications-v1",
-              "paths": [
-                [
-                  "state"
-                ],
-                [
-                  "handed_at"
-                ],
-                [
-                  "from_agent"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs notificationWork (eligible waiting work by its notification time)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "notice_waiting_origin",
-              "backfill": "work-notifications-origin-v1",
-              "paths": [
-                [
-                  "state"
-                ],
-                [
-                  "from_agent"
-                ],
-                [
-                  "handed_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs notificationWork: newest entries per non-excluded sender group, skipping sender history by prefix"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "notice_taken",
-              "backfill": "work-notifications-v1",
-              "paths": [
-                [
-                  "state"
-                ],
-                [
-                  "taken_at"
-                ],
-                [
-                  "from_agent"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs notificationWork (eligible taken work by its notification time)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "notice_taken_origin",
-              "backfill": "work-notifications-origin-v1",
-              "paths": [
-                [
-                  "state"
-                ],
-                [
-                  "from_agent"
-                ],
-                [
-                  "taken_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs notificationWork: newest entries per non-excluded sender group, skipping sender history by prefix"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "notice_finished",
-              "backfill": "work-notifications-v1",
-              "paths": [
-                [
-                  "state"
-                ],
-                [
-                  "finished_at"
-                ],
-                [
-                  "from_agent"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs notificationWork (eligible finished work by its notification time)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "notice_finished_origin",
-              "backfill": "work-notifications-origin-v1",
-              "paths": [
-                [
-                  "state"
-                ],
-                [
-                  "from_agent"
-                ],
-                [
-                  "finished_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs notificationWork: newest entries per non-excluded sender group, skipping sender history by prefix"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "queue",
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "found_by",
-                  "to_agent"
-                ],
-                [
-                  "found_by",
-                  "rank"
-                ],
-                [
-                  "found_by",
-                  "handed_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs openQueue"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "pending",
-              "paths": [
-                [
-                  "state"
-                ],
-                [
-                  "found_by",
-                  "to_agent"
-                ],
-                [
-                  "found_by",
-                  "rank"
-                ],
-                [
-                  "found_by",
-                  "handed_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs pendingAddressedTo, waitingCount"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "pending_reader",
-              "backfill": "pending-reader-greeting-v1",
-              "paths": [
-                [
-                  "found_by",
-                  "to_reader"
-                ],
-                [
-                  "found_by",
-                  "rank"
-                ],
-                [
-                  "found_by",
-                  "handed_at"
-                ]
-              ],
-              "carry": [["job"], ["state"], ["from_agent"]],
-              "carry_presence": [],
-              "_read_by": "src/agent-records.mjs pendingForReader (waiting work addressed to any card of one reader, in the order it is taken)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "open_rank",
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "found_by",
-                  "rank"
-                ],
-                [
-                  "found_by",
-                  "handed_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs ownWorkWaiting (the oldest open work at or above a priority, without walking every open job)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "dependents",
-              "where": [
-                {
-                  "path": [
-                    "found_by",
-                    "dep_ids"
-                  ],
-                  "not": [
-                    null,
-                    ""
-                  ]
-                }
-              ],
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "found_by",
-                  "dep_ids"
-                ],
-                [
-                  "found_by",
-                  "handed_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs dependentsOf (the open jobs waiting on other work, with the ids they wait on, so the ones waiting on one job are the only ones read)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "addressed",
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "found_by",
-                  "to_agent"
-                ],
-                [
-                  "found_by",
-                  "handed_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs openAddressedTo"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "held",
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "found_by",
-                  "taken_by"
-                ],
-                [
-                  "found_by",
-                  "handed_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs heldBy"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "source",
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "found_by",
-                  "source_id"
-                ],
-                [
-                  "found_by",
-                  "to_agent"
-                ],
-                [
-                  "found_by",
-                  "handed_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs unaddressedForSource"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "preferred",
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "found_by",
-                  "prefer_until"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs openQueue (work only preferred for an agent)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "takeable",
-              "paths": [
-                [
-                  "found_by",
-                  "take_from"
-                ],
-                [
-                  "found_by",
-                  "rank"
-                ],
-                [
-                  "found_by",
-                  "handed_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs takeableEntries (the work addressed to nobody that an agent may take: ready for anyone from the start under '', the rest by the time it becomes ready, each in the order it is taken; work stuck, waiting on other work, named to an agent or closing has no entry)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "takeable_source",
-              "paths": [
-                [
-                  "found_by",
-                  "take_source"
-                ],
-                [
-                  "found_by",
-                  "own_from"
-                ],
-                [
-                  "found_by",
-                  "rank"
-                ],
-                [
-                  "found_by",
-                  "handed_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs takeableEntries (the same work for an owner of the chat it came from, who may take it before its silence window ends)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "lapsing",
-              "paths": [
-                [
-                  "found_by",
-                  "to_agent"
-                ],
-                [
-                  "found_by",
-                  "take_by"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs takeable.lapsed (open work whose asker stops waiting at take_by, per addressee, oldest first)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "lapse_at",
-              "paths": [
-                [
-                  "found_by",
-                  "take_by"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs takeable.earliest (the earliest take_by of any open work, the first entry: one key read whatever the index holds)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "depends",
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "found_by",
-                  "depends"
-                ],
-                [
-                  "found_by",
-                  "handed_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs dependentsOf"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "parent",
-              "paths": [
-                [
-                  "parent_handoff_id"
-                ],
-                [
-                  "found_by",
-                  "handed_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs handedOnFrom, handedOnFromMany"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "message",
-              "paths": [
-                [
-                  "input",
-                  "arrived",
-                  "message_id"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs fromMessage"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "asked",
-              "paths": [
-                [
-                  "input",
-                  "arrived",
-                  "asked_id"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs fromMessage"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "blocked-open",
-              "backfill": "handoff-blocked-open",
-              "where": [
-                {
-                  "path": [
-                    "in_the_way"
-                  ],
-                  "not": [
-                    null,
-                    ""
-                  ]
-                },
-                {
-                  "path": [
-                    "state"
-                  ],
-                  "not": [
-                    "finished"
-                  ]
-                }
-              ],
-              "paths": [
-                [
-                  "handed_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs blockedOpen (work something stands in the way of, by the time handed; only unfinished jobs with blocking words have entries)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "home-origin",
-              "retired": true,
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "handed_at"
-                ],
-                [
-                  "state"
-                ],
-                [
-                  "in_the_way"
-                ],
-                [
-                  "parent_handoff_id"
-                ],
-                [
-                  "said"
-                ],
-                [
-                  "from_agent"
-                ]
-              ],
-              "_read_by": "nothing: kept no more since `said` is erasable (a key's text would hold its words); named only so erasing a job takes out the key it built before (record-log-store retiredKeysOf)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "home-open",
-              "backfill": "handoff-home-open",
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "handed_at"
-                ],
-                [
-                  "state"
-                ],
-                [
-                  "in_the_way"
-                ],
-                [
-                  "parent_handoff_id"
-                ],
-                [
-                  "from_agent"
-                ]
-              ],
-              "carry": [
-                [
-                  "said"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs homeOpen (the open work as Home's workstreams card draws it, from the entries alone: every row from its key, its words (`said`, erasable) carried sealed in the entry's value and opened as read; no job is read to draw a row)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "review",
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "found_by",
-                  "review_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs nextReviewAt, dueReviews"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "review_next",
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "found_by",
-                  "review_depends"
-                ],
-                [
-                  "found_by",
-                  "review_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs nextReviewAt once every open job carries review_depends (review_ready's twin without the jobs that wait on work still open, which are woken by the write that finishes that work, so the earliest review is never found by walking them)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "review_ready",
-              "backfill": "review-ready-v1",
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "found_by",
-                  "depends"
-                ],
-                [
-                  "found_by",
-                  "review_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs nextReviewAt (the earliest review of work waiting on nothing, and of the few jobs that wait on other work)"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "wake_timing",
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "found_by",
-                  "wake_to"
-                ],
-                [
-                  "found_by",
-                  "rank"
-                ],
-                [
-                  "found_by",
-                  "wake_from"
-                ],
-                [
-                  "handoff_id"
-                ],
-                [
-                  "found_by",
-                  "handed_at"
-                ],
-                [
-                  "found_by",
-                  "state"
-                ],
-                [
-                  "found_by",
-                  "taken_by"
-                ],
-                [
-                  "found_by",
-                  "generation"
-                ],
-                [
-                  "found_by",
-                  "hold_until"
-                ],
-                [
-                  "found_by",
-                  "in_the_way"
-                ],
-                [
-                  "found_by",
-                  "in_the_way_by"
-                ],
-                [
-                  "found_by",
-                  "in_the_way_at"
-                ],
-                [
-                  "found_by",
-                  "blocked_kind"
-                ],
-                [
-                  "found_by",
-                  "depth"
-                ],
-                [
-                  "found_by",
-                  "source_id"
-                ],
-                [
-                  "found_by",
-                  "active_at"
-                ],
-                [
-                  "found_by",
-                  "silence"
-                ],
-                [
-                  "found_by",
-                  "from_person"
-                ],
-                [
-                  "found_by",
-                  "prefer_until"
-                ],
-                [
-                  "found_by",
-                  "needs"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs scheduledWake, openScheduledHandoffs (an open job's timing facts in due-time order, per addressee and priority, for the own AI's clock)",
-              "backfill": "handoff-wake-origin"
-            },
-            {
-              "type": "agent-handoff",
-              "name": "wake_person",
-              "paths": [
-                [
-                  "found_by",
-                  "open"
-                ],
-                [
-                  "found_by",
-                  "wake_to"
-                ],
-                [
-                  "found_by",
-                  "rank"
-                ],
-                [
-                  "found_by",
-                  "wake_from"
-                ],
-                [
-                  "handoff_id"
-                ],
-                [
-                  "found_by",
-                  "handed_at"
-                ],
-                [
-                  "found_by",
-                  "state"
-                ],
-                [
-                  "found_by",
-                  "taken_by"
-                ],
-                [
-                  "found_by",
-                  "generation"
-                ],
-                [
-                  "found_by",
-                  "hold_until"
-                ],
-                [
-                  "found_by",
-                  "in_the_way"
-                ],
-                [
-                  "found_by",
-                  "in_the_way_by"
-                ],
-                [
-                  "found_by",
-                  "in_the_way_at"
-                ],
-                [
-                  "found_by",
-                  "blocked_kind"
-                ],
-                [
-                  "found_by",
-                  "depth"
-                ],
-                [
-                  "found_by",
-                  "source_id"
-                ],
-                [
-                  "found_by",
-                  "active_at"
-                ],
-                [
-                  "found_by",
-                  "silence"
-                ],
-                [
-                  "found_by",
-                  "from_person"
-                ],
-                [
-                  "found_by",
-                  "prefer_until"
-                ],
-                [
-                  "found_by",
-                  "needs"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs scheduledWake (person-origin jobs exempt from the daily cap at any priority, in due-time order; background backfill builds older checkpoint keys before readiness)",
-              "backfill": "handoff-wake-origin",
-              "where": [
-                {
-                  "path": [
-                    "found_by",
-                    "from_person"
-                  ],
-                  "not": [
-                    0
-                  ]
+                  "id": "ai:sample-taker",
+                  "type": "ai",
+                  "value": {
+                    "label": "Sample sample-taker",
+                    "can": [
+                      "code"
+                    ],
+                    "order": 2,
+                    "live": {
+                      "seen_at": "2026-11-03T00:00:00.000Z",
+                      "minutes": 10
+                    }
+                  }
                 }
               ]
-            },
-            {
-              "type": "agent-delivery",
-              "name": "due",
-              "paths": [
-                [
-                  "found_by",
-                  "state"
-                ],
-                [
-                  "found_by",
-                  "next_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs dueDeliveries, nextDeliveryAt"
-            },
-            {
-              "type": "agent-delivery",
-              "name": "subject",
-              "paths": [
-                [
-                  "found_by",
-                  "subject_id"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs deliveriesFor"
-            },
-            {
-              "type": "agent-delivery",
-              "name": "agent",
-              "paths": [
-                [
-                  "found_by",
-                  "agent_id"
-                ],
-                [
-                  "found_by",
-                  "state"
-                ],
-                [
-                  "found_by",
-                  "created_at"
-                ]
-              ],
-              "_read_by": "src/agent-records.mjs deadDeliveries, waitingFor, streamWaiting"
             }
-          ]
-        },
-        "verify": [
-     {"kind":"sample-run","input":{"as":"ai:sample-sender","job":"Write a made-up sample report","to":"ai:sample-taker","key":"sample-1"},"records":[{"id":"ai:sample-sender","type":"ai","value":{"label":"Sample sample-sender","can":["code"],"order":1,"live":{"seen_at":"2026-11-03T00:00:00.000Z","minutes":10}}},{"id":"ai:sample-taker","type":"ai","value":{"label":"Sample sample-taker","can":["code"],"order":2,"live":{"seen_at":"2026-11-03T00:00:00.000Z","minutes":10}}}]}
-    ],
+          }
+        ],
         "stored": [
           {
-            "kind": "ai",
-            "operations": [
-              "records:read"
-            ]
+            "kind": "ai"
           },
           {
-            "kind": "ai-job",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "ai-job"
           }
         ]
       }
@@ -2091,29 +1170,86 @@
         "label": "See the work handed between my AIs: one job, or the newest that match",
         "status": "active",
         "job": "Show me the jobs my AIs handed each other: what is waiting, who took what, and what each finished with",
-        "description": "With `id`, reads that one ai-job record. Otherwise reads the person's ai-job records, kept to those whose status, to, from or taker equal what is given, and answers the newest `limit` of them by when they were sent (read-data/ai-work.json jobs_shown), with `more` true when more matched. A job comes back whole: its status, words, sender, the AI it is for, priority, outcome, taker and when taken, what blocks it, who gave it back and why, and its result and summary. Nothing is written. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read.",
+        "description": "With `id`, reads that one ai-job record. Otherwise reads the person's ai-job records, kept to those whose status, to, from or taker equal what is given, and answers the newest `limit` of them by when they were sent (read-data/ai-work.json jobs_shown), with `more` true when more matched. A job comes back whole: its status, words, sender, the AI it is for, priority, outcome, taker and when taken, what blocks it, who gave it back and why, and its result and summary. Nothing is written. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "id": { "type": "string", "pattern": "^ai-job:", "description": "One job's record id" },
-            "status": { "type": "string", "description": "A status in read-data/ai-work.json states, such as waiting or taken" },
-            "to": { "type": "string", "pattern": "^ai:" },
-            "from": { "type": "string", "pattern": "^ai:" },
-            "taker": { "type": "string", "pattern": "^ai:" },
-            "limit": { "type": "integer", "minimum": 1, "maximum": 200 },
-            "stored": {
-              "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of ai-job, as this row's `stored` lists. What is not given is not there."
+            "id": {
+              "type": "string",
+              "pattern": "^ai-job:",
+              "description": "One job's record id"
+            },
+            "status": {
+              "type": "string",
+              "description": "A status in read-data/ai-work.json states, such as waiting or taken"
+            },
+            "to": {
+              "type": "string",
+              "pattern": "^ai:"
+            },
+            "from": {
+              "type": "string",
+              "pattern": "^ai:"
+            },
+            "taker": {
+              "type": "string",
+              "pattern": "^ai:"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "records": {
+              "type": "array",
+              "maxItems": 20000,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "description": "The person's records this run needs, read by the caller from the person's own store and handed in: [{id, type, value}] of ai and ai-job records (and, for a finish, the consumer record its saved acceptance names). The engine keeps none of them."
             }
           }
         },
         "output_schema": {
           "type": "object",
-          "required": ["jobs", "more"],
+          "required": [
+            "jobs",
+            "more"
+          ],
           "properties": {
-            "jobs": { "type": "array", "items": { "type": "object", "required": ["id", "status"] } },
-            "more": { "type": "boolean" }
+            "jobs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "status"
+                ]
+              }
+            },
+            "more": {
+              "type": "boolean"
+            }
           }
         },
         "invoke": {
@@ -2121,13 +1257,32 @@
           "internet": false,
           "workdir": "/opt/hand-work-to-ais",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/hand-work-to-ais/read-data/ai-work.mjs", "seeAiWork"],
-          "stdin": { "input": { "fill": { "from": "input" } }, "task": { "fill": { "from": "task" } } },
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hand-work-to-ais/read-data/ai-work.mjs",
+            "seeAiWork"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
           "files": {
             "package_files": [
               {
                 "package": "formula-engine",
-                "paths": ["rules", "built-stored-bytes"],
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
@@ -2168,7 +1323,9 @@
                 "at": "/opt/judge-words"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2199,20 +1356,42 @@
           }
         },
         "result_selector": "$.result",
-        "needs": { "expected_seconds": 10, "network_egress": false, "memory_mb": 256 },
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
         "licence_class": "licence:maker-own",
-        "placements": ["placement:small-container"],
+        "placements": [
+          "placement:small-container"
+        ],
         "maker": "maker:hand-work-to-ais",
         "verify": [
-     {"kind":"sample-run","input":{"status":"waiting"},"records":[{"id":"ai-job:sample-1","type":"ai-job","value":{"kind":"ai-job","status":"waiting","job":"Write a made-up sample report","to":null,"from":"ai:sample-sender","priority":5,"sent_at":"2026-11-03T00:00:00.000Z"}}]}
-    ],
+          {
+            "kind": "sample-run",
+            "input": {
+              "status": "waiting",
+              "records": [
+                {
+                  "id": "ai-job:sample-1",
+                  "type": "ai-job",
+                  "value": {
+                    "kind": "ai-job",
+                    "status": "waiting",
+                    "job": "Write a made-up sample report",
+                    "to": null,
+                    "from": "ai:sample-sender",
+                    "priority": 5,
+                    "sent_at": "2026-11-03T00:00:00.000Z"
+                  }
+                }
+              ]
+            }
+          }
+        ],
         "stored": [
           {
-            "kind": "ai-job",
-            "operations": [
-              "records:read",
-              "records:list"
-            ]
+            "kind": "ai-job"
           }
         ]
       }
@@ -2396,30 +1575,90 @@
         "label": "Take the next job waiting for me, or one job by its id",
         "status": "active",
         "job": "Take the next job another of my AIs left for me, so no other AI does it too",
-        "description": "Without `id`, reads the ai-job records a take may move (read-data/ai-work.json: waiting ones for any AI or for `as`, and taken ones held longer than the stale-take time), sorts them by take_order (priority, then oldest first), and takes the first: one write of the whole job as taken by `as` at this time, conditioned on the value it read. When another AI took that job first the write is refused and changes nothing, and the next one is tried, at most take_tries. `only_mine` keeps only jobs addressed to `as`. With `id`, takes that job or answers `taken: null` with reason changed (and the job as it now is) when another AI won it. `taken` is null when there was nothing to take. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+        "description": "Without `id`, reads the ai-job records a take may move (read-data/ai-work.json: waiting ones for any AI or for `as`, and taken ones held longer than the stale-take time), sorts them by take_order (priority, then oldest first), and takes the first: one write of the whole job as taken by `as` at this time, conditioned on the value it read. When another AI took that job first the write is refused and changes nothing, and the next one is tried, at most take_tries. `only_mine` keeps only jobs addressed to `as`. With `id`, takes that job or answers `taken: null` with reason changed (and the job as it now is) when another AI won it. `taken` is null when there was nothing to take. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
         "input_schema": {
           "type": "object",
-          "required": ["as"],
+          "required": [
+            "as"
+          ],
           "additionalProperties": false,
           "properties": {
-            "as": { "type": "string", "pattern": "^ai:", "description": "The taking AI's record id" },
-            "id": { "type": "string", "pattern": "^ai-job:", "description": "Take this job rather than the next one" },
-            "only_mine": { "type": "boolean", "description": "Only jobs addressed to this AI by name" },
-            "stored": {
-              "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of ai-job, as this row's `stored` lists. What is not given is not there."
+            "as": {
+              "type": "string",
+              "pattern": "^ai:",
+              "description": "The taking AI's record id"
+            },
+            "id": {
+              "type": "string",
+              "pattern": "^ai-job:",
+              "description": "Take this job rather than the next one"
+            },
+            "only_mine": {
+              "type": "boolean",
+              "description": "Only jobs addressed to this AI by name"
+            },
+            "records": {
+              "type": "array",
+              "maxItems": 20000,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "description": "The person's records this run needs, read by the caller from the person's own store and handed in: [{id, type, value}] of ai and ai-job records (and, for a finish, the consumer record its saved acceptance names). The engine keeps none of them."
             }
           }
         },
         "output_schema": {
           "type": "object",
-          "required": ["taken", "tried"],
+          "required": [
+            "taken",
+            "tried"
+          ],
           "properties": {
-            "taken": { "type": ["object", "null"] },
-            "tried": { "type": "integer", "minimum": 0 },
-            "job_id": { "type": "string" },
-            "reason": { "type": "string", "enum": ["changed", "gone"] },
-            "job": { "type": ["object", "null"] },
+            "taken": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "tried": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "job_id": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "changed",
+                "gone"
+              ]
+            },
+            "job": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
             "keep": {
               "type": "array",
               "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
@@ -2431,13 +1670,32 @@
           "internet": false,
           "workdir": "/opt/hand-work-to-ais",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/hand-work-to-ais/read-data/ai-work.mjs", "takeAJob"],
-          "stdin": { "input": { "fill": { "from": "input" } }, "task": { "fill": { "from": "task" } } },
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hand-work-to-ais/read-data/ai-work.mjs",
+            "takeAJob"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
           "files": {
             "package_files": [
               {
                 "package": "formula-engine",
-                "paths": ["rules", "built-stored-bytes"],
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
@@ -2478,7 +1736,9 @@
                 "at": "/opt/judge-words"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2509,21 +1769,42 @@
           }
         },
         "result_selector": "$.result",
-        "needs": { "expected_seconds": 10, "network_egress": false, "memory_mb": 256 },
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
         "licence_class": "licence:maker-own",
-        "placements": ["placement:small-container"],
+        "placements": [
+          "placement:small-container"
+        ],
         "maker": "maker:hand-work-to-ais",
         "verify": [
-     {"kind":"sample-run","input":{"as":"ai:sample-taker"},"records":[{"id":"ai-job:sample-1","type":"ai-job","value":{"kind":"ai-job","status":"waiting","job":"Write a made-up sample report","to":null,"from":"ai:sample-sender","priority":5,"sent_at":"2026-11-03T00:00:00.000Z"}}]}
-    ],
+          {
+            "kind": "sample-run",
+            "input": {
+              "as": "ai:sample-taker",
+              "records": [
+                {
+                  "id": "ai-job:sample-1",
+                  "type": "ai-job",
+                  "value": {
+                    "kind": "ai-job",
+                    "status": "waiting",
+                    "job": "Write a made-up sample report",
+                    "to": null,
+                    "from": "ai:sample-sender",
+                    "priority": 5,
+                    "sent_at": "2026-11-03T00:00:00.000Z"
+                  }
+                }
+              ]
+            }
+          }
+        ],
         "stored": [
           {
-            "kind": "ai-job",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
+            "kind": "ai-job"
           }
         ]
       }
@@ -2707,191 +1988,256 @@
         "label": "Finish, fail, give back, withdraw, flag or remove a job handed between my AIs",
         "status": "active",
         "job": "Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it",
-        "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (any AI, so a watcher can flag it; needs words) and unstuck clears that (any AI); withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why. A finish also needs check: the exact saved outcome, checked_at during this take, consumer evidence ({ref, observation}), and one matching check per saved obligation. This records accountable observation and does not itself prove its truth. wait keeps recoverable work blocked on this same job with continuation {owner, action, after, reason}. resume returns it to waiting when due for its taker, sender or continuation owner. release may retain that same bounded continuation, which delays the next take. No completion automatically creates another job. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+        "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (any AI, so a watcher can flag it; needs words) and unstuck clears that (any AI); withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why. A finish also needs check: the exact saved outcome, checked_at during this take, consumer evidence ({ref, observation}), and one matching check per saved obligation. This records accountable observation and does not itself prove its truth. wait keeps recoverable work blocked on this same job with continuation {owner, action, after, reason}. resume returns it to waiting when due for its taker, sender or continuation owner. release may retain that same bounded continuation, which delays the next take. No completion automatically creates another job. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
         "input_schema": {
           "type": "object",
-          "required": ["as", "id", "action"],
+          "required": [
+            "as",
+            "id",
+            "action"
+          ],
           "additionalProperties": false,
           "properties": {
-            "acceptance": {"type": "object", "required": ["outcome", "target", "rules"], "additionalProperties": false, "properties": {"outcome": {"type": "string", "minLength": 1}, "target": {"type": "object", "required": ["type", "id"], "additionalProperties": false, "properties": {"type": {"type": "string", "minLength": 1}, "id": {"type": "string", "minLength": 1}}}, "rules": {"type": "array", "minItems": 1, "maxItems": 65, "items": {"type": "object", "required": ["id", "path"], "description": "A shared judge-words rule directly testing persisted consumer data; id outcome or a saved obligation id."}}}},
-            "taken_at": { "type": "string", "description": "The exact timestamp of the claim whose holder is acting" },
-            "job": {
-                "type": "string",
-                "minLength": 1,
-                "description": "What the AI is to do, in plain words"
-              },
-            "outcome": {
-                "type": "string",
-                "minLength": 1,
-                "description": "What done looks like"
-              },
-            "label": {
-                "type": "string",
-                "minLength": 1,
-                "description": "A short name for the job"
-              },
-            "source": {
-                "type": "object",
-                "required": [
-                  "kind",
-                  "ref"
-                ],
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "ref": {
-                    "type": "string",
-                    "minLength": 1
-                  }
-                }
-              },
-            "obligations": {
-                "type": "array",
-                "minItems": 1,
-                "maxItems": 64,
-                "items": {
+            "acceptance": {
+              "type": "object",
+              "required": [
+                "outcome",
+                "target",
+                "rules"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "target": {
                   "type": "object",
                   "required": [
-                    "id",
-                    "outcome"
+                    "type",
+                    "id"
                   ],
                   "additionalProperties": false,
                   "properties": {
-                    "id": {
+                    "type": {
                       "type": "string",
                       "minLength": 1
                     },
-                    "outcome": {
+                    "id": {
                       "type": "string",
                       "minLength": 1
                     }
                   }
+                },
+                "rules": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 65,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "path"
+                    ],
+                    "description": "A shared judge-words rule directly testing persisted consumer data; id outcome or a saved obligation id."
+                  }
                 }
-              },
-            "to": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "An existing ai record id, or null for any AI"
-              },
-            "priority": {
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 9
-              },
-            "continuation": {
+              }
+            },
+            "taken_at": {
+              "type": "string",
+              "description": "The exact timestamp of the claim whose holder is acting"
+            },
+            "job": {
+              "type": "string",
+              "minLength": 1,
+              "description": "What the AI is to do, in plain words"
+            },
+            "outcome": {
+              "type": "string",
+              "minLength": 1,
+              "description": "What done looks like"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A short name for the job"
+            },
+            "source": {
+              "type": "object",
+              "required": [
+                "kind",
+                "ref"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ref": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "obligations": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 64,
+              "items": {
                 "type": "object",
                 "required": [
-                  "owner",
-                  "action",
-                  "after",
-                  "reason"
+                  "id",
+                  "outcome"
                 ],
                 "additionalProperties": false,
                 "properties": {
-                  "owner": {
-                    "type": "string",
-                    "pattern": "^ai:"
-                  },
-                  "action": {
+                  "id": {
                     "type": "string",
                     "minLength": 1
                   },
-                  "after": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "reason": {
+                  "outcome": {
                     "type": "string",
                     "minLength": 1
                   }
                 }
-              },
+              }
+            },
+            "to": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "An existing ai record id, or null for any AI"
+            },
+            "priority": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9
+            },
+            "continuation": {
+              "type": "object",
+              "required": [
+                "owner",
+                "action",
+                "after",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "owner": {
+                  "type": "string",
+                  "pattern": "^ai:"
+                },
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "after": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
             "check": {
-                "type": "object",
-                "required": [
-                  "outcome",
-                  "checked_at",
-                  "evidence"
-                ],
-                "additionalProperties": false,
-                "properties": {
-                  "target": {"type": "object", "required": ["type", "id"], "properties": {"type": {"type": "string"}, "id": {"type": "string"}}},
-                  "outcome": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "checked_at": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "evidence": {
-                    "type": "array",
-                    "minItems": 1,
-                    "maxItems": 32,
-                    "items": {
-                      "type": "object",
-                      "required": [
-                        "ref",
-                        "observation"
-                      ],
-                      "additionalProperties": false,
-                      "properties": {
-                        "ref": {
-                          "type": "string",
-                          "minLength": 1
-                        },
-                        "observation": {
-                          "type": "string",
-                          "minLength": 1
-                        }
+              "type": "object",
+              "required": [
+                "outcome",
+                "checked_at",
+                "evidence"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "required": [
+                    "type",
+                    "id"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "outcome": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "checked_at": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "evidence": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 32,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "ref",
+                      "observation"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "ref": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "observation": {
+                        "type": "string",
+                        "minLength": 1
                       }
                     }
-                  },
-                  "obligations": {
-                    "type": "array",
-                    "maxItems": 64,
-                    "items": {
-                      "type": "object",
-                      "required": [
-                        "id",
-                        "outcome",
-                        "evidence"
-                      ],
-                      "additionalProperties": false,
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "minLength": 1
-                        },
-                        "outcome": {
-                          "type": "string",
-                          "minLength": 1
-                        },
-                        "evidence": {
-                          "type": "array",
-                          "minItems": 1,
-                          "maxItems": 32,
-                          "items": {
-                            "type": "object",
-                            "required": [
-                              "ref",
-                              "observation"
-                            ],
-                            "additionalProperties": false,
-                            "properties": {
-                              "ref": {
-                                "type": "string",
-                                "minLength": 1
-                              },
-                              "observation": {
-                                "type": "string",
-                                "minLength": 1
-                              }
+                  }
+                },
+                "obligations": {
+                  "type": "array",
+                  "maxItems": 64,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "outcome",
+                      "evidence"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "outcome": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "evidence": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 32,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "ref",
+                            "observation"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "ref": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "observation": {
+                              "type": "string",
+                              "minLength": 1
                             }
                           }
                         }
@@ -2899,30 +2245,123 @@
                     }
                   }
                 }
+              }
+            },
+            "as": {
+              "type": "string",
+              "pattern": "^ai:",
+              "description": "The acting AI's record id"
+            },
+            "id": {
+              "type": "string",
+              "pattern": "^ai-job:",
+              "description": "The job's record id"
+            },
+            "action": {
+              "type": "string",
+              "enum": [
+                "take",
+                "release",
+                "finish",
+                "fail",
+                "stuck",
+                "unstuck",
+                "withdraw",
+                "remove",
+                "wait",
+                "resume",
+                "edit",
+                "plan"
+              ]
+            },
+            "result": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60000,
+              "description": "What was done (finish) or why it could not be (fail). At most this many characters fit on the job row; `trillion finish ID` keeps a longer result as a file and records the line that names it."
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1,
+              "description": "One line about the result"
+            },
+            "because": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Why it is given back or withdrawn"
+            },
+            "words": {
+              "type": "string",
+              "minLength": 1,
+              "description": "What blocks it (stuck)"
+            },
+            "records": {
+              "type": "array",
+              "maxItems": 20000,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
               },
-            "as": { "type": "string", "pattern": "^ai:", "description": "The acting AI's record id" },
-            "id": { "type": "string", "pattern": "^ai-job:", "description": "The job's record id" },
-            "action": { "type": "string", "enum": ["take", "release", "finish", "fail", "stuck", "unstuck", "withdraw", "remove", "wait", "resume", "edit", "plan"] },
-            "result": { "type": "string", "minLength": 1, "maxLength": 60000, "description": "What was done (finish) or why it could not be (fail). At most this many characters fit on the job row; `trillion finish ID` keeps a longer result as a file and records the line that names it." },
-            "summary": { "type": "string", "minLength": 1, "description": "One line about the result" },
-            "because": { "type": "string", "minLength": 1, "description": "Why it is given back or withdrawn" },
-            "words": { "type": "string", "minLength": 1, "description": "What blocks it (stuck)" },
-            "stored": {
-              "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of ai-job, ai, as this row's `stored` lists. What is not given is not there."
+              "description": "The person's records this run needs, read by the caller from the person's own store and handed in: [{id, type, value}] of ai and ai-job records (and, for a finish, the consumer record its saved acceptance names). The engine keeps none of them."
             }
           }
         },
         "output_schema": {
           "type": "object",
-          "required": ["job_id", "moved", "from", "to", "job"],
+          "required": [
+            "job_id",
+            "moved",
+            "from",
+            "to",
+            "job"
+          ],
           "properties": {
-            "job_id": { "type": "string" },
-            "moved": { "type": "boolean" },
-            "from": { "type": "string" },
-            "to": { "type": ["string", "null"] },
-            "reason": { "type": "string", "enum": ["changed", "gone"] },
-            "job": { "type": ["object", "null"] },
+            "job_id": {
+              "type": "string"
+            },
+            "moved": {
+              "type": "boolean"
+            },
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "changed",
+                "gone"
+              ]
+            },
+            "job": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
             "keep": {
               "type": "array",
               "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
@@ -2934,13 +2373,32 @@
           "internet": false,
           "workdir": "/opt/hand-work-to-ais",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/hand-work-to-ais/read-data/ai-work.mjs", "moveAJob"],
-          "stdin": { "input": { "fill": { "from": "input" } }, "task": { "fill": { "from": "task" } } },
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hand-work-to-ais/read-data/ai-work.mjs",
+            "moveAJob"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
           "files": {
             "package_files": [
               {
                 "package": "formula-engine",
-                "paths": ["rules", "built-stored-bytes"],
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
@@ -2981,7 +2439,9 @@
                 "at": "/opt/judge-words"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -3012,522 +2472,633 @@
           }
         },
         "result_selector": "$.result",
-        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 256
+        },
         "licence_class": "licence:maker-own",
-        "placements": ["placement:small-container"],
+        "placements": [
+          "placement:small-container"
+        ],
         "maker": "maker:hand-work-to-ais",
         "verify": [
-     {"kind":"sample-run","input":{"as":"ai:sample-taker","id":"ai-job:sample-1","action":"release","taken_at":"2026-11-03T00:05:00.000Z","because":"Synthetic sample returns its claim"},"records":[{"id":"ai-job:sample-1","type":"ai-job","value":{"kind":"ai-job","status":"taken","job":"Write a made-up sample report","to":null,"from":"ai:sample-sender","priority":5,"sent_at":"2026-11-03T00:00:00.000Z","taker":"ai:sample-taker","taken_at":"2026-11-03T00:05:00.000Z"}}]}
-    ],
+          {
+            "kind": "sample-run",
+            "input": {
+              "as": "ai:sample-taker",
+              "id": "ai-job:sample-1",
+              "action": "release",
+              "taken_at": "2026-11-03T00:05:00.000Z",
+              "because": "Synthetic sample returns its claim",
+              "records": [
+                {
+                  "id": "ai-job:sample-1",
+                  "type": "ai-job",
+                  "value": {
+                    "kind": "ai-job",
+                    "status": "taken",
+                    "job": "Write a made-up sample report",
+                    "to": null,
+                    "from": "ai:sample-sender",
+                    "priority": 5,
+                    "sent_at": "2026-11-03T00:00:00.000Z",
+                    "taker": "ai:sample-taker",
+                    "taken_at": "2026-11-03T00:05:00.000Z"
+                  }
+                }
+              ]
+            }
+          }
+        ],
         "stored": [
           {
-            "kind": "ai-job",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "ai-job"
           },
           {
-            "kind": "ai",
-            "operations": [
-              "records:read"
-            ]
+            "kind": "ai"
           }
         ]
       }
     },
-    { "payload": {
-      "uses_tools": [
-        "trillion-workshop/account-session",
-        "trillion-workshop/addressed-marks",
-        "trillion-workshop/agents-hub",
-        "trillion-workshop/ai-execution-history",
-        "trillion-workshop/ai-guided-work",
-        "trillion-workshop/ai-memory",
-        "trillion-workshop/ai-records-producer",
-        "trillion-workshop/ai-tool-catalog",
-        "trillion-workshop/ambience",
-        "trillion-workshop/arrange-screens-in-panes",
-        "trillion-workshop/ask-a-small-model-for-a-verdict",
-        "trillion-workshop/audio-transcription",
-        "trillion-workshop/away-summary",
-        "trillion-workshop/background-runner-control",
-        "trillion-workshop/bring-in-new-items-from-this-computer",
-        "trillion-workshop/browse-and-upload-my-files",
-        "trillion-workshop/browse-inspiration-clips",
-        "trillion-workshop/browse-public-page",
-        "trillion-workshop/build-a-screen-from-patches",
-        "trillion-workshop/build-engine-modules-for-web-hosts",
-        "trillion-workshop/calibrate-a-camera-frame",
-        "trillion-workshop/chat",
-        "trillion-workshop/check-a-packages-declared-permissions",
-        "trillion-workshop/check-against-a-persons-rules-and-verdicts",
-        "trillion-workshop/check-bundle-package-boundaries",
-        "trillion-workshop/choose-and-publish-screen-looks",
-        "trillion-workshop/command-palette",
-        "trillion-workshop/composition-scene-renderer",
-        "trillion-workshop/computer-programs",
-        "trillion-workshop/connect-a-service-and-seal-its-key",
-        "trillion-workshop/content-identity",
-        "trillion-workshop/content-media-evidence",
-        "trillion-workshop/conversations",
-        "trillion-workshop/copy-a-site",
-        "trillion-workshop/decide-when-things-show",
-        "trillion-workshop/decide-with-a-method",
-        "trillion-workshop/delight-moments",
-        "trillion-workshop/describe-the-workshop",
-        "trillion-workshop/documents",
-        "trillion-workshop/documents-as-list-rows",
-        "trillion-workshop/draw-lists-on-a-canvas",
-        "trillion-workshop/draw-the-apps-icon-in-every-size-from",
-        "trillion-workshop/drive-the-screen",
-        "trillion-workshop/edit-a-document-together",
-        "trillion-workshop/edit-a-site-visually",
-        "trillion-workshop/feel",
-        "trillion-workshop/file-content-renderer",
-        "trillion-workshop/find-anything-from-one-box",
-        "trillion-workshop/formula-engine",
-        "trillion-workshop/formulas",
-        "trillion-workshop/founder-growth-engine-screens",
-        "trillion-workshop/funnel-offer-graph",
-        "trillion-workshop/funnels-screen",
-        "trillion-workshop/graph-canvas",
-        "trillion-workshop/guided-overlay",
-        "trillion-workshop/hand-off-jobs-between-agents",
-        "trillion-workshop/headless-browser",
-        "trillion-workshop/hold-one-thing-until-done",
-        "trillion-workshop/http-client",
-        "trillion-workshop/introduce-two-people",
-        "trillion-workshop/judge-words",
-        "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
-        "trillion-workshop/keep-copies-in-step",
-        "trillion-workshop/keep-lists-of-rows",
-        "trillion-workshop/keep-records-only-my-devices-can-read",
-        "trillion-workshop/know-the-projects-on-this-computer",
-        "trillion-workshop/know-who-is-in-this",
-        "trillion-workshop/learn-a-workflow-from-a-job",
-        "trillion-workshop/learn-from-everyones-results",
-        "trillion-workshop/leave-a-makers-private-starting-values-out",
-        "trillion-workshop/let-someone-look-at-my-account-read",
-        "trillion-workshop/list-tools-for-an-ai",
-        "trillion-workshop/listen-for-a-while",
-        "trillion-workshop/live-namespace",
-        "trillion-workshop/local-files",
-        "trillion-workshop/look-at-screen",
-        "trillion-workshop/make-a-video-playable-at-ingest",
-        "trillion-workshop/make-screen-layouts-and-controls",
-        "trillion-workshop/make-things-feel-good",
-        "trillion-workshop/marketplace-defaults",
-        "trillion-workshop/media-composition",
-        "trillion-workshop/media-identity",
-        "trillion-workshop/media-playback",
-        "trillion-workshop/messages-screen",
-        "trillion-workshop/move-records-through-declared-states",
-        "trillion-workshop/native-space-source-release",
-        "trillion-workshop/operation-records",
-        "trillion-workshop/organize-my-files",
-        "trillion-workshop/organize-the-sidebar",
-        "trillion-workshop/outside-conversations",
-        "trillion-workshop/paid-access",
-        "trillion-workshop/pair-unknown-senders",
-        "trillion-workshop/permission-lease",
-        "trillion-workshop/person-list",
-        "trillion-workshop/pick-a-screen-as-you-type",
-        "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
-        "trillion-workshop/pin-files-by-content",
-        "trillion-workshop/process-session",
-        "trillion-workshop/query-and-change-list-rows",
-        "trillion-workshop/quote-untrusted-words",
-        "trillion-workshop/read-and-write-mail",
-        "trillion-workshop/recently-deleted-and-storage",
-        "trillion-workshop/record-audio",
-        "trillion-workshop/record-graph",
-        "trillion-workshop/record-log",
-        "trillion-workshop/record-video",
-        "trillion-workshop/record-video-with-teleprompter",
-        "trillion-workshop/record-voice-and-meetings",
-        "trillion-workshop/records-door",
-        "trillion-workshop/refuse-requests-to-private-addresses",
-        "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
-        "trillion-workshop/review-what-a-list-says",
-        "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
-        "trillion-workshop/run-experiments",
-        "trillion-workshop/run-on-a-persons-computer",
-        "trillion-workshop/run-tools-in-my-signed-in-browser",
-        "trillion-workshop/run-work-later-or-on-a-repeat",
-        "trillion-workshop/screen-arrangement",
-        "trillion-workshop/screen-look",
-        "trillion-workshop/screen-looks",
-        "trillion-workshop/screen-ready-records",
-        "trillion-workshop/screen-recording",
-        "trillion-workshop/sealed-records",
-        "trillion-workshop/see-a-pursuit-through-the-lens",
-        "trillion-workshop/see-what-is-being-worked-on",
-        "trillion-workshop/see-what-my-ais-did",
-        "trillion-workshop/selected-agent",
-        "trillion-workshop/send-requests-to-an-engine",
-        "trillion-workshop/send-to-trillion-from-my-browser",
-        "trillion-workshop/serialized-content",
-        "trillion-workshop/set-up-my-account",
-        "trillion-workshop/set-up-my-devices-and-cameras",
-        "trillion-workshop/settings",
-        "trillion-workshop/settle-amounts-and-reconcile",
-        "trillion-workshop/shared-code",
-        "trillion-workshop/show-any-file-as-itself",
-        "trillion-workshop/show-each-setup-step-with-the-real-things-found",
-        "trillion-workshop/show-ideas-as-records",
-        "trillion-workshop/sidebar",
-        "trillion-workshop/slot-table",
-        "trillion-workshop/social-posts",
-        "trillion-workshop/start-from-any-landing-page",
-        "trillion-workshop/starting-set",
-        "trillion-workshop/stream-an-answer-in-keyed-parts",
-        "trillion-workshop/take-pictures-out-of-a-zip-archive",
-        "trillion-workshop/tell-one-person-something-through-every-way-they",
-        "trillion-workshop/tell-the-person",
-        "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
-        "trillion-workshop/tours-screen",
-        "trillion-workshop/transcript-reader",
-        "trillion-workshop/turn-a-list-column-that-holds-names-into",
-        "trillion-workshop/turn-frames-into-slides",
-        "trillion-workshop/tweak-live-controls",
-        "trillion-workshop/ui",
-        "trillion-workshop/view-as",
-        "trillion-workshop/walk-a-new-person-through-first-setup",
-        "trillion-workshop/walk-nested-input-within-limits",
-        "trillion-workshop/wall-time",
-        "trillion-workshop/watch-my-sources",
-        "trillion-workshop/what-is-waiting-on-me",
-        "trillion-workshop/where-a-person-stands",
-        "trillion-workshop/who-does-each-step",
-        "trillion-workshop/work-map",
-        "trillion-workshop/workflow-canvas",
-        "trillion-workshop/workflow-interruptions",
-        "trillion-workshop/workflows",
-        "trillion-workshop/workspace-pieces",
-        "trillion-workshop/workspace-screens",
-        "trillion-workshop/write-a-job-done-in-several-steps-have",
-        "trillion-workshop/write-a-post-for-each-place"
-      ],
-      "kind": "ai-tool-descriptor",
-      "id": "tool:finish-an-ai-job",
-      "label": "Check the saved consumer and finish an AI job",
-      "status": "active",
-      "job": "Finish an AI job only after its saved acceptance checks pass on the actual persisted consumer",
-      "description": "Reads the exact record target saved in the job acceptance and applies the existing judge-words rules to its current value. Missing target, failed or unavailable checks, mismatched target, stale claim and changed job refuse completion. Receipt strings do not prove success. Keeps the actual consumer content identity and acceptance identity bound to this take. Rights are intersected by the engine with the caller authority; this tool grants no new account access. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
-      "input_schema": {
-        "type": "object",
-        "required": [
-          "as",
-          "id",
-          "taken_at",
-          "result",
-          "check"
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/formulas",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/wall-time",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
         ],
-        "additionalProperties": false,
-        "properties": {
-          "as": {
-            "type": "string",
-            "pattern": "^ai:",
-            "description": "The acting AI's record id"
-          },
-          "id": {
-            "type": "string",
-            "pattern": "^ai-job:",
-            "description": "The job's record id"
-          },
-          "taken_at": {
-            "type": "string",
-            "description": "The exact timestamp of the claim whose holder is acting"
-          },
-          "result": {
-            "type": "string",
-            "minLength": 1,
-            "description": "What was done (finish) or why it could not be (fail)"
-          },
-          "summary": {
-            "type": "string",
-            "minLength": 1,
-            "description": "One line about the result"
-          },
-          "check": {
-            "type": "object",
-            "required": [
-              "outcome",
-              "checked_at",
-              "evidence",
-              "target"
-            ],
-            "additionalProperties": false,
-            "properties": {
-              "outcome": {
-                "type": "string",
-                "minLength": 1
-              },
-              "checked_at": {
-                "type": "string",
-                "minLength": 1
-              },
-              "evidence": {
-                "type": "array",
-                "minItems": 1,
-                "maxItems": 32,
-                "items": {
-                  "type": "object",
-                  "required": [
-                    "ref",
-                    "observation"
-                  ],
-                  "additionalProperties": false,
-                  "properties": {
-                    "ref": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "observation": {
-                      "type": "string",
-                      "minLength": 1
+        "kind": "ai-tool-descriptor",
+        "id": "tool:finish-an-ai-job",
+        "label": "Check the saved consumer and finish an AI job",
+        "status": "active",
+        "job": "Finish an AI job only after its saved acceptance checks pass on the actual persisted consumer",
+        "description": "Reads the exact record target saved in the job acceptance and applies the existing judge-words rules to its current value. Missing target, failed or unavailable checks, mismatched target, stale claim and changed job refuse completion. Receipt strings do not prove success. Keeps the actual consumer content identity and acceptance identity bound to this take. Rights are intersected by the engine with the caller authority; this tool grants no new account access. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and names no store method. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "as",
+            "id",
+            "taken_at",
+            "result",
+            "check"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "as": {
+              "type": "string",
+              "pattern": "^ai:",
+              "description": "The acting AI's record id"
+            },
+            "id": {
+              "type": "string",
+              "pattern": "^ai-job:",
+              "description": "The job's record id"
+            },
+            "taken_at": {
+              "type": "string",
+              "description": "The exact timestamp of the claim whose holder is acting"
+            },
+            "result": {
+              "type": "string",
+              "minLength": 1,
+              "description": "What was done (finish) or why it could not be (fail)"
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1,
+              "description": "One line about the result"
+            },
+            "check": {
+              "type": "object",
+              "required": [
+                "outcome",
+                "checked_at",
+                "evidence",
+                "target"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "checked_at": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "evidence": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 32,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "ref",
+                      "observation"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "ref": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "observation": {
+                        "type": "string",
+                        "minLength": 1
+                      }
                     }
                   }
-                }
-              },
-              "obligations": {
-                "type": "array",
-                "maxItems": 64,
-                "items": {
-                  "type": "object",
-                  "required": [
-                    "id",
-                    "outcome",
-                    "evidence"
-                  ],
-                  "additionalProperties": false,
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "outcome": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "evidence": {
-                      "type": "array",
-                      "minItems": 1,
-                      "maxItems": 32,
-                      "items": {
-                        "type": "object",
-                        "required": [
-                          "ref",
-                          "observation"
-                        ],
-                        "additionalProperties": false,
-                        "properties": {
-                          "ref": {
-                            "type": "string",
-                            "minLength": 1
-                          },
-                          "observation": {
-                            "type": "string",
-                            "minLength": 1
+                },
+                "obligations": {
+                  "type": "array",
+                  "maxItems": 64,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "outcome",
+                      "evidence"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "outcome": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "evidence": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 32,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "ref",
+                            "observation"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "ref": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "observation": {
+                              "type": "string",
+                              "minLength": 1
+                            }
                           }
                         }
                       }
                     }
                   }
-                }
-              },
-              "target": {
-                "type": "object",
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "additionalProperties": false,
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "id": {
-                    "type": "string",
-                    "minLength": 1
+                },
+                "target": {
+                  "type": "object",
+                  "required": [
+                    "type",
+                    "id"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    }
                   }
                 }
               }
+            },
+            "records": {
+              "type": "array",
+              "maxItems": 20000,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "description": "The person's records this run needs, read by the caller from the person's own store and handed in: [{id, type, value}] of ai and ai-job records (and, for a finish, the consumer record its saved acceptance names). The engine keeps none of them."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "job_id",
+            "moved",
+            "from",
+            "to",
+            "job"
+          ],
+          "properties": {
+            "job_id": {
+              "type": "string"
+            },
+            "moved": {
+              "type": "boolean"
+            },
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "changed",
+                "gone"
+              ]
+            },
+            "job": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/hand-work-to-ais",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hand-work-to-ais/read-data/ai-work.mjs",
+            "finishAJob"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
             }
           },
-          "stored": {
-            "type": "object",
-            "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of ai-job, the kind the request names (the row the request names), ai, as this row's `stored` lists. What is not given is not there."
+          "files": {
+            "package_files": [
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work/judge-words.mjs",
+                  "do-work/evidence-checks.mjs"
+                ],
+                "at": "/opt/judge-words"
+              },
+              {
+                "package": "hand-work-to-ais",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/hand-work-to-ais"
+              },
+              {
+                "package": "move-records-through-declared-states",
+                "paths": [
+                  "do-work/move-records-through-declared-states.mjs"
+                ],
+                "at": "/opt/move-records-through-declared-states"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
           }
-        }
-      },
-      "output_schema": {
-        "type": "object",
-        "required": [
-          "job_id",
-          "moved",
-          "from",
-          "to",
-          "job"
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
         ],
-        "properties": {
-          "job_id": {
-            "type": "string"
-          },
-          "moved": {
-            "type": "boolean"
-          },
-          "from": {
-            "type": "string"
-          },
-          "to": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "reason": {
-            "type": "string",
-            "enum": [
-              "changed",
-              "gone"
-            ]
-          },
-          "job": {
-            "type": [
-              "object",
-              "null"
-            ]
-          },
-          "keep": {
-            "type": "array",
-            "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+        "maker": "maker:hand-work-to-ais",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "as": "ai:sample-taker",
+              "id": "ai-job:sample-finish",
+              "taken_at": "2026-11-03T00:05:00.000Z",
+              "result": "Observed the readable sample consumer",
+              "check": {
+                "outcome": "The sample consumer is readable",
+                "target": {
+                  "type": "sample-consumer",
+                  "id": "sample-consumer:one"
+                },
+                "checked_at": "2026-11-03T00:06:00.000Z",
+                "evidence": [
+                  {
+                    "ref": "sample-consumer:one",
+                    "observation": "The consumer is readable."
+                  }
+                ]
+              },
+              "records": [
+                {
+                  "id": "ai-job:sample-finish",
+                  "type": "ai-job",
+                  "value": {
+                    "kind": "ai-job",
+                    "status": "taken",
+                    "job": "Read the sample consumer",
+                    "outcome": "The sample consumer is readable",
+                    "acceptance": {
+                      "outcome": "The sample consumer is readable",
+                      "target": {
+                        "type": "sample-consumer",
+                        "id": "sample-consumer:one"
+                      },
+                      "rules": [
+                        {
+                          "id": "outcome",
+                          "path": "readable",
+                          "equals": [
+                            true
+                          ],
+                          "says": "The consumer must be readable."
+                        }
+                      ]
+                    },
+                    "from": "ai:sample-sender",
+                    "to": null,
+                    "sent_at": "2026-11-03T00:00:00.000Z",
+                    "taker": "ai:sample-taker",
+                    "taken_at": "2026-11-03T00:05:00.000Z"
+                  }
+                },
+                {
+                  "id": "sample-consumer:one",
+                  "type": "sample-consumer",
+                  "value": {
+                    "readable": true
+                  }
+                }
+              ]
+            }
           }
-        }
-      },
-      "invoke": {
-        "kind": "container",
-        "internet": false,
-        "workdir": "/opt/hand-work-to-ais",
-        "stdout": "json",
-        "argv": [
-          "node",
-          "/opt/records-door/do-work/run-an-export.mjs",
-          "/opt/hand-work-to-ais/read-data/ai-work.mjs",
-          "finishAJob"
         ],
-        "stdin": {
-          "input": {
-            "fill": {
-              "from": "input"
+        "stored": [
+          {
+            "kind": "ai-job"
+          },
+          {
+            "kind": {
+              "fill": {
+                "from": "input",
+                "field": "check.target.type"
+              }
             }
           },
-          "task": {
-            "fill": {
-              "from": "task"
-            }
+          {
+            "kind": "ai"
           }
-        },
-        "files": {
-          "package_files": [
-            {
-              "package": "formula-engine",
-              "paths": ["rules", "built-stored-bytes"],
-              "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-            },
-            {"package": "judge-words", "paths": ["do-work/judge-words.mjs", "do-work/evidence-checks.mjs"], "at": "/opt/judge-words"},
-            {
-              "package": "hand-work-to-ais",
-              "paths": [
-                "read-data"
-              ],
-              "at": "/opt/hand-work-to-ais"
-            },
-            {
-              "package": "move-records-through-declared-states",
-              "paths": [
-                "do-work/move-records-through-declared-states.mjs"
-              ],
-              "at": "/opt/move-records-through-declared-states"
-            },
-            {
-              "package": "records-door",
-              "paths": [
-                "do-work",
-                "read-data"
-              ],
-              "at": "/opt/records-door"
-            },
-            {
-              "package": "content-identity",
-              "paths": [
-                "read-data"
-              ],
-              "at": "/opt/content-identity"
-            },
-            {
-              "packages": ["node_modules/@noble/hashes"],
-              "paths": [
-                "LICENSE",
-                "package.json",
-                "blake3.js",
-                "blake2.js",
-                "_blake.js",
-                "_md.js",
-                "_u64.js",
-                "utils.js"
-              ],
-              "at": "/opt/node_modules/@noble/hashes"
-            }
-          ]
-        }
-      },
-      "result_selector": "$.result",
-      "needs": {
-        "expected_seconds": 5,
-        "network_egress": false,
-        "memory_mb": 256
-      },
-      "licence_class": "licence:maker-own",
-      "placements": [
-        "placement:small-container"
-      ],
-      "maker": "maker:hand-work-to-ais",
-      "verify": [{"kind": "sample-run", "input": {"as": "ai:sample-taker", "id": "ai-job:sample-finish", "taken_at": "2026-11-03T00:05:00.000Z", "result": "Observed the readable sample consumer", "check": {"outcome": "The sample consumer is readable", "target": {"type": "sample-consumer", "id": "sample-consumer:one"}, "checked_at": "2026-11-03T00:06:00.000Z", "evidence": [{"ref": "sample-consumer:one", "observation": "The consumer is readable."}]}}, "records": [{"id": "ai-job:sample-finish", "type": "ai-job", "value": {"kind": "ai-job", "status": "taken", "job": "Read the sample consumer", "outcome": "The sample consumer is readable", "acceptance": {"outcome": "The sample consumer is readable", "target": {"type": "sample-consumer", "id": "sample-consumer:one"}, "rules": [{"id": "outcome", "path": "readable", "equals": [true], "says": "The consumer must be readable."}]}, "from": "ai:sample-sender", "to": null, "sent_at": "2026-11-03T00:00:00.000Z", "taker": "ai:sample-taker", "taken_at": "2026-11-03T00:05:00.000Z"}}, {"id": "sample-consumer:one", "type": "sample-consumer", "value": {"readable": true}}]}],
-      "stored": [
-        {
-          "kind": "ai-job",
-          "operations": [
-            "records:read",
-            "records:write"
-          ]
-        },
-        {
-          "kind": {
-            "fill": {
-              "from": "input",
-              "field": "check.target.type"
-            }
-          },
-          "id": {
-            "fill": {
-              "from": "input",
-              "field": "check.target.id"
-            }
-          },
-          "operations": [
-            "records:read"
-          ]
-        },
-        {
-          "kind": "ai",
-          "operations": [
-            "records:read"
-          ]
-        }
-      ]
-    } }
+        ]
+      }
+    }
   ]
 }

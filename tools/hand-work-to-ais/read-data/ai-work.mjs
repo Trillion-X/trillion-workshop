@@ -1,26 +1,27 @@
 // tools/hand-work-to-ais/read-data/ai-work.mjs
 //
-// Work handed between a person's AIs, kept as their own records and nowhere else. A job is one record of kind ai-job,
-// an AI one record of kind ai (read-data/ai-work.json names both). Every function here is one Workshop row, called by
-// tools/records-door/do-work/run-an-export.mjs as fn({ input, task }, { door }):
+// Work handed between a person's AIs. A job is one record of kind ai-job, an AI one record of kind ai (read-data/ai-work.json
+// names both). No store is reached from here: the caller reads the records this call needs from the person's own store
+// (the AIs, the jobs, and any consumer a finish checks) and hands them in as `input.records` ([{ id, type, value }]).
+// Each exported function is one Workshop row, run by tools/records-door/do-work/run-an-export.mjs as fn({ input, task }, context):
 //
 //   seeMyAis      -> { ais: [{ id, value, live, seen_at, busy }] }                  the AIs, live first, then their order
-//   handAJob      -> { job_id, status: 'written' | 'already-there', job }           a new waiting job, once per key
+//   handAJob      -> { job_id, status: 'written' | 'already-there', job, keep? }    a new waiting job, once per key
 //   seeAiWork     -> { jobs: [job], more }                                          one job, or the newest that match
-//   takeAJob      -> { taken: job | null, tried, job_id?, reason?, job? }           the first job it may take, or one named
-//   moveAJob      -> { job_id, moved, from, to, reason?, job }                      finish, fail, release, stuck, ... remove
+//   takeAJob      -> { taken: job | null, tried, job_id?, reason?, job?, keep? }   the first job it may take, or one named
+//   moveAJob      -> { job_id, moved, from, to, reason?, job, keep? }               finish, fail, release, stuck, ... remove
 //
-// THE ONE INVARIANT: every change of a job is ONE records:write of the whole job, conditioned on the value just read
-// (`expected`, product/own-record-writes.json in the engine). The engine checks that condition inside the account's
-// own transaction, so of two AIs that read the same waiting job and both try to take it, the first write wins and the
-// second is refused whole (`original_command_conflict`) and changes nothing. A refused take tries the next job; a
-// refused move answers `moved: false, reason: 'changed'` with the job as it is now, so the caller decides again on
-// what is really there. Nothing here locks, waits or keeps anything between runs.
+// `keep` is the list of writes the caller must apply to its store, in order: [{ id, type, value, expected }], where
+// expected is the record as it was read (null when the record must not exist) and a null value removes the record. The
+// caller applies them in one transaction on its own store. A write whose expected value no longer holds is refused whole
+// there, and the caller reads again and decides again: of two AIs that read the same waiting job and both answer a take,
+// the first applied wins and the second is refused whole and changes nothing. Nothing here locks, waits or keeps anything
+// between runs.
 //
 // THE RULES ARE DATA. Which status a job may move to, on which action, for whom and after how long (the stale-take
 // time) are rows of read-data/ai-work.json, checked by the shared stage engine (tools/move-records-through-declared-
 // states: statesByKey, transitionsFrom, conditionHolds). A job's status is its one current state; its earlier states
-// are the record's own version history in the person's account, so no second copy of them is kept in the value.
+// are the record's own version history in the caller's store, so no second copy of them is kept in the value.
 import { readFileSync } from 'node:fs';
 import { conditionHolds, statesByKey, transitionsFrom } from '../../move-records-through-declared-states/do-work/move-records-through-declared-states.mjs';
 import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
@@ -85,6 +86,57 @@ function jobId(value, rules) {
 const nowOf = context => (context.now ? context.now() : new Date());
 const shown = (id, value) => (value ? { id, ...Object.fromEntries(Object.entries(value).filter(([field]) => field !== 'kind')) } : null);
 const isChanged = error => error?.code === CHANGED;
+const conflict = () => Object.assign(new Error('The record changed since it was read; the caller reads again and decides again.'), { code: CHANGED });
+const MOST_RECORDS = 20000;
+
+// The records the caller read, as this one call sees them. A write is proposed onto this snapshot, so later reads in the
+// same call see it, and is answered in `keep` for the caller to apply conditioned on the value it was read at.
+export function snapshotOf(records = []) {
+  if (!Array.isArray(records) || records.length > MOST_RECORDS) throw new Error(`records must be a list of up to ${MOST_RECORDS} { id, type, value } records the caller read.`);
+  const held = new Map();
+  for (const record of records) {
+    if (!record || typeof record.id !== 'string' || typeof record.type !== 'string' || held.has(record.id)) throw new Error('Each record needs a unique id and a type.');
+    held.set(record.id, { id: record.id, type: record.type, value: record.value ?? null });
+  }
+  const keep = [];
+  return {
+    keep,
+    // The value of the record `id` of `type`, or null.
+    find(type, id) {
+      const record = held.get(id);
+      return record && record.type === type ? record.value : null;
+    },
+    // Records of `type` whose value holds every `where` field equal, in the order they were given.
+    select({ type, where = {} } = {}) {
+      const found = [];
+      for (const record of held.values()) {
+        if (type !== undefined && record.type !== type) continue;
+        if (!Object.entries(where).every(([field, want]) => record.value?.[field] === want)) continue;
+        found.push({ id: record.id, type: record.type, value: record.value });
+      }
+      return found;
+    },
+    // Each write, if the record is still as `expected` says (null: absent). A null value removes the record.
+    propose(writes) {
+      for (const { id, type, value, expected } of writes) {
+        const current = held.get(id) ?? null;
+        if (expected === null || expected === undefined) { if (current) throw conflict(); }
+        else if (!current || current.type !== expected.type || makeHashCodeHexFromJson(current.value) !== makeHashCodeHexFromJson(expected.value)) throw conflict();
+        if (value === null) held.delete(id);
+        else held.set(id, { id, type, value });
+        keep.push({ id, type, value, expected: expected ?? null });
+      }
+    },
+  };
+}
+
+// Each exported row runs over the records its input carries, and answers the writes it proposed as `keep`.
+const served = run => async (args = {}, context = {}) => {
+  const store = snapshotOf(args.input?.records);
+  // Only the clock and the snapshot are passed on: the context's own getters (the run's parent actions) are not read here.
+  const answer = await run(args, { now: context.now, store });
+  return store.keep.length ? { ...answer, keep: [...store.keep] } : answer;
+};
 
 // What the conditions of the rules are judged on, for one caller and one job at one time.
 export function signalsOf(job, as, now, rules = RULED) {
@@ -189,8 +241,8 @@ function acceptanceOf(value, job, rules) {
 }
 
 // A rule whose path selects nothing on its target could never hold at finish; the plan names the fields the target has.
-async function acceptancePathsResolve(door, acceptance) {
-  const observed = await door.read(acceptance.target.type, acceptance.target.id);
+async function acceptancePathsResolve(store, acceptance) {
+  const observed = await store.find(acceptance.target.type, acceptance.target.id);
   if (observed === null || observed === undefined) return;
   const silent = acceptance.rules.filter(rule => !valuesAt(observed, rule.path).length);
   if (!silent.length) return;
@@ -198,11 +250,11 @@ async function acceptancePathsResolve(door, acceptance) {
   throw new Error(`acceptance rule path ${silent.map(rule => `"${rule.path}"`).join(', ')} selects nothing on ${acceptance.target.type} ${acceptance.target.id}; its fields are ${fields.join(', ') || '(none)'}.`);
 }
 
-async function checkedConsumer(door, job, input, now, rules) {
+async function checkedConsumer(store, job, input, now, rules) {
   if (!job.acceptance) throw new Error('This job has no saved acceptance to finish against. Its taker saves one with action plan (trillion plan ID --acceptance-file JSON: the outcome as the job asks for it, the record that shows it, and the rules that record must meet), then finishes.');
   const acceptance = acceptanceOf(job.acceptance, job, rules);
   if (makeHashCodeHexFromJson(input.check?.target ?? null) !== makeHashCodeHexFromJson(acceptance.target)) throw new Error('check.target must be the saved acceptance target; use tool:finish-an-ai-job for its scoped read.');
-  const observed = await door.read(acceptance.target.type, acceptance.target.id);
+  const observed = await store.find(acceptance.target.type, acceptance.target.id);
   if (observed === null || observed === undefined) throw new Error('The requested consumer record is unavailable; the job remains unfinished.');
   const item = { value: observed };
   if (!acceptance.rules.every(rule => ruleApplies(rule, item))) throw new Error('Every saved acceptance rule must apply to the observed consumer.');
@@ -255,39 +307,40 @@ export function checkContinuation(value, now, rules = RULED) {
   return value;
 }
 
-const readJob = (door, id, rules) => door.read(rules.job_kind, id);
+const readJob = (store, id, rules) => store.find(rules.job_kind, id);
 
 // One conditional write of the job's next value (null removes it). False when the job changed since it was read.
-async function writeIfUnchanged(door, id, before, after, key, rules) {
+// The write is proposed onto this call's snapshot and answered in `keep`, conditioned on `before`: the caller applies
+// it to the store, where a job that changed meanwhile refuses it whole.
+async function writeIfUnchanged(store, id, before, after, rules) {
   try {
-    await door.write([{ id, type: rules.job_kind, value: after, expected: { type: rules.job_kind, value: before } }], { key });
-    // A retried write may replay an old door receipt after this job moved again. Only the current persisted value can
-    // establish that this attempted transition owns the job now. Never launch an effect from a historical receipt.
-    const current = await readJob(door, id, rules);
-    return makeHashCodeHexFromJson(current ?? null) === makeHashCodeHexFromJson(after ?? null);
+    store.propose([{ id, type: rules.job_kind, value: after, expected: { type: rules.job_kind, value: before } }]);
+    return true;
   } catch (error) {
     if (isChanged(error)) return false;
     throw error;
   }
 }
 
-// A retried run (the same request key) sends the same write key, so the door answers the receipt it already kept.
+// The identity a move's replay receipt is matched on: the same request key names the same write.
+// The records the caller reads for this call are not part of the request: a retry reads them again, and they may differ.
+const withoutRecords = ({ records: _records, ...given }) => given;
 const writeKey = (task, id, action) => (typeof task.request_key === 'string' && task.request_key ? `${task.request_key}:${action}:${id}` : undefined);
 // Progress notes replace last_move, but do not replace the request that acquired the current claim. This receipt
 // stays on that job through its release; the outer tool-run journal owns replay after a different claim or terminal
 // state, so the next-job lookup never needs an unbounded history scan.
 const takeReplay = (job, key) => key && (job.take_request?.key === key ? job.take_request : job.last_move?.key === key ? job.last_move : null);
 
-async function moveRead(door, id, before, action, as, input, now, task, rules) {
+async function moveRead(store, id, before, action, as, input, now, task, rules) {
   const key = writeKey(task, id, action);
-  const signature = key ? makeHashCodeHexFromJson({ action, as, input }) : null;
+  const signature = key ? makeHashCodeHexFromJson({ action, as, input: withoutRecords(input) }) : null;
   const replay = action === 'take' ? takeReplay(before, key) : key && before.last_move?.key === key ? before.last_move : null;
   if (replay) {
     if (replay.signature !== signature) throw new Error('The same move request key cannot name different input.');
     if (action === 'take') {
       // A next-job candidate came from a listing that may already be stale. Replay ownership only from an exact
-      // current read of the same claim, never from that earlier listing or from the door's historical receipt.
-      const current = await readJob(door, id, rules);
+      // current read of the same claim, never from that earlier listing or from the store's own history.
+      const current = await readJob(store, id, rules);
       const held = current && takeReplay(current, key);
       if (!held || !Number.isFinite(Date.parse(held.taken_at)) || stateOf(current.status, rules) !== 'taken' || current.taker !== as || held.taken_at !== current.taken_at) {
         return { job_id: id, moved: false, from: replay.from, to: null, reason: current ? 'changed' : 'gone', job: shown(id, current), replayed: true };
@@ -302,58 +355,53 @@ async function moveRead(door, id, before, action, as, input, now, task, rules) {
   if (action === 'wait' && before.status === 'waiting' && before.released?.by === as && input.taken_at !== before.released_taken_at) throw new Error('taken_at must name the claim that released this job.');
   const after = edge ? movedJob(before, edge, as, input, now, rules) : null;
   if (action === 'edit' && after.acceptance) acceptanceOf(after.acceptance, after, rules);
-  if (after && edge?.set?.acceptance && input.acceptance != null) await acceptancePathsResolve(door, after.acceptance);
-  const checked = action === 'finish' ? await checkedConsumer(door, before, input, now, rules) : null;
+  if (after && edge?.set?.acceptance && input.acceptance != null) await acceptancePathsResolve(store, after.acceptance);
+  const checked = action === 'finish' ? await checkedConsumer(store, before, input, now, rules) : null;
   if (checked) after.check = checked;
-  if (input.continuation && !(await door.read(rules.ai_kind, input.continuation.owner))) throw new Error('continuation.owner must be one of this person\'s existing AIs.');
-  if (action === 'edit' && input.to && !(await door.read(rules.ai_kind, input.to))) throw new Error('to must name one of this person\'s existing AIs.');
+  if (input.continuation && !(await store.find(rules.ai_kind, input.continuation.owner))) throw new Error('continuation.owner must be one of this person\'s existing AIs.');
+  if (action === 'edit' && input.to && !(await store.find(rules.ai_kind, input.to))) throw new Error('to must name one of this person\'s existing AIs.');
   if (after && key) after.last_move = { key, signature, from: before.status };
   else if (after) delete after.last_move;
   if (after && action === 'take') {
     if (key) after.take_request = { key, signature, from: before.status, taken_at: after.taken_at };
     else delete after.take_request;
   }
-  if (await writeIfUnchanged(door, id, before, after, writeKey(task, id, action), rules)) {
+  if (await writeIfUnchanged(store, id, before, after, rules)) {
     return { job_id: id, moved: true, from: before.status, to: after?.status ?? null, job: shown(id, after) };
   }
-  const current = await readJob(door, id, rules);
+  const current = await readJob(store, id, rules);
   return { job_id: id, moved: false, from: before.status, to: null, reason: current ? 'changed' : 'gone', job: shown(id, current) };
 }
 
 // Every record the query names, at most `most` of them.
-async function listed(door, query, most) {
-  const found = [];
-  for await (const record of door.list(query)) {
-    found.push(record);
-    if (found.length >= most) break;
-  }
-  return found;
+function listed(store, query, most) {
+  return store.select(query).slice(0, most);
 }
 
 // Every job in one declared state, whichever stored word it was written with, at most `most` of them.
-async function listedIn(door, state, query, most, rules) {
+function listedIn(store, state, query, most, rules) {
   const found = [];
   for (const status of wordsFor(state, rules)) {
     if (found.length >= most) break;
-    found.push(...await listed(door, { ...query, type: rules.job_kind, where: { ...query.where, status } }, most - found.length));
+    found.push(...listed(store, { ...query, type: rules.job_kind, where: { ...query.where, status } }, most - found.length));
   }
   return found;
 }
 
-export async function seeMyAis({ input = {} } = {}, context) {
+async function seeMyAisRun({ input = {} } = {}, context) {
   const rules = RULED;
-  const { door } = context;
+  const { store } = context;
   const now = nowOf(context);
   const needs = input.can ?? [];
   if (!Array.isArray(needs) || needs.some(word => typeof word !== 'string' || !word)) throw new Error('can must be a list of words, such as ["code"].');
   const busy = new Map();
-  for (const job of await listedIn(door, 'taken', { fields: ['taker'] }, rules.most_jobs_read, rules)) {
+  for (const job of await listedIn(store, 'taken', { fields: ['taker'] }, rules.most_jobs_read, rules)) {
     const taker = job.value?.taker;
     if (typeof taker === 'string') busy.set(taker, (busy.get(taker) ?? 0) + 1);
   }
   // Each AI's whole stored value comes back as it is: what a screen or the trillion command names it by is worked out
   // from those cells by its own formula, never from a name kept here. Only liveness and busyness are added.
-  const ais = (await listed(door, { type: rules.ai_kind }, rules.most_ais_read)).map(({ id, value }) => {
+  const ais = (await listed(store, { type: rules.ai_kind }, rules.most_ais_read)).map(({ id, value }) => {
     const held = value ?? {};
     const seen = Date.parse(held.live?.seen_at ?? '');
     const minutes = typeof held.live?.minutes === 'number' ? held.live.minutes : rules.live_minutes_default;
@@ -372,9 +420,9 @@ export async function seeMyAis({ input = {} } = {}, context) {
   return { ais };
 }
 
-export async function handAJob({ input = {}, task = {} } = {}, context) {
+async function handAJobRun({ input = {}, task = {} } = {}, context) {
   const rules = RULED;
-  const { door } = context;
+  const { store } = context;
   const now = nowOf(context);
   const from = aiId(input.as, 'as', rules);
   const job = words(input.job, 'job', rules.limits.job_chars);
@@ -385,7 +433,7 @@ export async function handAJob({ input = {}, task = {} } = {}, context) {
   let to = null;
   if (input.to !== undefined && input.to !== null) {
     to = aiId(input.to, 'to', rules);
-    if (!(await door.read(rules.ai_kind, to))) throw new Error(`No AI ${to} is among this person's AIs; seeMyAis lists them, or leave to out for any AI.`);
+    if (!(await store.find(rules.ai_kind, to))) throw new Error(`No AI ${to} is among this person's AIs; seeMyAis lists them, or leave to out for any AI.`);
   }
   const priority = input.priority ?? rules.default_priority;
   if (!Number.isInteger(priority) || priority < 0 || priority > 9) throw new Error('priority must be a whole number from 0 to 9.');
@@ -396,16 +444,17 @@ export async function handAJob({ input = {}, task = {} } = {}, context) {
   if (input.obligations !== undefined) value.obligations = obligationsOf(input.obligations, rules);
   if (input.acceptance !== undefined) value.acceptance = acceptanceOf(input.acceptance, value, rules);
   const id = `${rules.job_kind}:${key}`;
-  // The write's own key is the run's: a retried run is answered the receipt it already has, while another run with the
-  // same job key meets the job already there (the condition of absence), never a receipt that is not its own.
-  try {
-    await door.write([{ id, type: rules.job_kind, value, expected: null }], { key: writeKey(task, id, 'send') });
-  } catch (error) {
-    if (!isChanged(error)) throw error;
-    return { job_id: id, status: 'already-there', job: shown(id, await readJob(door, id, rules)) };
+  // The condition of absence: a job already at this id is answered, not written again. The same job sent again (same
+  // key, same words, same AI) is answered its receipt as written; a different job under the same key is already-there.
+  const there = await readJob(store, id, rules);
+  if (there) {
+    const { sent_at: _was, ...was } = there;
+    const { sent_at: _now, ...now_ } = value;
+    const status = makeHashCodeHexFromJson(was) === makeHashCodeHexFromJson(now_) ? 'written' : 'already-there';
+    return { job_id: id, status, job: shown(id, there) };
   }
-  const current = await readJob(door, id, rules);
-  return { job_id: id, status: current ? 'written' : 'gone', job: shown(id, current) };
+  store.propose([{ id, type: rules.job_kind, value, expected: null }]);
+  return { job_id: id, status: 'written', job: shown(id, value) };
 }
 
 // System producers preserve their actual record origin. A hold/workflow is not a fictional AI. Its action owner
@@ -430,14 +479,19 @@ export function prepareProducedJob(input, now = new Date()) {
 
 // A distinct descriptor grants only the saved target's exact kind/id, intersected with the caller's authority by the
 // engine. It uses the same move, ownership, attempt fence and CAS as every other action; it is not another lifecycle.
+export const seeMyAis = served(seeMyAisRun);
+export const handAJob = served(handAJobRun);
+export const seeAiWork = served(seeAiWorkRun);
+export const takeAJob = served(takeAJobRun);
+export const moveAJob = served(moveAJobRun);
 export const finishAJob = ({ input = {}, task = {} } = {}, context) => moveAJob({ input: { ...input, action: 'finish' }, task }, context);
 
-export async function seeAiWork({ input = {} } = {}, context) {
+async function seeAiWorkRun({ input = {} } = {}, context) {
   const rules = RULED;
-  const { door } = context;
+  const { store } = context;
   if (input.id !== undefined) {
     const id = jobId(input.id, rules);
-    const job = await readJob(door, id, rules);
+    const job = await readJob(store, id, rules);
     if (!job) throw new Error(`No job ${id} is in this person's records.`);
     return { jobs: [shown(id, job)], more: false };
   }
@@ -451,8 +505,8 @@ export async function seeAiWork({ input = {} } = {}, context) {
   const limit = input.limit ?? rules.jobs_shown.default;
   if (!Number.isInteger(limit) || limit < 1 || limit > rules.jobs_shown.most) throw new Error(`limit must be a whole number from 1 to ${rules.jobs_shown.most}.`);
   const found = state === undefined
-    ? await listed(door, { type: rules.job_kind, ...(Object.keys(where).length ? { where } : {}) }, rules.most_jobs_read)
-    : await listedIn(door, state, { where }, rules.most_jobs_read, rules);
+    ? await listed(store, { type: rules.job_kind, ...(Object.keys(where).length ? { where } : {}) }, rules.most_jobs_read)
+    : await listedIn(store, state, { where }, rules.most_jobs_read, rules);
   found.sort((a, b) => String(b.value?.sent_at ?? '').localeCompare(String(a.value?.sent_at ?? '')) || (a.id < b.id ? 1 : -1));
   return { jobs: found.slice(0, limit).map(record => shown(record.id, record.value)), more: found.length > limit };
 }
@@ -471,16 +525,16 @@ function takeOrder(rules) {
   };
 }
 
-export async function takeAJob({ input = {}, task = {} } = {}, context) {
+async function takeAJobRun({ input = {}, task = {} } = {}, context) {
   const rules = RULED;
-  const { door } = context;
+  const { store } = context;
   const now = nowOf(context);
   const as = aiId(input.as, 'as', rules);
   if (input.id !== undefined) {
     const id = jobId(input.id, rules);
-    const job = await readJob(door, id, rules);
+    const job = await readJob(store, id, rules);
     if (!job) throw new Error(`No job ${id} is in this person's records.`);
-    const answer = await moveRead(door, id, job, 'take', as, input, now, task, rules);
+    const answer = await moveRead(store, id, job, 'take', as, input, now, task, rules);
     return answer.moved
       ? { taken: answer.job, tried: 1 }
       : { taken: null, tried: 1, job_id: id, reason: answer.reason, job: answer.job };
@@ -488,7 +542,7 @@ export async function takeAJob({ input = {}, task = {} } = {}, context) {
   // Every job a take may move: the statuses the take rows leave from, then only those whose rule holds for this caller.
   const candidates = [];
   for (const status of new Set(rules.transitions.filter(edge => edge.action === 'take').map(edge => edge.from))) {
-    for (const record of await listedIn(door, status, {}, rules.most_jobs_read, rules)) {
+    for (const record of await listedIn(store, status, {}, rules.most_jobs_read, rules)) {
       if (!record.value || (input.only_mine && record.value.to !== as)) continue;
       const key = writeKey(task, record.id, 'take');
       if (takeReplay(record.value, key) || moveFor(record.value, 'take', as, now, rules).edge) candidates.push(record);
@@ -505,21 +559,21 @@ export async function takeAJob({ input = {}, task = {} } = {}, context) {
   let tried = 0;
   for (const { id, value } of candidates.slice(0, rules.take_tries)) {
     tried += 1;
-    const answer = await moveRead(door, id, value, 'take', as, input, now, task, rules);
+    const answer = await moveRead(store, id, value, 'take', as, input, now, task, rules);
     if (answer.moved) return { taken: answer.job, tried };
     if (answer.replayed) return { taken: null, tried, job_id: id, reason: answer.reason, job: answer.job };
   }
   return { taken: null, tried };
 }
 
-export async function moveAJob({ input = {}, task = {} } = {}, context) {
+async function moveAJobRun({ input = {}, task = {} } = {}, context) {
   const rules = RULED;
-  const { door } = context;
+  const { store } = context;
   const now = nowOf(context);
   const as = aiId(input.as, 'as', rules);
   const id = jobId(input.id, rules);
   if (typeof input.action !== 'string') throw new Error(`action must be one of ${rules.actions.join(', ')}.`);
-  const job = await readJob(door, id, rules);
+  const job = await readJob(store, id, rules);
   if (!job) throw new Error(`No job ${id} is in this person's records.`);
-  return moveRead(door, id, job, input.action, as, input, now, task, rules);
+  return moveRead(store, id, job, input.action, as, input, now, task, rules);
 }
