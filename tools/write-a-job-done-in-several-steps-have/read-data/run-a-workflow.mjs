@@ -25,9 +25,9 @@
 //     further before a run starts: a fact carries what it can (a change carries before and after as JSON text when they
 //     fit), and a run that needs more reads it in the person's store's own language, so nothing here names a store or a
 //     reader tool.
-//   - An ask named by a tool id (tool:...) is answered in the same call by running that tool through the run's own door
-//     (door.run), and an ask named by a door method a step may ask (workflows/ask-rights.json: wake:arrive, tools:list,
-//     tools:run with a server's address) by that operation (door.operation), its input the door's whole input and its
+//   - An ask named by a tool id (tool:...) is answered in the same call by running that tool through the run's host
+//     (host.run), and an ask named by a door method a step may ask (workflows/ask-rights.json: wake:arrive, tools:list,
+//     tools:run with a server's address) by that operation (host.operation), its input the door's whole input and its
 //     answer the result (an error fails the step); each is keyed by the step and the BLAKE3 of what it asks, so a retried run repeats
 //     nothing. An answer already given for the step wins. When the call did not happen (the run holds no door, or no
 //     right to it, or anything else a wait can fix), the ask waits like any other, with the door's words as `why`; a
@@ -91,26 +91,26 @@ const encoder = new TextEncoder();
 const valueOf = bytes => (bytes === undefined || bytes === null || !bytes.length ? {} : JSON.parse(decoder.decode(bytes)));
 const text = value => encoder.encode(JSON.stringify(value));
 
-/** The engine's host when the run has a door: answers given win, tool asks run through the door, the rest wait. Returns
+/** The engine's host when the run has its host actions: answers given win, tool asks run through them, the rest wait. Returns
  *  { host, waiting } (waiting fills as the engine asks). With no door it is null, and the runner's own hostless asks apply. */
-function toolHost(door, answers) {
-  if (!door || typeof door.run !== 'function') return null;
+function toolHost(host, answers) {
+  if (!host || typeof host.run !== 'function') return null;
   const waiting = [];
   const wait = (step, name, payload, why) => {
     waiting.push({ step_id: step, asks: name, input: payload, ...(why ? { why } : {}) });
     return text({ $kind: 'not-answered-yet', step_id: step });
   };
-  const host = {
+  const engineHost = {
     async ask(name, payloadBytes, contextBytes) {
       const step = valueOf(contextBytes).step_id ?? name;
       if (Object.hasOwn(answers, step)) return text(answers[step]);
       if (Object.hasOwn(answers, name)) return text(answers[name]);
       const payload = valueOf(payloadBytes);
-      const asked = TOOL.test(name) ? 'run' : Object.hasOwn(DOOR_ASKS, name) && typeof door.operation === 'function' ? 'operation' : null;
+      const asked = TOOL.test(name) ? 'run' : Object.hasOwn(DOOR_ASKS, name) && typeof host.operation === 'function' ? 'operation' : null;
       if (!asked) return wait(step, name, payload);
       try {
-        const answer = await door[asked](name, payload, { key: `${step}:${bytesToHex(blake3(payloadBytes ?? new Uint8Array()))}` });
-        // A door operation that ran a tool answers {result} or {error}, as door.run reads it: an error fails the step.
+        const answer = await host[asked](name, payload, { key: `${step}:${bytesToHex(blake3(payloadBytes ?? new Uint8Array()))}` });
+        // A door operation that ran a tool answers {result} or {error}, as host.run reads it: an error fails the step.
         if (asked === 'operation' && answer && typeof answer === 'object' && Object.hasOwn(answer, 'error')) {
           throw Object.assign(new Error(`${name} did not finish: ${String(typeof answer.error === 'string' ? answer.error : JSON.stringify(answer.error)).slice(0, 300)}`), { outcome: 'committed' });
         }
@@ -124,17 +124,17 @@ function toolHost(door, answers) {
     },
     async read(from) { throw new Error(`Nothing here answers a read of ${from}; give the value as an answer instead.`); },
   };
-  return { host, waiting };
+  return { host: engineHost, waiting };
 }
 
 /** One run: { recipe | row + steps, input?, answers? } → { definition, run, kit } where run.status is the engine's. */
-export async function runAWorkflow({ recipe = null, row = null, steps = [], input = {}, answers = {}, partition = 'person' } = {}, { engine = workflowEngine, door = null } = {}) {
+export async function runAWorkflow({ recipe = null, row = null, steps = [], input = {}, answers = {}, partition = 'person' } = {}, host = null, { engine = workflowEngine } = {}) {
   const shipped = recipeOf({ recipe, row, steps });
   const payload = startingAt(shipped, input?.start_at);
   const definition = definitionOf(payload);
   const runner = makeWorkflowDefinitionRunner(engine);
   const asked = { definitions: [definition, ...(definition.uses ?? [])], workflow_id: definition.id, input, answers, partition };
-  const hosted = toolHost(door, answers ?? {});
+  const hosted = toolHost(host, answers ?? {});
   const run = hosted ? { ...(await runner.runWorkflowDefinition(asked, hosted.host)), waiting: hosted.waiting } : await runner.runWorkflowDefinition(asked);
   return { definition, run, kit: kitFor(shipped) };
 }
@@ -142,7 +142,7 @@ export async function runAWorkflow({ recipe = null, row = null, steps = [], inpu
 /** tool:run-workflow-definition: given definitions and a workflow_id, those run as they are; given a recipe (or its row
  *  and step rows), it is made a definition first. Returns the run (status, waiting, each step's output), and the
  *  definition made when a recipe was given. */
-export async function runWorkflow({ definitions = null, workflow_id = null, recipe = null, row = null, steps = [], input, answers = {}, partition = 'person', ...given } = {}, { engine = workflowEngine, door = null } = {}) {
+export async function runWorkflow({ definitions = null, workflow_id = null, recipe = null, row = null, steps = [], input, answers = {}, partition = 'person', ...given } = {}, host = null, { engine = workflowEngine } = {}) {
   if (Object.keys(given).length) {
     // A listed row run as this tool: its own fields are the run's input (a wake's input, or a tools:run input).
     if (typeof row !== 'string' || input !== undefined) throw new Error(`Only a listed workflow row's run takes fields of its own (${Object.keys(given).join(', ')}); give them as input.`);
@@ -152,18 +152,18 @@ export async function runWorkflow({ definitions = null, workflow_id = null, reci
   if (definitions) {
     if (recipe || row) throw new Error('Give definitions with a workflow_id, or a recipe (or its row and steps), not both.');
     const asked = { definitions, workflow_id, input, answers, partition };
-    const hosted = toolHost(door, answers ?? {});
+    const hosted = toolHost(host, answers ?? {});
     return hosted ? { ...(await makeWorkflowDefinitionRunner(engine).runWorkflowDefinition(asked, hosted.host)), waiting: hosted.waiting }
       : makeWorkflowDefinitionRunner(engine).runWorkflowDefinition(asked);
   }
-  const { definition, run, kit } = await runAWorkflow({ recipe, row, steps, input, answers, partition }, { engine, door });
+  const { definition, run, kit } = await runAWorkflow({ recipe, row, steps, input, answers, partition }, host, { engine });
   return { ...run, definition, kit };
 }
 
 /** tool:run-workflow-definition as the engine calls it: { run, woken_by? } → runWorkflow(run), the waking fact in its input. */
-export async function runAsTheTool({ run = {}, woken_by = null } = {}, options = {}) {
-  if (!woken_by || typeof woken_by !== 'object' || woken_by.payload === undefined) return runWorkflow(run, options);
+export async function runAsTheTool({ run = {}, woken_by = null } = {}, host = null) {
+  if (!woken_by || typeof woken_by !== 'object' || woken_by.payload === undefined) return runWorkflow(run, host);
   const woken = { fact: woken_by.payload, ...(typeof woken_by.event_id === 'string' ? { fact_id: woken_by.event_id } : {}), ...(woken_by.coalesced > 0 ? { folded: woken_by.coalesced, last: woken_by.last?.payload ?? null } : {}) };
   const listed = typeof run.row === 'string' && run.input === undefined;
-  return runWorkflow(listed ? { ...run, ...woken } : { ...run, input: { ...(run.input ?? {}), ...woken } }, options);
+  return runWorkflow(listed ? { ...run, ...woken } : { ...run, input: { ...(run.input ?? {}), ...woken } }, host);
 }

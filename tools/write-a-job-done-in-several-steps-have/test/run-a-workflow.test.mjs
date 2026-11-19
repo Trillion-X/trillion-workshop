@@ -71,7 +71,7 @@ const toolRow = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta
 test('the tool row runs its sample runs through runAsTheTool, as definitions and as a recipe', async () => {
   assert.equal(toolRow.id, 'tool:run-workflow-definition');
   assert.equal(toolRow.invoke.argv.at(-1), 'runAsTheTool');
-  assert.ok(toolRow.invoke.argv.includes('/opt/records-door/do-work/run-an-export.mjs'), 'it runs through run-an-export, which hands the run its door');
+  assert.ok(toolRow.invoke.argv.includes('/opt/workflows/do-work/run-a-function.mjs'), 'it runs through run-a-function, which hands the run its host actions');
   for (const sample of toolRow.verify) {
     const result = await runAsTheTool({ run: sample.input }, {});
     assert.equal(result.status, 'paused');
@@ -172,7 +172,7 @@ test('(y) a woken run is given the fact that woke it as input.fact and its event
 });
 
 // A tool ask runs through the run's door in the same call; an answer given wins; a tool the run may not start waits.
-test('(z) a tool ask runs through the door, keyed by step and what it asks; other asks wait; a refused tool waits with why', async () => {
+test('(z) a tool ask runs through the host, keyed by step and what it asks; other asks wait; a refused tool waits with why', async () => {
   const bind = path => ({ $kind: 'binding', select: { from: 'input', path } });
   const definition = {
     id: 'workflow:made-up-two-tools', name: 'Two tools', kind: 'workflow', is_active: true, version: 1,
@@ -183,22 +183,22 @@ test('(z) a tool ask runs through the door, keyed by step and what it asks; othe
     edges: [{ from: 'count', to: 'judge', kind: 'always' }],
   };
   const calls = [];
-  const door = { async run(tool, input, { key }) { calls.push({ tool, input, key }); return { count: input.words.length }; } };
-  const ran = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id, input: { words: ['a', 'b'] } } }, { door });
+  const host = { async run(tool, input, { key }) { calls.push({ tool, input, key }); return { count: input.words.length }; } };
+  const ran = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id, input: { words: ['a', 'b'] } } }, host);
   assert.equal(ran.status, 'paused');
   assert.deepEqual(ran.waiting.map(item => item.step_id), ['judge']);
   assert.equal(calls.length, 1);
   assert.deepEqual(calls[0].input, { words: ['a', 'b'] });
   assert.match(calls[0].key, /^count:[0-9a-f]{64}$/);
-  const again = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id, input: { words: ['a', 'b'] } } }, { door });
+  const again = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id, input: { words: ['a', 'b'] } } }, host);
   assert.equal(calls[1].key, calls[0].key, 'the same ask is the same key, so the engine runs it once');
-  await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id, input: { words: ['a', 'b'] }, answers: { count: { count: 9 } } } }, { door });
+  await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id, input: { words: ['a', 'b'] }, answers: { count: { count: 9 } } } }, host);
   assert.equal(calls.length, 2, 'an answer given for the step wins over running the tool');
   const refusing = { async run() { throw Object.assign(new Error('This run may not start tool:made-up-count.'), { code: 'rpc_error', outcome: 'unknown' }); } };
-  const held = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id, input: { words: [] } } }, { door: refusing });
+  const held = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id, input: { words: [] } } }, refusing);
   assert.deepEqual(held.waiting.map(item => [item.step_id, item.why]), [['count', 'This run may not start tool:made-up-count.']]);
   const failing = { async run() { throw Object.assign(new Error('tool:made-up-count did not finish: boom'), { code: 'tool_run_failed', outcome: 'committed' }); } };
-  const failed = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id, input: { words: [] } } }, { door: failing });
+  const failed = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id, input: { words: [] } } }, failing);
   assert.equal(failed.status, 'failed');
   assert.match(failed.error_message, /Step 'count' failed: .*did not finish: boom/);
   assert.ok(again);
@@ -229,8 +229,8 @@ test('a door ask a step may name (wake:arrive) runs as that door operation; the 
   const definition = { id: 'workflow:made-up-teller', name: 'Teller', kind: 'workflow', is_active: true, version: 1, edges: [],
     steps: [{ id: 'tell', kind: 'ask', config: { name: 'wake:arrive', input: { kind: 'made-up', event_id: 'e', payload: {} }, context: { step_id: 'tell' } } }] };
   const calls = [];
-  const door = { run() { throw new Error('not a tool'); }, async operation(method, input, { key }) { calls.push([method, input.kind, key.split(':')[0]]); return { kept: true }; } };
-  const ran = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id } }, { door });
+  const host = { run() { throw new Error('not a tool'); }, async operation(method, input, { key }) { calls.push([method, input.kind, key.split(':')[0]]); return { kept: true }; } };
+  const ran = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id } }, host);
   assert.equal(ran.status, 'completed');
   assert.deepEqual(calls, [['wake:arrive', 'made-up', 'tell']]);
 });
@@ -241,12 +241,12 @@ test('tools:list and an addressed tools:run step send the door its whole input; 
     steps: [step('list', 'tools:list', { address: 'https://mcp.example.test/mcp' }), step('run', 'tools:run', { address: 'https://mcp.example.test/mcp', tool: 'search', input: { q: 'x' } })],
     edges: [{ from: 'list', to: 'run', kind: 'always' }] };
   const sent = [];
-  const door = { run() { throw new Error('not by id'); }, async operation(method, input) { sent.push([method, input]); return method === 'tools:list' ? { tools: [] } : { result: { found: 1 } }; } };
-  const ran = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id } }, { door });
+  const host = { run() { throw new Error('not by id'); }, async operation(method, input) { sent.push([method, input]); return method === 'tools:list' ? { tools: [] } : { result: { found: 1 } }; } };
+  const ran = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id } }, host);
   assert.equal(ran.status, 'completed');
   assert.deepEqual(sent, [['tools:list', { address: 'https://mcp.example.test/mcp' }], ['tools:run', { address: 'https://mcp.example.test/mcp', tool: 'search', input: { q: 'x' } }]]);
   const failing = { run() {}, async operation(method) { return method === 'tools:list' ? { tools: [] } : { error: 'the server refused' }; } };
-  const failed = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id } }, { door: failing });
+  const failed = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id } }, failing);
   assert.equal(failed.status, 'failed');
   assert.match(failed.error_message, /tools:run did not finish: the server refused/);
 });
@@ -258,8 +258,8 @@ test('a run woken by a change is given the change the fact carries, and reads no
   const detail = { kind: 'workflow-chosen', from: 'run', event_id: 'd:9:4:w:c', coalesced: 0,
     payload: { workflow: 'workflow:made-up-reader', condition: 'c', where: 'made-up-connection', table_name: 'lesson_request', op: 'INSERT', key: 'd:9:4', after: '{"topic":"how tides work"}' } };
   const reads = [];
-  const door = { async run(tool, input, { key }) { reads.push([tool, input, key]); return {}; } };
-  const ran = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id }, woken_by: detail }, { door });
+  const host = { async run(tool, input, { key }) { reads.push([tool, input, key]); return {}; } };
+  const ran = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id }, woken_by: detail }, host);
   assert.deepEqual(reads, []);
   assert.deepEqual(ran.waiting[0].input, { after: '{"topic":"how tides work"}', op: 'INSERT' });
 });
@@ -268,10 +268,10 @@ test('a refusal of the step\'s own call fails the step with the door\'s code; a 
   const definition = { id: 'workflow:made-up-lister', name: 'Lister', kind: 'workflow', is_active: true, version: 1, edges: [],
     steps: [{ id: 'list', kind: 'ask', config: { name: 'tools:list', input: { credential: 'made-up-key' }, context: { step_id: 'list' } } }] };
   const refusing = code => ({ run() {}, async operation() { throw Object.assign(new Error('The input is not the shape this tool declares.'), { code, outcome: 'not_started' }); } });
-  const invalid = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id } }, { door: refusing('tools_run_input_refused') });
+  const invalid = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id } }, refusing('tools_run_input_refused'));
   assert.equal(invalid.status, 'failed');
   assert.match(invalid.error_message, /tools:list was refused \(tools_run_input_refused\)/);
-  const ungranted = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id } }, { door: refusing('tools_tool_capability_not_granted') });
+  const ungranted = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id } }, refusing('tools_tool_capability_not_granted'));
   assert.equal(ungranted.status, 'paused');
   assert.equal(ungranted.waiting[0].step_id, 'list');
 });
