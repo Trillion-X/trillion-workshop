@@ -73,7 +73,7 @@ test('a kept change is one statement of the told change, keyed by where, place, 
 
 // The person's own switch input: everything this row names none of.
 const SETTINGS = { history: { credential_name: 'my-history-connection' }, address_scheme: 'email', soon_minutes: 120,
-  owner: { audience_refs: ['person:owner'], kind: 'needs-you', privacy_class: 'private' },
+  notices: { credential_name: 'my-notices-connection', kind: 'needs-you' },
   mail: { provider: 'gmail', connection: { connection_id: 'service_connection:google-account:example' } }, calendar: { provider: 'google-calendar', connection: { connection_id: 'service_connection:google-account:example' }, calendar_id: 'primary' },
   voice: { adapter: '/opt/example-adapter', base_model: '/opt/example-model', criterion: { id: 'x' }, min_paragraph_chars: 40, decider_common_dir: '/opt/example-decider' },
   phrase_rules: [{ id: 'no-filler', words: ['just checking in'] }] };
@@ -81,7 +81,9 @@ const due = (soon, extra = {}) => ({ thing_scheme: 'person', thing_value: 'perso
   next_call_at: '2026-11-21T13:00:00.000Z', soon, now_at: '2026-11-19T13:00:00Z', calendar_to: '2026-11-22T13:00:00Z', history: '[]', ...extra });
 function tellDoor({ rows, claimed = true, fail = null }) {
   return door((name, input) => {
-    if (fail === name) throw Object.assign(new Error(`${name} refused`), { code: 'tools_run_input_refused' });
+    const notice = name === 'tool:run-sql-in-my-database' && input.sql.startsWith('insert into notices');
+    if (fail === name || (fail === 'notice' && notice)) throw Object.assign(new Error(`${name} refused`), { code: 'tools_run_input_refused' });
+    if (notice) return { rows: [{ notification_id: 'told:1' }], row_count: 1 };
     if (name === 'tool:run-sql-in-my-database') {
       if (input.sql.includes('due_tells')) return { rows, row_count: rows.length };
       if (input.sql.startsWith('INSERT INTO tells')) return claimed ? { rows: [{ call_now: input.params[4], write_now: !input.params[4] }], row_count: 1 } : { rows: [], row_count: 0 };
@@ -93,27 +95,33 @@ function tellDoor({ rows, claimed = true, fail = null }) {
     if (name === 'tool:score-writing-with-a-voice-adapter') return { result: { paragraph_scores: [{ index: 0, chars: 40, p_pass: 0.8 }], body_min: 0.8 } };
     if (name === 'tool:judge-against-rules') return { passed: true, status: 'passed', findings: [], lines: [], said: 'clean' };
     if (name === 'tool:save-a-mail-draft') return { draft_id: 'draft-1', message_id: null, thread_id: null };
-    return { notification_id: input.notification_id, recorded: true, said: 'recorded' };
+    throw new Error(`no stand-in for ${name}`);
   });
 }
 const tellRun = d => runAsTheTool(wake(TELL, 'every-five-minutes', { schedule_id: 'x' }, 'clock::due@1', SETTINGS), d);
-const DRAFTED = ['WITH', 'INSERT', 'tool:find-mail', 'tool:read-calendar-events', 'tool:ask-a-model', 'tool:score-writing-with-a-voice-adapter', 'tool:judge-against-rules', 'tool:save-a-mail-draft', 'tool:record-a-notification'];
-const asked = d => d.calls.map(call => call.name === 'tool:run-sql-in-my-database' ? call.input.sql.split(/\s/)[0] : call.name);
+const MADE = ['CREATE', 'CREATE', 'alter'];
+const DRAFTED = [...MADE, 'WITH', 'INSERT', 'tool:find-mail', 'tool:read-calendar-events', 'tool:ask-a-model', 'tool:score-writing-with-a-voice-adapter', 'tool:judge-against-rules', 'tool:save-a-mail-draft', 'notice'];
+const asked = d => d.calls.map(call => call.name !== 'tool:run-sql-in-my-database' ? call.name : call.input.sql.startsWith('insert into notices') ? 'notice' : call.input.sql.split(/\s/)[0]);
+/** A notice's own fields, from the insert's params ($1 kind, $2 title, $3 body, $4 key). */
+const noticeOf = call => ({ credential_name: call.input.credential_name, kind: call.input.params[0], title: call.input.params[1], body: call.input.params[2], key: call.input.params[3] });
 
 test('a settled person is told once: a checked draft to the address used last, in the owner\'s mailbox, and a notice that it is there', async () => {
   const d = tellDoor({ rows: [due(false)] });
   const run = await tellRun(d);
   assert.equal(run.status, 'completed', run.error_message);
   assert.deepEqual(asked(d), DRAFTED);
-  assert.equal(d.calls[0].input.credential_name, 'my-history-connection', 'the history is the one the person switched on with');
-  assert.equal(d.calls[2].input.text, `to:${address('bo.work')}`);
-  assert.deepEqual(d.calls[6].input.rules, SETTINGS.phrase_rules);
-  assert.match(d.calls[4].input.messages[1].content, /Mail already sent to them: .*Your call.*Calendar: .*Call with Bo/);
-  const [save, notice] = d.calls.slice(-2).map(call => call.input);
+  assert.equal(d.calls[0].input.credential_name, 'my-notices-connection', 'the notices table is made where the person keeps their notices');
+  assert.equal(d.calls[3].input.credential_name, 'my-history-connection', 'the history is the one the person switched on with');
+  assert.equal(d.calls[5].input.text, `to:${address('bo.work')}`);
+  assert.deepEqual(d.calls[9].input.rules, SETTINGS.phrase_rules);
+  assert.match(d.calls[7].input.messages[1].content, /Mail already sent to them: .*Your call.*Calendar: .*Call with Bo/);
+  const save = d.calls.at(-2).input;
+  const notice = noticeOf(d.calls.at(-1));
   assert.equal(save.to, address('bo.work'));
   assert.equal(save.subject, 'Our call');
-  assert.equal(notice.notification_id, 'history:person:person:bo:9');
-  assert.deepEqual(notice.audience_refs, ['person:owner']);
+  assert.equal(notice.key, 'history:person:person:bo:9', 'one notice per person and change: telling it again keeps no second');
+  assert.equal(notice.credential_name, 'my-notices-connection');
+  assert.equal(notice.kind, 'needs-you');
   assert.match(notice.title, /draft to .* is in your mailbox: moved the call/);
   assert.match(notice.body, /sending it is your yes\. Voice score \(lowest paragraph\): 0\.8\. Phrase findings: \[\]\. Draft id: draft-1/);
 });
@@ -121,26 +129,26 @@ test('a settled person is told once: a checked draft to the address used last, i
 test('a next call sooner than soon_minutes is a call to make now, with no draft', async () => {
   const d = tellDoor({ rows: [due(true)] });
   assert.equal((await tellRun(d)).status, 'completed');
-  assert.deepEqual(asked(d), ['WITH', 'INSERT', 'tool:record-a-notification']);
-  assert.match(d.calls.at(-1).input.title, /^Call .* now: their call starts at 2026-11-21T13:00:00.000Z$/);
+  assert.deepEqual(asked(d), [...MADE, 'WITH', 'INSERT', 'notice']);
+  assert.match(noticeOf(d.calls.at(-1)).title, /^Call .* now: their call starts at 2026-11-21T13:00:00.000Z$/);
 });
 
 test('changes already told are not told again: the claim refuses and nothing is drafted or told', async () => {
   const d = tellDoor({ rows: [due(false)], claimed: false });
   assert.equal((await tellRun(d)).status, 'completed');
-  assert.deepEqual(asked(d), ['WITH', 'INSERT']);
+  assert.deepEqual(asked(d), [...MADE, 'WITH', 'INSERT']);
 });
 
 test('a draft step that fails still tells what changed; a notice that fails gives its claim back and removes its draft', async () => {
   for (const failing of ['tool:find-mail', 'tool:read-calendar-events', 'tool:ask-a-model', 'tool:score-writing-with-a-voice-adapter', 'tool:judge-against-rules', 'tool:save-a-mail-draft']) {
     const d = tellDoor({ rows: [due(false)], fail: failing });
     assert.equal((await tellRun(d)).status, 'completed');
-    assert.deepEqual(asked(d).slice(-2), [failing, 'tool:record-a-notification'], failing);
-    assert.match(d.calls.at(-1).input.body, /^No draft was made/);
+    assert.deepEqual(asked(d).slice(-2), [failing, 'notice'], failing);
+    assert.match(noticeOf(d.calls.at(-1)).body, /^No draft was made/);
   }
-  const told = tellDoor({ rows: [due(false)], fail: 'tool:record-a-notification' });
+  const told = tellDoor({ rows: [due(false)], fail: 'notice' });
   await tellRun(told);
-  assert.deepEqual(asked(told).slice(-3), ['tool:record-a-notification', 'DELETE', 'tool:delete-a-mail-draft']);
+  assert.deepEqual(asked(told).slice(-3), ['notice', 'DELETE', 'tool:delete-a-mail-draft']);
   assert.equal(told.calls.at(-1).input.draft_id, 'draft-1');
 });
 

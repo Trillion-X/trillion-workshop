@@ -1,5 +1,5 @@
 {
-  "_what": "Every five minutes reads due_tells() from the person's own history: each person (a thing whose scheme is told_about) with standing new statements whose meanings' tell_after has passed since the newest, batched, with the tell_words for that set of meanings (a cancel and a new booking together are 'moved the call'). For each it first claims the tell (tells, primary key thing and through), so the same changes are never told twice even when two runs overlap, then puts one ready action to the owner through tool:record-a-notification: when the person's next call starts within soon_minutes, a notice to call them now; else it reads the mail already sent to the address they used last (tool:find-mail) and the calendar (tool:read-calendar-events), has tool:ask-a-model draft the email, scores it with the owner's voice scorer (tool:score-writing-with-a-voice-adapter, mode draft) and the owner's phrase rules (tool:judge-against-rules), saves it as a draft in the owner's own mailbox (tool:save-a-mail-draft) and tells the owner it is there: the owner sending it is the yes, and the sent mail comes back into the history through the owner's sent-mail waiter as a sent statement, whose meaning has no tell_after, so it starts nothing. When a step of the draft fails, the notice says what changed without a draft; when a notice itself fails, the claim is given back so the next look tells it, and a saved draft that notice would have named is removed. The next call is the earliest starts_at of the person's bookings whose latest statement has no cancelled_at: the names a source's waiter row carries its values under (service-lists shape.carry). Everything the person owns (history connection, mail, calendar, voice, phrase rules, who is told) comes in on their own switch; the row names none.",
+  "_what": "Every five minutes reads due_tells() from the person's own history: each person (a thing whose scheme is told_about) with standing new statements whose meanings' tell_after has passed since the newest, batched, with the tell_words for that set of meanings (a cancel and a new booking together are 'moved the call'). For each it first claims the tell (tells, primary key thing and through), so the same changes are never told twice even when two runs overlap, then puts one ready action to the owner as a row of their notices (in the store their switch names, the one workflow:read-my-notices reads): when the person's next call starts within soon_minutes, a notice to call them now; else it reads the mail already sent to the address they used last (tool:find-mail) and the calendar (tool:read-calendar-events), has tool:ask-a-model draft the email, scores it with the owner's voice scorer (tool:score-writing-with-a-voice-adapter, mode draft) and the owner's phrase rules (tool:judge-against-rules), saves it as a draft in the owner's own mailbox (tool:save-a-mail-draft) and tells the owner it is there: the owner sending it is the yes, and the sent mail comes back into the history through the owner's sent-mail waiter as a sent statement, whose meaning has no tell_after, so it starts nothing. When a step of the draft fails, the notice says what changed without a draft; when a notice itself fails, the claim is given back so the next look tells it, and a saved draft that notice would have named is removed. The next call is the earliest starts_at of the person's bookings whose latest statement has no cancelled_at: the names a source's waiter row carries its values under (service-lists shape.carry). Everything the person owns (history connection, mail, calendar, voice, phrase rules, who is told) comes in on their own switch; the row names none.",
   "records": [
     {
       "payload": {
@@ -23,10 +23,6 @@
               "type": "integer",
               "description": "A next call starting within this many minutes is a call to make now, not an email"
             },
-            "owner": {
-              "type": "object",
-              "description": "Who is told and how, for tool:record-a-notification: audience_refs, kind and privacy_class"
-            },
             "mail": {
               "type": "object",
               "description": "The owner's mail account: provider and connection {connection_id}"
@@ -42,6 +38,10 @@
             "phrase_rules": {
               "type": "array",
               "description": "The owner's phrase rules for tool:judge-against-rules (rows {id, words})"
+            },
+            "notices": {
+              "type": "object",
+              "description": "Where the owner's notices are kept, the store workflow:read-my-notices reads: credential_name (the vault name of that database's login, the person's own switch input) and kind (the notice kind; needs-you when none)"
             }
           }
         },
@@ -98,7 +98,7 @@
               "wall_ms": 900000
             },
             "input": {
-              "start_at": "read-what-is-due"
+              "start_at": "make-devices"
             }
           }
         ],
@@ -109,6 +109,66 @@
           "is_active": true,
           "version": 1,
           "steps": [
+            {
+              "id": "make-devices",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "notices.credential_name"
+                    }
+                  },
+                  "sql": "CREATE TABLE IF NOT EXISTS devices (id text PRIMARY KEY, platform text NOT NULL CHECK (platform IN ('live', 'web-push', 'apns')), token text, app_build text, registered_at timestamptz NOT NULL DEFAULT now(), last_seen_at timestamptz NOT NULL DEFAULT now())"
+                },
+                "context": {
+                  "step_id": "make-devices"
+                }
+              }
+            },
+            {
+              "id": "make-notices",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "notices.credential_name"
+                    }
+                  },
+                  "sql": "CREATE TABLE IF NOT EXISTS notices (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, device_id text REFERENCES devices (id), title text NOT NULL DEFAULT '', body text NOT NULL DEFAULT '', url text, made_at timestamptz NOT NULL DEFAULT now(), read_at timestamptz, acted_at timestamptz)"
+                },
+                "context": {
+                  "step_id": "make-notices"
+                }
+              }
+            },
+            {
+              "id": "notices-have-kind-and-key",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "notices.credential_name"
+                    }
+                  },
+                  "sql": "alter table notices add column if not exists kind text, add column if not exists key text"
+                },
+                "context": {
+                  "step_id": "notices-have-kind-and-key"
+                }
+              }
+            },
             {
               "id": "read-what-is-due",
               "kind": "ask",
@@ -164,6 +224,21 @@
             }
           ],
           "edges": [
+            {
+              "from": "make-devices",
+              "to": "make-notices",
+              "kind": "always"
+            },
+            {
+              "from": "make-notices",
+              "to": "notices-have-kind-and-key",
+              "kind": "always"
+            },
+            {
+              "from": "notices-have-kind-and-key",
+              "to": "read-what-is-due",
+              "kind": "always"
+            },
             {
               "from": "read-what-is-due",
               "to": "tell-each",
@@ -239,231 +314,141 @@
                   "id": "call-now",
                   "kind": "ask",
                   "config": {
-                    "name": "tool:record-a-notification",
+                    "name": "tool:run-sql-in-my-database",
                     "input": {
-                      "notification_id": {
+                      "credential_name": {
                         "$kind": "binding",
                         "select": {
                           "from": "input",
-                          "path": "start_at"
-                        },
-                        "resolve_nested_bindings": true,
-                        "transform": [
-                          {
-                            "op": "op:core.concat",
-                            "args": {
-                              "values": [
-                                "history:",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.thing_scheme"
-                                  }
-                                },
-                                ":",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.thing_value"
-                                  }
-                                },
-                                ":",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.through"
-                                  },
-                                  "transform": [
-                                    {
-                                      "op": "op:core.if_null",
-                                      "args": {
-                                        "value": "none"
-                                      }
-                                    },
-                                    {
-                                      "op": "op:core.to_string"
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      },
-                      "kind": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "owner.kind"
+                          "path": "notices.credential_name"
                         }
                       },
-                      "audience_refs": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "owner.audience_refs"
-                        }
-                      },
-                      "privacy_class": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "owner.privacy_class"
-                        }
-                      },
-                      "conversation_ref": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "start_at"
+                      "sql": "insert into notices (title, body, kind, key) select $2::text, coalesce($3::text, ''), $1::text, $4::text where not exists (select 1 from notices where key = $4::text) returning 'told:' || id as notification_id",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "notices.kind"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.if_null",
+                              "args": {
+                                "value": "needs-you"
+                              }
+                            }
+                          ]
                         },
-                        "resolve_nested_bindings": true,
-                        "transform": [
-                          {
-                            "op": "op:core.concat",
-                            "args": {
-                              "values": [
-                                "history:",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.thing_scheme"
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "start_at"
+                          },
+                          "resolve_nested_bindings": true,
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  "Call ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "due.address"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
+                                  },
+                                  " now: their call starts at ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "due.next_call_at"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
                                   }
-                                },
-                                ":",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.thing_value"
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "start_at"
+                          },
+                          "resolve_nested_bindings": true,
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "due.words"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
+                                  },
+                                  ". Their history, oldest first: ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "due.history"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
                                   }
-                                }
-                              ]
+                                ]
+                              }
                             }
-                          }
-                        ]
-                      },
-                      "title": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "start_at"
+                          ]
                         },
-                        "resolve_nested_bindings": true,
-                        "transform": [
-                          {
-                            "op": "op:core.concat",
-                            "args": {
-                              "values": [
-                                "Call ",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.address"
-                                  },
-                                  "transform": [
-                                    {
-                                      "op": "op:core.if_null",
-                                      "args": {
-                                        "value": "none"
-                                      }
-                                    },
-                                    {
-                                      "op": "op:core.to_string"
-                                    }
-                                  ]
-                                },
-                                " now: their call starts at ",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.next_call_at"
-                                  },
-                                  "transform": [
-                                    {
-                                      "op": "op:core.if_null",
-                                      "args": {
-                                        "value": "none"
-                                      }
-                                    },
-                                    {
-                                      "op": "op:core.to_string"
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      },
-                      "body": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "start_at"
-                        },
-                        "resolve_nested_bindings": true,
-                        "transform": [
-                          {
-                            "op": "op:core.concat",
-                            "args": {
-                              "values": [
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.words"
-                                  },
-                                  "transform": [
-                                    {
-                                      "op": "op:core.if_null",
-                                      "args": {
-                                        "value": "none"
-                                      }
-                                    },
-                                    {
-                                      "op": "op:core.to_string"
-                                    }
-                                  ]
-                                },
-                                ". Their history, oldest first: ",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.history"
-                                  },
-                                  "transform": [
-                                    {
-                                      "op": "op:core.if_null",
-                                      "args": {
-                                        "value": "none"
-                                      }
-                                    },
-                                    {
-                                      "op": "op:core.to_string"
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      },
-                      "occurred_at": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "loop",
-                          "path": "due.now_at"
-                        }
-                      },
-                      "source_refs": [
                         {
                           "$kind": "binding",
                           "select": {
@@ -493,44 +478,6 @@
                                     }
                                   },
                                   ":",
-                                  {
-                                    "$kind": "binding",
-                                    "select": {
-                                      "from": "loop",
-                                      "path": "due.through"
-                                    },
-                                    "transform": [
-                                      {
-                                        "op": "op:core.if_null",
-                                        "args": {
-                                          "value": "none"
-                                        }
-                                      },
-                                      {
-                                        "op": "op:core.to_string"
-                                      }
-                                    ]
-                                  }
-                                ]
-                              }
-                            }
-                          ]
-                        }
-                      ],
-                      "proof_refs": [
-                        {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "start_at"
-                          },
-                          "resolve_nested_bindings": true,
-                          "transform": [
-                            {
-                              "op": "op:core.concat",
-                              "args": {
-                                "values": [
-                                  "statement:",
                                   {
                                     "$kind": "binding",
                                     "select": {
@@ -998,251 +945,161 @@
                   "id": "draft-is-ready",
                   "kind": "ask",
                   "config": {
-                    "name": "tool:record-a-notification",
+                    "name": "tool:run-sql-in-my-database",
                     "input": {
-                      "notification_id": {
+                      "credential_name": {
                         "$kind": "binding",
                         "select": {
                           "from": "input",
-                          "path": "start_at"
-                        },
-                        "resolve_nested_bindings": true,
-                        "transform": [
-                          {
-                            "op": "op:core.concat",
-                            "args": {
-                              "values": [
-                                "history:",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.thing_scheme"
-                                  }
-                                },
-                                ":",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.thing_value"
-                                  }
-                                },
-                                ":",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.through"
-                                  },
-                                  "transform": [
-                                    {
-                                      "op": "op:core.if_null",
-                                      "args": {
-                                        "value": "none"
-                                      }
-                                    },
-                                    {
-                                      "op": "op:core.to_string"
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      },
-                      "kind": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "owner.kind"
+                          "path": "notices.credential_name"
                         }
                       },
-                      "audience_refs": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "owner.audience_refs"
-                        }
-                      },
-                      "privacy_class": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "owner.privacy_class"
-                        }
-                      },
-                      "conversation_ref": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "start_at"
+                      "sql": "insert into notices (title, body, kind, key) select $2::text, coalesce($3::text, ''), $1::text, $4::text where not exists (select 1 from notices where key = $4::text) returning 'told:' || id as notification_id",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "notices.kind"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.if_null",
+                              "args": {
+                                "value": "needs-you"
+                              }
+                            }
+                          ]
                         },
-                        "resolve_nested_bindings": true,
-                        "transform": [
-                          {
-                            "op": "op:core.concat",
-                            "args": {
-                              "values": [
-                                "history:",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.thing_scheme"
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "start_at"
+                          },
+                          "resolve_nested_bindings": true,
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  "A draft to ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "due.address"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
+                                  },
+                                  " is in your mailbox: ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "due.words"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
                                   }
-                                },
-                                ":",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.thing_value"
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "start_at"
+                          },
+                          "resolve_nested_bindings": true,
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  "Send it from your mailbox when it is right; sending it is your yes. Voice score (lowest paragraph): ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "steps",
+                                      "key": "score-the-voice",
+                                      "path": "output.result.body_min"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
+                                  },
+                                  ". Phrase findings: ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "steps",
+                                      "key": "check-the-phrases",
+                                      "path": "output.findings"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.stringify",
+                                        "args": {
+                                          "format": "json"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  ". Draft id: ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "steps",
+                                      "key": "save-the-draft",
+                                      "path": "output.draft_id"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
                                   }
-                                }
-                              ]
+                                ]
+                              }
                             }
-                          }
-                        ]
-                      },
-                      "title": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "start_at"
+                          ]
                         },
-                        "resolve_nested_bindings": true,
-                        "transform": [
-                          {
-                            "op": "op:core.concat",
-                            "args": {
-                              "values": [
-                                "A draft to ",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.address"
-                                  },
-                                  "transform": [
-                                    {
-                                      "op": "op:core.if_null",
-                                      "args": {
-                                        "value": "none"
-                                      }
-                                    },
-                                    {
-                                      "op": "op:core.to_string"
-                                    }
-                                  ]
-                                },
-                                " is in your mailbox: ",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.words"
-                                  },
-                                  "transform": [
-                                    {
-                                      "op": "op:core.if_null",
-                                      "args": {
-                                        "value": "none"
-                                      }
-                                    },
-                                    {
-                                      "op": "op:core.to_string"
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      },
-                      "body": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "start_at"
-                        },
-                        "resolve_nested_bindings": true,
-                        "transform": [
-                          {
-                            "op": "op:core.concat",
-                            "args": {
-                              "values": [
-                                "Send it from your mailbox when it is right; sending it is your yes. Voice score (lowest paragraph): ",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "steps",
-                                    "key": "score-the-voice",
-                                    "path": "output.result.body_min"
-                                  },
-                                  "transform": [
-                                    {
-                                      "op": "op:core.if_null",
-                                      "args": {
-                                        "value": "none"
-                                      }
-                                    },
-                                    {
-                                      "op": "op:core.to_string"
-                                    }
-                                  ]
-                                },
-                                ". Phrase findings: ",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "steps",
-                                    "key": "check-the-phrases",
-                                    "path": "output.findings"
-                                  },
-                                  "transform": [
-                                    {
-                                      "op": "op:core.stringify",
-                                      "args": {
-                                        "format": "json"
-                                      }
-                                    }
-                                  ]
-                                },
-                                ". Draft id: ",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "steps",
-                                    "key": "save-the-draft",
-                                    "path": "output.draft_id"
-                                  },
-                                  "transform": [
-                                    {
-                                      "op": "op:core.if_null",
-                                      "args": {
-                                        "value": "none"
-                                      }
-                                    },
-                                    {
-                                      "op": "op:core.to_string"
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      },
-                      "occurred_at": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "loop",
-                          "path": "due.now_at"
-                        }
-                      },
-                      "source_refs": [
                         {
                           "$kind": "binding",
                           "select": {
@@ -1272,44 +1129,6 @@
                                     }
                                   },
                                   ":",
-                                  {
-                                    "$kind": "binding",
-                                    "select": {
-                                      "from": "loop",
-                                      "path": "due.through"
-                                    },
-                                    "transform": [
-                                      {
-                                        "op": "op:core.if_null",
-                                        "args": {
-                                          "value": "none"
-                                        }
-                                      },
-                                      {
-                                        "op": "op:core.to_string"
-                                      }
-                                    ]
-                                  }
-                                ]
-                              }
-                            }
-                          ]
-                        }
-                      ],
-                      "proof_refs": [
-                        {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "start_at"
-                          },
-                          "resolve_nested_bindings": true,
-                          "transform": [
-                            {
-                              "op": "op:core.concat",
-                              "args": {
-                                "values": [
-                                  "statement:",
                                   {
                                     "$kind": "binding",
                                     "select": {
@@ -1344,212 +1163,122 @@
                   "id": "changed-without-a-draft",
                   "kind": "ask",
                   "config": {
-                    "name": "tool:record-a-notification",
+                    "name": "tool:run-sql-in-my-database",
                     "input": {
-                      "notification_id": {
+                      "credential_name": {
                         "$kind": "binding",
                         "select": {
                           "from": "input",
-                          "path": "start_at"
-                        },
-                        "resolve_nested_bindings": true,
-                        "transform": [
-                          {
-                            "op": "op:core.concat",
-                            "args": {
-                              "values": [
-                                "history:",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.thing_scheme"
-                                  }
-                                },
-                                ":",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.thing_value"
-                                  }
-                                },
-                                ":",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.through"
-                                  },
-                                  "transform": [
-                                    {
-                                      "op": "op:core.if_null",
-                                      "args": {
-                                        "value": "none"
-                                      }
-                                    },
-                                    {
-                                      "op": "op:core.to_string"
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      },
-                      "kind": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "owner.kind"
+                          "path": "notices.credential_name"
                         }
                       },
-                      "audience_refs": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "owner.audience_refs"
-                        }
-                      },
-                      "privacy_class": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "owner.privacy_class"
-                        }
-                      },
-                      "conversation_ref": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "start_at"
+                      "sql": "insert into notices (title, body, kind, key) select $2::text, coalesce($3::text, ''), $1::text, $4::text where not exists (select 1 from notices where key = $4::text) returning 'told:' || id as notification_id",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "notices.kind"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.if_null",
+                              "args": {
+                                "value": "needs-you"
+                              }
+                            }
+                          ]
                         },
-                        "resolve_nested_bindings": true,
-                        "transform": [
-                          {
-                            "op": "op:core.concat",
-                            "args": {
-                              "values": [
-                                "history:",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.thing_scheme"
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "start_at"
+                          },
+                          "resolve_nested_bindings": true,
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "due.address"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
+                                  },
+                                  " ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "due.words"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
                                   }
-                                },
-                                ":",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.thing_value"
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "start_at"
+                          },
+                          "resolve_nested_bindings": true,
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  "No draft was made (a mail, calendar, model or check step failed; the run says which). Their history, oldest first: ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "due.history"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.if_null",
+                                        "args": {
+                                          "value": "none"
+                                        }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
+                                      }
+                                    ]
                                   }
-                                }
-                              ]
+                                ]
+                              }
                             }
-                          }
-                        ]
-                      },
-                      "title": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "start_at"
+                          ]
                         },
-                        "resolve_nested_bindings": true,
-                        "transform": [
-                          {
-                            "op": "op:core.concat",
-                            "args": {
-                              "values": [
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.address"
-                                  },
-                                  "transform": [
-                                    {
-                                      "op": "op:core.if_null",
-                                      "args": {
-                                        "value": "none"
-                                      }
-                                    },
-                                    {
-                                      "op": "op:core.to_string"
-                                    }
-                                  ]
-                                },
-                                " ",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.words"
-                                  },
-                                  "transform": [
-                                    {
-                                      "op": "op:core.if_null",
-                                      "args": {
-                                        "value": "none"
-                                      }
-                                    },
-                                    {
-                                      "op": "op:core.to_string"
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      },
-                      "body": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "start_at"
-                        },
-                        "resolve_nested_bindings": true,
-                        "transform": [
-                          {
-                            "op": "op:core.concat",
-                            "args": {
-                              "values": [
-                                "No draft was made (a mail, calendar, model or check step failed; the run says which). Their history, oldest first: ",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "due.history"
-                                  },
-                                  "transform": [
-                                    {
-                                      "op": "op:core.if_null",
-                                      "args": {
-                                        "value": "none"
-                                      }
-                                    },
-                                    {
-                                      "op": "op:core.to_string"
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      },
-                      "occurred_at": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "loop",
-                          "path": "due.now_at"
-                        }
-                      },
-                      "source_refs": [
                         {
                           "$kind": "binding",
                           "select": {
@@ -1579,44 +1308,6 @@
                                     }
                                   },
                                   ":",
-                                  {
-                                    "$kind": "binding",
-                                    "select": {
-                                      "from": "loop",
-                                      "path": "due.through"
-                                    },
-                                    "transform": [
-                                      {
-                                        "op": "op:core.if_null",
-                                        "args": {
-                                          "value": "none"
-                                        }
-                                      },
-                                      {
-                                        "op": "op:core.to_string"
-                                      }
-                                    ]
-                                  }
-                                ]
-                              }
-                            }
-                          ]
-                        }
-                      ],
-                      "proof_refs": [
-                        {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "start_at"
-                          },
-                          "resolve_nested_bindings": true,
-                          "transform": [
-                            {
-                              "op": "op:core.concat",
-                              "args": {
-                                "values": [
-                                  "statement:",
                                   {
                                     "$kind": "binding",
                                     "select": {
@@ -1884,7 +1575,6 @@
             "tool:find-mail",
             "tool:judge-against-rules",
             "tool:read-calendar-events",
-            "tool:record-a-notification",
             "tool:run-sql-in-my-database",
             "tool:save-a-mail-draft",
             "tool:score-writing-with-a-voice-adapter"
