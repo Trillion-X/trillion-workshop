@@ -9455,8 +9455,8 @@
   {
    "id": "reach-companies-with-a-long-open-job-post--style",
    "values": {
-    "checks": "[{\"kind\":\"exists\",\"says\":\"The step ran tool:read-voice, a tool the account has\",\"path\":[\"this\",\"tool\"],\"catalog\":\"tool\"},{\"kind\":\"covers\",\"says\":\"The style is built for every kept prospect\",\"path\":[\"this\",\"for_keys\"],\"of\":[\"steps\",\"keep\",\"kept\",\"*\",\"key\"]}]",
-    "do": "With tool:read-voice read the sender's voice profiles: the person's own and the base, niche and group profiles its builds_on names, earliest first, using input.style_layers for any layer not saved yet; write the instruction_text from them, each later one overriding the earlier, and hand back that instruction_text, the profile kinds it was built from (levels) and the keys of the kept prospects it will be written for.",
+    "checks": "[{\"kind\":\"exists\",\"says\":\"The step ran tool:run-workflow-definition, a tool the account has\",\"path\":[\"this\",\"tool\"],\"catalog\":\"tool\"},{\"kind\":\"covers\",\"says\":\"The style is built for every kept prospect\",\"path\":[\"this\",\"for_keys\"],\"of\":[\"steps\",\"keep\",\"kept\",\"*\",\"key\"]}]",
+    "do": "With tool:run-workflow-definition run workflow:keep-how-someone-does-their-thing to read the sender's voice profiles: the person's own and the base, niche and group profiles its builds_on names, earliest first, using input.style_layers for any layer not saved yet; write the instruction_text from them, each later one overriding the earlier, and hand back that instruction_text, the profile kinds it was built from (levels) and the keys of the kept prospects it will be written for.",
     "flags": [
      "public"
     ],
@@ -9465,7 +9465,7 @@
      "reach-companies-with-a-long-open-job-post"
     ],
     "step": "style",
-    "submit": "{\"type\":\"object\",\"required\":[\"tool\",\"instruction_text\",\"levels\",\"for_keys\"],\"properties\":{\"tool\":{\"const\":\"tool:read-voice\"},\"instruction_text\":{\"type\":\"string\",\"minLength\":20},\"levels\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1},\"for_keys\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1}}}",
+    "submit": "{\"type\":\"object\",\"required\":[\"tool\",\"instruction_text\",\"levels\",\"for_keys\"],\"properties\":{\"tool\":{\"const\":\"tool:run-workflow-definition\"},\"instruction_text\":{\"type\":\"string\",\"minLength\":20},\"levels\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1},\"for_keys\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1}}}",
     "title": "Build the sender's writing style"
    }
   },
@@ -9676,8 +9676,8 @@
   {
    "id": "reach-local-businesses-by-zip-code--style",
    "values": {
-    "checks": "[{\"kind\":\"exists\",\"says\":\"The step ran tool:read-voice, a tool the account has\",\"path\":[\"this\",\"tool\"],\"catalog\":\"tool\"},{\"kind\":\"covers\",\"says\":\"The style is built for every business with an opening\",\"path\":[\"this\",\"for_keys\"],\"of\":[\"steps\",\"versions\",\"assignments\",\"*\",\"key\"]}]",
-    "do": "With tool:read-voice read the sender's voice profiles: the person's own and the base, niche and group profiles its builds_on names, earliest first, using input.style_layers for any layer not saved yet; write the instruction_text from them, each later one overriding the earlier, and hand back that instruction_text, the profile kinds it was built from (levels) and the keys it will be written for.",
+    "checks": "[{\"kind\":\"exists\",\"says\":\"The step ran tool:run-workflow-definition, a tool the account has\",\"path\":[\"this\",\"tool\"],\"catalog\":\"tool\"},{\"kind\":\"covers\",\"says\":\"The style is built for every business with an opening\",\"path\":[\"this\",\"for_keys\"],\"of\":[\"steps\",\"versions\",\"assignments\",\"*\",\"key\"]}]",
+    "do": "With tool:run-workflow-definition run workflow:keep-how-someone-does-their-thing to read the sender's voice profiles: the person's own and the base, niche and group profiles its builds_on names, earliest first, using input.style_layers for any layer not saved yet; write the instruction_text from them, each later one overriding the earlier, and hand back that instruction_text, the profile kinds it was built from (levels) and the keys it will be written for.",
     "flags": [
      "public"
     ],
@@ -9686,7 +9686,7 @@
      "reach-local-businesses-by-zip-code"
     ],
     "step": "style",
-    "submit": "{\"type\":\"object\",\"required\":[\"tool\",\"instruction_text\",\"levels\",\"for_keys\"],\"properties\":{\"tool\":{\"const\":\"tool:read-voice\"},\"instruction_text\":{\"type\":\"string\",\"minLength\":20},\"levels\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1},\"for_keys\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1}}}",
+    "submit": "{\"type\":\"object\",\"required\":[\"tool\",\"instruction_text\",\"levels\",\"for_keys\"],\"properties\":{\"tool\":{\"const\":\"tool:run-workflow-definition\"},\"instruction_text\":{\"type\":\"string\",\"minLength\":20},\"levels\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1},\"for_keys\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1}}}",
     "title": "Build the sender's writing style"
    }
   },
@@ -15545,7 +15545,7 @@
     "actor_policy": "",
     "came_from": "workflow:make-one-piece-of-content-from-audience-to-publish",
     "checks": "[{\"kind\": \"subset-of\", \"path\": [\"this\", \"made\", \"*\", \"lead_id\"], \"of\": [\"steps\", \"pick-commenters\", \"lead_ids\"], \"says\": \"Every video answers a picked lead.\"}]",
-    "do": "For each lead call tool:run-workflow-definition with row workflow:make-one-piece-of-content-from-audience-to-publish and input that gives the comment (words, kind and source_link) as the audience step's evidence, input.pursuit as the purpose and the destinations the person has. Read how the person writes with tool:read-voice before any words are written. Keep the content-pieces row id the run makes on the lead row (field piece) and set its state to \"Being made\".",
+    "do": "For each lead call tool:run-workflow-definition with row workflow:make-one-piece-of-content-from-audience-to-publish and input that gives the comment (words, kind and source_link) as the audience step's evidence, input.pursuit as the purpose and the destinations the person has. Read how the person writes with workflow:keep-how-someone-does-their-thing before any words are written. Keep the content-pieces row id the run makes on the lead row (field piece) and set its state to \"Being made\".",
     "done_when": "Each lead has a content-pieces row and a finished run of the content workflow.",
     "flags": "{}",
     "good_answer": "Lead ids with the piece row each became.",
@@ -15956,9 +15956,9 @@
    "id": "grow-the-one-tree--write-in-the-voice",
    "values": {
     "actor_policy": "",
-    "came_from": "tool:read-voice a library reference on turning a voice note into an outline (voice note to hook, talking points and outro, one take).",
+    "came_from": "workflow:keep-how-someone-does-their-thing a library reference on turning a voice note into an outline (voice note to hook, talking points and outro, one take).",
     "checks": "[]",
-    "do": "Call tool:read-voice for the kind of writing, then write with the person's writing workflows into each format the seed fits: a post, a script, a book chapter, a letter. Keep each draft as a content-pieces row and a tree-outputs row. Three paths to a filmable piece, chosen per piece and allowed side by side: (a) the full script in the person's formats; (b) the outline path: when the part is a voice memo with a content idea, write only hook, talking points and outro, each a line in his own words from the memo (word for word where he said it, source named), into the piece's outline field of list content-pieces, so he films from the outline in one take and it does not sound like an AI script; (c) the voice-clone path of workflow:make-the-piece-without-waiting-for-the-person when his step is late.",
+    "do": "Read the person's voice for the kind of writing with workflow:keep-how-someone-does-their-thing, then write with the person's writing workflows into each format the seed fits: a post, a script, a book chapter, a letter. Keep each draft as a content-pieces row and a tree-outputs row. Three paths to a filmable piece, chosen per piece and allowed side by side: (a) the full script in the person's formats; (b) the outline path: when the part is a voice memo with a content idea, write only hook, talking points and outro, each a line in his own words from the memo (word for word where he said it, source named), into the piece's outline field of list content-pieces, so he films from the outline in one take and it does not sound like an AI script; (c) the voice-clone path of workflow:make-the-piece-without-waiting-for-the-person when his step is late.",
     "done_when": "Every draft is kept with its format and was written after reading the voice.",
     "flags": "{}",
     "good_answer": "Draft rows per format.",
@@ -16254,7 +16254,7 @@
     ],
     "position": 1,
     "step": "read-setup",
-    "do": "Read the row record:inbox-setup:dispositions from the person's own store; keep its value as setup (dispositions, pursuit_trunks keyed by pursuit id with list and trunk_task). List from the person's own store the rows {\"type\":\"pursuit\",\"limit\":200}; keep every row's id and after as priorities. List from the person's own store the rows {\"type\":\"record:mailbox\",\"limit\":200}; keep each row whose status is connected as mailboxes, with its id, connection_id, address and history_id (empty when none). Never copy a secret value: the connection_id is a handle only.",
+    "do": "Read the row record:inbox-setup:dispositions from the person's own store; keep its value as setup (dispositions, pursuit_trunks keyed by pursuit id with list and trunk_task). List from the person's own store the rows {\"type\":\"pursuit\",\"limit\":200}; keep every row's id and after as priorities. List from the person's own store the rows {\"type\":\"record:mailbox\",\"limit\":200}; keep each row whose status is connected as mailboxes, with its id, provider (the mail provider id the row names), connection_id, address and history_id (empty when none). Never copy a secret value: the connection_id is a handle only.",
     "submit": "{\"type\": \"object\", \"required\": [\"setup\", \"priorities\", \"mailboxes\"], \"properties\": {\"setup\": {\"type\": \"object\"}, \"priorities\": {\"type\": \"array\", \"items\": {\"type\": \"object\"}}, \"mailboxes\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"id\", \"connection_id\"]}}, \"blocked\": {\"type\": \"string\"}}}",
     "checks": "[{\"kind\": \"distinct-at-least\", \"path\": [\"this\", \"mailboxes\", \"*\", \"connection_id\"], \"count\": 1, \"says\": \"At least one connected mailbox is read.\"}]",
     "flags": [
@@ -16271,7 +16271,7 @@
     ],
     "position": 2,
     "step": "pull-new-mail",
-    "do": "For each mailbox: when its history_id is empty, call tool:google-account-find_my_mailbox with connection {connection_id} to read the current historyId, then call tool:google-account-search_mail with connection {connection_id} and query \"in:inbox newer_than:1d\", following page_token from each nextPageToken until none is returned. When its history_id is set, call tool:google-account-list_new_mail with connection {connection_id} and since set to that history_id, following its page token the same way. Keep each message id and threadId with its mailbox id, and the historyId to store as next_history for that mailbox. Call no send, draft, trash or modify tool in this step.",
+    "do": "For each mailbox: when its history_id is empty, call tool:find-my-mailbox with its provider and connection {connection_id} to read the cursor, then call tool:find-mail with the same provider and connection, folder inbox, and text naming the last day in that provider's own search words, passing page_token from each next_page_token until none is returned. When its history_id is set, call tool:list-new-mail with its provider, connection {connection_id} and since set to that history_id, following its next_page_token the same way. Keep each message id and thread_id with its mailbox id, and the cursor to store as next_history for that mailbox. Call no send, draft, trash or modify tool in this step.",
     "submit": "{\"type\": \"object\", \"required\": [\"messages\", \"next_history\"], \"properties\": {\"messages\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"mailbox_id\", \"message_id\", \"thread_id\"]}}, \"next_history\": {\"type\": \"object\"}}}",
     "checks": "[{\"kind\": \"subset-of\", \"path\": [\"this\", \"messages\", \"*\", \"mailbox_id\"], \"of\": [\"steps\", \"read-setup\", \"mailboxes\", \"*\", \"id\"], \"says\": \"Every message comes from a mailbox read-setup kept.\"}]",
     "flags": [
@@ -16288,7 +16288,7 @@
     ],
     "position": 3,
     "step": "group-threads",
-    "do": "Group the messages of pull-new-mail by thread_id. For each thread call tool:google-account-read_mail_headers on its newest message with connection {connection_id} of that message's mailbox. Keep From, To, Subject, Date and the snippet only. Submit one item per thread: ref \"gmail-thread:<thread_id>\", mailbox_id, version (the newest message id) and says (subject, sender name and snippet, under 400 characters).",
+    "do": "Group the messages of pull-new-mail by thread_id. For each thread call tool:read-mail-headers with message_id its newest message, and the provider and connection {connection_id} of that message's mailbox. Keep From, To, Subject, Date and the snippet only. Submit one item per thread: ref \"gmail-thread:<thread_id>\", mailbox_id, version (the newest message id) and says (subject, sender name and snippet, under 400 characters).",
     "submit": "{\"type\": \"object\", \"required\": [\"threads\"], \"properties\": {\"threads\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"ref\", \"mailbox_id\", \"version\", \"says\"]}}}}",
     "checks": "[{\"kind\": \"subset-of\", \"path\": [\"this\", \"threads\", \"*\", \"mailbox_id\"], \"of\": [\"steps\", \"read-setup\", \"mailboxes\", \"*\", \"id\"], \"says\": \"Every thread belongs to a connected mailbox.\"}]",
     "flags": [
@@ -16322,7 +16322,7 @@
     ],
     "position": 6,
     "step": "draft-replies",
-    "do": "For each such decision whose thread asks for something (a non-empty target_ref): call tool:read-voice for the person's voice and write the reply words. Check the words with tool:check-against-a-persons-rules-and-verdicts, and check them with tool:check-personal-data with no model named before any model outside this computer reads them. Then call tool:google-account-create_draft with connection {connection_id} of the thread's mailbox, thread_id, and raw as a base64url RFC 2822 message whose To and Subject come from the thread. Never call tool:google-account-send_draft in this workflow.",
+    "do": "For each such decision whose thread asks for something (a non-empty target_ref): read the person's voice with workflow:keep-how-someone-does-their-thing and write the reply words. Check the words with tool:check-against-a-persons-rules-and-verdicts, and check them with tool:check-personal-data with no model named before any model outside this computer reads them. Then call tool:save-a-mail-draft with the provider and connection {connection_id} of the thread's mailbox, from its address, to and subject from the thread, text the reply words, and thread_id and in_reply_to so it is a reply. Never call tool:send-a-mail-draft in this workflow.",
     "submit": "{\"type\": \"object\", \"required\": [\"drafts\", \"not_drafted\"], \"properties\": {\"drafts\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"ref\", \"draft_id\"]}}, \"not_drafted\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"ref\", \"reason\"]}}}}",
     "checks": "[{\"kind\": \"subset-of\", \"path\": [\"this\", \"drafts\", \"*\", \"ref\"], \"of\": [\"steps\", \"triage\", \"decisions\", \"*\", \"ref\"], \"says\": \"Drafts only for decided threads.\"}]",
     "flags": [

@@ -58,8 +58,8 @@
       "alike": ["a daily email digest", "a help desk's daily report", "an inbox zero log"]
     }
   ],
-  "workflows": ["workflow:handle-every-inbox-daily", "workflow:grow-the-one-tree"],
-  "tools": ["tool:run-workflow-definition", "tool:pour-example-rows-into-my-list", "tool:brief-a-triage", "tool:settle-a-triage", "tool:google-account-find_my_mailbox", "tool:google-account-search_mail", "tool:google-account-list_new_mail", "tool:google-account-read_mail_headers", "tool:google-account-create_draft", "tool:google-account-send_draft", "tool:read-voice", "tool:check-against-a-persons-rules-and-verdicts", "tool:check-personal-data"],
+  "workflows": ["workflow:handle-every-inbox-daily", "workflow:grow-the-one-tree", "workflow:keep-how-someone-does-their-thing"],
+  "tools": ["tool:run-workflow-definition", "tool:pour-example-rows-into-my-list", "tool:brief-a-triage", "tool:settle-a-triage", "tool:find-my-mailbox", "tool:find-mail", "tool:list-new-mail", "tool:read-mail-headers", "tool:save-a-mail-draft", "tool:send-a-mail-draft", "tool:check-against-a-persons-rules-and-verdicts", "tool:check-personal-data"],
   "instructions": [
     "1. Connect each mailbox you want read (your Google account connection) and write one record:mailbox row per mailbox with its address and connection handle, status connected; or pour the example rows into the list you keep (see pour).",
     "2. Write your record:inbox-setup:dispositions row: the dispositions a thread can get and, for each pursuit, the task list and trunk task its threads are filed under (start from the example rows).",

@@ -4,7 +4,8 @@
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
-    "workflow:reach-local-businesses-by-zip-code"
+    "workflow:reach-local-businesses-by-zip-code",
+    "workflow:keep-how-someone-does-their-thing"
   ],
   "tools": [
     "tool:choose-what-a-visitor-sees",
@@ -16,8 +17,8 @@
     "tool:read-an-exchange",
     "tool:read-experiment-results",
     "tool:read-public-web-page",
-    "tool:read-voice",
     "tool:record-a-customer-step",
+    "tool:run-workflow-definition",
     "tool:send-an-email",
     "tool:sort-bounces-and-replies",
     "tool:start-an-exchange",

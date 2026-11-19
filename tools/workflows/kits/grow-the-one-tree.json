@@ -464,7 +464,8 @@
     "workflow:make-the-piece-without-waiting-for-the-person",
     "workflow:personalized-reach-out",
     "workflow:read-the-week-and-make-more-of-what-won",
-    "workflow:rewrite-a-broad-condition"
+    "workflow:rewrite-a-broad-condition",
+    "workflow:keep-how-someone-does-their-thing"
   ],
   "tools": [
     "tool:run-workflow-definition",
@@ -477,7 +478,6 @@
     "tool:find-repeated-voice-edits",
     "tool:keep-a-voice-edit",
     "tool:read-experiment-results",
-    "tool:read-voice",
     "tool:save-voice",
     "tool:see-how-each-post-did",
     "tool:watch-my-sources"

@@ -277,7 +277,8 @@
     "workflow:answer-commenters-with-videos",
     "workflow:make-one-piece-of-content-from-audience-to-publish",
     "workflow:make-the-piece-without-waiting-for-the-person",
-    "workflow:read-the-week-and-make-more-of-what-won"
+    "workflow:read-the-week-and-make-more-of-what-won",
+    "workflow:keep-how-someone-does-their-thing"
   ],
   "tools": [
     "tool:run-workflow-definition",
@@ -291,7 +292,6 @@
     "tool:pull-my-instagram-comments",
     "tool:read-a-treg-endpoint-and-its-price",
     "tool:read-my-treg-balance",
-    "tool:read-voice",
     "tool:read-youtube-comments",
     "tool:search-the-treg-catalog",
     "tool:see-how-each-post-did",
