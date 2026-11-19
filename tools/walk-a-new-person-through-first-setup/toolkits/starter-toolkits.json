@@ -40,7 +40,7 @@
          "screens": [
           {
            "id": "workshop-screens",
-           "door": "@tools",
+           "door": "tool:build-a-screen-spec-from-a-patch-stream",
            "speaks": "tools:run",
            "label": "tool:build-a-screen-spec-from-a-patch-stream"
           }
@@ -48,28 +48,29 @@
          "hosting": [
           {
            "id": "workshop-publish",
-           "door": "@tools",
+           "door": "tool:publish_site",
            "speaks": "tools:run",
            "label": "tool:publish_site"
           }
          ],
          "sign-in": [
           {
-           "id": "trillion-sign-in",
-           "door": "@sign-in",
-           "speaks": "sign-in:passkey-link"
+           "id": "better-auth",
+           "door": "tool:run-official-better-auth",
+           "speaks": "tools:run",
+           "label": "tool:run-official-better-auth"
           }
          ],
          "payments": [
           {
            "id": "stripe-payment-links",
-           "door": "@tools",
+           "door": "tool:set-up-stripe-payment-links",
            "speaks": "tools:run",
            "label": "tool:set-up-stripe-payment-links"
           }
          ]
         },
-        "tools": ["tool:run-workflow-definition","tool:pour-example-rows-into-my-list","tool:call-a-treg-endpoint","tool:decide-an-agent-action","tool:decide-the-replies","tool:keep-channels-latest-videos-and-captions","tool:keep-forum-posts-from-a-public-archive","tool:keep-public-posts-by-link","tool:pull-my-instagram-comments","tool:read-a-treg-endpoint-and-its-price","tool:read-my-treg-balance","tool:read-voice","tool:read-youtube-comments","tool:search-the-treg-catalog","tool:see-how-each-post-did","tool:send-a-reply-on-instagram","tool:send-a-reply-on-youtube","tool:watch-my-sources","tool:pull-my-instagram-messages","tool:expand-a-reply-template","tool:check-copy","tool:find-people","tool:rank-people-by-activity","tool:check-against-a-persons-rules-and-verdicts","tool:record-a-customer-step"]
+        "tools": ["tool:run-workflow-definition","tool:pour-example-rows-into-my-list","tool:call-a-treg-endpoint","tool:decide-an-agent-action","tool:decide-the-replies","tool:keep-channels-latest-videos-and-captions","tool:keep-forum-posts-from-a-public-archive","tool:keep-public-posts-by-link","tool:pull-my-instagram-comments","tool:read-a-treg-endpoint-and-its-price","tool:read-my-treg-balance","tool:read-youtube-comments","tool:search-the-treg-catalog","tool:see-how-each-post-did","tool:send-a-reply-on-instagram","tool:send-a-reply-on-youtube","tool:watch-my-sources","tool:pull-my-instagram-messages","tool:expand-a-reply-template","tool:check-copy","tool:find-people","tool:rank-people-by-activity","tool:check-against-a-persons-rules-and-verdicts","tool:record-a-customer-step"]
       }
     },
     {
@@ -110,7 +111,7 @@
          "screens": [
           {
            "id": "workshop-screens",
-           "door": "@tools",
+           "door": "tool:build-a-screen-spec-from-a-patch-stream",
            "speaks": "tools:run",
            "label": "tool:build-a-screen-spec-from-a-patch-stream"
           }
@@ -118,22 +119,23 @@
          "hosting": [
           {
            "id": "workshop-publish",
-           "door": "@tools",
+           "door": "tool:publish_site",
            "speaks": "tools:run",
            "label": "tool:publish_site"
           }
          ],
          "sign-in": [
           {
-           "id": "trillion-sign-in",
-           "door": "@sign-in",
-           "speaks": "sign-in:passkey-link"
+           "id": "better-auth",
+           "door": "tool:run-official-better-auth",
+           "speaks": "tools:run",
+           "label": "tool:run-official-better-auth"
           }
          ],
          "payments": [
           {
            "id": "stripe-payment-links",
-           "door": "@tools",
+           "door": "tool:set-up-stripe-payment-links",
            "speaks": "tools:run",
            "label": "tool:set-up-stripe-payment-links"
           }
@@ -180,7 +182,7 @@
          "screens": [
           {
            "id": "workshop-screens",
-           "door": "@tools",
+           "door": "tool:build-a-screen-spec-from-a-patch-stream",
            "speaks": "tools:run",
            "label": "tool:build-a-screen-spec-from-a-patch-stream"
           }
@@ -188,22 +190,23 @@
          "hosting": [
           {
            "id": "workshop-publish",
-           "door": "@tools",
+           "door": "tool:publish_site",
            "speaks": "tools:run",
            "label": "tool:publish_site"
           }
          ],
          "sign-in": [
           {
-           "id": "trillion-sign-in",
-           "door": "@sign-in",
-           "speaks": "sign-in:passkey-link"
+           "id": "better-auth",
+           "door": "tool:run-official-better-auth",
+           "speaks": "tools:run",
+           "label": "tool:run-official-better-auth"
           }
          ],
          "payments": [
           {
            "id": "stripe-payment-links",
-           "door": "@tools",
+           "door": "tool:set-up-stripe-payment-links",
            "speaks": "tools:run",
            "label": "tool:set-up-stripe-payment-links"
           }
