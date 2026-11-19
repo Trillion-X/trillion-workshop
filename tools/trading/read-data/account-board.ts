@@ -365,7 +365,9 @@ import type { RecordMetricFormat } from '../../keep-lists-of-rows/show/RecordMet
  * carried IN the data — `descriptor.shape` ('money' | 'integer' | 'percent' |
  * 'signed-money' | 'signed-percent') selects formatting, and a 'signed-*' shape
  * opts the cell into gain/loss tone. There is NO field-id branching here, so a
- * new metric is a descriptor row, never a code edit.
+ * new metric is a descriptor row, never a code edit. A descriptor that names no
+ * shape is money; one that names a shape this formatter does not draw shows its
+ * value as it is, never as dollars it may not be.
  */
 export function formatAccountMetric(value: unknown, descriptor: VisualDatabaseFieldDescriptor): RecordMetricFormat {
   const shape = descriptor.shape ?? 'money';
@@ -381,10 +383,10 @@ export function formatAccountMetric(value: unknown, descriptor: VisualDatabaseFi
       return { value: formatPct(num), tone };
     case 'signed-money':
       return { value: formatUsd(num, { sign: true }), tone };
-    case 'text':
-      return { value: value == null || value === '' ? '—' : String(value), tone };
     case 'money':
-    default:
       return { value: formatUsd(num), tone };
+    case 'text':
+    default:
+      return { value: value == null || value === '' ? '—' : String(value), tone };
   }
 }

@@ -756,6 +756,10 @@ export type MaterializedComposition = {
   captionTranslate?: { to: string; producer: string; glossary?: Record<string, string> };
   /** #93 Master-bus loudness normalization target (integrated LUFS) for the finished program. */
   masterLoudnorm?: number;
+  /** The decisions that changed nothing, in fold order: an action no fold knows, or one its fold could not apply (an
+   *  overlay_kind it does not draw, a span outside every clip, a missing field). Said, so a decision is never dropped
+   *  without a word; absent when every decision applied. */
+  unapplied?: { index: number; decision_id?: string; action: string }[];
 };
 
 // ── Internal fold state ───────────────────────────────────────────────────────
@@ -2939,14 +2943,16 @@ export function composeTimeline(view: MediaWorkspaceView): MaterializedCompositi
   });
 
   // ── Step 3: fold each decision into state ────────────────────────────────────
+  // A fold that applies its decision answers a new state; one that cannot answers the state it was given. Either way
+  // nothing throws, and a decision that changed nothing (or names no known action) is listed in `unapplied`.
+  const unapplied: { index: number; decision_id?: string; action: string }[] = [];
   for (let i = 0; i < ordered.length; i++) {
     const decision = ordered[i];
     const action = decision.action ?? '';
     const fold = FOLD_ACTIONS[action];
-    if (fold) {
-      state = fold(state, decision, i);
-    }
-    // Unknown action: no-op, never throw
+    const next = fold ? fold(state, decision, i) : state;
+    if (next === state) unapplied.push({ index: i, ...(decision.decision_id ? { decision_id: decision.decision_id } : {}), action });
+    state = next;
   }
 
   // ── Step 4: materialise output ───────────────────────────────────────────────
@@ -2977,5 +2983,6 @@ export function composeTimeline(view: MediaWorkspaceView): MaterializedCompositi
     overlays: state.overlays,
     captionTranslate: state.captionTranslate,
     masterLoudnorm: state.masterLoudnorm,
+    ...(unapplied.length ? { unapplied } : {}),
   };
 }
