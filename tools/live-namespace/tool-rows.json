@@ -198,20 +198,20 @@
             "live-namespace": {
               "fetch": {
                 "macos-aarch64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.3-t9/live-namespace-0.1.3-t9-macos-aarch64.tar.gz",
-                  "version": "0.1.3-t9",
-                  "blake3": "bc1707989e5694e5f6a94ee0825505359b4bfe84e8dce05a34afc15d019f3433",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.4-t9/live-namespace-0.1.4-t9-macos-aarch64.tar.gz",
+                  "version": "0.1.4-t9",
+                  "blake3": "78269dd7f8d3ed925a189cf6a40d69b72ed20464878fd719455d9c940bff4874",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.3-t9/live-namespace-0.1.3-t9-macos-aarch64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.4-t9/live-namespace-0.1.4-t9-macos-aarch64.tar.gz.b3"
                 },
                 "macos-x86_64": {
-                  "unverified": "No build of this program is published for this system yet: only macos-aarch64 is (release live-namespace-v0.1.3-t9)."
+                  "unverified": "No build of this program is published for this system yet: only macos-aarch64 is (release live-namespace-v0.1.4-t9)."
                 },
                 "linux-x86_64": {
-                  "unverified": "No build of this program is published for this system yet: only macos-aarch64 is (release live-namespace-v0.1.3-t9)."
+                  "unverified": "No build of this program is published for this system yet: only macos-aarch64 is (release live-namespace-v0.1.4-t9)."
                 },
                 "linux-aarch64": {
-                  "unverified": "No build of this program is published for this system yet: only macos-aarch64 is (release live-namespace-v0.1.3-t9)."
+                  "unverified": "No build of this program is published for this system yet: only macos-aarch64 is (release live-namespace-v0.1.4-t9)."
                 }
               },
               "search": "live-namespace"
@@ -304,20 +304,20 @@
             "live-namespace": {
               "fetch": {
                 "macos-aarch64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.3-t9/live-namespace-0.1.3-t9-macos-aarch64.tar.gz",
-                  "version": "0.1.3-t9",
-                  "blake3": "bc1707989e5694e5f6a94ee0825505359b4bfe84e8dce05a34afc15d019f3433",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.4-t9/live-namespace-0.1.4-t9-macos-aarch64.tar.gz",
+                  "version": "0.1.4-t9",
+                  "blake3": "78269dd7f8d3ed925a189cf6a40d69b72ed20464878fd719455d9c940bff4874",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.3-t9/live-namespace-0.1.3-t9-macos-aarch64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.4-t9/live-namespace-0.1.4-t9-macos-aarch64.tar.gz.b3"
                 },
                 "macos-x86_64": {
-                  "unverified": "No build of this program is published for this system yet: only macos-aarch64 is (release live-namespace-v0.1.3-t9)."
+                  "unverified": "No build of this program is published for this system yet: only macos-aarch64 is (release live-namespace-v0.1.4-t9)."
                 },
                 "linux-x86_64": {
-                  "unverified": "No build of this program is published for this system yet: only macos-aarch64 is (release live-namespace-v0.1.3-t9)."
+                  "unverified": "No build of this program is published for this system yet: only macos-aarch64 is (release live-namespace-v0.1.4-t9)."
                 },
                 "linux-aarch64": {
-                  "unverified": "No build of this program is published for this system yet: only macos-aarch64 is (release live-namespace-v0.1.3-t9)."
+                  "unverified": "No build of this program is published for this system yet: only macos-aarch64 is (release live-namespace-v0.1.4-t9)."
                 }
               },
               "search": "live-namespace"

@@ -50,7 +50,12 @@ impl RowsByCalls {
 
     /// The answer of one call, or its refusal as the store's own error.
     fn call(&self, operation: &str, arguments: Value, wait: Duration) -> Result<Value, Error> {
-        let said = (self.send)(operation, &arguments, wait)?;
+        // How long each call took, by its operation's name only (never a value of it): the run's process evidence.
+        let began = std::time::Instant::now();
+        let said = (self.send)(operation, &arguments, wait);
+        crate::quiet_eprintln!("names-call operation={operation} ms={} outcome={}", began.elapsed().as_millis(),
+            match &said { Ok(said) if said.get("refused").is_some() => "refused", Ok(_) => "answered", Err(_) => "failed" });
+        let said = said?;
         if let Some(refused) = said.get("refused") {
             return Err(refusal_of(refused));
         }
@@ -155,7 +160,12 @@ impl Rows for RowsByCalls {
 
 /// One operation of `store`, answered as the JSON a call carries: `{"answer": ..}`, or `{"refused": {kind, words}}`.
 pub fn answer(store: &dyn Rows, operation: &str, arguments: &Value) -> Value {
-    match answered(store, operation, arguments) {
+    let began = std::time::Instant::now();
+    let answered = answered(store, operation, arguments);
+    // How long the store took, by the operation's name only: with the caller's own line, the door's share is the difference.
+    crate::quiet_eprintln!("names-answer operation={operation} ms={} outcome={}", began.elapsed().as_millis(),
+        if answered.is_ok() { "answered" } else { "refused" });
+    match answered {
         Ok(answer) => json!({"answer": answer}),
         Err(error) => json!({"refused": refusal(&error)}),
     }
