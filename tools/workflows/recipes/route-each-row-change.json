@@ -271,11 +271,11 @@
                             "path": "fact.after"
                           }
                         },
-                        "kinds": {
+                        "at": {
                           "$kind": "binding",
                           "select": {
                             "from": "input",
-                            "path": "fact.kinds"
+                            "path": "fact.at"
                           }
                         }
                       }

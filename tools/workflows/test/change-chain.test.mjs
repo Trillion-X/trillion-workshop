@@ -42,8 +42,8 @@ test('a labelled change is routed under the event id it was told by, so two chan
   const kept = told.filter(fact => fact.payload.workflow === KEEP.id);
   assert.equal(kept.length, 2, 'the keeping workflow is chosen for both changes');
   assert.notEqual(kept[0].event_id, kept[1].event_id);
-  assert.deepEqual(Object.keys(kept[1].payload).sort(), ['after', 'change', 'condition', 'key', 'kinds', 'place', 'where', 'workflow']);
-  assert.equal(kept[1].payload.kinds, '["booking-changed"]');
+  assert.deepEqual(Object.keys(kept[1].payload).sort(), ['after', 'at', 'change', 'condition', 'key', 'place', 'where', 'workflow']);
+  assert.equal(kept[1].payload.at, '2026-11-19T13:00:00.000Z', 'the source\'s own time rides with the told change (a fact holds 8 fields, so kinds, read only by the router, stays out)');
   assert.ok(told.some(fact => fact.payload.workflow === 'workflow:contact-a-booker-right-after-they-book'), 'call-booked chooses the booking workflows by their own fires_when');
 });
 
@@ -62,12 +62,12 @@ test('a thought with kinds but no source and no change is not a told change', as
 
 test('a kept change is one statement of the told change, keyed by where, place, key, change and what it carried', async () => {
   const d = door(() => ({ columns: ['id', 'meaning'], rows: [{ id: 1, meaning: 'booked' }], row_count: 1 }));
-  const fact = { workflow: KEEP.id, where: 'my-booking-service-key', place: 'booking', change: 'added', key: '101', after: '{"id":101}', kinds: '["call-booked"]' };
+  const fact = { workflow: KEEP.id, where: 'my-booking-service-key', place: 'booking', change: 'added', key: '101', after: '{"id":101}', at: '2026-11-19T13:00:00.000Z' };
   const run = await runAsTheTool(wake(KEEP, 'chosen--a-change-a-source-told-carries-kinds', fact, 'f1', { history: { credential_name: 'my-history-connection' } }), d);
   assert.equal(run.status, 'completed', run.error_message);
   assert.equal(d.calls.length, 1);
   assert.equal(d.calls[0].input.credential_name, 'my-history-connection', 'the history is the one the person switched on with');
-  assert.deepEqual(d.calls[0].input.params, ['my-booking-service-key', 'booking', 'added', '101', '{"id":101}']);
+  assert.deepEqual(d.calls[0].input.params, ['my-booking-service-key', 'booking', 'added', '101', '{"id":101}', '2026-11-19T13:00:00.000Z'], 'the statement is at the time the source says it happened');
   assert.match(d.calls[0].input.sql, /ON CONFLICT \(source, told\) DO NOTHING/);
 });
 

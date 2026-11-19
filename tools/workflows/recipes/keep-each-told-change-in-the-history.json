@@ -13,7 +13,7 @@
           "properties": {
             "fact": {
               "type": "object",
-              "description": "The workflow-chosen fact that woke this run: where (the vault name the noticer read the source with, the statement's source), place, change, key, after (the change's carried values as JSON text) and kinds"
+              "description": "The workflow-chosen fact that woke this run: where (the vault name the noticer read the source with, the statement's source), place, change, key, after (the change's carried values as JSON text) and at (when the source says it happened; the statement's at, else the time it is kept)"
             },
             "history": {
               "type": "object",
@@ -130,7 +130,7 @@
                       "path": "history.credential_name"
                     }
                   },
-                  "sql": "INSERT INTO statements (source, told, place, change, at, key, after)\nVALUES ($1::text, concat_ws(':', $2::text, $4::text, $3::text, coalesce($5::text, '')), $2::text, $3::text, clock_timestamp(), $4::text, $5::jsonb)\nON CONFLICT (source, told) DO NOTHING RETURNING id, meaning",
+                  "sql": "INSERT INTO statements (source, told, place, change, at, key, after)\nVALUES ($1::text, concat_ws(':', $2::text, $4::text, $3::text, coalesce($5::text, '')), $2::text, $3::text, coalesce($6::timestamptz, clock_timestamp()), $4::text, $5::jsonb)\nON CONFLICT (source, told) DO NOTHING RETURNING id, meaning",
                   "params": [
                     {
                       "$kind": "binding",
@@ -165,6 +165,13 @@
                       "select": {
                         "from": "input",
                         "path": "fact.after"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.at"
                       }
                     }
                   ]
