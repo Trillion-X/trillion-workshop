@@ -1,6 +1,6 @@
 # tools/lessons-and-learning-paths/
 
-Where a learner stands on a track of ordered steps, and the keep rows that accept an evaluation of a step. A track, its steps, a learner's progress state, evaluation receipts and evidence are plain records the caller reads through the records door and hands over; nothing here reads storage or the clock. Ported from bitfield-packages `learning-progress` (its read-data and do-work logic) and the pure step-to-path projection of `learning-path`. The two Workshop tools that run it in the tool container are rows in `tool-rows.json`.
+Where a learner stands on a track of ordered steps, and the keep rows that accept an evaluation of a step. A track, its steps, a learner's progress state, evaluation receipts and evidence are plain records the caller reads from its own store and hands over; nothing here reads storage or the clock. Ported from bitfield-packages `learning-progress` (its read-data and do-work logic) and the pure step-to-path projection of `learning-path`. The two Workshop tools that run it in the tool container are rows in `tool-rows.json`.
 
 ## What the old packages became
 
