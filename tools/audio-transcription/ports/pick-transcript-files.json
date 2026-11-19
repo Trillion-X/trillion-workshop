@@ -38,7 +38,7 @@
   "the list is tab-separated kind, ext, origin, identity, bytes, sha256, display_path, and no bytes are read"
  ],
  "allowed_deltas": [
-  "the asset index, the root, the output file and the store are arguments; the store is the files door's answer (--held JSON) or a read-only namespace sqlite copy",
+  "the asset index, the root, the output file and the store are arguments; the store is the person's file store's answer (--held JSON) or a read-only namespace sqlite copy",
   "the last line is {\"result\": {files, list, by_kind_and_origin}}"
  ],
  "banned_substitutions": [

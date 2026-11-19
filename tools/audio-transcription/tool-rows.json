@@ -114,7 +114,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -337,7 +336,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -404,7 +402,7 @@
         "id": "tool:read-transcript-files-and-captions-into-timed-words",
         "label": "Read transcript and caption files into timed words, and check quotes against them (runs on your computer)",
         "job": "Read a folder of transcript files (srt, vtt, txt, json) or a channel's downloaded YouTube captions into one timed-words shape, and check that quotes really are in the transcripts at the times they cite",
-        "description": "Five readers on the person's own computer, none of which hears audio or reads the network. pick_transcript_files.py picks, from an asset index (JSON lines with root, ext, name, display_path, sha256), the files of one drive or library that look like transcripts (srt or vtt, or a name with transcript, _raw., _clean., _cleaned_up or _rag.), names each one's kind, and joins each to the person's file store by its sha256 (the files door's answer given as a JSON file, or a namespace sqlite copy opened read only), listing one the store does not hold as missing. read_transcript_files.py reads each listed file's bytes (or one file) into a words.json: srt and vtt cues, '## h:mm:ss.fff - h:mm:ss.fff' txt blocks with their source line, 'hh:mm:ss:ff' timecode txt at the frames per second given, or a recognizer's json with its words; it says whether the timing is per word, per segment or none, and keeps the whole text of a file with no times. caption_transcripts.py turns a channel download (raw/json3 caption files, raw/meta and raw/flat-videos.jsonl, as yt-dlp leaves them for tool:keep-channels-latest-videos-and-captions) into one [m:ss] paragraph transcript per video, preferring a video's manual English track, and an index of every listed video. find_whisper_quotes.py checks each quote cited from a whisper transcript: it finds the quote's exact words among the word times and says whether it starts inside the cited window. show_segments.py prints a transcript's segments between two seconds. Each prints its account and a last line {\"result\": ...}.",
+        "description": "Five readers on the person's own computer, none of which hears audio or reads the network. pick_transcript_files.py picks, from an asset index (JSON lines with root, ext, name, display_path, sha256), the files of one drive or library that look like transcripts (srt or vtt, or a name with transcript, _raw., _clean., _cleaned_up or _rag.), names each one's kind, and joins each to the person's file store by its sha256 (the person's file store's answer given as a JSON file, or a namespace sqlite copy opened read only), listing one the store does not hold as missing. read_transcript_files.py reads each listed file's bytes (or one file) into a words.json: srt and vtt cues, '## h:mm:ss.fff - h:mm:ss.fff' txt blocks with their source line, 'hh:mm:ss:ff' timecode txt at the frames per second given, or a recognizer's json with its words; it says whether the timing is per word, per segment or none, and keeps the whole text of a file with no times. caption_transcripts.py turns a channel download (raw/json3 caption files, raw/meta and raw/flat-videos.jsonl, as yt-dlp leaves them for tool:keep-channels-latest-videos-and-captions) into one [m:ss] paragraph transcript per video, preferring a video's manual English track, and an index of every listed video. find_whisper_quotes.py checks each quote cited from a whisper transcript: it finds the quote's exact words among the word times and says whether it starts inside the cited window. show_segments.py prints a transcript's segments between two seconds. Each prints its account and a last line {\"result\": ...}.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -433,7 +431,7 @@
           "needs": [
             "python 3.10 or later"
           ],
-          "say": "This runs on the person's own computer, never on Trillion. For one transcript file run `run` with the file in place of {input} and a new .words.json for {output}. For a drive's transcripts: ask for the asset index file, the drive's root name and the store (the files door's answer saved as JSON, or a namespace sqlite copy), run `pick_transcript_files.py --assets FILE --root NAME --held FILE --out LIST.tsv`, then, once the listed files' bytes are in a folder as <hex>.<ext>, `read_transcript_files.py read-files --list LIST.tsv --bytes FOLDER --out-dir FOLDER --root NAME --origin STORE` (add --fps for timecode transcripts not at 24 frames a second). For a channel downloaded with yt-dlp: `caption_transcripts.py --corpus FOLDER --channel LABEL`; for videos with no captions use tool:hear-a-link, then audio_transcription.py judge and text. Before trusting quotes taken from whisper transcripts run `find_whisper_quotes.py --corpus FOLDER` and tell the person every quote not found or outside its window. `show_segments.py FILE START END` shows what was said between two seconds. If you cannot run commands, give them these steps."
+          "say": "This runs on the person's own computer, never on Trillion. For one transcript file run `run` with the file in place of {input} and a new .words.json for {output}. For a drive's transcripts: ask for the asset index file, the drive's root name and the store (the file store's answer saved as JSON, or a namespace sqlite copy), run `pick_transcript_files.py --assets FILE --root NAME --held FILE --out LIST.tsv`, then, once the listed files' bytes are in a folder as <hex>.<ext>, `read_transcript_files.py read-files --list LIST.tsv --bytes FOLDER --out-dir FOLDER --root NAME --origin STORE` (add --fps for timecode transcripts not at 24 frames a second). For a channel downloaded with yt-dlp: `caption_transcripts.py --corpus FOLDER --channel LABEL`; for videos with no captions use tool:hear-a-link, then audio_transcription.py judge and text. Before trusting quotes taken from whisper transcripts run `find_whisper_quotes.py --corpus FOLDER` and tell the person every quote not found or outside its window. `show_segments.py FILE START END` shows what was said between two seconds. If you cannot run commands, give them these steps."
         },
         "maker": "maker:audio-transcription",
         "licence_class": "licence:maker-own",
@@ -556,7 +554,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -624,7 +621,7 @@
         "status": "active",
         "label": "Hear a recording into timed words on my computer",
         "job": "Turn a recording in my files into its words with times, heard free on my own computer",
-        "description": "Reads a recording from the person's files (`file`, its name or identity) through the run's door into the run's own folder, hears it with the whisper-cli and ggml model the person granted (do-work/audio_transcription.py transcribe), and answers text, timed segments and language. The copy is removed once heard; the person's file is never changed. Nothing is sent to a paid speech service.",
+        "description": "Reads a recording from the person's files (`file`, its name or identity) through the run's files right into the run's own folder, hears it with the whisper-cli and ggml model the person granted (do-work/audio_transcription.py transcribe), and answers text, timed segments and language. The copy is removed once heard; the person's file is never changed. Nothing is sent to a paid speech service.",
         "input_schema": {
           "type": "object",
           "required": ["file","model_path"],
@@ -647,7 +644,7 @@
           "capabilities": ["start-a-program"],
           "workdir": "/opt/audio-transcription",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/audio-transcription/read-data/hear-here.mjs", "hearARecording"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/audio-transcription/read-data/hear-here.mjs", "hearARecording"],
           "stdin": {"fill": {"from": "input"}},
           "files": {
             "package_files": [
@@ -668,12 +665,12 @@
                 "at": "/opt/audio-transcription"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs",
+                  "read-data/host-actions.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "computer-programs",
@@ -681,13 +678,6 @@
                   "read-data"
                 ],
                 "at": "/opt/computer-programs"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
               },
               {
                 "packages": ["node_modules/@noble/hashes"],
@@ -702,20 +692,6 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           }
@@ -849,7 +825,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -938,7 +913,7 @@
           "capabilities": ["start-a-program"],
           "workdir": "/opt/audio-transcription",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/audio-transcription/read-data/hear-here.mjs", "hearALink"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/audio-transcription/read-data/hear-here.mjs", "hearALink"],
           "stdin": {"fill": {"from": "input"}},
           "files": {
             "package_files": [
@@ -959,12 +934,12 @@
                 "at": "/opt/audio-transcription"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs",
+                  "read-data/host-actions.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "computer-programs",
@@ -972,13 +947,6 @@
                   "read-data"
                 ],
                 "at": "/opt/computer-programs"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
               },
               {
                 "packages": ["node_modules/@noble/hashes"],
@@ -993,26 +961,12 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           }
         },
         "result_selector": "$.result",
-        "verify": [{"kind":"sample-run","input":{"url":"https://videos.example.com/watch?v=sample","link_reader":"yt-dlp"},"stand_in_programs":{"yt-dlp":"if [ \"$1\" = \"--version\" ]; then echo \"test-reader 1\"; exit 0; fi\nfolder=\"\"; out=\"\"\nwhile [ $# -gt 0 ]; do [ \"$1\" = \"-o\" ] && out=\"$2\"; [ \"$1\" = \"--dump-single-json\" ] && info=1; shift; done\nif [ -n \"$info\" ]; then echo '{\"title\": \"Sample garden talk\", \"duration\": 12.5}'; exit 0; fi\nfolder=$(dirname \"$out\")\nprintf 'WEBVTT\\n\\n00:00:00.000 --> 00:00:02.500\\nWelcome to the sample garden talk.\\n\\n00:00:02.500 --> 00:00:05.000\\nToday we plant tomatoes.\\n' > \"$folder/captions.en.vtt\""},"laid_files":[{"path":"/opt/audio-transcription/read-data/hear-a-link.json","text":"{\"languages\":\"en.*,en\",\"most_minutes\":30,\"words\":{\"needs_url\":\"Send the link to a video or a recording as url.\",\"no_fetcher\":\"This computer has no program that reads video links (such as yt-dlp), so the words could not be read from {url}.\",\"no_hearing\":\"{url} has no captions, and no Whisper model was given (model_path), so its sound could not be turned into words.\",\"fetch_failed\":\"Could not read {url} on this computer: {error}\",\"stale_fetcher\":\"Could not read {url} on this computer: {error}. The page refused this computer's copy of {fetcher}; updating it often fixes this ({hint}).\",\"no_words\":\"{url} was read and heard whole on this computer, but nobody speaks in it, so it has no words.\",\"captions_by\":\"captions on the page, read on this computer\",\"needs_file\":\"Give `file`: the recording's name or identity in the person's files.\",\"needs_model\":\"Give model_path: the ggml Whisper model file on this computer.\",\"too_large\":\"{file} is {size} bytes, more than one run reads.\",\"heard_by\":\"whisper-cli on this computer\"},\"fetchers\":[{\"id\":\"yt-dlp\",\"label\":\"yt-dlp on this computer\",\"search_path\":[],\"check\":[\"yt-dlp\",\"--version\"],\"info\":[\"yt-dlp\",\"--no-update\",\"--no-warnings\",\"--js-runtimes\",\"node:{node}\",\"--skip-download\",\"--dump-single-json\",\"--no-playlist\",\"{url}\"],\"captions\":[\"yt-dlp\",\"--no-update\",\"--no-warnings\",\"--js-runtimes\",\"node:{node}\",\"--skip-download\",\"--no-playlist\",\"--write-subs\",\"--write-auto-subs\",\"--sub-format\",\"vtt/best\",\"--convert-subs\",\"vtt\",\"--sub-langs\",\"{languages}\",\"-o\",\"{folder}/captions.%(ext)s\",\"{url}\"],\"sound\":[\"yt-dlp\",\"--no-update\",\"--no-warnings\",\"--js-runtimes\",\"node:{node}\",\"--no-playlist\",\"-f\",\"bestaudio/best\",\"-x\",\"-o\",\"{folder}/sound.%(ext)s\",\"{url}\"],\"update_hint\":\"python3 -m pip install -U yt-dlp\"}]}"}]}],
+        "verify": [{"kind":"sample-run","input":{"url":"https://videos.example.com/watch?v=sample","link_reader":"yt-dlp"},"stand_in_programs":{"yt-dlp":"if [ \"$1\" = \"--version\" ]; then echo \"test-reader 1\"; exit 0; fi\nfolder=\"\"; out=\"\"\nwhile [ $# -gt 0 ]; do [ \"$1\" = \"-o\" ] && out=\"$2\"; [ \"$1\" = \"--dump-single-json\" ] && info=1; shift; done\nif [ -n \"$info\" ]; then echo '{\"title\": \"Sample garden talk\", \"duration\": 12.5}'; exit 0; fi\nfolder=$(dirname \"$out\")\nprintf 'WEBVTT\\n\\n00:00:00.000 --> 00:00:02.500\\nWelcome to the sample garden talk.\\n\\n00:00:02.500 --> 00:00:05.000\\nToday we plant tomatoes.\\n' > \"$folder/captions.en.vtt\""},"laid_files":[{"path":"/opt/audio-transcription/read-data/hear-a-link.json","text":"{\"languages\":\"en.*,en\",\"most_minutes\":30,\"words\":{\"needs_url\":\"Send the link to a video or a recording as url.\",\"no_fetcher\":\"This computer has no program that reads video links (such as yt-dlp), so the words could not be read from {url}.\",\"no_hearing\":\"{url} has no captions, and no Whisper model was given (model_path), so its sound could not be turned into words.\",\"fetch_failed\":\"Could not read {url} on this computer: {error}\",\"stale_fetcher\":\"Could not read {url} on this computer: {error}. The page refused this computer's copy of {fetcher}; updating it often fixes this ({hint}).\",\"no_words\":\"{url} was read and heard whole on this computer, but nobody speaks in it, so it has no words.\",\"captions_by\":\"captions on the page, read on this computer\",\"needs_file\":\"Give `file`: the recording's name or identity in the person's files.\",\"needs_model\":\"Give model_path: the ggml Whisper model file on this computer.\",\"too_large\":\"{file} is {size} bytes, more than one run reads.\",\"heard_by\":\"whisper-cli on this computer\"},\"fetchers\":[{\"id\":\"yt-dlp\",\"label\":\"yt-dlp on this computer\",\"search_path\":[],\"check\":[\"yt-dlp\",\"--version\"],\"info\":[\"yt-dlp\",\"--no-update\",\"--no-warnings\",\"--js-runtimes\",\"node:{node}\",\"--skip-download\",\"--dump-single-json\",\"--no-playlist\",\"{url}\"],\"captions\":[\"yt-dlp\",\"--no-update\",\"--no-warnings\",\"--js-runtimes\",\"node:{node}\",\"--skip-download\",\"--no-playlist\",\"--write-subs\",\"--write-auto-subs\",\"--sub-format\",\"vtt/best\",\"--convert-subs\",\"vtt\",\"--sub-langs\",\"{languages}\",\"-o\",\"{folder}/captions.%(ext)s\",\"{url}\"],\"sound\":[\"yt-dlp\",\"--no-update\",\"--no-warnings\",\"--js-runtimes\",\"node:{node}\",\"--no-playlist\",\"-f\",\"bestaudio/best\",\"-x\",\"-o\",\"{folder}/sound.%(ext)s\",\"{url}\"],\"update_hint\":\"python3 -m pip install -U yt-dlp\"}],\"most_bytes\":536870912}"}]}],
         "needs": {"expected_seconds": 900, "network_egress": true, "memory_mb": 4096},
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
@@ -1131,7 +1085,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1352,7 +1305,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",

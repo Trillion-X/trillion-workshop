@@ -2,7 +2,7 @@
   "drafted_from": "tools/audio-transcription/tool-rows.json, read-data/hear-here.mjs, test/hear-a-recording.test.mjs",
   "start_here": "Say to your AI: \"Hear my recording /Recordings/sample-talk.wav on this computer with the whisper model I granted and give me its words with times.\" It runs tool:hear-a-recording and hands back the text and timed segments.",
   "lists": [],
-  "no_lists_because": "It keeps no list of its own: it reads one recording through the files door and answers the words it heard.",
+  "no_lists_because": "It keeps no list of its own: it reads one recording from the person's files and answers the words it heard.",
   "workflows": [],
   "tools": [
     "tool:hear-a-recording"
@@ -10,7 +10,7 @@
   "instructions": [
     "1. Install whisper-cli and ffmpeg on your computer and keep one ggml Whisper model file in the models folder you granted.",
     "2. Say \"Hear my recording /Recordings/sample-talk.wav\", and give the model file as model_path.",
-    "3. The AI runs tool:hear-a-recording with {file, model_path}; the door reads the recording into the run folder, hears it there and removes the copy.",
+    "3. The AI runs tool:hear-a-recording with {file, model_path}; the run reads the recording by name through its files right, hears it in its own folder and removes the copy.",
     "4. Read what comes back: text, segments (start, end, text), language, heard_whole and produced_by. Without file or model_path it refuses before reading anything."
   ],
   "worked_examples": [

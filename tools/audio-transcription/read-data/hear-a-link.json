@@ -3,6 +3,7 @@
   "confine": { "_what": "When enabled, the link reader (a program that fetches a page from the internet) runs confined by the Seatbelt runner of tools/run-on-a-persons-computer (from-an-older-version/computer/confined-run.mjs) under this tier: it can write only in its working folder. Off until switched on.", "enabled": false, "tier": "workspace-online" },
   "languages": "en.*,en",
   "most_minutes": 30,
+  "most_bytes": 536870912,
   "fetchers": [
     {
       "id": "yt-dlp",

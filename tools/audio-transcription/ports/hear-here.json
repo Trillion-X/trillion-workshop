@@ -34,8 +34,8 @@
   ],
   "preserve": [
     "Keep current hearARecording, hearALink, hearFile, fetcherProgram, linkSettings and public parser/fetcher exports and result shapes.",
-    "Delegate actual file I/O to the existing records-door whole-file owner and actual hearing to the existing audio_transcription.py seam.",
-    "Keep caption preference, explanatory refusals, current model selection, owned temporary cleanup and current file-door behavior."
+    "Read the recording by name through the host (host.readWholeFile, the run's files right) into the run folder, and hear it with the existing audio_transcription.py seam.",
+    "Keep caption preference, explanatory refusals, current model selection, owned temporary cleanup and the removal of the recording copy."
   ],
   "allowed_deltas": [
     "Move embedded caption, process-running and link-flow code behind imports of the actively called original-source recovery helpers; those helpers have separate exact source-copy contracts.",
@@ -60,25 +60,17 @@
     "required_mechanisms": [
       "linkToolsFor({",
       "createLinkFetcher({ execFile, fill })",
-      "readWholeFile(door",
-      "writeWholeFile(door"
+      "host.readWholeFile("
     ],
     "test_refs": [
       "tools/audio-transcription/test/hear-a-link.test.mjs",
       "tools/audio-transcription/test/hear-a-recording.test.mjs"
     ],
-    "recovery_state": "Private in-place adaptation of the existing current bridge; named recovery commit holds its unchanged source bytes. Current API delegates to the actively used recovered helpers and existing records/program/transcription owners.",
+    "recovery_state": "Private in-place adaptation of the existing current bridge; named recovery commit holds its unchanged source bytes. Current API delegates to the actively used recovered helpers and existing program/transcription owners and the run host.",
     "delegates_to": [
       {
         "path": "tools/computer-programs/read-data/program-here.mjs",
         "export": "hearingHere"
-      },
-      {
-        "path": "tools/records-door/read-data/whole-file.mjs",
-        "exports": [
-          "readWholeFile",
-          "writeWholeFile"
-        ]
       },
       {
         "path": "tools/audio-transcription/do-work/audio_transcription.py",

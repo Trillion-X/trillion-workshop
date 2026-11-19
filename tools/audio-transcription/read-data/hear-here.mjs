@@ -6,9 +6,10 @@
 //   - hearALink (tool:hear-a-link): a link to a video or a recording (any page the link reader can read, such as
 //     yt-dlp's thousands of sites) into its words. The page's own captions win when it has them; otherwise its sound is
 //     fetched and heard here. The words are answered; nothing is kept.
-//   Both run as functions of tools/records-door's run-an-export.mjs; hearing is do-work/audio_transcription.py
-//   `transcribe` (this folder's own seam). Link parsing, command execution and flow use the recovered source helpers;
-//   this file binds them to the current records door and transcription seam.
+//   Both run as functions of the workflows run-a-function.mjs runner, which hands each function its host (fn(input, host)).
+//   A recording is read by name through host.readWholeFile (the run's files right), not through a door. Hearing is
+//   do-work/audio_transcription.py `transcribe` (this folder's own seam). Link parsing, command execution and flow use
+//   the recovered source helpers; this file binds them to the host and the transcription seam.
 //
 // Non-negotiable invariants
 //   1. Never an empty answer without a reason: every road that yields no words throws an error saying why in plain
@@ -17,14 +18,13 @@
 //   2. Which programs read links, their arguments, the caption languages and every word are DATA
 //      (read-data/hear-a-link.json); this file names no site, no program and no language.
 //   3. Nothing is kept on the computer after the run: the working folder is removed whatever happens.
-//   4. A recording is read through the run's door into the run's own folder and removed there once heard; the person's
-//      file is never changed.
+//   4. A recording is read by the run's host into the run's own folder and removed there once heard; the person's file is
+//      never changed.
 import { execFile } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
-import { readWholeFile } from '../../records-door/read-data/whole-file.mjs';
 import { hearingHere } from '../../computer-programs/read-data/program-here.mjs';
 import { captionWords, refusedThisCopy } from './read-link-captions.mjs';
 import { linkToolsFor } from './hear-link-flow.mjs';
@@ -82,13 +82,15 @@ const hearingOf = (input, words) => {
 
 /**
  * tool:hear-a-recording: { file, model_path, whisper_cli?, ffmpeg?, language? } -> { text, segments, language,
- * heard_whole, produced_by }: a recording made anywhere, heard free on the person's computer.
+ * heard_whole, produced_by }: a recording from the person's files (`file`, its name or identity), read by the run's host,
+ * heard free on the person's computer.
  */
-export async function hearARecording(input, { door }, { hear = hearFile } = {}) {
-  const words = linkSettings().words;
+export async function hearARecording(input, host, { hear = hearFile } = {}) {
+  const settings = linkSettings();
+  const words = settings.words;
   if (!String(input?.file ?? '').trim()) throw said(words.needs_file, {}, 400);
   const hearing = hear === hearFile ? hearingOf(input, words) : {};
-  const { title, size, bytes } = await readWholeFile(door, input.file);
+  const { title, size, bytes } = await host.readWholeFile(input.file, { mostBytes: settings.most_bytes });
   if (!bytes) throw said(words.too_large, { file: input.file, size });
   const folder = mkdtempSync(path.join(os.tmpdir(), 'heard-'));
   try {

@@ -1,47 +1,43 @@
 // tools/audio-transcription/test/hear-a-recording.test.mjs
 //
-// read-data/hear-here.mjs (tool:hear-a-recording): a recording is read whole through the run's door into the run's own
-// folder, heard there and removed; the seam's transcript answers as { text, segments, language }; a request without a
-// file or a model is refused before anything is read; the answer holds the words and nothing is written back.
+// read-data/hear-here.mjs (tool:hear-a-recording): a recording is read by name through the run's host (host.readWholeFile),
+// heard in the run's own folder and removed; the seam's transcript answers as { text, segments, language }; a request
+// without a file or a model is refused before anything is read, and a file above the size the run reads is refused.
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import test from 'node:test';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import test from 'node:test';
 import { hearARecording, hearFile } from '../read-data/hear-here.mjs';
 
-const fileDoor = (bytes, calls = []) => ({
+const hostWith = (answer, calls = []) => ({
   calls,
-  async files(method, request) {
-    calls.push({ method, request });
-    if (method === 'find_file') return { names: ['/Recordings/a-talk.m4a'] };
-    if (method === 'read_file') {
-      const part = bytes.subarray(request.offset, request.offset + request.length);
-      return { byte_length: bytes.length, bytes_returned: part.length, content: part.toString('base64'), encoding: 'base64' };
-    }
-    if (method === 'write_file_start') return { next_offset: 0 };
-    if (method === 'write_file_finish') return { identity: `id:${request.name}` };
-    return {};
-  },
+  async readWholeFile(name, options) { calls.push({ name, options }); return answer; },
 });
 
-test('a recording is read through the door, heard in the run folder, and the copy is removed', async () => {
-  const door = fileDoor(Buffer.from('sound bytes'));
+test('a recording read by name through the host is heard in the run folder, and the copy is removed', async () => {
+  const bytes = Buffer.from('sound bytes');
+  const host = hostWith({ title: 'a-talk.m4a', size: bytes.length, bytes });
   let heardAt = null;
-  const answer = await hearARecording({ file: '/Recordings/a-talk.m4a' }, { door }, {
-    hear: async file => { heardAt = file; assert.equal(existsSync(file), true); return { text: 'hi there', segments: [{ start: 0, end: 1, text: 'hi there' }], language: 'en', produced_by: 'ears' }; },
+  const answer = await hearARecording({ file: '/Recordings/a-talk.m4a' }, host, {
+    hear: async file => { heardAt = file; assert.equal(readFileSync(file, 'utf8'), 'sound bytes'); return { text: 'hi there', segments: [{ start: 0, end: 1, text: 'hi there' }], language: 'en', produced_by: 'ears' }; },
   });
   assert.deepEqual(answer, { text: 'hi there', segments: [{ start: 0, end: 1, text: 'hi there' }], language: 'en', produced_by: 'ears', heard_whole: true });
+  assert.equal(host.calls[0].name, '/Recordings/a-talk.m4a');
   assert.match(heardAt, /recording\.m4a$/);
   assert.equal(existsSync(heardAt), false);
-  assert.deepEqual(door.calls.map(call => call.method), ['find_file', 'read_file']);
 });
 
 test('without a file or a model nothing is read', async () => {
-  const door = fileDoor(Buffer.from('x'));
-  await assert.rejects(hearARecording({}, { door }), /Give `file`/);
-  await assert.rejects(hearARecording({ file: 'f' }, { door }), /Give model_path/);
-  assert.equal(door.calls.length, 0);
+  const host = hostWith({ title: 'x', size: 1, bytes: Buffer.from('x') });
+  await assert.rejects(hearARecording({}, host), /Give `file`/);
+  await assert.rejects(hearARecording({ file: 'f' }, host), /Give model_path/);
+  assert.equal(host.calls.length, 0);
+});
+
+test('a recording above the size one run reads is refused with why', async () => {
+  const host = hostWith({ title: 'big.wav', size: 999, bytes: null });
+  await assert.rejects(hearARecording({ file: 'big.wav' }, host, { hear: async () => ({}) }), /999 bytes, more than one run reads/);
 });
 
 test("the seam's transcript is answered as text, segments and language", async () => {

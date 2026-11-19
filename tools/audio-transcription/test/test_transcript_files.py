@@ -110,7 +110,7 @@ class PickFiles(unittest.TestCase):
     def assets(self, work):
         return write(os.path.join(work, "assets.jsonl"), "".join(json.dumps(r) + "\n" for r in self.ASSETS))
 
-    def test_the_files_doors_answer_joins_by_alias_then_identity(self):
+    def test_the_store_answer_joins_by_alias_then_identity(self):
         with tempfile.TemporaryDirectory() as work:
             out = os.path.join(work, "list.tsv")
             _, result = run("pick_transcript_files.py", "--assets", self.assets(work), "--root", "walks-drive", "--out", out,

@@ -4,7 +4,7 @@
   pick_transcript_files.py --assets assets.jsonl --root NAME --out LIST.tsv (--held HELD.json | --namespace-sqlite FILE)
 
 asset index sha256 -> '12:<sha256>' alias -> '1f:' identity -> file row (origin, size). The asset index is JSON lines
-{root, ext, name, display_path, sha256}. The store is the files door's answer, given as --held
+{root, ext, name, display_path, sha256}. The store is the person's file store's answer, given as --held
 {"aliases": {"<sha256>": "<identity>"}, "files": {"<identity>": {"origin", "byte_length"}}}, or a namespace sqlite copy
 opened read only. Writes the list (kind, ext, origin, identity, bytes, sha256, display_path) that read_transcript_files.py
 read-files takes and prints counts, then {"result": {...}}. No bytes are read here.
@@ -46,7 +46,7 @@ def main(argv=None):
     parser.add_argument("--root", required=True, help="the root (drive or library) whose transcript files are taken")
     parser.add_argument("--out", required=True, help="the list to write")
     store = parser.add_mutually_exclusive_group(required=True)
-    store.add_argument("--held", help="the files door's answer: {aliases, files}")
+    store.add_argument("--held", help="the file store's answer, saved as JSON: {aliases, files}")
     store.add_argument("--namespace-sqlite", help="a namespace sqlite copy, opened read only")
     args = parser.parse_args(argv)
     if args.held:
