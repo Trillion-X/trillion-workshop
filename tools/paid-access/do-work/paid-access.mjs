@@ -1,7 +1,7 @@
 // tools/paid-access/do-work/paid-access.mjs
 //
-// The functions the access rows run, one per job, through the records-door command:
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/paid-access/do-work/paid-access.mjs <function> < input.json
+// The functions the access rows run, one per job, through the workflows run-a-function command:
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/paid-access/do-work/paid-access.mjs <function> < input.json
 // Each is `(input, { nowMs? }) => result`. No row here reads or writes the records door: the grant rows' keeping is workflow:keep-paid-access-grants. The delivery rows run their own files in read-data/ the same way.
 import { heldAccess, heldAccessOfRequest } from '../read-data/who-holds-access.mjs';
 import { decodeAddressedExpiringValueScope } from '../read-data/addressed-scope.mjs';

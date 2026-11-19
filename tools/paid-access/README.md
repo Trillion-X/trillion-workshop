@@ -70,6 +70,6 @@ The caller's AI reads the rows it hands in. A seller with very many payments han
 
 ## Dependencies
 
-**Depends on:** `tools/formula-engine` (`rules/`, `built-stored-bytes/`: decides which facts a rule reads; the tool rows pack it), `tools/records-door` (its `run-an-export.mjs` runs the functions; packed), `tools/content-identity` and `@noble/hashes` (packed by the seal row), Node 24 (runs `.ts` by stripping types).
+**Depends on:** `tools/formula-engine` (`rules/`, `built-stored-bytes/`: decides which facts a rule reads; the tool rows pack it), `tools/workflows` (its `run-a-function.mjs` runs the functions; packed), `tools/content-identity` and `@noble/hashes` (packed by the seal row), Node 24 (runs `.ts` by stripping types).
 
 **Depended on by:** the door's paid-file route (to be built). Reads what `tools/take-payments` keeps (`payment-event` records, the shape `tools/revenue-ledger` also reads).

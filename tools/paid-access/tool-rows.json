@@ -117,7 +117,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -221,7 +220,10 @@
             "package_files": [
               {
                 "package": "formula-engine",
-                "paths": ["rules", "built-stored-bytes"],
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
@@ -233,12 +235,11 @@
                 "at": "/opt/paid-access"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -248,7 +249,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -260,27 +263,13 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
           "workdir": "/opt/paid-access",
           "internet": false,
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/paid-access/do-work/paid-access.mjs", "seeWhoHoldsPaidAccess"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/paid-access/do-work/paid-access.mjs", "seeWhoHoldsPaidAccess"],
           "stdin": { "fill": { "from": "input" } }
         },
         "needs": { "expected_seconds": 3, "network_egress": false },
@@ -436,7 +425,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -527,7 +515,10 @@
             "package_files": [
               {
                 "package": "formula-engine",
-                "paths": ["rules", "built-stored-bytes"],
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
@@ -539,12 +530,11 @@
                 "at": "/opt/paid-access"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -554,7 +544,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -566,27 +558,13 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
           "workdir": "/opt/paid-access",
           "internet": false,
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/paid-access/do-work/paid-access.mjs", "checkABuyerMayOpen"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/paid-access/do-work/paid-access.mjs", "checkABuyerMayOpen"],
           "stdin": { "fill": { "from": "input" } }
         },
         "needs": { "expected_seconds": 3, "network_egress": false },
@@ -719,7 +697,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -829,7 +806,10 @@
             "package_files": [
               {
                 "package": "formula-engine",
-                "paths": ["rules", "built-stored-bytes"],
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
@@ -841,14 +821,6 @@
                 "at": "/opt/paid-access"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
                 "package": "content-identity",
                 "paths": [
                   "read-data"
@@ -856,7 +828,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -868,20 +842,6 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -1016,7 +976,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1119,7 +1078,10 @@
             "package_files": [
               {
                 "package": "formula-engine",
-                "paths": ["rules", "built-stored-bytes"],
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
@@ -1130,12 +1092,11 @@
                 "at": "/opt/paid-access"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -1145,7 +1106,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1157,27 +1120,13 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
           "workdir": "/opt/paid-access",
           "internet": false,
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/paid-access/read-data/request-private-object.ts", "requestPrivateObject"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/paid-access/read-data/request-private-object.ts", "requestPrivateObject"],
           "stdin": { "fill": { "from": "input" } }
         },
         "needs": { "expected_seconds": 3, "network_egress": false },
@@ -1303,7 +1252,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1408,7 +1356,10 @@
             "package_files": [
               {
                 "package": "formula-engine",
-                "paths": ["rules", "built-stored-bytes"],
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
@@ -1419,12 +1370,11 @@
                 "at": "/opt/paid-access"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -1434,7 +1384,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1446,27 +1398,13 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
           "workdir": "/opt/paid-access",
           "internet": false,
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/paid-access/read-data/authorize-private-object.ts", "authorizePrivateObject"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/paid-access/read-data/authorize-private-object.ts", "authorizePrivateObject"],
           "stdin": { "fill": { "from": "input" } }
         },
         "needs": { "expected_seconds": 3, "network_egress": false },
