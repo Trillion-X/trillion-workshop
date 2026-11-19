@@ -17,7 +17,11 @@ function door(db, sent) {
     async run(name, input) {
       if (name === 'tool:run-sql-in-my-database') {
         assert.equal(input.credential_name, 'my-notices-connection');
-        const result = await db.query(input.sql, (input.params ?? []).map(value => (value !== null && typeof value === 'object' ? JSON.stringify(value) : value)));
+        // node-postgres (tools/run-sql-in-my-database) sends a list as a Postgres array and an object as text it was never
+        // meant to be, so a statement that reads JSON must be handed JSON text: a list or object param is refused here, as
+        // the live run refused one on Nov 19 2026 ("invalid input syntax for type json").
+        for (const value of input.params ?? []) assert.ok(value === null || typeof value !== 'object', `a param is JSON text, not ${JSON.stringify(value).slice(0, 40)}`);
+        const result = await db.query(input.sql, input.params ?? []);
         return { rows: result.rows, row_count: result.affectedRows ?? result.rows.length };
       }
       if (name === 'tool:send-notification-to-my-devices') {

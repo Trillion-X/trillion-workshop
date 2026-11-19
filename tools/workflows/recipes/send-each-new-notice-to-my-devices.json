@@ -365,7 +365,15 @@
                           "select": {
                             "from": "loop",
                             "path": "notice.devices"
-                          }
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.stringify",
+                              "args": {
+                                "format": "json"
+                              }
+                            }
+                          ]
                         },
                         {
                           "$kind": "binding",
