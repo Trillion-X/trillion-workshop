@@ -14,7 +14,7 @@
 //   5. Nothing here is kept: the recording is answered and forgotten.
 //
 // USAGE
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/record-a-job-shown-once/read-data/demonstration.mjs record
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/record-a-job-shown-once/read-data/demonstration.mjs record
 import { execFile } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -75,5 +75,5 @@ export function makeDemonstrationTools({ settings = demonstrationSettings(),
 }
 export const demonstrationTools = makeDemonstrationTools();
 
-/** The tool-table entry as a named function, for run-an-export.mjs. */
+/** The tool-table entry as a named function, for run-a-function.mjs. */
 export const { record } = demonstrationTools;

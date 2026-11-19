@@ -34,6 +34,6 @@ The `read-data/demonstration.mjs` entry forwards its exports to the same-directo
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (`run-an-export.mjs`), Node's standard library, `/usr/bin/swift` (Xcode command line tools) on the Mac.
+**Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`), Node's standard library, `/usr/bin/swift` (Xcode command line tools) on the Mac.
 
 **Depended on by:** `tool-rows.json`. Nothing imports this folder.
