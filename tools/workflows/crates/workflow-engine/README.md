@@ -7,6 +7,7 @@ Runs the workflow engine (`workflow-core`) inside a wasm host or natively, with 
 | File | Purpose |
 |------|---------|
 | `Cargo.toml` | The crate: `rlib` for native tests, `cdylib` for the wasm-bindgen `web` module the Worker loads |
+| `src/answer_shape.rs` | `misses(shape, answer)`: every way an answer misses the JSON Schema its step names as `submit`, each as "where: what is wrong"; a keyword it does not know is refused, never skipped |
 | `src/lib.rs` | `Host` (what the engine asks of its host), `run_definition` (native entry), the Worker entry `run`, and tests of asking in order, pausing on an unanswered ask, checks, going on once answered, and an ask its host could not reach saying so as data |
 
 ## Key Types / Functions
@@ -18,6 +19,8 @@ Runs the workflow engine (`workflow-core`) inside a wasm host or natively, with 
 | `run` (wasm) | `async fn(definitions_json, id, input_json, partition, product_word, ask, read) -> Promise<string>` | The Worker entry; `ask(name, Uint8Array, Uint8Array?) → Promise<Uint8Array>`, `read(from) → Promise<Uint8Array>` |
 
 An ask answered `{"$kind": "not-answered-yet", ...}` pauses the run at that step (status `paused`, the reply kept as the step's output). The host keeps the answers it gave and runs the definition again when something changes; `src/workflows.mjs` does this for every workflow.
+
+An ask whose input names `submit` gets only an answer of that shape, whatever host gave it: `Access::ask` checks each answer with `answer_shape::misses`, and an answer that misses fails the step with `{"dispatch_failed": {"reason": "The answer to step S does not fit what it asks for: ..."}}` naming each miss. An answer of `not-answered-yet` is not checked. The host answers that step again and the run goes on.
 
 An ask or read the host's side could not answer at all (its call failed) fails that step with `{"dispatch_failed": {"dispatch", "reason"}}` as its output (`workflow-core` `WorkflowError::evidence`), so the host can tell "could not reach it" from "it failed" and run the definition again later with the answers it kept. In the Worker, `ask` and `read` are called with `Function.prototype.call`; a host handed across a service binding must be made local functions first (`src/engine-tools.mjs` `runCompiledEngine`), since a stub would send `call` to the other side as a method name.
 

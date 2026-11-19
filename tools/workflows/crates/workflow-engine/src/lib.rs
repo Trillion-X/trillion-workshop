@@ -20,6 +20,8 @@
 //      else (`OneThread`).
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
+pub mod answer_shape;
+
 use std::sync::Arc;
 
 use serde_json::Value;
@@ -77,7 +79,20 @@ struct Access<H: Host>(Arc<H>);
 #[async_trait::async_trait]
 impl<H: Host + 'static> OutsideAccess for Access<H> {
     async fn ask(&self, name: &str, _: &slot_protocol::PartitionKey, payload: bytes::Bytes, context: Option<bytes::Bytes>) -> Result<Arc<[u8]>, String> {
-        Ok(Arc::from(self.0.ask(name, payload.to_vec(), context.map(|bytes| bytes.to_vec())).await?.into_boxed_slice()))
+        let answer = self.0.ask(name, payload.to_vec(), context.as_ref().map(|bytes| bytes.to_vec())).await?;
+        // An ask that names the shape of its answer (`submit`) gets only an answer of that shape, from any host.
+        let asked: Value = serde_json::from_slice(&payload).unwrap_or(Value::Null);
+        if let Some(shape) = asked.get("submit").filter(|shape| shape.is_object()) {
+            let given: Value = serde_json::from_slice(&answer).map_err(|error| format!("The answer is not JSON: {error}"))?;
+            let waiting = given.get("$kind").and_then(Value::as_str) == Some(workflow_core::executor::context::NOT_ANSWERED_YET);
+            let wrong = if waiting { vec![] } else { answer_shape::misses(shape, &given) };
+            if !wrong.is_empty() {
+                let step = context.as_ref().and_then(|bytes| serde_json::from_slice::<Value>(bytes).ok())
+                    .and_then(|context| context["step_id"].as_str().map(String::from)).unwrap_or_default();
+                return Err(format!("The answer to step {step} does not fit what it asks for: {}", wrong.join("; ")));
+            }
+        }
+        Ok(Arc::from(answer.into_boxed_slice()))
     }
     async fn read(&self, from: &str, _: &slot_protocol::PartitionKey) -> Result<DirectReadResult, String> {
         let bytes = self.0.read(from).await?;
@@ -968,4 +983,37 @@ mod tests {
         let done = run_definition(vec![scope_then_plan()], "scope-then-plan", serde_json::json!({}), "person:test", "example", Arc::new(Answers(answers, vec!["tool:real".into()]))).await.expect("runs");
         assert_eq!(done["status"], "completed", "{done}");
     }
+
+    fn shaped() -> Definition {
+        serde_json::from_value(serde_json::json!({
+            "id": "shaped", "name": "Shaped", "kind": "workflow", "is_active": true, "version": 1,
+            "steps": [{ "id": "count", "kind": "ask", "config": { "name": "whoever-holds-the-run",
+                "input": { "do": "Count them.", "submit": { "type": "object", "required": ["n"], "properties": { "n": { "type": "integer", "minimum": 1 } } } },
+                "context": { "step_id": "count" } } }],
+            "edges": []
+        })).expect("definition")
+    }
+
+    #[tokio::test]
+    async fn an_answer_that_does_not_fit_its_submit_shape_fails_the_step_and_a_fitting_one_completes_it() {
+        for (given, missed) in [(serde_json::json!({ "n": 0 }), "answer.n: 0 is below 1"), (serde_json::json!({ "m": 2 }), "answer.n: is missing"),
+            (serde_json::json!("two"), "answer: is string")] {
+            let mut answers = std::collections::HashMap::new();
+            answers.insert("count".to_string(), given.clone());
+            let run = run_definition(vec![shaped()], "shaped", serde_json::json!({}), "person:test", "example",
+                Arc::new(Unreachable { answers, unreachable: None })).await.expect("runs");
+            assert_eq!(run["status"], "failed", "{given}: {run}");
+            let reason = run["execution_context"]["steps"]["count"]["output"]["dispatch_failed"]["reason"].as_str().unwrap_or_default().to_string();
+            assert!(reason.contains("does not fit what it asks for") && reason.contains(missed), "{given}: {reason}");
+        }
+        let mut answers = std::collections::HashMap::new();
+        answers.insert("count".to_string(), serde_json::json!({ "n": 3 }));
+        let run = run_definition(vec![shaped()], "shaped", serde_json::json!({}), "person:test", "example",
+            Arc::new(Unreachable { answers, unreachable: None })).await.expect("runs");
+        assert_eq!(run["status"], "completed", "{run}");
+        let waiting = run_definition(vec![shaped()], "shaped", serde_json::json!({}), "person:test", "example",
+            Arc::new(Unreachable { answers: Default::default(), unreachable: None })).await.expect("runs");
+        assert_ne!(waiting["status"], "failed", "an ask not answered yet is not checked: {waiting}");
+    }
+
 }

@@ -17,6 +17,8 @@ async-trait.workspace = true
 bytes.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+# The answer-shape check's `pattern`; the same regex ops-core already builds into every engine.
+regex = "1"
 
 [target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
 wasm-bindgen.workspace = true
