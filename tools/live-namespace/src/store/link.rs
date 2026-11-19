@@ -87,6 +87,9 @@ impl Dialect {
 enum Inner {
     Sqlite(rusqlite::Connection),
     Postgres(Box<postgres::Client>),
+    /// The person's Postgres reached from a run in the engine's sandbox, over a tunnel through the run's proxy
+    /// (through_the_run_proxy.rs).
+    Tunneled(Box<super::through_the_run_proxy::Tunneled>),
 }
 
 /// One open connection.
@@ -155,10 +158,13 @@ impl Link {
                 .with_no_client_auth();
             let tls = tokio_postgres_rustls::MakeRustlsConnect::new(tls);
             // A run the engine keeps in its sandbox reaches the database only through the run's proxy (through_the_run_proxy.rs).
-            match crate::https::engine_proxy(std::env::var("HTTPS_PROXY").ok().as_deref()) {
-                Some(proxy) => super::through_the_run_proxy::through_proxy(&config, proxy).map_err(unavailable)?.connect(tls).map_err(unavailable)?,
-                None => config.connect(tls).map_err(unavailable)?,
+            if let Some(proxy) = crate::https::engine_proxy(std::env::var("HTTPS_PROXY").ok().as_deref()) {
+                let mut tunneled: tokio_postgres::Config = connection.parse().map_err(|_| Error::Invalid("the database connection is not a Postgres connection string", crate::cause!()))?;
+                tunneled.application_name("live-namespace");
+                let client = super::through_the_run_proxy::Tunneled::open(&tunneled, proxy, tls).map_err(unavailable)?;
+                return Ok(Self { inner: Inner::Tunneled(Box::new(client)), place });
             }
+            config.connect(tls).map_err(unavailable)?
         };
         Ok(Self { inner: Inner::Postgres(Box::new(client)), place })
     }
@@ -166,7 +172,7 @@ impl Link {
     pub fn dialect(&self) -> Dialect {
         match self.inner {
             Inner::Sqlite(_) => Dialect::Sqlite,
-            Inner::Postgres(_) => Dialect::Postgres,
+            Inner::Postgres(_) | Inner::Tunneled(_) => Dialect::Postgres,
         }
     }
 
@@ -201,10 +207,14 @@ impl Link {
                 }
                 Ok(out)
             }
-            Inner::Postgres(client) => {
+            Inner::Postgres(_) | Inner::Tunneled(_) => {
                 let bound = postgres_values(params);
                 let refs: Vec<&(dyn postgres::types::ToSql + Sync)> = bound.iter().map(|value| value.as_ref()).collect();
-                let rows = client.query(&text, &refs).map_err(unavailable)?;
+                let rows = match &mut self.inner {
+                    Inner::Postgres(client) => client.query(&text, &refs).map_err(unavailable)?,
+                    Inner::Tunneled(client) => client.query(&text, &refs).map_err(unavailable)?,
+                    Inner::Sqlite(_) => return Err(crate::cause!(Error::Unavailable)),
+                };
                 let mut out = Vec::with_capacity(rows.len());
                 for row in rows {
                     let mut cells = Vec::with_capacity(row.len());
@@ -236,6 +246,11 @@ impl Link {
                 let refs: Vec<&(dyn postgres::types::ToSql + Sync)> = bound.iter().map(|value| value.as_ref()).collect();
                 client.execute(&text, &refs).map_err(unavailable)
             }
+            Inner::Tunneled(client) => {
+                let bound = postgres_values(params);
+                let refs: Vec<&(dyn postgres::types::ToSql + Sync)> = bound.iter().map(|value| value.as_ref()).collect();
+                client.execute(&text, &refs).map_err(unavailable)
+            }
         }
     }
 
@@ -244,6 +259,7 @@ impl Link {
         match &mut self.inner {
             Inner::Sqlite(connection) => connection.execute_batch(sql).map_err(unavailable),
             Inner::Postgres(client) => client.batch_execute(sql).map_err(unavailable),
+            Inner::Tunneled(client) => client.batch_execute(sql).map_err(unavailable),
         }
     }
 
@@ -256,6 +272,7 @@ impl Link {
                 Ok(Some(_)) => Ok(()),
                 _ => Err(crate::cause!(Error::Unavailable)),
             },
+            Inner::Tunneled(client) => client.heard().map_err(unavailable),
         }
     }
 
