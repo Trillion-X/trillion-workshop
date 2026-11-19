@@ -143,7 +143,7 @@ class Command(unittest.TestCase):
 
 
 def record(folder, settings, status='active'):
-    """A row as records:read gives it: {id, type, value}, settings as the compact JSON text make_record writes."""
+    """A row as the caller reads it from its own store: {id, type, value}, settings as the compact JSON text make_record writes."""
     return {'id': f'record:setting:{folder}~film~sample-film', 'type': 'record:setting',
             'value': {'name': 'made up', 'tool': f'tool:{folder}', 'scope_kind': 'film', 'scope_id': 'sample-film',
                       'settings': json.dumps(settings, sort_keys=True, separators=(',', ':')), 'from': 'made up', 'status': status}}
