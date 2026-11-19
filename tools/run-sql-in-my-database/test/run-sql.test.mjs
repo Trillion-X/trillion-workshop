@@ -51,9 +51,10 @@ test('the row mounts one held connection by the name the input gives and reaches
   assert.equal(row.invoke.local_doors, undefined, 'no local port: a database is reached by its address');
   assert.equal(row.invoke.internet, true);
   assert.deepEqual(row.invoke.credential_mounts, [
-    { secret_name_from_input: 'credential_name', fd: 3 },
+    { secret_name_from_input: 'credential_name', fd: 3, only_when: { input: 'credential_name', present: true } },
+    { secret_name_from_database: 'database', fd: 3, only_when: { input: 'database', present: true } },
     { secret_name_from_input: 'role_credential_name', fd: 4, only_when: { input: 'role_credential_name', present: true } },
-  ], 'the vault name is the person\'s, given in the run: the row lists none');
+  ], 'the login is the person\'s: the run names its vault name or, by database, the computer maps it; the row lists none');
   assert.equal(row.input_schema.properties.credential_name.enum, undefined);
   assert.equal(row.input_schema.properties.role_credential_name.enum, undefined);
   assert.ok(row.invoke.files.package_files[0].paths.includes('read-data'), 'the recipes are packed with the program');
