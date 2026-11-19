@@ -3,51 +3,58 @@
 // Purpose: The one sharing tool (`tool:share-anything`): share anything of the person's, from one record or one piece of text to a
 // list, a whole collection of records, with a named person, an AI, or anyone holding a link, read-only; or let named people and AIs
 // run some of the person's Workshop tools at the person's own door, with no copy on their computer, until stopped or until the
-// end rule the person gives says (none by default); show who has access; change when a run share ends; and stop it. It makes
-// the share and keeps it, and nothing else: the engine reads exactly what a share names (trillion-rust
-// src/account_rights/share_grant.rs) each time someone presents a key.
+// end rule the person gives says (none by default); show who has access; change when a run share ends; and stop it. The tool does
+// the work only a function can do here: it makes each key and keeps only its digest, works out who has access and what a share
+// names, and judges the person's end rule. It reaches no database, no records door and no files (rule a-tool-is-only-what-the-
+// store-cannot-do): the caller reads what the share needs from the person's own store, passes it in, and writes what comes back.
 //
-//   shareAnything(input, { door })   input { op: "share" | "stop" | "access" | "end", grant, thing?, with?, link?, can?, until?,
-//                                     unused_days?, origin?, principal?, now? }; the one export the row runs.
+//   shareAnything(input)   input { op: "share" | "stop" | "access" | "end", grant, thing?, with?, link?, can?, until?, unused_days?,
+//                          tools?, identity?, journal?, origin?, principal?, title?, now?, stored? } -> the answer, with `writes`:
+//                          the records the caller must write in its own store, in order. Run by the workflow `run-a-function`
+//                          command (do-work/run-a-function.mjs), which prints the answer; the one export the row runs.
+//
+//   stored  what the caller read from the person's store for this run, as the store holds it (null when it holds nothing):
+//           { kept: the value at `grant` (a share record, or for a run share the grant the engine lists: { grant, people, ends,
+//             last_used }), list: the list definition `list:<id>` when `thing` is a list, else absent }.
+//   writes  [{ kind: "share" | "run-share" | "shared-text", address, value, expect }]. A write with value null withdraws the record at
+//           address. `expect` is what `kept` (or the list) held when this was made: the caller writes only while its store still
+//           holds `expect` (null when it holds nothing), and otherwise reads again and runs this tool again. A shared-text write is
+//           content-addressed (its id is the BLAKE3 of its text), so it has no `expect`.
 //
 // How long a run share lasts is the person's choice, and by default it has no end (the owner, Nov 17 2026). The end rule the
-// person gives (`until`, a future time, and/or `unused_days`, whole days with no use) is kept as `ends` beside the grant in the
-// engine's own keep ({ until?, unused_days?, since }, `since` the time the rule was set); the engine keeps it and reads none of it.
+// person gives (`until`, a future time, and/or `unused_days`, whole days with no use) is kept as `ends` beside the grant
+// ({ until?, unused_days?, since }, `since` the time the rule was set); the store keeps it and the engine reads none of it.
 // `op: "end"` sets a run share's rule again (neither given: it never ends), and a later share to more people keeps the rule it
-// has unless it gives a new one. The sweep (end-shares-whose-condition-failed.mjs), which a wake the person switched on runs,
-// lists the shares with their rules and last uses and withdraws one whose rule says it has ended. Decision case
-// source:bm8tZ3JhbnQtY29uZGl0aW9uLWluLWVuZ2luZS1jb2RlOndoZXJlLWNvbmRpdGlvbnMtbGl2ZS0yMDI2LTExLTE2.
+// has unless it gives a new one. The sweep (end-shares-whose-condition-failed.mjs) judges those rules and returns the withdrawals.
+// Decision case source:bm8tZ3JhbnQtY29uZGl0aW9uLWluLWVuZ2luZS1jb2RlOndoZXJlLWNvbmRpdGlvbnMtbGl2ZS0yMDI2LTExLTE2.
 //
-// A share is the sharer's own workspace record at `grant` (record_prefix + the thing's label, read-data/share-label.mjs):
+// A share is the sharer's own record at `grant` (record_prefix + the thing's label, read-data/share-label.mjs):
 // { reach, title, can, people: [{ principal, key_blake3, added_at }], published, revoked_at, expires_at, changed_at }. A person,
 // an AI or the link is each one entry of `people`, with a key of its own made here (token_prefix + 32 random bytes), handed back
-// once and never kept: only its BLAKE3 is. No key is kept in the sharer's vault, so the share needs the sharer's signed-in
+// once and never kept: only its BLAKE3 is. No key is kept anywhere the caller writes, so the share needs the sharer's signed-in
 // session and nothing else, and a person or an AI recipient reads with the same key.
 //
 // Non-Negotiable Invariants:
-// - A key is returned once, in the answer of the run that made it, and is in no record, log or error. A run sent again with its
-//   request key answers its first answer (the engine's journal), so a retry never makes a second key.
-// - A share lets people view (`can` ["view"], the default) or run the tools it names (`can` ["run"], data.run.can); anything else
-//   is refused here, never narrowed later. A run share is kept by the engine's own keep operation (data.run.keep_operation) in
-//   the sharer's vault, the only place the engine reads it from; this run never holds the sharer's key, and keeps nothing itself.
-// - Stopping a person removes their entry, and stopping everyone sets revoked_at and empties people; the engine decides again on
-//   every read, so the next read is refused.
-// - The share is written, then read back; it is written again (up to `writes_tried`) when the readback lacks what this run added,
-//   because another change to the record can land between this run's read and write. Each try has its own request key under
-//   this run's, so a try the door answers twice is one write.
-// - A text is kept as its own record before the share names it, so a key never reaches a record that is not there.
+// - A key is returned once, in the answer of the run that made it, and is in no write, log or error. The writes hold digests only.
+// - A share lets people view (`can` ["view"], the default) or run the tools it names (`can` ["run"], data.run); anything else is
+//   refused here, never narrowed later. A run share's grant is returned as a `run-share` write; this tool never holds the sharer's
+//   key and keeps nothing itself.
+// - Stopping a person removes their entry, and stopping everyone sets revoked_at and empties people (a run share's everyone is a
+//   withdrawal, value null); the engine decides again on every read, so the next read is refused.
+// - Sharing with someone already named is refused; stop them first to give a new key.
+// - A text is kept as its own record (a `shared-text` write) before the share names it, so a key never reaches a record that is not
+//   there; the list a share names must be given in `stored.list`, or the run says so.
 //
-// Key Concepts: `thing` (read-data/share-label.mjs), `grant` (the label the run is granted, which the caller derives from the
-// same rule), `people` (a person, an AI or the link; the link is the principal "link").
+// Key Concepts: `thing` (read-data/share-label.mjs), `grant` (the label the run is granted, which the caller derives from the same
+// rule), `people` (a person, an AI or the link; the link is the principal "link").
 //
-// Security Considerations: the row grants this run exactly one workspace label (`grant`), the list definitions it may read
-// and the shared-text records it may write; it is never granted the records it shares, so what it shares is chosen by the
-// reach it writes, which the engine bounds on every read.
+// Security Considerations: the answer never holds a key other than the one it hands back once; the writes hold only digests; the
+// run's `stored` is what the caller chose to read, so the tool reaches nothing the caller did not give it.
 //
 // AI Assistant Directive:
 // The extensive documentation in this codebase is a critical design feature.
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
-import { randomBytes, randomUUID } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import data from '../read-data/share-anything.json' with { type: 'json' };
 import { grantOf, labelOf, listRecordId, reachOf, shapeOf } from '../read-data/share-label.mjs';
@@ -92,29 +99,28 @@ function originOf(origin) {
 const urlOf = (origin, key) => (origin ? `${origin}/share/${key}` : undefined);
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
-/** The sharing record at `grant` as the door reads it, or null. */
-async function readShare(door, grant) {
-  const { records } = await door.readWorkspace([grant]);
-  const held = records[grant];
-  return object(held) ? held : null;
-}
+/** The value the caller read at `grant` (a share record or a run grant), or null. */
+const keptOf = input => (object(input.stored?.kept) ? input.stored.kept : null);
 
 const peopleOf = held => (Array.isArray(held?.people) ? held.people.filter(person => object(person) && typeof person.principal === 'string' && typeof person.key_blake3 === 'string') : []);
 
-/** The reach a thing names now: a list's is its definition and its rows' kind, which only the definition knows. */
-async function reachNow(thing, door) {
+/** The write that puts `value` at `address` (null withdraws it), made on what the caller read as `expect`. */
+const writeOf = (kind, address, value, expect) => ({ kind, address, value, expect: expect ?? null });
+
+/** The reach a thing names now: a list's is its definition and its rows' kind, which only the definition knows (`stored.list`). */
+function reachNow(thing, input) {
   if (shapeOf(thing) !== 'list') return reachOf(thing);
   const id = listRecordId(thing.list);
-  const definition = await door.read(data.list_kind, id);
+  const definition = input.stored?.list;
   if (!object(definition) || typeof definition.row_type !== 'string' || !definition.row_type) throw new Error(fill(words.no_list, { list: thing.list }));
   return [{ type: data.list_kind, id }, { type: `${data.row_kind_prefix}${definition.row_type}` }];
 }
 
-async function titleOf(thing, door, given) {
+function titleOf(thing, input, given) {
   if (typeof given === 'string' && given.trim()) return given.trim().slice(0, data.most.title_chars);
   const shape = shapeOf(thing);
   if (shape === 'list') {
-    const definition = await door.read(data.list_kind, listRecordId(thing.list));
+    const definition = input.stored?.list;
     const named = [definition?.label, definition?.title].find(name => typeof name === 'string' && name.trim());
     return (named ?? thing.list).slice(0, data.most.title_chars);
   }
@@ -123,25 +129,12 @@ async function titleOf(thing, door, given) {
   return thing.id;
 }
 
-// Writes the share, reads it back and writes again while `landed` says this run's change is missing.
-async function keep(door, grant, change, landed, key) {
-  for (let tried = 1; tried <= data.most.writes_tried; tried += 1) {
-    const before = await readShare(door, grant);
-    const value = change(before);
-    await door.writeWorkspace([{ address_label: grant, payload: value }], { key: `${key}:${tried}` });
-    const after = await readShare(door, grant);
-    if (after && landed(after)) return after;
-  }
-  throw new Error(fill(words.kept_failed, { tried: data.most.writes_tried }));
-}
-
 function checkGrant(input, thing) {
   if (typeof input.grant !== 'string' || input.grant !== grantOf(thing)) throw new Error(fill(words.grant, { grant: grantOf(thing) }));
 }
 
-async function share(input, door) {
+function share(input) {
   const { thing } = input;
-  const run = randomUUID();
   if (input.can !== undefined && !same(input.can, data.can)) throw new Error(words.can);
   checkGrant(input, thing);
   const now = nowOf(input);
@@ -155,75 +148,70 @@ async function share(input, door) {
   if (!principals.length && !wantsLink) throw new Error(words.who);
   const grant = input.grant;
   const label = labelOf(thing);
-  const reach = await reachNow(thing, door);
-  const title = await titleOf(thing, door, input.title ?? thing.title);
-  const earlier = await readShare(door, grant);
+  const reach = reachNow(thing, input);
+  const title = titleOf(thing, input, input.title ?? thing.title);
+  const earlier = keptOf(input);
   if (earlier && !same(earlier.reach, reach)) throw new Error(fill(words.different, { label }));
   const held = peopleOf(earlier).map(person => person.principal);
   for (const principal of [...principals, ...(wantsLink ? [data.link_principal] : [])]) {
     if (held.includes(principal)) throw new Error(fill(words.already, { principal: principal === data.link_principal ? 'the link' : principal }));
   }
   if (held.length + principals.length + (wantsLink ? 1 : 0) > data.most.people) throw new Error(fill(words.too_many, { most: data.most.people }));
-  // The text is kept before the share names it.
-  if (shapeOf(thing) === 'text') {
-    await door.write([{ id: reach[0].id, type: data.text_kind, value: { title, text: thing.text } }], { key: `${run}:text` });
-  }
+  const writes = [];
+  // The text is kept before the share names it (content-addressed: its id is the BLAKE3 of the text, so no expect).
+  if (shapeOf(thing) === 'text') writes.push({ kind: 'shared-text', address: reach[0].id, value: { title, text: thing.text }, expect: null, type: data.text_kind });
   const at = new Date(now).toISOString();
   const keys = new Map([...principals, ...(wantsLink ? [data.link_principal] : [])].map(principal => [principal, newKey()]));
   const added = [...keys].map(([principal, key]) => ({ principal, key_blake3: hex(key), added_at: at }));
-  const change = before => {
-    const people = peopleOf(before).filter(person => !keys.has(person.principal));
-    return {
-      reach,
-      title,
-      can: data.can,
-      people: [...people, ...added],
-      published: true,
-      revoked_at: null,
-      expires_at: ends === undefined ? before?.expires_at ?? null : ends,
-      changed_at: at,
-    };
+  const people = peopleOf(earlier).filter(person => !keys.has(person.principal));
+  const value = {
+    reach,
+    title,
+    can: data.can,
+    people: [...people, ...added],
+    published: true,
+    revoked_at: null,
+    expires_at: ends === undefined ? earlier?.expires_at ?? null : ends,
+    changed_at: at,
   };
-  const landed = after => added.every(person => peopleOf(after).some(held => held.principal === person.principal && held.key_blake3 === person.key_blake3));
-  const after = await keep(door, grant, change, landed, run);
+  writes.push(writeOf('share', grant, value, earlier));
   const link = wantsLink ? { key: keys.get(data.link_principal), ...(urlOf(origin, keys.get(data.link_principal)) ? { url: urlOf(origin, keys.get(data.link_principal)) } : {}) } : undefined;
-  const people = principals.map(principal => ({ principal, key: keys.get(principal), ...(urlOf(origin, keys.get(principal)) ? { url: urlOf(origin, keys.get(principal)) } : {}) }));
+  const answered = principals.map(principal => ({ principal, key: keys.get(principal), ...(urlOf(origin, keys.get(principal)) ? { url: urlOf(origin, keys.get(principal)) } : {}) }));
   const said = [
     ...principals.map(principal => fill(words.added_person, { title, principal })),
     ...(wantsLink ? [fill(words.added_link, { title })] : []),
-    ...(after.expires_at ? [fill(words.ends, { until: after.expires_at })] : []),
+    ...(value.expires_at ? [fill(words.ends, { until: value.expires_at })] : []),
   ].join(' ');
-  return { op: 'share', label, grant, title, reach, people, ...(link ? { link } : {}), expires_at: after.expires_at ?? null, said };
+  return { op: 'share', label, grant, title, reach, people: answered, ...(link ? { link } : {}), expires_at: value.expires_at ?? null, said, writes };
 }
 
-async function stop(input, door) {
-  const run = randomUUID();
+function stop(input) {
   const grant = input.grant;
   if (typeof grant !== 'string' || !grant.startsWith(data.record_prefix) || grant.length === data.record_prefix.length) throw new Error(fill(words.grant, { grant: `${data.record_prefix}<label>` }));
   const label = grant.slice(data.record_prefix.length);
   const now = nowOf(input);
   const at = new Date(now).toISOString();
-  const earlier = await readShare(door, grant);
+  const earlier = keptOf(input);
   if (!earlier) throw new Error(fill(words.no_share, { label }));
   const title = typeof earlier.title === 'string' ? earlier.title : label;
   if (input.principal === undefined) {
-    await keep(door, grant, before => ({ ...before, people: [], published: true, revoked_at: at, changed_at: at }),
-      after => after.revoked_at === at && peopleOf(after).length === 0, run);
-    return { op: 'stop', label, grant, removed: peopleOf(earlier).map(person => person.principal), revoked_at: at, said: fill(words.stopped_all, { title }) };
+    const value = { ...earlier, people: [], published: true, revoked_at: at, changed_at: at };
+    return { op: 'stop', label, grant, removed: peopleOf(earlier).map(person => person.principal), revoked_at: at, said: fill(words.stopped_all, { title }),
+      writes: [writeOf('share', grant, value, earlier)] };
   }
   const principal = principalOf(input.principal);
   if (!peopleOf(earlier).some(person => person.principal === principal)) throw new Error(fill(words.not_shared_with, { label, principal: principal === data.link_principal ? 'the link' : principal }));
-  await keep(door, grant, before => ({ ...before, people: peopleOf(before).filter(person => person.principal !== principal), changed_at: at }),
-    after => !peopleOf(after).some(person => person.principal === principal), run);
-  return { op: 'stop', label, grant, removed: [principal], said: fill(words.stopped_person, { title, principal: principal === data.link_principal ? 'the link' : principal }) };
+  const value = { ...earlier, people: peopleOf(earlier).filter(person => person.principal !== principal), changed_at: at };
+  return { op: 'stop', label, grant, removed: [principal], said: fill(words.stopped_person, { title, principal: principal === data.link_principal ? 'the link' : principal }),
+    writes: [writeOf('share', grant, value, earlier)] };
 }
 
-async function access(input, door) {
+function access(input) {
   const grant = input.grant;
   if (typeof grant !== 'string' || !grant.startsWith(data.record_prefix) || grant.length === data.record_prefix.length) throw new Error(fill(words.grant, { grant: `${data.record_prefix}<label>` }));
   const label = grant.slice(data.record_prefix.length);
   const now = nowOf(input);
-  const held = await readShare(door, grant);
+  const held = keptOf(input);
   if (!held) return { op: 'access', label, grant, shared: false, state: null, people: [], link: null, expires_at: null, said: fill(words.no_share, { label }) };
   const ended = typeof held.expires_at === 'string' && Date.parse(held.expires_at) <= now;
   const state = held.revoked_at ? 'stopped' : ended ? 'ended' : held.published === false ? 'stopped' : 'open';
@@ -253,12 +241,6 @@ function runLabelOf(input) {
   return grant;
 }
 
-/** The run grant kept on `grant` now, as the engine lists it, or null. */
-async function readRun(door, grant) {
-  const { grants } = await door.sharing(runs.list_operation, { label: grant });
-  return Array.isArray(grants) && object(grants[0]) ? grants[0] : null;
-}
-
 /**
  * The end rule `input` gives a run share, kept as `ends`: { until?, unused_days?, since } with `since` the time it is set, null
  * when it gives neither (the share never ends), or undefined when it names no rule at all (a share kept again keeps its own).
@@ -278,12 +260,13 @@ const endsSaid = ends => [
   ...(object(ends) && Number.isInteger(ends.unused_days) ? [fill(words.ends_unused, { days: ends.unused_days })] : []),
 ];
 
-const keepRun = (door, grant, sharing, key) => door.sharing(runs.keep_operation, { label: grant, on: true, sharing }, { key });
 const peopleKept = held => peopleOf(held).map(person => ({ principal: person.principal, key_blake3: person.key_blake3 }));
 
-async function shareRun(input, door) {
+/** The run grant the caller read at `grant` (its listed shape), or null. */
+const runKeptOf = input => keptOf(input);
+
+function shareRun(input) {
   const grant = runLabelOf(input);
-  const run = randomUUID();
   const tools = input.tools;
   if (!Array.isArray(tools) || !tools.length || tools.length > runs.most_tools || tools.some(tool => typeof tool !== 'string' || !tool) || new Set(tools).size !== tools.length) {
     throw new Error(fill(words.tools, { most: runs.most_tools }));
@@ -299,7 +282,7 @@ async function shareRun(input, door) {
   const principals = [...new Set(named.map(runPrincipalOf))];
   if (!principals.length) throw new Error(words.who);
   const asked = { tools: [...tools].sort(), identity, journal };
-  const earlier = await readRun(door, grant);
+  const earlier = runKeptOf(input);
   const sameGrant = held => object(held) && same(held.tools, asked.tools) && held.identity === asked.identity && held.journal === asked.journal;
   if (earlier && !sameGrant(earlier.grant)) throw new Error(fill(words.different_tools, { label: grant }));
   const held = peopleKept(earlier);
@@ -311,33 +294,33 @@ async function shareRun(input, door) {
   // A share given no rule keeps the one it has (a new share has none, so it never ends).
   const ends = given === undefined ? earlier?.ends : given;
   const people = [...held, ...[...keys].map(([principal, key]) => ({ principal, key_blake3: hex(key) }))];
-  await keepRun(door, grant, withEnds({ grant: asked, people }, ends), run);
+  const value = withEnds({ grant: asked, people }, ends);
   const said = [...principals.map(principal => fill(words.added_runner, { principal, tools: asked.tools.join(', ') })), ...endsSaid(ends)].join(' ');
   return { op: 'share', can: runs.can, grant, tools: asked.tools, people: principals.map(principal => ({ principal, key: keys.get(principal) })),
-    ends: object(ends) ? ends : null, expires_at: untilOf(ends), said };
+    ends: object(ends) ? ends : null, expires_at: untilOf(ends), said, writes: [writeOf('run-share', grant, value, earlier)] };
 }
 
-async function stopRun(input, door) {
+function stopRun(input) {
   const grant = runLabelOf(input);
-  const run = randomUUID();
-  const earlier = await readRun(door, grant);
+  const earlier = runKeptOf(input);
   if (!earlier) throw new Error(fill(words.no_share, { label: grant }));
   const people = peopleKept(earlier);
   const title = grant;
   if (input.principal === undefined) {
-    await door.sharing(runs.keep_operation, { label: grant, on: false }, { key: run });
-    return { op: 'stop', can: runs.can, grant, removed: people.map(person => person.principal), said: fill(words.stopped_all, { title }) };
+    return { op: 'stop', can: runs.can, grant, removed: people.map(person => person.principal), said: fill(words.stopped_all, { title }),
+      writes: [writeOf('run-share', grant, null, earlier)] };
   }
   const principal = runPrincipalOf(input.principal);
   if (!people.some(person => person.principal === principal)) throw new Error(fill(words.not_shared_with, { label: grant, principal }));
   const left = people.filter(person => person.principal !== principal);
-  await keepRun(door, grant, withEnds({ grant: earlier.grant, people: left }, earlier.ends), run);
-  return { op: 'stop', can: runs.can, grant, removed: [principal], said: fill(words.stopped_person, { title, principal }) };
+  const value = withEnds({ grant: earlier.grant, people: left }, earlier.ends);
+  return { op: 'stop', can: runs.can, grant, removed: [principal], said: fill(words.stopped_person, { title, principal }),
+    writes: [writeOf('run-share', grant, value, earlier)] };
 }
 
-async function accessRun(input, door) {
+function accessRun(input) {
   const grant = runLabelOf(input);
-  const held = await readRun(door, grant);
+  const held = runKeptOf(input);
   if (!held) return { op: 'access', can: runs.can, grant, shared: false, state: null, tools: [], people: [], ends: null, expires_at: null, last_used: null, said: fill(words.no_share, { label: grant }) };
   const ends = object(held.ends) ? held.ends : null;
   const expires_at = untilOf(ends);
@@ -351,23 +334,24 @@ async function accessRun(input, door) {
 }
 
 /** Set when a run share ends: the rule `until` and/or `unused_days` give, or none (it never ends); its people and keys stay. */
-async function endRun(input, door) {
+function endRun(input) {
   const grant = runLabelOf(input);
-  const earlier = await readRun(door, grant);
+  const earlier = runKeptOf(input);
   if (!earlier) throw new Error(fill(words.no_share, { label: grant }));
   const ends = endsOf(input, nowOf(input), true);
-  await keepRun(door, grant, withEnds({ grant: earlier.grant, people: peopleKept(earlier) }, ends), randomUUID());
-  return { op: 'end', can: runs.can, grant, ends, expires_at: untilOf(ends), said: (ends ? endsSaid(ends) : [words.no_end]).join(' ') };
+  const value = withEnds({ grant: earlier.grant, people: peopleKept(earlier) }, ends);
+  return { op: 'end', can: runs.can, grant, ends, expires_at: untilOf(ends), said: (ends ? endsSaid(ends) : [words.no_end]).join(' '),
+    writes: [writeOf('run-share', grant, value, earlier)] };
 }
 
-export async function shareAnything(input = {}, { door } = {}) {
+export function shareAnything(input = {}) {
   if (!object(input) || !['share', 'stop', 'access', 'end'].includes(input.op)) throw new Error(words.op);
   if (runsTools(input)) {
-    if (input.op === 'share') return shareRun(input, door);
-    if (input.op === 'end') return endRun(input, door);
-    return input.op === 'stop' ? stopRun(input, door) : accessRun(input, door);
+    if (input.op === 'share') return shareRun(input);
+    if (input.op === 'end') return endRun(input);
+    return input.op === 'stop' ? stopRun(input) : accessRun(input);
   }
   if (input.op === 'end') throw new Error(words.end_run_only);
-  if (input.op === 'share') return share(input, door);
-  return input.op === 'stop' ? stop(input, door) : access(input, door);
+  if (input.op === 'share') return share(input);
+  return input.op === 'stop' ? stop(input) : access(input);
 }

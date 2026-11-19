@@ -2,7 +2,7 @@
   "drafted_from": "tool:end-shares-whose-condition-failed's own row (its words, input schema and sample run) and what its sample run answered here; read it before relying on it",
   "start_here": "Say to your AI: \"End the shares I let people run my tools by, once the end rule I gave each says so\", with {\"now\":\"2026-01-01T00:00:00Z\"}. It runs tool:end-shares-whose-condition-failed and answers {\"ended\":[],\"waiting\":0,\"never\":0,\"unjudged\":0,\"said\":...} when no share of yours is kept.",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it reads your run shares and the end rule each holds through your door's own share list, and withdraws them there.",
+  "no_lists_because": "It names no list of yours: your AI lists your run shares from your own store (each with its end rule and last use) and passes them in as runs; it answers the withdrawals to write there.",
   "workflows": [],
   "tools": [
     "tool:end-shares-whose-condition-failed",
@@ -10,8 +10,8 @@
   ],
   "instructions": [
     "1. Give a run share an end rule if you want one (none by default: it stands until you stop it): say \"Share it until 2026-12-01T00:00:00Z\" or \"end it after 30 days with no use\" to tool:share-anything (op share with until or unused_days, or op end to change it later); the rule is kept beside the share and the engine reads none of it.",
-    "2. Switch on this tool's wake (wake:switch, check-unused-grants), or run tool:end-shares-whose-condition-failed by hand with {} or {\"now\": an ISO time}.",
-    "3. Read what comes back: ended names each share withdrawn at your door, waiting counts shares whose rule's end has not come (or names no readable end), never counts shares with no rule, and said states it in words."
+    "2. Run tool:end-shares-whose-condition-failed with your run shares listed from your store as runs, and an optional now (an ISO time); with no runs it answers nothing ended.",
+    "3. Read what comes back: ended names each share whose withdrawal is in writes (write it in your store), waiting counts shares whose rule's end has not come (or names no readable end), never counts shares with no rule, and said states it in words."
   ],
   "worked_examples": [
     {

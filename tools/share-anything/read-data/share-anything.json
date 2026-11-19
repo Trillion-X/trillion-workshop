@@ -1,21 +1,28 @@
 {
-  "_what": "What the one sharing tool (do-work/share-anything.mjs) keeps and says. A share is one workspace record at record_prefix + <label> in the sharer's own account: { reach: [{ type, id? | prefix? }], title, about?, can: [\"view\"], people: [{ principal, key_blake3, added_at }], published, revoked_at, expires_at, changed_at }. Each person, AI or link it is shared with gets its own key: token_prefix + 32 random bytes (base64url); only the BLAKE3 hex of that key is kept. The engine (trillion-rust src/account_rights/share-grant.json door_grant) reads exactly the reach of a record that names the presenter's digest now, so record_prefix and token_prefix here are the engine's, read from there when they change.",
+  "_what": "What the one sharing tool (do-work/share-anything.mjs) makes and says. It reaches no database: the caller reads what it needs from the person's own store and writes what it returns (`writes`). A share is one record at record_prefix + <label> in the sharer's own store: { reach: [{ type, id? | prefix? }], title, about?, can: [\"view\"], people: [{ principal, key_blake3, added_at }], published, revoked_at, expires_at, changed_at }. Each person, AI or link it is shared with gets its own key: token_prefix + 32 random bytes (base64url); only the BLAKE3 hex of that key is kept. The engine (trillion-rust src/account_rights/share-grant.json door_grant) reads exactly the reach of a record that names the presenter's digest now, so record_prefix and token_prefix here are the engine's, read from there when they change.",
   "record_prefix": "sharing:",
   "token_prefix": "shr_",
   "token_bytes": 32,
   "link_principal": "link",
-  "can": ["view"],
+  "can": [
+    "view"
+  ],
   "run": {
-    "_what": "A share that lets its people run some of the sharer's Workshop tools at the sharer's own door, with no copy on their computer (can: [\"run\"]): kept by the engine's run grant (trillion-rust src/account_rights/share-grant.json `act`) in the sharer's vault through keep_operation and read back through list_operation, at the run's own door resource, for the one label `grant` names. The grant is {tools, identity, journal}; people are {principal, key_blake3}. How long it lasts is the person's choice and by default it has no end (the owner, Nov 17 2026): the rule they give is kept as `ends` beside the grant ({until?, unused_days?, since}), which the engine keeps and never reads, and the sweep (do-work/end-shares-whose-condition-failed.mjs, run by a wake the person switched on) lists every run share with its rule and last use and withdraws one whose rule says it has ended, with withdraw_operation. check_every_ms is how often that wake runs: the engine writes a share's last use at most once an hour (share-grant.json act.use_every_seconds, 3600), so judging more often reads nothing new. identity and journal are the defaults a share that names neither gets.",
-    "can": ["run"],
-    "keep_operation": "sharing.keep",
-    "list_operation": "sharing.list",
-    "withdraw_operation": "sharing.withdraw",
+    "_what": "A share that lets its people run some of the sharer's Workshop tools at the sharer's own door, with no copy on their computer (can: [\"run\"]): one run grant per label, { grant: {tools, identity, journal}, people: [{principal, key_blake3}], ends? }, written by the caller where the person keeps it (a write of kind run-share). How long it lasts is the person's choice and by default it has no end (the owner, Nov 17 2026): the rule they give is kept as `ends` beside the grant ({until?, unused_days?, since}), which the engine reads none of, and the sweep (do-work/end-shares-whose-condition-failed.mjs, run on the runs the caller lists) returns the withdrawal of one whose rule says it has ended. check_every_ms is how often that sweep is wanted: the engine writes a share's last use at most once an hour (share-grant.json act.use_every_seconds, 3600), so judging more often reads nothing new. identity and journal are the defaults a share that names neither gets.",
+    "can": [
+      "run"
+    ],
     "check_every_ms": 3600000,
     "identity": "none",
     "journal": "input",
-    "identities": ["none", "self"],
-    "journals": ["input", "none"],
+    "identities": [
+      "none",
+      "self"
+    ],
+    "journals": [
+      "input",
+      "none"
+    ],
     "most_tools": 64,
     "principal_pattern": "^[A-Za-z0-9_-]{1,128}$"
   },
@@ -38,8 +45,7 @@
     "title_chars": 200,
     "text_chars": 100000,
     "type_chars": 200,
-    "id_chars": 300,
-    "writes_tried": 3
+    "id_chars": 300
   },
   "words": {
     "op": "op is share, stop, access or end.",
@@ -63,7 +69,6 @@
     "no_list": "No list {list} is kept here.",
     "no_share": "Nothing is shared at {label}.",
     "not_shared_with": "{label} is not shared with {principal}.",
-    "kept_failed": "The share could not be kept after {tried} tries: another change to it kept getting in. Try again.",
     "too_many": "A share holds at most {most} people.",
     "added_person": "Shared {title} with {principal}. They can only view it, until you stop it.",
     "added_link": "Made a link to {title}. Anyone with it can only view it, until you stop it.",
