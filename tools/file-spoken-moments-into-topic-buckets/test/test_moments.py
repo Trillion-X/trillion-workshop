@@ -164,6 +164,43 @@ class SentenceBoundaryTest(unittest.TestCase):
         self.assertEqual(m.snap_starts([], [0]), [])
 
 
+class RealSpeechCutTest(unittest.TestCase):
+    """Ten 10-word chunks of a real tennis lesson, the way speech-to-text splits speech: mid-sentence, times estimated from word count."""
+    CHUNKS = [
+        "Okay, so now that we have it dangling and we",
+        "have the strings still on that glass wall, the next",
+        "thing we’re going to do is go to the pole.",
+        "If you have a pole there—which I do, I have",
+        "a light pole right there—that’s perfect. For me, it’s at",
+        "about 20 degrees, which is exactly where we want to",
+        "be. That lines up with the toe, and that’s why",
+        "we call this going to the pole. So for me,",
+        "if the racket is dangling, one way to really help",
+        "you think through this is to imagine the racket tip",
+    ]
+
+    def segs(self, count=10):
+        return [{"text": t, "start": 4.0 * i, "end": 4.0 * (i + 1)} for i, t in enumerate(self.CHUNKS[:count])]
+
+    def test_a_start_the_model_names_inside_a_sentence_is_cut_there_before_and_moves_to_a_sentence_start_now(self):
+        segs = self.segs()
+        self.assertFalse(m.ends_sentence(segs[1]["text"]))
+        old = m.ideas_from_starts(segs, [0, 2])
+        self.assertEqual(old[1]["segments"][0], 2)
+        self.assertEqual(old[1]["text"].split(" ", 1)[0], "thing")
+        new = m.ideas_from_starts(segs, m.snap_starts(segs, [0, 2]))
+        self.assertEqual(new[1]["segments"][0], 3)
+        self.assertTrue(m.ends_sentence(segs[2]["text"]))
+
+    def test_an_idea_that_stops_mid_sentence_is_cut_back_to_the_last_full_sentence_now(self):
+        segs = self.segs(5)
+        old = m.ideas_from_starts(segs, [0])
+        self.assertTrue(old[0]["text"].endswith(" at"))
+        locked = m.lock_to_sentences(old[0], segs)
+        self.assertEqual(locked["segments"], [0, 1, 2])
+        self.assertTrue(locked["text"].endswith("the pole."))
+
+
 class MergeShortTest(unittest.TestCase):
     def idea(self, start, end, text, segs):
         return {"start": start, "end": end, "text": text, "segments": segs, "cut": "model"}
