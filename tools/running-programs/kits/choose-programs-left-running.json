@@ -1,0 +1,70 @@
+{
+  "drafted_from": "tool:choose-programs-left-running's own row (its words and input schema) in tools/running-programs/tool-rows.json; read it before relying on it",
+  "start_here": "Say to your AI: \"Which programs were left running by sessions that ended?\" with the programs list and your rule rows. It runs tool:choose-programs-left-running and answers which to stop and why, and which a never-stop row kept, changing nothing.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [
+    "workflow:stop-programs-left-running"
+  ],
+  "tools": [
+    "tool:choose-programs-left-running",
+    "tool:list-running-programs"
+  ],
+  "instructions": [
+    "1. Read the programs with tool:list-running-programs and commands true.",
+    "2. Read your left-behind and never-stop rows from where you keep them, and give both lists; a list not given is refused.",
+    "3. Read picked (each with the row that chose it and why) and kept; hand picked to tool:stop-programs-left-running only if you mean to stop them."
+  ],
+  "worked_examples": [
+    {
+      "title": "A shell left looping is picked",
+      "ask": "Which of these programs were left running?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:choose-programs-left-running",
+            "input": {
+              "programs": [
+                {
+                  "pid": 4242,
+                  "name": "sh",
+                  "parent_pid": 1,
+                  "session_id": 4242,
+                  "started_at_ms": 1795000000000,
+                  "cpu_ms": 9600000,
+                  "command": "/bin/sh -c while true; do run-tests; done"
+                }
+              ],
+              "complete": true,
+              "left_behind": [
+                {
+                  "id": "shell-loop-left-by-an-ended-session",
+                  "why": "A shell a closed session left behind, still busy",
+                  "parent_pid": 1,
+                  "session_owner_gone": true,
+                  "older_than_minutes": 60,
+                  "cpu_share_at_least": 0.5,
+                  "command_pattern": "^/bin/sh -c "
+                }
+              ],
+              "never_stop": [
+                {
+                  "id": "the-model-proxy",
+                  "why": "Every AI session on this computer talks through it",
+                  "command_pattern": "model-proxy"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:stop-programs-left-running",
+      "step": "choose",
+      "given": "The program {\"pid\": 4242, \"name\": \"sh\", \"parent_pid\": 1, \"session_id\": 4242, \"started_at_ms\": 1795000000000, \"cpu_ms\": 9600000, \"command\": \"/bin/sh -c while true; do run-tests; done\"}, complete true, and the rows {\"id\": \"shell-loop-left-by-an-ended-session\", \"why\": \"A shell a closed session left behind, still busy\", \"parent_pid\": 1, \"session_owner_gone\": true, \"older_than_minutes\": 60, \"cpu_share_at_least\": 0.5, \"command_pattern\": \"^/bin/sh -c \"} and {\"id\": \"the-model-proxy\", \"why\": \"Every AI session on this computer talks through it\", \"command_pattern\": \"model-proxy\"}, three hours after it started.",
+      "hands_back": "picked [{\"pid\":4242,\"rule\":\"shell-loop-left-by-an-ended-session\",\"age_minutes\":180,\"cpu_share\":0.89}], kept [], said \"Read 1 left-behind rule and 1 never-stop rule; 1 to stop, 0 kept by a never-stop rule.\""
+    }
+  ]
+}

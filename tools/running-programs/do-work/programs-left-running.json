@@ -1,0 +1,10 @@
+{
+  "_what": "Bounds of tool:choose-programs-left-running and tool:stop-programs-left-running (do-work/programs-left-running.mjs). `first_process_pid`: the process id of the system's first process, which every program whose parent ended is handed to. `left_behind_fields` and `never_stop_fields`: the fields a person's rule row of each list may hold; any other field is refused, so a misspelt condition never widens what is stopped. `grace_ms`: how long a stop waits for a program to end after asking it to (default, and the most a run may ask), and `look_every_ms` how often it looks. `command_shown`: how many characters of a stopped program's command line its row and notice keep. `notice_kind`: the kind of news the one notice of a sweep that stopped anything is told as.",
+  "first_process_pid": 1,
+  "left_behind_fields": ["id", "why", "parent_pid", "session_owner_gone", "older_than_minutes", "cpu_share_at_least", "command_pattern", "name_pattern"],
+  "never_stop_fields": ["id", "why", "command_pattern", "name_pattern"],
+  "grace_ms": { "default": 10000, "largest": 60000 },
+  "look_every_ms": 250,
+  "command_shown": 200,
+  "notice_kind": "work-finished"
+}

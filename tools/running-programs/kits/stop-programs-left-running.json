@@ -1,0 +1,49 @@
+{
+  "drafted_from": "tool:stop-programs-left-running's own row (its words and input schema) in tools/running-programs/tool-rows.json; read it before relying on it",
+  "start_here": "Say to your AI: \"Stop the programs you picked as left running.\" with the picked list. It runs tool:stop-programs-left-running, which asks each to end, waits up to ten seconds, and answers one stop per program and one notice when any ended.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [
+    "workflow:stop-programs-left-running"
+  ],
+  "tools": [
+    "tool:stop-programs-left-running",
+    "tool:choose-programs-left-running",
+    "tool:list-running-programs"
+  ],
+  "instructions": [
+    "1. Grant the tool read-processes and close-apps on this computer.",
+    "2. Give programs, the picked list tool:choose-programs-left-running answered; nothing else is stopped.",
+    "3. Read each stop's outcome, keep the stops where you keep such rows, and tell the person the notice if there is one."
+  ],
+  "worked_examples": [
+    {
+      "title": "A picked shell ends when asked",
+      "ask": "Stop the program you picked.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:stop-programs-left-running",
+            "input": {
+              "programs": [
+                {
+                  "pid": 4242,
+                  "started_at_ms": 1795000000000,
+                  "rule": "shell-loop-left-by-an-ended-session",
+                  "why": "A shell a closed session left behind, still busy"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:stop-programs-left-running",
+      "step": "stop",
+      "given": "The picked program {\"pid\":4242,\"started_at_ms\":1795000000000,\"rule\":\"shell-loop-left-by-an-ended-session\",\"why\":\"A shell a closed session left behind, still busy\"}, still running.",
+      "hands_back": "stops [{\"address\":\"program-stopped:4242:1795000000000\",\"outcome\":\"ended\"}] and one notice \"Stopped 1 program left running\"."
+    }
+  ]
+}

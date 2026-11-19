@@ -1,5 +1,5 @@
 {
-  "_what": "Bounds of tool:list-running-programs (read-data/running-programs.mjs). `most`: how many programs one answer names, the largest memory first, when none is asked (`default`) and at most (`largest`); a list cut short says complete: false and its total. `readers`: the ways a place can report its programs, tried in order; the first whose `at` exists on this computer is used. `process-table-folder` reads one folder per process (`<pid>/comm` and `<pid>/status`) and starts no program; `libproc-through-osascript` starts read-programs.js through the JavaScript bridge at `at`. `kib` is the unit a process table states memory in.",
+  "_what": "Bounds of tool:list-running-programs (read-data/running-programs.mjs). `most`: how many programs one answer names, the largest memory first, when none is asked (`default`) and at most (`largest`); a list cut short says complete: false and its total. `readers`: the ways a place can report its programs, tried in order; the first whose `at` exists on this computer is used. `process-table-folder` reads one folder per process (`<pid>/comm` and `<pid>/status`) and starts no program; `libproc-through-osascript` starts read-programs.js through the JavaScript bridge at `at`. `kib` is the unit a process table states memory in; `clock_ticks_per_second` the unit its `stat` states start and processor time in. `command_bytes`: how much of a program's argument area a command line is read from, when commands are asked for.",
   "most": {
     "default": 50,
     "largest": 2000
@@ -14,5 +14,7 @@
       "at": "/usr/bin/osascript"
     }
   ],
-  "kib": 1024
+  "kib": 1024,
+  "clock_ticks_per_second": 100,
+  "command_bytes": 4096
 }

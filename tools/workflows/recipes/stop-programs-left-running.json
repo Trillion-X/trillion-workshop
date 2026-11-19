@@ -1,0 +1,372 @@
+{
+  "_what": "Stops the programs a session that ended left running, judged only by the person's own rule rows, every ten minutes. Made for the case of Nov 19 2026: eight shells a closed session left behind ran a test loop at full speed for two days, the computer's load stayed far above what it could take, and every check before a push timed out. The workflow names no program: what counts as left behind and what is never stopped are rows of the person's own store (types program-left-behind-rule and program-never-stop-rule), read at every sweep; a store with no never-stop row refuses the sweep.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:stop-programs-left-running",
+        "label": "Stop programs left running",
+        "job": "Every ten minutes, find the programs a session that ended left running on this computer, by the person's own left-behind rows and never-stop rows, ask each to end, keep one row per stop and tell the person once per sweep that stopped anything.",
+        "produces": "One program-stopped row per program asked to end (what, which row and why, when it was asked, when it ended, and its outcome), and at most one notice per sweep, only when a program ended.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language",
+                "credential_name"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps their rule rows and stop rows: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses to read the rules and write the stops"
+                }
+              }
+            }
+          }
+        },
+        "wakes": [
+          {
+            "id": "every-ten-minutes",
+            "on": {
+              "time": {
+                "every_ms": 600000
+              }
+            },
+            "budget": {
+              "steps": 60,
+              "wall_ms": 300000
+            },
+            "input": {
+              "start_at": "list",
+              "store": {
+                "where": "the person's own database",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "the-persons-database-connection"
+              }
+            }
+          }
+        ],
+        "definition": {
+          "id": "workflow:stop-programs-left-running",
+          "name": "Stop programs left running",
+          "kind": "workflow",
+          "is_active": true,
+          "version": 1,
+          "steps": [
+            {
+              "id": "list",
+              "kind": "ask",
+              "config": {
+                "name": "tool:list-running-programs",
+                "input": {
+                  "most": 2000,
+                  "commands": true
+                },
+                "context": {
+                  "step_id": "list"
+                }
+              }
+            },
+            {
+              "id": "read-left-behind",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "select jsonb_agg(value order by address) as rules from objects where type = $1",
+                  "params": [
+                    "program-left-behind-rule"
+                  ]
+                },
+                "context": {
+                  "step_id": "read-left-behind"
+                }
+              }
+            },
+            {
+              "id": "read-never-stop",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "select jsonb_agg(value order by address) as rules from objects where type = $1",
+                  "params": [
+                    "program-never-stop-rule"
+                  ]
+                },
+                "context": {
+                  "step_id": "read-never-stop"
+                }
+              }
+            },
+            {
+              "id": "choose",
+              "kind": "ask",
+              "config": {
+                "name": "tool:choose-programs-left-running",
+                "input": {
+                  "programs": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "list",
+                      "path": "output.programs"
+                    }
+                  },
+                  "complete": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "list",
+                      "path": "output.complete"
+                    }
+                  },
+                  "left_behind": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read-left-behind",
+                      "path": "output.rows.0.rules"
+                    }
+                  },
+                  "never_stop": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read-never-stop",
+                      "path": "output.rows.0.rules"
+                    }
+                  }
+                },
+                "context": {
+                  "step_id": "choose"
+                }
+              }
+            },
+            {
+              "id": "stop",
+              "kind": "ask",
+              "config": {
+                "name": "tool:stop-programs-left-running",
+                "input": {
+                  "programs": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "choose",
+                      "path": "output.picked"
+                    }
+                  }
+                },
+                "context": {
+                  "step_id": "stop"
+                }
+              }
+            },
+            {
+              "id": "keep-each",
+              "kind": "loop",
+              "config": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "stop",
+                    "path": "output.stops"
+                  }
+                },
+                "item_var": "stop",
+                "definition_id": "workflow:stop-programs-left-running:keep-one",
+                "parallel": false
+              }
+            },
+            {
+              "id": "tell",
+              "kind": "loop",
+              "config": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "stop",
+                    "path": "output.notices"
+                  }
+                },
+                "item_var": "notice",
+                "definition_id": "workflow:stop-programs-left-running:tell-one",
+                "parallel": false
+              }
+            }
+          ],
+          "edges": [
+            {
+              "from": "list",
+              "to": "read-left-behind",
+              "kind": "always"
+            },
+            {
+              "from": "read-left-behind",
+              "to": "read-never-stop",
+              "kind": "always"
+            },
+            {
+              "from": "read-never-stop",
+              "to": "choose",
+              "kind": "always"
+            },
+            {
+              "from": "choose",
+              "to": "stop",
+              "kind": "always"
+            },
+            {
+              "from": "stop",
+              "to": "keep-each",
+              "kind": "always"
+            },
+            {
+              "from": "keep-each",
+              "to": "tell",
+              "kind": "always"
+            }
+          ],
+          "uses": [
+            {
+              "id": "workflow:stop-programs-left-running:keep-one",
+              "name": "Keep one stop",
+              "kind": "workflow",
+              "is_active": true,
+              "version": 1,
+              "steps": [
+                {
+                  "id": "keep",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "store.credential_name"
+                        }
+                      },
+                      "sql": "insert into objects (address, type, value, version) values ($1, 'program-stopped', $2::jsonb, 1) on conflict (address) do nothing",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "stop.address"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "stop"
+                          }
+                        }
+                      ]
+                    },
+                    "context": {
+                      "step_id": "keep"
+                    }
+                  }
+                }
+              ],
+              "edges": []
+            },
+            {
+              "id": "workflow:stop-programs-left-running:tell-one",
+              "name": "Tell the sweep",
+              "kind": "workflow",
+              "is_active": true,
+              "version": 1,
+              "steps": [
+                {
+                  "id": "tell-the-person",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:tell-the-person",
+                    "input": {
+                      "title": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "notice.title"
+                        }
+                      },
+                      "body": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "notice.body"
+                        }
+                      },
+                      "kind": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "notice.kind"
+                        }
+                      },
+                      "key": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "notice.key"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "tell-the-person"
+                    }
+                  }
+                }
+              ],
+              "edges": []
+            }
+          ]
+        },
+        "records": {
+          "runs": [
+            "tool:choose-programs-left-running",
+            "tool:list-running-programs",
+            "tool:run-sql-in-my-database",
+            "tool:stop-programs-left-running",
+            "tool:tell-the-person"
+          ]
+        }
+      }
+    }
+  ]
+}
