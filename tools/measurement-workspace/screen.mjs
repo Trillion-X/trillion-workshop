@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Badge, Button, Card, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, mountReactSurface } from '@trillion/ui';
 import { aggregate } from './ledger.mjs';
 
 const h = React.createElement;
-const MAX_PAGES = 20;
 const SUMMARY_DIMS = ['provider', 'operation', 'metric', 'evidence_kind', 'metric_kind', 'aggregation', 'unit', 'currency', 'scenario_id', 'source_revision', 'run_id', 'window_start', 'window_end', 'scope'];
 const kinds = [
   ['Observation history', 'observations'],
@@ -15,20 +14,13 @@ const rowValue = row => row?.value && typeof row.value === 'object' ? row.value 
 const text = value => value === null || value === undefined || value === '' ? '—' : String(value);
 const sorted = rows => [...rows].sort((a, b) => String(rowValue(b).observed_at ?? rowValue(b).created_at ?? '').localeCompare(String(rowValue(a).observed_at ?? rowValue(a).created_at ?? '')));
 
-async function readAll(host, requestName, refreshKey) {
-  const records = [];
-  let after;
-  let pages = 0;
-  do {
-    const request_key = `measurement-workspace:${refreshKey}:${requestName}:${pages}`;
-    const raw = await host.call(requestName, { request_key, ...(after ? { after } : {}) });
-    const result = raw?.structuredContent ?? raw?.result ?? raw;
-    if (!Array.isArray(result?.records)) throw new Error(`The ${requestName} read did not return records.`);
-    records.push(...result.records);
-    after = result.next;
-    pages++;
-  } while (after && pages < MAX_PAGES);
-  return { records, complete: !after, next: after ?? null };
+// The rows come in as surfaceInput.measurements, given by the caller from workflow:read-cost-measurements.
+// The screen reads no store itself; a kind that was not given is an empty list, and coverage stays incomplete.
+function storedRows(surfaceInput) {
+  const given = surfaceInput?.measurements ?? {};
+  const complete = given.complete === true;
+  const part = name => ({ records: Array.isArray(given.records?.[name]) ? given.records[name] : [], complete, loading: false, error: '' });
+  return { observations: part('observations'), forecasts: part('forecasts'), billing: part('billing') };
 }
 
 function valueCell(value) {
@@ -66,37 +58,19 @@ function DataTable({ columns, rows, onOpen }) {
 }
 
 function MeasurementWorkspace({ surfaceInput, host }) {
-  const [observations, setObservations] = useState({ records: [], complete: false, loading: true, error: '' });
-  const [forecasts, setForecasts] = useState({ records: [], complete: false, loading: true, error: '' });
-  const [billing, setBilling] = useState({ records: [], complete: false, loading: true, error: '' });
+  const stored = useMemo(() => storedRows(surfaceInput), [surfaceInput]);
+  const observations = stored.observations;
+  const forecasts = stored.forecasts;
+  const billing = stored.billing;
   const [provider, setProvider] = useState('');
   const [operation, setOperation] = useState('');
   const [scope, setScope] = useState('');
   const [view, setView] = useState('overview');
   const [selected, setSelected] = useState(null);
-  const [refreshKey, setRefreshKey] = useState(() => crypto.randomUUID());
   const [pricing, setPricing] = useState({ rules: [], loading: false, error: '', result: '' });
   const [pricingSaveKey, setPricingSaveKey] = useState(() => crypto.randomUUID());
   const [pricingRule, setPricingRule] = useState({ effective_at: '', markup_percent: '', resource_id: '', plan_id: '', client_id: '' });
   const [pricingEdit, setPricingEdit] = useState(null);
-
-  useEffect(() => {
-    let live = true;
-    const load = async (name, setter) => {
-      try {
-        const result = await readAll(host, name, refreshKey);
-        if (live) setter({ ...result, loading: false, error: '' });
-      } catch (error) {
-        if (live) setter({ records: [], complete: false, loading: false, error: String(error?.message ?? error) });
-      }
-    };
-    void Promise.all([
-      load('read-observations', setObservations),
-      load('read-forecasts', setForecasts),
-      load('read-billing', setBilling),
-    ]);
-    return () => { live = false; };
-  }, [host, surfaceInput?.generation, refreshKey]);
 
   const groups = useMemo(() => aggregate(observations.records, { groupBy: SUMMARY_DIMS }), [observations.records]);
   const filtered = useMemo(() => sorted(observations.records).filter(record => {
@@ -152,7 +126,7 @@ function MeasurementWorkspace({ surfaceInput, host }) {
         : unknown ? `${unknown} observation rows are explicitly unknown. ` : '',
       partial ? `${partial} observation rows report partial coverage. ` : '',
       incompleteForecasts ? `${incompleteForecasts} forecast versions are incomplete. ` : '',
-      !observations.complete ? 'The read reached its page limit; remaining rows are not counted as zero.' : 'Unknown values remain null and are not counted as zero.'),
+      !observations.complete ? 'Not every page of these rows was read; remaining rows are not counted as zero.' : 'Unknown values remain null and are not counted as zero.'),
       h('p', null, 'Freshness is unknown until an expected measurement cadence is stored.')) : null,
     observations.error || forecasts.error || billing.error ? h(Card, { role: 'alert' },
       h('strong', null, 'Some history could not be read'),
@@ -185,7 +159,7 @@ function MeasurementWorkspace({ surfaceInput, host }) {
       ),
       observations.loading ? h('p', { role: 'status' }, 'Reading saved observations…') : null,
       h(DataTable, { columns, rows: filtered, onOpen: setSelected }),
-      !observations.complete ? h('p', null, 'This view reached its safe read bound. Remaining rows are not included in these totals.') : null,
+      !observations.complete ? h('p', null, 'Not every page of these rows was read. Remaining rows are not included in these totals.') : null,
     ) : null,
     view === 'forecasts' ? h('section', null,
       h('h2', null, 'Forecast history'),

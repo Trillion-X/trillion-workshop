@@ -77,8 +77,8 @@ test('account list fields retain observation provenance, forecast components and
   for (const name of ['billing_id', 'version', 'billing_period_start', 'billing_period_end', 'amount', 'currency', 'unit', 'scope', 'observed_at']) assert.ok(fields.billing.has(name));
 });
 
-test('saved screen requests are composed from DATA and retain the existing pricing action', () => {
-  assert.deepEqual(Object.keys(data.interface.requests), ['read-observations', 'read-forecasts', 'read-billing', 'manage-pricing']);
+test('saved screen requests are composed from DATA and keep only the existing pricing action', () => {
+  assert.deepEqual(Object.keys(data.interface.requests), ['manage-pricing']);
   const request = data.interface.requests['manage-pricing'];
   assert.equal(request.resource_operation, 'tools:run');
   assert.equal(request.body.tool, 'tool:manage-usage-pricing');

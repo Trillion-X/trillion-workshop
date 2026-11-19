@@ -1,0 +1,246 @@
+{
+  "about": "workflow:read-cost-measurements: reads the cost measurement rows (observations, forecast versions and billing records) from the person's own store and gives them back as stored, for tools/measurement-workspace's screen. It is the store half of that screen: its three record-list requests went through the records door, which is retired, so they are removed and this recipe is their home (rule a-tool-is-only-what-the-store-cannot-do; L101: the recipe proves its read first). The screen and its pricing action stay in tools/measurement-workspace.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:read-cost-measurements",
+        "label": "Read cost measurements",
+        "job": "Read the cost measurement rows the person's own store keeps (observations, forecast versions and billing records) and give them back as they are stored, so the cost measurements screen can lay them out. Reads only: it writes nothing, and a missing kind is answered as an empty list with complete false, never as zero.",
+        "produces": "The three kinds of measurement rows in the person's own store, each as {id, value} records with the store's own values, plus whether every page was read. Proven on the example rows in PostgreSQL (PGlite) and a JSON store, with each read answered as the intent says.",
+        "source": {
+          "from": "tools/measurement-workspace read-data and screen.mjs (readAll over the three requests read-observations, read-forecasts and read-billing), read on the Workshop origin/main; those three requests went through the records door, which is retired",
+          "note": "Only the keeping is the store's job: one row per measurement, forecast version or billing record, keyed by its record id prefix (record:cost-measurement-observation:, record:cost-measurement-forecast:, record:cost-measurement-billing:). The screen and its aggregation stay in tools/measurement-workspace, which takes these values in as its measurements input."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the measurement rows: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "kinds": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "observations",
+                  "forecasts",
+                  "billing"
+                ]
+              },
+              "description": "Which kinds to read this time; all three when omitted"
+            },
+            "page_size": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "description": "Rows per page; 500 when omitted"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Find the measurement rows the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and count the rows already kept for each kind: the id starts with record:cost-measurement-observation:, record:cost-measurement-forecast: or record:cost-measurement-billing:. Read them in pages of page_size, ordered by id, and keep following the next page key until none is left or a page limit of 20 pages is reached. Submit where the rows are kept (or null) and the count of rows per kind.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "counts"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "counts": {
+                  "type": "object",
+                  "required": [
+                    "observations",
+                    "forecasts",
+                    "billing"
+                  ],
+                  "properties": {
+                    "observations": {
+                      "type": "integer"
+                    },
+                    "forecasts": {
+                      "type": "integer"
+                    },
+                    "billing": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own measurement rows, once",
+            "do": "When the look step found none of a kind, make that kind's store objects in its own form: one row per record, id starting with its prefix, holding the record's values as stored (observations: event_id, provider, operation, metric, metric_kind, aggregation, unit, currency, scenario_id, source_revision, run_id, window_start, window_end, observed_at, scope, value, retry_count, error_count, corrects_event_id; forecasts: forecast_id, version, source_revision, created_at, completeness, components; billing: billing_id, version, billing_period_start, billing_period_end, amount, currency, unit, scope, observed_at). Nothing is changed in a row that is already there. Submit the names of the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the read on the example rows",
+            "do": "In a throwaway place in the same store, with the same objects, write these example rows, then run these reads in order: write observation record:cost-measurement-observation:obs-1 {event_id obs-1, provider provider-a, operation invoke, metric calls, metric_kind counter_delta, aggregation counter_delta, unit operation, currency none, scenario_id scenario-a, source_revision revision-a, run_id run-a, window_start 2026-10-31T00:00:00-06:00, window_end 2026-10-31T01:00:00-06:00, observed_at 2026-10-31T01:00:00-06:00, scope measured, value 1, retry_count 0, error_count 0}; write observation record:cost-measurement-observation:obs-2 {the same, event_id obs-2, scope unknown, value null}; write forecast record:cost-measurement-forecast:fc-1 {forecast_id fc-1, version 1, source_revision revision-a, created_at 2026-10-31T00:30:00-06:00, completeness complete, components [{operation invoke, metric calls, unit operation, currency none, scenario_id scenario-a, scope assumed, value 3}]}; write billing record:cost-measurement-billing:bill-1 {billing_id bill-1, version 1, billing_period_start 2026-10-01, billing_period_end 2026-10-31, amount 12.5, currency USD, unit USD, scope measured, observed_at 2026-11-01T00:00:00-06:00}. Then read kind observations, read kind forecasts, read kind billing, and read kind refunds. Each read answers its records as {id, value} with the values exactly as written, and complete true; a kind that is not one of observations, forecasts and billing is refused with the reason kind is not one of observations, forecasts, billing. Then remove the throwaway place. Submit outcomes (one per read, in order) and answers (one per read, in order): each answer exactly as the answers the intent gives, which are [{\"records\": [{\"id\": \"record:cost-measurement-observation:obs-1\"}, {\"id\": \"record:cost-measurement-observation:obs-2\"}], \"complete\": true}, {\"records\": [{\"id\": \"record:cost-measurement-forecast:fc-1\"}], \"complete\": true}, {\"records\": [{\"id\": \"record:cost-measurement-billing:bill-1\"}], \"complete\": true}, {\"reason\": \"kind is not one of observations, forecasts, billing\"}] and whose outcomes are [\"answered\", \"answered\", \"answered\", \"refused\"]. The records in each answer are compared by id only, and each record's value must equal what was written.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answers"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answers": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each read is answered or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "answered",
+                    "answered",
+                    "answered",
+                    "refused"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "Each read gives the record ids, complete flag or refusal reason the intent says",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    {
+                      "records": [
+                        {
+                          "id": "record:cost-measurement-observation:obs-1"
+                        },
+                        {
+                          "id": "record:cost-measurement-observation:obs-2"
+                        }
+                      ],
+                      "complete": true
+                    },
+                    {
+                      "records": [
+                        {
+                          "id": "record:cost-measurement-forecast:fc-1"
+                        }
+                      ],
+                      "complete": true
+                    },
+                    {
+                      "records": [
+                        {
+                          "id": "record:cost-measurement-billing:bill-1"
+                        }
+                      ],
+                      "complete": true
+                    },
+                    {
+                      "reason": "kind is not one of observations, forecasts, billing"
+                    }
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Read this run's measurement rows",
+            "do": "Read the kinds the request names (all three when none are named) from the store's own rows, in pages, and submit them as they are stored: records {observations, forecasts, billing}, each an array of {id, value} records, and complete, true only when every kind was read to its last page. A kind with no rows is an empty array with complete true for that kind; a kind that could not be read is an empty array with complete false and its reason.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "records",
+                "complete"
+              ],
+              "properties": {
+                "records": {
+                  "type": "object",
+                  "properties": {
+                    "observations": {
+                      "type": "array"
+                    },
+                    "forecasts": {
+                      "type": "array"
+                    },
+                    "billing": {
+                      "type": "array"
+                    }
+                  }
+                },
+                "complete": {
+                  "type": "boolean"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

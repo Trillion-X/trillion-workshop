@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "measurement-workspace-tool-row",
-  "what_this_is": "A private account screen over cost measurement Lists; the screen reads only the account's declared measurement record types.",
+  "what_this_is": "A private account screen over cost measurement Lists. The rows come in as its measurements input, read from the person's own store by workflow:read-cost-measurements; the screen reads no store itself and runs pricing through tool:manage-usage-pricing.",
   "records": [{
     "payload": {
       "uses_tools": [
@@ -115,7 +115,6 @@
         "trillion-workshop/record-video",
         "trillion-workshop/record-video-with-teleprompter",
         "trillion-workshop/record-voice-and-meetings",
-        "trillion-workshop/records-door",
         "trillion-workshop/refuse-requests-to-private-addresses",
         "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
         "trillion-workshop/review-what-a-list-says",
@@ -197,21 +196,6 @@
         "asked": ["show my measured provider usage and cost history", "review my cost measurements"],
         "module": { "file": "screen.mjs", "files": ["ledger.mjs"] },
         "requests": {
-          "read-observations": {
-            "resource_operation": "records:list",
-            "input_schema": { "type": "object", "additionalProperties": false, "required": ["request_key"], "properties": { "request_key": { "type": "string", "minLength": 1, "maxLength": 200 }, "after": { "type": "string", "maxLength": 2000 } } },
-            "bind": { "type": "record:cost-measurement-observation", "prefix": "record:cost-measurement-observation:", "limit": 500 }
-          },
-          "read-forecasts": {
-            "resource_operation": "records:list",
-            "input_schema": { "type": "object", "additionalProperties": false, "required": ["request_key"], "properties": { "request_key": { "type": "string", "minLength": 1, "maxLength": 200 }, "after": { "type": "string", "maxLength": 2000 } } },
-            "bind": { "type": "record:cost-measurement-forecast", "prefix": "record:cost-measurement-forecast:", "limit": 500 }
-          },
-          "read-billing": {
-            "resource_operation": "records:list",
-            "input_schema": { "type": "object", "additionalProperties": false, "required": ["request_key"], "properties": { "request_key": { "type": "string", "minLength": 1, "maxLength": 200 }, "after": { "type": "string", "maxLength": 2000 } } },
-            "bind": { "type": "record:cost-measurement-billing", "prefix": "record:cost-measurement-billing:", "limit": 500 }
-          },
           "manage-pricing": {
             "resource_operation": "tools:run",
             "input_schema": {

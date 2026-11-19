@@ -10,7 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"Review provider and operation usage, forecasts, unknown coverage, and billed history in my account\", and give it nothing more: every input is optional.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:measurement-workspace and its input (the worked example shows one).",
-    "3. Read what comes back: Shows the account's saved measurement Lists with a live overview, run history, provider and operation filters, versioned forecasts, billed records, source revisions, retries and errors."
+    "3. Read what comes back: Shows the account's saved measurement Lists with a live overview, run history, provider and operation filters, versioned forecasts, billed records, source revisions, retries and errors. The rows show once they are given as measurements (workflow:read-cost-measurements); with {} the screen has none and says coverage is unknown."
   ],
   "worked_examples": [
     {

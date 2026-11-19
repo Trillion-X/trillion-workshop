@@ -1,0 +1,45 @@
+{
+  "start_here": "Say to your AI: \"Show my cost measurements\", with {\"store\":{\"where\":\"postgresql database measurements on my own computer\",\"language\":\"SQL (PostgreSQL)\",\"credential_name\":\"measurements-postgres-connection\"}}. It runs workflow:read-cost-measurements, gives the rows it reads to tool:measurement-workspace as its measurements input, and the screen opens at /lists/cost-measurements",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: the measurement rows are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:read-cost-measurements"
+  ],
+  "tools": [
+    "tool:measurement-workspace"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:read-cost-measurements\" with store and, when you want fewer than all three, kinds (observations, forecasts, billing).",
+    "3. The first run makes the store's own measurement rows once, if the store keeps none, and proves the read on the example rows: every answer must be the one the intent says, or the run stops and says which.",
+    "4. Give the records the workflow read back to tool:measurement-workspace as its measurements input, with complete. The screen shows Coverage as unknown until every page was read."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the cost measurements of a store",
+      "ask": "Show my cost measurements",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:read-cost-measurements",
+              "store": {
+                "where": "postgresql database measurements on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "measurements-postgres-connection"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:read-cost-measurements",
+      "step": "keep",
+      "given": "The look step found the measurement rows the store keeps: three observation rows, one forecast version and one billing record.",
+      "hands_back": "It answered {\"records\": {\"observations\": [...], \"forecasts\": [...], \"billing\": [...]}, \"complete\": true}; those values go to tool:measurement-workspace as its measurements input."
+    }
+  ]
+}
