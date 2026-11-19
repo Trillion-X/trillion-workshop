@@ -1,0 +1,228 @@
+{
+  "about": "workflow:read-what-i-pulled-from-an-account: reads back the conversations, messages and saved items a pull kept for one connected account, straight from the person's own store, in the store's own language (rule a-tool-is-only-what-the-store-cannot-do). It is the read part of tools/pull-from-connected-accounts (do-work/read.mjs, which listed the records through the retired records door). Nothing in the folder writes these parts any more, so the read is all that is left, and the store does it itself.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:read-what-i-pulled-from-an-account",
+        "label": "Read what I pulled from a connected account",
+        "job": "Read back what the pull tools kept for one source and account (Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks or Pinterest): the state (self, cursor, when it was pulled), the conversations, and the saved items, or the messages of one conversation, read straight from the person's own store.",
+        "produces": "A summary of the account's conversations and collections, or one conversation's last messages, read from the store's own objects and answered as it was kept.",
+        "source": {
+          "from": "tools/pull-from-connected-accounts do-work/read.mjs (readPulledSnapshot) and read-data/snapshot.mjs (readParts, assemble), read on trillion-workshop origin/main d5f2dccec7",
+          "note": "Only the reading is the store's job: the parts are records of kind account-snapshot-part, each id saying the source, the account and what the part is. The retired records door that listed them is not carried. The assembly (sort by seq, the summary text, the thread slice) is values in, values out and is written out in the steps below."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "source"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "source": {
+              "type": "string",
+              "enum": [
+                "discord",
+                "signal",
+                "slack",
+                "telegram",
+                "instagram-messages",
+                "instagram-comments",
+                "messenger-messages",
+                "x-bookmarks",
+                "pinterest-pins"
+              ],
+              "description": "The source the account was pulled from"
+            },
+            "account": {
+              "type": "string",
+              "description": "The name the account was pulled under (default \"default\")"
+            },
+            "thread": {
+              "type": "string",
+              "description": "One conversation's id, to read its messages instead of the summary"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "description": "How many of the newest messages of that conversation to show (default 100)"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the account-snapshot parts are kept (kept_in, or null) and the names of the objects that already keep them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: records of kind account-snapshot-part, each with an id and a JSON object value. The id is account-snapshot:<source>:<account>:state, account-snapshot:<source>:<account>:thread:<thread id>, or account-snapshot:<source>:<account>:item:<collection>:<identity>. Each id segment keeps letters, digits and . _ @ - and writes every other byte as ~ and two lowercase hex digits, so no segment holds a colon or a slash. The values are {kind: \"state\", source, account, self_id, cursor, pulled_at}, {kind: \"thread\", seq, thread: {id, title, messages}} and {kind: \"item\", seq, collection, identity, item}. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the reading on the example parts",
+            "do": "In a throwaway place in the same store, with the same objects, keep these example parts for source example-source and account sample: the state {kind: \"state\", source: \"example-source\", account: \"sample\", self_id: \"U0BOT\", cursor: \"1700000200.000300\", pulled_at: \"2026-10-30T12:00:00Z\"}; the thread {kind: \"thread\", seq: 1, thread: {id: \"C1\", title: \"orders\", messages: [{ts: \"1\", text: \"a\"}, {ts: \"2\", text: \"b\"}, {ts: \"3\", text: \"c\"}]}}; and the item {kind: \"item\", seq: 2, collection: \"saved\", identity: \"i1\", item: {id: \"i1\", text: \"x\"}}. Then answer four reads, each from those parts only. (1) The summary for source example-source, account sample: the state's fields, threads as [{id, title, messages: count}] in seq order, collections as {name: count}, and said \"Pulled from example-source (sample): 1 conversations, 1 saved.\". (2) Thread C1 with limit 2: the state's fields, thread {id, title, messages: the last 2 messages, total: 3} and said \"3 messages in orders; the last 2 are shown.\". (3) The summary for account other, which has no state: self_id, cursor and pulled_at null, threads [], collections {} and said \"Nothing has been pulled from example-source for the account other yet.\". (4) Thread C9, which is not there: the error \"There is no conversation C9 for this account; read without thread to list them.\". Then remove the throwaway place. Submit answers: one per read, in order, exactly as above.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each read gives the answer the intent says",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    {
+                      "source": "example-source",
+                      "account": "sample",
+                      "self_id": "U0BOT",
+                      "cursor": "1700000200.000300",
+                      "pulled_at": "2026-10-30T12:00:00Z",
+                      "threads": [
+                        {
+                          "id": "C1",
+                          "title": "orders",
+                          "messages": 3
+                        }
+                      ],
+                      "collections": {
+                        "saved": 1
+                      },
+                      "said": "Pulled from example-source (sample): 1 conversations, 1 saved."
+                    },
+                    {
+                      "source": "example-source",
+                      "account": "sample",
+                      "self_id": "U0BOT",
+                      "cursor": "1700000200.000300",
+                      "pulled_at": "2026-10-30T12:00:00Z",
+                      "thread": {
+                        "id": "C1",
+                        "title": "orders",
+                        "messages": [
+                          {
+                            "ts": "2",
+                            "text": "b"
+                          },
+                          {
+                            "ts": "3",
+                            "text": "c"
+                          }
+                        ],
+                        "total": 3
+                      },
+                      "said": "3 messages in orders; the last 2 are shown."
+                    },
+                    {
+                      "source": "example-source",
+                      "account": "other",
+                      "self_id": null,
+                      "cursor": null,
+                      "pulled_at": null,
+                      "threads": [],
+                      "collections": {},
+                      "said": "Nothing has been pulled from example-source for the account other yet."
+                    },
+                    {
+                      "error": "There is no conversation C9 for this account; read without thread to list them."
+                    }
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Read this run's account",
+            "do": "Read the account-snapshot parts whose ids start with account-snapshot:<source>:<account>: (account defaults to default), in the store's own language, and answer as the prove step does: the summary when no thread is given, or that one conversation's last limit messages (default 100) when it is. Read only; write nothing. Submit answers, one for this run.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answer"
+              ],
+              "properties": {
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes the account-snapshot parts of that source and account. The pull tools keep nothing themselves, so nothing else holds them."
+      }
+    }
+  ]
+}

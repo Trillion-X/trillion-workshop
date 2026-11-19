@@ -34,7 +34,6 @@ Nothing is kept by the tool. A pull answers what it read as the service sent it,
 | File | Purpose |
 |------|---------|
 | `do-work/pull.mjs` | `pullFromAnAccount(source, input, context)` and one export per service (`pullDiscord`, `pullSlack`, ...). Reads the token, asks who it belongs to, walks the description's requests, folds into the `held` it was handed and answers the new or changed conversations and items. |
-| `do-work/read.mjs` | `readPulledSnapshot`: reads back parts an earlier version of the pulls kept in the person's records. Nothing writes those parts any more, so it has nothing new to read. |
 | `read-data/sources/*.json` | One service each: `base`, `auth` (`header` with a name and prefix, or `path` with a template), `headers`, `identity`, `failure`, `rate_limit`, `cursor`, `walks` (each walk is a list of request levels and a `fold`). `messenger-messages.json` extends `instagram-messages.json`. `signal.json` has `handed_in` instead of `base`, `auth` and `identity`. |
 | `read-data/sources.mjs` | `loadSource(id)` (resolves `extends`, refuses a description that cannot be pulled) and `sourceIds()`. |
 | `read-data/fold.mjs` | The one pure fold: dedup by identity, order, and the three conflict policies (`keep`, `newer`, `merge`). |
@@ -43,7 +42,7 @@ Nothing is kept by the tool. A pull answers what it read as the service sent it,
 | `do-work/signal-client.mjs` | The Signal client rows: `readSignalOnThisComputer` (receive, fold, hand to the `signal` pull) and `linkSignalOnThisComputer` (link and its QR code). |
 | `read-data/signal-envelopes.mjs` | `readEnvelopeLines` and `envelopesToConversations`: what `signal-cli -o json receive` prints, in the `signal` pull's contract. |
 | `do-work/connect-instagram*.py`, `do-work/graph_instagram_client.py`, `do-work/ig_snapshot_store.py` | The Instagram and Messenger Python producers moved from the package; see "What is not here". |
-| `tool-rows.json` | Nine pull rows (none declares a records door), the two Signal client rows and `tool:read-what-i-pulled-from-an-account`. |
+| `tool-rows.json` | Nine pull rows (none declares a records door) and the two Signal client rows. Reading back what a pull kept is the recipe `workflow:read-what-i-pulled-from-an-account` (`tools/workflows/recipes/`, kit `tools/workflows/kits/read-what-i-pulled-from-an-account.json`): the person's own store is read directly. |
 | `test/` | Fold, pointer, source and row tests, and every service pulled against a stand-in in the shape the service documents. `test/fixtures/signal-client-output.json` is the Signal client's contract as a made-up output. |
 
 ## Key Types / Functions
