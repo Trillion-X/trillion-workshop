@@ -66,3 +66,18 @@ test('the fields a function put on its error come out beside the message, never 
 test('an error line never carries the host actions or a binary file content', () => {
   assert.deepEqual(run(['leaky'], {}).last, { error: 'leaky', code: 'kept' });
 });
+
+test('a row that packed only the runner starts it: the host actions load only when a function uses one', async () => {
+  const { cpSync, mkdirSync } = await import('node:fs');
+  const packed = mkdtempSync(join(tmpdir(), 'run-a-function-packed-'));
+  mkdirSync(join(packed, 'workflows/do-work'), { recursive: true });
+  const alone = join(packed, 'workflows/do-work/run-a-function.mjs');
+  cpSync(entry, alone);
+  const runAlone = (name, input) => {
+    const done = spawnSync(process.execPath, [alone, module, name], { input: JSON.stringify(input), encoding: 'utf8' });
+    return { code: done.status, last: JSON.parse(done.stdout.trim().split('\n').at(-1)) };
+  };
+  assert.deepEqual(runAlone('double', { n: 21 }), { code: 0, last: { result: { n: 42 } } });
+  assert.deepEqual(runAlone('names', {}).last, { result: { given: 2, host: ['files', 'run', 'operation', 'writeLarge', 'parentActions', 'readWholeFile'] } });
+  assert.match(String(runAlone('trash', { path: '/x', expected_generation: '1' }).last.result.code ?? ''), /ERR_MODULE_NOT_FOUND/);
+});

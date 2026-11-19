@@ -5,18 +5,17 @@
 // database and no records door: a tool is given what it reads and answers what it makes, and the caller keeps it where the
 // person keeps it. Its only reads of the computer are the host actions below. A host action (the native parent's Trash move, the run's by-name file read) is not a record: it is handed to the
 // function as `host` (read-data/host-actions.mjs), read from the row's private descriptor (3 by default, or the literal argv
-// --parent-actions-fd N) only when the function first uses it.
-//
-//   node /opt/workflows/do-work/run-a-function.mjs /opt/<folder>/<file>.mjs <export> [--parent-actions-fd N]  < input.json
+// --parent-actions-fd N) only when the function first uses it; the module itself is loaded then too (hostActions below).
 //
 // The function is called as fn(input, host). A function a wake started may answer `wake_effects` (the engine's
 // wake.json `effects_field`: timed runs, writes, events); they are printed beside the result, not in it, where the engine
 // reads them from the top of the last line.
 import { text } from 'node:stream/consumers';
 import { pathToFileURL } from 'node:url';
-import { openHostActions } from '../read-data/host-actions.mjs';
 
 const EFFECTS = 'wake_effects';
+// The names openHostActions answers, so a function that lists its host sees them without loading anything.
+const HOST_KEYS = ['files', 'run', 'operation', 'writeLarge', 'parentActions', 'readWholeFile'];
 const [file, name, ...options] = process.argv.slice(2);
 try {
   if (!file || !name) throw new Error('usage: run-a-function.mjs <module file> <export name> [--parent-actions-fd N] < input.json');
@@ -25,7 +24,7 @@ try {
   if (!Number.isSafeInteger(parentActionsFd) || parentActionsFd < 3) throw new Error('usage: run-a-function.mjs <module file> <export name> [--parent-actions-fd N] < input.json');
   const fn = (await import(pathToFileURL(file).href))[name];
   if (typeof fn !== 'function') throw new Error(`${file} has no function ${name}.`);
-  const host = openHostActions({ descriptor: parentActionsFd });
+  const host = hostActions(parentActionsFd);
   const result = await fn(JSON.parse((await text(process.stdin)) || '{}'), host);
   if (result && typeof result === 'object' && !Array.isArray(result) && EFFECTS in result) {
     const { [EFFECTS]: effects, ...shown } = result;
@@ -49,4 +48,22 @@ function fieldsOf(error) {
     try { if (JSON.stringify(value) !== undefined) fields[name] = JSON.parse(JSON.stringify(value)); } catch { /* not plain JSON */ }
   }
   return fields;
+}
+
+// The host actions, loaded at the first use of one. host-actions.mjs and what it imports (whole-file.mjs, content-identity,
+// the files tool's sender) are packed only by the rows whose function uses a host action, so loading it at start made every
+// other row's run fail with "module not found" (Nov 19 2026: 83 of 87 rows). A function that uses none never loads it; one
+// that does gets the real actions, or the load's own error if its row did not pack them.
+function hostActions(descriptor) {
+  let opened = null;
+  const open = () => (opened ??= import('../read-data/host-actions.mjs').then(module => module.openHostActions({ descriptor })));
+  const at = path => (...given) => open().then(actions => {
+    const owner = path.slice(0, -1).reduce((value, key) => value[key], actions);
+    return owner[path.at(-1)](...given);
+  });
+  const level = path => new Proxy(at(path), { get: (_, key) => (key === 'then' || typeof key === 'symbol' ? undefined : level([...path, key])) });
+  return new Proxy({}, {
+    get: (_, key) => (key === 'then' || typeof key === 'symbol' ? undefined : level([key])),
+    ownKeys: () => HOST_KEYS, getOwnPropertyDescriptor: () => ({ enumerable: true, configurable: true }),
+  });
 }
