@@ -123,7 +123,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/render-a-motion-graphics-overlay",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
@@ -310,23 +309,8 @@
         "verify": [
           {
             "kind": "needs-a-machine",
-            "requires": "the person's computer with filmcraft-cli installed, the film's folder with its FilmCraft project and ops file, and the trillion command signed in to the person's own records",
+            "requires": "the person's computer with filmcraft-cli installed, the film's folder with its FilmCraft project and ops file, and the person's own store, read by their AI",
             "proved_on": null
-          }
-        ],
-        "stored": [
-          {
-            "kind": "record:setting",
-            "operations": [
-              "records:read"
-            ]
-          },
-          {
-            "kind": "stance",
-            "prefix": "stance:",
-            "operations": [
-              "records:read"
-            ]
           }
         ]
       }
@@ -451,7 +435,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/render-a-motion-graphics-overlay",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
@@ -607,13 +590,6 @@
                   "do-work"
                 ],
                 "at": "/opt/render-a-motion-graphics-overlay"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "settings",
@@ -784,7 +760,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/render-a-motion-graphics-overlay",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
@@ -1064,7 +1039,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/render-a-motion-graphics-overlay",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
@@ -1344,7 +1318,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/render-a-motion-graphics-overlay",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",

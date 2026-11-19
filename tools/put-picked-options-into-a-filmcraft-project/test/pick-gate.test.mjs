@@ -39,11 +39,11 @@ function world(records = []) {
   writeFileSync(cli, `#!/bin/sh\necho "$@" >> ${film}/cli-calls.txt\n`);
   chmodSync(cli, 0o755);
   const settings = settingsFor(cli);
-  const door = join(film, 'stored.json');
-  writeFileSync(door, JSON.stringify({ records: [settingRow('film-one', settings), ...records] }));
-  const run = (...args) => spawnSync('python3', [TOOL, '--film', film, '--stored', door, ...args], { encoding: 'utf8' });
+  const storedFile = join(film, 'stored.json');
+  writeFileSync(storedFile, JSON.stringify({ records: [settingRow('film-one', settings), ...records] }));
+  const run = (...args) => spawnSync('python3', [TOOL, '--film', film, '--stored', storedFile, ...args], { encoding: 'utf8' });
   const apply = (option, project = join(film, 'filmcraft', 'cut.fcproj')) => run('apply', option, '--project', project, '--ops', join(film, 'ops.jsonl'));
-  return { film, settings, run, apply, door };
+  return { film, settings, run, apply, storedFile };
 }
 
 test('an option with no stand (a recommended flag alone) is refused and nothing runs', () => {
@@ -86,10 +86,10 @@ test('the same option typed another way is the same option (the fold of tools/wh
 
 test('a later disagree withdraws a pick: the record is read as it is now', () => {
   const picked = stand('a', 'agree');
-  const { door, apply } = world([picked]);
+  const { storedFile, apply } = world([picked]);
   assert.equal(apply('a').status, 0);
-  const { records } = JSON.parse(readFileSync(door, 'utf8'));
-  writeFileSync(door, JSON.stringify({ records: records.map(r => (r.id === picked.id ? stand('a', 'disagree') : r)) }));
+  const { records } = JSON.parse(readFileSync(storedFile, 'utf8'));
+  writeFileSync(storedFile, JSON.stringify({ records: records.map(r => (r.id === picked.id ? stand('a', 'disagree') : r)) }));
   assert.equal(apply('a').status, 1);
 });
 
@@ -136,17 +136,17 @@ test('rows prints where the person stands on every option of the kind, and nothi
 });
 
 test('no settings row for the film is refused with where to make it', () => {
-  const { door, run } = world();
-  writeFileSync(door, JSON.stringify({ records: [] }));
+  const { storedFile, run } = world();
+  writeFileSync(storedFile, JSON.stringify({ records: [] }));
   const result = run('check', 'a');
   assert.equal(result.status, 1);
   assert.match(result.stderr, /record:setting:put-picked-options-into-a-filmcraft-project~film~film-one/);
 });
 
 test('a retired settings row is refused, and --settings-record names another row', () => {
-  const { door, run, settings } = world([stand('a', 'agree')]);
-  const { records } = JSON.parse(readFileSync(door, 'utf8'));
-  writeFileSync(door, JSON.stringify({ records: [settingRow('film-one', settings, 'retired'), settingRow('other-cut', settings), ...records.slice(1)] }));
+  const { storedFile, run, settings } = world([stand('a', 'agree')]);
+  const { records } = JSON.parse(readFileSync(storedFile, 'utf8'));
+  writeFileSync(storedFile, JSON.stringify({ records: [settingRow('film-one', settings, 'retired'), settingRow('other-cut', settings), ...records.slice(1)] }));
   const refused = run('check', 'a');
   assert.equal(refused.status, 1);
   assert.match(refused.stderr, /retired/);
@@ -154,9 +154,9 @@ test('a retired settings row is refused, and --settings-record names another row
 });
 
 test('a settings row that lacks a needed setting is refused, naming it', () => {
-  const { door, run, settings } = world([stand('a', 'agree')]);
+  const { storedFile, run, settings } = world([stand('a', 'agree')]);
   const { protected_projects: _, ...lacking } = settings;
-  writeFileSync(door, JSON.stringify({ records: [settingRow('film-one', lacking), stand('a', 'agree')] }));
+  writeFileSync(storedFile, JSON.stringify({ records: [settingRow('film-one', lacking), stand('a', 'agree')] }));
   const result = run('check', 'a');
   assert.equal(result.status, 1);
   assert.match(result.stderr, /lack protected_projects/);

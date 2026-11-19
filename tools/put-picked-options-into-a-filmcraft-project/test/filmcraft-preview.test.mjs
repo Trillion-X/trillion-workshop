@@ -21,14 +21,13 @@ test('every row runs a script that is in this folder', () => {
   }
 });
 
-test('only the pick gate reads the person\'s records: the four preview rows declare no records door and take the film\'s settings as input', () => {
+test('no row takes the records door: the pick gate reads the rows its AI hands it (--stored), and the four preview rows take the film\'s settings as input', () => {
   for (const row of rows) {
-    if (row.id === 'tool:put-a-picked-option-into-a-filmcraft-project') {
-      assert.deepEqual(row.invoke.records, { fd: 3, rights: [{ kind: 'record:setting', operations: ['records:read'] }] });
-    } else {
-      assert.equal(row.invoke.records, undefined, row.id);
-      assert.match(JSON.stringify(row.input_schema), /settings_record/, row.id);
-    }
+    assert.equal(row.invoke.records, undefined, row.id);
+    assert.equal(row.stored, undefined, row.id);
+    assert.doesNotMatch(JSON.stringify(row), /records:(read|write|list)/, row.id);
+    if (row.id === 'tool:put-a-picked-option-into-a-filmcraft-project') assert.match(JSON.stringify(row.input_schema), /stored_file/);
+    else assert.match(JSON.stringify(row.input_schema), /settings_record/, row.id);
   }
 });
 

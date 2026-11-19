@@ -15,7 +15,7 @@ Only the pick gate reads the person's rows: the pick and the protected-project s
 - **The settings** are one row of the person's `list:settings` (type `record:setting`): `record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>`, or the id `--settings-record` names. The script reads the row and hands it to `tools/settings` `request_settings`, which lays it over the script's `DEFAULTS` (`picked_stances` `["agree"]`, `option_kind` `film-option`, `option_fold` `{ collapse_space: true }`, `filmcraft_cli` `filmcraft-cli`, `apply_log` `pick-gate-applied.jsonl`). A row must at least name `protected_projects` and `allowed_option_folders`. A retired row, or a row of another tool, is refused.
 - **The pick** is the person's stance record on the option, the record `tools/where-a-person-stands` keeps (`stance:<option kind>:<identity of the option id>`). Only a stand kept `by: person` whose newest value is one of `picked_stances` counts. The record id and the option's identity are made by that folder's own code, through `do-work/stance-id-from-stdin.mjs`, so the fold and the hash have one owner. Keeping a stand is `tool:keep-where-you-stand`, which checks the person's words against their source; this script never writes one.
 
-The script reads the records itself. A file handed to it cannot stand in for the person.
+The script reads no store itself: the person's AI reads those rows from the person's own store, in that store's own language, and hands them over exactly as stored. A file handed to it cannot stand in for the person's own stand.
 
 ## The option previews
 
@@ -69,7 +69,7 @@ The film's row is the same `list:settings` row the pick gate reads (the previews
 
 | Name | Shape | Role |
 |---|---|---|
-| `load_config` | `(film, record_id?) -> settings` | The film's settings row through the door and `request_settings`, or a refusal saying what to write. |
+| `load_config` | `(film, record_id?) -> settings` | The film's settings row from the `--stored` file and `request_settings`, or a refusal saying what to write. |
 | `option_decisions` | `(film, settings) -> {option_id: decision}` | Every stand on an option of the film's option kind: the one reader. |
 | `latest_verdict` / `require_pick` | `(film, settings, option_id) -> decision` | One option's stand, or a refusal saying what stand there is. |
 | decision | `{ decision_id: <stance record id>, option_id, verdict: <stand>, reason_verbatim: <the person's words>, source, at }` | |
