@@ -4,7 +4,9 @@
 // row's declared files and entry programs (invoke.argv under /opt), and report what the row's invoke.files.package_files
 // does not cover. Findings: missing-relative-import (a file the program reaches is not packed), argv-not-declared (the
 // entry program is not packed), bare-import-not-declared (a module name with no module entry), dangling-in-tree (a
-// relative import whose target is not in the tree). Read-only; the tree is read from git at `ref`.
+// relative import whose target is not in the tree), read-file-not-packed (a file a module reads at run time by a literal
+// path is not packed: the row would start and fail reading it). A data file a module imports is reached as an import too.
+// Read-only; the tree is read from git at `ref`.
 //
 // door-without-records (gate): the row's entry export reaches a call on the person's records door through the call graph
 // (run-an-export's named export, or a direct script's top-level code), and the row declares neither invoke.records nor a
@@ -69,6 +71,16 @@ export const specsOf = (src) => {
   }
   return [...out];
 };
+
+// Run-time file reads by a literal path: new URL('./x.json', import.meta.url), join(import.meta.dirname, 'x.json'), and
+// readFileSync('./x.json') of a relative literal. An import walk never sees these, so the walker lays each literal that names
+// a file of the tree beside its module (a literal that names no file is not one to lay out).
+const READS = [
+  /new\s+URL\(\s*['"]([^'"]+)['"]\s*,\s*import\.meta\.url\s*\)/g,
+  /(?:join|resolve)\(\s*import\.meta\.dirname\s*,\s*['"]([^'"]+)['"]/g,
+  /(?:readFileSync|readFile|openSync|createReadStream)\(\s*['"](\.{1,2}\/[^'"]+)['"]/g,
+];
+export const readsOf = (src) => [...new Set(READS.flatMap(re => [...src.matchAll(re)].map(m => m[1])))];
 
 export function toolRowFindings({ repo, ref = 'HEAD' }) {
   const REF = ref;
@@ -310,6 +322,7 @@ function checkRow(rowFile, desc) {
     if (w && fileSet.has(w.ws) && /\.(mjs|js|cjs|py|sh)$/.test(w.ws) && !mountedAt(covers, w.pkg, w.ws.split('/').slice(2).join('/'))) findings.push({ kind: 'argv-not-declared', target: a, pkg: w.pkg, needs: w.ws });
   }
   const visited = new Set();
+  const readFiles = new Set();
   const needed = new Map();
   while (queue.length) {
     const { ws, from } = queue.shift();
@@ -332,7 +345,8 @@ function checkRow(rowFile, desc) {
           if (!seen.has(key)) { seen.add(key); findings.push({ kind: 'missing-relative-import', from: ws, spec, needs: hit, pkg: w.pkg, declared_pkg: w.declared }); }
           // Keep walking the missing file so chains show up.
         }
-        if (!visited.has(hit) && /\.(mjs|js|cjs|ts)$/.test(hit)) queue.push({ ws: hit, from: ws });
+        if (!/\.(mjs|js|cjs|ts)$/.test(hit)) readFiles.add(hit);
+        else if (!visited.has(hit)) queue.push({ ws: hit, from: ws });
       } else if (!isBuiltin(spec)) {
         const top = spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0];
         if (systemNames.has(top) || modules.has(top) || modules.has(spec)) continue;
@@ -346,10 +360,21 @@ function checkRow(rowFile, desc) {
         }
       }
     }
+    // A file the module reads at run time (read-data/whole-file.mjs reads large-file.json) is laid out beside it, as an import is.
+    for (const read of readsOf(src)) {
+      const file = path.posix.normalize(path.posix.join(path.posix.dirname(ws), read));
+      if (!fileSet.has(file) || /\.(mjs|js|cjs|ts)$/.test(file)) continue;
+      const [, pkg, ...rest] = file.split('/');
+      if (!mountedAt(covers, pkg, rest.join('/'))) {
+        const key = `read|${ws}|${read}`;
+        if (!seen.has(key)) { seen.add(key); findings.push({ kind: 'read-file-not-packed', from: ws, read, needs: file, pkg }); }
+      }
+      readFiles.add(file);
+    }
   }
   const items = [...files];
   const extra = new Map();
-  for (const ws of [...visited].sort()) {
+  for (const ws of [...visited, ...readFiles].sort()) {
     const [, pkg, ...rest] = ws.split('/');
     const rel = rest.join('/');
     if (!fileSet.has(ws) || mountedAt(covers, pkg, rel)) continue;
