@@ -46,10 +46,11 @@ test('the list of items owing a kit only shrinks: an id with a kit, or gone, mus
 });
 
 test('an id added to the allowance list since the list a commit or push is compared with is refused', () => {
-  const [first, second] = owed.tools;
-  const before = { ...owed, tools: owed.tools.filter(id => id !== second) };
-  assert.deepEqual(kitGateProblems({ owed, before }), [`test/items-without-a-kit.json gained ${second}: the list only shrinks, so give ${second} its kit instead.`]);
-  assert.ok(first);
+  // The list is empty now that every item has its kit, so a made-up item owing one stands in, as in the test below.
+  const added = 'tool:made-up-owed-tool';
+  const made = { id: added, kind: 'tool', file: kitFileOf('paid-access', added), item: { id: added }, problems: null };
+  const owedWith = { ...owed, tools: [...owed.tools, added] };
+  assert.deepEqual(kitGateProblems({ owed: owedWith, before: owed, all: [...items(), made] }), [`test/items-without-a-kit.json gained ${added}: the list only shrinks, so give ${added} its kit instead.`]);
 });
 
 test('a kit that leaves out a workflow its item runs is refused by name', () => {
@@ -97,13 +98,18 @@ test('every kit installs as one marketplace set of items that are all here (the 
 
 test('when changed items are refused, an item still on the list that a change touches is refused until it has its kit', () => {
   const folderOf = id => items().find(item => item.id === id).file.replace(/^.*\/tools\/([^/]+)\/kits\/.*$/, '$1');
-  const [tool] = owed.tools;
+  const tool = 'tool:pour-example-rows-into-my-list';
   const touched = touchedIds({ changed: [`tools/${folderOf(tool)}/do-work/anything.mjs`] });
   assert.ok(touched.has(tool), 'a file in the tool folder touches the tool');
   assert.equal(touchedIds({ changed: [`tools/${folderOf(tool)}/kits/${tool.slice(5)}.json`] }).has(tool), false, 'a kit file is not a change to the item');
+  // The list is empty now that every item has its kit, so a made-up item owing one stands in for the refusal.
+  const owing = 'tool:made-up-owed-tool';
+  const made = { id: owing, kind: 'tool', file: kitFileOf(folderOf(tool), owing), item: { id: owing }, problems: null };
+  const owedWith = { ...owed, tools: [...owed.tools, owing] };
+  const changed = new Set([owing]);
   const rules = { ...KIT_TEMPLATE.rules, refuse_changed_items: true };
-  assert.deepEqual(kitGateProblems({ owed, touched, rules }).map(line => line.split(' ')[0]), [...touched].filter(id => owed.tools.includes(id) || owed.workflows.includes(id)));
-  assert.deepEqual(kitGateProblems({ owed, touched, rules: { ...rules, refuse_changed_items: false } }), []);
+  assert.deepEqual(kitGateProblems({ owed: owedWith, all: [...items(), made], touched: changed, rules }).map(line => line.split(' ')[0]), [owing]);
+  assert.deepEqual(kitGateProblems({ owed: owedWith, all: [...items(), made], touched: changed, rules: { ...rules, refuse_changed_items: false } }), []);
 });
 
 test('a file in the workflows folder touches no workflow: a recipe is touched only when it differs', () => {
