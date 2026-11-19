@@ -153,7 +153,11 @@ fn main() {
     let effects: Vec<Value> = waiting.iter().map(|w| {
         let told = told_as(&w["step"], &w["for"]);
         if w["for"].as_str().is_some_and(|name| name.starts_with("tool:")) {
-            json!({ "wake": { "tool": w["for"], "input": w["asks"], "reply": told } })
+            // A step whose input is exactly the door's call shape asks the tool's session one question (wake's `call`).
+            match w["asks"].as_object().filter(|asks| asks.len() == 1).and_then(|asks| asks.get("call")) {
+                Some(call) => json!({ "wake": { "tool": w["for"], "call": call, "reply": told } }),
+                None => json!({ "wake": { "tool": w["for"], "input": w["asks"], "reply": told } }),
+            }
         } else {
             json!({ "arrive": { "source": WAITING, "event_id": told["event_id"], "payload": { "workflow": id, "step": w["step"], "for": w["for"], "asks": w["asks"], "told_as": told } } })
         }
