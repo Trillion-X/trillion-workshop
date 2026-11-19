@@ -90,13 +90,8 @@ test('canonical ledger observations are visible through the actual List reader',
   const { readListView } = await import('../../read-a-list-view/read-data/list-view.mjs');
   const { observationRecord } = await import('../../measurement-ledger/read-data/ledger.mjs');
   const item = observationRecord(row('list-consumer-observation'));
-  const definitions = accountComposition();
-  const held = new Map([...definitions, item].map(r => [r.id, r]));
-  const door = {
-    async read(type, id) { const r = held.get(id); return r?.type === type ? r.value : null; },
-    async list(query) { return { records: [...held.values()].filter(r => r.type === query.type), next: null }; },
-  };
-  const output = await readListView({ list: 'cost-measurements', names: { list_type: 'list', list_record: 'list:{list_id}', row_type: 'record:{row_type}', view_type: 'list-view' } }, door);
+  const stored = { records: [...accountComposition(), item].map(({ id, type, value }) => ({ id, type, value })) };
+  const output = readListView({ list: 'cost-measurements', names: { list_type: 'list', list_record: 'list:{list_id}', row_type: 'record:{row_type}', view_type: 'list-view' }, stored });
   assert.equal(output.rows.length, 1);
   assert.equal(output.rows[0].record_id, item.id);
   assert.equal(output.rows[0].values.event_id, 'list-consumer-observation');
