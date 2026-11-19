@@ -12,8 +12,9 @@
 //   node test-helpers/write-package-files.mjs --check    exits 1 when the file is not what HEAD makes (test/package-files.test.mjs)
 //
 // The walk reads git objects at HEAD, so the file is made from a commit: commit the code change, run this, commit the file.
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { packageFilesByRow } from './tool-row-imports.mjs';
 
 export const PACKAGE_FILES = 'package-files.json';
@@ -24,7 +25,7 @@ export function packageFilesText({ repo, ref = 'HEAD' }) {
   return `${JSON.stringify(sorted, null, 1)}\n`;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const repo = resolve(import.meta.dirname, '..');
   const made = packageFilesText({ repo });
   const file = join(repo, PACKAGE_FILES);

@@ -50,7 +50,8 @@ test('a commit archive is judged as packed: its shared top folder is dropped and
   const deep = `top/${'a'.repeat(60)}/${'b'.repeat(60)}/run.mjs`;
   const answer = await run([
     { name: 'top/tools/fine.mjs', text: 'export const a = 1;\n' },
-    { name: deep, text: 'const a = 1;\nif (import.meta.url === `file://${process.argv[1]}`) main();\n' },
+    // The line the rule forbids, made from parts, so this file does not hold it itself.
+    { name: deep, text: `const a = 1;\nif (import.meta.url === ${'`file://${process.argv[1]}`'}) main();\n` },
   ]);
   assert.equal(answer.passed, false);
   assert.deepEqual(answer.violations.map((found) => [found.path, found.line]), [[deep.slice('top/'.length), 2]]);
@@ -114,4 +115,15 @@ test('a computed subject that matches no file is refused, never read as nothing 
   const subjects = { retired_tool_ids: { ...SUBJECTS.retired_tool_ids, path_matches: '^nowhere/' } };
   await assert.rejects(checkAnArchive({ archive: 'https://example.test/apps.tar.gz', rules: [RETIRED], subjects_from: subjects }, fetchedFrom([])), /no file of/);
   await assert.rejects(checkAnArchive({ archive: 'https://example.test/apps.tar.gz', rules: [RETIRED], subjects_from: { every_path: SUBJECTS.retired_tool_ids } }, fetchedFrom([])), /every_path/);
+});
+
+test('a file a rule covers that is too large to read is named, and the run is not a pass', async () => {
+  const limits = { most_archive_bytes: 1 << 20, most_file_bytes: 64, most_written_bytes: 1 << 20 };
+  const files = [{ name: 'top/tools/fine.mjs', text: 'export const a = 1;\n' }, { name: 'top/tools/large.mjs', text: `${'x'.repeat(100)}\n` },
+    { name: 'top/notes/large.txt', text: 'y'.repeat(100) }];
+  const answer = await checkAnArchive({ archive: 'https://example.test/a.tar.gz', rules: [RULE] }, async () => tar(files), limits);
+  assert.equal(answer.passed, false, 'tools/large.mjs was never judged');
+  assert.deepEqual(answer.unjudged_paths, ['tools/large.mjs'], 'the .txt file is skipped too, but no rule covers it');
+  assert.deepEqual(answer.skipped_paths.map((item) => [item.path, item.bytes]), [['tools/large.mjs', 101], ['notes/large.txt', 100]]);
+  assert.match(answer.said, /1 file\(s\) a rule covers were not judged: tools\/large\.mjs \(larger than 64 bytes\)/);
 });

@@ -26,6 +26,7 @@ import { text } from 'node:stream/consumers';
 import { pathToFileURL } from 'node:url';
 import { gunzipSync } from 'node:zlib';
 import { checkRepository, RunRefusal } from './run-check-source-files-against-declared-rules.mjs';
+import { ruleCoversPath } from './check-source-files-against-declared-rules.mjs';
 
 const LIMITS = JSON.parse(readFileSync(new URL('../read-data/archive-limits.json', import.meta.url), 'utf8'));
 
@@ -66,14 +67,17 @@ function withoutSharedTop(entries) {
     .filter((entry) => entry.name !== '');
 }
 
-/** Write the archive's regular files under `root`, within the DATA bounds; answers how many were written and skipped. */
+/** Write the archive's regular files under `root`, within the DATA bounds; answers how many were written, and each file
+ *  skipped as { path, bytes, why }. */
 export async function writeEntries(root, bytes, limits = LIMITS) {
-  let written = 0, skipped = 0, total = 0;
+  let written = 0, total = 0;
+  const skipped = [];
   for (const entry of withoutSharedTop(tarEntries(gunzipSync(bytes)))) {
     if (entry.type !== '0' && entry.type !== '7') continue;
     const name = path.normalize(entry.name);
     if (path.isAbsolute(name) || name.split(path.sep).includes('..')) throw new RunRefusal(`the archive names a path outside itself: ${entry.name}`);
-    if (entry.body.length > limits.most_file_bytes || total + entry.body.length > limits.most_written_bytes) { skipped += 1; continue; }
+    if (entry.body.length > limits.most_file_bytes) { skipped.push({ path: name, bytes: entry.body.length, why: `larger than ${limits.most_file_bytes} bytes` }); continue; }
+    if (total + entry.body.length > limits.most_written_bytes) { skipped.push({ path: name, bytes: entry.body.length, why: `the run already wrote ${total} of ${limits.most_written_bytes} bytes` }); continue; }
     await mkdir(path.join(root, path.dirname(name)), { recursive: true });
     await writeFile(path.join(root, name), entry.body);
     total += entry.body.length;
@@ -159,8 +163,8 @@ const said = ({ violations, files, rules, no_applicable_rule: none, ratchet }, a
   return `${violations.length} finding(s) from ${rules} rule(s) over ${files} file(s) of ${archive}.${against}`;
 };
 
-/** The whole run for one input; `bytesOf` reads the archive (fetchArchive, or a test's own bytes). */
-export async function checkAnArchive(input, bytesOf = fetchArchive) {
+/** The whole run for one input; `bytesOf` reads the archive (fetchArchive, or a test's own bytes), within `limits`. */
+export async function checkAnArchive(input, bytesOf = fetchArchive, limits = LIMITS) {
   if (typeof input.archive !== 'string') throw new RunRefusal('give archive: the https address of a .tar.gz');
   if (!Array.isArray(input.rules)) throw new RunRefusal('give rules: a list of source-file-rule rows, each { kind: "source-file-rule", id, why, scope?, violation, ... }');
   const rules = input.rules.map((rule) => (rule?.payload ?? rule));
@@ -173,11 +177,15 @@ export async function checkAnArchive(input, bytesOf = fetchArchive) {
   const { subjects, counts, moves } = await subjectsFrom(input.subjects_from, bytesOfAddress);
   const root = await mkdtemp(path.join(tmpdir(), 'archive-'));
   try {
-    const { written, skipped } = await writeEntries(root, await bytesOfAddress(input.archive));
+    const { written, skipped } = await writeEntries(root, await bytesOfAddress(input.archive), limits);
     const { summary, failed } = checkRepository({ repoRoot: root, rules, under: input.under ?? null, recorded: input.recorded ?? null, subjects });
     const violations = withMoves(summary.violations, moves);
     const subjectCounts = Object.keys(counts).length ? { subjects: counts } : {};
-    return { passed: !failed, said: said(summary, input.archive), archive: input.archive, written, skipped, ...summary, violations, ...subjectCounts, scanned_from: 'archive' };
+    // A file a rule covers that was never written was never judged: the run cannot say it holds, so it is not a pass.
+    const unjudged = skipped.filter(({ path: skippedPath }) => rules.some((rule) => ruleCoversPath(rule, skippedPath)));
+    const notJudged = unjudged.length ? ` ${unjudged.length} file(s) a rule covers were not judged: ${unjudged.map(({ path: p, why }) => `${p} (${why})`).join(', ')}.` : '';
+    return { passed: !failed && unjudged.length === 0, said: `${said(summary, input.archive)}${notJudged}`, archive: input.archive, written,
+      skipped: skipped.length, skipped_paths: skipped, unjudged_paths: unjudged.map(({ path: p }) => p), ...summary, violations, ...subjectCounts, scanned_from: 'archive' };
   } finally {
     await rm(root, { recursive: true, force: true });
   }
