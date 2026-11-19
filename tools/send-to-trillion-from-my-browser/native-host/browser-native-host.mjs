@@ -20,11 +20,11 @@
 //   4. The relay (the relay in tools/run-tools-in-my-signed-in-browser) is opened only by the `relay_open` action of a host that lists it, and closed when the
 //      browser closes the pipe, so no door outlives the connection that feeds it.
 //
-import { readFileSync } from 'node:fs';
-import { homedir, hostname } from 'node:os';
+import { readFileSync, realpathSync } from 'node:fs';
+import { hostname } from 'node:os';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { doorAnswers } from './engine-door.mjs';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { doorAnswers, reportedPort, vaultPublicKey } from './engine-door.mjs';
 import { makeRelay } from '../../run-tools-in-my-signed-in-browser/browser-relay.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -87,15 +87,13 @@ export async function serve({ settings, name, origin, input, output, actions = a
 }
 
 // Started by the browser through the launcher offer-in-browsers.mjs writes: argv is [host name, caller origin, ...].
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
   const settings = JSON.parse(readFileSync(join(HERE, 'offer-in-browsers.json'), 'utf8'));
   const host = settings.native_hosts.find(row => row.name === process.argv[2]);
   const config = JSON.parse(readFileSync(join(HERE, '../../run-tools-in-my-signed-in-browser/browser-relay.json'), 'utf8'));
-  // The public half of the vault key browser-relay-key, kept by the computer's owner in the folder its native host launchers
-  // are placed in (offer-in-browsers.json native_host_launchers), as hex.
-  const keyFile = join(homedir(), settings.native_host_launchers, 'browser-relay-public-key');
-  const readPublicKey = () => { try { const hex = readFileSync(keyFile, 'utf8').trim(); return /^[0-9a-f]{64}$/.test(hex) ? hex : null; } catch { return null; } };
-  const relay = makeRelay({ config, send: message => process.stdout.write(frame(message)), readPublicKey, keyFile });
+  // The port is the one this computer's own report names; the key's public half is the vault's, asked at each opening.
+  const relay = makeRelay({ config, send: message => process.stdout.write(frame(message)),
+    readPort: () => reportedPort(settings.engine_door, config.port_name), readPublicKey: () => vaultPublicKey(settings.engine_door, config.key_name) });
   await serve({ settings, name: process.argv[2], origin: process.argv[3], input: process.stdin, output: process.stdout,
     actions: { ...answers, ...doorAnswers(settings, host), relay_open: () => relay.open() }, relay });
 }

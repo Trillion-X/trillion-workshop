@@ -23,7 +23,7 @@ import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
-const inHome = (path, home) => path.startsWith('~/') ? join(home, path.slice(2)) : (path.startsWith('/') ? path : join(home, path));
+export const inHome = (path, home) => path.startsWith('~/') ? join(home, path.slice(2)) : (path.startsWith('/') ? path : join(home, path));
 const goodKey = key => typeof key === 'string' && key.length >= 16 && key.length <= 4096 && /^[\x21-\x7e]+$/.test(key);
 
 /** The port the engine was adopted on, from its descriptor; null when there is none to trust. */
@@ -32,6 +32,24 @@ export function doorPort(door, { home = homedir(), read = readFileSync } = {}) {
   try { descriptor = JSON.parse(read(inHome(door.adoption_file, home), 'utf8')); } catch { return null; }
   const port = descriptor?.port;
   return Number.isInteger(port) && port >= 1024 && port <= 65535 ? port : null;
+}
+
+/** The port this computer's own report names `name` under (`engine_door.computer_report`, `report.local_ports`); null when
+ *  it names none, so no number is ever guessed or copied. */
+export function reportedPort(door, name, { home = homedir(), read = readFileSync } = {}) {
+  let computer;
+  try { computer = JSON.parse(read(inHome(door.computer_report, home), 'utf8')); } catch { return null; }
+  const port = computer?.report?.local_ports?.[name];
+  return Number.isInteger(port) && port >= 1024 && port <= 65535 ? port : null;
+}
+
+/** The public half (hex) of the vault key held under `name`, asked of the vault through the door (`secrets:public`); null
+ *  when the vault holds no such key or cannot be asked. */
+export async function vaultPublicKey(door, name, options = {}) {
+  try {
+    const answer = await askDoor({ door, address: '@secrets', method: 'secrets:public', input: { name }, ...options });
+    return typeof answer?.public_key === 'string' && /^[0-9a-f]{64}$/.test(answer.public_key) ? answer.public_key : null;
+  } catch { return null; }
 }
 
 /** The account key in the Mac app's Keychain item, through /usr/bin/security's standard output; null when absent. */

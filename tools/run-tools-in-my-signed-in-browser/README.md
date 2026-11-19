@@ -15,12 +15,12 @@ Lets a tool run on the person's own computer read a page, act on one and drive a
 
 ## Who may ask
 
-A run proves it was started by the engine for this person. The person's vault holds an Ed25519 key `browser-relay-key` (made once with `secrets:generate`; the private half never leaves the vault); its public half is kept in the file the computer's settings name. A run signs `<nonce>\n<tool>\n<input as JSON>` through `secrets:sign`; the door checks it, spends the nonce whether or not the proof was good, and tells the extension nothing of a request without a good proof. A door with no key set up refuses everyone, in words. A web page cannot reach it either (no Origin, the Host is checked, the body must be JSON).
+A run proves it was started by the engine for this person. The person's vault holds an Ed25519 key `browser-relay-key` (made once by the shared workflow `make-a-signing-key-in-the-vault`; the private half never leaves the vault); the host asks the vault for its public half (`secrets:public`) each time it opens the door, so a new key takes effect on the next connection and no copy is kept in a file. A run signs `<nonce>\n<tool>\n<input as JSON>` through `secrets:sign`; the door checks it, spends the nonce whether or not the proof was good, and tells the extension nothing of a request without a good proof. With no such key in the vault the door does not open, and says so in words. A web page cannot reach it either (no Origin, the Host is checked, the body must be JSON).
 
 ## Applied by the computer's owner, from its row
 
-- The computer's report names the port: `local_ports` gains `"browser-relay": 47813`, the same number as `browser-relay.json` `port`.
-- The vault key above is made, and its public half written to the file the host's settings name.
+- The computer's report names the port: `local_ports` gains `"browser-relay": <number>`. That report is the number's one home. The rows are given it with `{"fill": {"from": "computer", "field": "local_ports.browser-relay"}}` as the last word of their command, and the host reads the same name from the report the Mac app renders (`native-host/offer-in-browsers.json` `engine_door.computer_report`). A computer that reports no such port opens no door and every run is refused in the `no_port` words.
+- The vault key above is made by the workflow `make-a-signing-key-in-the-vault`.
 
 ## Not proven
 

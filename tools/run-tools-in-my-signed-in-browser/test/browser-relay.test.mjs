@@ -7,7 +7,7 @@
 // passes on and answers by name, over a real loopback port the test picks. The host's own framing is tested beside the host.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { request } from 'node:http';
+import { createServer, request } from 'node:http';
 import { generateKeyPairSync, sign as edSign } from 'node:crypto';
 import config from '../browser-relay.json' with { type: 'json' };
 import rows from '../tool-rows.json' with { type: 'json' };
@@ -20,15 +20,19 @@ const { publicKey, privateKey } = generateKeyPairSync('ed25519');
 const PUBLIC_HEX = publicKey.export({ format: 'der', type: 'spki' }).subarray(-32).toString('hex');
 const vaultSign = payload => edSign(null, Buffer.from(payload, 'utf8'), privateKey).toString('hex');
 
+/** A loopback port nothing listens on now: what this computer's report would name. */
+const freePort = () => new Promise(resolve => { const probe = createServer(); probe.listen(0, '127.0.0.1', () => { const { port } = probe.address(); probe.close(() => resolve(port)); }); });
+
 /** A relay on a free loopback port and a fake extension: `next()` is what the relay passes on, `answer(message)` is the extension's reply. */
 async function connectedHost(overrides = {}) {
   const sent = [];
   const waiting = [];
+  const reported = await freePort();
   const relay = makeRelay({
-    config: { ...config, port: 0, most_seconds: 5, ...overrides.config },
+    config: { ...config, most_seconds: 5, ...overrides.config },
     send: message => { const next = waiting.shift(); if (next) next(message); else sent.push(message); },
-    readPublicKey: () => overrides.noKey ? null : PUBLIC_HEX,
-    keyFile: '~/made-up/public-key',
+    readPort: () => reported,
+    readPublicKey: async () => PUBLIC_HEX,
   });
   const opened = await relay.open();
   return {
@@ -113,15 +117,15 @@ test('a request waits no longer than the limit, and one whose browser leaves is 
 });
 
 test('with no browser connected the tool run is refused with that reason', async () => {
-  const answered = await askMyBrowser('tool:read-a-page-in-my-browser', { url: 'https://example.com/' }, { door: { ...config, port: 1 } });
+  const answered = await askMyBrowser('tool:read-a-page-in-my-browser', { url: 'https://example.com/' }, { port: await freePort() });
   assert.deepEqual(answered, { error: config.words.no_browser });
-  const refusedByDoor = await askMyBrowser('tool:read-a-page-in-my-browser', {}, { fetcher: async () => ({ text: async () => JSON.stringify({ error: 'x'.repeat(10) }) }), door: config, sign: vaultSign });
+  const refusedByDoor = await askMyBrowser('tool:read-a-page-in-my-browser', {}, { fetcher: async () => ({ text: async () => JSON.stringify({ error: 'x'.repeat(10) }) }), port: 47813, sign: vaultSign });
   assert.deepEqual(refusedByDoor, { error: 'xxxxxxxxxx' });
 });
 
 test('the tool run command reaches the door by the data port and returns the extension\'s answer', async () => {
   const { answer, next, close, opened } = await connectedHost();
-  const run = askMyBrowser('tool:read-a-page-in-my-browser', { url: 'https://example.com/' }, { door: { ...config, port: opened.port }, sign: async payload => vaultSign(payload) });
+  const run = askMyBrowser('tool:read-a-page-in-my-browser', { url: 'https://example.com/' }, { port: String(opened.port), sign: async payload => vaultSign(payload) });
   const relayed = await next();
   answer({ relay_answer: { request_key: relayed.relay.request_key, result: { title: 'Example' } } });
   assert.deepEqual(await run, { result: { title: 'Example' } });
@@ -184,7 +188,8 @@ test('a request without a proof, with a wrong one, with a spent nonce or for oth
 
 test('a nonce is good once and only for its seconds, and a door with no key set up refuses everyone in words', async () => {
   let clock = 1_000;
-  const relay = makeRelay({ config: { ...config, port: 0, challenge_seconds: 30 }, send: () => {}, readPublicKey: () => PUBLIC_HEX, now: () => clock });
+  const reported = await freePort();
+  const relay = makeRelay({ config: { ...config, challenge_seconds: 30 }, send: () => {}, readPort: () => reported, readPublicKey: async () => PUBLIC_HEX, now: () => clock });
   const { port } = await relay.open();
   const { body: { nonce } } = await post(port, {}, {}, config.challenge_path);
   clock += 31_000;
@@ -192,12 +197,37 @@ test('a nonce is good once and only for its seconds, and a door with no key set 
   assert.equal(late.status, 401);
   relay.close();
 
-  const bare = await connectedHost({ noKey: true });
-  const refused = await post(bare.opened.port, {}, {}, config.challenge_path);
+  let held = null;
+  const bareAt = await freePort();
+  const bare = makeRelay({ config, send: () => {}, readPort: () => bareAt, readPublicKey: async () => held });
+  await bare.open();
+  const refused = await post(bareAt, {}, {}, config.challenge_path);
   assert.equal(refused.status, 503);
-  assert.match(refused.body.error, /secrets:generate/);
-  assert.equal((await post(bare.opened.port, { tool: 'tool:read-a-page-in-my-browser', input: {} })).status, 503);
+  assert.match(refused.body.error, new RegExp(`make-a-signing-key-in-the-vault with the name ${config.key_name}`));
+  assert.equal((await post(bareAt, { tool: 'tool:read-a-page-in-my-browser', input: {} })).status, 503);
+  held = PUBLIC_HEX;
+  const made = await post(bareAt, {}, {}, config.challenge_path);
+  assert.equal(made.status, 200, 'a key made while the door is open is asked for again and used');
+  assert.equal(typeof made.body.nonce, 'string');
   bare.close();
+});
+
+test('a computer that reports no port for the door opens nothing, and a run given no port is refused in words', async () => {
+  assert.equal(Object.hasOwn(config, 'port'), false, 'the number has one home: the computer\'s report');
+  let asked = 0;
+  for (const reported of [null, undefined, 0, 80, 70000, '47813', 1.5]) {
+    const relay = makeRelay({ config, send: () => {}, readPort: () => reported, readPublicKey: async () => { asked += 1; return PUBLIC_HEX; } });
+    await assert.rejects(relay.open(), { message: config.words.no_port.replaceAll('{name}', config.port_name) });
+    assert.equal(relay.open_now, false);
+  }
+  assert.equal(asked, 0, 'the vault is not asked for a door that cannot open');
+  for (const port of [undefined, '', 'null', '0', '80', '70000', '4781x'])
+    assert.deepEqual(await askMyBrowser('tool:read-a-page-in-my-browser', {}, { port, fetcher: async () => assert.fail('nothing is reached') }),
+      { error: config.words.no_port.replaceAll('{name}', config.port_name) });
+  for (const row of rows.records) {
+    assert.ok(row.payload.invoke.local_doors.includes(config.port_name));
+    assert.deepEqual(row.payload.invoke.argv.at(-1), { fill: { from: 'computer', field: `local_ports.${config.port_name}` } });
+  }
 });
 
 test('the run proves itself by the vault: its door signs the nonce, and the tool row names that one key and operation', async () => {
@@ -211,7 +241,7 @@ test('the run proves itself by the vault: its door signs the nonce, and the tool
     }
     return fetch(url, options);
   };
-  const run = askMyBrowser('tool:read-a-page-in-my-browser', { url: 'https://example.com/' }, { door: { ...config, port: opened.port }, sign: payload => signWithVault(payload, { door: vaultDoor, fetcher }), fetcher });
+  const run = askMyBrowser('tool:read-a-page-in-my-browser', { url: 'https://example.com/' }, { port: String(opened.port), sign: payload => signWithVault(payload, { door: vaultDoor, fetcher }), fetcher });
   const relayed = await next();
   answer({ relay_answer: { request_key: relayed.relay.request_key, result: { title: 'Example' } } });
   assert.deepEqual(await run, { result: { title: 'Example' } });
@@ -225,7 +255,7 @@ test('the run proves itself by the vault: its door signs the nonce, and the tool
 
 test('a run handed no records door cannot ask, and says so', async () => {
   const { close, opened } = await connectedHost();
-  const answered = await askMyBrowser('tool:read-a-page-in-my-browser', {}, { door: { ...config, port: opened.port } });
+  const answered = await askMyBrowser('tool:read-a-page-in-my-browser', {}, { port: String(opened.port) });
   assert.match(answered.error, /Send the nonce/);
   close();
 });

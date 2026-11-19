@@ -44,7 +44,13 @@
           "argv": [
             "node",
             "/opt/run-tools-in-my-signed-in-browser/ask-my-browser.mjs",
-            "tool:read-a-page-in-my-browser"
+            "tool:read-a-page-in-my-browser",
+            {
+              "fill": {
+                "from": "computer",
+                "field": "local_ports.browser-relay"
+              }
+            }
           ],
           "stdin": {
             "fill": {
@@ -81,7 +87,7 @@
         "verify": [
           {
             "kind": "needs-a-machine",
-            "requires": "a computer whose report names the port `browser-relay` (browser-relay.json `port`), and a browser the person is signed in to with the browser extension that holds this computer's connection allowed to talk to it; with no browser connected every run is refused in words, so no sample can exit 0; and the Ed25519 key `browser-relay-key` made in the person's vault (secrets:generate), its public half kept in the file the computer's settings name",
+            "requires": "a computer whose report names the port `browser-relay` (its `local_ports`), and a browser the person is signed in to with the browser extension that holds this computer's connection allowed to talk to it; with no browser connected every run is refused in words, so no sample can exit 0; and the Ed25519 key `browser-relay-key` made in the person's vault (the workflow make-a-signing-key-in-the-vault)",
             "proved_on": null
           }
         ],
@@ -153,7 +159,13 @@
           "argv": [
             "node",
             "/opt/run-tools-in-my-signed-in-browser/ask-my-browser.mjs",
-            "tool:act-in-my-browser"
+            "tool:act-in-my-browser",
+            {
+              "fill": {
+                "from": "computer",
+                "field": "local_ports.browser-relay"
+              }
+            }
           ],
           "stdin": {
             "fill": {
@@ -190,7 +202,7 @@
         "verify": [
           {
             "kind": "needs-a-machine",
-            "requires": "a computer whose report names the port `browser-relay` (browser-relay.json `port`), and a browser the person is signed in to with the browser extension that holds this computer's connection allowed to talk to it; with no browser connected every run is refused in words, so no sample can exit 0; and the Ed25519 key `browser-relay-key` made in the person's vault (secrets:generate), its public half kept in the file the computer's settings name",
+            "requires": "a computer whose report names the port `browser-relay` (its `local_ports`), and a browser the person is signed in to with the browser extension that holds this computer's connection allowed to talk to it; with no browser connected every run is refused in words, so no sample can exit 0; and the Ed25519 key `browser-relay-key` made in the person's vault (the workflow make-a-signing-key-in-the-vault)",
             "proved_on": null
           }
         ],
@@ -264,7 +276,13 @@
           "argv": [
             "node",
             "/opt/run-tools-in-my-signed-in-browser/ask-my-browser.mjs",
-            "tool:drive-my-browser"
+            "tool:drive-my-browser",
+            {
+              "fill": {
+                "from": "computer",
+                "field": "local_ports.browser-relay"
+              }
+            }
           ],
           "stdin": {
             "fill": {
@@ -301,7 +319,7 @@
         "verify": [
           {
             "kind": "needs-a-machine",
-            "requires": "a computer whose report names the port `browser-relay` (browser-relay.json `port`), and a browser the person is signed in to with the browser extension that holds this computer's connection allowed to talk to it; with no browser connected every run is refused in words, so no sample can exit 0; and the Ed25519 key `browser-relay-key` made in the person's vault (secrets:generate), its public half kept in the file the computer's settings name",
+            "requires": "a computer whose report names the port `browser-relay` (its `local_ports`), and a browser the person is signed in to with the browser extension that holds this computer's connection allowed to talk to it; with no browser connected every run is refused in words, so no sample can exit 0; and the Ed25519 key `browser-relay-key` made in the person's vault (the workflow make-a-signing-key-in-the-vault)",
             "proved_on": null
           }
         ],

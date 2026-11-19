@@ -11,6 +11,7 @@ import { join } from 'node:path';
 import { nativeHostManifest, nativeHosts, offerInBrowsers, placeNativeHosts, removeNativeHosts, restoreNativeHosts } from '../native-host/offer-in-browsers.mjs';
 import { answerMessage, answers, frame, serve } from '../native-host/browser-native-host.mjs';
 import { PassThrough } from 'node:stream';
+import { createServer } from 'node:http';
 import { generateKeyPairSync, sign as edSign } from 'node:crypto';
 import relayConfig from '../../run-tools-in-my-signed-in-browser/browser-relay.json' with { type: 'json' };
 import { makeRelay } from '../../run-tools-in-my-signed-in-browser/browser-relay.mjs';
@@ -128,7 +129,7 @@ test('the extension asks the computer only with the optional permission, and say
 // engine at 127.0.0.1 with MCP tools/call do_one_thing_in_my_account, the port from the engine's adoption descriptor and the
 // key from the Mac app's key store (here a stand-in reader with a made-up key).
 const FIXTURE_KEY = 'fixture-door-key-0123456789abcdef';
-const door = { adoption_file: '~/Support/Trillion/local-runtime.json', keychain_item: 'fixture-item', path: '/mcp',
+const door = { adoption_file: '~/Support/Trillion/local-runtime.json', computer_report: '~/Support/computer/computer.json', keychain_item: 'fixture-item', path: '/mcp',
   protocol_version: '2026-07-28', most_request_bytes: 4096, most_answer_bytes: 1024, timeout_seconds: 5 };
 const fakeDoor = async answer => {
   const { createServer } = await import('node:http');
@@ -216,10 +217,40 @@ test('the door refuses in words: no engine, no key, a refused key, an engine err
   } finally { await engine.close(); rmSync(home, { recursive: true, force: true }); }
 });
 
+test('the relay\'s port is the one this computer\'s report names, and its key\'s public half is the vault\'s, asked by name', async () => {
+  const { reportedPort, vaultPublicKey } = await import('../native-host/engine-door.mjs');
+  const home = doorHome(null);
+  try {
+    assert.equal(reportedPort(door, 'browser-relay', { home }), null, 'no report: no port');
+    mkdirSync(join(home, 'Support/computer'), { recursive: true });
+    for (const [ports, expected] of [[{ 'browser-relay': 47813 }, 47813], [{ 'model-pool': 8092 }, null], [{ 'browser-relay': 80 }, null], [{ 'browser-relay': '47813' }, null]]) {
+      writeFileSync(join(home, 'Support/computer/computer.json'), JSON.stringify({ report: { local_ports: ports } }));
+      assert.equal(reportedPort(door, 'browser-relay', { home }), expected);
+    }
+  } finally { rmSync(home, { recursive: true, force: true }); }
+
+  let held = 'a'.repeat(64);
+  const engine = await fakeDoor((response, seen) => {
+    response.setHeader('content-type', 'application/json');
+    const asked = seen.body.params.arguments;
+    const known = asked.address === '@secrets' && asked.method === 'secrets:public' && asked.input.name === 'browser-relay-key' && held;
+    response.end(JSON.stringify({ jsonrpc: '2.0', id: 1, result: known ? { structuredContent: { name: 'browser-relay-key', scheme: 'ed25519', public_key: held } } : { isError: true, content: [{ type: 'text', text: 'No such name.' }] } }));
+  });
+  const engineHome = doorHome(engine.port);
+  try {
+    const ask = name => vaultPublicKey(door, name, { home: engineHome, readKey: async () => FIXTURE_KEY });
+    assert.equal(await ask('browser-relay-key'), held);
+    assert.equal(await ask('other-key'), null, 'a name the vault does not hold gives no key');
+    held = 'not hex';
+    assert.equal(await ask('browser-relay-key'), null, 'an answer that is not a public half gives no key');
+  } finally { await engine.close(); rmSync(engineHome, { recursive: true, force: true }); }
+});
+
 test('the shipped DATA: the door is the engine on this computer, the key comes from the Mac app\'s key store, and the Mac app runs the placer', () => {
   const shipped = JSON.parse(readFileSync(new URL('../native-host/offer-in-browsers.json', import.meta.url), 'utf8'));
   assert.equal(shipped.engine_door.path, '/mcp');
   assert.match(shipped.engine_door.adoption_file, /Trillion\/local-runtime\.json$/);
+  assert.match(shipped.engine_door.computer_report, /\/computer\/computer\.json$/);
   assert.equal(typeof shipped.engine_door.keychain_item, 'string');
   assert.ok(shipped.engine_door.most_answer_bytes <= 1024 * 1024, 'never more than the browser takes');
   for (const host of shipped.native_hosts) for (const action of Object.keys(host.door_actions ?? {})) assert.ok(host.actions.includes(action), `${action} is listed in actions`);
@@ -268,8 +299,9 @@ function framesFrom(stream) {
 async function openedHost(origin = ORIGIN) {
   const input = new PassThrough();
   const output = new PassThrough();
-  const config = { ...relayConfig, port: 0, most_seconds: 5 };
-  const relay = makeRelay({ config, send: message => output.write(frame(message)), readPublicKey: () => PUBLIC_HEX });
+  const config = { ...relayConfig, most_seconds: 5 };
+  const reported = await new Promise(resolve => { const probe = createServer(); probe.listen(0, '127.0.0.1', () => { const { port } = probe.address(); probe.close(() => resolve(port)); }); });
+  const relay = makeRelay({ config, send: message => output.write(frame(message)), readPort: () => reported, readPublicKey: async () => PUBLIC_HEX });
   const served = serve({ settings: relayHost, name: NAME, origin, input, output, actions: { relay_open: () => relay.open() }, relay });
   const next = framesFrom(output);
   input.write(frame({ action: 'relay_open' }));
@@ -303,7 +335,7 @@ test('a second host cannot take the door while another holds it, and an origin t
   const first = await openedHost();
   const input = new PassThrough();
   const output = new PassThrough();
-  const relay = makeRelay({ config: { ...relayConfig, port: first.opened.port }, send: () => {} });
+  const relay = makeRelay({ config: relayConfig, send: () => {}, readPort: () => first.opened.port, readPublicKey: async () => PUBLIC_HEX });
   const served = serve({ settings: relayHost, name: NAME, origin: ORIGIN, input, output, actions: { relay_open: () => relay.open() }, relay });
   const next = framesFrom(output);
   input.write(frame({ action: 'relay_open' }));
@@ -315,7 +347,7 @@ test('a second host cannot take the door while another holds it, and an origin t
 
   const strangerInput = new PassThrough();
   const strangerOutput = new PassThrough();
-  const stranger = makeRelay({ config: { ...relayConfig, port: 0 }, send: () => {} });
+  const stranger = makeRelay({ config: relayConfig, send: () => {}, readPort: () => first.opened.port, readPublicKey: async () => PUBLIC_HEX });
   const strangerServed = serve({ settings: relayHost, name: NAME, origin: 'chrome-extension://zzzz/', input: strangerInput, output: strangerOutput, actions: { relay_open: () => stranger.open() }, relay: stranger });
   const strangerNext = framesFrom(strangerOutput);
   strangerInput.write(frame({ action: 'relay_open' }));

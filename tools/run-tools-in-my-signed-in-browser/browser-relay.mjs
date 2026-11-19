@@ -2,8 +2,8 @@
 //
 // PURPOSE
 //   Lets a tool run on this computer reach the person's own signed-in browser. While the extension holds its native
-//   messaging connection to the host open, the host calls `open()`: it listens on the loopback port browser-relay.json
-//   names, passes each request { tool, input, request_key } to the extension over that open connection as
+//   messaging connection to the host open, the host calls `open()`: it listens on the loopback port this computer's own
+//   report names under `port_name` (`readPort`; the number has that one home), passes each request { tool, input, request_key } to the extension over that open connection as
 //   { relay: { request_key, tool, input } }, and answers the caller with what the extension returns as
 //   { relay_answer: { request_key, result | error } }. The tool rows (ask-my-browser.mjs) reach this port by name,
 //   `invoke.local_doors`, as any computer tool reaches a local server.
@@ -21,6 +21,9 @@
 //   4. With no browser connected the caller is refused at once in words (`no_browser`), and a request whose browser
 //      leaves is finished with `browser_left`: no request waits for nothing.
 //   5. One browser holds the door at a time; a second browser's `open()` is refused in words (`held`).
+//   6. Nothing listens on a port the computer does not report under `port_name` (`no_port`). The public half of the vault
+//      key `key_name` is asked of the vault at each `open()` and, while the vault holds none, again at each challenge; until
+//      then every caller is refused in the `not_set_up` words, which name the workflow that makes the key.
 import { createServer } from 'node:http';
 import { createPublicKey, randomBytes, randomUUID, verify } from 'node:crypto';
 
@@ -28,21 +31,26 @@ const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, 
 const refusal = (status, message) => Object.assign(new Error(message), { status });
 
 /** The relay for one connection to one browser: `send(message)` writes a framed message to that browser. */
-export function makeRelay({ config, send, readPublicKey = () => null, keyFile = '', now = () => Date.now() }) {
+export function makeRelay({ config, send, readPort = () => null, readPublicKey = async () => null, now = () => Date.now() }) {
   const pending = new Map();
   const nonces = new Map();
   let server = null;
+  let publicHex = null;
 
   const finishAll = message => {
     for (const [key, waiting] of pending) { clearTimeout(waiting.timer); waiting.reject(refusal(502, message)); pending.delete(key); }
   };
 
+  /** The key's public half from the vault, or null when it holds none. */
+  const known = async () => { try { const hex = await readPublicKey(); return typeof hex === 'string' && /^[0-9a-f]{64}$/.test(hex) ? hex : null; } catch { return null; } };
+
   const ED25519_DER_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
-  const wording = { key: config.key_name, file: keyFile, path: config.challenge_path };
+  const wording = { key: config.key_name, name: config.port_name, path: config.challenge_path };
 
   /** A fresh nonce, good once for `challenge_seconds`; refused in words when no key is set up. */
-  function challenge() {
-    if (!readPublicKey()) throw refusal(503, fill(config.words.not_set_up, wording));
+  async function challenge() {
+    publicHex ??= await known();
+    if (!publicHex) throw refusal(503, fill(config.words.not_set_up, wording));
     for (const [nonce, until] of nonces) if (until <= now()) nonces.delete(nonce);
     if (nonces.size >= config.most_challenges) throw refusal(429, fill(config.words.busy, { count: nonces.size }));
     const nonce = randomBytes(32).toString('hex');
@@ -52,7 +60,7 @@ export function makeRelay({ config, send, readPublicKey = () => null, keyFile = 
 
   /** Checks the proof of one request and spends its nonce, whether or not the proof is good. */
   function prove(given) {
-    const hex = readPublicKey();
+    const hex = publicHex;
     if (!hex) throw refusal(503, fill(config.words.not_set_up, wording));
     const { nonce, signature } = given;
     if (typeof nonce !== 'string' || typeof signature !== 'string') throw refusal(401, fill(config.words.no_proof, wording));
@@ -114,7 +122,7 @@ export function makeRelay({ config, send, readPublicKey = () => null, keyFile = 
       let given;
       try { given = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { throw refusal(400, config.words.not_json); }
       if (!given || typeof given !== 'object' || Array.isArray(given)) throw refusal(400, config.words.not_json);
-      if (request.url === config.challenge_path) { reply(200, challenge()); return; }
+      if (request.url === config.challenge_path) { reply(200, await challenge()); return; }
       prove(given);
       reply(200, await ask(given));
     } catch (error) {
@@ -125,19 +133,25 @@ export function makeRelay({ config, send, readPublicKey = () => null, keyFile = 
   return {
     ask,
     answer,
-    /** Starts listening; refused in words when another browser's host already holds the port. */
-    open: () => new Promise((resolve, reject) => {
-      if (server) { resolve({ port_name: config.port_name, port: server.address().port }); return; }
-      const listening = createServer((request, response) => { handle(request, response); });
-      listening.once('error', error => reject(error.code === 'EADDRINUSE' ? new Error(config.words.held) : error));
-      listening.listen(config.port, config.host, () => { server = listening; resolve({ port_name: config.port_name, port: listening.address().port }); });
-    }),
+    /** Starts listening on the reported port, with the key's public half as the vault answers it now; refused in words when no port is reported. */
+    open: async () => {
+      if (server) return { port_name: config.port_name, port: server.address().port };
+      const port = readPort();
+      if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error(fill(config.words.no_port, wording));
+      publicHex = await known();
+      return new Promise((resolve, reject) => {
+        const listening = createServer((request, response) => { handle(request, response); });
+        listening.once('error', error => reject(error.code === 'EADDRINUSE' ? new Error(config.words.held) : error));
+        listening.listen(port, config.host, () => { server = listening; resolve({ port_name: config.port_name, port }); });
+      });
+    },
     /** Stops listening and finishes every waiting request: the browser has gone. */
     close: () => {
       finishAll(config.words.browser_left);
       server?.close();
       server?.closeIdleConnections?.();
       server = null;
+      publicHex = null;
     },
     most_answer_bytes: config.most_answer_bytes,
     get open_now() { return server !== null; },

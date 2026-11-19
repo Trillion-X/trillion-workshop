@@ -183,4 +183,4 @@ Listed on the Chrome Web Store as [Send to Trillion](https://chromewebstore.goog
 
 ## Reaching the browser from the person's computer
 
-See `tools/run-tools-in-my-signed-in-browser/README.md`. The host here places the relay's door when its `relay_open` action is asked; The public half of the vault key tool runs prove themselves with (`browser-relay-key`, hex) is the file `browser-relay-public-key` in the folder `native-host/offer-in-browsers.json` `native_host_launchers` names; until it is there the door refuses everyone.
+See `tools/run-tools-in-my-signed-in-browser/README.md`. The host here places the relay's door when its `relay_open` action is asked; it listens on the port this computer's own report names (`engine_door.computer_report`, `report.local_ports.browser-relay`) and asks the vault for the public half of `browser-relay-key` (`secrets:public`). Until both exist the door does not open, and says why.
