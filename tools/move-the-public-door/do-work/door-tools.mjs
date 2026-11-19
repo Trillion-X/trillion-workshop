@@ -28,16 +28,11 @@ function hostingOf(hosting) {
   return row;
 }
 
-// The one function here that reads a list: it shows the person's Service connections rows (record:service-connection)
-// as the providers and placement the other functions take as `connections`.
-async function connectionsOf(door) {
-  const values = [];
-  for await (const record of door.list({ type: 'record:service-connection' })) if (record.value) values.push(record.value);
-  return values;
-}
-
-export async function seeWhereTheDoorRuns(_input, { door }) {
-  const connections = await connectionsOf(door), hosting = hostingProviders(connections);
+// Shows where the door runs from the Service connections rows (record:service-connection) the caller read from the
+// person's own store and handed in as `connections`: this function reads no store.
+export async function seeWhereTheDoorRuns(input) {
+  if (!Array.isArray(input?.connections)) throw new Error('Hand in `connections`: the record:service-connection rows as the person\'s own store holds them.');
+  const connections = input.connections.filter(value => value && typeof value === 'object'), hosting = hostingProviders(connections);
   return {
     current: currentDoor(connections),
     hosting_providers: hosting.map(r => ({ id: r.id, name: r.name, move_ready: r.move_ready === true, not_ready_because: r.not_ready_because ?? null, vault_key: r.vault_key ?? null })),

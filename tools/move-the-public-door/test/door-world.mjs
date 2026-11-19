@@ -1,8 +1,6 @@
 // One test world for the public door: the Service connections rows in the shapes the person's list holds (with only
 // the requests the door's steps name), as the values a caller hands the tools in `connections`. Synthetic names and
 // documentation addresses.
-import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 
 const bearer = [{ placement: { name: 'Authorization', prefix: 'Bearer ' } }];
 export const ROWS = {
@@ -29,13 +27,6 @@ export const ROWS = {
 /** The values of the rows, each edited first by `edit(value, name)`: what a caller hands a tool as `connections`. */
 export const connectionValues = (edit = () => {}) => Object.entries(structuredClone(ROWS)).map(([name, value]) => { edit(value, name); return value; });
 
-/** A records door over the stand-in holding the rows (list right only), closed when the test ends: for the one tool that reads the list. */
-export async function listDoor(t) {
-  const records = Object.entries(structuredClone(ROWS)).map(([name, value]) => ({ id: `record:service-connection:${name}`, type: 'record:service-connection', value }));
-  const fake = await startFakeDoor({ rights: [{ kind: 'record:service-connection', operations: ['records:list'] }], records });
-  t.after(() => fake.close());
-  return openRecordsDoor({ descriptor: fake.descriptor, wait: async () => {} });
-}
 
 /** A made-up DNS provider's description, in the shape the person keeps it in (example.test answers nothing). */
 export const DNS = {

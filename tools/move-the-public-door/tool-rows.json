@@ -207,9 +207,9 @@
         "id": "tool:see-where-the-public-door-runs",
         "label": "See where the public door runs",
         "job": "See where my public door runs now and which hosting services it can move between",
-        "description": "Reads the person's Service connections list and answers where their public door runs now (its hosting row, its address and what proves it) and each hosting row with whether the door can move there and why not. It never reads or shows a key and changes nothing.",
+        "description": "Takes the person's Service connections rows as `connections` (the caller reads them from the person's own store and hands them in) and answers where their public door runs now (its hosting row, its address and what proves it) and each hosting row with whether the door can move there and why not. It never reads or shows a key, reads no store and changes nothing.",
         "status": "active",
-        "input_schema": { "type": "object", "additionalProperties": false, "properties": { "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:service-connection, as this row's `stored` lists. What is not given is not there." } } },
+        "input_schema": { "type": "object", "required": ["connections"], "additionalProperties": false, "properties": { "connections": { "type": "array", "items": { "type": "object" }, "description": "The record:service-connection rows as the person's own store holds them (each row's value: the kind, id, name, rents_a_host or hosting_provider fields). Read by the caller from its own store and handed in here; what is not given is not there." } } },
         "output_schema": {
           "type": "object",
           "required": ["current", "hosting_providers"],
@@ -288,26 +288,17 @@
         "result_selector": "$.result",
         "verify": [{
           "kind": "sample-run",
-          "input": {},
-          "records": [
-            { "id": "record:service-connection:current-door", "type": "record:service-connection", "value": { "kind": "public-door-placement", "id": "current", "name": "Where the public door runs", "hosting_provider": "own-box", "hostname": "door.example.com", "server_id": null, "address": "192.0.2.10", "dns_record": null, "lease_file": null, "proof": { "health": "/healthz", "download": "/download/App.dmg" } } },
-            { "id": "record:service-connection:own-box", "type": "record:service-connection", "value": { "kind": "host-you-already-run", "id": "own-box", "name": "Your own box over SSH", "rents_a_host": { "base": null, "move_ready": true, "placement": { "address": null } } } }
-          ],
+          "input": { "connections": [
+            { "kind": "public-door-placement", "id": "current", "name": "Where the public door runs", "hosting_provider": "own-box", "hostname": "door.example.com", "server_id": null, "address": "192.0.2.10", "dns_record": null, "lease_file": null, "proof": { "health": "/healthz", "download": "/download/App.dmg" } },
+            { "kind": "host-you-already-run", "id": "own-box", "name": "Your own box over SSH", "rents_a_host": { "base": null, "move_ready": true, "placement": { "address": null } } }
+          ] },
           "output_selector": "$.current.hosting_provider",
           "contains": "own-box"
         }],
         "needs": { "expected_seconds": 5 },
         "maker": "maker:move-the-public-door",
         "licence_class": "licence:maker-own",
-        "placements": ["placement:your-computer"],
-        "stored": [
-          {
-            "kind": "record:service-connection",
-            "operations": [
-              "records:list"
-            ]
-          }
-        ]
+        "placements": ["placement:your-computer"]
       }
     },
     {

@@ -5,18 +5,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import { ROWS, connectionValues, DNS } from './door-world.mjs';
+import { connectionValues, DNS } from './door-world.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
 const sample = id => rowOf(rows, id).verify[0];
-const records = Object.entries(ROWS).map(([name, value]) => ({ id: `record:service-connection:${name}`, type: 'record:service-connection', value }));
+const connections = connectionValues();
 
-test('where the door runs is read from the Service connections rows the row may list, and nothing is written', async () => {
-  const ran = await answerOf(rowOf(rows, 'tool:see-where-the-public-door-runs'), {}, { records });
+test('where the door runs is read from the Service connections rows handed in as connections, and nothing is read or written', async () => {
+  const ran = await answerOf(rowOf(rows, 'tool:see-where-the-public-door-runs'), { connections }, {});
   assert.equal(ran.status, 0);
   assert.deepEqual([ran.result.current.hosting_provider, ran.result.current.hostname], ['example-cloud', 'door.example.com']);
   assert.deepEqual(ran.result.hosting_providers.map(r => r.id), ['example-cloud', 'no-public-address', 'own-box']);
-  assert.ok(ran.calls.every(call => call.method === 'records:list'));
+  assert.deepEqual([ran.kept, ran.calls], [[], []]);
 });
 
 test('the rows that act on a provider declare no records door', () => {

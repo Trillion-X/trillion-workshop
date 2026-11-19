@@ -5,7 +5,7 @@ import { keptReceipts, receiptStore } from '../read-data/door-receipts.mjs';
 import { providerClient, rentMachine } from '../../start-a-computer/do-work/rent-a-machine.mjs';
 import { movePublicDoor } from '../do-work/move-public-door.mjs';
 import { seeWhereTheDoorRuns, heldFrom, HOSTING_KEY, DNS_KEY } from '../do-work/door-tools.mjs';
-import { connectionValues, listDoor, DNS } from './door-world.mjs';
+import { connectionValues, DNS } from './door-world.mjs';
 
 const TOKEN = 'FAKE_PROVIDER_TOKEN_0123456789', KEY = 'ssh-ed25519 AAAATEST';
 const json = (body, status = 200) => new Response(JSON.stringify(body), { status });
@@ -20,7 +20,7 @@ test('the service-connections rows handed in are the lists: each step names a re
   }
   const placement = currentDoor(connections);
   assert.equal(placement.hosting_provider, 'example-cloud');
-  const seen = await seeWhereTheDoorRuns({}, { door: await listDoor(t) });
+  const seen = await seeWhereTheDoorRuns({ connections });
   assert.deepEqual(seen.hosting_providers.map(r => [r.id, r.move_ready]), [['example-cloud', true], ['no-public-address', false], ['own-box', true]]);
 });
 

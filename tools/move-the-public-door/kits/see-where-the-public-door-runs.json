@@ -1,17 +1,17 @@
 {
   "drafted_from": "tool:see-where-the-public-door-runs's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"See where my public door runs now and which hosting services it can move between\", with {}. It runs tool:see-where-the-public-door-runs and answers {\"current\":{\"kind\":\"public-door-placement\",\"id\":\"current\",\"name\":\"Where the public door runs\",\"hosting_provider\":\"own-box\",\"hostname\":\"door.example.com\",\"server_id\":null,\"address\":\"192.0.2.10\",\"dns_record\":null,\"lease_file\":null,\"proof\":{\"health\":\"/healthz\",\"download\":\"/download/App.dmg\"}},\"hosting_providers\":[{\"id\":\"own-box\",\"name\":\"Your own box over SSH\",\"move_ready\":true,\"not_ready_because\":null,\"vault_key\":null}]}.",
+  "start_here": "Say to your AI: \"See where my public door runs now and which hosting services it can move between\", and give it the person's Service connections rows read from their own store as connections. Its worked example shows the input.",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:service-connection) through the records door.",
+  "no_lists_because": "It names no list of yours: the AI reads the record:service-connection rows from the store the person keeps them in, in that store's own language, and hands them in as connections; the tool reads no store and keeps nothing.",
   "workflows": [],
   "tools": [
     "tool:see-where-the-public-door-runs"
   ],
   "instructions": [
-    "1. Say to your AI: \"See where my public door runs now and which hosting services it can move between\", and give it nothing more: every input is optional.",
-    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:see-where-the-public-door-runs and its input (the worked example shows one).",
-    "3. Read what comes back: Reads the person's Service connections list and answers where their public door runs now (its hosting row, its address and what proves it) and each hosting row with whether the door can move there and why not. It never reads or shows a key and changes nothing.",
-    "4. It reads and writes only its own rows through the records door: record:service-connection (records:list)."
+    "1. Read the person's Service connections rows (record:service-connection, one per provider and one for the current door) directly from the store the person keeps them in, in that store's own language. Keep the store's login in your vault under a name you choose; never print a value from a row's vault_key.",
+    "2. Say \"See where my public door runs now and which hosting services it can move between\" and call do_one_thing_in_my_account at @tools with method tools:run, tool tool:see-where-the-public-door-runs and input {\"connections\": [the rows read in step 1, each row's value]}.",
+    "3. Read what comes back: where the public door runs now (its hosting row, its address and what proves it) and each hosting row with whether the door can move there and why not. It never reads or shows a key and changes nothing.",
+    "4. The tool reads no store and writes nothing. A row that is not in connections is not there: the answer says so instead of guessing."
   ],
   "worked_examples": [
     {
@@ -24,11 +24,15 @@
           "method": "tools:run",
           "input": {
             "tool": "tool:see-where-the-public-door-runs",
-            "input": {}
+            "input": {
+              "connections": [
+                "the record:service-connection rows, each row's value"
+              ]
+            }
           }
         }
       },
-      "given": "The input {}, with 2 example rows (record:service-connection) already kept.",
+      "given": "The input {\"connections\": [the 2 example rows read from the store]}.",
       "hands_back": "It answered {\"current\":{\"kind\":\"public-door-placement\",\"id\":\"current\",\"name\":\"Where the public door runs\",\"hosting_provider\":\"own-box\",\"hostname\":\"door.example.com\",\"server_id\":null,\"address\":\"192.0.2.10\",\"dns_record\":null,\"lease_file\":null,\"proof\":{\"health\":\"/healthz\",\"download\":\"/download/App.dmg\"}},\"hosting_providers\":[{\"id\":\"own-box\",\"name\":\"Your own box over SSH\",\"move_ready\":true,\"not_ready_because\":null,\"vault_key\":null}]}."
     }
   ]
