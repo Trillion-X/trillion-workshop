@@ -1,0 +1,144 @@
+{
+  "about": "workflow:read-my-notices: reads the newest notices Trillion told the person (optionally of one kind), with the place each was seen, how far each way got and why a way did not carry it, read straight from the person's own store in the store's own language (rule a-tool-is-only-what-the-store-cannot-do). It replaces tool:my-notices in tools/tell-the-person, which listed the told-the-person records through the retired records door. Nothing here writes a notice: a notice is written by the one that tells it.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:read-my-notices",
+        "label": "Read my notices",
+        "job": "Read the newest notices Trillion told the person, optionally of one kind, with where the person saw each, how far each way got and why each way that did not carry it did not, read straight from the person's own store.",
+        "produces": "A newest-first list of the person's notices with the ways each one reached them and the place they were seen, read from the store's own objects and answered as it was kept.",
+        "source": {
+          "from": "tools/tell-the-person read-data/told.mjs (myNotices, keptNotices) and tool:my-notices, read on trillion-workshop origin/main 75fa3807fc",
+          "note": "Only the reading is the store's job. The told list is one object per notice in the store, so the read is the store's own query. The retired records door that listed the told-the-person records is not carried. The view (kind filter, newest first, the first limit, told and why, the said line) is values in, values out, and is written out in the steps below."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "kind": {
+              "type": "string",
+              "description": "Only notices of this kind, applied before the newest are taken"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "How many of the newest notices to show (default 20)"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the Trillion notices are kept (kept_in, or null when none are kept yet) and the names of the objects that already keep them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's notice objects, once",
+            "do": "When the look step found no notices kept, make the store's own objects in its own form, once: one table named told_the_person with seq (a whole number, the primary key, the notice's place in what was told, counted 1, 2, 3 ...) and item (JSON text holding the whole notice as it was told: seq, kind, title, body, at, open, read, read_on when kept, actions, results and key when it has one). Nothing else is written here. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the view on the example notices",
+            "do": "In a throwaway place in the same store, with the same objects, keep these four example notices: seq 1 {kind: \"take-me-there\", title: \"Notice 1\", at: \"2026-01-01T00:01:00Z\", open: null, read: true, read_on: {channel: \"page\", at: \"2026-01-01T00:05:00Z\"}, results: {page: {sent: true}}}; seq 2 {kind: \"report\", title: \"Notice 2\", at: \"2026-01-01T00:02:00Z\", open: null, results: {page: {sent: true}}}; seq 3 {kind: \"report\", title: \"Notice 3\", at: \"2026-01-01T00:03:00Z\", open: null, results: {page: {sent: true}}}; seq 4 {kind: \"report\", title: \"Notice 4\", at: \"2026-01-01T00:04:00Z\", open: null, body: \"The short body\", actions: [{id: \"open\", label: \"Open\", opens: true}], results: {page: {sent: true}, phone: {sent: false, stage: \"unavailable\", said: \"No phone is connected.\"}}}. Then answer three reads, each from those notices only. (1) Read with limit 2 and no kind: the notices told:4 then told:3; for told:4 told {page: \"sent\", phone: \"unavailable\"}, why {phone: \"No phone is connected.\"}, body \"The short body\", actions [{id: \"open\", label: \"Open\", opens: true}]; said \"2 notices, newest first; 0 seen.\". (2) Read with kind take-me-there: only told:1, read true, read_on channel page; said \"1 notice, newest first; 1 seen.\". (3) Read on an account with no notices: notices [], said \"0 notices, newest first; 0 seen.\". Then remove the throwaway place. Submit answers: one per read, in order, exactly as above.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "read",
+            "title": "Read the notices the person was told",
+            "do": "Read the store's told_the_person objects, each item as JSON, and keep those whose item.kind equals input.kind when input.kind is given. Sort them by seq, newest first, and take the first input.limit (default 20, at most 100). For each one answer: id \"told:<seq>\"; seq; kind; title (or null); body (or \"\"); at (or null); open (or null); read (true only when the item says read is true); actions (the item's actions when it is a list, else []); read_on (only when the item has one); told, with one entry per channel in the item's results: \"sent\" when that result has sent true, else its stage, else \"not-sent\"; and why, with one entry per channel whose result did not send and has said, holding the first 200 characters of said (only when there is one). Then say \"<n> notice or notices, newest first; <s> seen.\", where n is how many were shown and s is how many of those have read true (\"notice\" when n is 1, \"notices\" otherwise). Answer {notices, said}. Nothing is written.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "notices",
+                "said"
+              ],
+              "properties": {
+                "notices": {
+                  "type": "array"
+                },
+                "said": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

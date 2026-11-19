@@ -1,0 +1,171 @@
+{
+  "about": "workflow:mark-my-notices-read: records that the person read (or unread) one or more told notices, and the first surface and device where each was read, in the person's own store (rule a-tool-is-only-what-the-store-cannot-do). It replaces tool:mark-my-notices-read in tools/tell-the-person, which read and wrote the told-the-person records through the retired records door with compare-and-swap. The write is now the store's own conditional update.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:mark-my-notices-read",
+        "label": "Mark my notices read",
+        "job": "Record that the person read or unread one or more Trillion notices, and where they read it first (the surface channel, the device and the time), in the person's own store. The first surface is kept: a repeated read changes nothing and an unread clears it.",
+        "produces": "The notices marked, whether anything changed, and the surface a notice was first read on, kept in the store.",
+        "source": {
+          "from": "tools/tell-the-person read-data/told.mjs (markMyNoticesRead, identity) and tool:mark-my-notices-read, read on trillion-workshop origin/main 75fa3807fc",
+          "note": "The old tool compared each notice with the version it read and wrote only the changed ones. The store does that itself: the update applies only where the stored notice still equals the one read. The key that made a repeated press the same write is not needed: a repeated read changes nothing, so it writes nothing."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^told:[0-9]+$"
+              },
+              "description": "The notices, as told:<number>"
+            },
+            "key": {
+              "type": "string",
+              "description": "Or the notification key: every notice carrying it"
+            },
+            "read": {
+              "type": "boolean",
+              "description": "true to mark read (the default), false to mark unread"
+            },
+            "on": {
+              "type": "object",
+              "description": "Where it was read: {channel, device_id} or {here: true} for the in-app surface",
+              "properties": {
+                "channel": {
+                  "type": "string",
+                  "enum": [
+                    "in-app",
+                    "this-computer",
+                    "phone",
+                    "watch",
+                    "browser",
+                    "mac-app",
+                    "mac-voice",
+                    "apns",
+                    "web-push",
+                    "device-pull"
+                  ]
+                },
+                "device_id": {
+                  "type": "string"
+                },
+                "here": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the told notices are kept (kept_in, or null when none are kept yet) and the names of the objects that already keep them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the marks on the example notices",
+            "do": "In a throwaway place in the same store, with the same objects, keep two unread notices: seq 1 {kind: \"report\", title: \"Notice 1\", at: \"2026-01-01T00:01:00Z\", open: null, results: {page: {sent: true}}} and seq 2 {kind: \"report\", title: \"Notice 2\", at: \"2026-01-01T00:02:00Z\", open: null, results: {page: {sent: true}}}. Then run these marks in order, each on the store as the one before left it, and answer each one. (1) ids [\"told:1\"], on {channel: \"device-pull\", device_id: \"phone-a\"}: told:1 read true with read_on {channel: \"device-pull\", device_id: \"phone-a\", at: a time the run wrote}, changed true, said \"1 notice marked read.\". (2) the same notice again, on {channel: \"apns\", device_id: \"phone-b\"}: changed false, nothing written, read_on still channel device-pull. (3) ids [\"told:1\"], read false: told:1 read false with no read_on, changed true, said \"1 notice marked unread.\". (4) ids [\"told:2\"], on {channel: \"browser\", device_id: \"browser-a\"}: told:2 read true with read_on channel browser and device_id browser-a, changed true. (5) ids [\"told:2\"], on {channel: \"watch\", device_id: \"watch-a\"}, after (4): told:2 keeps its first surface, read_on still channel browser and device_id browser-a, changed false, said \"1 notice marked read.\". (6) no ids and no key: refused with \"Name one or more notice ids, or the notification key, to mark read.\". (7) ids [\"notice-1\"]: refused with \"ids must be a list of told:<number> notice ids.\". Then remove the throwaway place. Submit answers: one per mark, in order, as above (the notice state after each mark is part of its answer).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Mark the notices, changing only what differs",
+            "do": "Check the input. ids, when given, must be a list of \"told:<number>\" strings, else refuse with \"ids must be a list of told:<number> notice ids.\". Ids are kept once each. Without ids and without key, refuse with \"Name one or more notice ids, or the notification key, to mark read.\". read defaults to true. The surface is kept only when read is true and the channel is one of in-app, this-computer, phone, watch, browser, mac-app, mac-voice, apns, web-push or device-pull: {channel, device_id (trimmed, at most 200 characters, when given), at: now as an ISO time}. When on.here is true the channel is in-app; otherwise it is on.channel trimmed. Read the told_the_person objects with the seq of each id, or with the key of input.key. For each one selected: when read is true, set read true and keep its prior read_on when it has one, else set read_on to the surface when there is one; when read is false, set read false and remove read_on. Write only the notices whose value changes, each with a conditional update that applies only where the stored item still equals the item that was read; when one does not apply, read that notice again and do it once more, and never overwrite a change another write made. Answer {ids (the selected ones, as told:<seq>), read, changed (true when any notice was written), on (the surface, only when there is one), said}, where said is \"<n> notice marked read.\" or \"<n> notices marked read.\", or \"unread\" in place of \"read\" when read is false (\"notice\" when n is 1).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "ids",
+                "read",
+                "changed",
+                "said"
+              ],
+              "properties": {
+                "ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "read": {
+                  "type": "boolean"
+                },
+                "changed": {
+                  "type": "boolean"
+                },
+                "on": {
+                  "type": "object"
+                },
+                "said": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

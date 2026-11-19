@@ -1,26 +1,28 @@
 # tools/tell-the-person/
 
-What Trillion told the person, read from their own `told-the-person` records through the run's records door
-(`tools/records-door`). The told list is one head record `told-the-person` naming the kept notices in order, and one
-record `told-the-person:<seq>` per notice.
+No tool is left here. What Trillion told the person is kept in the person's own store as one object per notice, and is
+read and changed there directly, in the store's own language. The four tools that did this on the retired records door
+are workflows now, each a recipe with its kit in `tools/workflows`:
 
-## Tools
-
-| Tool | What it does | Records |
-|------|--------------|---------|
-| `tool:my-notices` | The newest notices (of one kind if asked), including their body and offered actions, where the person saw each, how far each way got and why a way did not carry it | list `told-the-person` |
-| `tool:my-device-notices` | Reads notices queued or positively delivered to one registered device, oldest first after its cursor | reads `notification-device`; lists `told-the-person` |
-| `tool:mark-my-notices-read` | Records read/unread state and the first surface and device where a notice was read; repeats do not move that surface | reads and writes `told-the-person` with compare-and-swap |
-| `tool:act-on-my-notice` | Completes an explicitly offered local open action; effectful source actions are refused unless their owner is available | reads `told-the-person` |
+| Retired tool | New home | What it does |
+|--------------|----------|--------------|
+| `tool:my-notices` | `workflow:read-my-notices` (`recipes/read-my-notices.json`, `kits/read-my-notices.json`) | The newest notices, optionally of one kind, with where each was seen and why a way did not carry it |
+| `tool:my-device-notices` | `workflow:read-my-device-notices` (`recipes/read-my-device-notices.json`, `kits/read-my-device-notices.json`) | The notices ready for one registered device, oldest first after its cursor |
+| `tool:mark-my-notices-read` | `workflow:mark-my-notices-read` (`recipes/mark-my-notices-read.json`, `kits/mark-my-notices-read.json`) | Records read or unread state and the first surface a notice was read on |
+| `tool:act-on-my-notice` | `workflow:act-on-my-notice` (`recipes/act-on-my-notice.json`, `kits/act-on-my-notice.json`) | Completes an offered local open; refuses actions that need their source app or road |
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `read-data/told.mjs` | `myNotices`, run by `tools/records-door/do-work/run-an-export.mjs`. |
-| `tool-rows.json` | The four rows. |
-| `test/told.test.mjs` | The rows against the fake records door: order, kind filter, notice content/actions, device scoping and cursor, action offer validation, first-surface preservation, unread and an earlier whole head. |
+| `tool-rows.json` | Holds no tool rows (`records: []`). |
+| `part.json` | The public view of this folder: none. |
+| `test/no-records-door.test.mjs` | The rows hold no records-door method, and each workflow's recipe and kit exist. |
 
 ## Dependencies
 
-**Depends on:** `tools/records-door`.
+**Depends on:** nothing. The workflows run on the person's own store.
+
+**Depended on by:** `tools/send-to-trillion-from-my-browser` (its `src/notice-tools.mjs` still names the four retired
+`tool:` ids at runtime, so it needs its own change to run the workflows). `tools/tell-one-person-something-through-every-way-they`
+mentions them in `ports/tell-routes.json` and a comment in `read-data/tell-the-person.mjs`.

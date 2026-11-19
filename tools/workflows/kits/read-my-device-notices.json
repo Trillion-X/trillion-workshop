@@ -1,0 +1,46 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:read-my-device-notices with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"}, device_id browser-a and after 0.\"",
+  "lists": [],
+  "no_lists_because": "The notices for a device are read from the store the person keeps, with the device's own registration and cursor; no list of yours holds them, so this workflow names the store and reads only.",
+  "workflows": [
+    "workflow:read-my-device-notices"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:read-my-device-notices\" with store, the device_id, and the cursor the device kept as after.",
+    "3. The first run proves the device reading on the example registrations and notices: every answer must be the one the intent says, or the run stops and says which.",
+    "4. Keep the cursor it answers; the next read of that device starts after it. Nothing is written."
+  ],
+  "worked_examples": [
+    {
+      "title": "What is ready for my browser since I last read",
+      "ask": "Show the notices ready for my browser device after cursor 4",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:read-my-device-notices",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "device_id": "browser-a",
+              "after": 4
+            }
+          }
+        }
+      },
+      "workflow": "workflow:read-my-device-notices",
+      "step": "answer",
+      "given": "The store keeps the browser-a registration (route web-push) and notices after seq 4, one queued for browser-a.",
+      "hands_back": "device_id browser-a, channel web-push, cursor and the notice told:5 with its actions, said \"1 notice is ready for this device, oldest first.\"."
+    }
+  ],
+  "drafted_from": "workflow:read-my-device-notices steps look, prove and answer"
+}
