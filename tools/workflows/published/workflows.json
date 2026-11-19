@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "5a7921d1edce7f8e15778914f71d8fb6445b7b6f04c3de3f084ee0ebf9056dba",
+  "blake3": "1423f45e292e1d1ff25688edc4fb2061596688b8f1d1009943f01cf25d4f60e1",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -6975,8 +6975,8 @@
    "values": {
     "title": "Change a database's shape without stopping what uses it",
     "recipe": "workflow:change-a-databases-shape-without-stopping-what-uses-it",
-    "job": "Change the shape of a live store by adding the new beside the old, writing and filling both, moving every reader, and removing the old only after a quiet stretch shows nothing reads it.",
-    "produces": "The change with its readers and writers, the fill counts, each reader moved, the quiet stretch, the backup times and the old shape's removal date.",
+    "job": "Change the shape of a live store in one landing: the new shape, its data and every reader the person changes move together and the old shape is deleted; only a reader outside the person's control keeps a read-only view of its part until its holder moves.",
+    "produces": "The change with its readers and writers, the counts before and after, the backup time, and each outside reader's view and when it was deleted.",
     "flags": [
      "public"
     ],

@@ -20156,8 +20156,8 @@
         "kind": "workflow-recipe",
         "id": "workflow:change-a-databases-shape-without-stopping-what-uses-it",
         "label": "Change a database's shape without stopping what uses it",
-        "job": "Change the shape of a live store by adding the new beside the old, writing and filling both, moving every reader, and removing the old only after a quiet stretch shows nothing reads it.",
-        "produces": "The change with its readers and writers, the fill counts, each reader moved, the quiet stretch, the backup times and the old shape's removal date.",
+        "job": "Change the shape of a live store in one landing: the new shape, its data and every reader the person changes move together and the old shape is deleted; only a reader outside the person's control keeps a read-only view of its part until its holder moves.",
+        "produces": "The change with its readers and writers, the counts before and after, the backup time, and each outside reader's view and when it was deleted.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -20217,7 +20217,7 @@
           {
             "id": "say-the-change-and-what-uses-the-old-shape",
             "title": "Say the change and everything that uses the old shape",
-            "do": "Write the change in plain words: what is added, renamed, split, retyped or removed. Then list every reader and writer of the parts it touches: programs, scheduled runs, saved queries, views, shares and other people's logins, each found by searching the code at its newest commit and the store's own list of what depends on what, not from memory.",
+            "do": "Write the change in plain words: what is added, renamed, split, retyped or removed. Then list every reader and writer of the parts it touches: programs, scheduled runs, saved queries, views, shares and other people's logins, each found by searching the code at its newest commit and the store's own list of what depends on what, not from memory. Mark each one: the person changes its code in this landing, or it is outside the person's control (another person's login or share, a program the person does not release), with who holds it.",
             "submit": {
               "type": "object",
               "required": [
@@ -20268,21 +20268,21 @@
               }
             },
             "when": "When the run starts.",
-            "done_when": "The change is written, and each part it touches has its list of readers and writers, each with where it was found.",
+            "done_when": "The change is written, and each part it touches has its readers and writers, each with where it was found and marked as changed in this landing or outside, with its holder.",
             "if_missing": "When a step needs what only the person holds (the store's write turn, a credential, a decision about data that would be lost), put it in open with exactly what is needed and stop before changing anything.",
-            "why": "A removal that breaks a reader nobody listed is an outage.",
-            "good_answer": "Passes: 'rename column due to due_at: read by the site at 4be77d0 (two files), the morning run, one view; written by the booking intake'. Fails: 'used by the app', or a list made without searching.",
+            "why": "A change that breaks a reader nobody listed is an outage.",
+            "good_answer": "Passes: 'rename due to due_at: the site at 4be77d0 and the morning run change in this landing; one share held by the accountant is outside'. Fails: 'used by the app', or a list made without searching.",
             "came_from": [
-              "The roadmap's deploy item (a migration step that expands first and contracts later), Nov 18 2026; and the industry's expand-then-contract practice for changing a live store's shape while the old and new code both run"
+              "The roadmap's deploy item (a migration step), Nov 18 2026, rewritten the same evening: the old shape is deleted in the landing that replaces it (no write-both, no fallback, no old state kept), and only a reader the person cannot change keeps its part until its holder moves"
             ],
             "part_of": [
               "workflow:change-a-databases-shape-without-stopping-what-uses-it"
             ]
           },
           {
-            "id": "expand-only",
-            "title": "Add the new shape beside the old",
-            "do": "In the store's own language, make only additions: the new column, table or index beside the old, with nothing removed or renamed, each made in a way that does not lock out readers for long (an index built without blocking, a column with no rewrite). Keep a backup's newest time from before this step. Read back that the old shape still answers every listed reader.",
+            "id": "change-the-shape-and-every-reader-together",
+            "title": "Change the shape and every reader in one landing",
+            "do": "Note the newest backup's time from before the change. Then in one landing: change the store's shape in its own language, move the data into it, change every reader and writer marked as changed in this landing, and delete the old shape. Nothing writes both shapes and nothing falls back to the old. Read back that the counts match the count before the change and that every changed reader answers.",
             "submit": {
               "type": "object",
               "required": [
@@ -20333,21 +20333,21 @@
               }
             },
             "when": "After 'Say the change and everything that uses the old shape'.",
-            "done_when": "The new shape exists, the old is unchanged, and a read through the old shape still answers.",
+            "done_when": "The new shape holds every item, the counts match those before the change, every changed reader answers, the old shape is gone, and the backup time is noted.",
             "if_missing": "When a step needs what only the person holds (the store's write turn, a credential, a decision about data that would be lost), put it in open with exactly what is needed and stop before changing anything.",
-            "why": "Old code keeps running while new code is not yet everywhere.",
-            "good_answer": "Passes: 'added due_at beside due; due still read by the site; backup newest 18:00 before the change'. Fails: renaming in place, or a change that held a lock for minutes.",
+            "why": "Keeping the old shape beside the new doubles what must be kept right and hides what still uses it.",
+            "good_answer": "Passes: 'due_at holds 41,233 of 41,233; site and morning run answer; due dropped; backup 18:00'. Fails: the old column left in place, a reader that still writes it, or no count.",
             "came_from": [
-              "The roadmap's deploy item (a migration step that expands first and contracts later), Nov 18 2026; and the industry's expand-then-contract practice for changing a live store's shape while the old and new code both run"
+              "The roadmap's deploy item (a migration step), Nov 18 2026, rewritten the same evening: the old shape is deleted in the landing that replaces it (no write-both, no fallback, no old state kept), and only a reader the person cannot change keeps its part until its holder moves"
             ],
             "part_of": [
               "workflow:change-a-databases-shape-without-stopping-what-uses-it"
             ]
           },
           {
-            "id": "write-both-and-fill-the-new",
-            "title": "Write both shapes and fill the new from the old",
-            "do": "Change every writer so it writes both the old and the new shape. Then fill the new shape from the old for everything written before, in small batches, counting as you go. Read back that the counts and a sample of values agree between the two.",
+            "id": "give-an-outside-reader-its-own-move",
+            "title": "Give each outside reader its own move",
+            "do": "For each reader marked outside, and only those: keep the one part of the old shape it reads, as a read-only view over the new shape, and tell its holder the new shape and what to change. Delete that view as soon as the holder's reader is read using the new shape. When no reader is outside, answer that none is and do nothing.",
             "submit": {
               "type": "object",
               "required": [
@@ -20397,143 +20397,13 @@
                 }
               }
             },
-            "when": "After 'Add the new shape beside the old'.",
-            "done_when": "Every writer writes both, the fill is done, and old and new agree in count and in a sample of values.",
+            "when": "After 'Change the shape and every reader in one landing'.",
+            "done_when": "Each outside reader has its read-only view and its holder told, or the step says no reader is outside.",
             "if_missing": "When a step needs what only the person holds (the store's write turn, a credential, a decision about data that would be lost), put it in open with exactly what is needed and stop before changing anything.",
-            "why": "The new shape must hold everything before anything reads it alone.",
-            "good_answer": "Passes: 'intake and site write both since 4c1e2a9; 41,233 of 41,233 filled; 200 sampled, all equal'. Fails: a fill with no count, or a writer still writing only the old.",
+            "why": "Only a reader the person cannot change justifies anything old staying.",
+            "good_answer": "Passes: 'no reader is outside' or 'accountant share reads view due over due_at, told 18:40, removed when their report reads due_at'. Fails: keeping the old shape for a reader the person could change.",
             "came_from": [
-              "The roadmap's deploy item (a migration step that expands first and contracts later), Nov 18 2026; and the industry's expand-then-contract practice for changing a live store's shape while the old and new code both run"
-            ],
-            "part_of": [
-              "workflow:change-a-databases-shape-without-stopping-what-uses-it"
-            ]
-          },
-          {
-            "id": "move-the-readers",
-            "title": "Move every reader to the new shape",
-            "do": "Change each listed reader to read the new shape, one at a time, each released and watched before the next. After the last, search again for any reader of the old shape: the code at its newest commit and the store's own record of recent queries, over a stretch long enough to include every scheduled run.",
-            "submit": {
-              "type": "object",
-              "required": [
-                "found",
-                "open"
-              ],
-              "properties": {
-                "found": {
-                  "type": "array",
-                  "description": "Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "what",
-                      "evidence"
-                    ],
-                    "properties": {
-                      "what": {
-                        "type": "string",
-                        "minLength": 3
-                      },
-                      "evidence": {
-                        "type": "string",
-                        "minLength": 3
-                      }
-                    }
-                  }
-                },
-                "open": {
-                  "type": "array",
-                  "description": "Each thing not found or done yet, with what would settle it.",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "what",
-                      "needs"
-                    ],
-                    "properties": {
-                      "what": {
-                        "type": "string"
-                      },
-                      "needs": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "when": "After 'Write both shapes and fill the new from the old'.",
-            "done_when": "Each listed reader reads the new shape, released, and the fresh search finds no reader of the old shape over the stretch.",
-            "if_missing": "When a step needs what only the person holds (the store's write turn, a credential, a decision about data that would be lost), put it in open with exactly what is needed and stop before changing anything.",
-            "why": "Removing what something still reads is the outage this workflow exists to avoid.",
-            "good_answer": "Passes: 'site, morning run and view moved; no query touched due in 8 days, which covers the weekly run'. Fails: 'should be unused now'.",
-            "came_from": [
-              "The roadmap's deploy item (a migration step that expands first and contracts later), Nov 18 2026; and the industry's expand-then-contract practice for changing a live store's shape while the old and new code both run"
-            ],
-            "part_of": [
-              "workflow:change-a-databases-shape-without-stopping-what-uses-it"
-            ]
-          },
-          {
-            "id": "contract-later",
-            "title": "Remove the old shape later",
-            "do": "Only after the quiet stretch, change the writers to stop writing the old shape, then remove the old shape in the store's own language, keeping a backup's newest time from before the removal. Read back that every reader still answers.",
-            "submit": {
-              "type": "object",
-              "required": [
-                "found",
-                "open"
-              ],
-              "properties": {
-                "found": {
-                  "type": "array",
-                  "description": "Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "what",
-                      "evidence"
-                    ],
-                    "properties": {
-                      "what": {
-                        "type": "string",
-                        "minLength": 3
-                      },
-                      "evidence": {
-                        "type": "string",
-                        "minLength": 3
-                      }
-                    }
-                  }
-                },
-                "open": {
-                  "type": "array",
-                  "description": "Each thing not found or done yet, with what would settle it.",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "what",
-                      "needs"
-                    ],
-                    "properties": {
-                      "what": {
-                        "type": "string"
-                      },
-                      "needs": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "when": "After 'Move every reader to the new shape'.",
-            "done_when": "The old shape is gone, a backup from before the removal is noted, and every reader answers.",
-            "if_missing": "When a step needs what only the person holds (the store's write turn, a credential, a decision about data that would be lost), put it in open with exactly what is needed and stop before changing anything.",
-            "why": "Removal is the only step that cannot be taken back without the backup.",
-            "good_answer": "Passes: 'due dropped 2026-11-26, backup 2026-11-26 03:00, all readers answer'. Fails: removing it on the same day it was replaced.",
-            "came_from": [
-              "The roadmap's deploy item (a migration step that expands first and contracts later), Nov 18 2026; and the industry's expand-then-contract practice for changing a live store's shape while the old and new code both run"
+              "The roadmap's deploy item (a migration step), Nov 18 2026, rewritten the same evening: the old shape is deleted in the landing that replaces it (no write-both, no fallback, no old state kept), and only a reader the person cannot change keeps its part until its holder moves"
             ],
             "part_of": [
               "workflow:change-a-databases-shape-without-stopping-what-uses-it"
@@ -20542,7 +20412,7 @@
           {
             "id": "keep-the-change",
             "title": "Keep what was changed",
-            "do": "Keep the change wherever the person keeps this pursuit's rows: what changed, each step's date, the readers moved, the counts, the backup times and when the old shape was removed.",
+            "do": "Keep the change wherever the person keeps this pursuit's rows: what changed, the readers changed, the counts, the backup time, each outside reader with its view and when that view was deleted.",
             "submit": {
               "type": "object",
               "required": [
@@ -20592,13 +20462,13 @@
                 }
               }
             },
-            "when": "After 'Remove the old shape later'.",
-            "done_when": "One row holds the change with every step's date and its counts.",
+            "when": "After 'Give each outside reader its own move'.",
+            "done_when": "One row holds the change with its counts, backup time and every outside reader's state.",
             "if_missing": "When a step needs what only the person holds (the store's write turn, a credential, a decision about data that would be lost), put it in open with exactly what is needed and stop before changing anything.",
             "why": "The next change starts from what this one left.",
-            "good_answer": "Passes: 'due -> due_at: expanded 11-18, filled 11-18, readers moved 11-19, removed 11-26'. Fails: no dates.",
+            "good_answer": "Passes: 'due -> due_at 2026-11-18: 41,233 rows, site and morning run changed, old column dropped, no outside reader'. Fails: no counts.",
             "came_from": [
-              "The roadmap's deploy item (a migration step that expands first and contracts later), Nov 18 2026; and the industry's expand-then-contract practice for changing a live store's shape while the old and new code both run"
+              "The roadmap's deploy item (a migration step), Nov 18 2026, rewritten the same evening: the old shape is deleted in the landing that replaces it (no write-both, no fallback, no old state kept), and only a reader the person cannot change keeps its part until its holder moves"
             ],
             "part_of": [
               "workflow:change-a-databases-shape-without-stopping-what-uses-it"
