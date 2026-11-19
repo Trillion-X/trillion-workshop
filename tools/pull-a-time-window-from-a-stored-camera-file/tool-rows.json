@@ -250,7 +250,7 @@
             },
             "settings_record": {
               "type": "object",
-              "description": "The person's list:settings row holding their store, account and reader (record:setting:pull-a-time-window-from-a-stored-camera-file~<scope_kind>~<scope_id>), handed in as the record itself, as records:read gives it."
+              "description": "The person's list:settings row holding their store, account and reader (record:setting:pull-a-time-window-from-a-stored-camera-file~<scope_kind>~<scope_id>), handed in as the record itself, as read from the person's own store."
             },
             "settings": {
               "type": "object",
