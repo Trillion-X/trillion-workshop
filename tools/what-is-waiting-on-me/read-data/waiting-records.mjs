@@ -129,13 +129,13 @@ function completionInput(input) {
   return { sources: sourcesFrom(input.sources ?? []), held: new Map(input.records.map(record => [record.id, record])) };
 }
 
-/** The completion of each waiting record, worked out from the records handed in, and the `write` that keeps it: the
- * write input, each record expecting the value it was read with. Only the action a source explicitly declares is
+/** The completion of each waiting record, worked out from the records handed in, and the `keep` of each record that changes:
+ * each kept record expecting the value it was read with. Only the action a source explicitly declares is
  * worked out; a source with another action owner cannot be closed by guessing a status field or deleting a display
  * card. Nothing is written here; a record that already carries this key's receipt answers completed with no write. */
 export function finishWaitingOnMe(input = {}, { now = () => new Date() } = {}) {
   const { sources, held } = completionInput(input);
-  const write = [];
+  const keep = [];
   const completed = [];
   const next_round = [];
   const signature = makeHashCodeHexFromJson({ ids: [...new Set(input.ids)].sort(), showed: input.showed ?? {} });
@@ -162,10 +162,10 @@ export function finishWaitingOnMe(input = {}, { now = () => new Date() } = {}) {
     const set = { ...effect, waiting_finish: { key: input.request_key, signature, next_round: Boolean(continuing),
       effect_fields: Object.keys(effect), effect_identity: makeHashCodeHexFromJson(effect) } };
     const value = { ...before.value, ...set };
-    if (JSON.stringify(value) !== JSON.stringify(before.value)) write.push({ id, type: source.done.record_type, value, expected: { type: source.done.record_type, value: before.value } });
+    if (JSON.stringify(value) !== JSON.stringify(before.value)) keep.push({ id, type: source.done.record_type, value, expected: { type: source.done.record_type, value: before.value } });
     (continuing ? next_round : completed).push(id);
   }
-  return { completed, changed: write.length, write, ...(next_round.length ? { next_round } : {}) };
+  return { completed, changed: keep.length, keep, ...(next_round.length ? { next_round } : {}) };
 }
 
 /** Whether a completion's saved receipt still holds on the records handed in, whatever a feed showed or hid. */

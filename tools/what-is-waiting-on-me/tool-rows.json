@@ -981,7 +981,7 @@
         "label": "Finish a waiting item",
         "status": "active",
         "job": "Complete the declared action on the same persisted waiting record",
-        "description": "Works out the declared same-record completion of waiting records and answers it as a conditional write for the caller to make; it writes nothing. Read the records first from the person's own store (each { id, type, value }) and hand them in as records; hand in the person's record:waiting-sources records as sources when they added any. Refuses items whose source has another owner. The built-in asks action is the original Waiting on you list status Done transition; no other source status is guessed. Answers completed (the ids), changed (how many records the write changes) and write: each record's new value expecting the value it was read with. Write each changed record back to the person's own store, conditioned on its expected value, then run tool:verify-waiting-on-me-completion on the records read back. A record already carrying this request_key's receipt answers completed with no write.",
+        "description": "Works out the declared same-record completion of waiting records and answers the records that change as keep, each { id, type, value, expected } for the caller to store; it writes nothing. Read the records first from the person's own store (each { id, type, value }) and hand them in as records; hand in the person's record:waiting-sources records as sources when they added any. Refuses items whose source has another owner. The built-in asks action is the original Waiting on you list status Done transition; no other source status is guessed. Answers completed (the ids), changed (how many records change) and keep: each changed record as { id, type, value, expected }, expected being the record as it was read. Store each kept record in the person's own store, refused if the expected record has moved, then run tool:verify-waiting-on-me-completion on the records read back. A record already carrying this request_key's receipt answers completed with no write.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -1035,7 +1035,7 @@
           "required": [
             "completed",
             "changed",
-            "write"
+            "keep"
           ],
           "properties": {
             "completed": {
@@ -1044,9 +1044,9 @@
             "changed": {
               "type": "integer"
             },
-            "write": {
+            "keep": {
               "type": "array",
-              "description": "The conditional write that keeps the completion: { id, type, value, expected } for each record that changes."
+              "description": "The records that change, for the caller to store: { id, type, value, expected } for each, expected being the record as it was handed in (null for a new one), so a store refuses the write when it moved."
             },
             "next_round": {
               "type": "array"
@@ -1340,7 +1340,7 @@
         "label": "Verify a waiting completion",
         "status": "active",
         "job": "Read the same persisted target and verify the current effect of a waiting completion",
-        "description": "Checks, on the waiting records handed in (read them again from the person's own store after the write, each { id, type, value }), the saved completion key and BLAKE3 effect identity against the source's declared fields, and answers completed/next_round only when that same effect still holds. A hidden card, unavailable feed or historical command result proves nothing here. Hand in the person's record:waiting-sources records as sources when they added any. Reads and changes nothing in the person's records.",
+        "description": "Checks, on the waiting records handed in (read them again from the person's own store after the keep, each { id, type, value }), the saved completion key and BLAKE3 effect identity against the source's declared fields, and answers completed/next_round only when that same effect still holds. A hidden card, unavailable feed or historical command result proves nothing here. Hand in the person's record:waiting-sources records as sources when they added any. Reads and changes nothing in the person's records.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,

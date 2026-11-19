@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:finish-what-is-waiting-on-me's own row and test/waiting-records.test.mjs, whose runs answered the values shown here",
-  "start_here": "Say to your AI: \"Mark record:waiting-on-you:sample-signed-form done under request key sample-completion.\" It runs tool:finish-what-is-waiting-on-me, works out the declared completion of that same record and answers the write that keeps it; the AI sends the write and reads the record back.",
+  "start_here": "Say to your AI: \"Mark record:waiting-on-you:sample-signed-form done under request key sample-completion.\" It runs tool:finish-what-is-waiting-on-me, works out the declared completion of that same record and answers the record that changes as keep; the AI stores the keep and reads the record back.",
   "lists": [],
   "no_lists_because": "It keeps nothing and writes nothing: its answer holds the completion of the waiting record you hand in, by its source's declared completion.",
   "workflows": [],
@@ -11,7 +11,7 @@
   "instructions": [
     "1. Take the card ids from tool:read-what-is-waiting-on-me, read those records from the person's own store, and pick a fresh request_key.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:finish-what-is-waiting-on-me and { ids, request_key, records }.",
-    "3. Read completed and changed, and keep write in the person's own store; a record that already carries the key answers changed 0 and an empty write.",
+    "3. Read completed and changed, and store each keep in the person's own store; a record that already carries the key answers changed 0 and an empty keep.",
     "4. Read the records again and confirm with tool:verify-waiting-on-me-completion and the same ids and request_key."
   ],
   "worked_examples": [
@@ -42,7 +42,7 @@
         }
       },
       "given": "From test/waiting-records.test.mjs: one record:waiting-on-you row with status Waiting.",
-      "hands_back": "It answered {\"completed\":[\"record:waiting-on-you:sample-signed-form\"],\"changed\":1,\"write\":[...]} where write holds the record with status \"Done\" expecting the value it was read with; handed the record with that receipt, it answers changed 0 and an empty write."
+      "hands_back": "It answered {\"completed\":[\"record:waiting-on-you:sample-signed-form\"],\"changed\":1,\"keep\":[...]} where keep holds the record with status \"Done\" expecting the value it was read with; handed the record with that receipt, it answers changed 0 and an empty keep."
     }
   ]
 }

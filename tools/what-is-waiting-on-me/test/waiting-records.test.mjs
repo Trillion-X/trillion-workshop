@@ -7,22 +7,22 @@ import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 
 const own = (id, value) => ({ id, type: DATA.registry_type, value });
 
-const apply = (held, write) => held.map(record => write.find(item => item.id === record.id) ?? record).map(({ expected: _expected, ...record }) => record);
+const apply = (held, keep) => held.map(record => keep.find(item => item.id === record.id) ?? record).map(({ expected: _expected, ...record }) => record);
 const waiting = (id, value) => ({ id, type: 'record:waiting-on-you', value });
 
 
 
-test('Done answers the completion as a write for the same ask record, a retry is safe, and another source cannot be guessed done', () => {
+test('Done answers the completion as keep for the same ask record, a retry is safe, and another source cannot be guessed done', () => {
   const id = 'record:waiting-on-you:sample';
   const held = [waiting(id, { what: 'Sign the sample form', status: 'Waiting' })];
   const input = { ids: [id], request_key: 'sample-done', records: held };
   const first = finishWaitingOnMe(input);
   assert.deepEqual({ completed: first.completed, changed: first.changed }, { completed: [id], changed: 1 });
-  assert.equal(first.write[0].value.status, 'Done', 'the answer holds the result');
-  assert.deepEqual(first.write[0].expected, { type: 'record:waiting-on-you', value: held[0].value }, 'the write expects the value that was read');
+  assert.equal(first.keep[0].value.status, 'Done', 'the answer holds the result');
+  assert.deepEqual(first.keep[0].expected, { type: 'record:waiting-on-you', value: held[0].value }, 'the keep expects the value that was read');
   assert.equal(held[0].value.status, 'Waiting', 'nothing is changed in what was handed in');
-  const kept = apply(held, first.write);
-  assert.deepEqual(finishWaitingOnMe({ ...input, records: kept }), { completed: [id], changed: 0, write: [] });
+  const kept = apply(held, first.keep);
+  assert.deepEqual(finishWaitingOnMe({ ...input, records: kept }), { completed: [id], changed: 0, keep: [] });
   assert.deepEqual(verifyWaitingCompletion({ ids: [id], request_key: 'sample-done', records: kept }), { completed: [id] });
   const reopened = kept.map(record => ({ ...record, value: { ...record.value, status: 'Open' } }));
   assert.throws(() => finishWaitingOnMe({ ...input, records: reopened }), { code: 'original_command_conflict' });
@@ -38,18 +38,18 @@ test('a round completion counts only one round on retry and closes only the fina
   const first = { ids: [id], showed: { [id]: 'The sample worked' }, request_key: 'sample-round-one', records: held };
   const one = finishWaitingOnMe(first, context);
   assert.deepEqual(one.next_round, [id]);
-  assert.equal(one.write[0].value.status, 'Waiting');
-  assert.equal(one.write[0].value.rounds_done, 1);
-  const afterOne = apply(held, one.write);
+  assert.equal(one.keep[0].value.status, 'Waiting');
+  assert.equal(one.keep[0].value.rounds_done, 1);
+  const afterOne = apply(held, one.keep);
   assert.equal(finishWaitingOnMe({ ...first, records: afterOne }, context).changed, 0, 'a retry never counts the round twice');
   const moved = afterOne.map(record => ({ ...record, value: { ...record.value, rounds_done: 7 } }));
   assert.throws(() => finishWaitingOnMe({ ...first, records: moved }, context), { code: 'original_command_conflict' });
   const two = finishWaitingOnMe({ ids: [id], request_key: 'sample-round-two', records: afterOne }, context);
   assert.deepEqual(two.completed, [id]);
-  assert.equal(two.write[0].value.status, 'Done');
-  assert.equal(two.write[0].value.rounds_done, 2);
-  const finished = apply(afterOne, two.write);
-  assert.equal(finishWaitingOnMe({ ids: [id], request_key: 'sample-already-finished', records: finished }, context).write[0].value.rounds_done, 2, 'a finished plan never counts another round');
+  assert.equal(two.keep[0].value.status, 'Done');
+  assert.equal(two.keep[0].value.rounds_done, 2);
+  const finished = apply(afterOne, two.keep);
+  assert.equal(finishWaitingOnMe({ ids: [id], request_key: 'sample-already-finished', records: finished }, context).keep[0].value.rounds_done, 2, 'a finished plan never counts another round');
 });
 
 
@@ -133,9 +133,9 @@ test('the finish and verify tools hold no records door at all, and their answers
   const finish = await answerOf(rowOf(ROWS, 'tool:finish-what-is-waiting-on-me'), { ids: [id], request_key: 'sample-container-done', records: [ask] });
   assert.equal(finish.status, 0, finish.error);
   assert.deepEqual(finish.result.completed, [id]);
-  assert.equal(finish.result.write[0].value.status, 'Done', 'the answer holds the completion');
+  assert.equal(finish.result.keep[0].value.status, 'Done', 'the answer holds the completion');
   assert.deepEqual(finish.calls, [], 'no records call is made');
-  const verify = await answerOf(rowOf(ROWS, 'tool:verify-waiting-on-me-completion'), { ids: [id], request_key: 'sample-container-done', records: apply([ask], finish.result.write) });
+  const verify = await answerOf(rowOf(ROWS, 'tool:verify-waiting-on-me-completion'), { ids: [id], request_key: 'sample-container-done', records: apply([ask], finish.result.keep) });
   assert.equal(verify.status, 0, verify.error);
   assert.deepEqual(verify.result.completed, [id]);
   assert.deepEqual(verify.calls, []);
