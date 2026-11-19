@@ -8,7 +8,7 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { createPublicEmailCourse } from '../read-data/email-course.mjs';
+import { alreadySent, createPublicEmailCourse, dueStep, HOUR_MS, isActive, isDue } from '../read-data/email-course.mjs';
 
 const course = {
   id: 'sample-course', public_origin: 'https://example.com/',
@@ -155,4 +155,93 @@ test('unsubscribe stops a scheduled lesson from sending', async () => {
   assert.deepEqual(await h.service.unsubscribe(state.unsubscribe_token), { status: 'unsubscribed' });
   assert.deepEqual(await h.service.deliver({ token: state.unsubscribe_token, lesson_index: 1 }), { status: 'unsubscribed' });
   assert.equal(h.asks.filter((ask) => ask.target === 'send-email').length, 1);
+});
+
+test('a non-receipt lesson is sent with its unsubscribe headers and copy variables', async () => {
+  const h = harness();
+  await h.service.enroll({ email: 'reader@example.com', consent: true, course });
+  const [lessonSend] = h.asks.filter((ask) => ask.target === 'send-email');
+  assert.match(lessonSend.input.headers['List-Unsubscribe'], /email-course\/unsubscribe\?token=/);
+  assert.match(lessonSend.input.variables.unsubscribeUrl, /email-course\/unsubscribe\?token=/);
+  assert.equal(lessonSend.input.variables.mailingAddress, course.mailing_address);
+});
+
+const receiptCourse = {
+  ...course,
+  lessons: [
+    { ...course.lessons[0], receipt: true, text_lines: ['Thanks for buying: {{articleUrl}}'], html_lines: ['<p>Thanks: {{articleUrl}}</p>'] },
+    ...course.lessons.slice(1),
+  ],
+};
+
+test('a receipt step is sent without unsubscribe headers, unsubscribe copy or mailing address', async () => {
+  const h = harness();
+  assert.deepEqual(await h.service.enroll({ email: 'reader@example.com', consent: true, course: receiptCourse }), { status: 'enrolled', already_enrolled: false });
+  const [receiptSend] = h.asks.filter((ask) => ask.target === 'send-email');
+  assert.deepEqual(receiptSend.input.headers, {});
+  assert.equal(receiptSend.input.variables.articleUrl, 'https://example.com/lesson-1');
+  assert.equal('unsubscribeUrl' in receiptSend.input.variables, false);
+  assert.equal('mailingAddress' in receiptSend.input.variables, false);
+  assert.equal(h.asks.filter((ask) => ask.target === 'send-email').length, 1);
+});
+
+test('the receipt flag must be a boolean, and only a non-receipt lesson must carry unsubscribe copy', async () => {
+  const h = harness();
+  await assert.rejects(h.service.enroll({ email: 'reader@example.com', consent: true,
+    course: { ...course, lessons: [{ ...course.lessons[0], receipt: 'yes' }, ...course.lessons.slice(1)] } }), /receipt flag is invalid/);
+  await assert.rejects(h.service.enroll({ email: 'reader@example.com', consent: true,
+    course: { ...course, lessons: [{ ...course.lessons[0], receipt: false, text_lines: ['No unsubscribe here'], html_lines: ['<p>None</p>'] }, ...course.lessons.slice(1)] } }),
+  /copy is incomplete/);
+  assert.equal(h.asks.length, 0);
+});
+
+test('isActive is true only for an active subscription', () => {
+  assert.equal(isActive({ status: 'active' }), true);
+  assert.equal(isActive({ status: 'unsubscribed' }), false);
+  assert.equal(isActive({ status: 'stopped' }), false);
+  assert.equal(isActive(undefined), false);
+});
+
+test('alreadySent reads the sent log by step key', () => {
+  assert.equal(alreadySent({ 0: { at: 'x' } }, 0), true);
+  assert.equal(alreadySent({ 0: { at: 'x' } }, 1), false);
+  assert.equal(alreadySent(undefined, 0), false);
+});
+
+test('isDue is true from the moment a step is due, not a millisecond before', () => {
+  const start = Date.parse('2026-09-23T12:00:00.000Z');
+  const step = { delay_hours: 24 };
+  assert.equal(isDue(start, step, new Date(start + 24 * HOUR_MS - 1)), false);
+  assert.equal(isDue(start, step, new Date(start + 24 * HOUR_MS)), true);
+});
+
+test('dueStep takes the first unsent due step in order and holds back the rest', () => {
+  const started_at = Date.parse('2026-09-23T12:00:00.000Z');
+  const steps = [
+    { key: 0, delay_hours: 0, receipt: true },
+    { key: 1, delay_hours: 24, receipt: false },
+    { key: 2, delay_hours: 96, receipt: false },
+  ];
+  const enrollment = { status: 'active', started_at, sent: {} };
+  const at48h = new Date(started_at + 48 * HOUR_MS);
+  assert.equal(dueStep(enrollment, steps, at48h).key, 0);
+  assert.equal(dueStep({ ...enrollment, sent: { 0: true } }, steps, at48h).key, 1);
+  assert.equal(dueStep({ ...enrollment, sent: { 0: true, 1: true } }, steps, at48h), null);
+  assert.equal(dueStep({ ...enrollment, sent: { 0: true, 1: true } }, steps, new Date(started_at + 96 * HOUR_MS)).key, 2);
+  assert.equal(dueStep({ ...enrollment, sent: { 0: true, 1: true, 2: true } }, steps, new Date(started_at + 96 * HOUR_MS)), null);
+});
+
+test('dueStep: an earlier step not yet due holds back a later step that is due', () => {
+  const started_at = Date.parse('2026-09-23T12:00:00.000Z');
+  const steps = [{ key: 'a', delay_hours: 48, receipt: false }, { key: 'b', delay_hours: 0, receipt: false }];
+  assert.equal(dueStep({ status: 'active', started_at, sent: {} }, steps, new Date(started_at + HOUR_MS)), null);
+});
+
+test('dueStep holds a follow-up for an inactive subscription but never the receipt', () => {
+  const started_at = Date.parse('2026-09-23T12:00:00.000Z');
+  const steps = [{ key: 0, delay_hours: 0, receipt: true }, { key: 1, delay_hours: 0, receipt: false }];
+  const stopped = { status: 'stopped', started_at, sent: {} };
+  const now = new Date(started_at);
+  assert.equal(dueStep(stopped, steps, now).key, 0);
+  assert.equal(dueStep({ ...stopped, sent: { 0: true } }, steps, now), null);
 });

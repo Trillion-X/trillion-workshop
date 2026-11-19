@@ -38,6 +38,37 @@ function tokenAddress(token) {
   return `email-course.token::${digest(token)}`;
 }
 
+// The pure rules of a course. No I/O: createPublicEmailCourse calls them, and so can any program that keeps its own sent log
+// (workshop/tools/send-messages/read-data/email-course.mjs), so each rule has one owner. A step's key names it in the sent log.
+export const HOUR_MS = 3_600_000;
+
+// The subscription is still owed its steps.
+export function isActive(enrollment) {
+  return enrollment?.status === 'active';
+}
+
+// The step with this key is already in the sent log.
+export function alreadySent(sent, key) {
+  return Boolean(sent?.[key]);
+}
+
+// The step's time has come: startedAt (epoch milliseconds) plus its delay_hours is at or before now (a Date).
+export function isDue(startedAt, step, now) {
+  return startedAt + step.delay_hours * HOUR_MS <= now.getTime();
+}
+
+// The step owed now, or null. Steps go in order, so a step not yet due holds back the later ones. A step that is not a receipt
+// is held while the enrollment is not active; a receipt is not held by that.
+export function dueStep(enrollment, steps, now) {
+  for (const step of steps) {
+    if (alreadySent(enrollment.sent, step.key)) continue;
+    if (!isDue(enrollment.started_at, step, now)) return null;
+    if (!step.receipt && !isActive(enrollment)) return null;
+    return step;
+  }
+  return null;
+}
+
 function assertCourse(course) {
   if (course?.capture_only === true) throw new Error('Email lessons are not ready to send.');
   if (!course || typeof course !== 'object' || !/^[a-z0-9][a-z0-9-]{2,80}$/.test(course.id ?? '')) throw new Error('Email course is unavailable.');
@@ -48,10 +79,11 @@ function assertCourse(course) {
   for (const lesson of course.lessons) {
     if (!Number.isInteger(lesson.delay_hours) || lesson.delay_hours <= previous || lesson.delay_hours > 24 * 29) throw new Error('Email course lesson timing is invalid.');
     previous = lesson.delay_hours;
+    if (lesson.receipt !== undefined && typeof lesson.receipt !== 'boolean') throw new Error('Email course lesson receipt flag is invalid.');
     if (typeof lesson.subject !== 'string' || !lesson.subject.trim() || !Array.isArray(lesson.text_lines) || !Array.isArray(lesson.html_lines)
       || !lesson.text_lines.every((line) => typeof line === 'string') || !lesson.html_lines.every((line) => typeof line === 'string')
-      || !lesson.text_lines.join('\n').includes('{unsubscribeUrl}') || !lesson.html_lines.join('\n').includes('{unsubscribeUrl}')
-      || !lesson.text_lines.join('\n').includes('{mailingAddress}') || !lesson.html_lines.join('\n').includes('{mailingAddress}')) throw new Error('Email course lesson copy is incomplete.');
+      || (lesson.receipt !== true && (!lesson.text_lines.join('\n').includes('{unsubscribeUrl}') || !lesson.html_lines.join('\n').includes('{unsubscribeUrl}')
+      || !lesson.text_lines.join('\n').includes('{mailingAddress}') || !lesson.html_lines.join('\n').includes('{mailingAddress}')))) throw new Error('Email course lesson copy is incomplete.');
     const article = new URL(lesson.article_url, origin);
     if (article.origin !== origin.origin) throw new Error('Email course lesson link is outside this site.');
   }
@@ -105,25 +137,27 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
     const before = await readCurrent(address);
     const state = currentPayload(before);
     if (!state || state.unsubscribe_token !== token) throw new Error('Lesson subscription changed.');
-    if (state.status !== 'active') return { status: 'unsubscribed' };
+    if (!isActive(state)) return { status: 'unsubscribed' };
     const lesson = state.course.lessons[index];
     if (!lesson) throw new Error('Lesson does not exist.');
-    if (Date.parse(state.consented_at) + lesson.delay_hours * 3_600_000 > now().getTime()) return { status: 'not-due' };
-    if (state.sent?.[index]) return { status: 'already-sent' };
+    if (!isDue(Date.parse(state.consented_at), lesson, now())) return { status: 'not-due' };
+    if (alreadySent(state.sent, index)) return { status: 'already-sent' };
     const resolved = await invokeTarget('contact-points.resolve', { account_id: state.account_id });
     const email = resolved?.address;
     if (typeof email !== 'string' || !EMAIL.test(email)) throw new Error('Subscriber email could not be resolved.');
     const unsubscribeUrl = `${state.course.public_origin}email-course/unsubscribe?token=${encodeURIComponent(token)}`;
     const latest = currentPayload(await readCurrent(address));
-    if (latest?.status !== 'active' || latest.unsubscribe_token !== token) return { status: 'unsubscribed' };
+    if (!isActive(latest) || latest.unsubscribe_token !== token) return { status: 'unsubscribed' };
     let sent;
     try {
       sent = await invokeTarget('send-email', {
         template: 'account-onboarding', to: email,
         idempotencyKey: `email-course:${digest(JSON.stringify([address, index]))}`,
         message: messageFor(state.course, lesson),
-        variables: { articleUrl: lesson.article_url, checkoutUrl: state.course.checkout_url, unsubscribeUrl, mailingAddress: state.course.mailing_address },
-        headers: { 'List-Unsubscribe': `<${unsubscribeUrl}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' },
+        // A receipt carries neither the unsubscribe copy nor the mailing address, and no unsubscribe headers.
+        variables: { articleUrl: lesson.article_url, checkoutUrl: state.course.checkout_url,
+          ...(lesson.receipt ? {} : { unsubscribeUrl, mailingAddress: state.course.mailing_address }) },
+        headers: lesson.receipt ? {} : { 'List-Unsubscribe': `<${unsubscribeUrl}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' },
       });
       if (sent?.ok !== true || typeof sent.provider_message_id !== 'string') throw new Error('Email provider did not confirm the lesson.');
     } catch (error) {
@@ -132,7 +166,7 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
     }
     const current = await readCurrent(address);
     const currentState = currentPayload(current);
-    if (currentState?.status === 'active' && !currentState.sent?.[index]) {
+    if (isActive(currentState) && !alreadySent(currentState.sent, index)) {
       await persist([{ address_label: address, expected_current: expectedCurrent(current), path_labels: ['email-course', 'email-course-subscription'], payload: { ...currentState, sent: { ...currentState.sent, [index]: { at: now().toISOString(), provider_message_id: sent.provider_message_id } } } }]);
     }
     return { status: 'sent', lesson_index: index, provider_message_id: sent.provider_message_id };
@@ -155,7 +189,7 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
       return { status: 'enrolled', already_enrolled: true };
     }
     let existing = currentPayload(await readCurrent(address));
-    if (existing?.status === 'active') return resumeActive(existing);
+    if (isActive(existing)) return resumeActive(existing);
     const token = mintToken();
     if (typeof token !== 'string' || !TOKEN.test(token)) throw new Error('Unsubscribe token could not be minted.');
     const state = {
@@ -166,7 +200,7 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
     };
     const current = await readCurrent(address);
     existing = currentPayload(current);
-    if (existing?.status === 'active') return resumeActive(existing);
+    if (isActive(existing)) return resumeActive(existing);
     try {
       await persist([
         { address_label: address, expected_current: expectedCurrent(current), path_labels: ['email-course', 'email-course-subscription'], payload: state },
@@ -176,7 +210,7 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
       // Two submissions can read the same empty address. If the other CAS write
       // won, finish from that durable consent instead of reporting a failure.
       const winner = currentPayload(await readCurrent(address));
-      if (winner?.status === 'active') return resumeActive(winner);
+      if (isActive(winner)) return resumeActive(winner);
       throw error;
     }
     for (let index = 1; index < course.lessons.length; index++) await schedule(state, index);
@@ -238,7 +272,7 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
     if (!mapping?.subscription_address) return { status: 'unsubscribed' };
     const current = await readCurrent(mapping.subscription_address);
     const state = currentPayload(current);
-    if (!state || state.unsubscribe_token !== token || state.status !== 'active') return { status: 'unsubscribed' };
+    if (!state || state.unsubscribe_token !== token || !isActive(state)) return { status: 'unsubscribed' };
     await persist([{ address_label: mapping.subscription_address, expected_current: expectedCurrent(current), path_labels: ['email-course', 'email-course-subscription'], payload: { ...state, status: 'unsubscribed', unsubscribed_at: now().toISOString() } }]);
     return { status: 'unsubscribed' };
   }
