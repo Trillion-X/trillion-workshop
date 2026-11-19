@@ -1,0 +1,56 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-conversation-summaries with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and keep {\\\"app\\\": \\\"Email\\\", \\\"conversation_id\\\": \\\"Email:t1\\\", \\\"summary\\\": \\\"They ask for the Friday deck; I said yes.\\\", \\\"latest\\\": {\\\"id\\\": \\\"message:2\\\", \\\"at\\\": \\\"2026-10-19T10:05:00Z\\\"}}.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: a conversation's summary is kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-conversation-summaries"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:read-a-thread-summary"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-conversation-summaries\" with store, and keep or remove as you want it done. keep needs the thread's latest message from the messages owner.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts: every answer must be the one the intent says, or the run stops and says which.",
+    "4. To see whether a kept summary is stale, use tool:read-a-thread-summary with the record and the message times; it keeps nothing."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep a summary of an email thread",
+      "ask": "Keep a summary of the Friday deck thread through its newest message.",
+      "workflow": "workflow:keep-conversation-summaries",
+      "step": "keep",
+      "given": "The look step found no thread-summary object for Email:t1.",
+      "hands_back": "written: a thread-summary object with summary_id thread-summary:Email:Email:t1 through message:2, at version 1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-conversation-summaries",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "keep": {
+                "app": "Email",
+                "conversation_id": "Email:t1",
+                "summary": "They ask for the Friday deck; I said yes.",
+                "latest": {
+                  "id": "message:2",
+                  "at": "2026-10-19T10:05:00Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "drafted_from": "tools/social-posts tool:keep-a-thread-summary and tool:remove-a-thread-summary (their rows, retired in this commit) and read-data/thread-summaries.mjs; the proof is the recipe's prove step, run on PGlite and a JSON folder by test/keep-recipes-proof.test.mjs."
+}

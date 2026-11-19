@@ -1,95 +1,35 @@
-// The snippet and thread-summary rows (read-data/drafts-over-door.mjs over the moved snippets.mjs and
-// thread-summaries.mjs) run as the container runs them, against the fake records door with exactly each row's rights.
-// Everything here is made up.
+// The two computations over records handed in, run as the container runs them (use-a-snippet and read-a-thread-summary),
+// and the five rows that only kept records being gone from tool-rows.json. Everything here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const row = id => rowOf(rows, `tool:${id}`);
+const snippetRecord = { id: 'snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5', type: 'snippet', value: { snippet_id: 'snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5', title: 'Thanks', text: 'Thanks {name}, see you {when}!', tags: ['replies'], set_at: '2026-10-01T09:00:00.000Z', uses: 0 } };
+const summaryRecord = { id: 'thread-summary:Email:Email:t1', type: 'thread-summary', value: { summary_id: 'thread-summary:Email:Email:t1', app: 'Email', conversation_id: 'Email:t1', summary: 'They ask for the Friday deck; I said yes.', through_message_id: 'message:2', through_at: '2026-10-19T10:05:00Z', set_at: '2026-10-19T10:06:00.000Z' } };
 
-test('the snippet rows keep snippets as the person\'s own snippet records: save, find, use with blanks, change, refuse stale, remove', async () => {
-  const saved = await answerOf(row('save-a-snippet'), { title: 'Say no kindly', text: 'Hi {name}, thank you for {thing}.', tags: ['Replies'] });
-  assert.equal(saved.status, 0, saved.error);
-  const made = saved.result.snippet;
-  assert.deepEqual(made.blanks, ['name', 'thing']);
-  assert.deepEqual(made.tags, ['replies']);
-  assert.deepEqual(saved.kept.map(record => [record.type, record.id]), [['snippet', made.snippet_id]]);
-  let records = saved.kept;
-
-  const found = await answerOf(row('find-snippets'), { query: 'kindly' }, { records });
-  assert.deepEqual(found.result.snippets.map(snippet => snippet.snippet_id), [made.snippet_id]);
-  assert.deepEqual((await answerOf(row('find-snippets'), { tag: 'elsewhere' }, { records })).result.snippets, []);
-  assert.deepEqual(found.kept, records, 'finding changes nothing');
-
-  // A use is handed the snippet's record and no door: it answers the filled words and keeps and counts nothing.
-  const used = await answerOf(row('use-a-snippet'), { snippet_id: made.snippet_id, values: { name: 'Ana' }, records });
-  assert.equal(used.result.text, 'Hi Ana, thank you for {thing}.');
-  assert.deepEqual(used.result.left_blank, ['thing']);
-  assert.match(used.result.said, /Left blank: thing/);
-  assert.equal(used.result.keep, undefined, 'a use answers nothing to keep');
+test('a use fills the handed-in snippet and keeps nothing', async () => {
+  const used = await answerOf(row('use-a-snippet'), { snippet_id: snippetRecord.id, values: { name: 'Ana' }, records: [snippetRecord] });
+  assert.equal(used.status, 0, used.error);
+  assert.equal(used.result.text, 'Thanks Ana, see you {when}!');
+  assert.deepEqual(used.result.left_blank, ['when']);
   assert.deepEqual(used.kept, [], 'a use stores nothing');
-  assert.equal(row('use-a-snippet').invoke.records, undefined, 'a use is handed no records door');
-
-  const changed = await answerOf(row('save-a-snippet'), { snippet_id: made.snippet_id, title: 'Decline kindly', expected_set_at: made.set_at }, { records });
-  assert.equal(changed.result.snippet.title, 'Decline kindly');
-  assert.equal(changed.result.snippet.text, made.text);
-  const stale = await answerOf(row('save-a-snippet'), { snippet_id: made.snippet_id, text: 'x', expected_set_at: 'long ago' }, { records: changed.kept });
-  assert.match(stale.error, /saved again at/);
-  assert.deepEqual(stale.kept, changed.kept, 'a stale save changes nothing');
-  assert.match((await answerOf(row('save-a-snippet'), { title: '', text: 'x' })).error, /needs a title/);
-
-  const removed = await answerOf(row('remove-a-snippet'), { snippet_id: made.snippet_id }, { records: changed.kept });
-  assert.match(removed.result.said, /Removed the snippet "Decline kindly"/);
-  assert.equal(removed.kept.length, 0);
-  assert.match((await answerOf(row('use-a-snippet'), { snippet_id: made.snippet_id, records: removed.kept })).error, /There is no snippet/);
 });
 
-test('the thread-summary rows cover through the latest message handed in and count the newer message times', async () => {
-  const thread = { app: 'Email', conversation_id: 'Email:t1' };
-  assert.match((await answerOf(row('keep-a-thread-summary'), { ...thread, summary: 'x', latest: null })).error, /no messages to summarize/);
-  const none = await answerOf(row('read-a-thread-summary'), { ...thread, message_times: [], records: [] });
-  assert.equal(none.result.summary, null);
-  assert.match(none.result.said, /No summary is kept/);
-
-  const kept = await answerOf(row('keep-a-thread-summary'), { ...thread, summary: 'They ask for the Friday deck; I said yes.', latest: { id: 'message:2', at: '2026-10-19T10:05:00Z' } });
-  assert.equal(kept.status, 0, kept.error);
-  assert.equal(kept.result.summary.through_message_id, 'message:2');
-  assert.deepEqual(kept.kept.map(record => [record.type, record.id]), [['thread-summary', 'thread-summary:Email:Email:t1']]);
-
-  const times = ['2026-10-19T10:00:00Z', '2026-10-19T10:05:00Z'];
-  const fresh = await answerOf(row('read-a-thread-summary'), { ...thread, message_times: times, records: kept.kept });
-  assert.deepEqual([fresh.result.stale, fresh.result.newer_messages], [false, 0]);
-  const stale = await answerOf(row('read-a-thread-summary'), { ...thread, message_times: [...times, '2026-10-19T11:00:00Z'], records: kept.kept });
+test('a read says whether the handed-in summary is stale against the message times handed in', async () => {
+  const times = ['2026-10-19T10:00:00Z', '2026-10-19T10:05:00Z', '2026-10-19T11:00:00Z'];
+  const stale = await answerOf(row('read-a-thread-summary'), { app: 'Email', conversation_id: 'Email:t1', message_times: times, records: [summaryRecord] });
+  assert.equal(stale.status, 0, stale.error);
   assert.deepEqual([stale.result.stale, stale.result.newer_messages], [true, 1]);
   assert.match(stale.result.said, /1 newer message/);
-  assert.match((await answerOf(row('keep-a-thread-summary'), { ...thread, summary: '  ', latest: { id: 'message:3', at: '2026-10-19T11:00:00Z' } }, { records: kept.kept })).error, /needs its words/);
-
-  const again = await answerOf(row('keep-a-thread-summary'), { ...thread, summary: 'Updated.', latest: { id: 'message:3', at: '2026-10-19T11:00:00Z' } }, { records: kept.kept });
-  assert.equal(again.result.summary.through_message_id, 'message:3');
-  assert.equal(again.kept.length, 1, 'one summary per conversation');
-
-  const removed = await answerOf(row('remove-a-thread-summary'), thread, { records: again.kept });
-  assert.equal(removed.result.removed, true);
-  assert.equal(removed.kept.length, 0);
-  assert.match((await answerOf(row('remove-a-thread-summary'), thread, { records: removed.kept })).error, /No summary is kept/);
+  assert.deepEqual(stale.kept, [], 'a read stores nothing');
 });
 
-test('a write carries each record as it was read (expected), so the door refuses it whole when that record changed since', async () => {
-  const { passesOverDoor } = await import('../read-data/drafts-over-door.mjs');
-  const held = new Map([['snippet:a', { id: 'snippet:a', type: 'snippet', value: { n: 1 } }]]);
-  const sent = [];
-  const door = {
-    read: async (type, id) => structuredClone(held.get(id)?.value ?? null),
-    async *list({ type }) { for (const record of held.values()) if (record.type === type) yield structuredClone(record); },
-    write: async (records, { key }) => { sent.push({ records, key }); },
-  };
-  const answer = await passesOverDoor(door, 'snippet', eeaf => {
-    const value = eeaf.read('snippet:a');
-    if (value) eeaf.write([{ id: 'snippet:a', type: 'snippet', value: { n: value.n + 1 } }]);
-    return value;
-  });
-  assert.deepEqual(answer, { n: 1 });
-  assert.deepEqual(sent[0].records, [{ id: 'snippet:a', type: 'snippet', value: { n: 2 }, expected: { type: 'snippet', value: { n: 1 } } }]);
-  assert.match(sent[0].key, /^snippet:[0-9a-f]{64}$/);
+test('the five rows that only kept snippets and summaries are retired; their work is the recipes', () => {
+  for (const id of ['save-a-snippet', 'find-snippets', 'remove-a-snippet', 'keep-a-thread-summary', 'remove-a-thread-summary']) {
+    assert.equal(rows.records.some(record => record.payload.id === `tool:${id}`), false, `tool:${id} is retired`);
+  }
+  const text = JSON.stringify(rows.records.filter(record => /snippet|thread-summar/.test(record.payload.id)));
+  assert.doesNotMatch(text, /records:(read|write|list)/, 'the snippet and summary rows name no records door method');
 });

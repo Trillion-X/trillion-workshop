@@ -1,0 +1,139 @@
+{
+  "about": "workflow:keep-conversation-summaries: keeps an AI's summary of one conversation in the person's own store, covering through the newest message the thread had when it was kept, replacing an earlier summary of the same conversation, and removes it on request. It replaces tool:keep-a-thread-summary and tool:remove-a-thread-summary in tools/social-posts, which only kept these records through the records door. tool:read-a-thread-summary stays, a computation over the record it is handed.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-conversation-summaries",
+        "label": "Keep conversation summaries",
+        "job": "Keep an AI's short summary of one conversation in the person's own store, covering through the newest message the thread had when it was written, so the next AI reads a few lines and knows whether newer messages came after. Keeping again replaces the summary of that conversation; removing it leaves the messages alone.",
+        "produces": "thread-summary objects in the store's own form, proven on the example attempts: one object per conversation written on the version read, a replace, a stale write conflicting, a removal, and the count the store holds.",
+        "source": {
+          "from": "tools/social-posts read-data/thread-summaries.mjs (save, remove and read-data/thread-summaries.json, moved from trillion src/thread-summaries.mjs) and tool:keep-a-thread-summary and tool:remove-a-thread-summary (their rows, retired in this commit). tool:read-a-thread-summary stays as computation over the record it is handed.",
+          "note": "Only the keeping is the store's job: an object, its version, and a write made only when it is absent or still at the version read. The rules (the key, the size, the latest message check, the refusals) are the values the render step gives the AI."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "keep": {
+              "type": "object",
+              "description": "{app?, conversation_id, summary, latest: {id, at}}: latest is the thread's newest message as the messages owner gives it. Keeping again replaces the summary."
+            },
+            "remove": {
+              "type": "object",
+              "description": "{app?, conversation_id}: the conversation whose summary is removed; its messages are not touched."
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the summaries are already kept (kept_in, or null) and the names of the objects that already keep them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Hold the rules as values and make the store's objects, once",
+            "do": "Hold these values for every write and read; none is a row of its own. Record type: thread-summary. Key (the object's address and summary_id): thread-summary:<app, or - when there is none>:<conversation_id>. Value: {summary_id, app, conversation_id, summary, through_message_id, through_at, set_at}. The summary is required, trimmed, at most 4000 characters; the conversation_id is required and names the conversation as its messages show it. keep needs latest from the messages owner: {id, at} of the newest message; without it the answer is 'That conversation has no messages to summarize.'; through_message_id and through_at are latest's id and time, and set_at is the time now (ISO 8601 UTC). keep is written on the version read (null when no summary is kept yet), so keeping again replaces it; a stale version conflicts and nothing changes. remove deletes the object on the version read, or answers 'No summary is kept for this conversation yet.' when it is absent, and says 'Removed the summary of this conversation.'. Then make the store's own objects in its form, each with its version. Submit the object names made or found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, run these operations in order, each through the store's own objects (write: expected_version null means the object must not exist yet, a number means it must be at that version, else the answer is conflict; read: found with its version, or missing; delete: deleted, missing, or conflict on a stale version; list: the count of the type). Each answer must be the one its expect field names: [{\"op\": \"write\", \"address\": \"thread-summary:Email:Email:t1\", \"value\": {\"summary_id\": \"thread-summary:Email:Email:t1\", \"app\": \"Email\", \"conversation_id\": \"Email:t1\", \"summary\": \"They ask for the Friday deck; I said yes.\", \"through_message_id\": \"message:2\", \"through_at\": \"2026-10-19T10:05:00Z\", \"set_at\": \"2026-10-19T10:06:00.000Z\"}, \"expected_version\": null, \"expect\": \"written\", \"version\": 1}, {\"op\": \"read\", \"address\": \"thread-summary:Email:Email:t1\", \"expect\": \"found\", \"version\": 1}, {\"op\": \"write\", \"address\": \"thread-summary:Email:Email:t1\", \"value\": {\"summary_id\": \"thread-summary:Email:Email:t1\", \"app\": \"Email\", \"conversation_id\": \"Email:t1\", \"summary\": \"They ask for the Friday deck; I said yes and sent the date.\", \"through_message_id\": \"message:3\", \"through_at\": \"2026-10-19T11:00:00Z\", \"set_at\": \"2026-10-19T11:01:00.000Z\"}, \"expected_version\": 1, \"expect\": \"written\", \"version\": 2}, {\"op\": \"write\", \"address\": \"thread-summary:Email:Email:t1\", \"value\": {\"summary_id\": \"thread-summary:Email:Email:t1\", \"app\": \"Email\", \"conversation_id\": \"Email:t1\", \"summary\": \"They ask for the Friday deck; I said yes.\", \"through_message_id\": \"message:2\", \"through_at\": \"2026-10-19T10:05:00Z\", \"set_at\": \"2026-10-19T10:06:00.000Z\"}, \"expected_version\": 1, \"expect\": \"conflict\"}, {\"op\": \"list\", \"type\": \"thread-summary\", \"expect\": \"count\", \"count\": 1}, {\"op\": \"delete\", \"address\": \"thread-summary:Email:Email:t1\", \"expected_version\": 2, \"expect\": \"deleted\"}, {\"op\": \"delete\", \"address\": \"thread-summary:Email:Email:t1\", \"expected_version\": 2, \"expect\": \"missing\"}, {\"op\": \"write\", \"address\": \"thread-summary:-:conv-9\", \"value\": {\"summary_id\": \"thread-summary:-:conv-9\", \"app\": \"\", \"conversation_id\": \"conv-9\", \"summary\": \"Asked about a refund; said I would check.\", \"through_message_id\": \"message:1\", \"through_at\": \"2026-10-20T08:00:00Z\", \"set_at\": \"2026-10-20T08:01:00.000Z\"}, \"expected_version\": null, \"expect\": \"written\", \"version\": 1}, {\"op\": \"list\", \"type\": \"thread-summary\", \"expect\": \"count\", \"count\": 1}]",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's summary or removal",
+            "do": "Apply the request the person gave (keep or remove) to the store's own objects, by the rules of the render step, each write on the version the look step read. Submit one answer: keep {summary_id, through_message_id, through_at, said} or remove {said}.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes the thread-summary object; the messages are not touched."
+      }
+    }
+  ]
+}

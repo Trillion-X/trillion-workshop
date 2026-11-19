@@ -1,29 +1,26 @@
-// Snippets (read-data/snippets.mjs, moved from trillion test/snippets.test.mjs): saved once, found, filled, counted and removed.
-// Trillion's second test (the tools and the page road reach the same snippets) runs trillion's own callers
-// (src/social-posts.mjs, src/work-posts.mjs, src/social-post-tools.mjs), which stay there; it is not moved.
+// Filling a snippet's blanks (read-data/snippets.mjs): the record is handed in and nothing is written. Saving, finding and
+// removing a snippet are the store's job and are proven by test/keep-recipes-proof.test.mjs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { posts } from './drafts-for-tests.mjs';
+import { makeSnippets } from '../read-data/snippets.mjs';
 
-test('save, find, fill, change and remove a snippet; a use fills and counts nothing', () => {
-  const { owner } = posts();
-  const { snippets } = owner;
-  const made = snippets.save({ title: 'Say no kindly', text: 'Hi {name}, thank you for thinking of me for {thing}. I have to pass this time.', tags: ['Replies', 'no'] }).snippet;
-  assert.deepEqual(made.blanks, ['name', 'thing']);
-  assert.deepEqual(made.tags, ['replies', 'no']);
-  assert.equal(snippets.list({ query: 'kindly' }).snippets.length, 1);
-  assert.equal(snippets.list({ tag: 'replies' }).snippets.length, 1);
-  assert.equal(snippets.list({ query: 'zebra' }).snippets.length, 0);
-  const used = snippets.use({ snippet_id: made.snippet_id, values: { name: 'Sam' } });
-  console.log('SNIPPET READBACK:', JSON.stringify({ text: used.text, left_blank: used.left_blank, said: used.said }));
+const record = { snippet_id: 'snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5', title: 'Say no kindly', text: 'Hi {name}, thank you for thinking of me for {thing}. I have to pass this time.', tags: ['replies'], set_at: '2026-10-01T09:00:00.000Z', uses: 0 };
+const eeaf = { read: id => (id === record.snippet_id ? structuredClone(record) : null) };
+
+test('a use fills the blanks given, names the ones left, and writes nothing', () => {
+  const used = makeSnippets({ eeaf }).use({ snippet_id: record.snippet_id, values: { name: 'Sam' } });
   assert.equal(used.text, 'Hi Sam, thank you for thinking of me for {thing}. I have to pass this time.');
   assert.deepEqual(used.left_blank, ['thing']);
-  assert.equal(snippets.list({}).snippets[0].uses, 0, 'a use counts nothing');
-  assert.equal(snippets.list({}).snippets[0].text, made.text, 'a use never rewrites the words');
-  const changed = snippets.save({ snippet_id: made.snippet_id, title: 'Decline kindly' }).snippet;
-  assert.equal(changed.text, made.text);
-  assert.throws(() => snippets.save({ snippet_id: made.snippet_id, text: 'x', expected_set_at: 'long ago' }), /saved again at/);
-  assert.throws(() => snippets.save({ title: '', text: 'x' }), /needs a title/);
-  assert.match(snippets.remove({ snippet_id: made.snippet_id }).said, /Removed the snippet "Decline kindly"/);
-  assert.throws(() => snippets.use({ snippet_id: made.snippet_id }), /There is no snippet/);
+  assert.equal(used.said, 'Left blank: thing.');
+  assert.equal(record.text.includes('Sam'), false, 'the snippet\'s own words are never rewritten');
+});
+
+test('a use with every blank filled names none left', () => {
+  const used = makeSnippets({ eeaf }).use({ snippet_id: record.snippet_id, values: { name: 'Sam', thing: 'the deck' } });
+  assert.deepEqual(used.left_blank, []);
+  assert.equal(used.said, undefined);
+});
+
+test('a use of a snippet that is not handed in is refused', () => {
+  assert.throws(() => makeSnippets({ eeaf }).use({ snippet_id: 'snippet:none' }), /There is no snippet snippet:none\./);
 });

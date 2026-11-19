@@ -1,0 +1,54 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-the-persons-snippets with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and save {\\\"title\\\": \\\"Say no kindly\\\", \\\"text\\\": \\\"Hi {name}, thank you for {thing}.\\\", \\\"tags\\\": [\\\"replies\\\"]}.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: snippets are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-the-persons-snippets"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:use-a-snippet"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-the-persons-snippets\" with store, and save, find or remove as you want them kept.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts: every answer must be the one the intent says, or the run stops and says which.",
+    "4. To fill a saved snippet's blanks, use tool:use-a-snippet with the snippet's record; it keeps and counts nothing."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep a reply you send often",
+      "ask": "Save my no-thanks reply: \"Hi {name}, thank you for {thing}. I have to pass this time.\"",
+      "workflow": "workflow:keep-the-persons-snippets",
+      "step": "keep",
+      "given": "The look step found the snippet objects kept in the store's own objects, none with this title.",
+      "hands_back": "written: a snippet object whose snippet_id starts with snippet: and whose blanks are name and thing, at version 1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-the-persons-snippets",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "save": {
+                "title": "Say no kindly",
+                "text": "Hi {name}, thank you for {thing}.",
+                "tags": [
+                  "replies"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "drafted_from": "tools/social-posts tool:save-a-snippet, tool:find-snippets and tool:remove-a-snippet (their rows, retired in this commit) and read-data/snippets.mjs; the proof is the recipe's prove step, run on PGlite and a JSON folder by test/keep-recipes-proof.test.mjs."
+}

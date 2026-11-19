@@ -1,0 +1,146 @@
+{
+  "about": "workflow:keep-the-persons-snippets: keeps the words a person sends again and again (snippets) in the person's own store: save a new one or change one (refused when it was saved since it was read), find them by a word or a tag, and remove one. It replaces tool:save-a-snippet, tool:find-snippets and tool:remove-a-snippet in tools/social-posts, which only kept these records through the records door. tool:use-a-snippet stays, a computation over the record it is handed.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-the-persons-snippets",
+        "label": "Keep the person's snippets",
+        "job": "Keep the words a person sends again and again (snippets) in the person's own store: save a new one or change one (refused when it was saved since it was read), find them by a word or a tag, newest used first, and remove one. The rules are values the store is given; nothing is sent.",
+        "produces": "snippet objects in the store's own form, proven on the example attempts: a new snippet written once, a change written only on the version read, a stale change refused, a removal, and the count the store holds.",
+        "source": {
+          "from": "tools/social-posts read-data/snippets.mjs (save, list, remove and read-data/snippets.json, moved from trillion src/snippets.mjs) and tool:save-a-snippet, tool:find-snippets and tool:remove-a-snippet (their rows, retired in this commit). Only the keeping was the records door's job; the blank filling stays in tool:use-a-snippet.",
+          "note": "Only the keeping is the store's job: an object, its version, and a write made only when the object is absent or still at the version read. The rules (blanks, limits, tags, refusals, find order) are the values the render step gives the AI, not code; the blank filling stays computation in tool:use-a-snippet."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "save": {
+              "type": "object",
+              "description": "{snippet_id?, title?, text?, tags?, expected_set_at?}: a new snippet when snippet_id is absent, else a change; the fields not given stay as they are."
+            },
+            "find": {
+              "type": "object",
+              "description": "{query?, tag?, limit?}: the words every one of which the snippet holds, a tag it carries, and how many to show (at most 100)."
+            },
+            "remove": {
+              "type": "object",
+              "required": [
+                "snippet_id"
+              ],
+              "description": "{snippet_id}: the snippet to remove."
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the snippets are already kept (kept_in, or null) and the names of the objects that already keep them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Hold the rules as values and make the store's objects, once",
+            "do": "Hold these values for every write and read; none is a row of its own. Record type: snippet. A blank is a name in braces in the words, matched by \\{([a-z][a-z0-9_]{0,29})\\}. At most 500 snippets per account; a title at most 120 characters; words at most 8000 characters; at most 10 tags, each lower case, at most 40 characters, no repeats. Object address: the snippet_id, and its value is {snippet_id, title, text, tags, set_at, uses, used_at?}. A new snippet_id is snippet:<the time now, ISO 8601 UTC>:<10 random hex characters>. save with no snippet_id makes a new object (expected version null; refused with 'An account keeps at most 500 snippets. Remove one first.' when the store holds 500); a snippet_id the store does not hold is refused with 'There is no snippet <snippet_id>.'; an expected_set_at that differs from the object's set_at is refused with '<snippet_id> was saved again at <set_at>, not at <expected_set_at>, since you read it.'; a title or words not given keep the object's own; an empty title is refused with 'A snippet needs a title (what you call it when you look for it).' and empty words with 'A snippet needs its words.'. A change keeps uses and used_at and is written only on the version it read. find lists the snippet objects, keeps those whose title, words and tags together hold every word of the query (lower case, split on spaces) and, when a tag is given, carry that tag, orders them by used_at, else set_at, newest first, and shows at most the limit (100 at most), with more counting the rest. remove deletes the object on the version it read, or refuses 'There is no snippet <snippet_id>.' when it is absent, and says 'Removed the snippet \"<title>\".'. No save, find or remove changes uses. Then make the store's own objects (the snippet objects of this request, in the store's form, each with its version). Submit the object names made or found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, run these operations in order, each through the store's own objects (write: expected_version null means the object must not exist yet, a number means it must be at that version, else the answer is conflict; read: found with its version, or missing; delete: deleted, missing, or conflict on a stale version; list: the count of the type). Each answer must be the one its expect field names: [{\"op\": \"write\", \"address\": \"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\", \"value\": {\"snippet_id\": \"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\", \"title\": \"Say no kindly\", \"text\": \"Hi {name}, thank you for {thing}.\", \"tags\": [\"replies\"], \"set_at\": \"2026-10-01T09:00:00.000Z\", \"uses\": 0}, \"expected_version\": null, \"expect\": \"written\", \"version\": 1}, {\"op\": \"write\", \"address\": \"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\", \"value\": {\"snippet_id\": \"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\", \"title\": \"Say no kindly\", \"text\": \"Hi {name}, thank you for {thing}.\", \"tags\": [\"replies\"], \"set_at\": \"2026-10-01T09:00:00.000Z\", \"uses\": 0}, \"expected_version\": null, \"expect\": \"conflict\"}, {\"op\": \"read\", \"address\": \"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\", \"expect\": \"found\", \"version\": 1}, {\"op\": \"list\", \"type\": \"snippet\", \"expect\": \"count\", \"count\": 1}, {\"op\": \"write\", \"address\": \"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\", \"value\": {\"snippet_id\": \"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\", \"title\": \"Decline kindly\", \"text\": \"Hi {name}, thank you for {thing}.\", \"tags\": [\"replies\"], \"set_at\": \"2026-10-02T09:00:00.000Z\", \"uses\": 0}, \"expected_version\": 1, \"expect\": \"written\", \"version\": 2}, {\"op\": \"write\", \"address\": \"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\", \"value\": {\"snippet_id\": \"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\", \"title\": \"Say no kindly\", \"text\": \"Hi {name}, thank you for {thing}.\", \"tags\": [\"replies\"], \"set_at\": \"2026-10-01T09:00:00.000Z\", \"uses\": 0}, \"expected_version\": 1, \"expect\": \"conflict\"}, {\"op\": \"read\", \"address\": \"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\", \"expect\": \"found\", \"version\": 2}, {\"op\": \"delete\", \"address\": \"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\", \"expected_version\": 2, \"expect\": \"deleted\"}, {\"op\": \"read\", \"address\": \"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\", \"expect\": \"missing\"}, {\"op\": \"delete\", \"address\": \"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\", \"expected_version\": 2, \"expect\": \"missing\"}, {\"op\": \"list\", \"type\": \"snippet\", \"expect\": \"count\", \"count\": 0}]",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's save, find or remove",
+            "do": "Apply the request the person gave (save, find or remove) to the store's own objects, by the rules of the render step, each write on the version the look step read. Submit one answer per part given: save {snippet_id, written: 'written' or 'refused', said}, find {snippets: the shown snippets, more}, remove {said}.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes the snippet object; nothing else refers to it."
+      }
+    }
+  ]
+}
