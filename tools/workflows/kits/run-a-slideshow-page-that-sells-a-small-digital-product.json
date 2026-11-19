@@ -1,0 +1,63 @@
+{
+  "drafted_from": "workflow:run-a-slideshow-page-that-sells-a-small-digital-product row (input_schema, its monday wake and steps own-material to the weekly read) and its real first pause: tool:run-workflow-definition (runWorkflow in tools/write-a-job-done-in-several-steps-have/read-data/run-a-workflow.mjs) with the input below answers status paused, waiting on step own-material, which asks for items.",
+  "start_here": "Say to your AI: \"Run workflow:run-a-slideshow-page-that-sells-a-small-digital-product: niche high-protein dinners, for parents who cook dinner in under 30 minutes, selling a PDF cookbook with a 7-day plan at 4.99 EUR, from my notes /Users/example/Recipes/protein-dinners.md and my photos /Users/example/Pictures/dinners, on TikTok, 10 carousels a batch.\"",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: the person's own material, photos and product files stay where they are, and each step hands back its style sheet, drafts and weekly numbers in its answer.",
+  "workflows": [
+    "workflow:run-a-slideshow-page-that-sells-a-small-digital-product"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:read-public-web-page",
+    "tool:github:mikf-gallery-dl",
+    "tool:github:yt-dlp-yt-dlp",
+    "tool:github:gitroomhq-postiz-app",
+    "tool:github:mflux-community-mflux",
+    "tool:github:blaizzy-mlx-video",
+    "tool:break-down-visits-and-sales",
+    "tool:tell-the-person",
+    "tool:make-tracked-link"
+  ],
+  "instructions": [
+    "1. Gather where your own material lives (notes, recipes, photos), name the small product with its price and currency, and pick the platform (tiktok or instagram) and how many carousels a batch.",
+    "2. Say \"Run workflow:run-a-slideshow-page-that-sells-a-small-digital-product\" with those values. Step own-material lists only what your material shows you really made, by file path.",
+    "3. The next steps read the biggest pages in the niche, fix one visual style, outline the product, draft each carousel as slides and schedule the approved ones through your own Postiz (or hand them to you to post).",
+    "4. Switch on its monday wake: every Monday at 09:00 UTC it reads each carousel's views and saves, writes part 2 of each winner and the week's before-and-after numbers."
+  ],
+  "worked_examples": [
+    {
+      "title": "First run: it pauses at own-material to list what the person really made",
+      "ask": "Start my high-protein dinners slideshow page on TikTok from my notes and photos.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:run-a-slideshow-page-that-sells-a-small-digital-product",
+              "niche": "high-protein dinners",
+              "audience": "parents who cook dinner in under 30 minutes",
+              "product": {
+                "kind": "a PDF cookbook with a 7-day plan",
+                "price": 4.99,
+                "currency": "EUR"
+              },
+              "own_material": [
+                "/Users/example/Recipes/protein-dinners.md",
+                "/Users/example/Pictures/dinners"
+              ],
+              "platform": "tiktok",
+              "batch_size": 10
+            }
+          }
+        }
+      },
+      "workflow": "workflow:run-a-slideshow-page-that-sells-a-small-digital-product",
+      "step": "own-material",
+      "given": "The run's input names the niche, audience, the 4.99 EUR cookbook, two paths of the person's own material, tiktok and a batch of 10; nothing has been read yet.",
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"own-material\",\"asks\":\"ai\"}]}: own-material asks for items, each {name, evidence (the file path and quote that shows it), numbers, photos}, at least one, and nothing the material does not show."
+    }
+  ]
+}

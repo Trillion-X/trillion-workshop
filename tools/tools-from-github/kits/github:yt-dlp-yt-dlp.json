@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Use yt-dlp on https://example.com/watch?v=demo123\". It reads the row with do_one_thing_in_my_account at @tools, method tools:list, input {tool: \"tool:github:yt-dlp-yt-dlp\"}.",
     "2. It checks that python, ffmpeg are on your computer, and if yt-dlp is missing it runs the get_it steps: git clone https://github.com/yt-dlp/yt-dlp.git ; python -m pip install -U --pre \"yt-dlp[default]\".",
     "3. It runs the row's command with your file in place of {input}: yt-dlp https://example.com/watch?v=demo123",
-    "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
+    "4. Read what it shows you and open the result. The site you asked through runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {

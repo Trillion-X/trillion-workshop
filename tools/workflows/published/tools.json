@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:20b8831e95739af45ddd07a0489e274f35c31d01f82e5a197245ce77f4af5e5c"
+  "blake3": "1f:48f8d4ce06c219bd981ba5fccc1612eb82bf5a8faf225ebcbef2be73c1d6c890"
  },
  "fields": [
   {
@@ -4472,6 +4472,20 @@
    }
   },
   {
+   "id": "tool:github:blaizzy-mlx-video",
+   "values": {
+    "title": "mlx-video (open source, runs on your computer)",
+    "job": "Make a short video from a text prompt or an image on your own Mac with Apple silicon",
+    "description": "MLX-Video is the best package for inference and finetuning of Image-Video-Audio generation models on your Mac using MLX. Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "folder": "tools-from-github"
+   }
+  },
+  {
    "id": "tool:github:breakthrough-pyscenedetect",
    "values": {
     "title": "PySceneDetect (open source, runs on your computer)",
@@ -4570,11 +4584,25 @@
    }
   },
   {
+   "id": "tool:github:gitroomhq-postiz-app",
+   "values": {
+    "title": "postiz-app (open source, runs on your computer)",
+    "job": "Schedule and publish posts to your own social media accounts from one place you host yourself",
+    "description": "📨 The ultimate agentic social media scheduling tool 🤖 Open source on GitHub under AGPL-3.0. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "licence_class": "licence:network-copyleft",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "folder": "tools-from-github"
+   }
+  },
+  {
    "id": "tool:github:govijr-fix-storage",
    "values": {
     "title": "fix-storage (open source, runs on your computer)",
     "job": "See what is filling a Mac's disk, find the culprit and safely clear what can be cleared, from the terminal",
-    "description": "See what is filling a Mac's disk, find the culprit and safely clear what can be cleared, from the terminal Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "description": "A CLI to fix your mac's & linux machine's storage problems, just run fix-storage. Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
     "status": "active",
     "licence_class": "licence:permissive",
     "placements": [
@@ -4626,11 +4654,39 @@
    }
   },
   {
+   "id": "tool:github:mflux-community-mflux",
+   "values": {
+    "title": "mflux (open source, runs on your computer)",
+    "job": "Make an image from a text prompt on your own Mac with Apple silicon",
+    "description": "Apple MLX native implementations of state-of-the-art generative image & video models Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "folder": "tools-from-github"
+   }
+  },
+  {
    "id": "tool:github:microsoft-markitdown",
    "values": {
     "title": "markitdown (open source, runs on your computer)",
     "job": "Turn a PDF, Word, PowerPoint or Excel file into Markdown text an AI can read",
     "description": "Python tool for converting files and office documents to Markdown. Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "folder": "tools-from-github"
+   }
+  },
+  {
+   "id": "tool:github:mikf-gallery-dl",
+   "values": {
+    "title": "gallery-dl (open source, runs on your computer)",
+    "job": "Download the images, videos and post details of a public profile, gallery or post from a web address such as Instagram, TikTok, Pinterest or Reddit",
+    "description": "Command-line program to download image galleries and collections from several image hosting sites Open source on GitHub under GPL-2.0. It runs on the person's own computer: run_tool hands back how to get it and run it.",
     "status": "active",
     "licence_class": "licence:permissive",
     "placements": [

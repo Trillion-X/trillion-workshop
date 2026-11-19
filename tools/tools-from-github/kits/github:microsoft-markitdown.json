@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Use markitdown on menu.pdf\". It reads the row with do_one_thing_in_my_account at @tools, method tools:list, input {tool: \"tool:github:microsoft-markitdown\"}.",
     "2. It checks that python are on your computer, and if markitdown is missing it runs the get_it steps: git clone https://github.com/microsoft/markitdown.git ; pip install 'markitdown[all]'.",
     "3. It runs the row's command with your file in place of {input} and where the result goes in place of {output}: markitdown menu.pdf -o menu.md",
-    "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
+    "4. Read what it shows you and open the result. The site you asked through runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {

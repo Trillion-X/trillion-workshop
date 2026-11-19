@@ -2,9 +2,7 @@
  "about": "The Workshop items that shipped before every item carried its kit (L082, tools/workflows/kit-template.json), as of the date below. test-helpers/every-item-kit.mjs refuses any other item with no kit, refuses an id here that now has a kit or is gone, and the hooks refuse a commit or push that adds an id here: this list only shrinks. Give an item its kit file (<item folder>/kits/<id without its prefix>.json), then take its id out.",
  "dated": "2026-11-13",
  "workflows": [
-  "workflow:plan-a-launch-as-a-content-campaign",
-  "workflow:read-the-week-and-make-more-of-what-won",
-  "workflow:run-a-slideshow-page-that-sells-a-small-digital-product"
+  "workflow:plan-a-launch-as-a-content-campaign"
  ],
  "tools": [
  ]

@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Open https://example.com in the browser inside my terminal.\" It reads the row with do_one_thing_in_my_account at @tools, method tools:list, input {tool: \"tool:github:zenbu-labs-terminal-browser\"}.",
     "2. It checks that Homebrew and a terminal with kitty graphics are on your computer, and if terminal-browser is missing it runs the get_it steps: brew install terminal-browser.",
     "3. It runs the row's command: terminal-browser open https://example.com",
-    "4. Read what it shows you. Trillion runs none of this; it all happens on your own computer."
+    "4. Read what it shows you. The site you asked through runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {

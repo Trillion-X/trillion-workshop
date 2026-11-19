@@ -148402,9 +148402,50 @@
           {
             "id": "monday",
             "on": {
-              "time": {
-                "every_ms": 604800000,
-                "from_ms": 378000000
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:read-the-week-and-make-more-of-what-won:monday"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:read-the-week-and-make-more-of-what-won:monday",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-05",
+                      "local_window": {
+                        "start": "09:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:read-the-week-and-make-more-of-what-won",
+                        "owner_dispatch": {
+                          "name": "workflow:read-the-week-and-make-more-of-what-won",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "week",
+                        "weekdays": [
+                          1
+                        ]
+                      }
+                    }
+                  ]
+                }
               }
             },
             "budget": {
@@ -168471,9 +168512,50 @@
           {
             "id": "monday",
             "on": {
-              "time": {
-                "every_ms": 604800000,
-                "from_ms": 378000000
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:run-a-slideshow-page-that-sells-a-small-digital-product:monday"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:run-a-slideshow-page-that-sells-a-small-digital-product:monday",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-05",
+                      "local_window": {
+                        "start": "09:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:run-a-slideshow-page-that-sells-a-small-digital-product",
+                        "owner_dispatch": {
+                          "name": "workflow:run-a-slideshow-page-that-sells-a-small-digital-product",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "week",
+                        "weekdays": [
+                          1
+                        ]
+                      }
+                    }
+                  ]
+                }
               }
             },
             "budget": {

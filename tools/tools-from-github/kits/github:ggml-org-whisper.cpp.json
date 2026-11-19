@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Use whisper.cpp on interview.wav\". It reads the row with do_one_thing_in_my_account at @tools, method tools:list, input {tool: \"tool:github:ggml-org-whisper.cpp\"}.",
     "2. It checks that git, cmake, a C++ compiler are on your computer, and if whisper.cpp is missing it runs the get_it steps: git clone https://github.com/ggml-org/whisper.cpp.git ; cd whisper.cpp ; sh ./models/download-ggml-model.sh base.en ; cmake -B build ; cmake --build build -j --config Release.",
     "3. It runs the row's command with your file in place of {input}: ./build/bin/whisper-cli -m models/ggml-base.en.bin -f interview.wav",
-    "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
+    "4. Read what it shows you and open the result. The site you asked through runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {

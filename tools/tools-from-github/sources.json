@@ -248,6 +248,57 @@
     "Xcode 26 or later"
    ],
    "readme_quote": "terminal-phone"
+  },
+  {
+   "repo": "mikf/gallery-dl",
+   "job": "Download the images, videos and post details of a public profile, gallery or post from a web address such as Instagram, TikTok, Pinterest or Reddit",
+   "install": [
+    "python -m pip install -U gallery-dl"
+   ],
+   "run": "gallery-dl {input}",
+   "needs": [
+    "python"
+   ],
+   "readme_quote": "gallery-dl [OPTIONS]... URLS..."
+  },
+  {
+   "repo": "gitroomhq/postiz-app",
+   "job": "Schedule and publish posts to your own social media accounts from one place you host yourself",
+   "install": [
+    "cd postiz-app",
+    "docker compose up -d"
+   ],
+   "run": "docker compose up -d",
+   "needs": [
+    "docker"
+   ],
+   "readme_quote": "Deploy with Docker / Coolify / Railway / any VPS; you configure Postgres, Redis, storage and env vars"
+  },
+  {
+   "repo": "Blaizzy/mlx-video",
+   "job": "Make a short video from a text prompt or an image on your own Mac with Apple silicon",
+   "install": [
+    "pip install git+https://github.com/Blaizzy/mlx-video.git"
+   ],
+   "run": "python -m mlx_video.wan_2.generate --model-dir wan21_mlx --prompt {input}",
+   "needs": [
+    "python",
+    "Apple silicon Mac"
+   ],
+   "readme_quote": "python -m mlx_video.wan_2.generate"
+  },
+  {
+   "repo": "mflux-community/mflux",
+   "job": "Make an image from a text prompt on your own Mac with Apple silicon",
+   "install": [
+    "uv tool install --upgrade mflux"
+   ],
+   "run": "mflux-generate-z-image-turbo --prompt {input} --steps 9",
+   "needs": [
+    "uv",
+    "Apple silicon Mac"
+   ],
+   "readme_quote": "uv tool install --upgrade mflux"
   }
  ]
 }

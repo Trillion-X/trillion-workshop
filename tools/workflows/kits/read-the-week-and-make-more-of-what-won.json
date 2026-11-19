@@ -1,0 +1,59 @@
+{
+  "drafted_from": "workflow:read-the-week-and-make-more-of-what-won row (input_schema, its monday wake and steps read-pieces onward) and its real first pause: tool:run-workflow-definition (runWorkflow in tools/write-a-job-done-in-several-steps-have/read-data/run-a-workflow.mjs) with the input below answers status paused, waiting on step read-pieces, which asks for pieces.",
+  "start_here": "Say to your AI: \"Run workflow:read-the-week-and-make-more-of-what-won for my Instagram https://www.instagram.com/example.cook and my YouTube https://www.youtube.com/@examplecook, ranked by saves.\" It reads every piece you published this week, ranks each against your own median and hands back what won, why, and three 'more of this' briefs.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads the published pieces the person already keeps as records, or their public profiles, and hands its ranking and briefs back in the run's answer.",
+  "workflows": [
+    "workflow:read-the-week-and-make-more-of-what-won"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:github:yt-dlp-yt-dlp",
+    "tool:github:mikf-gallery-dl",
+    "tool:read-a-page-in-my-browser",
+    "tool:check-against-a-persons-rules-and-verdicts",
+    "tool:cross-techniques-with-a-goal",
+    "tool:tell-the-person",
+    "tool:transcribe-audio-and-repair-whisper-loops"
+  ],
+  "instructions": [
+    "1. Write down each platform you publish on with the address of your own profile there, and the one number you rank pieces by (views, saves, sends or sign-ups).",
+    "2. Say \"Run workflow:read-the-week-and-make-more-of-what-won\" with platforms and measure. Step read-pieces reads your pieces from your records and your public profiles (yt-dlp for video, gallery-dl for images and carousels, your own browser for a signed-in page).",
+    "3. The next steps rank each piece of the week against your own median for its platform and kind, name the angle behind each one and write a 'more of this' brief for each of the top three.",
+    "4. Switch on its monday wake to have it run every Monday at 09:00 UTC; each Monday's answer can become a 'what worked this week' post or the next pieces themselves."
+  ],
+  "worked_examples": [
+    {
+      "title": "First run: it pauses at read-pieces for this week's Instagram and YouTube pieces",
+      "ask": "Read my week: Instagram https://www.instagram.com/example.cook and YouTube https://www.youtube.com/@examplecook, ranked by saves.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:read-the-week-and-make-more-of-what-won",
+              "platforms": [
+                {
+                  "platform": "instagram",
+                  "profile_url": "https://www.instagram.com/example.cook"
+                },
+                {
+                  "platform": "youtube",
+                  "profile_url": "https://www.youtube.com/@examplecook"
+                }
+              ],
+              "measure": "saves"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:read-the-week-and-make-more-of-what-won",
+      "step": "read-pieces",
+      "given": "The run's input is the two platforms with their profile addresses and measure saves; nothing has been read yet.",
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"read-pieces\",\"asks\":\"ai\"}]}: read-pieces asks for pieces, each {address, platform, kind, published, in_window, measure, read_with}, read with tool:github:yt-dlp-yt-dlp or tool:github:mikf-gallery-dl, a missing number null with its reason in no_data."
+    }
+  ]
+}

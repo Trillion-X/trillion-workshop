@@ -1,0 +1,34 @@
+{
+  "drafted_from": "tool:github:mflux-community-mflux's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic input filled in. What it prints or writes is read from the repository's own README; the folder test test/index-github-tools.test.mjs only checks the row, never runs mflux.",
+  "start_here": "Say to your AI: \"Use mflux on my computer: make an image from a text prompt on your own Mac with Apple silicon, with \"A puffin standing on a cliff\".\" It reads the row, installs mflux if it is missing, runs it and shows you what it made.",
+  "lists": [],
+  "no_lists_because": "It keeps no list: mflux is a program that runs on the person's own computer and works on what it is handed there.",
+  "workflows": [],
+  "tools": [
+    "tool:github:mflux-community-mflux"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Use mflux on my computer: make an image from a text prompt on your own Mac with Apple silicon, with \"A puffin standing on a cliff\".\" It reads the row with do_one_thing_in_my_account at @tools, method tools:list, input {tool: \"tool:github:mflux-community-mflux\"}.",
+    "2. It checks that uv, Apple silicon Mac are on your computer, and if mflux is missing it runs the get_it steps: git clone https://github.com/mflux-community/mflux.git ; uv tool install --upgrade mflux.",
+    "3. It runs the row's command: mflux-generate-z-image-turbo --prompt \"A puffin standing on a cliff\" --steps 9",
+    "4. Read what it shows you and open the result. The site you asked through runs none of this; it all happens on your own computer."
+  ],
+  "worked_examples": [
+    {
+      "title": "mflux: an image of a puffin on your Mac",
+      "ask": "Use mflux on my computer: make an image from a text prompt on your own Mac with Apple silicon, with \"A puffin standing on a cliff\".",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:github:mflux-community-mflux"
+          }
+        }
+      },
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:mflux-community-mflux runs on your computer, so after tools:list the AI runs, in the folder it got mflux in, the command line: mflux-generate-z-image-turbo --prompt \"A puffin standing on a cliff\" --steps 9",
+      "hands_back": "mflux prints its steps as it generates and saves the image as image.png in the folder it ran in; the first run also downloads the model it uses."
+    }
+  ]
+}
