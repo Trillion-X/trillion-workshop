@@ -6,7 +6,7 @@
 //
 //   node do-work/check-an-archive.mjs < <the input as JSON>
 //
-// The input is { archive, rules, under?, recorded? }: `archive` the https address of a .tar.gz, and the rest as
+// The input is { archive, rules, under?, recorded?, credential_name? }: `archive` the https address of a .tar.gz, and the rest as
 // check-my-folder.mjs takes them. The archive's regular files are written into a private folder of this run (one
 // shared top folder, as a host's commit archive has, is dropped from every path), judged by the same checkRepository,
 // and the folder is removed before the answer. Bounds are DATA (read-data/archive-limits.json). It prints { result }
@@ -86,11 +86,20 @@ export async function writeEntries(root, bytes, limits = LIMITS) {
   return { written, skipped };
 }
 
-async function fetchArchive(address, limits = LIMITS) {
+/** The secret the engine hands this run on descriptor 3 when the input names one (`credential_name`), else ''. */
+const HELD_DESCRIPTOR = 3;
+const held = () => {
+  try { return readFileSync(HELD_DESCRIPTOR, 'utf8').trim(); } catch { return ''; }
+};
+
+/** The archive at `address`. A held secret is sent as a bearer token only to `sendTo`'s host (the archive's own), so a
+ *  private repository's archive can be read and no other host ever sees the secret. */
+export async function fetchArchive(address, limits = LIMITS, secret = '', sendTo = null, fetchImpl = fetch) {
   let url;
   try { url = new URL(address); } catch { throw new RunRefusal('give archive: the https address of a .tar.gz'); }
   if (url.protocol !== 'https:') throw new RunRefusal('the archive address must be https');
-  const response = await fetch(url, { redirect: 'follow' });
+  const headers = secret && sendTo !== null && url.host === sendTo ? { authorization: `Bearer ${secret}` } : {};
+  const response = await fetchImpl(url, { redirect: 'follow', headers });
   if (!response.ok) throw new RunRefusal(`the archive address answered ${response.status}`);
   const chunks = [];
   let size = 0;
@@ -164,14 +173,14 @@ const said = ({ violations, files, rules, no_applicable_rule: none, ratchet }, a
 };
 
 /** The whole run for one input; `bytesOf` reads the archive (fetchArchive, or a test's own bytes), within `limits`. */
-export async function checkAnArchive(input, bytesOf = fetchArchive, limits = LIMITS) {
+export async function checkAnArchive(input, bytesOf = fetchArchive, limits = LIMITS, secret = '') {
   if (typeof input.archive !== 'string') throw new RunRefusal('give archive: the https address of a .tar.gz');
   if (!Array.isArray(input.rules)) throw new RunRefusal('give rules: a list of source-file-rule rows, each { kind: "source-file-rule", id, why, scope?, violation, ... }');
   const rules = input.rules.map((rule) => (rule?.payload ?? rule));
   // One fetch per address, though the judged archive and a subject's archive may be the same commit.
   const fetched = new Map();
   const bytesOfAddress = (address) => {
-    if (!fetched.has(address)) fetched.set(address, bytesOf(address));
+    if (!fetched.has(address)) fetched.set(address, bytesOf(address, limits, secret, new URL(input.archive).host));
     return fetched.get(address);
   };
   const { subjects, counts, moves } = await subjectsFrom(input.subjects_from, bytesOfAddress);
@@ -192,10 +201,12 @@ export async function checkAnArchive(input, bytesOf = fetchArchive, limits = LIM
 }
 
 if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
+  const secret = held();
   try {
-    console.log(JSON.stringify({ result: await checkAnArchive(JSON.parse((await text(process.stdin)) || '{}')) }));
+    const input = JSON.parse((await text(process.stdin)) || '{}');
+    console.log(JSON.stringify({ result: await checkAnArchive(input, fetchArchive, LIMITS, input.credential_name ? secret : '') }));
   } catch (error) {
-    console.log(JSON.stringify({ error: error.message }));
+    console.log(JSON.stringify({ error: secret ? error.message.split(secret).join('[held]') : error.message }));
     process.exitCode = error instanceof RunRefusal ? 2 : 1;
   }
 }

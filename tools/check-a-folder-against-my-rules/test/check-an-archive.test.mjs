@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { gzipSync } from 'node:zlib';
-import { checkAnArchive, tarEntries } from '../do-work/check-an-archive.mjs';
+import { checkAnArchive, fetchArchive, tarEntries } from '../do-work/check-an-archive.mjs';
 
 /** A ustar archive of `files` ({ name, text }), with a pax `path` record for a name longer than 100 bytes. */
 function tar(files) {
@@ -126,4 +126,19 @@ test('a file a rule covers that is too large to read is named, and the run is no
   assert.deepEqual(answer.unjudged_paths, ['tools/large.mjs'], 'the .txt file is skipped too, but no rule covers it');
   assert.deepEqual(answer.skipped_paths.map((item) => [item.path, item.bytes]), [['tools/large.mjs', 101], ['notes/large.txt', 100]]);
   assert.match(answer.said, /1 file\(s\) a rule covers were not judged: tools\/large\.mjs \(larger than 64 bytes\)/);
+});
+
+test('a held token reaches only the archive address\'s own host, and an address that is not https gets nothing', async () => {
+  const seen = [];
+  const fetchImpl = async (url, { headers }) => { seen.push([String(url), headers.authorization ?? null]); return new Response(Buffer.from('x')); };
+  await fetchArchive('https://code-host.example/owner/repository/tar.gz/main', undefined, 'made-up-token', 'code-host.example', fetchImpl);
+  await fetchArchive('https://other-host.example/a.tar.gz', undefined, 'made-up-token', 'code-host.example', fetchImpl);
+  await fetchArchive('https://code-host.example/b.tar.gz', undefined, '', 'code-host.example', fetchImpl);
+  assert.deepEqual(seen, [
+    ['https://code-host.example/owner/repository/tar.gz/main', 'Bearer made-up-token'],
+    ['https://other-host.example/a.tar.gz', null],
+    ['https://code-host.example/b.tar.gz', null],
+  ]);
+  await assert.rejects(fetchArchive('http://code-host.example/a.tar.gz', undefined, 'made-up-token', 'code-host.example', fetchImpl), /https/);
+  assert.equal(seen.length, 3);
 });

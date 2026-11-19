@@ -16,7 +16,7 @@
             "checks": {
               "type": "array",
               "minItems": 1,
-              "description": "One check per repository: {archive, rules, recorded?, under?, subjects_from?}, as tool:check-an-archive-against-my-rules takes them",
+              "description": "One check per repository: {archive, rules, recorded?, under?, subjects_from?, credential_name?}, as tool:check-an-archive-against-my-rules takes them",
               "items": {
                 "type": "object",
                 "required": [
@@ -43,6 +43,10 @@
                   "subjects_from": {
                     "type": "object",
                     "description": "Sets computed every run from two other archives, as tool:check-an-archive-against-my-rules takes them, such as the tool ids another repository stopped declaring since an older commit the input names"
+                  },
+                  "credential_name": {
+                    "type": "string",
+                    "description": "The held name of a token that may read a private repository's archive, sent only to the archive's own host"
                   }
                 }
               }
@@ -177,6 +181,13 @@
                         "select": {
                           "from": "loop",
                           "path": "check.subjects_from"
+                        }
+                      },
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "check.credential_name"
                         }
                       }
                     },

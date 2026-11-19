@@ -154,7 +154,7 @@
         },
         "label": "Check a commit's files against rules I wrote",
         "job": "Check the files of a repository's commit, as its host serves it, against rules the person wrote down, and say which files break which rule, where, and why the rule exists",
-        "description": "Give archive (the https address of a .tar.gz, such as a host's archive of one commit) and rules, as tool:check-a-folder-against-my-rules takes them, with optional under, recorded and subjects_from. subjects_from computes, every run, a set a rule collects from (collected.from_subject) that the archive cannot hold: each value a pattern captures in the files of archive was, less those it captures in archive now (such as the tool ids another repository stopped declaring), with moved naming a value's new home. The archive's regular files are written into a private folder of this run (one top folder every path shares is dropped), judged by the same engine, and removed before the answer; a file larger than the DATA bound is not read: skipped_paths names each with its size and why, and a run where a rule covers one (unjudged_paths) is not a pass. Nothing on the person's computer is read, so a change is judged as it was pushed. Returns passed, said, archive, written, skipped, violations ({ rule_id, path, line, evidence, moved_to when its value's new home is recorded }), subjects (how many values each computed subject holds), report, rule_coverage, files, ratchet. A run where no file met a rule is not a pass.",
+        "description": "Give archive (the https address of a .tar.gz, such as a host's archive of one commit) and rules, as tool:check-a-folder-against-my-rules takes them, with optional under, recorded, subjects_from and credential_name (the held name of a token a private repository's archive needs, sent only to the archive's own host). subjects_from computes, every run, a set a rule collects from (collected.from_subject) that the archive cannot hold: each value a pattern captures in the files of archive was, less those it captures in archive now (such as the tool ids another repository stopped declaring), with moved naming a value's new home. The archive's regular files are written into a private folder of this run (one top folder every path shares is dropped), judged by the same engine, and removed before the answer; a file larger than the DATA bound is not read: skipped_paths names each with its size and why, and a run where a rule covers one (unjudged_paths) is not a pass. Nothing on the person's computer is read, so a change is judged as it was pushed. Returns passed, said, archive, written, skipped, violations ({ rule_id, path, line, evidence, moved_to when its value's new home is recorded }), subjects (how many values each computed subject holds), report, rule_coverage, files, ratchet. A run where no file met a rule is not a pass.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -261,6 +261,10 @@
                   }
                 }
               }
+            },
+            "credential_name": {
+              "type": "string",
+              "description": "The held name of a token that may read the archive (a private repository's): the vault name the person saved it under. It is sent only to the archive address's own host, as a bearer token."
             }
           }
         },
@@ -363,7 +367,17 @@
                 "at": "/opt/check-a-folder-against-my-rules"
               }
             ]
-          }
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_input": "credential_name",
+              "fd": 3,
+              "only_when": {
+                "input": "credential_name",
+                "present": true
+              }
+            }
+          ]
         },
         "result_selector": "$.result",
         "verify": []
