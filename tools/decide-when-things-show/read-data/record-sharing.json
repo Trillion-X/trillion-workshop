@@ -1,6 +1,6 @@
 {
   "schema": "trillion.record-sharing",
-  "door_grant": {
+  "grant": {
     "_what": "A share's grant, kept in the sharer's own store (src/account_rights/share_grant.rs): a record labelled record_prefix + <label> = {record: <label>, people: [{principal, key_blake3}], changed_at}; key_blake3 is the BLAKE3 of a bearer token_prefix + 32 random bytes (base64url) the sharer hands the recipient. The grant holds only the digest, never the key. Which presented key reads which labels is decided by the sharing owner's reader, not by this tool.",
     "record_prefix": "sharing:",
     "token_prefix": "shr_"

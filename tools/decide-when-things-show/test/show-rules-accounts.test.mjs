@@ -20,8 +20,8 @@ const context = {
     'account-c': { cohorts: ['simple-workspace'] },
   },
 };
-const records = { read: label => (label === 'setup-context' ? context : null), write() {}, update() {} };
-const store = authority => makeShowRules({ records, filterRows: now, authority, now: () => new Date(NOW) });
+const held = { 'setup-context': context };
+const store = authority => makeShowRules({ held, filterRows: now, authority, now: () => new Date(NOW) });
 const cohortTree = { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'cohorts', operator: 'has_any_of', params: { values: ['simple-workspace'] } }] };
 
 test('the owner lists every account the setup-context record holds, with the facts that record holds', async () => {

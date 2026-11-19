@@ -126,22 +126,14 @@ function readLabels(input, labels) {
 async function storeOver(input) {
   const first = readLabels(input, [data.record]);
   // The store reads the record with the shipped default laid under it; keep() takes the default back off.
-  const held = new Map(first);
+  const held = Object.fromEntries(first);
   const laid = laidUnder(first.get(data.record) ?? null);
-  if (laid) held.set(data.record, laid);
-  const writes = [];
-  const records = {
-    read: label => held.get(label) ?? null,
-    write: rows => {
-      for (const row of rows) { held.set(row.address_label, row.payload); writes.push(row.address_label); }
-      return {};
-    },
-  };
+  if (laid) held[data.record] = laid;
   const at = nowOf(input);
-  const store = makeShowRules({ records, filterRows: await rowFilter(), authority: 'personal', now: () => new Date(at) });
-  const own = label => (label === data.record ? takenOff(held.get(label) ?? null, first.get(label) ?? null) : held.get(label) ?? null);
-  const keep = () => [...new Set(writes)].map(label => ({ label, value: own(label), expected: first.get(label) ?? null }));
-  return { store, keep, held, first };
+  const store = makeShowRules({ held, filterRows: await rowFilter(), authority: 'personal', now: () => new Date(at) });
+  // What the store would write, in order, each with the value read as expected (the record as it was handed in).
+  const keep = () => store.changes().map(({ label, value }) => ({ label, value: label === data.record ? takenOff(value, first.get(label) ?? null) : value, expected: first.get(label) ?? null }));
+  return { store, keep, first };
 }
 
 const changeOnly = (input, field) => {
@@ -226,15 +218,15 @@ export async function switchAKeptShowType(input = {}) {
 }
 
 // A shared preset's two records (a2e1365f33): its copy, show-rules.json sharing.record_prefix + id = { label, types }, and
-// its grant, record-sharing.json door_grant.record_prefix + that label = { record, people: [{ principal, key_blake3 }], changed_at }.
+// its grant, record-sharing.json grant.record_prefix + that label = { record, people: [{ principal, key_blake3 }], changed_at }.
 const copyLabel = id => `${data.sharing.record_prefix}${id}`;
-const grantLabel = id => `${sharing.door_grant.record_prefix}${copyLabel(id)}`;
+const grantLabel = id => `${sharing.grant.record_prefix}${copyLabel(id)}`;
 const words = data.sharing.words;
 /** The people a grant names, read as the store holds it; anything that is not a grant names nobody. */
 const peopleOf = value => (object(value) && Array.isArray(value.people)
   ? value.people.filter(person => object(person) && typeof person.principal === 'string' && typeof person.key_blake3 === 'string') : []);
 /** A share key: the grant's token prefix and 32 random bytes. */
-const shareKey = () => `${sharing.door_grant.token_prefix}${randomBytes(32).toString('base64url')}`;
+const shareKey = () => `${sharing.grant.token_prefix}${randomBytes(32).toString('base64url')}`;
 
 function shareInput(input) {
   if (!object(input)) throw new Error('The request is one object.');

@@ -14,15 +14,16 @@ await filter.load();
 const now = filter.filterRowsByRulesNow;
 const NOW = Date.parse('2026-10-13T16:00:00Z');
 const state = {};
-const records = {
-  read: label => state[label] ?? null,
-  write: writes => writes.forEach(({ address_label, payload }) => { state[address_label] = payload; }),
-  update: (label, change) => { state[label] = change(state[label] ?? null); },
-};
 const actor = { account_id: 'operator-account' };
+// The caller keeps what the store answers as changes, so the next store reads them, as the row's caller does.
 const store = authority => {
-  const owner = makeShowRules({ records, filterRows: now, authority, now: () => new Date(NOW), validateActor: candidate => candidate?.account_id === actor.account_id });
-  return { ...owner, set: input => owner.set(input, { actor }) };
+  const owner = makeShowRules({ held: state, filterRows: now, authority, now: () => new Date(NOW), validateActor: candidate => candidate?.account_id === actor.account_id });
+  const set = async input => {
+    const answer = await owner.set(input, { actor });
+    for (const { label, value } of owner.changes()) state[label] = value;
+    return answer;
+  };
+  return { ...owner, set };
 };
 const parentTree = { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'family', operator: 'has_any_of', params: { values: ['parent'] } }] };
 

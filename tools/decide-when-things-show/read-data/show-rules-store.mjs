@@ -87,17 +87,20 @@ export async function givenShowRulesSource({ giverRecords, accountId, workFacts,
 }
 
 /**
- * records:    { read(label) → value | null, write([{ address_label, payload }]), update(label, change) } (the person's workspace
- *             records; update changes one record in one step)
+ * held:       { [label]: value } the rows the caller read from its own store and handed in: the show-rules record and, for the
+ *             operator, the setup-context record. Nothing here writes a store: changes() answers what would be written, in order.
  * filterRows: the formula engine's row filter (a promise of { matches })
  * now:        () → Date
  * givenSource: (proposedGiver?, factsGiver?) => { giver, facts, matches, stamp? } | null, the rules the operator gives this account
  *             (person-store givenSource); the separate facts giver lets current policy use facts referenced only by a candidate.
  */
-export function makeShowRules({ records, filterRows, authority = 'personal', now = () => new Date(), givenSource = null, spaceContext = null, changedForAccount = null, readConflict = null, resolveConflict = null, validateActor = async actor => Boolean(actor?.account_id) }) {
-  const record = () => { const value = records.read(data.record); return object(value) ? value : null; };
-  const keep = (next, before) => records.write([{ address_label: data.record, payload: next,
-    ...(records.identity ? { expected_identity: before ? records.identity(before) : null } : {}) }]);
+export function makeShowRules({ held = {}, filterRows, authority = 'personal', now = () => new Date(), givenSource = null, spaceContext = null, changedForAccount = null, validateActor = async actor => Boolean(actor?.account_id) }) {
+  const heldRows = new Map(Object.entries(held));
+  const keptRows = new Map();
+  const read = label => heldRows.get(label) ?? null;
+  const write = (label, value) => { heldRows.set(label, value); keptRows.set(label, value); };
+  const record = () => { const value = read(data.record); return object(value) ? value : null; };
+  const keep = next => write(data.record, next);
   const activeEditRules = value => (Array.isArray(value?.edit_rules) ? value.edit_rules : data.edit_authority.starting_rules)
     .filter(rule => object(rule) && rule.on !== false);
   const editFields = data.edit_authority.facts;
@@ -302,7 +305,7 @@ export function makeShowRules({ records, filterRows, authority = 'personal', now
   const current = (list, at) => list.filter(rule => !rule.until || Date.parse(rule.until) > at);
   const tellAssignedAccounts = async () => {
     if (authority !== 'operator' || !changedForAccount) return;
-    const context = records.read(setupSettings.policy.context_record);
+    const context = read(setupSettings.policy.context_record);
     const failures = [];
     for (const accountId of Object.keys(context?.[setupSettings.policy.account_context_key] ?? {})) {
       try { await changedForAccount(accountId); }
@@ -344,8 +347,7 @@ export function makeShowRules({ records, filterRows, authority = 'personal', now
     const { context_record: label, account_context_key: key } = setupSettings.policy;
     const prior = record();
     validateRecord(prior ?? {});
-    const beforeContext = records.read(label);
-    const contextStamp = JSON.stringify(beforeContext ?? null), recordStamp = JSON.stringify(prior);
+    const beforeContext = read(label);
     let held = [], audience = {};
     const proposedContext = (() => {
       const before = beforeContext;
@@ -397,12 +399,8 @@ export function makeShowRules({ records, filterRows, authority = 'personal', now
     await authorize(confirmed);
     const final = await editRulesNow(prior);
     if (final.stamp !== authorization.stamp) throw new Error('Show-rule edit authority changed during this assignment. Read the current rules and retry.');
-    records.update(label, currentContext => {
-      if (JSON.stringify(currentContext ?? null) !== contextStamp || JSON.stringify(record()) !== recordStamp)
-        throw new Error('Account assignments or show rules changed while this assignment was being saved. Read them again and retry.');
-      if (now().getTime() >= validUntil) throw new Error('Show-rule assignment authority expired during validation. Read the current rules and retry.');
-      return proposedContext;
-    });
+    if (now().getTime() >= validUntil) throw new Error('Show-rule assignment authority expired during validation. Read the current rules and retry.');
+    write(label, proposedContext);
     let refreshPending = false;
     if (changedForAccount) try { await changedForAccount(accountId); }
     catch (error) { refreshPending = true; console.error('Assigned workspace rules refresh failed', accountId, error?.message ?? error); }
@@ -416,7 +414,7 @@ export function makeShowRules({ records, filterRows, authority = 'personal', now
     if (authority !== 'operator') throw notAllowed('Only the owner of this Trillion service lists accounts.');
     if (filter !== null && (!object(filter) || filter.kind !== 'group')) throw new Error('filter is a rule tree over the account facts: { kind: "group", combinator: "and", negate: false, rules: [...] }.');
     const { context_record: label, account_context_key: key } = setupSettings.policy;
-    const context = records.read(label);
+    const context = read(label);
     const directory = object(context) && object(context[key]) ? context[key] : {};
     const listed = Object.entries(directory).filter(([, entry]) => object(entry)).map(([accountId, entry]) => ({
       account_id: accountId,
@@ -514,8 +512,7 @@ export function makeShowRules({ records, filterRows, authority = 'personal', now
       if (use && !actions.includes('change_type')) actions.push('change_type');
       const validUntil = await confirmPolicySnapshot(authorization, actor, actions, next);
       if (now().getTime() >= validUntil) throw new Error('Show-rule edit authority expired during validation. Read the current rules and retry.');
-      const saved = await keep(next, prior);
-      if (saved?.conflicts?.length) throw new Error('Show rules changed while this edit was being saved. Read them again and retry.');
+      keep(next);
       // Existing assigned accounts must hear changes to their inherited types and aimed rules as well as assignment.
       const refreshPending = await tellAssignedAccounts();
       const rule = change.save ? next.rules.find(one => change.save.id ? one.id === change.save.id : !(prior?.rules ?? []).some(before => before.id === one.id)) : null;
@@ -531,38 +528,12 @@ export function makeShowRules({ records, filterRows, authority = 'personal', now
       const actions = await authorizeCandidate(actor, prior, next, authorization);
       const validUntil = await confirmPolicySnapshot(authorization, actor, actions, next);
       if (now().getTime() >= validUntil) throw new Error('Show-rule edit authority expired during validation. Read the current rules and retry.');
-      const saved = await keep(next, prior);
-      if (saved?.conflicts?.length) throw new Error('Show rules changed while this edit was being saved. Read them again and retry.');
+      keep(next);
       const refreshPending = await tellAssignedAccounts();
       return { ...(refreshPending?.length ? { refresh_pending: refreshPending } : {}), rules: current(everyRule(data, next), at), said: 'Taken away.' };
     },
-    async resolve({ id, branch_identity: branchIdentity } = {}, { actor = null } = {}) {
-      if (typeof id !== 'string' || !id || typeof branchIdentity !== 'string' || !branchIdentity) throw new Error('Choose one exact kept show-rules version.');
-      if (typeof readConflict !== 'function' || typeof resolveConflict !== 'function') throw new Error('Show-rule conflict recovery is not available here.');
-      const conflict = await readConflict(id);
-      if (!object(conflict) || conflict.state !== 'open' || conflict.id !== id || conflict.address !== data.record || !Array.isArray(conflict.branches)) {
-        throw new Error('Those show-rule versions are no longer open. Read the current conflict again.');
-      }
-      const selected = conflict.branches.find(branch => branch.identity === branchIdentity);
-      if (!selected) throw new Error('Choose one of the exact versions kept in this conflict.');
-      const prior = record();
-      const currentIdentity = prior ? records.identity?.(prior) ?? null : null;
-      const knownCurrent = conflict.branches.some(branch => (branch.found ? branch.identity : null) === currentIdentity);
-      if (!knownCurrent) throw new Error('The current show-rules record changed again. Read the new conflict before resolving it.');
-      const candidate = selected.found ? selected.value : {};
-      const authorization = await editRulesNow(prior, undefined, candidate);
-      const actions = await authorizeCandidate(actor, prior, candidate, authorization);
-      const validUntil = await confirmPolicySnapshot(authorization, actor, actions, candidate);
-      if (now().getTime() >= validUntil) throw new Error('Show-rule edit authority expired during validation. Read the current rules and retry.');
-      const outcome = await resolveConflict(id, selected.identity, {
-        conflict_identity: records.identity?.(conflict) ?? null,
-        current_identity: currentIdentity,
-      });
-      if (!outcome?.resolved) throw new Error('The conflict or current show-rules record changed during resolution. Read it again and retry.');
-      const refreshPending = await tellAssignedAccounts();
-      return { ...outcome, ...(refreshPending?.length ? { refresh_pending: refreshPending } : {}), said: 'Kept that exact show-rules version.' };
-    },
     accounts,
+    changes: () => [...keptRows].map(([label, value]) => ({ label, value })),
   };
 }
 

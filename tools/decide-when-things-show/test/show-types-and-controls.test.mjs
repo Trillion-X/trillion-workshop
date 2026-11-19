@@ -19,6 +19,14 @@ import { readdirSync } from 'node:fs';
 import { accountFacts } from '../read-data/account-facts.mjs';
 import { changedRecord, givenEditRules, givenRules, heldTypes, showDecision, typesOf, withChanges } from '../../set-up-my-account/read-data/show-rules.mjs';
 import { givenAccountFields, makeShowRules } from '../read-data/show-rules-store.mjs';
+
+// A store over the rows in `kept`, which the caller keeps: what the store answers as changes goes back into `kept`, so
+// the next call and the assertions read what was kept.
+function storeOver(kept, options) {
+  const owner = makeShowRules({ held: Object.fromEntries(kept), ...options });
+  const settle = async run => { try { return await run(); } finally { for (const { label, value } of owner.changes()) kept.set(label, value); } };
+  return { ...owner, set: (input, actor) => settle(() => owner.set(input, actor)), remove: (input, actor) => settle(() => owner.remove(input, actor)) };
+}
 import { DECLARED_CONTROLS } from '../read-data/declared-controls.mjs';
 
 const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
@@ -141,16 +149,14 @@ test('a control nobody named obeys a broad rule with no code', () => {
 
 test('only the service\'s owner gives types, and only types that exist', async () => {
   const kept = new Map([['show-rules', presetGiver]]);
-  const records = { read: label => kept.get(label) ?? null, write: writes => { for (const write of writes) kept.set(write.address_label, write.payload); },
-    update: (label, change) => { kept.set(label, change(kept.get(label) ?? null)); } };
-  const owner = makeShowRules({ records, filterRows: async input => now(input), authority: 'operator' });
+  const owner = storeOver(kept, { filterRows: async input => now(input), authority: 'operator' });
   const answer = await owner.set({ give: { account_id: 'account-b', add: ['simple-workspace'] } }, { actor: { account_id: 'operator-account' } });
   assert.deepEqual(answer.types, ['simple-workspace']);
   assert.deepEqual(kept.get('setup-context').accounts['account-b'].cohorts, ['simple-workspace']);
   await owner.set({ give: { account_id: 'account-b', remove: ['simple-workspace'] } }, { actor: { account_id: 'operator-account' } });
   assert.deepEqual(kept.get('setup-context').accounts['account-b'].cohorts, []);
   await assert.rejects(owner.set({ give: { account_id: 'account-b', add: ['no-such-type'] } }), /No type no-such-type/);
-  const person = makeShowRules({ records, filterRows: async input => now(input), authority: 'personal' });
+  const person = storeOver(kept, { filterRows: async input => now(input), authority: 'personal' });
   await assert.rejects(person.set({ give: { account_id: 'account-b', add: ['simple-workspace'] } }), /Only the owner/);
   assert.ok((await owner.read()).types.some(type => type.id === 'simple-workspace'));
 });
@@ -159,10 +165,8 @@ test('assignment and inherited profile changes notify the exact assigned account
   const kept = new Map([['show-rules', presetGiver]]);
   const actor = { account_id: 'operator-account' };
   const notified = [];
-  const records = { read: label => kept.get(label) ?? null, write: writes => { for (const write of writes) kept.set(write.address_label, write.payload); },
-    update: (label, change) => kept.set(label, change(kept.get(label) ?? null)) };
-  const owner = makeShowRules({ records, filterRows: now, authority: 'operator', changedForAccount: async accountId => {
-    assert.ok(kept.get('setup-context').accounts[accountId], 'notification follows the account-context write');
+  const owner = storeOver(kept, { filterRows: now, authority: 'operator', changedForAccount: async accountId => {
+    assert.ok(owner.changes().some(change => change.label === 'setup-context' && change.value.accounts[accountId]), 'notification follows the account-context write');
     notified.push(accountId);
   } });
   await owner.set({ give: { account_id: 'account-b', add: ['simple-workspace'] } }, { actor });
@@ -181,9 +185,7 @@ test('assignment and inherited profile changes notify the exact assigned account
 
 test('a failed live refresh reports the exact pending account without undoing its saved assignment', async () => {
   const kept = new Map([['show-rules', presetGiver]]);
-  const records = { read: label => kept.get(label) ?? null, write: writes => { for (const write of writes) kept.set(write.address_label, write.payload); },
-    update: (label, change) => kept.set(label, change(kept.get(label) ?? null)) };
-  const owner = makeShowRules({ records, filterRows: now, authority: 'operator', changedForAccount: async () => { throw new Error('Disconnected'); } });
+  const owner = storeOver(kept, { filterRows: now, authority: 'operator', changedForAccount: async () => { throw new Error('Disconnected'); } });
   const answer = await owner.set({ give: { account_id: 'account-b', add: ['simple-workspace'] } }, { actor: { account_id: 'operator-account' } });
   assert.deepEqual(answer.refresh_pending, ['account-b']);
   assert.deepEqual(kept.get('setup-context').accounts['account-b'].cohorts, ['simple-workspace']);
@@ -192,16 +194,14 @@ test('a failed live refresh reports the exact pending account without undoing it
 test('cohort and experiment assignment shares the atomic account context without replacing other setup facts', async () => {
   const actor = { account_id: 'operator-account' };
   const kept = new Map([['show-rules', presetGiver], ['setup-context', { accounts: { a: { cohorts: ['existing'], experiments: ['old'], required_devices: { computer: true } } } }]]);
-  const records = { read: label => kept.get(label) ?? null, write: writes => { for (const write of writes) kept.set(write.address_label, write.payload); },
-    update: (label, change) => kept.set(label, change(kept.get(label) ?? null)) };
-  const owner = makeShowRules({ records, filterRows: now, authority: 'operator' });
+  const owner = storeOver(kept, { filterRows: now, authority: 'operator' });
   const answer = await owner.set({ give: { account_id: 'a', add: ['simple-workspace'], cohorts: { add: ['company-pilot'] }, experiments: { add: ['tour-b'], remove: ['old'] } } }, { actor });
   assert.deepEqual(answer.audience, { cohorts: ['existing', 'company-pilot', 'simple-workspace'], experiments: ['tour-b'] });
   assert.deepEqual(kept.get('setup-context').accounts.a.required_devices, { computer: true });
   const before = structuredClone(kept.get('setup-context'));
   await assert.rejects(owner.set({ give: { account_id: 'a', experiments: { add: 'bad' } } }, { actor }), /experiments is/);
   assert.deepEqual(kept.get('setup-context'), before);
-  const personal = makeShowRules({ records, filterRows: now });
+  const personal = storeOver(kept, { filterRows: now });
   await assert.rejects(personal.set({ give: { account_id: 'a', experiments: { add: ['tour-a'] } } }), /Only the owner/);
 });
 
@@ -226,8 +226,7 @@ test('ordinary assignments need no payment read; nested active audiences declare
 test('type assignment cannot exceed the cohort bound or partially change audience facts', async () => {
   const before = { accounts: { a: { cohorts: Array.from({ length: 100 }, (_, index) => `cohort-${index}`), experiments: ['retained'] } } };
   const kept = new Map([['show-rules', presetGiver], ['setup-context', structuredClone(before)]]);
-  const records = { read: label => kept.get(label) ?? null, write: () => {}, update: (label, change) => kept.set(label, change(kept.get(label))) };
-  const owner = makeShowRules({ records, filterRows: now, authority: 'operator' });
+  const owner = storeOver(kept, { filterRows: now, authority: 'operator' });
   await assert.rejects(owner.set({ give: { account_id: 'a', add: ['simple-workspace'], experiments: { add: ['new'] } } }), /at most 100 cohorts/);
   assert.deepEqual(kept.get('setup-context'), before);
 });
@@ -316,8 +315,7 @@ test('the rules screen and an AI are offered every declared control, as the tree
   assert.equal(byId.get('open.open-as-window').parent, 'open');
   assert.equal(byId.get('selection.tray').label, 'Add selected things to your tray');
   for (const fact of data.subjects.control.facts.filter(fact => fact.kind !== 'text')) assert.deepEqual(fact.values_from?.list, ['controls'], `${fact.id} offers the declared controls`);
-  const records = { read: () => null, write: () => {}, update: () => {} };
-  const answer = await makeShowRules({ records, filterRows: now }).read();
+  const answer = await makeShowRules({ held: {}, filterRows: now }).read();
   assert.equal(answer.controls, DECLARED_CONTROLS, 'read_show_rules hands the same list to an AI');
 });
 
@@ -341,8 +339,7 @@ test('space-scoped inherited visibility and edit policies stay inside their Spac
   const kept = changedRecord(data, null, { type: { id: 'scoped', scope: { space_id: 'space-a' }, rules: [] } }, NOW);
   assert.deepEqual(kept.types[0].scope, { space_id: 'space-a' });
   assert.throws(() => changedRecord(data, null, { type: { id: 'scoped', scope: {}, rules: [] } }, NOW), /type scope/);
-  const records = { read: () => null, write: () => {}, update: () => {} };
-  const owner = makeShowRules({ records, filterRows: now, givenSource: async () => ({ giver, facts: input.facts, matches }) });
+  const owner = makeShowRules({ held: {}, filterRows: now, givenSource: async () => ({ giver, facts: input.facts, matches }) });
   assert.equal((await owner.decide({ subject: 'control', space_id: 'space-a' })).hidden, true);
   assert.equal((await owner.decide({ subject: 'control', space_id: 'space-b' })).hidden, false);
 });

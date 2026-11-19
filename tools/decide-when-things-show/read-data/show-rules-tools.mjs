@@ -33,17 +33,10 @@ export const showRuleTools = call => [
   { name: 'remove_show_rule', description: 'Takes one of the person\'s show rules away (id from read_show_rules); a starting rule\'s id turns that starting rule off.', inputSchema: {
     type: 'object', required: ['id'], properties: { id: { type: 'string', description: 'A rule id from read_show_rules' } },
   }, run: input => call('/show-rules/remove', input) },
-  { name: 'resolve_show_rules_conflict', description: 'Keeps one exact persisted show-rules version from an open workspace conflict. Read the conflict first and pass its id and the selected branch identity; the rule owner validates every changed rule family and future edit authority before resolving.', inputSchema: {
-    type: 'object', required: ['id', 'branch_identity'], properties: {
-      id: { type: 'string', description: 'The open conflict id from read_workspace_conflict.' },
-      branch_identity: { type: 'string', description: 'The exact identity of one stored branch in that conflict.' },
-    },
-  }, run: input => call('/show-rules/resolve', input) },
 ];
 
 export const showRuleAnnotations = {
   read_show_rules: { title: 'Read what decides what I am shown', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   set_show_rule: { title: 'Show, hide or silence something by a rule', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   remove_show_rule: { title: 'Take a show rule away', readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
-  resolve_show_rules_conflict: { title: 'Keep a show-rules conflict version', readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
 };

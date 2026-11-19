@@ -5,7 +5,7 @@
 //   their own show-rules record) and share it with people. A share is two ordinary workspace records, written through
 //   the generic records write like any other: the preset's copy (show-rules.json `sharing.record_prefix` + preset id:
 //   { label, types }, the preset with every preset it inherits) and its grant (record-sharing.json
-//   `door_grant.record_prefix` + that label: { record, people: [{ principal, key_blake3 }], changed_at }), which the
+//   `grant.record_prefix` + that label: { record, people: [{ principal, key_blake3 }], changed_at }), which the
 //   sharing owner's reader honors for each person's share key (trillion-rust src/account_rights/share_grant.rs). The people
 //   a preset is shared with are its group; one person is one account.
 //
@@ -42,7 +42,7 @@ const words = data.sharing.words;
 const KEY_BYTES = 32;
 const fill = (text: string, values: Record<string, string>) => text.replace(/\{(\w+)\}/g, (_, name: string) => values[name] ?? '');
 const copyLabel = (preset: Preset) => `${data.sharing.record_prefix}${preset.id}`;
-const grantLabel = (label: string) => `${sharing.door_grant.record_prefix}${label}`;
+const grantLabel = (label: string) => `${sharing.grant.record_prefix}${label}`;
 const object = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
 /** The presets the person keeps now, read from the store, never from this page's cache. */
@@ -73,7 +73,7 @@ const peopleOf = (value: unknown): Person[] => (object(value) && Array.isArray(v
 function newShareKey(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(KEY_BYTES));
   const text = btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  return `${sharing.door_grant.token_prefix}${text}`;
+  return `${sharing.grant.token_prefix}${text}`;
 }
 
 function previewOf(preset: Preset, presets: Preset[]): SharingPreview {

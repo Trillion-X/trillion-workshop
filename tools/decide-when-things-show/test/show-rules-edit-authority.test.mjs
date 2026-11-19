@@ -16,20 +16,17 @@ await filter.load();
 const nowFilter = filter.filterRowsByRulesNow;
 const NOW = Date.parse('2026-10-13T16:00:00Z');
 
-function world(initial = null, conflictOnWrite = false) {
-  let current = initial;
-  const records = {
-    read: label => label === 'show-rules' ? current : null,
-    identity: value => JSON.stringify(value),
-    write: writes => {
-      const [write] = writes;
-      if (conflictOnWrite || write.expected_identity !== (current ? JSON.stringify(current) : null)) return { written: 0, conflicts: [{ address: 'show-rules' }] };
-      current = write.payload;
-      return { written: 1 };
-    },
-    update() {},
-  };
-  return { records, current: () => current, store: makeShowRules({ records, filterRows: nowFilter, now: () => new Date(NOW), validateActor: actor => actor?.account_id === 'account-a' }) };
+// A store over the rows in `kept`, which the caller keeps: what the store answers as changes goes back into `kept`, so the
+// next call and the assertions read what was kept.
+function storeOver(kept, options) {
+  const owner = makeShowRules({ held: Object.fromEntries(kept), ...options });
+  const settle = async run => { try { return await run(); } finally { for (const { label, value } of owner.changes()) kept.set(label, value); } };
+  return { ...owner, set: (input, actor) => settle(() => owner.set(input, actor)), remove: (input, actor) => settle(() => owner.remove(input, actor)) };
+}
+
+function world(initial = null) {
+  const kept = new Map([['show-rules', initial]]);
+  return { kept, current: () => kept.get('show-rules') ?? null, store: storeOver(kept, { filterRows: nowFilter, now: () => new Date(NOW), validateActor: actor => actor?.account_id === 'account-a' }) };
 }
 
 const rule = { id: 'hide-tabs', label: 'Hide tabs', subject: 'control', effect: 'hide' };
@@ -40,9 +37,6 @@ const matchesAccount = (tree, facts) => nowFilter({ tree, fields: accountFactsDa
 function assignmentWorld({ policy = null, context = { accounts: { 'account-a': { cohorts: [], experiments: [] } } }, clock = () => new Date(NOW), readSource = null } = {}) {
   // The operator keeps the preset it gives in its own record; no type ships in show-rules.json.
   const kept = new Map([['show-rules', { types: [simpleWorkspace], ...(policy ?? {}) }], ['setup-context', context]]);
-  let updates = 0;
-  const records = { read: label => kept.get(label) ?? null, write() { throw new Error('assignment must use the context owner'); },
-    update(label, change) { const value = change(kept.get(label) ?? null); updates++; kept.set(label, value); } };
   const givenSource = async () => {
     const facts = { cohorts: kept.get('setup-context').accounts['account-a'].cohorts,
       experiments: kept.get('setup-context').accounts['account-a'].experiments ?? [] };
@@ -51,8 +45,8 @@ function assignmentWorld({ policy = null, context = { accounts: { 'account-a': {
     if (readSource) await readSource({ kept, source });
     return source;
   };
-  return { kept, updates: () => updates, store: makeShowRules({ records, givenSource, authority: 'operator',
-    filterRows: nowFilter, now: clock, validateActor: actor => actor?.account_id === 'account-a' }) };
+  const store = storeOver(kept, { givenSource, authority: 'operator', filterRows: nowFilter, now: clock, validateActor: actor => actor?.account_id === 'account-a' });
+  return { kept, updates: () => (store.changes().some(change => change.label === 'setup-context') ? 1 : 0), store };
 }
 
 test('assignment validates the trusted actor and configured reader policy before any context write', async () => {
@@ -85,16 +79,6 @@ test('self-assignment cannot impose an inherited or audience-selected policy tha
   }
 });
 
-test('assignment refuses a context race without overwriting the newer memberships', async () => {
-  let reads = 0;
-  const fixture = assignmentWorld({ readSource: ({ kept }) => {
-    if (++reads === 3) kept.set('setup-context', { accounts: { 'account-a': { cohorts: [], experiments: [] }, 'account-b': { cohorts: ['newer'], experiments: [] } } });
-  } });
-  await assert.rejects(fixture.store.set({ give: { account_id: 'account-b', add: ['simple-workspace'] } }, { actor: accountActor }), /changed while this assignment/);
-  assert.equal(fixture.updates(), 0);
-  assert.deepEqual(fixture.kept.get('setup-context').accounts['account-b'].cohorts, ['newer']);
-});
-
 test('assignment refuses allow expiry during its final source read', async () => {
   let at = NOW, reads = 0;
   const allow = { id: 'temporary-assigner', effect: 'allow', who: { kind: 'account_owner' }, actions: ['change_assignment'], until: new Date(NOW + 1000).toISOString() };
@@ -104,20 +88,9 @@ test('assignment refuses allow expiry during its final source read', async () =>
   assert.equal(fixture.updates(), 0);
 });
 
-test('assignment refuses a rule-policy race even if its earlier source stamp was retained', async () => {
-  let reads = 0;
-  const deny = { id: 'changed-assigner', effect: 'deny', who: { kind: 'account_owner' }, actions: ['change_assignment'] };
-  const fixture = assignmentWorld({ readSource: ({ kept }) => {
-    if (++reads === 3) kept.set('show-rules', { edit_rules: [...showRuleData.edit_authority.starting_rules, deny] });
-  } });
-  await assert.rejects(fixture.store.set({ give: { account_id: 'account-b', add: ['simple-workspace'] } }, { actor: accountActor }), /changed while this assignment/);
-  assert.equal(fixture.updates(), 0);
-  assert.deepEqual(fixture.kept.get('show-rules').edit_rules.at(-1), deny);
-});
-
 function operatorWithGivenPolicy(initial, facts) {
   const fixture = world(initial);
-  const store = makeShowRules({ records: fixture.records, filterRows: nowFilter, authority: 'operator', now: () => new Date(NOW),
+  const store = storeOver(fixture.kept, { filterRows: nowFilter, authority: 'operator', now: () => new Date(NOW),
     validateActor: actor => actor?.account_id === 'account-a',
     givenSource: async candidate => ({ giver: candidate === undefined ? fixture.current() : candidate,
       current_giver: fixture.current(), facts, stamp: JSON.stringify([fixture.current(), facts]), matches: matchesAccount }) });
@@ -127,7 +100,7 @@ function operatorWithGivenPolicy(initial, facts) {
 test('a current reader-specific deny beats the account-owner allow and expires at its deadline', async () => {
   const { store } = world({ edit_rules: [...showRuleData.edit_authority.starting_rules, blocked] });
   await assert.rejects(store.set({ rule }, { actor: { account_id: 'account-a', reader: 'app:blocked' } }), /edit rules do not let/);
-  const afterExpiry = makeShowRules({ records: { read: () => ({ edit_rules: [...showRuleData.edit_authority.starting_rules, blocked] }), write() { return { written: 1 }; }, update() {} }, filterRows: nowFilter, now: () => new Date(NOW + 60_000), validateActor: actor => actor?.account_id === 'account-a' });
+  const afterExpiry = makeShowRules({ held: { 'show-rules': { edit_rules: [...showRuleData.edit_authority.starting_rules, blocked] } }, filterRows: nowFilter, now: () => new Date(NOW + 60_000), validateActor: actor => actor?.account_id === 'account-a' });
   await afterExpiry.set({ rule }, { actor: { account_id: 'account-a', reader: 'app:blocked' } });
 });
 
@@ -141,8 +114,8 @@ test('a deny inherited through an assigned profile blocks the account owner', as
     facts: { cohorts: ['restricted-child'] },
     matches: async () => true,
   });
-  const { records } = world(null);
-  const account = makeShowRules({ records, filterRows: nowFilter, now: () => new Date(NOW),
+  const { kept } = world(null);
+  const account = storeOver(kept, { filterRows: nowFilter, now: () => new Date(NOW),
     validateActor: actor => actor?.account_id === 'account-a', givenSource });
   await assert.rejects(account.set({ rule }, { actor: { account_id: 'account-a' } }), /edit rules do not let/);
 });
@@ -150,9 +123,9 @@ test('a deny inherited through an assigned profile blocks the account owner', as
 test('personal candidate profiles retain the actual operator giver policy', async () => {
   const deny = { id: 'operator-deny-policy-change', effect: 'deny', who: { kind: 'account_owner' }, actions: ['change_edit_rules'],
     audience: { kind: 'group', combinator: 'and', negate: false, rules: [] } };
-  let writes = 0, givenCalls = 0;
-  const { records } = world(null);
-  const account = makeShowRules({ records: { ...records, write: (...args) => { writes++; return records.write(...args); } },
+  let givenCalls = 0;
+  const { kept } = world(null);
+  const account = storeOver(kept, {
     filterRows: nowFilter, now: () => new Date(NOW), validateActor: actor => actor?.account_id === 'account-a',
     givenSource: async (_candidate, factsCandidate) => {
       givenCalls++;
@@ -160,21 +133,18 @@ test('personal candidate profiles retain the actual operator giver policy', asyn
       return { giver: { edit_rules: [deny] }, facts: { cohorts: [] }, matches: async () => true };
     } });
   await assert.rejects(account.set({ edit_rules: showRuleData.edit_authority.starting_rules }, { actor: accountActor }), /edit rules do not let/);
-  assert.equal(writes, 0);
+  assert.deepEqual(account.changes(), []);
   assert.ok(givenCalls > 0);
 });
 
-test('the exposed MCP policy and conflict actions preserve their payload and owner route', async () => {
+test('the exposed MCP policy action preserves its payload and owner route', async () => {
   const called = [];
-  const tools = showRuleTools(async (...args) => { called.push(args); return { resolved: true }; });
+  const tools = showRuleTools(async (...args) => { called.push(args); return {}; });
   const policy = showRuleData.edit_authority.starting_rules;
   await tools.find(tool => tool.name === 'set_show_rule').run({ edit_rules: policy });
-  const resolve = tools.find(tool => tool.name === 'resolve_show_rules_conflict');
-  assert.deepEqual(resolve.inputSchema.required, ['id', 'branch_identity']);
-  await resolve.run({ id: 'conflict:policy', branch_identity: 'stored:branch' });
-  assert.deepEqual(called, [['/show-rules/set', { edit_rules: policy }],
-    ['/show-rules/resolve', { id: 'conflict:policy', branch_identity: 'stored:branch' }]]);
-  assert.equal(showRuleAnnotations.resolve_show_rules_conflict.readOnlyHint, false);
+  assert.deepEqual(called, [['/show-rules/set', { edit_rules: policy }]]);
+  assert.equal(tools.some(tool => tool.name === 'resolve_show_rules_conflict'), false);
+  assert.equal(showRuleAnnotations.resolve_show_rules_conflict, undefined);
 });
 
 test('disabled inherited edit rules do not deny a change', async () => {
@@ -185,8 +155,8 @@ test('disabled inherited edit rules do not deny a change', async () => {
     facts: { cohorts: ['unrestricted'] },
     matches: async () => true,
   });
-  const { records } = world(null);
-  const account = makeShowRules({ records, filterRows: nowFilter, now: () => new Date(NOW),
+  const { kept } = world(null);
+  const account = storeOver(kept, { filterRows: nowFilter, now: () => new Date(NOW),
     validateActor: actor => actor?.account_id === 'account-a', givenSource });
   await account.set({ rule }, { actor: { account_id: 'account-a' } });
 });
@@ -264,8 +234,8 @@ test('operator current policy still uses its current giver while candidate facts
   const currentGiver = { edit_rules: [] };
   const restricted = { id: 'restricted-candidate', label: 'Restricted candidate', inherits: [], rules: [], edit_rules: [deny] };
   let observed = false;
-  const { records } = world(null);
-  const store = makeShowRules({ records, filterRows: nowFilter, authority: 'operator', now: () => new Date(NOW),
+  const { kept } = world(null);
+  const store = storeOver(kept, { filterRows: nowFilter, authority: 'operator', now: () => new Date(NOW),
     validateActor: actor => actor?.account_id === 'account-a',
     givenSource: async (proposedGiver, factsGiver) => {
       if (factsGiver?.types?.some(type => type.id === restricted.id) && proposedGiver === undefined) {
@@ -306,49 +276,6 @@ test('changing a profile edit policy requires both profile and policy authority'
   assert.deepEqual(current(), initial);
 });
 
-test('show-rules conflict resolution validates and forwards the exact persisted branch', async () => {
-  const before = { rules: [rule] };
-  const proposed = { rules: [{ ...rule, label: 'Changed label' }] };
-  const conflict = { id: 'conflict-a', address: 'show-rules', state: 'open', branches: [
-    { found: true, identity: JSON.stringify(before), value: before },
-    { found: true, identity: JSON.stringify(proposed), value: proposed },
-  ] };
-  let resolved = null;
-  const store = makeShowRules({
-    records: { read: label => label === 'show-rules' ? before : null, identity: JSON.stringify },
-    filterRows: nowFilter, now: () => new Date(NOW), validateActor: actor => actor?.account_id === 'account-a',
-    readConflict: async id => id === conflict.id ? conflict : null,
-    resolveConflict: async (...args) => { resolved = args; return { resolved: true, address: 'show-rules', kept: args[1] }; },
-  });
-  const result = await store.resolve({ id: conflict.id, branch_identity: JSON.stringify(proposed) }, { actor: accountActor });
-  assert.equal(result.resolved, true);
-  assert.equal(resolved[0], conflict.id);
-  assert.equal(resolved[1], JSON.stringify(proposed));
-  assert.deepEqual(resolved[2], { conflict_identity: JSON.stringify(conflict), current_identity: JSON.stringify(before) });
-});
-
-test('show-rules conflict resolution refuses an invalid selected branch before calling the resolver', async () => {
-  const before = { rules: [rule] };
-  const invalid = { rules: [{ ...rule, effect: 'unknown-effect' }] };
-  const conflict = { id: 'conflict-invalid', address: 'show-rules', state: 'open', branches: [
-    { found: true, identity: JSON.stringify(before), value: before },
-    { found: true, identity: JSON.stringify(invalid), value: invalid },
-  ] };
-  let called = false;
-  const store = makeShowRules({ records: { read: () => before, identity: JSON.stringify }, filterRows: nowFilter, now: () => new Date(NOW),
-    validateActor: actor => actor?.account_id === 'account-a', readConflict: async () => conflict,
-    resolveConflict: async () => { called = true; return { resolved: true }; } });
-  await assert.rejects(store.resolve({ id: conflict.id, branch_identity: JSON.stringify(invalid) }, { actor: accountActor }), /effect|rule/);
-  assert.equal(called, false);
-});
-
-test('a policy change racing after authorization loses the expected-identity write', async () => {
-  const { store } = world({});
-  const racing = makeShowRules({ records: { ...store, read: () => ({}), write: () => ({ written: 0, conflicts: [{ address: 'show-rules' }] }), identity: value => JSON.stringify(value), update() {} },
-    filterRows: nowFilter, now: () => new Date(NOW), validateActor: actor => actor?.account_id === 'account-a' });
-  await assert.rejects(racing.set({ rule }, { actor: { account_id: 'account-a' } }), /changed while this edit was being saved/);
-});
-
 test('a given operator policy change after authorization is detected before persistence', async () => {
   let reads = 0;
   const audience = { kind: 'group', combinator: 'and', negate: false, rules: [] };
@@ -358,19 +285,17 @@ test('a given operator policy change after authorization is detected before pers
     facts: { cohorts: [] },
     matches: async () => true,
   });
-  let writes = 0;
-  const { records } = world(null);
-  const racing = makeShowRules({ records: { ...records, write: () => { writes++; return { written: 1 }; } },
-    filterRows: nowFilter, now: () => new Date(NOW), validateActor: actor => actor?.account_id === 'account-a', givenSource });
+  const { kept } = world(null);
+  const racing = storeOver(kept, { filterRows: nowFilter, now: () => new Date(NOW), validateActor: actor => actor?.account_id === 'account-a', givenSource });
   await assert.rejects(racing.set({ rule }, { actor: { account_id: 'account-a' } }), /authority changed during this edit/);
-  assert.equal(writes, 0, 'the current rule record is not written after the policy snapshot changes');
+  assert.deepEqual(racing.changes(), [], 'the current rule record is not written after the policy snapshot changes');
 });
 
 test('an allow expiring during the final policy-snapshot await cannot authorize a write', async () => {
-  let at = NOW, calls = 0, writes = 0;
+  let at = NOW, calls = 0;
   const allow = { id: 'short-allow', effect: 'allow', who: { kind: 'account_owner' }, actions: ['change_rule'], until: new Date(NOW + 60_000).toISOString() };
-  const { records } = world({ edit_rules: [allow] });
-  const expiring = makeShowRules({ records: { ...records, write: (...args) => { writes++; return records.write(...args); } },
+  const { kept } = world({ edit_rules: [allow] });
+  const expiring = storeOver(kept, {
     filterRows: nowFilter, now: () => new Date(at), validateActor: actor => actor?.account_id === 'account-a',
     givenSource: async () => {
       calls++;
@@ -379,18 +304,12 @@ test('an allow expiring during the final policy-snapshot await cannot authorize 
     } });
   await assert.rejects(expiring.set({ rule }, { actor: accountActor }), /expired during validation/);
   assert.equal(calls, 5, 'the advance occurs during the final source snapshot read');
-  assert.equal(writes, 0);
+  assert.deepEqual(expiring.changes(), []);
 });
 
-
-test('declared attributes use the same actor, edit policy, expected identity and expiry as rule edits', async () => {
+test('declared attributes use the same actor, edit policy and expiry as rule edits', async () => {
   const kept = new Map();
-  const records = { read: label => kept.get(label) ?? null, identity: JSON.stringify,
-    write(writes) { const write = writes[0]; const before = kept.get(write.address_label) ?? null;
-      assert.equal(write.expected_identity, before ? JSON.stringify(before) : null);
-      kept.set(write.address_label, write.payload); return { written: 1 }; },
-    update(label, change) { kept.set(label, change(kept.get(label) ?? null)); } };
-  const store = makeShowRules({ records, authority: 'operator', filterRows: nowFilter, now: () => new Date(NOW),
+  const store = storeOver(kept, { authority: 'operator', filterRows: nowFilter, now: () => new Date(NOW),
     validateActor: actor => actor?.account_id === 'account-a' });
   await assert.rejects(store.set({ attribute: { id: 'departments', label: 'Departments' } }), /authenticated account actor/);
   assert.equal(kept.has('show-rules'), false);
@@ -416,15 +335,13 @@ test('self-assignment checks proposed declared attribute audiences without repla
   const policy = { attribute_fields: [{ id: 'departments', label: 'Departments', kind: 'tags' }],
     types: [{ id: 'restricted', label: 'Restricted', inherits: [], rules: [], edit_rules: [deny], audience }] };
   const kept = new Map([['show-rules', policy], ['setup-context', { accounts: { 'account-a': { cohorts: [], experiments: [], attributes: { departments: [] } } } }]]);
-  let writes = 0;
   const matches = (tree, facts) => nowFilter({ tree, fields: [...accountFactsData.facts, ...policy.attribute_fields], rows: [facts] }).matches.length === 1;
-  const store = makeShowRules({ records: { read: label => kept.get(label) ?? null,
-    update(label, change) { const value = change(kept.get(label) ?? null); writes++; kept.set(label, value); } },
+  const store = storeOver(kept, {
     authority: 'operator', filterRows: nowFilter, now: () => new Date(NOW), validateActor: actor => actor?.account_id === 'account-a',
     givenSource: async () => ({ giver: policy, facts: { plan: 'paid', cohorts: [], experiments: [], departments: [] }, matches,
       stamp: JSON.stringify([policy, kept.get('setup-context')]) }) });
   const before = structuredClone(kept.get('setup-context'));
   await assert.rejects(store.set({ give: { account_id: 'account-a', attributes: { departments: { add: ['restricted'] } } } }, { actor: accountActor }), /stop the actor from changing assignments again/);
-  assert.equal(writes, 0);
+  assert.deepEqual(store.changes(), []);
   assert.deepEqual(kept.get('setup-context'), before);
 });

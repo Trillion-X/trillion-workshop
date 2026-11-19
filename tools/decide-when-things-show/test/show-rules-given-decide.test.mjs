@@ -20,8 +20,8 @@ const now = filter.filterRowsByRulesNow;
 const NOW = Date.parse('2026-10-12T16:00:00Z');
 const matches = (tree, row) => now({ tree, fields: accountFactsData.facts, rows: [row] }).matches.length === 1;
 const thing = { control: 'sidebar.hide', within: ['sidebar', 'sidebar.hide'] };
-const records = { read: () => null, write() {}, update() {} };
-const decideFor = givenSource => makeShowRules({ records, filterRows: now, authority: 'personal', now: () => new Date(NOW), givenSource })
+const held = {};
+const decideFor = givenSource => makeShowRules({ held, filterRows: now, authority: 'personal', now: () => new Date(NOW), givenSource })
   .decide({ subject: 'control', thing });
 // The operator keeps the preset in their own record; no type ships in show-rules.json.
 const givenTo = cohorts => async () => ({
@@ -43,7 +43,7 @@ test('the service keeps no operator source, so nothing is given and everything s
 });
 
 test('the rules an account is given are listed for that account, and only for it', async () => {
-  const listed = async cohorts => (await makeShowRules({ records, filterRows: now, authority: 'personal', now: () => new Date(NOW), givenSource: givenTo(cohorts) }).read()).rules;
+  const listed = async cohorts => (await makeShowRules({ held, filterRows: now, authority: 'personal', now: () => new Date(NOW), givenSource: givenTo(cohorts) }).read()).rules;
   const given = (await listed(['simple-workspace'])).filter(rule => rule.id.startsWith('type:simple-workspace:'));
   assert.ok(given.length > 0 && given.every(rule => typeof rule.given === 'string' && rule.given.length > 0), 'each rule names the type it came from');
   assert.equal((await listed([])).some(rule => rule.id.startsWith('type:')), false);
@@ -54,7 +54,7 @@ test('a request cannot supply given rules of its own', async () => {
     rules: [{ kind: 'rule', field: 'within', operator: 'has_any_of', params: { values: ['sidebar.hide'] } }] } }];
   // The same rule does hide when the operator gives it, so the shape is real and the check below is not vacuous.
   assert.equal(showDecision({ data, record: null, given: forged, subject: 'control', thing, now: NOW, filterRows: now }).hidden, true);
-  const answer = await makeShowRules({ records, filterRows: now, authority: 'personal', now: () => new Date(NOW), givenSource: null })
+  const answer = await makeShowRules({ held, filterRows: now, authority: 'personal', now: () => new Date(NOW), givenSource: null })
     .decide({ subject: 'control', thing, given: forged });
   assert.equal(answer.hidden, false);
 });
