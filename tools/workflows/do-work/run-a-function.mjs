@@ -62,8 +62,11 @@ function hostActions(descriptor) {
     return owner[path.at(-1)](...given);
   });
   const level = path => new Proxy(at(path), { get: (_, key) => (key === 'then' || typeof key === 'symbol' ? undefined : level([...path, key])) });
+  // Only the host's own names answer: a function that reads another name from its second argument (a default such as
+  // `{ env = process.env, fetchImpl = fetch } = {}`) gets undefined and keeps its default, as with a plain object.
   return new Proxy({}, {
-    get: (_, key) => (key === 'then' || typeof key === 'symbol' ? undefined : level([key])),
+    get: (_, key) => (HOST_KEYS.includes(key) ? level([key]) : undefined),
+    has: (_, key) => HOST_KEYS.includes(key),
     ownKeys: () => HOST_KEYS, getOwnPropertyDescriptor: () => ({ enumerable: true, configurable: true }),
   });
 }
