@@ -196,6 +196,7 @@
     "workflow:turn-one-long-recording-into-many-pieces"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:list-my-recordings-and-media",
     "tool:find-silence",
     "tool:suggest-media-cuts",

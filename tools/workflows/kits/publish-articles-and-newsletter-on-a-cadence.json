@@ -279,6 +279,7 @@
     "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:approve-a-post",
     "tool:check-copy",
     "tool:draft-a-post",

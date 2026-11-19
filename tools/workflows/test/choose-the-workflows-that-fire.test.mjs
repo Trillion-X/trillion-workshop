@@ -149,14 +149,15 @@ test('on a blank account a customer asking a price is not sent to price testing,
   assert.ok(of(2).some(choice => choice.workflow === 'workflow:personalized-reach-out'));
 });
 
-test('on a blank account a message that needs an answer starts the installed inbox workflow first, which reads and writes only record: row types', async () => {
+test('on a blank account a message that needs an answer starts the installed inbox workflow first, which keeps its mailboxes as rows of the person\'s own database', async () => {
   const parts = [{ words: 'can we swap Saturday 9am to Sunday afternoon if there is room?', kinds: ['thread-needs-answer'] }];
   const answer = await chooseTheWorkflowsThatFire({ parts, ...handedIn([]) });
   assert.equal(answer.chosen.find(choice => choice.part === 0 && choice.rank === 1)?.workflow, 'workflow:handle-every-inbox-daily');
   const inbox = installed.find(recipe => recipe.id === 'workflow:handle-every-inbox-daily');
   const text = JSON.stringify(inbox.steps.map(step => step.do));
   for (const type of ['mailbox', 'inbox-summary', 'calendar-task']) assert.doesNotMatch(text, new RegExp(`type \\\\?"${type}\\\\?"|\\\\"type\\\\":\\\\"${type}\\\\"`), `${type} is read and written as record:${type}`);
-  assert.match(text, /record:mailbox/);
+  assert.match(text, /mailboxes/);
+  assert.doesNotMatch(text, /record:mailbox|person's own store/);
 });
 
 test('the shipped row, run as the engine runs it, reaches no database and chooses from the workflow rows it is given', async () => {

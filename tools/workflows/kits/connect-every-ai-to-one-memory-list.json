@@ -98,6 +98,7 @@
     "workflow:set-up-your-checks"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:run-workflow-definition",
     "tool:read-documents-as-list-rows",
     "tool:change-a-document-row",

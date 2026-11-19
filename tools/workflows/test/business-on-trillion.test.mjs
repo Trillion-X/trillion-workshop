@@ -102,7 +102,7 @@ test('every stage writes its own checklist row, and the parent makes the checkli
   for (const recipe of recipes.filter(item => item.id !== parent.id)) {
     const last = recipe.steps[recipe.steps.length - 1];
     assert.equal(last.id, 'record-the-stage', recipe.id);
-    assert.match(last.do, /record:setup-stage:/, recipe.id);
+    assert.match(last.do, /setup_stages/, recipe.id);
   }
-  assert.match(parent.steps.find(step => step.id === 'make-the-checklist').do, /list:business-setup-checklist/);
+  assert.match(parent.steps.find(step => step.id === 'make-the-checklist').do, /setup_stages/);
 });

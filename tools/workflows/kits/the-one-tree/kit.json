@@ -165,7 +165,10 @@
    ],
    "pursuit": "pursuit:example-content",
    "owner_list": "record:calendar-task-list:example",
-   "most_per_run": 5
+   "most_per_run": 5,
+   "store": {
+    "credential_name": "<my own database's vault name>"
+   }
   },
   "what_happens": [
    "A signal-sources row for the channel is written with watching Yes.",

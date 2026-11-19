@@ -281,6 +281,7 @@
     "workflow:set-up-your-checks"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:approve-a-post",
     "tool:check-against-a-persons-rules-and-verdicts",
     "tool:check-copy",

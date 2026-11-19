@@ -348,6 +348,7 @@
     "workflow:set-up-your-checks"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:pull-my-instagram-messages",
     "tool:expand-a-reply-template",
     "tool:check-copy",

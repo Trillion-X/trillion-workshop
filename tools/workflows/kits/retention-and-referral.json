@@ -177,6 +177,7 @@
     "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:make-a-referral-code",
     "tool:see-where-each-customer-is",
     "tool:send-an-email",

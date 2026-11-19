@@ -177,6 +177,7 @@
     "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:list-ended-stripe-subscriptions",
     "tool:send-an-email",
     "tool:stripe-events-read_money_since"

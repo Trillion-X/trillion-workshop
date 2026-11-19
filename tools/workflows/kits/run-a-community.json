@@ -177,6 +177,7 @@
     "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:advance-a-community-matchmaker",
     "tool:answer-in-a-community",
     "tool:read-my-community-matches"

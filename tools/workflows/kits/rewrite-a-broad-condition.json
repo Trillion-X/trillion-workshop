@@ -79,7 +79,7 @@
     }
   ],
   "workflows": ["workflow:rewrite-a-broad-condition", "workflow:grow-the-one-tree"],
-  "tools": ["tool:run-workflow-definition", "tool:filter-rows-by-rules", "tool:pour-example-rows-into-my-list"],
+  "tools": ["tool:run-sql-in-my-database", "tool:run-workflow-definition", "tool:filter-rows-by-rules", "tool:pour-example-rows-into-my-list"],
   "instructions": [
     "1. Install the one tree (workflow:grow-the-one-tree): its choose-branches step writes one record:broad-condition row, status Waiting, for each condition that kept more than half of a seed's parts, and writes record:arrival-sources:broad-conditions-waiting the first time.",
     "2. Switch on the wake broad-found of workflow:rewrite-a-broad-condition (wake:switch at @own-records); from then on each Waiting row starts one run, and a row marked Done starts none.",

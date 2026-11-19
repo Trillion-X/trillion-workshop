@@ -176,6 +176,7 @@
     "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:run-workflow-definition",
     "tool:add-a-customer",
     "tool:check-copy",

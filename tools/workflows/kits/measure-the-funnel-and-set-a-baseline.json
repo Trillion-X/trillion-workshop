@@ -177,6 +177,7 @@
     "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:break-down-visits-and-sales",
     "tool:draft-a-funnel",
     "tool:measure-funnel-stages"

@@ -193,6 +193,7 @@
     "workflow:test-prices-and-change-a-page-for-each-visitor"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:measure-a-checklist",
     "tool:search-one-of-my-lists",
     "tool:run-workflow-definition"

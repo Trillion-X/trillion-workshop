@@ -281,6 +281,7 @@
     "workflow:keep-how-someone-does-their-thing"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:run-workflow-definition",
     "tool:pour-example-rows-into-my-list",
     "tool:call-a-treg-endpoint",

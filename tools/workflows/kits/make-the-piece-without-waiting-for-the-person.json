@@ -218,6 +218,7 @@
     "workflow:make-short-videos-from-footage"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:run-workflow-definition",
     "tool:pour-example-rows-into-my-list",
     "tool:check-a-post",

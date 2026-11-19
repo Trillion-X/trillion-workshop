@@ -278,6 +278,7 @@
     "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:check-copy",
     "tool:send-due-email-lessons",
     "tool:sign-someone-up-for-an-email-course",

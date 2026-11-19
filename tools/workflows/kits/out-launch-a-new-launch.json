@@ -9,6 +9,7 @@
     "workflow:reverse-engineer-how-something-grows"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:run-workflow-definition",
     "tool:check-against-a-persons-rules-and-verdicts",
     "tool:read-public-web-page",

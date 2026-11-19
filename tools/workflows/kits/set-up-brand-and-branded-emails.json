@@ -177,6 +177,7 @@
     "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:resolve-a-brand",
     "tool:send-an-email",
     "tool:run-workflow-definition"

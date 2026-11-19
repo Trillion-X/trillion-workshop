@@ -176,6 +176,7 @@
     "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:add-an-email-sending-domain",
     "tool:check-a-connection",
     "tool:check-an-email-sending-domain",

@@ -8,6 +8,7 @@
     "workflow:file-what-needs-the-person"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:check-copy",
     "tool:drive-the-screen",
     "tool:save-a-mail-draft",
