@@ -5,7 +5,8 @@
   "read_only_drops": [
     "wake:*",
     "sharing.*",
-    "secrets:*"
+    "secrets:*",
+    "grants:offer"
   ],
   "read_only_swaps": {
     "tools:*": "tools:list"
