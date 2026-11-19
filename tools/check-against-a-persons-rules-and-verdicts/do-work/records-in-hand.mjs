@@ -10,7 +10,8 @@
 //   2. Nothing is written: the rows are read, never changed, and a row not handed in is not there.
 //
 // Shapes
-//   recordsHandedIn(records)           -> the records, or a refusal when any is not { id, type, value } (undefined: [])
+//   recordsHandedIn(records)           -> the records, or a refusal when any is not { id, type, value }; undefined is a
+//                                         refusal (no rows handed in is not an empty store); [] is an empty store read
 //   recordsOf(records, type, where?)   -> the rows of that type matching `where`, in the order handed in
 //   recordOf(records, type, id)        -> the row of that type and id, or null
 import { isDeepStrictEqual } from 'node:util';
@@ -18,7 +19,9 @@ import { isDeepStrictEqual } from 'node:util';
 const isRecord = record => record !== null && typeof record === 'object' && typeof record.id === 'string' && typeof record.type === 'string';
 
 export function recordsHandedIn(records) {
-  if (records === undefined) return [];
+  if (records === undefined) {
+    throw new Error('records is missing: send the rows read from the person\'s store as records, or [] when the store is empty. Nothing is checked against no rows.');
+  }
   if (!Array.isArray(records) || !records.every(isRecord)) {
     throw new Error('records must be the rows the caller read from the person\'s store, each { id, type, value }.');
   }

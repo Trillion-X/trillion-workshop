@@ -395,7 +395,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   try {
     if (argumentError) throw new Error(argumentError);
     const held = JSON.parse(readFileSync(value('--records'), 'utf8'));
-    const records = recordsHandedIn(Array.isArray(held) ? held : held.records);
+    const records = recordsHandedIn(Array.isArray(held) ? held : held?.records);
     readers = settingsFor(settingRecordOf(records, value('--settings-record')));
     const branch = rulesOfBranch(records, value('--branch'));
     if (branch.verdict_rules) verdictRules = compileVerdictRules(branch.verdict_rules);
