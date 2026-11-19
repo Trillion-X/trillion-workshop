@@ -120,7 +120,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -654,7 +653,7 @@
     "maker": "maker:record-graph",
     "result_selector": "$.result",
     "provenance": {
-     "source": "Trillion src/record-model-tools.mjs (relate, orderedRelations, contactHistory, the relate_records and read_model tools) over src/record-model.json, ported to the records door; the graph walks are new"
+     "source": "Trillion src/record-model-tools.mjs (relate, orderedRelations, contactHistory, the relate_records and read_model tools) over src/record-model.json, ported to read the rows the caller hands in; the graph walks are new"
     },
     "verify": [
      {
@@ -789,7 +788,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -1153,7 +1151,7 @@
     "maker": "maker:record-graph",
     "result_selector": "$.result",
     "provenance": {
-     "source": "Trillion src/record-model-tools.mjs (relate, orderedRelations, contactHistory, the relate_records and read_model tools) over src/record-model.json, ported to the records door; the graph walks are new"
+     "source": "Trillion src/record-model-tools.mjs (relate, orderedRelations, contactHistory, the relate_records and read_model tools) over src/record-model.json, ported to read the rows the caller hands in; the graph walks are new"
     },
     "verify": [
      {

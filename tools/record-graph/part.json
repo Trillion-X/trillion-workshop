@@ -6,7 +6,6 @@
   "public": [
     "read-data/read-around.mjs",
     "read-data/find-connections.mjs",
-    "read-data/rows-as-list.mjs",
     "read-data/graph-walk.mjs",
     "read-data/record-graph.json"
   ]

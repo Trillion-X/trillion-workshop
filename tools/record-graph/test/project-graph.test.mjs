@@ -3,7 +3,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadGraph, projectGraphRecords } from '../read-data/graph-walk.mjs';
 import { MODEL } from '../read-data/graph-records.mjs';
-import { rowsAsList } from '../read-data/rows-as-list.mjs';
 
 const rows = [
   { id: 'person:a', type: 'person', value: { name: 'Ada' } },
@@ -48,10 +47,10 @@ test('empty, malformed and unrelated records do not invent graph membership', ()
 });
 
 test('supplied rows and listed-rows loadGraph share topology, filters and ended semantics', async () => {
-  const door = rowsAsList(rows.filter(row => ['relation', 'activity'].includes(row.type)));
+  const graphRows = rows.filter(row => ['relation', 'activity'].includes(row.type));
   for (const options of [{}, { ended: true }, { roles: ['member'] }, { activities: false }, { kinds: ['call'] }]) {
     const projected = projectGraphRecords(rows, options);
-    const loaded = await loadGraph(door, options);
+    const loaded = await loadGraph(graphRows, options);
     const edges = graph => [...graph.edges].flatMap(([from, list]) => list.map(edge => `${[from, edge.to].sort().join('|')}|${edge.role}`));
     const expected = [...new Set(edges(loaded))].sort();
     const actual = projected.connections.map(connection => `${connection.endpoints.map(end => end.node_id).sort().join('|')}|${connection.attributes.relation ?? connection.attributes.role}`).sort();
@@ -80,10 +79,9 @@ test('ambiguous row identities and explicit type conflicts are dropped rather th
 test('role and kind filters are applied before the shared per-kind DATA read bound', async () => {
   const model = { ...MODEL, graph: { ...MODEL.graph, scan_most: 1 } };
   const onlyGraphRows = rows.filter(row => ['relation', 'activity'].includes(row.type));
-  const door = rowsAsList(onlyGraphRows);
   const options = { roles: ['colleague'], ended: true, activities: false };
   const projected = projectGraphRecords(onlyGraphRows, options, model);
-  const loaded = await loadGraph(door, options, model);
+  const loaded = await loadGraph(onlyGraphRows, options, model);
   assert.equal(projected.connections[0].id, 'relation:ended');
   assert.equal(projected.complete, loaded.complete);
   assert.deepEqual(projected.read, { ...loaded.read, records: 0 });
@@ -101,8 +99,7 @@ test('explicit producer incompleteness survives without guessing the whole accou
 
 test('valid self relations stay visible while loadGraph retains its established self-step exclusion', async () => {
   const self = [{ id: 'self', type: 'relation', value: { subject: 'a', object: 'a', role: 'same' } }];
-  const door = rowsAsList(self);
-  assert.equal((await loadGraph(door)).edges.size, 0);
+  assert.equal((await loadGraph(self)).edges.size, 0);
   const projected = projectGraphRecords([...self, { id: 'a', type: 'person', value: { name: 'Ada' } }]);
   assert.equal(projected.connections.length, 1);
   assert.deepEqual(projected.connections[0].endpoints.map(end => end.node_id), ['a', 'a']);
@@ -124,8 +121,7 @@ test('both graph readers honor the editable per-activity participant bound and p
   const activity = { id: 'meeting', type: 'activity', value: { kind: 'meeting', participants: [
     { record: 'a' }, { record: 'b' }, { record: 'c' },
   ] } };
-  const door = rowsAsList([activity]);
-  const loaded = await loadGraph(door, {}, model);
+  const loaded = await loadGraph([activity], {}, model);
   const projected = projectGraphRecords([activity], {}, model);
   assert.equal(loaded.complete, false);
   assert.equal(loaded.edges.has('c'), false);

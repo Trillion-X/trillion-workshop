@@ -11,14 +11,13 @@
 //     { from, to, paths, complete, read } | { of, hubs, members, count, complete, read }
 //
 // It reads and keeps nothing. Bounded by record-graph.json `graph`, so it stays fast; `complete: false` says a bound cut it.
-import { MODEL, kindsOf, limitOf, object, recordId } from './graph-records.mjs';
+import { MODEL, kindsOf, limitOf, object, recordId, recordRows } from './graph-records.mjs';
 import { loadGraph, paths, shared } from './graph-walk.mjs';
 import { rolesOf } from './read-around.mjs';
-import { rowsAsList } from './rows-as-list.mjs';
 
 export async function findConnections(input = {}, { model = MODEL } = {}) {
   if (!object(input)) throw new Error('Give { records, from, to } for the paths between two records, or { records, of: [record ids] } for what they share.');
-  const door = rowsAsList(input.records);
+  const rows = recordRows(input.records);
   const GRAPH = model.graph;
   if (input.ended !== undefined && typeof input.ended !== 'boolean') throw new Error('ended is true or false.');
   if (input.activities !== undefined && typeof input.activities !== 'boolean') throw new Error('activities is true or false.');
@@ -32,13 +31,13 @@ export async function findConnections(input = {}, { model = MODEL } = {}) {
     if (from === to) throw new Error('from and to are the same record: name two different records.');
     const length = input.max_length === undefined ? GRAPH.path_length_default : Number(input.max_length);
     if (!Number.isInteger(length) || length < 1 || length > GRAPH.path_length_most) throw new Error(`max_length is a whole number of steps from 1 to ${GRAPH.path_length_most}.`);
-    const graph = await loadGraph(door, options, model);
+    const graph = loadGraph(rows, options, model);
     return { from, to, max_length: length, ...paths(graph, from, to, length, model), read: graph.read };
   }
   const of = input.of === undefined || input.of === null ? (from ? [from] : null)
     : Array.isArray(input.of) ? input.of.map(id => recordId(model, id)) : null;
   if (!of || !of.length || of.some(id => !id)) throw new Error('Say which records to find connections for: from and to for the paths between them, or of: [record ids] for what they share.');
   if (of.length > GRAPH.of_most) throw new Error(`of names at most ${GRAPH.of_most} records.`);
-  const graph = await loadGraph(door, options, model);
+  const graph = loadGraph(rows, options, model);
   return { of: [...new Set(of)], ...shared(graph, [...new Set(of)], limitOf(model, input.limit), model), read: graph.read };
 }

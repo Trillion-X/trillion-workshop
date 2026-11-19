@@ -3,9 +3,16 @@
 // `records`. No records door is held by any row. Every record is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { findConnections } from '../read-data/find-connections.mjs';
+import { readAround } from '../read-data/read-around.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import { activityRow, me, relationRow } from './graph-rows.mjs';
+
+const here = dirname(fileURLToPath(import.meta.url));
 
 const aroundRow = rowOf(rows, 'tool:read-the-graph-around-a-record');
 const connectRow = rowOf(rows, 'tool:find-how-records-connect');
@@ -35,6 +42,29 @@ test('the read rows hold no records door and take the rows as input', async () =
   for (const row of [aroundRow, connectRow]) {
     assert.equal(row.invoke.records, undefined, `${row.id} holds no records door`);
     assert.ok(row.input_schema.required.includes('records'), `${row.id} takes the rows as input`);
+  }
+});
+
+test('the reads refuse rows that are not { id, type, value } before any walk starts', async () => {
+  await assert.rejects(readAround({ records: [{ id: ann }], id: ann }), /records is the rows you hold, each \{ id, type, value \}/);
+  await assert.rejects(findConnections({ records: 'rows', of: [ann] }), /records is the rows you hold/);
+});
+
+test('the reads answer from the rows given and change none of them', async () => {
+  const given = structuredClone(records);
+  await readAround({ records, id: ann, hops: 2 });
+  await findConnections({ records, from: bo, to: 'me' });
+  assert.deepEqual(records, given);
+});
+
+test('no read reaches a store: the reads hold no door and call no records operation', async () => {
+  for (const file of readdirSync(join(here, '../read-data')).filter(name => name.endsWith('.mjs'))) {
+    const source = readFileSync(join(here, '../read-data', file), 'utf8');
+    assert.doesNotMatch(source, /records-door|\bdoor\b|\.list\(|records:(read|list|write)/, `${file} reaches no store`);
+  }
+  for (const row of [aroundRow, connectRow]) {
+    assert.deepEqual(row.invoke.files.package_files.filter(file => file.package === 'records-door').map(file => file.paths), [['do-work', 'read-data']], `${row.id} runs with the shared container driver only`);
+    assert.doesNotMatch(JSON.stringify(row.payload ?? row), /trillion-workshop\/records-door|"records:(read|list|write)"/, `${row.id} names no records door`);
   }
 });
 

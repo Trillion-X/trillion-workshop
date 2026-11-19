@@ -1,7 +1,7 @@
 // tools/record-graph/read-data/graph-walk.mjs
 //
 // The record graph as one bounded read, and the walks over it. A walk reads the relations (and the activities, unless
-// left out) once through records:list, at most graph.scan_most of each kind, and keeps them as adjacency in memory:
+// left out) once from the rows it is handed, at most graph.scan_most of each kind, and keeps them as adjacency in memory:
 //
 //   - a relation is an edge between its subject and its object, carrying its id and role; each end is on its side
 //     (`subject` or `object`);
@@ -9,13 +9,13 @@
 //     reaches each participant back (side `activity`); so the people at one meeting are two steps apart, through it.
 //
 // Every answer says `complete: false` when a bound in record-graph.json cut it (rows not read, records not visited,
-// steps not taken), so what is not shown reads as not known yet, never as absent. Nothing here writes.
+// steps not taken), so what is not shown reads as not known yet, never as absent. Nothing here reads a store or writes.
 import { MODEL, listBounded, activityRows, object, word } from './graph-records.mjs';
 import { canonicalJson } from '../../content-identity/read-data/identity.mjs';
 
 const order = (a, b) => a.to < b.to ? -1 : a.to > b.to ? 1 : a.by < b.by ? -1 : a.by > b.by ? 1 : a.side < b.side ? -1 : a.side > b.side ? 1 : 0;
 
-// The two projections (door walks and a supplied record feed) share this topology.
+// The two projections (walks over the rows handed in and a supplied record feed) share this topology.
 // An activity keeps its own identity as a hub, never a pairwise expansion.
 // Stored identities are opaque: validation must never trim them into another ID.
 const recordKey = value => word(value) ? value : null;
@@ -51,7 +51,7 @@ function activitySteps(id, value, { kinds = null, activities = true } = {}, mode
 }
 
 /** Pure record-feed projection, over the same DATA and topology as loadGraph.
- * Input is records-door {id,type,value}, or scoped-feed {address,payload} with
+ * Input is rows {id,type,value}, or scoped-feed {address,payload} with
  * an explicit type on the row or its payload (type/kind). No descriptor grammar
  * or identity inference from an address. Only actual supplied records become
  * nodes; exact stored IDs are retained, and conflicting duplicates are omitted
@@ -101,7 +101,7 @@ export function projectGraphRecords(rows, options = {}, model = MODEL) {
     // their topology before treating valid filters/ended records as exclusions.
     if ((type === model.relations.type && !relationValue(value))
       || (type === model.activities.type && !activityValue(value))) { complete = false; continue; }
-    // Match the door's role/kind filtering before applying its per-kind bound.
+    // Match the role/kind filtering of the walk before applying its per-kind bound.
     if (type === model.relations.type && options.roles && !options.roles.includes(value.role)) continue;
     if (type === model.activities.type && (options.activities === false || (options.kinds && !options.kinds.includes(value.kind)))) continue;
     const target = type === model.relations.type ? relations : type === model.activities.type ? activities : records;
@@ -139,10 +139,10 @@ export function projectGraphRecords(rows, options = {}, model = MODEL) {
   return { nodes: [...nodes.values()], connections, complete, read: { relations: relations.size, activities: activities.size, records: records.size } };
 }
 
-/** Reads the graph: { edges: Map<record id, [{ to, by, kind, role, side }]>, complete, read: { relations, activities } }.
- *  roles keeps only relations of these roles; kinds only activities of these kinds; ended keeps ended relations too;
- *  activities false leaves activities out. */
-export async function loadGraph(door, { roles = null, kinds = null, ended = false, activities = true } = {}, model = MODEL) {
+/** Reads the graph from the rows given: { edges: Map<record id, [{ to, by, kind, role, side }]>, complete, read: { relations,
+ *  activities } }. roles keeps only relations of these roles; kinds only activities of these kinds; ended keeps ended
+ *  relations too; activities false leaves activities out. */
+export function loadGraph(rows, { roles = null, kinds = null, ended = false, activities = true } = {}, model = MODEL) {
   const most = model.graph.scan_most;
   const edges = new Map();
   const add = (from, edge) => {
@@ -153,8 +153,7 @@ export async function loadGraph(door, { roles = null, kinds = null, ended = fals
   let complete = true;
   const relations = [];
   for (const role of roles ?? [null]) {
-    const page = await listBounded(door, model, { type: model.relations.type, fields: ['subject', 'role', 'object', 'alive'],
-      ...(role ? { where: { role } } : {}) }, most - relations.length);
+    const page = listBounded(rows, { type: model.relations.type, ...(role ? { where: { role } } : {}) }, most - relations.length);
     relations.push(...page.rows);
     if (!page.complete) { complete = false; break; }
   }
@@ -163,7 +162,7 @@ export async function loadGraph(door, { roles = null, kinds = null, ended = fals
   }
   let happened = [];
   if (activities) {
-    const page = await activityRows(door, { ...model, activities: { ...model.activities, scan_most: most } }, kinds, ['kind', 'at', 'participants']);
+    const page = activityRows(rows, { ...model, activities: { ...model.activities, scan_most: most } }, kinds);
     happened = page.rows;
     complete &&= page.complete;
     for (const { id, value } of happened) {

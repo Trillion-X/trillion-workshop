@@ -1,6 +1,6 @@
 // The connection query over the graph rows handed in: paths between two records (through relations and activities), what
-// several records all relate to and who else shares it, and the DATA bounds that keep it fast. No records door is
-// involved. Every record here is made up.
+// several records all relate to and who else shares it, and the DATA bounds that keep it fast. Every record here is made
+// up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { findConnections } from '../read-data/find-connections.mjs';
