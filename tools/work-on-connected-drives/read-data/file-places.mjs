@@ -1,13 +1,16 @@
 // tools/work-on-connected-drives/read-data/file-places.mjs
 //
-// Finds every connected-drive path and name in the person's own files (through the records door) that holds the same bytes as one file. This is a
-// deliberately read-only projection: copy/move is owned by file-transfer.mjs, and archive/delete/restore is owned by
-// namespace-set-aside.mjs. It never changes either surface. A partial filesystem read is reported, never presented as
-// a complete answer.
+// Finds every connected-drive path and every name in the person's own files that holds the same bytes as one file. The
+// person's files are what the run is handed in `input.stored.files` ({ name: text | { base64 } | { text } | { identity } }),
+// read by the caller from where the person keeps them; a name matches when its bytes have the file's BLAKE3 identity. This is
+// a deliberately read-only projection: copy/move is owned by file-transfer.mjs, and archive/delete/restore is owned by
+// namespace-set-aside.mjs. It never changes either surface and keeps nothing. A partial read (a folder it could not read,
+// or no files handed in) is reported, never presented as a complete answer.
 
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const fail = (status, message) => Object.assign(new Error(message), { status });
 const within = (child, parent) => child === parent || child.startsWith(parent.endsWith(path.sep) ? parent : parent + path.sep);
@@ -45,11 +48,16 @@ async function contentIdentity(file) {
   return `1f:${Buffer.from(hash.digest()).toString('hex')}`;
 }
 
-// The person's own files, through the run's records door (`find_file` by identity); none there is null.
-async function namespaceFile(identity, { door } = {}) {
-  if (!door) throw fail(401, 'This run was not handed the person\'s files.');
-  try { return await door.files('find_file', { name_or_identity: identity }); }
-  catch (error) { if (error?.code === 'namespace_not_found') return null; throw fail(error?.status ?? 502, error?.message ?? 'The person\'s files could not be read.'); }
+// The names among the person's files it was handed whose bytes have this identity; null when it was handed no files.
+function namesInStored(identity, { stored } = {}) {
+  const files = stored?.files;
+  if (!files || typeof files !== 'object' || Array.isArray(files)) return null;
+  const identityOfHeld = held => (typeof held === 'string' ? makeHashCodeHexFromBytes(Buffer.from(held, 'utf8'))
+    : !held || typeof held !== 'object' ? null
+    : typeof held.identity === 'string' ? held.identity
+    : held.text !== undefined ? makeHashCodeHexFromBytes(Buffer.from(String(held.text), 'utf8'))
+    : typeof held.base64 === 'string' ? makeHashCodeHexFromBytes(Buffer.from(held.base64, 'base64')) : null);
+  return Object.entries(files).filter(([, held]) => identityOfHeld(held) === identity).map(([name]) => name).sort();
 }
 
 async function scanSameSize(devices, size) {
@@ -72,8 +80,8 @@ async function scanSameSize(devices, size) {
   return { paths, unreadable };
 }
 
-export function createFilePlaces({ devices = connectedDevices, identityOf = contentIdentity, candidates = scanSameSize, lookup = namespaceFile } = {}) {
-  return async function places({ path: asked } = {}, context = {}) {
+export function createFilePlaces({ devices = connectedDevices, identityOf = contentIdentity, candidates = scanSameSize, lookup = namesInStored } = {}) {
+  return async function places({ path: asked, stored } = {}) {
     const current = await devices();
     const source = await onDrive(String(asked ?? ''), current);
     if (!source) throw fail(403, 'This file is not on a connected drive.');
@@ -94,20 +102,21 @@ export function createFilePlaces({ devices = connectedDevices, identityOf = cont
       } catch (error) { unreadable.push({ path: real, error: error.code ?? error.message }); }
     }
 
-    const cloud = await lookup(identity, context);
+    const names = await lookup(identity, { stored });
     const places = [...local.sort((a, b) => a.path.localeCompare(b.path))];
-    if (cloud) places.push({ kind: 'trillion-space', identity: cloud.identity ?? identity, names: Array.isArray(cloud.names) ? cloud.names : [] });
+    if (names?.length) places.push({ kind: 'own-files', identity, names });
     return {
       path: source.real,
       identity,
       byte_length: stat.size,
       places,
-      complete: unreadable.length === 0,
+      complete: unreadable.length === 0 && names !== null,
+      ...(names === null ? { files_not_given: true } : {}),
       ...(unreadable.length ? { unreadable: unreadable.slice(0, 100), unreadable_more: Math.max(0, unreadable.length - 100) } : {}),
     };
   };
 }
 
 export const filePlaceTools = { places: createFilePlaces() };
-// run-an-export calls it by this name, as fn(input, { door }); the door is the person's own files (tool-rows.json `records`).
-export const findEveryPlaceAFileIs = (input = {}, context = {}) => filePlaceTools.places(input, context);
+// The row's runner calls it by this name, as fn(input); the person's files are input.stored.files (tool-rows.json `stored`).
+export const findEveryPlaceAFileIs = (input = {}) => filePlaceTools.places(input);

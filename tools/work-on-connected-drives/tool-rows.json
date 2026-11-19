@@ -113,7 +113,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -202,7 +201,7 @@
       },
       "stored": {
         "type": "object",
-        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text, {base64}, {text} or {identity}} under /, as this row's `stored` lists; a name is a place of the file when its bytes (or the identity given) are the file's BLAKE3 identity. When no files are given the answer says files_not_given and complete is false."
       }
      },
      "required": [
@@ -221,7 +220,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/work-on-connected-drives/read-data/file-places.mjs",
       "findEveryPlaceAFileIs"
      ],
@@ -247,12 +246,11 @@
         "at": "/opt/connected-drives"
        },
        {
-        "package": "records-door",
+        "package": "workflows",
         "paths": [
-         "do-work",
-         "read-data"
+         "do-work/run-a-function.mjs"
         ],
-        "at": "/opt/records-door"
+        "at": "/opt/workflows"
        },
        {
         "package": "content-identity",
@@ -274,20 +272,6 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
-       },
-       {
-        "package": "browse-and-upload-my-files",
-        "paths": [
-         "built-stored-bytes/content-chunks/content_chunks.js",
-         "do-work/content-chunks.mjs",
-         "do-work/namespace-client.mjs",
-         "do-work/send-a-file-to-a-namespace.mjs",
-         "do-work/send-retry.mjs",
-         "do-work/send-window.mjs",
-         "do-work/shared-file-reference.mjs",
-         "send-settings.json"
-        ],
-        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      }
@@ -296,10 +280,7 @@
     "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes (the program lists /Volumes and calls /sbin/mount, /usr/sbin/diskutil and /usr/sbin/lsof by absolute path, so no stand-in program or granted folder can supply one); exits 1 when the file is not on a connected drive", "proved_on": null}],
     "stored": [
       {
-        "files": "/",
-        "operations": [
-          "find_file"
-        ]
+        "files": "/"
       }
     ]
    }
@@ -417,7 +398,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -499,7 +479,7 @@
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
-     "properties": { "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there." } }
+     "properties": {}
     },
     "output_schema": {
      "type": "object"
@@ -513,7 +493,7 @@
       "stdout": "json",
       "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/work-on-connected-drives/read-data/drives.mjs",
       "listDriveWork"
      ],
@@ -539,12 +519,11 @@
         "at": "/opt/connected-drives"
        },
        {
-        "package": "records-door",
+        "package": "workflows",
         "paths": [
-         "do-work",
-         "read-data"
+         "do-work/run-a-function.mjs"
         ],
-        "at": "/opt/records-door"
+        "at": "/opt/workflows"
        },
        {
         "package": "content-identity",
@@ -566,34 +545,12 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
-       },
-       {
-        "package": "browse-and-upload-my-files",
-        "paths": [
-         "built-stored-bytes/content-chunks/content_chunks.js",
-         "do-work/content-chunks.mjs",
-         "do-work/namespace-client.mjs",
-         "do-work/send-a-file-to-a-namespace.mjs",
-         "do-work/send-retry.mjs",
-         "do-work/send-window.mjs",
-         "do-work/shared-file-reference.mjs",
-         "send-settings.json"
-        ],
-        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      }
     },
     "result_selector": "$.result",
-    "verify": [{"kind": "sample-run", "input": {}}],
-    "stored": [
-      {
-        "files": "/",
-        "operations": [
-          "find_file"
-        ]
-      }
-    ]
+    "verify": [{"kind": "sample-run", "input": {}}]
    }
   },
   {
@@ -709,7 +666,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -809,10 +765,6 @@
       "check": {
        "type": "boolean",
        "description": "true only looks: says what would happen and changes nothing"
-      },
-      "stored": {
-        "type": "object",
-        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
       }
      },
      "required": [
@@ -832,7 +784,7 @@
       "stdout": "json",
       "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/work-on-connected-drives/read-data/drives.mjs",
       "controlDriveWork"
      ],
@@ -858,12 +810,11 @@
         "at": "/opt/connected-drives"
        },
        {
-        "package": "records-door",
+        "package": "workflows",
         "paths": [
-         "do-work",
-         "read-data"
+         "do-work/run-a-function.mjs"
         ],
-        "at": "/opt/records-door"
+        "at": "/opt/workflows"
        },
        {
         "package": "content-identity",
@@ -885,34 +836,12 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
-       },
-       {
-        "package": "browse-and-upload-my-files",
-        "paths": [
-         "built-stored-bytes/content-chunks/content_chunks.js",
-         "do-work/content-chunks.mjs",
-         "do-work/namespace-client.mjs",
-         "do-work/send-a-file-to-a-namespace.mjs",
-         "do-work/send-retry.mjs",
-         "do-work/send-window.mjs",
-         "do-work/shared-file-reference.mjs",
-         "send-settings.json"
-        ],
-        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      }
     },
     "result_selector": "$.result",
-    "verify": [{"kind": "sample-run", "input": {"id": "copy-sample-1", "action": "pause", "check": true}}],
-    "stored": [
-      {
-        "files": "/",
-        "operations": [
-          "find_file"
-        ]
-      }
-    ]
+    "verify": [{"kind": "sample-run", "input": {"id": "copy-sample-1", "action": "pause", "check": true}}]
    }
   },
   {
@@ -1028,7 +957,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -1132,10 +1060,6 @@
       "check": {
        "type": "boolean",
        "description": "true only looks: says what would happen and changes nothing"
-      },
-      "stored": {
-        "type": "object",
-        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
       }
      },
      "required": [
@@ -1156,7 +1080,7 @@
       "stdout": "json",
       "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/work-on-connected-drives/read-data/drives.mjs",
       "copyOrMoveBetweenDrives"
      ],
@@ -1182,12 +1106,11 @@
         "at": "/opt/connected-drives"
        },
        {
-        "package": "records-door",
+        "package": "workflows",
         "paths": [
-         "do-work",
-         "read-data"
+         "do-work/run-a-function.mjs"
         ],
-        "at": "/opt/records-door"
+        "at": "/opt/workflows"
        },
        {
         "package": "content-identity",
@@ -1209,34 +1132,12 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
-       },
-       {
-        "package": "browse-and-upload-my-files",
-        "paths": [
-         "built-stored-bytes/content-chunks/content_chunks.js",
-         "do-work/content-chunks.mjs",
-         "do-work/namespace-client.mjs",
-         "do-work/send-a-file-to-a-namespace.mjs",
-         "do-work/send-retry.mjs",
-         "do-work/send-window.mjs",
-         "do-work/shared-file-reference.mjs",
-         "send-settings.json"
-        ],
-        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      }
     },
     "result_selector": "$.result",
-    "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes (the program lists /Volumes and calls /sbin/mount, /usr/sbin/diskutil and /usr/sbin/lsof by absolute path, so no stand-in program or granted folder can supply one); a copy or move exits 1 unless its sources and destinations are on connected drives", "proved_on": null}],
-    "stored": [
-      {
-        "files": "/",
-        "operations": [
-          "find_file"
-        ]
-      }
-    ]
+    "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes (the program lists /Volumes and calls /sbin/mount, /usr/sbin/diskutil and /usr/sbin/lsof by absolute path, so no stand-in program or granted folder can supply one); a copy or move exits 1 unless its sources and destinations are on connected drives", "proved_on": null}]
    }
   },
   {
@@ -1352,7 +1253,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -1442,10 +1342,6 @@
       "check": {
        "type": "boolean",
        "description": "true only looks: says what would happen and changes nothing"
-      },
-      "stored": {
-        "type": "object",
-        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
       }
      },
      "required": [
@@ -1464,7 +1360,7 @@
       "stdout": "json",
       "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/work-on-connected-drives/read-data/drives.mjs",
       "ejectADrive"
      ],
@@ -1490,12 +1386,11 @@
         "at": "/opt/connected-drives"
        },
        {
-        "package": "records-door",
+        "package": "workflows",
         "paths": [
-         "do-work",
-         "read-data"
+         "do-work/run-a-function.mjs"
         ],
-        "at": "/opt/records-door"
+        "at": "/opt/workflows"
        },
        {
         "package": "content-identity",
@@ -1517,34 +1412,12 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
-       },
-       {
-        "package": "browse-and-upload-my-files",
-        "paths": [
-         "built-stored-bytes/content-chunks/content_chunks.js",
-         "do-work/content-chunks.mjs",
-         "do-work/namespace-client.mjs",
-         "do-work/send-a-file-to-a-namespace.mjs",
-         "do-work/send-retry.mjs",
-         "do-work/send-window.mjs",
-         "do-work/shared-file-reference.mjs",
-         "send-settings.json"
-        ],
-        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      }
     },
     "result_selector": "$.result",
-    "verify": [{"kind": "sample-run", "input": {"mount": "/Volumes/Example Drive"}}],
-    "stored": [
-      {
-        "files": "/",
-        "operations": [
-          "find_file"
-        ]
-      }
-    ]
+    "verify": [{"kind": "sample-run", "input": {"mount": "/Volumes/Example Drive"}}]
    }
   }
  ]

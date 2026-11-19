@@ -1,5 +1,5 @@
 // The drive work tools over pretend drives in a temporary folder: what Finder hides is never a drive, every row names a
-// function run-an-export can call with the capabilities the engine's sandbox gives it, and a copy is checked and named.
+// function run-a-function can call with the capabilities the engine's sandbox gives it, and a copy is checked and named.
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
@@ -24,7 +24,7 @@ test('a volume Finder hides (mounted nobrowse, like a simulator runtime) is neve
   assert.deepEqual([...hidden], ['/Volumes/iOS 26.5 Simulator']);
 });
 
-test('every tool the rows name is a function run-an-export can call', async () => {
+test('every tool the rows name is a function run-a-function can call', async () => {
   const places = await import('../read-data/file-places.mjs');
   for (const name of ['listDriveWork', 'controlDriveWork', 'copyOrMoveBetweenDrives', 'ejectADrive']) assert.equal(typeof drives[name], 'function', name);
   assert.equal(typeof places.findEveryPlaceAFileIs, 'function');
@@ -42,7 +42,15 @@ test('every row is a computer row seeing connected drives, and only transfer may
     assert.equal(row.invoke.workdir, '/opt/work-on-connected-drives');
     assert.deepEqual(row.invoke.capabilities, row.id === 'tool:media-transfer' ? ['see-connected-drives', 'change-a-folder'] : ['see-connected-drives'], row.id);
     assert.ok(row.invoke.files.package_files.some(item => item.package === 'connected-drives'), row.id);
+    assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs', row.id);
+    assert.ok(row.invoke.files.package_files.some(item => item.package === 'workflows' && item.at === '/opt/workflows'), row.id);
+    assert.ok(!row.invoke.files.package_files.some(item => item.package === 'records-door'), row.id);
   }
+});
+
+test('no row asks a records door for anything: only the file-places row reads the person\'s files, handed in', () => {
+  assert.doesNotMatch(JSON.stringify(rows), /records?:(read|write|list|search)|records-door|run-an-export/);
+  assert.deepEqual(rows.filter(row => row.stored).map(row => [row.id, row.stored]), [['tool:media-file-places', [{ files: '/' }]]]);
 });
 
 test('a copy is checked and named, and a second copy to the same folder gets the next free name', async t => {

@@ -1,6 +1,6 @@
 # tools/work-on-connected-drives/
 
-The drive tools that change things on a person's computer: copy or move files and folders between drives (each copy checked before it is named), list and pause/resume/stop the file work on drives, find every place the same file is, and eject a drive after stopping what holds it. They run on the person's own Mac as `computer` rows, one process per run, through `tools/records-door`'s `run-an-export.mjs`. Every row holds `see-connected-drives`; `tool:media-transfer` also holds `change-a-folder` (the person grants the drive folder it may write into). What only reads a drive (list the drives, one folder, what is on one by kind, its icon, what holds it) is `tools/connected-drives`; its code is imported from there, one copy.
+The drive tools that change things on a person's computer: copy or move files and folders between drives (each copy checked before it is named), list and pause/resume/stop the file work on drives, find every place the same file is, and eject a drive after stopping what holds it. They run on the person's own Mac as `computer` rows, one process per run, through `tools/workflows`' `do-work/run-a-function.mjs`: each is a function of its input that keeps nothing. Every row holds `see-connected-drives`; `tool:media-transfer` also holds `change-a-folder` (the person grants the drive folder it may write into). What only reads a drive (list the drives, one folder, what is on one by kind, its icon, what holds it) is `tools/connected-drives`; its code is imported from there, one copy.
 
 Moved here from `Trillion-X/trillion` `computer/drive-tools/` (2026-11-02); run through the engine since 2026-11-03. Old trillion's five read rows of this folder (`tool:trillion-media-drives`, `-drive-icon`, `-drive-kinds`, `-drive-folder`, `-drive-holders`) were the same jobs as `tools/connected-drives`' rows and are gone: the engine already sends those ids to the connected-drives rows (trillion-rust `product/renamed-tools.json`).
 
@@ -8,22 +8,22 @@ Moved here from `Trillion-X/trillion` `computer/drive-tools/` (2026-11-02); run 
 
 | File | Purpose |
 |------|---------|
-| `read-data/drives.mjs` | `listDriveWork`, `controlDriveWork`, `copyOrMoveBetweenDrives`, `ejectADrive` (run by `run-an-export`), and eject itself: stops this run's own work on the drive first, asks every other holder to quit, then `diskutil eject`. The drives come from `tools/connected-drives` `enumerateDevices`. |
-| `read-data/file-places.mjs` | `findEveryPlaceAFileIs`: every connected-drive path and every name in the person's own files (`find_file` through the run's records door, by BLAKE3 identity) that holds the same bytes as one file; it reports unreadable folders instead of claiming a partial scan is complete. |
+| `read-data/drives.mjs` | `listDriveWork`, `controlDriveWork`, `copyOrMoveBetweenDrives`, `ejectADrive` (run by `run-a-function`), and eject itself: stops this run's own work on the drive first, asks every other holder to quit, then `diskutil eject`. The drives come from `tools/connected-drives` `enumerateDevices`. |
+| `read-data/file-places.mjs` | `findEveryPlaceAFileIs`: every connected-drive path and every name among the person's own files handed in as `input.stored.files` (bytes, text or a given identity, matched by BLAKE3 identity) that holds the same bytes as one file; it reports unreadable folders, or that no files were handed in, instead of claiming a partial scan is complete. |
 | `read-data/drive-work.mjs` | All the work on the drives (transfers, other programs holding a drive) with pause, resume, stop and resume-at, and the part of eject that stops that work gracefully first. |
 | `read-data/file-transfer.mjs` | Copy or move files and folders to folders on connected drives, inside the run that asks: each copy checked by BLAKE3 before it gets its name, a move's sources trashed only after every copy is checked; progress in `<state>/progress.json`. |
 | `read-data/work-control.mjs` | A job's pause/stop choice in `<state>/control.json` and the checkpoint a worker passes between chunks. |
-| `tool-rows.json` | `tool:media-file-places`, `-work`, `-work-control`, `-transfer` and `-eject`, `computer` rows. `file-places` also declares `records` rights: `find_file` over the person's files. |
+| `tool-rows.json` | `tool:media-file-places`, `-work`, `-work-control`, `-transfer` and `-eject`, `computer` rows. `file-places` also declares `stored`: the person's files under `/`, handed in by the caller. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/drives.test.mjs` | Hidden volumes, every row's export and capabilities, and a real copy in a temporary folder. |
-| `test/file-places.test.mjs` | Every place a file is, over pretend drives and a pretend door. |
+| `test/file-places.test.mjs` | Every place a file is, over pretend drives and files handed in. |
 
 ## Key Types / Functions
 
 | Name | Shape | Role |
 |------|-------|------|
 | `listDriveWork()` … `ejectADrive(input)` | `(input) -> Promise<answer>` | What a row runs; a failure throws with `status` and words. |
-| `findEveryPlaceAFileIs(input, { door })` | `({ path }) -> { path, identity, places, complete }` | The door is the person's own files. |
+| `findEveryPlaceAFileIs(input)` | `({ path, stored: { files } }) -> { path, identity, places, complete, files_not_given? }` | `stored.files` is the person's own files, handed in by the caller. |
 | `createTransfers({ folder, runWorker? })` | `-> { start, preview, list, restart }` | Starts a transfer in `<folder>/<id>` (the run's home folder) and runs it until it ends. |
 
 ## Not yet
@@ -36,11 +36,11 @@ Checked against trillion-rust `src/runtime/workshop/computer-capabilities.json` 
 - **A move's sources to the Trash**: `/usr/bin/trash` (executable under `base`) moves into the source drive's `.Trashes`, which only `change-a-folder` over that drive's root allows, and its Finder/FileManager service lookups are in no capability (not measured). One `change-a-folder` grant per tool also means every destination, and a move's sources, must be inside the one folder granted; a copy to two drives needs a second folder grant, which the engine does not have.
 - **Utility priority**: old trillion started the worker under `/usr/sbin/taskpolicy -c utility`; `/usr/sbin/taskpolicy` is in no rule, so a transfer runs at the run's own priority.
 - **The hardware profile** (iPhones and unmounted devices from `/usr/sbin/system_profiler`, merged into old trillion's drive list): `/usr/sbin/system_profiler` is in no rule. Dropped with the read rows; `tools/connected-drives` lists mounted volumes only.
-- `ps` (`/bin/ps`, `base`) names the holders: `see-connected-drives` allows `process-info-listpids` and `process-info-pidinfo (target others)`, which it needs. `lsof`, `mount`, `diskutil info`, reads under `/Volumes` and the door's `find_file` are all inside the rows' capabilities.
+- `ps` (`/bin/ps`, `base`) names the holders: `see-connected-drives` allows `process-info-listpids` and `process-info-pidinfo (target others)`, which it needs. `lsof`, `mount`, `diskutil info`, and reads under `/Volumes` are all inside the rows' capabilities.
 - None of these rows has been run end to end on the engine on a Mac; the tests use pretend drives.
 
 ## Dependencies
 
-**Depends on:** `tools/connected-drives` (`drives.mjs` `enumerateDevices`, `drive-folder.mjs` `driveOf`, `drive-processes.mjs`), `tools/records-door` (`run-an-export.mjs`, the door), `@noble/hashes`, macOS `diskutil`, `lsof`, `ps` and `/usr/bin/trash`.
+**Depends on:** `tools/connected-drives` (`drives.mjs` `enumerateDevices`, `drive-folder.mjs` `driveOf`, `drive-processes.mjs`), `tools/workflows` (`do-work/run-a-function.mjs`), `tools/content-identity` (`identity.mjs`), `@noble/hashes`, macOS `diskutil`, `lsof`, `ps` and `/usr/bin/trash`.
 
 **Depended on by:** `tool-rows.json`.

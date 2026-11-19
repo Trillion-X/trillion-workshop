@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   The drive tools that change things on a person's computer (tool-rows.json, `computer` rows run by
-//   tools/records-door's run-an-export, one process per run): list and pause/resume/stop the long file work on drives,
+//   tools/workflows' run-a-function, one process per run): list and pause/resume/stop the long file work on drives,
 //   copy or move between drives, and eject. Each is a plain function from the tool's input to its answer. What a drive
 //   is (the listing, its identity, the programs holding it) is tools/connected-drives' one copy.
 //
@@ -14,7 +14,7 @@
 //      other program holding it to quit, and only then runs `diskutil eject`; work paused before stays paused after.
 //   3. A transfer copies, checks each copy by its BLAKE3 and only then names it (file-transfer.mjs); a move sends the
 //      source to the Trash only after every copy was checked.
-//   4. A failure carries `status` and words the person can read; run-an-export answers it as `error`.
+//   4. A failure carries `status` and words the person can read; run-a-function answers it as `error`.
 //   5. Nothing outlives its run: a transfer runs inside the run that starts it (see README "Not yet").
 //
 import os from 'node:os';
@@ -137,7 +137,8 @@ export const driveTools = {
   },
 };
 
-// run-an-export calls each tool by its exported name, as fn(input) (tool-rows.json names which).
+// run-a-function calls each tool by its exported name, as fn(input) (tool-rows.json names which); a host on the
+// person's computer may hand transfer a `note_written` function reference as its second argument.
 export const listDriveWork = () => driveTools.work();
 export const controlDriveWork = (input = {}) => driveTools.workControl(input);
 export const copyOrMoveBetweenDrives = (input = {}, context = {}) => driveTools.transfer(input, context);
