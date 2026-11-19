@@ -1,6 +1,6 @@
 // tools/stream-an-answer-in-keyed-parts/do-work/stream-an-answer-in-keyed-parts.mjs
 //
-// tool:merge-a-streamed-answer, run as a function (tools/records-door do-work/run-an-export.mjs): merges the events of
+// tool:merge-a-streamed-answer, run as a function (tools/workflows do-work/run-a-function.mjs): merges the events of
 // a streamed answer into its entry by src/keyed-parts.mjs unchanged (text appends, sources and related questions are
 // parts of their own, a patch changes a part already sent, a snapshot re-attaches, a replay adds nothing twice), and
 // answers the entry with the token a re-attach continues from.
