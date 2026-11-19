@@ -1,0 +1,47 @@
+{
+  "start_here": "Switch on the at-its-time wake of workflow:send-each-post-at-its-time with store {\"where\": \"the person's own database\", \"language\": \"SQL (PostgreSQL)\", \"credential_name\": \"the name the person saved their database login under\"}. From then on a post set to go at its time is sent at that time, within a minute, to each of its destinations not yet sent or failed.",
+  "lists": [],
+  "no_lists_because": "It names no list: it reads the person's posts and connections from their own database with run-sql, and writes each post back as its send answered it.",
+  "workflows": [
+    "workflow:send-each-post-at-its-time"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database",
+    "tool:send-a-post"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Switch on the at-its-time wake of workflow:send-each-post-at-its-time with store {where, language, credential_name} for the person's own database\", and give it the store: where the person keeps their posts, the language that store is spoken in, and the name of the database login in the vault.",
+    "2. The AI switches the wake on through the workflow engine. Each minute the run reads the posts whose time has come (status scheduled, partial or failed, armed, scheduled_for passed) with tool:run-sql-in-my-database.",
+    "3. For each due destination not yet sent or failed, the run calls tool:send-a-post with the post and its connection rows, and writes each post back as its answer came, with a version check: a post changed since it was read is a conflict, not an overwrite.",
+    "4. It is given only the rows of the person's own store that the run reads: post (reads and writes); connection (reads)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Run the due-post read once with the person's store",
+      "ask": "Run the at-its-time workflow once for the person's own database, now, so it sends the posts whose time has come",
+      "workflow": "workflow:send-each-post-at-its-time",
+      "step": "read-due-posts",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:send-each-post-at-its-time",
+              "store": {
+                "where": "the person's own database",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "the-persons-database-connection"
+              }
+            }
+          }
+        }
+      },
+      "given": "The store the person's database is spoken to with, and the login's vault name.",
+      "hands_back": "It answered {\"posts\":[],\"answers\":[],\"not_sent\":[],\"writes\":[]} when no post's time has come, so nothing was sent."
+    }
+  ],
+  "drafted_from": "workflow:send-each-post-at-its-time's own recipe row (its wake, steps and prove attempts) and the retired tool:send-each-post-at-its-time row it replaces; read it before relying on it"
+}

@@ -1,0 +1,255 @@
+{
+  "about": "workflow:send-each-post-at-its-time: the minute wake that sends each post set to go at its time. It replaces tool:send-each-post-at-its-time in tools/social-posts, which only read the changed posts through the records door and set one timed run per destination; the wake here reads the due posts from the person's own store with run-sql, hands each destination to tool:send-a-post, and writes each post back as its send answered it.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:send-each-post-at-its-time",
+        "label": "Send each post at its time",
+        "job": "Each minute, send every post the person set to go at its time whose time has come, to each of its destinations not yet sent or failed, and write each post back as its send answered it.",
+        "produces": "The posts that came due, each destination's answer, and the write of each post; proven on the example attempts: a due post is read once, a later post and a draft and an unarmed post are not, the connection is read, and a stale write conflicts.",
+        "source": {
+          "from": "tools/social-posts read-data/send-a-post.mjs sendEachPostAtItsTime and tool:send-each-post-at-its-time (retired in this commit: its row, kit and wake). Its timed send, one per destination at the post's scheduled_for, is this recipe's minute wake: a run reads the due posts and hands each destination to tool:send-a-post, which refuses a send the post no longer arms.",
+          "note": "The minute wake reads the posts whose time has come, so a post goes at its time within a minute of it. The store login is the one value the person sets when they switch the wake on: input.store.credential_name names their own database connection."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language",
+                "credential_name"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps their posts: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses to read and write the posts"
+                }
+              }
+            }
+          }
+        },
+        "wakes": [
+          {
+            "id": "at-its-time",
+            "on": {
+              "time": {
+                "every_ms": 60000
+              }
+            },
+            "budget": {
+              "steps": 40,
+              "wall_ms": 300000
+            },
+            "input": {
+              "start_at": "read-due-posts",
+              "store": {
+                "where": "the person's own database",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "the-persons-database-connection"
+              }
+            }
+          }
+        ],
+        "steps": [
+          {
+            "id": "read-due-posts",
+            "title": "Read the posts whose time has come",
+            "do": "Run tool:run-sql-in-my-database with credential_name = input.store.credential_name, sql = the statement in this step's sql, and params = this step's params. Submit each row as one entry of posts: its address, its version and its value.",
+            "sql": "select address, version, value from objects where type = 'post' and value->>'status' = any($1::text[]) and value ? 'armed_at' and (value->>'scheduled_for')::timestamptz <= now() order by (value->>'scheduled_for')",
+            "params": [
+              "scheduled",
+              "partial",
+              "failed"
+            ],
+            "submit": {
+              "type": "object",
+              "required": [
+                "posts"
+              ],
+              "properties": {
+                "posts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "address",
+                      "version",
+                      "value"
+                    ],
+                    "properties": {
+                      "address": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer"
+                      },
+                      "value": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "read-connections",
+            "title": "Read the connections those posts send through",
+            "do": "For the posts submitted by read-due-posts, list the address of each destination: 'connection:' followed by the destination encoded for a URL (its account_id, encoded as encodeURIComponent does). Run tool:run-sql-in-my-database with credential_name = input.store.credential_name, sql = the statement in this step's sql, and params = [those addresses]. Submit each row as one entry of connections: its address and its value. A destination with no row is submitted with a null value.",
+            "sql": "select address, value from objects where type = 'connection' and address = any($1::text[])",
+            "submit": {
+              "type": "object",
+              "required": [
+                "connections"
+              ],
+              "properties": {
+                "connections": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "address",
+                      "value"
+                    ],
+                    "properties": {
+                      "address": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": [
+                          "object",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "send-each",
+            "title": "Send each due destination by its place's send tool",
+            "do": "For each post submitted by read-due-posts, and each of its destinations whose delivery is not sent or failed (value.deliveries[destination].status, where a missing delivery counts as not sent), run tool:send-a-post with post_id = the post's post_id, place = the slug of the row in read-data/post-places.json whose connection_vendor equals the connection's vendor (its id without post-place:), account_id = the destination, armed_at = the post's armed_at, and records = [the post row as read, the connection row as read]. A destination with no connection row is not sent: say so in not_sent. Keep each answer as it came back. Nothing is sent that the post row does not name as a destination.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers",
+                "not_sent"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "post_id",
+                      "account_id",
+                      "answer"
+                    ],
+                    "properties": {
+                      "post_id": {
+                        "type": "string"
+                      },
+                      "account_id": {
+                        "type": "string"
+                      },
+                      "answer": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                },
+                "not_sent": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "post_id",
+                      "account_id",
+                      "why"
+                    ],
+                    "properties": {
+                      "post_id": {
+                        "type": "string"
+                      },
+                      "account_id": {
+                        "type": "string"
+                      },
+                      "why": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep-sent-posts",
+            "title": "Write each post as its send answered it",
+            "do": "For each answer that carries keep, take its post row (keep[0].value) and write it back: run tool:run-sql-in-my-database with credential_name = input.store.credential_name, sql = the statement in this step's sql, and params = [the post's address, the value, the version read by read-due-posts]. A write that changes no row is a conflict: the post changed since it was read, so submit it as a conflict and do not write it again. Submit each write as written or conflict.",
+            "sql": "update objects set value = $2, version = version + 1 where address = $1 and version = $3",
+            "submit": {
+              "type": "object",
+              "required": [
+                "writes"
+              ],
+              "properties": {
+                "writes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "address",
+                      "answer"
+                    ],
+                    "properties": {
+                      "address": {
+                        "type": "string"
+                      },
+                      "answer": {
+                        "type": "string",
+                        "enum": [
+                          "written",
+                          "conflict"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the recipe on example attempts",
+            "do": "The attempts below run through the store's own objects, each answer as its expect names: seed puts a row at its address and version; due runs read-due-posts' sql with its params and expects the addresses it returns; connections runs read-connections' sql with the addresses and expects the rows found; write runs keep-sent-posts' sql with the address, expected_version and value and expects written or conflict. Attempts: [{\"op\": \"seed\", \"address\": \"post:due\", \"type\": \"post\", \"version\": 1, \"value\": {\"post_id\": \"post:due\", \"status\": \"scheduled\", \"approved_at\": \"2026-01-01T00:00:00Z\", \"armed_at\": \"2026-01-01T00:00:05.000Z\", \"scheduled_for\": \"2026-01-02T00:00:00Z\", \"destinations\": [\"service_connection:x:sample\"], \"deliveries\": {}}}, {\"op\": \"seed\", \"address\": \"post:later\", \"type\": \"post\", \"version\": 1, \"value\": {\"post_id\": \"post:later\", \"status\": \"scheduled\", \"approved_at\": \"2026-01-01T00:00:00Z\", \"armed_at\": \"2026-01-01T00:00:05.000Z\", \"scheduled_for\": \"2099-01-01T00:00:00Z\", \"destinations\": [\"service_connection:x:sample\"], \"deliveries\": {}}}, {\"op\": \"seed\", \"address\": \"post:draft\", \"type\": \"post\", \"version\": 1, \"value\": {\"post_id\": \"post:draft\", \"status\": \"draft\", \"approved_at\": \"2026-01-01T00:00:00Z\", \"scheduled_for\": \"2026-01-02T00:00:00Z\", \"destinations\": [\"service_connection:x:sample\"], \"deliveries\": {}}}, {\"op\": \"seed\", \"address\": \"post:unarmed\", \"type\": \"post\", \"version\": 1, \"value\": {\"post_id\": \"post:unarmed\", \"status\": \"scheduled\", \"approved_at\": \"2026-01-01T00:00:00Z\", \"scheduled_for\": \"2026-01-02T00:00:00Z\", \"destinations\": [\"service_connection:x:sample\"], \"deliveries\": {}}}, {\"op\": \"seed\", \"address\": \"connection:service_connection%3Ax%3Asample\", \"type\": \"connection\", \"version\": 1, \"value\": {\"connection_id\": \"service_connection:x:sample\", \"vendor\": \"x\"}}, {\"op\": \"due\", \"expect\": [\"post:due\"]}, {\"op\": \"connections\", \"addresses\": [\"connection:service_connection%3Ax%3Asample\"], \"expect\": [\"connection:service_connection%3Ax%3Asample\"]}, {\"op\": \"write\", \"address\": \"post:due\", \"expected_version\": 1, \"expect\": \"written\", \"value\": {\"post_id\": \"post:due\", \"status\": \"posted\", \"approved_at\": \"2026-01-01T00:00:00Z\", \"armed_at\": \"2026-01-01T00:00:05.000Z\", \"scheduled_for\": \"2026-01-02T00:00:00Z\", \"destinations\": [\"service_connection:x:sample\"], \"deliveries\": {\"service_connection:x:sample\": {\"status\": \"posted\", \"platform_post_id\": \"9001\"}}}}, {\"op\": \"write\", \"address\": \"post:due\", \"expected_version\": 1, \"expect\": \"conflict\"}, {\"op\": \"due\", \"expect\": []}]",
+            "submit": {
+              "type": "object"
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}
