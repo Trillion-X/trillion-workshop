@@ -725,6 +725,13 @@
                 "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
               },
               {
+                "package": "see-what-my-ais-did",
+                "paths": [
+                  "from-an-older-version/src/work-results.mjs"
+                ],
+                "at": "/opt/see-what-my-ais-did"
+              },
+              {
                 "package": "show-each-setup-step-with-the-real-things-found",
                 "paths": [
                   "from-an-older-version/src/setup-capability-evidence.mjs"
