@@ -66,6 +66,6 @@ export async function readAiSetups(input = {}, { settings = aiSetupSettings(), h
   return { items, sources: counts };
 }
 
-/** tool:read-ai-setups, run by tools/records-door run-an-export.mjs as read(input). */
+/** tool:read-ai-setups, run by tools/workflows do-work/run-a-function.mjs as read(input). */
 export const aiSetupTools = { async read(input) { return readAiSetups(input); } };
 export const { read } = aiSetupTools;
