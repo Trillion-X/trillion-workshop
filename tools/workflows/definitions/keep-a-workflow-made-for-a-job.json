@@ -1,0 +1,314 @@
+{
+  "_what": "Keep a workflow made for a job no workflow fitted, so the next such moment chooses it like any other: the run's actor writes it in the engine's own shape with the kinds it fires for (the engine checks the shape), and the run keeps it as one row of workflow_recipes (recipe, title, fires_when, definition, kept_at) in the database of the pursuit the job serves, then reads it back. Input: {job}. The router hands these rows to the chooser as the person's own workflows, and a workflow runner finds a kept definition by its recipe id.",
+  "definitions": [
+    {
+      "id": "workflow:keep-a-workflow-made-for-a-job",
+      "name": "Keep a workflow made for a job",
+      "kind": "workflow",
+      "is_active": true,
+      "version": 1,
+      "steps": [
+        {
+          "id": "draft",
+          "kind": "ask",
+          "config": {
+            "name": {
+              "$kind": "binding",
+              "select": {
+                "from": "context",
+                "path": "actor.user_id"
+              }
+            },
+            "input": {
+              "do": "No workflow the person has fits this job, so write the one it needs, in the workflow engine's own shape: {id, name, kind: workflow, is_active: true, version: 1, steps, edges}. Each step is an ask: a step a tool runs names that tool (tool:<id>) with exactly the tool's input; every other step names the run's own actor ({\"$kind\":\"binding\",\"select\":{\"from\":\"context\",\"path\":\"actor.user_id\"}}) and holds do, the submit shape its answer must have (JSON Schema, specific enough that a wrong answer is refused) and checks; give each a context {step_id}. Reuse a workflow the person already has for a part of the job by a step that runs it, never by copying its steps. Name the kinds of moment it should fire for in fires_when, the same condition shape the person's other workflows use (fields with a kinds field, tree with a has_any_of rule), so the next such moment chooses it. The store is the connection name of the database of the pursuit the job serves.",
+              "job": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "job"
+                }
+              },
+              "submit": {
+                "type": "object",
+                "required": [
+                  "recipe",
+                  "title",
+                  "store",
+                  "definition",
+                  "fires_when"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "recipe": {
+                    "type": "string",
+                    "pattern": "^workflow:[a-z0-9]+(-[a-z0-9]+)*$"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 3
+                  },
+                  "store": {
+                    "type": "string",
+                    "minLength": 3
+                  },
+                  "definition": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "name",
+                      "kind",
+                      "steps",
+                      "edges"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^workflow:"
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 3
+                      },
+                      "kind": {
+                        "const": "workflow"
+                      },
+                      "steps": {
+                        "type": "array",
+                        "minItems": 2,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "kind",
+                            "config"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "config": {
+                              "type": "object"
+                            }
+                          }
+                        }
+                      },
+                      "edges": {
+                        "type": "array"
+                      }
+                    }
+                  },
+                  "fires_when": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "label",
+                        "condition"
+                      ],
+                      "properties": {
+                        "label": {
+                          "type": "string",
+                          "minLength": 3
+                        },
+                        "state": {
+                          "type": "string"
+                        },
+                        "condition": {
+                          "type": "object",
+                          "required": [
+                            "fields",
+                            "tree"
+                          ],
+                          "properties": {
+                            "fields": {
+                              "type": "array",
+                              "minItems": 1
+                            },
+                            "tree": {
+                              "type": "object"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "context": {
+              "step_id": "draft",
+              "title": "Write the workflow this job needs"
+            }
+          }
+        },
+        {
+          "id": "make-the-table",
+          "kind": "ask",
+          "config": {
+            "name": "tool:run-sql-in-my-database",
+            "input": {
+              "credential_name": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "draft",
+                  "path": "output.store"
+                }
+              },
+              "sql": "CREATE TABLE IF NOT EXISTS workflow_recipes (recipe text PRIMARY KEY, title text, fires_when jsonb, definition jsonb, kept_at timestamptz NOT NULL DEFAULT now())",
+              "params": []
+            },
+            "context": {
+              "step_id": "make-the-table"
+            }
+          }
+        },
+        {
+          "id": "widen-the-table",
+          "kind": "ask",
+          "config": {
+            "name": "tool:run-sql-in-my-database",
+            "input": {
+              "credential_name": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "draft",
+                  "path": "output.store"
+                }
+              },
+              "sql": "ALTER TABLE workflow_recipes ADD COLUMN IF NOT EXISTS title text, ADD COLUMN IF NOT EXISTS definition jsonb",
+              "params": []
+            },
+            "context": {
+              "step_id": "widen-the-table"
+            }
+          }
+        },
+        {
+          "id": "keep",
+          "kind": "ask",
+          "config": {
+            "name": "tool:run-sql-in-my-database",
+            "input": {
+              "credential_name": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "draft",
+                  "path": "output.store"
+                }
+              },
+              "sql": "INSERT INTO workflow_recipes (recipe, title, fires_when, definition, kept_at) VALUES ($1, $2, $3::jsonb, $4::jsonb, now()) ON CONFLICT (recipe) DO UPDATE SET title = $2, fires_when = $3::jsonb, definition = $4::jsonb, kept_at = now() RETURNING recipe, kept_at",
+              "params": [
+                {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "draft",
+                    "path": "output.recipe"
+                  }
+                },
+                {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "draft",
+                    "path": "output.title"
+                  }
+                },
+                {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "draft",
+                    "path": "output.fires_when",
+                    "transform": [
+                      {
+                        "op": "op:core.stringify"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "draft",
+                    "path": "output.definition",
+                    "transform": [
+                      {
+                        "op": "op:core.stringify"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "context": {
+              "step_id": "keep"
+            }
+          }
+        },
+        {
+          "id": "read-back",
+          "kind": "ask",
+          "config": {
+            "name": "tool:run-sql-in-my-database",
+            "input": {
+              "credential_name": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "draft",
+                  "path": "output.store"
+                }
+              },
+              "sql": "SELECT recipe, title, jsonb_array_length(definition->'steps') AS steps, jsonb_array_length(fires_when) AS conditions, kept_at FROM workflow_recipes WHERE recipe = $1",
+              "params": [
+                {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "draft",
+                    "path": "output.recipe"
+                  }
+                }
+              ]
+            },
+            "context": {
+              "step_id": "read-back"
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "from": "draft",
+          "to": "make-the-table",
+          "kind": "always"
+        },
+        {
+          "from": "make-the-table",
+          "to": "widen-the-table",
+          "kind": "always"
+        },
+        {
+          "from": "widen-the-table",
+          "to": "keep",
+          "kind": "always"
+        },
+        {
+          "from": "keep",
+          "to": "read-back",
+          "kind": "always"
+        }
+      ]
+    }
+  ]
+}
