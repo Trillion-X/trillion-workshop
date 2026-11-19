@@ -40,7 +40,10 @@ test('the kept row carries fires_when and the definition as JSON text', async ()
   assert.deepEqual(asJson(definition), draft.definition);
   // A list given to the database driver as itself becomes a Postgres array, which ::jsonb refuses: both go as JSON text.
   const keep = definitions[0].steps.find(step => step.id === 'keep').config.input.params;
-  for (const param of keep.slice(2)) assert.deepEqual(param.select.transform, [{ op: 'op:core.stringify' }]);
+  // The transform sits beside select: the engine reads it only there, and text is never evaluated again.
+  for (const param of keep.slice(2)) assert.deepEqual(param.transform, [{ op: 'op:core.stringify', args: { format: 'json' } }]);
+  assert.equal(typeof firesWhen, 'string');
+  assert.equal(typeof definition, 'string');
 });
 
 test('a draft with no conditions or a one-step definition is refused', async () => {

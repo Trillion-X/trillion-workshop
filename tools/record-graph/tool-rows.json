@@ -576,8 +576,7 @@
        {
         "package": "record-graph",
         "paths": [
-         "read-data",
-         "do-work"
+         "read-data"
         ],
         "at": "/opt/record-graph"
        },
@@ -1077,8 +1076,7 @@
        {
         "package": "record-graph",
         "paths": [
-         "read-data",
-         "do-work"
+         "read-data"
         ],
         "at": "/opt/record-graph"
        },

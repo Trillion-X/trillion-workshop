@@ -29,3 +29,19 @@ test('package-files.json is the laid-out files every tool row needs, made from t
   const rows = JSON.parse(made);
   assert.ok(rows['tool:run-workflow-definition'].some(item => item.package === 'decide-with-a-method' && item.paths.includes('read-data/decision-outcome.mjs')), 'the workflow runner is laid out with the decision outcome module its kit check imports');
 });
+
+test('every file a tool row is laid out with is in this tree', () => {
+  // The engine copies each laid-out path into the run's folder and refuses the whole run when one is missing (NotRunnableHere),
+  // so a moved or removed file named here stops every run of that row, and every workflow when the row is the workflow runner.
+  const rows = JSON.parse(readFileSync(join(repo, PACKAGE_FILES), 'utf8'));
+  const missing = [];
+  for (const [row, items] of Object.entries(rows)) {
+    for (const item of items) {
+      if (!item.package) continue;
+      for (const path of item.paths ?? []) {
+        if (!existsSync(join(repo, 'tools', item.package, path))) missing.push(`${row}: tools/${item.package}/${path}`);
+      }
+    }
+  }
+  assert.deepEqual(missing, [], 'a tool row names a file that is not in the tree: point it at where the file moved, or drop it');
+});

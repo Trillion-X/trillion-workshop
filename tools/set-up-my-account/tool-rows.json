@@ -716,26 +716,13 @@
                 "at": "/opt/workflows"
               },
               {
-                "package": "learn-a-workflow-from-a-job",
-                "paths": [
-                  "src/scheduler.mjs"
-                ],
-                "at": "/opt/learn-a-workflow-from-a-job"
-              },
-              {
                 "package": "keep-and-wake-ai-sessions-on-this-computer",
                 "paths": [
+                  "src/scheduler.mjs",
                   "src/scheduler.json",
                   "harness/setup.json"
                 ],
                 "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
-              },
-              {
-                "package": "see-what-my-ais-did",
-                "paths": [
-                  "from-an-older-version/src/work-results.mjs"
-                ],
-                "at": "/opt/see-what-my-ais-did"
               },
               {
                 "package": "show-each-setup-step-with-the-real-things-found",

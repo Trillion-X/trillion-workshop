@@ -418,6 +418,7 @@
                   "src/renamed-tools.mjs",
                   "src/save-tool-example.json",
                   "src/scheduler.json",
+                  "src/scheduler.mjs",
                   "src/sent.mjs",
                   "src/shared-namespace-file-input.mjs",
                   "src/sold-copies.json",
@@ -453,8 +454,7 @@
                 "package": "learn-a-workflow-from-a-job",
                 "paths": [
                   "src/learned-workflows.json",
-                  "src/learned-workflows.mjs",
-                  "src/scheduler.mjs"
+                  "src/learned-workflows.mjs"
                 ],
                 "at": "/opt/learn-a-workflow-from-a-job"
               },

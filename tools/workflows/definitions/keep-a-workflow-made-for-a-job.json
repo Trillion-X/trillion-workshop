@@ -227,26 +227,32 @@
                   "select": {
                     "from": "steps",
                     "key": "draft",
-                    "path": "output.fires_when",
-                    "transform": [
-                      {
-                        "op": "op:core.stringify"
+                    "path": "output.fires_when"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.stringify",
+                      "args": {
+                        "format": "json"
                       }
-                    ]
-                  }
+                    }
+                  ]
                 },
                 {
                   "$kind": "binding",
                   "select": {
                     "from": "steps",
                     "key": "draft",
-                    "path": "output.definition",
-                    "transform": [
-                      {
-                        "op": "op:core.stringify"
+                    "path": "output.definition"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.stringify",
+                      "args": {
+                        "format": "json"
                       }
-                    ]
-                  }
+                    }
+                  ]
                 }
               ]
             },
