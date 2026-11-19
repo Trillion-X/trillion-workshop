@@ -1,21 +1,23 @@
 {
   "start_here": "Say to your AI: \"Run workflow:read-my-notices with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and limit 5.\"",
   "lists": [],
-  "no_lists_because": "The notices Trillion told you are kept in your own store, as one object per notice, in whatever form that store keeps things; this workflow only reads them and names the store, so no list of yours is needed.",
+  "no_lists_because": "The notices told to you are kept in your own store, one row of its notices table per notice; this workflow only reads them and names the store, so no list of yours is needed.",
   "workflows": [
     "workflow:read-my-notices"
   ],
-  "tools": [],
+  "tools": [
+    "tool:run-sql-in-my-database"
+  ],
   "instructions": [
     "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
     "2. Say \"Run workflow:read-my-notices\" with store, and optionally kind and limit. Read only: nothing is written.",
-    "3. The first run looks at what the store keeps, makes the told_the_person objects once if they are missing, and proves the view on the example notices: every answer must be the one the intent says, or the run stops and says which.",
-    "4. Every later run answers the newest notices, newest first, with where each was seen and why any way did not carry it."
+    "3. The first run looks at what the store keeps, makes the store's notices and devices tables once if they are missing (and adds kind and key to notices), and proves the view on the example notices: every answer must be the one the intent says, or the run stops and says which.",
+    "4. Every later run answers the newest notices, newest first, with whether each was read and the link it opens."
   ],
   "worked_examples": [
     {
-      "title": "The newest notices Trillion told me",
-      "ask": "Show the last five notices Trillion told me",
+      "title": "The newest notices I was told",
+      "ask": "Show the last five notices I was told",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -37,8 +39,8 @@
       },
       "workflow": "workflow:read-my-notices",
       "step": "read",
-      "given": "The look step found told_the_person objects kept in the store, with five or more notices, one of them read.",
-      "hands_back": "notices: the five newest, each with id told:<seq>, kind, title, body, at, open, read, actions, told (the way each channel went) and why (what did not carry); said: \"5 notices, newest first; 1 seen.\"."
+      "given": "The look step found the notices table kept in the store, with five or more notices, one of them read.",
+      "hands_back": "notices: the five newest, each with id told:<id>, kind, title, body, url, at and read; said: \"5 notices, newest first; 1 seen.\"."
     }
   ],
   "drafted_from": "workflow:read-my-notices steps look, render, prove and read"

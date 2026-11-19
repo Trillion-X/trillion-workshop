@@ -1,12 +1,12 @@
 {
-  "_what": "Tells the person when one of their wakes stops, as a needs-you notice kept in the person's own store (told_the_person, read by workflow:read-my-notices). It wakes on the wake-failed fact the engine keeps (engine commit e9f19e41c) and names no store of its own (the switch's input names it): the fact carries the tool, the wake and the cause. The notice says what stopped and what to read before switching the wake on again.",
+  "_what": "Tells the person when one of their wakes stops, as a needs-you notice kept in the person's own store (notices, the table workflow:read-my-notices and the person's devices read). It wakes on the wake-failed fact the engine keeps (engine commit e9f19e41c) and names no store of its own (the switch's input names it): the fact carries the tool, the wake and the cause. The notice says what stopped and what to read before switching the wake on again.",
   "records": [
     {
       "payload": {
         "kind": "workflow-recipe",
         "id": "workflow:tell-when-a-wake-stops",
         "label": "Tell me when a wake stops",
-        "job": "Tell the person when one of their wakes stops, with its cause, and what to read before switching it on again. It keeps each notice in the person's own store (told_the_person, the table workflow:read-my-notices reads), named by the switch's input; it names no store of its own: it hears the wake-failed fact the engine keeps whenever a wake turns failed.",
+        "job": "Tell the person when one of their wakes stops, with its cause, and what to read before switching it on again. It keeps each notice in the person's own store (notices, the table workflow:read-my-notices reads), named by the switch's input; it names no store of its own: it hears the wake-failed fact the engine keeps whenever a wake turns failed.",
         "produces": "One notice kept in the person's store per wake-failed fact, once per fact, kind needs-you, titled '<tool> <wake> stopped: <cause>', whose body says what the cause means.",
         "input_schema": {
           "type": "object",
@@ -25,7 +25,7 @@
               "properties": {
                 "where": {
                   "type": "string",
-                  "description": "Where the person keeps the notices their workflows tell them (table told_the_person): the store's own address"
+                  "description": "Where the person keeps the notices their workflows tell them (table notices): the store's own address"
                 },
                 "language": {
                   "type": "string",
@@ -55,7 +55,7 @@
               "wall_ms": 120000
             },
             "input": {
-              "start_at": "make-notices"
+              "start_at": "make-devices"
             }
           }
         ],
@@ -66,6 +66,26 @@
           "is_active": true,
           "version": 1,
           "steps": [
+            {
+              "id": "make-devices",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "create table if not exists devices (id text primary key, platform text not null check (platform in ('live', 'web-push', 'apns')), token text, app_build text, registered_at timestamptz not null default now(), last_seen_at timestamptz not null default now())"
+                },
+                "context": {
+                  "step_id": "make-devices"
+                }
+              }
+            },
             {
               "id": "make-notices",
               "kind": "ask",
@@ -79,10 +99,30 @@
                       "path": "store.credential_name"
                     }
                   },
-                  "sql": "create table if not exists told_the_person (seq bigint primary key, item jsonb not null)"
+                  "sql": "create table if not exists notices (id bigint generated always as identity primary key, device_id text references devices (id), title text not null default '', body text not null default '', url text, made_at timestamptz not null default now(), read_at timestamptz, acted_at timestamptz)"
                 },
                 "context": {
                   "step_id": "make-notices"
+                }
+              }
+            },
+            {
+              "id": "widen-notices",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "alter table notices add column if not exists kind text, add column if not exists key text"
+                },
+                "context": {
+                  "step_id": "widen-notices"
                 }
               }
             },
@@ -99,7 +139,7 @@
                       "path": "store.credential_name"
                     }
                   },
-                  "sql": "insert into told_the_person (seq, item) select next.n, jsonb_build_object('seq', next.n, 'kind', $1::text, 'title', $2::text, 'body', coalesce($3::text, ''), 'at', to_char(now() at time zone 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"'), 'open', null, 'read', false, 'actions', '[]'::jsonb, 'results', '{}'::jsonb) || case when $4::text is null then '{}'::jsonb else jsonb_build_object('key', $4::text) end from (select coalesce(max(seq), 0) + 1 as n from told_the_person) as next where $4::text is null or not exists (select 1 from told_the_person where item->>'key' = $4::text)",
+                  "sql": "insert into notices (title, body, kind, key) select coalesce($2::text, ''), coalesce($3::text, ''), $1::text, $4::text where $4::text is null or not exists (select 1 from notices where key = $4::text)",
                   "params": [
                     "needs-you",
                     {
@@ -207,7 +247,17 @@
           ],
           "edges": [
             {
+              "from": "make-devices",
+              "to": "make-notices",
+              "kind": "always"
+            },
+            {
               "from": "make-notices",
+              "to": "widen-notices",
+              "kind": "always"
+            },
+            {
+              "from": "widen-notices",
               "to": "tell",
               "kind": "always"
             }

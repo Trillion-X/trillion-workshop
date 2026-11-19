@@ -61,9 +61,9 @@ async function sweep(programs, { rules = { 'left-behind': LEFT_BEHIND, 'never-st
   };
   const run = await runWorkflow({ recipe, input: wake.input }, door);
   const kept = (await db.query('select address, stop from program_stops order by address')).rows.map(row => [row.address, row.stop]);
-  // Told is what the person's store keeps: one told_the_person row per notice, the table workflow:read-my-notices reads.
-  const notices = await db.query("select 1 from information_schema.tables where table_name = 'told_the_person'");
-  const told = notices.rows.length ? (await db.query('select count(*)::int as n from told_the_person')).rows[0].n : 0;
+  // Told is what the person's store keeps: one row of its notices table per notice, the table read-my-notices reads.
+  const notices = await db.query("select 1 from information_schema.tables where table_name = 'notices'");
+  const told = notices.rows.length ? (await db.query('select count(*)::int as n from notices')).rows[0].n : 0;
   return { run, signals, calls, kept, told };
 }
 

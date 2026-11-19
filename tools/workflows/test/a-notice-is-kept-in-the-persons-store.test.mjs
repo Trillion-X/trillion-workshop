@@ -1,5 +1,6 @@
 // workflow:tell-when-a-wake-stops and workflow:check-my-code-against-my-rules tell the person by keeping a notice in the
-// person's own store: one told_the_person row (seq, item), the table workflow:read-my-notices reads, made once by the run.
+// person's own store: one row of its notices table, the table workflow:read-my-notices and the person's devices read
+// (workflow:read-my-device-notices), made once by the run with the devices table it points at.
 // Each recipe runs on the workflow engine's runner against an empty PostgreSQL database (PGlite), its SQL as
 // tool:run-sql-in-my-database would send it. Every value is made up except the wake-failed fact, the one the engine kept
 // on Nov 19 2026 at 10:40 AM CST with its crate name left out.
@@ -25,7 +26,7 @@ function door(db, answers = {}) {
     },
   };
 }
-const kept = async db => (await db.query('select seq, item from told_the_person order by seq')).rows;
+const kept = async db => (await db.query('select id, kind, title, body, key, made_at, read_at from notices order by id')).rows;
 
 test('a stopped wake is kept once as a needs-you notice that says its cause, however often its fact is told', async () => {
   const stops = recipe('tell-when-a-wake-stops');
@@ -39,11 +40,16 @@ test('a stopped wake is kept once as a needs-you notice that says its cause, how
   }
   const rows = await kept(db);
   assert.equal(rows.length, 1, 'the same fact is one notice');
-  assert.equal(rows[0].item.kind, 'needs-you');
-  assert.equal(rows[0].item.title, `workflow:route-each-row-change a-row-changed stopped: ${fact.cause}`);
-  assert.match(rows[0].item.body, /Its tool row changed since you switched it on/);
-  assert.equal(rows[0].item.read, false);
-  assert.match(rows[0].item.at, /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/);
+  assert.equal(rows[0].kind, 'needs-you');
+  assert.equal(rows[0].title, `workflow:route-each-row-change a-row-changed stopped: ${fact.cause}`);
+  assert.match(rows[0].body, /Its tool row changed since you switched it on/);
+  assert.equal(rows[0].key, input.fact_id);
+  assert.equal(rows[0].read_at, null);
+  // A device registered before it reads it, by the device workflow's own statement.
+  const device = JSON.parse(readFileSync(new URL('../recipes/read-my-device-notices.json', import.meta.url), 'utf8')).records[0].payload
+    .steps.find(step => step.id === 'answer').sql.find(statement => statement.name === 'notices').text;
+  await db.query("insert into devices (id, platform, registered_at) values ('a-phone', 'apns', now() - interval '1 hour')");
+  assert.deepEqual((await db.query(device, ['a-phone', 0, 20])).rows.map(row => row.title), [rows[0].title]);
 });
 
 test('a repository that breaks a rule is one notice, and one that keeps every rule is none', async () => {
@@ -55,6 +61,6 @@ test('a repository that breaks a rule is one notice, and one that keeps every ru
   const run = await runWorkflow({ recipe: code, input: { ...code.wakes[0].input, store: STORE, checks } }, hands);
   assert.equal(run.status, 'completed', run.error_message ?? JSON.stringify(run.waiting));
   const rows = await kept(db);
-  assert.deepEqual(rows.map(row => [row.seq, row.item.title, row.item.body]),
+  assert.deepEqual(rows.map(row => [Number(row.id), row.title, row.body]),
     [[1, 'My rules found something in https://code-host.example/broken.tar.gz', 'said for https://code-host.example/broken.tar.gz']]);
 });

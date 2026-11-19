@@ -6,11 +6,11 @@
         "kind": "workflow-recipe",
         "id": "workflow:read-my-notices",
         "label": "Read my notices",
-        "job": "Read the newest notices Trillion told the person, optionally of one kind, with where the person saw each, how far each way got and why each way that did not carry it did not, read straight from the person's own store.",
-        "produces": "A newest-first list of the person's notices with the ways each one reached them and the place they were seen, read from the store's own objects and answered as it was kept.",
+        "job": "Read the newest notices told to the person, optionally of one kind, with whether each was read and acted on, read straight from the person's own store: the notices table every notice is kept in and the person's devices read.",
+        "produces": "A newest-first list of the person's notices, each with its id, kind, title, body, link, when it was made and whether it was read, read from the store's notices table.",
         "source": {
           "from": "tools/tell-the-person read-data/told.mjs (myNotices, keptNotices) and tool:my-notices, read on trillion-workshop origin/main 75fa3807fc",
-          "note": "Only the reading is the store's job. The told list is one object per notice in the store, so the read is the store's own query. The retired records door that listed the told-the-person records is not carried. The view (kind filter, newest first, the first limit, told and why, the said line) is values in, values out, and is written out in the steps below."
+          "note": "Only the reading is the store's job. Every notice is one row of the store's notices table (with devices, the table the device, mark-read and act-on-a-notice workflows use), so the read is the store's own query. The retired records door that listed the told-the-person records is not carried, and neither is the per-channel told and why view: delivery is the devices' route now."
         },
         "input_schema": {
           "type": "object",
@@ -55,7 +55,7 @@
           {
             "id": "look",
             "title": "Read what the store already keeps",
-            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the Trillion notices are kept (kept_in, or null when none are kept yet) and the names of the objects that already keep them.",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit whether it keeps a notices table (kept_in: its name, or null when none is kept yet) and the names of the objects that already keep notices and devices.",
             "submit": {
               "type": "object",
               "required": [
@@ -82,7 +82,7 @@
           {
             "id": "render",
             "title": "Make the store's notice objects, once",
-            "do": "When the look step found no notices kept, make the store's own objects in its own form, once: one table named told_the_person with seq (a whole number, the primary key, the notice's place in what was told, counted 1, 2, 3 ...) and item (JSON text holding the whole notice as it was told: seq, kind, title, body, at, open, read, read_on when kept, actions, results and key when it has one). Nothing else is written here. Submit the names of the objects made, or the ones the look step found.",
+            "do": "Make the store's notice objects where any is missing, in its own language (PostgreSQL), with these three statements in order through tool:run-sql-in-my-database, each of which changes nothing when its object is already there: (1) create table if not exists devices (id text primary key, platform text not null check (platform in ('live', 'web-push', 'apns')), token text, app_build text, registered_at timestamptz not null default now(), last_seen_at timestamptz not null default now()); (2) create table if not exists notices (id bigint generated always as identity primary key, device_id text references devices (id), title text not null default '', body text not null default '', url text, made_at timestamptz not null default now(), read_at timestamptz, acted_at timestamptz); (3) alter table notices add column if not exists kind text, add column if not exists key text. Nothing else is written here. Submit the names of the objects the store now has for notices.",
             "submit": {
               "type": "object",
               "required": [
@@ -102,7 +102,7 @@
           {
             "id": "prove",
             "title": "Prove the view on the example notices",
-            "do": "In a throwaway place in the same store, with the same objects, keep these four example notices: seq 1 {kind: \"take-me-there\", title: \"Notice 1\", at: \"2026-01-01T00:01:00Z\", open: null, read: true, read_on: {channel: \"page\", at: \"2026-01-01T00:05:00Z\"}, results: {page: {sent: true}}}; seq 2 {kind: \"report\", title: \"Notice 2\", at: \"2026-01-01T00:02:00Z\", open: null, results: {page: {sent: true}}}; seq 3 {kind: \"report\", title: \"Notice 3\", at: \"2026-01-01T00:03:00Z\", open: null, results: {page: {sent: true}}}; seq 4 {kind: \"report\", title: \"Notice 4\", at: \"2026-01-01T00:04:00Z\", open: null, body: \"The short body\", actions: [{id: \"open\", label: \"Open\", opens: true}], results: {page: {sent: true}, phone: {sent: false, stage: \"unavailable\", said: \"No phone is connected.\"}}}. Then answer three reads, each from those notices only. (1) Read with limit 2 and no kind: the notices told:4 then told:3; for told:4 told {page: \"sent\", phone: \"unavailable\"}, why {phone: \"No phone is connected.\"}, body \"The short body\", actions [{id: \"open\", label: \"Open\", opens: true}]; said \"2 notices, newest first; 0 seen.\". (2) Read with kind take-me-there: only told:1, read true, read_on channel page; said \"1 notice, newest first; 1 seen.\". (3) Read on an account with no notices: notices [], said \"0 notices, newest first; 0 seen.\". Then remove the throwaway place. Submit answers: one per read, in order, exactly as above.",
+            "do": "In a throwaway schema of the same store, with the same three statements, keep these four example notices in order (each insert into notices (title, body, url, kind) with made_at as given): 1 {kind: \"take-me-there\", title: \"Notice 1\", made_at: \"2026-01-01T00:01:00Z\", url: \"https://example.test/1\", read_at: \"2026-01-01T00:05:00Z\"}; 2 {kind: \"report\", title: \"Notice 2\", made_at: \"2026-01-01T00:02:00Z\"}; 3 {kind: \"report\", title: \"Notice 3\", made_at: \"2026-01-01T00:03:00Z\"}; 4 {kind: \"report\", title: \"Notice 4\", body: \"The short body\", made_at: \"2026-01-01T00:04:00Z\"}. Then answer three reads, each from those notices only. (1) Read with limit 2 and no kind: told:4 then told:3; told:4 has body \"The short body\", url null, read false; said \"2 notices, newest first; 0 seen.\". (2) Read with kind take-me-there: only told:1, url \"https://example.test/1\", read true; said \"1 notice, newest first; 1 seen.\". (3) Read with no notices kept: notices [], said \"0 notices, newest first; 0 seen.\". Then remove the throwaway schema. Submit answers: one per read, in order, exactly as above.",
             "submit": {
               "type": "object",
               "required": [
@@ -119,7 +119,7 @@
           {
             "id": "read",
             "title": "Read the notices the person was told",
-            "do": "Read the store's told_the_person objects, each item as JSON, and keep those whose item.kind equals input.kind when input.kind is given. Sort them by seq, newest first, and take the first input.limit (default 20, at most 100). For each one answer: id \"told:<seq>\"; seq; kind; title (or null); body (or \"\"); at (or null); open (or null); read (true only when the item says read is true); actions (the item's actions when it is a list, else []); read_on (only when the item has one); told, with one entry per channel in the item's results: \"sent\" when that result has sent true, else its stage, else \"not-sent\"; and why, with one entry per channel whose result did not send and has said, holding the first 200 characters of said (only when there is one). Then say \"<n> notice or notices, newest first; <s> seen.\", where n is how many were shown and s is how many of those have read true (\"notice\" when n is 1, \"notices\" otherwise). Answer {notices, said}. Nothing is written.",
+            "do": "Read the store's notices: select id, kind, title, body, url, made_at, read_at, acted_at from notices, where kind = input.kind when input.kind is given, newest id first, the first input.limit (default 20, at most 100). For each row answer: id \"told:<id>\" (the id the mark-read and act-on-a-notice workflows take); kind (or null); title; body; url (or null); at (made_at as an ISO time); read (true when read_at is set); read_at and acted_at when set. Then say \"<n> notice or notices, newest first; <s> seen.\", where n is how many were shown and s is how many of those were read (\"notice\" when n is 1, \"notices\" otherwise). Answer {notices, said}. Nothing is written.",
             "submit": {
               "type": "object",
               "required": [

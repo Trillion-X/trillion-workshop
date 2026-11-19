@@ -76,7 +76,7 @@
       "workflow": "workflow:check-my-code-against-my-rules",
       "step": "check-each",
       "given": "The archive holds one file calling tool:gone, an id the older tools archive declared and the newest one does not.",
-      "hands_back": "tool:check-an-archive-against-my-rules answers passed false with one finding naming the file and line; the run then keeps one notice in the person's store (a told_the_person row, made once), kind needs-you, with title \"My rules found something in https://example.test/apps/main.tar.gz\" and its body the run's count."
+      "hands_back": "tool:check-an-archive-against-my-rules answers passed false with one finding naming the file and line; the run then keeps one notice in the person's store (a row of its notices table, made once), kind needs-you, with title \"My rules found something in https://example.test/apps/main.tar.gz\" and its body the run's count."
     }
   ]
 }
