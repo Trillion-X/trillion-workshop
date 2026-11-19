@@ -244,15 +244,7 @@
                     "from": "steps",
                     "key": "draft",
                     "path": "output.definition"
-                  },
-                  "transform": [
-                    {
-                      "op": "op:core.stringify",
-                      "args": {
-                        "format": "json"
-                      }
-                    }
-                  ]
+                  }
                 }
               ]
             },

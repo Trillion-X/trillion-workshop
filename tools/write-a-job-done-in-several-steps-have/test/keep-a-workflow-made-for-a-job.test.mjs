@@ -40,10 +40,13 @@ test('the kept row carries fires_when and the definition as JSON text', async ()
   assert.deepEqual(asJson(definition), draft.definition);
   // A list given to the database driver as itself becomes a Postgres array, which ::jsonb refuses: both go as JSON text.
   const keep = definitions[0].steps.find(step => step.id === 'keep').config.input.params;
-  // The transform sits beside select: the engine reads it only there, and text is never evaluated again.
-  for (const param of keep.slice(2)) assert.deepEqual(param.transform, [{ op: 'op:core.stringify', args: { format: 'json' } }]);
+  // fires_when is a list, so it goes as JSON text (the transform sits beside select, where the engine reads it). The
+  // definition is an object, which the driver already sends as JSON text; it has no transform, because a binding with a
+  // transform is resolved again and would fill in the drafted definition's own bindings.
+  assert.deepEqual(keep[2].transform, [{ op: 'op:core.stringify', args: { format: 'json' } }]);
+  assert.equal(keep[3].transform, undefined);
   assert.equal(typeof firesWhen, 'string');
-  assert.equal(typeof definition, 'string');
+  assert.equal(typeof definition, 'object');
 });
 
 test('a draft with no conditions or a one-step definition is refused', async () => {
@@ -51,4 +54,13 @@ test('a draft with no conditions or a one-step definition is refused', async () 
   assert.notEqual(await refused({ ...draft, fires_when: [] }), 'completed');
   assert.notEqual((await run({ draft: { ...draft, fires_when: [] } }).catch(() => ({ waiting: [{ step_id: 'draft' }] }))).waiting?.[0]?.step_id, 'make-the-table');
   assert.notEqual((await run({ draft: { ...draft, definition: { ...draft.definition, steps: draft.definition.steps.slice(0, 1) } } }).catch(() => ({ waiting: [{ step_id: 'draft' }] }))).waiting?.[0]?.step_id, 'make-the-table');
+});
+
+test('a drafted definition keeps its own bindings as written', async () => {
+  const own = { $kind: 'binding', select: { from: 'input', path: 'request' } };
+  const withBinding = { ...draft, definition: { ...draft.definition, steps: [{ ...draft.definition.steps[0], config: { name: 'tool:find-my-files', input: { request: own } } }, draft.definition.steps[1]] } };
+  const at = await run({ draft: withBinding, 'make-the-table': done, 'widen-the-table': done });
+  assert.equal(at.waiting[0].step_id, 'keep');
+  const definition = at.waiting[0].input.params[3];
+  assert.deepEqual(definition.steps[0].config.input.request, own);
 });
