@@ -12,7 +12,7 @@
   ],
   "instructions": [
     "1. Clone the repository https://github.com/Trillion-X/trillion-workshop and check the needs listed on the row (python 3 and its libraries, ffmpeg where named).",
-    "2. Your AI reads the row with do_one_thing_in_my_account at @tools, method tools:list and input {\"tool\":\"tool:find-when-a-character-speaks\"}, saves your settings row (records:read record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) to a file and puts it in the request as settings_record, or passes settings.",
+    "2. Your AI reads the row with do_one_thing_in_my_account at @tools, method tools:list and input {\"tool\":\"tool:find-when-a-character-speaks\"}, saves your settings row from your own store (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) to a file and puts it in the request as settings_record, or passes settings.",
     "3. It runs: python3 -I trillion-workshop/tools/measure-a-characters-voice-lines-and-staging/do-work/find_voice.py < REQUEST.json. First embed two or three recordings you know (step embed with audio and out), then label the character's stretches (step seed with npz, label and ranges \"a-b,a-b\") and some of other high voices under another label, then step score.",
     "4. Check the precision and recall with do-work/check_seed_model.py and check_voice_finder.py before step batch over the catalog; show/show_turns.py prints each turn with its caption words to check by reading."
   ],

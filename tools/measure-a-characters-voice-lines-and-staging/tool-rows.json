@@ -200,7 +200,7 @@
               "description": "The name the flat lists start with: <channel>-videos.json."
             },
             "settings_record": {
-              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+              "description": "The person's settings row, as their own store holds it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
             },
             "settings": {
               "type": "object",
@@ -524,7 +524,7 @@
               "type": "boolean"
             },
             "settings_record": {
-              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+              "description": "The person's settings row, as their own store holds it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
             },
             "settings": {
               "type": "object",
@@ -551,7 +551,7 @@
             "ffmpeg",
             "the speaker model pyannote/wespeaker-voxceleb-resnet34-LM in the local Hugging Face cache"
           ],
-          "say": "This runs on the person's own computer. Read their settings row (records:read record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) into a file and pass it as settings_record. Ask them for two or three recordings where they know when the character speaks; embed those, seed the character's stretches with character_label and a few stretches of other high voices with another label, then run check_seed_model.py and check_voice_finder.py with the same data_folder and tell them the precision and recall per recording before running batch over the catalog. show/show_turns.py prints each turn with its caption words, to check by reading."
+          "say": "This runs on the person's own computer. Read their settings row (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) from the store that keeps it into a file and pass it as settings_record. Ask them for two or three recordings where they know when the character speaks; embed those, seed the character's stretches with character_label and a few stretches of other high voices with another label, then run check_seed_model.py and check_voice_finder.py with the same data_folder and tell them the precision and recall per recording before running batch over the catalog. show/show_turns.py prints each turn with its caption words, to check by reading."
         },
         "verify": [
           {
@@ -761,7 +761,7 @@
               "type": "string"
             },
             "settings_record": {
-              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+              "description": "The person's settings row, as their own store holds it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
             },
             "settings": {
               "type": "object",
@@ -1009,7 +1009,7 @@
               "type": "number"
             },
             "settings_record": {
-              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+              "description": "The person's settings row, as their own store holds it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
             },
             "settings": {
               "type": "object",
@@ -1793,7 +1793,7 @@
               "description": "The show's folder: catalog.tsv, voice/ (seeds.npz, <id>.emb.npz, <id>.turns.json) and the tables the scripts write."
             },
             "settings_record": {
-              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+              "description": "The person's settings row, as their own store holds it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
             },
             "settings": {
               "type": "object",
@@ -2080,7 +2080,7 @@
               "description": "The person's YouTube library folder: flat/, captions/, videos/, comments/ and measure/<id>/."
             },
             "settings_record": {
-              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+              "description": "The person's settings row, as their own store holds it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
             },
             "settings": {
               "type": "object",
@@ -2379,7 +2379,7 @@
               "description": "The person's YouTube library folder: flat/, captions/, videos/, comments/ and measure/<id>/."
             },
             "settings_record": {
-              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+              "description": "The person's settings row, as their own store holds it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
             },
             "settings": {
               "type": "object",
@@ -2664,7 +2664,7 @@
               "description": "The show's folder: catalog.tsv, voice/ (seeds.npz, <id>.emb.npz, <id>.turns.json) and the tables the scripts write."
             },
             "settings_record": {
-              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+              "description": "The person's settings row, as their own store holds it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
             },
             "settings": {
               "type": "object",

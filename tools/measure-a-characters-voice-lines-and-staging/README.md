@@ -11,7 +11,7 @@ The tool holds no show, character, number or word of its own. The character's la
 | `data_folder` | The show's folder: `catalog.tsv` (written by `catalog_videos.py`), `voice/` (`seeds.npz`, `<id>.emb.npz`, `<id>.turns.json`), and the tables the scripts write (`character-per-video.tsv`, `character-lines.tsv`, `character-caption-turns.tsv`, `staging.tsv`, `lore-terms.tsv`, `comments-character.tsv`, `comments-summary.tsv`, `comments-character-coded.tsv`). |
 | `youtube_folder` | The person's yt-dlp library: `flat/<channel>-videos.json` and `-shorts.json`, `captions/` and `videos/` (`<id>.en.json3`, `<id>.info.json`), `comments/<id>.info.json`, `measure/<id>/rhythm.json` and `earshot-timeline.txt`. |
 
-Every `do-work` script reads one JSON request on standard input (the folders, `settings_record`: the person's settings row as `records:read` answers it, or a file holding it, and optionally `settings` laid over it) and prints `{"result": ...}` as its last line, or `{"error": ...}` saying what to fix, with exit 2.
+Every `do-work` script reads one JSON request on standard input (the folders, `settings_record`: the person's settings row as their own store holds it, or a file holding it, and optionally `settings` laid over it) and prints `{"result": ...}` as its last line, or `{"error": ...}` saying what to fix, with exit 2.
 
 ## Files
 

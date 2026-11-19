@@ -69,7 +69,7 @@ class SettingsTest(World):
         self.assertIn('holds no row of tools/measure-a-characters', refused(run('do-work/sum_per_video.py', {
             'data_folder': self.data, 'settings_record': setting_row(folder='another-tool')})))
         self.assertIn('retired', refused(run('do-work/sum_per_video.py', {'data_folder': self.data, 'settings_record': setting_row(status='retired')})))
-        self.assertIn('records:read', refused(run('do-work/sum_per_video.py', {'data_folder': self.data, 'settings_record': setting_row()['id']})))
+        self.assertIn('your own store', refused(run('do-work/sum_per_video.py', {'data_folder': self.data, 'settings_record': setting_row()['id']})))
 
 
 class CatalogTest(World):

@@ -71,14 +71,14 @@ def found(name, *places):
 def settings_of(given, scopes=None):
     """The settings object of the person's settings row, read by the one reader, tools/settings (read-data/settings.py).
 
-    `given` is the row as records:read answers it ({id, type: "record:setting", value}), its value, a list of rows, or
+    `given` is the row as the person's own store holds it ({id, type: "record:setting", value}), its value, a list of rows, or
     the path of a JSON file holding them; `scopes` ([(kind, id)], most specific first) chooses among several rows."""
     reader = os.path.dirname(found('tools/settings', 'settings/read-data/settings.py'))
     if reader not in sys.path:
         sys.path.insert(0, reader)
     import settings
     if isinstance(given, str) and given.startswith('record:setting:'):
-        fail(f'settings_record names the row {given}: read it with records:read and give the row itself (or a file holding it)')
+        fail(f'settings_record names the row {given}: read it from your own store and give the row itself (or a file holding it)')
     try:
         held = settings.setting(given, FOLDER, scopes, default=None)
     except settings.SettingError as exc:
