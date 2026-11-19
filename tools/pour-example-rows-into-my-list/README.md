@@ -1,6 +1,6 @@
 # tools/pour-example-rows-into-my-list/
 
-The pour part of every Workshop item's kit (`tools/workflows/kit-template.json`, L082). A kit ships its lists with example rows; a person who already keeps a list that does 80-100% of the same job (a saved-replies list, a content calendar, a spreadsheet brought in as a list) should get the examples in that list, not a second list. This tool matches the kit list's fields to theirs and answers the one `records:write` that adds the example rows. It writes nothing itself and knows no list.
+The pour part of every Workshop item's kit (`tools/workflows/kit-template.json`, L082). A kit ships its lists with example rows; a person who already keeps a list that does 80-100% of the same job (a saved-replies list, a content calendar, a spreadsheet brought in as a list) should get the examples in that list, not a second list. This tool matches the kit list's fields to theirs and answers the example rows to keep in it. It stores nothing itself and knows no list.
 
 ## Files
 
@@ -16,7 +16,7 @@ The pour part of every Workshop item's kit (`tools/workflows/kit-template.json`,
 `{ kit_list, into, field_map?, least_coverage?, already_there? }`
 
 - `kit_list`: one entry of an item's `kit.lists`: `{ list, fields: [{ id, label, alike? }], example_rows: [{ id, values }] }`.
-- `into`: the person's list, as `records:read` on it gives it: `{ list: "list:...", row_type: "record:...", fields: [{ id, label, options? }] }`.
+- `into`: the person's list, as the caller reads it from its own store: `{ list: "list:...", row_type: "record:...", fields: [{ id, label, options? }] }`.
 - `field_map`: `{ kit field id: their field id }`, or `null` to leave a kit field out. It wins over every other match.
 - `least_coverage`: the least share of kit fields that must match, 0.8 to 1 (0.8 when not given).
 - `already_there`: row ids the person's list already holds; those rows are left out.
@@ -25,7 +25,7 @@ A kit field matches, in this order: the map, the same id, the same label (case, 
 
 ## Answer
 
-`{ poured, coverage, matched: [{ kit_field, your_field, by }], unmatched, left_out, rows, write, says }`. `write` is `{ address: "@own-records", method: "records:write", input: { records } }`, ready for `do_one_thing_in_my_account`; row ids are `<row_type>:kit-<example id>`, so a second pour of the same rows is left out.
+`{ poured, coverage, matched: [{ kit_field, your_field, by }], unmatched, left_out, keep, not_an_option, says }`. `keep` is the rows to store, each `{ id, type, value, expected: null }`; `expected` null says the row is new, so the store refuses it if the row appeared since the list was read. Row ids are `<row_type>:kit-<example id>`, so a second pour of the same rows is left out. `not_an_option` names each choice value a row dropped (`{ id, dropped }`).
 
 ## Run the tests
 

@@ -16,10 +16,8 @@ test('the sample pours both rows by the names the kit fields go by', () => {
   assert.equal(answer.poured, true);
   assert.equal(answer.coverage, 1);
   assert.deepEqual(answer.matched.map(item => [item.kit_field, item.your_field]), [['match_words', 'keywords'], ['text', 'body']]);
-  assert.deepEqual(answer.write.input.records.map(record => record.id), ['record:saved-reply:kit-price', 'record:saved-reply:kit-hours']);
-  assert.deepEqual(answer.write.input.records[0].value, { keywords: ['price', 'how much'], body: 'Hi {from}, it is 49 a month.' });
-  assert.equal(answer.write.address, '@own-records');
-  assert.equal(answer.write.method, 'records:write');
+  assert.deepEqual(answer.keep.map(record => record.id), ['record:saved-reply:kit-price', 'record:saved-reply:kit-hours']);
+  assert.deepEqual(answer.keep[0], { id: 'record:saved-reply:kit-price', type: 'record:saved-reply', value: { keywords: ['price', 'how much'], body: 'Hi {from}, it is 49 a month.' }, expected: null });
 });
 
 test('a list that matches under 80% of the kit fields gets nothing, and is told which fields have no home', () => {
@@ -28,7 +26,7 @@ test('a list that matches under 80% of the kit fields gets nothing, and is told 
   assert.equal(answer.poured, false);
   assert.equal(answer.coverage, 0.5);
   assert.deepEqual(answer.unmatched, ['channel', 'tone']);
-  assert.equal(answer.write, null);
+  assert.deepEqual(answer.keep, []);
   assert.match(answer.says, /under the 80%/);
 });
 
@@ -38,15 +36,15 @@ test('the map wins, a label match counts, and a choice the person\'s list does n
   const into = { list: 'list:my-ideas', row_type: 'record:my-idea', fields: [{ id: 'title', label: 'Title' }, { id: 'state', label: 'Stage', options: ['Draft', 'Done'] }] };
   const answer = pour({ kit_list: kit, into, field_map: { idea: 'title' } });
   assert.deepEqual(answer.matched.map(item => item.by), ['the map', 'the same label']);
-  assert.deepEqual(answer.rows[0].value, { title: 'A talk', state: 'Draft' });
-  assert.deepEqual(answer.rows[1].value, { title: 'A post' });
-  assert.deepEqual(answer.rows[1].not_an_option, ['state: Someday']);
+  assert.deepEqual(answer.keep[0].value, { title: 'A talk', state: 'Draft' });
+  assert.deepEqual(answer.keep[1].value, { title: 'A post' });
+  assert.deepEqual(answer.not_an_option, [{ id: 'record:my-idea:kit-two', dropped: ['state: Someday'] }]);
 });
 
 test('rows already in the list are left out, so pouring twice changes nothing', () => {
   const answer = pour({ ...sample, already_there: ['record:saved-reply:kit-price', 'record:saved-reply:kit-hours'] });
   assert.equal(answer.poured, false);
-  assert.equal(answer.write, null);
+  assert.deepEqual(answer.keep, []);
   assert.equal(answer.left_out.length, 2);
 });
 

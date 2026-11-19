@@ -1,7 +1,7 @@
 {
-  "start_here": "Say to your AI: \"Pour the example reply templates from workflow:answer-comments-and-messages into my saved-replies list.\" It reads your list's fields, matches them to the kit's and hands you the one write that adds the examples.",
+  "start_here": "Say to your AI: \"Pour the example reply templates from workflow:answer-comments-and-messages into my saved-replies list.\" It reads your list's fields, matches them to the kit's and hands you the example rows to keep in your list.",
   "lists": [],
-  "no_lists_because": "It keeps no list of its own: it reads a kit's list and the person's list it is given, and answers a write for theirs.",
+  "no_lists_because": "It keeps no list of its own: it reads a kit's list and the person's list it is given, and answers the rows to keep in theirs.",
   "workflows": [],
   "tools": [
     "tool:pour-example-rows-into-my-list"
@@ -9,7 +9,7 @@
   "instructions": [
     "1. Pick the kit list to pour: an item's kit.lists entry (tools/workflows/recipes/workflows.json for a workflow, a tool row's kit for a tool).",
     "2. Read your own list that does the same job from your own store: its fields and row type go in into; the ids of its rows go in already_there.",
-    "3. Run this tool. When it says poured, send its write with do_one_thing_in_my_account; when it says the match is under 80%, map the fields it names in field_map or make the kit's own list instead."
+    "3. Run this tool. When it says poured, keep its keep rows in your own store, each with its expected value (null for a new row); when it says the match is under 80%, map the fields it names in field_map or make the kit's own list instead."
   ],
   "worked_examples": [
     {
@@ -91,7 +91,7 @@
         }
       },
       "given": "A saved-replies list with the fields keywords, body and owner.",
-      "hands_back": "poured true, coverage 1 (match_words to keywords and text to body, each by a name it goes by), and the rows record:saved-reply:kit-price and record:saved-reply:kit-hours to keep in your own store."
+      "hands_back": "poured true, coverage 1 (match_words to keywords and text to body, each by a name it goes by), and the keep rows record:saved-reply:kit-price and record:saved-reply:kit-hours, each with expected null, to keep in your own store."
     }
   ]
 }

@@ -4,11 +4,11 @@
 // matched to one of the person's fields: by the map they give, else the same id, else the same label, else a name in the
 // field's `alike`. When fewer than `least_coverage` of the kit's fields match, nothing is poured and the answer names the
 // fields that found no home, so the person makes the kit's own list or maps them. Otherwise the answer is the one
-// records:write that adds the example rows to their list (row ids `<row_type>:kit-<example id>`, so pouring twice
-// changes nothing), leaving out rows already there. It writes nothing itself and knows no list.
+// the example rows to keep in their list (row ids `<row_type>:kit-<example id>`, so pouring twice changes nothing),
+// each with expected null (a new row), leaving out rows already there. It stores nothing itself and knows no list.
 //
 //   node do-work/pour.mjs < { kit_list, into, field_map?, least_coverage?, already_there? }
-//     -> { poured, coverage, matched, unmatched, left_out, rows, write, says }
+//     -> { poured, coverage, matched, unmatched, left_out, keep, not_an_option, says }
 
 import { pathToFileURL } from "node:url";
 import { realpathSync } from "node:fs";
@@ -25,7 +25,7 @@ function check(input) {
   const { kit_list: kit, into } = input;
   if (!(object(kit) && Array.isArray(kit.fields) && kit.fields.length && Array.isArray(kit.example_rows))) throw new Refusal('kit_list must be one list of an item\'s kit: { list, fields: [{ id, label, alike? }], example_rows: [{ id, values }] }.');
   if (!(object(into) && /^list:[a-z0-9][a-z0-9-]*$/.test(into.list ?? '') && /^record:[a-z0-9][a-z0-9-]*$/.test(into.row_type ?? '') && Array.isArray(into.fields) && into.fields.length))
-    throw new Refusal('into must be the person\'s own list: { list: "list:...", row_type: "record:...", fields: [{ id, label, options? }] }, read with records:read on the list.');
+    throw new Refusal('into must be the person\'s own list: { list: "list:...", row_type: "record:...", fields: [{ id, label, options? }] }, read from their own store.');
   if (input.field_map !== undefined && !(object(input.field_map) && Object.values(input.field_map).every(value => value === null || nonempty(value)))) throw new Refusal('field_map must be { kit field id: your field id, or null to leave it out }.');
   const least = input.least_coverage ?? LEAST;
   if (!(typeof least === 'number' && least >= LEAST && least <= 1)) throw new Refusal(`least_coverage must be a share from ${LEAST} to 1.`);
@@ -87,11 +87,12 @@ export function pour(input) {
   const matchedList = homed.map(id => ({ kit_field: id, your_field: matched[id], by: reasons[id] }));
   if (homed.length / kitFields.length < least) {
     return {
-      poured: false, coverage, matched: matchedList, unmatched, left_out: [], rows: [], write: null,
+      poured: false, coverage, matched: matchedList, unmatched, left_out: [], keep: [], not_an_option: [],
       says: `${into.list} matches ${homed.length} of ${kitFields.length} fields of ${kit.list ?? 'the kit list'} (${Math.round(coverage * 100)}%), under the ${Math.round(least * 100)}% a pour needs. Fields with no home: ${unmatched.join(', ')}. Map them in field_map, or make the kit's own list from its fields and example rows.`,
     };
   }
-  const rows = [];
+  const keep = [];
+  const not_an_option = [];
   const left_out = [];
   for (const example of kit.example_rows) {
     if (!(object(example) && nonempty(example.id) && object(example.values))) throw new Refusal('Every example row must be { id, values }.');
@@ -106,14 +107,13 @@ export function pour(input) {
       if (made.value !== undefined) values[target] = made.value;
       if (made.dropped) dropped.push(`${target}: ${made.dropped.join(', ')}`);
     }
-    rows.push({ id, type: into.row_type, value: values, ...(dropped.length ? { not_an_option: dropped } : {}) });
+    keep.push({ id, type: into.row_type, value: values, expected: null });
+    if (dropped.length) not_an_option.push({ id, dropped });
   }
-  const records = rows.map(({ id, type, value }) => ({ id, type, value }));
   return {
-    poured: rows.length > 0, coverage, matched: matchedList, unmatched, left_out, rows,
-    write: rows.length ? { address: '@own-records', method: 'records:write', input: { records } } : null,
-    says: rows.length
-      ? `${rows.length} example row${rows.length === 1 ? '' : 's'} ready for ${into.list} (${Math.round(coverage * 100)}% of the kit's fields matched${unmatched.length ? `; left out: ${unmatched.join(', ')}` : ''}). Send write with do_one_thing_in_my_account to add them; your own rows are not touched.`
+    poured: keep.length > 0, coverage, matched: matchedList, unmatched, left_out, keep, not_an_option,
+    says: keep.length
+      ? `${keep.length} example row${keep.length === 1 ? '' : 's'} to keep in ${into.list} (${Math.round(coverage * 100)}% of the kit's fields matched${unmatched.length ? `; left out: ${unmatched.join(', ')}` : ''}). Your own rows are not touched; your store refuses a row that appeared since you read your list.`
       : `Every example row is already in ${into.list}; nothing to pour.`,
   };
 }
