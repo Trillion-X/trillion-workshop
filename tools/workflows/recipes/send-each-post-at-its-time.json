@@ -95,12 +95,7 @@
               "wall_ms": 300000
             },
             "input": {
-              "start_at": "read-due-posts",
-              "store": {
-                "where": "the person's own database",
-                "language": "SQL (PostgreSQL)",
-                "credential_name": "the-persons-database-connection"
-              }
+              "start_at": "read-due-posts"
             }
           }
         ],
