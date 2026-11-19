@@ -34,7 +34,7 @@
 //
 // USAGE
 //   node mail-sender.mjs [provider id]    the provider is the request's `provider` unless an id is given; the request on standard input (with the
-//                                         person's look settings in `stored`, read only) and the provider's keys on descriptor 4 on; the last line is { result: the answer }
+//                                         person's saved look values in `saved`, read only) and the provider's keys on descriptor 4 on; the last line is { result: the answer }
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -411,13 +411,13 @@ export async function sendAnEmail(request, { provider, sender }) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
-    const { stored, mail_settings: handedSettings, mail_sent: sentRows = [], mail_day: dayRows = [], ...request } = JSON.parse(readFileSync(0, 'utf8') || '{}');
+    const { saved, mail_settings: handedSettings, mail_sent: sentRows = [], mail_day: dayRows = [], ...request } = JSON.parse(readFileSync(0, 'utf8') || '{}');
     const provider = providerOf(process.argv[2] ?? request.provider);
     if (provider.channel !== 'email') throw new Error(`${provider.id} is not an email provider.`);
     const rows = rowsHandedIn([...sentRows, ...dayRows]);
     const row = mailSettings(handedSettings);
     const binding = bindingFor(provider, heldKeys(provider), row);
-    const sender = mailSender({ row, door: rows, binding, provider: provider.id, readLook: wornLookReader(stored?.workspace) });
+    const sender = mailSender({ row, door: rows, binding, provider: provider.id, readLook: wornLookReader(saved) });
     console.log(JSON.stringify({ result: { ...await sendAnEmail(request, { provider: provider.id, sender }), keep: rows.keep() } }));
   } catch (error) {
     console.error(error.message);

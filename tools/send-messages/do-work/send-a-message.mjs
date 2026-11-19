@@ -19,7 +19,7 @@
 //
 // USAGE
 //   node send-a-message.mjs [provider id]             the provider is the request's `provider` unless an id is given; request on standard input, last line of standard output is { result: the answer }
-//   node run-an-export.mjs send-a-message.mjs sendOnThisMac   (the computer row: Messages on this Mac)
+//   node send-a-message.mjs messages-on-this-mac            (the computer row: Messages on this Mac)
 import { execFile, spawn } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -31,7 +31,6 @@ import { buildSendInvocation, isTccDenial } from '../read-data/render-a-send.ts'
 
 const here = dirname(fileURLToPath(import.meta.url));
 const data = name => JSON.parse(readFileSync(join(here, '..', 'read-data', name), 'utf8'));
-const MAC_PROVIDER = 'messages-on-this-mac';
 const TAIL = 8192;
 
 /** The Mac refused the Automation event: a different failure from a rejected send, so a caller can show what to grant. */
@@ -181,9 +180,6 @@ export async function sendMessage(request, { providerId, credentials = {}, rows 
     : `Sent to ${accepted} of ${sent.length} through ${provider.label}.${failed.length ? ` Not sent: ${failed.map(item => `${item.recipient} (${item.error})`).join('; ')}` : ''}`;
   return { provider: provider.id, sent, said };
 }
-
-/** The computer row's export: Messages on the person's own Mac. */
-export const sendOnThisMac = request => sendMessage(request, { providerId: MAC_PROVIDER });
 
 /** Reads each held key from its private descriptor, as the provider's row names them. */
 export function heldKeys(provider, read = descriptor => readFileSync(descriptor, 'utf8')) {

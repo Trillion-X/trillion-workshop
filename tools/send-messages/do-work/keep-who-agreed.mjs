@@ -5,7 +5,7 @@
 //   (read-data/email-course.mjs, ported as it was) and the rows the caller hands in. The tools keep nothing: the
 //   caller's AI reads the rows a run needs from the person's store and hands them in (`records`), the run reads and
 //   changes them in memory (read-data/rows-handed-in.mjs), and its answer holds the rows to keep (`keep`). Sending a
-//   lesson goes through the sending seam (send-a-message.mjs). Exports are run by tools/records-door/do-work/run-an-export.mjs.
+//   lesson goes through the sending seam (send-a-message.mjs). Each tool row runs one export by name, from the bottom of this file.
 //
 // ROW KINDS (the caller reads them from the person's own records and hands them in)
 //   email-course-subscription  one per subscriber and course: consent text and version, when and from where, the
@@ -25,6 +25,7 @@
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { randomBytes } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { createPublicEmailCourse } from '../read-data/email-course.mjs';
 import { rowsHandedIn } from '../read-data/rows-handed-in.mjs';
 import { heldKeys, providerOf, sendMessage } from './send-a-message.mjs';
@@ -60,9 +61,9 @@ export function sendThrough(providerId, credentials, options = {}, extra = {}) {
 }
 
 /** The logic's needs, from the rows handed in, the sending seam and the clock. */
-export function makeCourse({ door, send, now = () => new Date(), mintToken = () => randomBytes(32).toString('base64url') }) {
+export function makeCourse({ rows, send, now = () => new Date(), mintToken = () => randomBytes(32).toString('base64url') }) {
   async function readCurrent(address) {
-    const payload = await door.read(kindOfAddress(address), address);
+    const payload = await rows.read(kindOfAddress(address), address);
     return payload === null ? { found: false } : { found: true, payload, content_hash: hashOf(payload) };
   }
 
@@ -73,24 +74,24 @@ export function makeCourse({ door, send, now = () => new Date(), mintToken = () 
     }
     const records = writes.map(write => ({ id: write.address_label, type: write.path_labels.at(-1), value: write.payload }));
     // The same batch is the same request, so a retry answers the receipt it already has.
-    return door.write(records);
+    return rows.write(records);
   }
 
   async function invokeTarget(target, input) {
     if (target === 'contact-points.import') {
-      const rows = [];
+      const imported = [];
       for (const row of input.rows) {
         const id = `contact-point:${digest(row.email)}`;
-        if ((await door.read(CONTACT, id)) === null) {
-          await door.write([{ id, type: CONTACT, value: { email: row.email, source: input.source, source_ref: row.source_ref, at: row.at } }]);
+        if ((await rows.read(CONTACT, id)) === null) {
+          await rows.write([{ id, type: CONTACT, value: { email: row.email, source: input.source, source_ref: row.source_ref, at: row.at } }]);
         }
-        rows.push({ account_id: id, status: 'imported' });
+        imported.push({ account_id: id, status: 'imported' });
       }
-      return { rows };
+      return { rows: imported };
     }
-    if (target === 'contact-points.resolve') return { address: (await door.read(CONTACT, input.account_id))?.email };
+    if (target === 'contact-points.resolve') return { address: (await rows.read(CONTACT, input.account_id))?.email };
     if (target === 'lesson.schedule') {
-      await door.write([{ id: input.record_id, type: DUE, value: input }]);
+      await rows.write([{ id: input.record_id, type: DUE, value: input }]);
       return { status: 'scheduled' };
     }
     if (target === 'send-email') return send(input);
@@ -101,12 +102,12 @@ export function makeCourse({ door, send, now = () => new Date(), mintToken = () 
 }
 
 // The course for a run: sending only when the request names a provider (consent and unsubscribe never send).
-function courseFor(input, door, options = {}) {
+function courseFor(input, rows, options = {}) {
   const provider = typeof input.provider === 'string' ? providerOf(input.provider) : null;
   const send = provider
     ? sendThrough(provider.id, heldKeysFrom(provider, options.read), options.send, typeof input.region === 'string' ? { region: input.region } : {})
     : async () => { throw new Error('No sending provider was named.'); };
-  return makeCourse({ door, send, ...(options.now ? { now: options.now } : {}) });
+  return makeCourse({ rows, send, ...(options.now ? { now: options.now } : {}) });
 }
 
 // One run over the rows handed in: the tool's answer, and the rows to keep as the run left them.
@@ -174,4 +175,17 @@ export async function whoAgreedToGetEmails(input) {
   const wanted = input.status ? people.filter(item => item.status === input.status) : people;
   const agreed = [...new Set(people.filter(item => item.email && (item.status === 'active' || item.status === 'pending')).map(item => item.email))];
   return { people: wanted, agreed, said: `${wanted.length} ${wanted.length === 1 ? 'person' : 'people'}${input.status ? ` ${input.status}` : ''}; ${agreed.length} can be sent to now.` };
+}
+
+// The command each tool row runs: node keep-who-agreed.mjs <export name> < input.json, answering { result } or { error }.
+const EXPORTS = { enrollInEmailCourse, saveEmailInterest, unsubscribeFromEmailCourse, sendDueEmailLessons, whoAgreedToGetEmails };
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  try {
+    const run = EXPORTS[process.argv[2]];
+    if (!run) throw new Error(`usage: keep-who-agreed.mjs <${Object.keys(EXPORTS).join(' | ')}> < input.json`);
+    console.log(JSON.stringify({ result: await run(JSON.parse(readFileSync(0, 'utf8') || '{}')) }));
+  } catch (error) {
+    console.log(JSON.stringify({ error: error.message }));
+    process.exitCode = 1;
+  }
 }

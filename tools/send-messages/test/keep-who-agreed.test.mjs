@@ -14,6 +14,8 @@ import {
   KEY_FIRST_DESCRIPTOR, enrollInEmailCourse, heldKeysFrom, saveEmailInterest, sendDueEmailLessons, unsubscribeFromEmailCourse, whoAgreedToGetEmails,
 } from '../do-work/keep-who-agreed.mjs';
 import { providerOf } from '../do-work/send-a-message.mjs';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { mountsFor, mountsOf } from './mounts-for.test.mjs';
 
 const line = text => ({ text_lines: [`${text}: {{articleUrl}}`, 'Unsubscribe: {{unsubscribeUrl}}', '{{mailingAddress}}'], html_lines: [`<p>${text}: {{articleUrl}}</p>`, '<p>{{unsubscribeUrl}} {{mailingAddress}}</p>'] });
@@ -210,5 +212,33 @@ describe('the rows as the container runs them', () => {
     const run = await answerOf(rowOf(rows, 'tool:save-interest-in-an-email-update'), { email: 'asker@example.com', consent: false, course: interestCourse, records: [] });
     assert.equal(run.status, 1);
     assert.match(run.error, /agree/);
+  });
+});
+
+describe('the keep rows run their export from this folder, directly', () => {
+  const KEEP_ROWS = {
+    'tool:sign-someone-up-for-an-email-course': 'enrollInEmailCourse',
+    'tool:send-due-email-lessons': 'sendDueEmailLessons',
+    'tool:save-interest-in-an-email-update': 'saveEmailInterest',
+    'tool:stop-an-email-course': 'unsubscribeFromEmailCourse',
+    'tool:who-agreed-to-get-which-emails': 'whoAgreedToGetEmails',
+  };
+  const script = fileURLToPath(new URL('../do-work/keep-who-agreed.mjs', import.meta.url));
+
+  it('each row names keep-who-agreed.mjs and its export, with no records door between them', () => {
+    for (const [id, name] of Object.entries(KEEP_ROWS)) {
+      const row = rowOf(rows, id);
+      assert.deepEqual(row.invoke.argv, ['node', '/opt/send-messages/do-work/keep-who-agreed.mjs', name], id);
+      assert.ok(!row.invoke.files.package_files.some(files => files.package === 'records-door'), id);
+    }
+  });
+
+  it('the command answers the export it names as { result } on standard output, and an unknown name as { error }', () => {
+    const answer = spawnSync(process.execPath, [script, 'whoAgreedToGetEmails'], { input: JSON.stringify({ records: [] }), encoding: 'utf8' });
+    assert.equal(answer.status, 0);
+    assert.deepEqual(JSON.parse(answer.stdout).result.agreed, []);
+    const unknown = spawnSync(process.execPath, [script, 'noSuchExport'], { input: '{}', encoding: 'utf8' });
+    assert.equal(unknown.status, 1);
+    assert.match(JSON.parse(unknown.stdout).error, /usage: keep-who-agreed/);
   });
 });

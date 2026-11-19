@@ -115,7 +115,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -182,7 +181,7 @@
         "id": "tool:send-an-email",
         "label": "Send an email",
         "job": "Send an email, to one person or a list, through the email provider I connected",
-        "description": "Give recipients (a list of addresses; to for one), provider (the id of the email provider row in read-data/message-providers.json that the person's email connection is), the settings that provider's row asks for (region for Amazon SES, such as us-east-1) and the words: subject and text (drawn as an email in the look the person wears, read from their screen-look records (the shipped look until they choose one; an email whose look cannot be read is not sent), with its mark from the mail row's site and made_with) or your own html, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). Every email comes from the account's own mail row, which the caller hands in as mail_settings (read from the person's `mail-settings` row `settings:mail`; with none the shipped row names no sender and nothing is sent), never from the request; each address may be sent only so many emails of a kind (per_person, counted from the mail_sent rows handed in), the day keeps room for sign-in codes (daily, counted from the mail_day row handed in), a proof address is never sent, and every email is written down under its address: nothing is kept here, the answer's keep holds the mail-sent and mail-day rows as the send left them, each with the row it expected, for the caller to write. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with limited, unknown (it may have gone; it is not sent again) or suppressed. The held keys of the provider named reach the one process on private pipes; they are never shown.",
+        "description": "Give recipients (a list of addresses; to for one), provider (the id of the email provider row in read-data/message-providers.json that the person's email connection is), the settings that provider's row asks for (region for Amazon SES, such as us-east-1) and the words: subject and text (drawn as an email in the look the person wears, in the person's saved screen look, which the caller hands in as `saved` (the shipped look until they choose one; an email whose look cannot be read is not sent), with its mark from the mail row's site and made_with) or your own html, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). Every email comes from the account's own mail row, which the caller hands in as mail_settings (read from the person's `mail-settings` row `settings:mail`; with none the shipped row names no sender and nothing is sent), never from the request; each address may be sent only so many emails of a kind (per_person, counted from the mail_sent rows handed in), the day keeps room for sign-in codes (daily, counted from the mail_day row handed in), a proof address is never sent, and every email is written down under its address: nothing is kept here, the answer's keep holds the mail-sent and mail-day rows as the send left them, each with the row it expected, for the caller to write. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with limited, unknown (it may have gone; it is not sent again) or suppressed. The held keys of the provider named reach the one process on private pipes; they are never shown.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -211,9 +210,9 @@
             "message": { "type": "object" },
             "headers": { "type": "object" },
             "idempotencyKey": { "type": "string" },
-            "stored": {
+            "saved": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for screen-look, screen-look-own-themes, workspace-preference:screen-look-over-time, workspace-preference:where-looks-apply, as this row's `stored` lists. What is not given is not there."
+              "description": "The person's saved look values by name, read by the caller from where the person keeps them and handed in (the engine keeps none): screen-look, screen-look-own-themes, workspace-preference:screen-look-over-time and workspace-preference:where-looks-apply, each with its value. What is not given is not there."
             }
           }
         },
@@ -243,14 +242,6 @@
                   "read-data"
                 ],
                 "at": "/opt/send-messages"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -347,83 +338,7 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
         "provenance": { "source": "bitfield-packages broadcast-delivery (Amazon SES adapter) and resend-email-sender (templates, headers), ported" },
-        "verify": [{"kind": "sample-run", "input": {"to": "reader@example.com", "subject": "Hello", "html": "<p>Hello there</p>", "text": "Hello there", "provider": "amazon-ses", "region": "us-east-1"}}],
-        "record_model": {
-          "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
-          "kinds": [
-            {
-              "type": "record:sent",
-              "guard_properties": {
-                "body_html": "text",
-                "body_markdown": "text",
-                "body_text": "text",
-                "by": "object",
-                "copies": "list",
-                "execution_ref": "text",
-                "from": "text",
-                "id": "text",
-                "kind": "text",
-                "open_url": "any",
-                "preheader": "text",
-                "provider": "text",
-                "provider_id": "text",
-                "reply_to": "text",
-                "sent_at": "text",
-                "state": "text",
-                "subject": "text",
-                "to": "texts",
-                "effect_ref": "text",
-                "observation": "object",
-                "origin": "text",
-                "provider_account": "any",
-                "recorded_by": "object"
-              }
-            }
-          ],
-          "indexes": [
-            {
-              "type": "record:sent",
-              "name": "sent_at",
-              "backfill": "sent-order",
-              "paths": [
-                [
-                  "sent_at"
-                ]
-              ],
-              "_read_by": "src/sent.mjs: a bounded sent-time page with stable record-id ties; retained records join through existing index maintenance"
-            }
-          ]
-        },
-        "stored": [
-          {
-            "kind": "@own-records",
-            "id": "screen-look",
-            "operations": [
-              "workspace:read"
-            ]
-          },
-          {
-            "kind": "@own-records",
-            "id": "screen-look-own-themes",
-            "operations": [
-              "workspace:read"
-            ]
-          },
-          {
-            "kind": "@own-records",
-            "id": "workspace-preference:screen-look-over-time",
-            "operations": [
-              "workspace:read"
-            ]
-          },
-          {
-            "kind": "@own-records",
-            "id": "workspace-preference:where-looks-apply",
-            "operations": [
-              "workspace:read"
-            ]
-          }
-        ]
+        "verify": [{"kind": "sample-run", "input": {"to": "reader@example.com", "subject": "Hello", "html": "<p>Hello there</p>", "text": "Hello there", "provider": "amazon-ses", "region": "us-east-1"}}]
       }
     },
     {
@@ -538,7 +453,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -655,15 +569,6 @@
                   "read-data/identity.mjs"
                 ],
                 "at": "/opt/content-identity"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "read-data/byte-pages.mjs",
-                  "read-data/records-door.mjs",
-                  "read-data/settled-write.mjs"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "screen-looks",
@@ -838,7 +743,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -931,7 +835,7 @@
           "capabilities": ["use-the-messages-app"],
           "workdir": "/opt/send-messages",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/send-messages/do-work/send-a-message.mjs", "sendOnThisMac"],
+          "argv": ["node", "/opt/send-messages/do-work/send-a-message.mjs", "messages-on-this-mac"],
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
@@ -942,14 +846,6 @@
                   "read-data"
                 ],
                 "at": "/opt/send-messages"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -1144,7 +1040,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1350,7 +1245,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1444,7 +1338,7 @@
           "internet": true,
           "workdir": "/opt/send-messages",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/send-messages/do-work/keep-who-agreed.mjs", "enrollInEmailCourse"],
+          "argv": ["node", "/opt/send-messages/do-work/keep-who-agreed.mjs", "enrollInEmailCourse"],
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
@@ -1455,14 +1349,6 @@
                   "read-data"
                 ],
                 "at": "/opt/send-messages"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -1662,7 +1548,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1753,7 +1638,7 @@
           "internet": true,
           "workdir": "/opt/send-messages",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/send-messages/do-work/keep-who-agreed.mjs", "sendDueEmailLessons"],
+          "argv": ["node", "/opt/send-messages/do-work/keep-who-agreed.mjs", "sendDueEmailLessons"],
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
@@ -1764,14 +1649,6 @@
                   "read-data"
                 ],
                 "at": "/opt/send-messages"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -1971,7 +1848,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -2063,7 +1939,7 @@
           "internet": false,
           "workdir": "/opt/send-messages",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/send-messages/do-work/keep-who-agreed.mjs", "saveEmailInterest"],
+          "argv": ["node", "/opt/send-messages/do-work/keep-who-agreed.mjs", "saveEmailInterest"],
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
@@ -2074,14 +1950,6 @@
                   "read-data"
                 ],
                 "at": "/opt/send-messages"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -2276,7 +2144,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -2363,7 +2230,7 @@
           "internet": false,
           "workdir": "/opt/send-messages",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/send-messages/do-work/keep-who-agreed.mjs", "unsubscribeFromEmailCourse"],
+          "argv": ["node", "/opt/send-messages/do-work/keep-who-agreed.mjs", "unsubscribeFromEmailCourse"],
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
@@ -2374,14 +2241,6 @@
                   "read-data"
                 ],
                 "at": "/opt/send-messages"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -2576,7 +2435,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -2664,7 +2522,7 @@
           "internet": false,
           "workdir": "/opt/send-messages",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/send-messages/do-work/keep-who-agreed.mjs", "whoAgreedToGetEmails"],
+          "argv": ["node", "/opt/send-messages/do-work/keep-who-agreed.mjs", "whoAgreedToGetEmails"],
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
@@ -2675,14 +2533,6 @@
                   "read-data"
                 ],
                 "at": "/opt/send-messages"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -2877,7 +2727,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -3315,7 +3164,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",

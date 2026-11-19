@@ -208,11 +208,12 @@ describe('the mail row and the email rows', () => {
     assert.deepEqual([changed.expected.value.used, changed.value.used > 1], [1, true], 'the changed day row names the row it was handed in as expected');
   });
 
-  it('the row of tool:send-an-email declares no mail-settings, mail-sent or mail-day records and answers keep', () => {
+  it('the row of tool:send-an-email reads no store and declares no records door: the rows and the saved look are handed in, and it answers keep', () => {
     const row = rowOf(rows, 'tool:send-an-email');
     assert.equal(row.invoke.records, undefined, 'the run asks the door for nothing');
-    assert.deepEqual(row.stored.filter(right => right.kind !== '@own-records'), []);
-    for (const field of ['mail_settings', 'mail_sent', 'mail_day']) assert.ok(row.input_schema.properties[field], field);
+    assert.equal(row.stored, undefined, 'the run reads no store');
+    assert.ok(!row.invoke.files.package_files.some(files => files.package === 'records-door'), 'no records door is shipped to the run');
+    for (const field of ['mail_settings', 'mail_sent', 'mail_day', 'saved']) assert.ok(row.input_schema.properties[field], field);
     assert.ok(row.output_schema.properties.keep);
   });
 
@@ -220,8 +221,8 @@ describe('the mail row and the email rows', () => {
     for (const id of ['tool:send-an-email']) {
       const row = rowOf(rows, id);
       assert.equal(row.invoke.argv[1], '/opt/send-messages/do-work/mail-sender.mjs', id);
-      // The worn look every email is drawn in is given as the settings its stored list names.
-      assert.deepEqual(row.stored.map(right => right.id), ['screen-look', 'screen-look-own-themes', 'workspace-preference:screen-look-over-time', 'workspace-preference:where-looks-apply'], id);
+      // The worn look every email is drawn in is the saved look values the caller hands in, by name.
+      assert.equal(row.input_schema.properties.saved.type, 'object', id);
       assert.ok(row.invoke.credential_mounts.every(mount => mount.fd >= 4), id);
       assert.equal(row.input_schema.properties.from, undefined, `${id}: the request never chooses the sender`);
     }

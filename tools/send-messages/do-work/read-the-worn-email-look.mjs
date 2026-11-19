@@ -8,7 +8,7 @@
 //   readBrandPresentationWithin (src/brand-assets.mjs), which read the operator's published brand from a Worker.
 //
 // Non-negotiable invariants
-//   1. The look comes only from the person's own settings, the four the email row's `stored` lists (`screen-look`,
+//   1. The look comes only from the person's own settings, the four the caller hands in as the email row's `saved` (`screen-look`,
 //      `screen-look-own-themes`, `workspace-preference:screen-look-over-time`, `workspace-preference:where-looks-apply`),
 //      given by label as tool:read-current-worn-look takes them (`saved`). Nothing here names a look: the person's choice
 //      decides, and with none it is `looks.start_with`, the shipped look.

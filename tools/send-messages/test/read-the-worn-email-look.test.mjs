@@ -1,7 +1,7 @@
 // tools/send-messages/test/read-the-worn-email-look.test.mjs
 //
-// The look every email is drawn in is the person's worn screen look, given to the run as its `stored` settings
-// (do-work/read-the-worn-email-look.mjs over records-door/read-data/values-door.mjs), the labels the email row's `stored` lists. The older owner read the
+// The look every email is drawn in is the person's worn screen look, given to the run as its `saved` values
+// (do-work/read-the-worn-email-look.mjs), the labels the email row's `saved` names. The older owner read the
 // operator's published brand from a Worker (src/mail-sender.mjs currentPalette over readBrandPresentationWithin); its
 // tests "the sent email uses the worn dark look ..." and "an email whose brand cannot be read is not sent ..." are run
 // here with the look coming from the person's own records. The last test runs an email row's own command with a
@@ -80,7 +80,7 @@ describe('the email wears the person\'s worn look, read from the settings it is 
     });
     let out = '';
     child.stdout.on('data', chunk => { out += chunk; });
-    child.stdin.end(JSON.stringify({ stored: { workspace: { 'screen-look': [{ name: darkId }] } }, mail_settings: settingsWith(), to: 'reader@example.com', from: 'Example Sign In <signin@example.com>', subject: 'Your code: 246810', text: 'Your sign-in code is 246810.', idempotencyKey: 'sign-in:reader@example.com:1' }));
+    child.stdin.end(JSON.stringify({ saved: { 'screen-look': [{ name: darkId }] }, mail_settings: settingsWith(), to: 'reader@example.com', from: 'Example Sign In <signin@example.com>', subject: 'Your code: 246810', text: 'Your sign-in code is 246810.', idempotencyKey: 'sign-in:reader@example.com:1' }));
     await new Promise(done => child.on('close', done));
     const answer = JSON.parse(out.trim().split('\n').at(-1)).result;
     assert.equal(answer.sent[0].messageId, 'm-sign-in');
