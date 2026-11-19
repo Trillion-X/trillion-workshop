@@ -1,3 +1,4 @@
+import { run } from './fixtures.mjs';
 // A call's fields are checked against its tool row's input_schema: a field the call does not declare is refused by name, and
 // a field a free-form object holds that the call declares at its top level (decision.usage) is refused where it belongs.
 import test from 'node:test';
@@ -19,14 +20,14 @@ const decision = { option_id: 'check', reason: 'Fields are checked by name', nex
 
 async function allAnswered() {
   const door = account();
-  const { case_id: id } = await startADecision(input, { door });
+  const { case_id: id } = await run(door, startADecision, input);
   await answerAll(door, id, { ref: 'user-verbatim' });
   return { door, id };
 }
 
 test('a field kept inside the decision that the call declares at its top level is refused where it belongs', async () => {
   const { door, id } = await allAnswered();
-  await assert.rejects(makeTheDecision({ decision_id: id, decision: { ...decision, usage: { model_calls: 1 } } }, { door }), error => {
+  assert.throws(() => run(door, makeTheDecision, { decision_id: id, decision: { ...decision, usage: { model_calls: 1 } } }), error => {
     assert.match(error.message, /"usage" belongs at the top level of the call, not inside "decision"/, error.message);
     return true;
   });
@@ -34,7 +35,7 @@ test('a field kept inside the decision that the call declares at its top level i
 
 test('a field the call does not declare is refused by name, with the fields it does declare', async () => {
   const { door, id } = await allAnswered();
-  await assert.rejects(makeTheDecision({ decision_id: id, decision, verdict_notes: 'extra' }, { door }), error => {
+  assert.throws(() => run(door, makeTheDecision, { decision_id: id, decision, verdict_notes: 'extra' }), error => {
     assert.match(error.message, /"verdict_notes" is not a field of this call/, error.message);
     assert.match(error.message, /The fields it declares are: decision_id, decision, .*usage/, error.message);
     return true;
@@ -68,10 +69,10 @@ test('the installed copy, without tool-rows.json, runs make-the-decision', async
     cpSync(fileURLToPath(new URL('formula-engine', tools)), join(installed, 'node_modules', 'trillion-workshop', 'tools', 'formula-engine'), { recursive: true, filter: notSkipped });
     const copied = await import(pathToFileURL(join(opt, 'decide-with-a-method', 'read-data', 'decisions.mjs')).href);
     const door = account();
-    const { case_id: id } = await copied.startADecision(input, { door });
+    const { case_id: id } = await run(door, copied.startADecision, input);
     await answerAll(door, id, { ref: 'user-verbatim' });
-    await assert.rejects(copied.makeTheDecision({ decision_id: id, decision: { ...decision, usage: {} } }, { door }), /"usage" belongs at the top level/);
-    const made = await copied.makeTheDecision({ decision_id: id, decision }, { door });
+    assert.throws(() => run(door, copied.makeTheDecision, { decision_id: id, decision: { ...decision, usage: {} } }), /"usage" belongs at the top level/);
+    const made = await run(door, copied.makeTheDecision, { decision_id: id, decision });
     assert.equal(made.case_id, id);
   } finally {
     rmSync(installed, { recursive: true, force: true });

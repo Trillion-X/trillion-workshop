@@ -1,9 +1,9 @@
 // Ported from old trillion test/decision-content-reads.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81),
 // deleted by Trillion-X/trillion #243. The old store's contentOf (src/decision-store.mjs) is this tool's readDecision
-// (read-data/decision-records.mjs) over the records door: a decision laid apart by recordsOf (the old "split" shape)
-// reads its own fields and answers and never a `decision-call` record or a pursuit; the old SQL statement and byte
-// counts are the records the read crosses at the door (old-engine-for-tests.mjs `counting`), on one in-memory door
-// instead of two record engines. The outcome reader's view is statedOutcome and checkPlan of
+// (read-data/decision-records.mjs) over the records the caller hands in: a decision laid apart by recordsOf (the old "split"
+// shape) reads its own fields and answers and never a `decision-call` record or a pursuit. The old SQL statement and byte
+// counts are the records the caller hands the read (old-engine-for-tests.mjs `counting`), on one in-memory store instead of
+// two record engines. The outcome reader's view is statedOutcome and checkPlan of
 // tools/keep-and-wake-ai-sessions-on-this-computer/src/outcome-checks.mjs over that read.
 // Changed as the owner behaves: a root still kept whole (the old "whole" shape, calls inline) "reads as it is" until its
 // next change lays it apart (README, Record layout), so its content is the root as written, calls with it, from one read.
@@ -13,9 +13,9 @@
 // searched the three repos for those names: no running code).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readDecision, recordsOf } from '../read-data/decision-records.mjs';
+import { holding, readDecision, recordsOf } from '../read-data/decision-records.mjs';
 import { checkPlan, statedOutcome } from '../../keep-and-wake-ai-sessions-on-this-computer/src/outcome-checks.mjs';
-import { memoryDoor } from './fixtures.mjs';
+import { memoryDoor, heldOf } from './fixtures.mjs';
 import { counting } from './old-engine-for-tests.mjs';
 
 const id = 'source:model-retry';
@@ -54,20 +54,30 @@ function seed(shape, calls) {
   return door;
 }
 const every = ['scope', 'outcome', 'proof'];
-const touched = (taken, prefix) => [...taken.reads, ...taken.listed].filter(item => item.id.startsWith(prefix) || item.type === prefix);
+
+// The records a caller hands a content read of one decision: the records that name its id, of the types its content is kept
+// in, and its method snapshot (kept under its identity, named by the root). Its tries (`decision-call`) and other decisions'
+// records are not among them.
+const CONTENT_TYPES = ['decision', 'decision-evidence', 'decision-option', 'decision-answered-step', 'decision-step', 'decision-part',
+  'decision-report', 'decision-carried-out', 'decision-cited-pursuit', 'decision-history', 'decision-candidate', 'decision-refs',
+  'decision-revision', 'decision-method'];
+const contentOf = store => ({
+  all: () => store.all().filter(record => CONTENT_TYPES.includes(record.type) && (record.id.includes(id) || record.type === 'decision-method')),
+  write: list => store.write(list),
+});
 
 test('content reads retain actual answers, earlier method context and every privacy term on both engines and layouts', async () => {
   for (const shape of ['split', 'whole']) {
-    const door = counting(seed(shape, 24));
-    const actual = await readDecision(door, id, every);
-    const taken = door.take();
-    const { calls, ...wanted } = record(24);
-    assert.deepEqual(touched(taken, 'pursuit'), [], `${shape}: a content read never enumerates the unrelated pursuits`);
+    const base = seed(shape, 24);
+    const door = counting(contentOf(base));
+    const actual = readDecision(holding(door.all()), id, every);
+    const wanted = record(24);
+    assert.deepEqual(actual, readDecision(heldOf(base), id, every), `${shape}: the unrelated pursuits and tries in the store change nothing`);
+    assert.deepEqual(door.take().handed.filter(item => item.type === 'pursuit'), [], `${shape}: no pursuit is handed to the content read`);
     if (shape === 'whole') {
       assert.deepEqual(actual, { ...record(24), whole: true }, 'a whole root reads as it is');
-      assert.equal(taken.crossed, 2, 'from its root and its revision record');
     } else {
-      assert.deepEqual(touched(taken, 'decision-call:'), [], 'no call record is opened');
+      assert.deepEqual(actual.calls, undefined);
       assert.equal(actual.input.goal, wanted.input.goal);
       assert.deepEqual(actual.input.evidence, wanted.input.evidence);
       assert.deepEqual(actual.decision, wanted.decision);
@@ -80,28 +90,24 @@ test('content reads retain actual answers, earlier method context and every priv
     assert.deepEqual(checkPlan(actual), checkPlan(record(24)));
     assert.deepEqual(statedOutcome(actual), statedOutcome(record(24)));
     assert.equal(actual.guidance[1].checklist[0].id, 'kept-check');
-    assert.equal(await readDecision(door, 'source:missing'), null);
+    assert.equal(readDecision(heldOf(base), 'source:missing'), null);
   }
 });
 
-test('cold content reads stay bounded as diagnostic calls and unrelated pursuits quadruple', async () => {
-  const samples = [];
+test('content reads give the same answer with the diagnostic calls in the store or not, as calls quadruple', () => {
   for (const calls of [400, 1600]) {
-    const door = counting(seed('split', calls));
-    const content = await readDecision(door, id, every);
-    const taken = door.take();
+    const base = seed('split', calls);
+    const content = readDecision(holding(contentOf(base).all()), id, every);
     assert.equal(content.guidance.length, 3);
     assert.equal(content.calls, undefined);
-    assert.deepEqual(touched(taken, 'decision-call:'), [], 'content opened no diagnostic call record');
-    samples.push({ calls, crossed: taken.crossed });
+    assert.deepEqual(content, readDecision(heldOf(base), id, every), `${calls} calls change nothing in the content`);
   }
-  assert.equal(samples[1].crossed, samples[0].crossed, JSON.stringify(samples));
 });
 
-test('an unavailable outcome judge gets every actual answer without opening call history', async () => {
-  const door = counting(seed('split', 320));
-  const content = await readDecision(door, id, ['outcome', 'proof']);
-  assert.deepEqual(touched(door.take(), 'decision-call:'), []);
+test('an unavailable outcome judge gets every actual answer without its call history', () => {
+  const base = seed('split', 320);
+  const content = readDecision(holding(contentOf(base).all()), id, ['outcome', 'proof']);
+  assert.deepEqual(content, readDecision(heldOf(base), id, ['outcome', 'proof']));
   assert.equal(content.guidance.length, 3);
   assert.equal(content.calls, undefined);
   assert.equal(checkPlan(content).url, 'https://example.com/score');

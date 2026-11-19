@@ -1,11 +1,11 @@
 // A split record whose part is not visible at the read is an error, never a missing value. Before, the reader returned null,
-// the step became lost, and the next write carried a stub in its place. A part read that the door refuses (503) is an error too.
+// the step became lost, and the next write carried a stub in its place.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { addDecisionEvidence, startADecision } from '../read-data/decisions.mjs';
 import { readDecision } from '../read-data/decision-records.mjs';
 import { account, seedSteps } from './old-engine-for-tests.mjs';
-import { refsOfCase } from './fixtures.mjs';
+import { refsOfCase, run, heldOf } from './fixtures.mjs';
 import { readFileSync } from 'node:fs';
 
 const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-method.json', import.meta.url), 'utf8'));
@@ -20,7 +20,7 @@ const input = {
 // A case with two answered steps, where the second summary is split into two parts and its second part is not in the door.
 async function caseWithMissingPart() {
   const door = account();
-  const { case_id: id } = await startADecision(input, { door });
+  const { case_id: id } = await run(door, startADecision, input);
   await seedSteps(door, id, ['scope', 'outcome'], { ref: 'user-verbatim' });
   const refs = await refsOfCase(door, id);
   const summaryKey = `${ANSWERED}:${id}:001:c${refs.items.answered_steps[1]}`;
@@ -33,23 +33,12 @@ async function caseWithMissingPart() {
 
 test('a split part that is not visible is an error when the case is read', async () => {
   const { door, id } = await caseWithMissingPart();
-  await assert.rejects(() => readDecision(door, id), /not visible/);
+  assert.throws(() => readDecision(heldOf(door), id), /not visible/);
 });
 
 test('adding evidence refuses a case with a split part that is not visible, and writes nothing', async () => {
   const { door, id } = await caseWithMissingPart();
   const keysBefore = [...door.records.keys()].sort();
-  await assert.rejects(() => addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'The waiting list grew this month' }] }, { door }), /not visible/);
+  assert.throws(() => run(door, addDecisionEvidence, { decision_id: id, evidence: [{ ref: 'e3', claim: 'The waiting list grew this month' }] }), /not visible/);
   assert.deepEqual([...door.records.keys()].sort(), keysBefore);
-});
-
-test('a part the door refuses (503) is an error, not a missing value', async () => {
-  const { door, id, partKey } = await caseWithMissingPart();
-  door.records.set(partKey(1), { type: PART, value: { of: 'x', at: 1, text: '' } });
-  const read = door.read.bind(door);
-  door.read = async (type, key) => {
-    if (type === PART && key === partKey(1)) throw Object.assign(new Error('The records door answered 503.'), { code: 'http_503' });
-    return read(type, key);
-  };
-  await assert.rejects(() => readDecision(door, id), /503/);
 });

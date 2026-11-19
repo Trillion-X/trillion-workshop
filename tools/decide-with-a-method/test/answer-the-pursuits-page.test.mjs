@@ -1,9 +1,10 @@
+import { heldOf, run } from './fixtures.mjs';
 // The page's /work/api/pursuits route (tool:answer-the-pursuits-page), with old trillion's tests at tag
 // old-trillion-before-worker-retire ported to it: test/work-pursuits.test.mjs (Home's add-a-goal form and "Make this my
 // needle mover" save through PUT /work/api/pursuits; a refusal comes back in the engine's words) and the recordPursuits
 // part of test/pursuits.test.mjs (third-person words refused; one AI updating one pursuit never ends the others;
 // replace_all ends every pursuit left out, which is marked ended, not erased). The owner runs over a memory door first,
-// then the row runs as the container runs it, against the fake records door with exactly its rights.
+// then the row runs on the records its call hands in.
 //
 // Left out, with why: work-pursuits' "another page may not write" (403 for a foreign Origin) is the engine door's check
 // on the page's session, not this tool's: the tool is never handed the request's Origin header. pursuits.test.mjs's
@@ -15,18 +16,27 @@ import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import { answerThePursuitsPage, pursuitsOf } from '../do-work/answer-the-pursuits-page.mjs';
 
-// The records door as the run sees it: list a kind (greatest id first, as the door does) and write, each write checked
-// against `expected` as the door checks it.
+// The pursuit tools as their caller plays them: each read takes the records the store holds now, and each write keeps what
+// the tool answers as `keep` (the store applies it, refusing a record that moved).
+const engineOf = door => ({
+  pursuits: () => pursuitsOf(heldOf(door)).pursuits(),
+  recordPursuits(list, options) {
+    const written = pursuitsOf(heldOf(door)).recordPursuits(list, options);
+    if (written.keep.length) door.write(written.keep);
+    return written;
+  },
+});
+
+// The caller's store: every record it holds (`all`), and a write of what the tool keeps, each record checked against
+// `expected` and the whole write refused when one moved.
 function memoryDoor(records = []) {
   const kept = new Map(records.map(record => [record.id, structuredClone(record)]));
   const history = [];
   return {
     kept,
     history,
-    async *list({ type }) {
-      for (const id of [...kept.keys()].sort().reverse()) if (kept.get(id).type === type) yield structuredClone(kept.get(id));
-    },
-    async write(rows) {
+    all() { return [...kept.values()].map(({ id, type, value }) => structuredClone({ id, type, value })); },
+    write(rows) {
       for (const row of rows) {
         const now = kept.get(row.id);
         if ('expected' in row && JSON.stringify(row.expected) !== JSON.stringify(now ? { type: now.type, value: now.value } : null)) throw Object.assign(new Error('The records changed while this tool was running.'), { code: 'original_command_conflict' });
@@ -39,8 +49,8 @@ function memoryDoor(records = []) {
     },
   };
 }
-const put = (door, body) => answerThePursuitsPage({ path: '/pursuits', method: 'PUT', query: {}, body }, { door });
-const get = door => answerThePursuitsPage({ path: '/pursuits', method: 'GET', query: {}, body: {} }, { door });
+const put = (door, body) => run(door, answerThePursuitsPage, { path: '/pursuits', method: 'PUT', query: {}, body });
+const get = door => run(door, answerThePursuitsPage, { path: '/pursuits', method: 'GET', query: {}, body: {} });
 
 test('a goal added from Home is kept exactly as record_pursuits keeps it', async () => {
   const door = memoryDoor();
@@ -83,22 +93,22 @@ test('a refusal comes back in the engine words', async () => {
 
 test('pursuits are written to the person, one AI updating one never ends the others, and one dropped is ended, not erased', async () => {
   const door = memoryDoor();
-  const engine = pursuitsOf(door);
-  await assert.rejects(engine.recordPursuits([{ title: 'No after', now: 'x' }]), /where it should get to/);
-  await assert.rejects(engine.recordPursuits([{ title: 'All his files in the cloud', now: 'On a drive', after: 'In the cloud' }]), /write its title to the person/);
-  await assert.rejects(engine.recordPursuits([{ title: 'Your files in the cloud', now: 'On a drive', after: 'Her agents reach them' }]), /write its after to the person/);
-  await engine.recordPursuits([
+  const engine = engineOf(door);
+  assert.throws(() => engine.recordPursuits([{ title: 'No after', now: 'x' }]), /where it should get to/);
+  assert.throws(() => engine.recordPursuits([{ title: 'All his files in the cloud', now: 'On a drive', after: 'In the cloud' }]), /write its title to the person/);
+  assert.throws(() => engine.recordPursuits([{ title: 'Your files in the cloud', now: 'On a drive', after: 'Her agents reach them' }]), /write its after to the person/);
+  engine.recordPursuits([
     { title: 'Lean and strong', now: '11% body fat', after: '5 to 7% body fat', why_it_matters: 'Energy for everything else' },
     { title: 'Pottery school', now: 'Two paying students', after: 'A school that pays the rent' },
   ]);
-  assert.deepEqual((await engine.pursuits()).map(item => item.title), ['Lean and strong', 'Pottery school']);
-  assert.equal((await engine.pursuits())[0].id, 'pursuit:lean-and-strong');
+  assert.deepEqual(engine.pursuits().map(item => item.title), ['Lean and strong', 'Pottery school']);
+  assert.equal(engine.pursuits()[0].id, 'pursuit:lean-and-strong');
   // One AI updating one pursuit, by the id list_pursuits gave it, never ends the others.
-  await engine.recordPursuits([{ id: 'pursuit:lean-and-strong', title: 'Lean and strong', now: '10.5% body fat', after: '5 to 7% body fat' }]);
-  assert.deepEqual((await engine.pursuits()).map(item => [item.id, item.now]), [['pursuit:lean-and-strong', '10.5% body fat'], ['pursuit:pottery-school', 'Two paying students']]);
+  engine.recordPursuits([{ id: 'pursuit:lean-and-strong', title: 'Lean and strong', now: '10.5% body fat', after: '5 to 7% body fat' }]);
+  assert.deepEqual(engine.pursuits().map(item => [item.id, item.now]), [['pursuit:lean-and-strong', '10.5% body fat'], ['pursuit:pottery-school', 'Two paying students']]);
   // The whole list, with replace_all, ends every pursuit left out.
-  await engine.recordPursuits([{ title: 'Lean and strong', now: '10% body fat', after: '5 to 7% body fat' }], { replace_all: true });
-  assert.deepEqual((await engine.pursuits()).map(item => [item.title, item.now]), [['Lean and strong', '10% body fat']]);
+  engine.recordPursuits([{ title: 'Lean and strong', now: '10% body fat', after: '5 to 7% body fat' }], { replace_all: true });
+  assert.deepEqual(engine.pursuits().map(item => [item.title, item.now]), [['Lean and strong', '10% body fat']]);
   // Each earlier value was written in its turn: the dropped pursuit's status, and the old body fat figure.
   const values = (id, field) => door.history.filter(row => row.id === id).map(row => row.value?.[field]).filter(value => value !== undefined);
   assert.ok(values('pursuit:pottery-school', 'status').includes('ended'));
@@ -116,22 +126,25 @@ test('a pursuit with a room keeps it, and is never ended by a whole-list rewrite
 
 test('only GET and PUT /pursuits are this route', async () => {
   const door = memoryDoor();
-  assert.deepEqual(await answerThePursuitsPage({ path: '/pursuits', method: 'POST', body: {} }, { door }), { status: 404, body: { error: 'Not found' } });
-  assert.deepEqual(await answerThePursuitsPage({ path: '/pursuits/other', method: 'GET', body: {} }, { door }), { status: 404, body: { error: 'Not found' } });
+  const answered = request => { const { status, body } = run(door, answerThePursuitsPage, request); return { status, body }; };
+  assert.deepEqual(answered({ path: '/pursuits', method: 'POST', body: {} }), { status: 404, body: { error: 'Not found' } });
+  assert.deepEqual(answered({ path: '/pursuits/other', method: 'GET', body: {} }), { status: 404, body: { error: 'Not found' } });
 });
 
 const row = rowOf(rows, 'tool:answer-the-pursuits-page');
 const route = (method, body = {}) => ({ path: '/pursuits', method, query: {}, body, browser: { user_agent: 'test', origin: 'https://app.example', visitor: '' } });
 
-test('the row keeps and lists pursuit records through the records door, with exactly its rights', async () => {
-  const saved = await answerOf(row, route('PUT', { pursuits: [{ title: 'Grow my newsletter', now: '1,200 readers', after: '10,000 readers' }] }));
+test('the row answers from the records its call hands in: a save answers keep, a read lists what it is handed, a refusal is 400', async () => {
+  const saved = await answerOf(row, { ...route('PUT', { pursuits: [{ title: 'Grow my newsletter', now: '1,200 readers', after: '10,000 readers' }] }), records: [] });
   assert.equal(saved.status, 0, JSON.stringify(saved));
   assert.equal(saved.result.status, 200);
   assert.deepEqual(saved.result.body.map(item => item.id), ['pursuit:grow-my-newsletter']);
-  assert.deepEqual(saved.kept.map(record => [record.id, record.type]), [['pursuit:grow-my-newsletter', 'pursuit']]);
-  const listed = await answerOf(row, route('GET'), { records: saved.kept });
-  assert.deepEqual(listed.result, { status: 200, body: { pursuits: saved.kept.map(record => record.value) } });
-  const refused = await answerOf(row, route('PUT', { pursuits: [{ title: 'No after', now: 'x' }] }));
+  assert.deepEqual(saved.result.keep.map(record => [record.id, record.type]), [['pursuit:grow-my-newsletter', 'pursuit']]);
+  const held = saved.result.keep.map(({ id, type, value }) => ({ id, type, value }));
+  const listed = await answerOf(row, { ...route('GET'), records: held });
+  assert.deepEqual(listed.result.body, { pursuits: held.map(record => record.value) });
+  assert.deepEqual(listed.result.keep, []);
+  const refused = await answerOf(row, { ...route('PUT', { pursuits: [{ title: 'No after', now: 'x' }] }), records: [] });
   assert.equal(refused.result.status, 400);
   assert.match(refused.result.body.error, /where it should get to/);
 });

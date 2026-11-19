@@ -1,31 +1,18 @@
 // A method is a saved view over the person's method rows, read a page at a time and answered for any number of its rows in
-// one call (method-rows/view.mjs, method-rows/answers.mjs). Every name, row and answer here is made up. The door is the
-// one the tool's row declares: a kind or an operation the row does not name is refused, as the engine refuses it.
-import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
+// one call (method-rows/view.mjs, method-rows/answers.mjs). Every name, row and answer here is made up. The caller hands in
+// the records a call reads, and each tool keeps what it answers.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { readAMethod } from '../method-rows/view.mjs';
 import { recordMethodAnswers } from '../method-rows/answers.mjs';
-import { memoryDoor } from './fixtures.mjs';
+import { memoryDoor, run } from './fixtures.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
 const settings = JSON.parse(readFileSync(new URL('../method-rows/settings.json', import.meta.url), 'utf8'));
 const VIEW = 'list-view:sample-methods:sample-method';
 const ROW = name => `record:method-row:sample-methods~${name}`;
 const DECISION = 'source:c2FtcGxlOm1ldGhvZC0x';
-
-function granted(door, toolId) {
-  const row = rows.find(each => each.id === toolId);
-  const rights = new Map(rightsOf(row).map(item => [item.kind, new Set(item.operations)]));
-  const need = (kind, operation) => { if (!rights.get(kind)?.has(operation)) throw new Error(`${toolId} is not granted ${operation} on ${kind}`); };
-  return {
-    read: async (type, id) => { need(type, 'records:read'); return door.read(type, id); },
-    // The live door lists nothing by an evidence prefix: a reader that lists evidence finds none, one that reads by the root's refs finds all.
-    async *list(input) { need(input.type, 'records:list'); if (input.type !== 'decision-evidence') yield* door.list(input); },
-    write: async (list, options) => { for (const record of list) need(record.type, 'records:write'); return door.write(list, options); },
-  };
-}
 
 const ruleOf = (field, operator, params = {}) => ({ kind: 'rule', field, operator, params });
 const group = (...list) => ({ kind: 'group', combinator: 'and', negate: false, rules: list });
@@ -51,8 +38,8 @@ function account(extra = {}) {
   return door;
 }
 
-const read = (door, input) => readAMethod(input, { door: granted(door, 'tool:read-a-method') });
-const record = (door, input) => recordMethodAnswers({ decision_id: DECISION, method: VIEW, ...input }, { door: granted(door, 'tool:record-method-answers') });
+const read = (door, input) => run(door, readAMethod, input);
+const record = (door, input) => run(door, recordMethodAnswers, { decision_id: DECISION, method: VIEW, ...input });
 
 test('a method reads as the rows its view keeps, in its sort, each with the strictness it is checked by', async () => {
   const page = await read(account(), { method: VIEW });
@@ -110,16 +97,16 @@ test('a rule over a long text, which the rule filter reads as text, keeps the ro
 
 test('a method that is not there, a limit past the most, and a view the rule filter cannot use are refused by name', async () => {
   const door = account();
-  await assert.rejects(read(door, { method: 'list-view:nothing' }), /There is no saved method list-view:nothing/);
-  await assert.rejects(read(door, { method: VIEW, limit: settings.read.page_rows_most + 1 }), /limit is a whole number/);
+  assert.throws(() => read(door, { method: 'list-view:nothing' }), /There is no saved method list-view:nothing/);
+  assert.throws(() => read(door, { method: VIEW, limit: settings.read.page_rows_most + 1 }), /limit is a whole number/);
   door.put(VIEW, 'list-view', { list_id: 'sample-methods', view: { rules: group(ruleOf('kind', 'is_not_a_known_operator')) } });
-  await assert.rejects(read(door, { method: VIEW }), /cannot be read/);
+  assert.throws(() => read(door, { method: VIEW }), /cannot be read/);
 });
 
 test('a field the call does not declare is refused by name', async () => {
   const door = account();
-  await assert.rejects(read(door, { method: VIEW, rows: 5 }), /rows is not a field of this tool; it takes method, after, limit/);
-  await assert.rejects(record(door, { answers: [{ row: ROW('beta'), answer: 'x', cites: [ROW('gamma')] }], judge: 'second' }), /judge is not a field of this tool/);
+  assert.throws(() => read(door, { method: VIEW, rows: 5 }), /rows is not a field of this tool; it takes method, after, limit/);
+  assert.throws(() => record(door, { answers: [{ row: ROW('beta'), answer: 'x', cites: [ROW('gamma')] }], judge: 'second' }), /judge is not a field of this tool/);
 });
 
 test('answers for rows of the method are recorded in one call, with what they cite, and read back', async () => {
@@ -229,35 +216,22 @@ test('strictness a rule filter cannot use is named, never read as passing', asyn
 
 test('a decision that is not there, a method that is not there and an empty call are refused before anything is written', async () => {
   const door = account();
-  await assert.rejects(recordMethodAnswers({ decision_id: 'source:nope', method: VIEW, answers: [{ row: ROW('beta'), answer: 'x', cites: [ROW('gamma')] }] }, { door: granted(door, 'tool:record-method-answers') }), /There is no decision source:nope/);
-  await assert.rejects(record(door, { method: 'list-view:nothing', answers: [{ row: ROW('beta'), answer: 'x' }] }), /There is no saved method/);
-  await assert.rejects(record(door, { answers: [] }), /Send answers/);
-  await assert.rejects(record(door, { answers: [{ row: ROW('beta'), answer: 'x', cites: [ROW('gamma')] }], by: 'x'.repeat(settings.answers.by_max_chars + 1) }), /at most 200 characters/);
+  assert.throws(() => run(door, recordMethodAnswers, { decision_id: 'source:nope', method: VIEW, answers: [{ row: ROW('beta'), answer: 'x', cites: [ROW('gamma')] }] }), /There is no decision source:nope/);
+  assert.throws(() => record(door, { method: 'list-view:nothing', answers: [{ row: ROW('beta'), answer: 'x' }] }), /There is no saved method/);
+  assert.throws(() => record(door, { answers: [] }), /Send answers/);
+  assert.throws(() => record(door, { answers: [{ row: ROW('beta'), answer: 'x', cites: [ROW('gamma')] }], by: 'x'.repeat(settings.answers.by_max_chars + 1) }), /at most 200 characters/);
   assert.deepEqual(door.writes, []);
 });
 
-test('any number of answers is recorded in one call, in writes that each fit the door\'s message', async () => {
+test('any number of answers is recorded in one call, and the same ones again are unchanged', async () => {
   const extra = Object.fromEntries(Array.from({ length: 300 }, (_, n) => [`row-${n}`, { title: `Made-up section ${n}`, kind: 'section', 'document.offset': 100 + n }]));
   const door = account({ rows: extra });
   const answers = Array.from({ length: 300 }, (_, n) => ({ row: ROW(`row-${n}`), answer: `Made-up answer ${n} ${'in words '.repeat(60)}`, evidence_refs: ['e1'] }));
   const done = await record(door, { answers });
   assert.equal(done.recorded.length, 300);
   assert.equal(done.answered, 300);
-  assert.ok(door.writes.length > 1, 'three hundred answers do not fit one write');
-  assert.ok(door.writes.every(write => write.bytes <= 64 * 1024));
   const again = await record(door, { answers });
   assert.deepEqual([again.recorded.length, again.unchanged.length], [0, 300]);
-});
-
-test('the two rows declare exactly the kinds and operations their code uses, and name no list of the person\'s', () => {
-  for (const id of ['tool:read-a-method', 'tool:record-method-answers']) {
-    const row = rows.find(each => each.id === id);
-    assert.ok(row, `${id} has a row`);
-    assert.equal(rightsOf(row).some(item => item.operations.includes('records:write')), id === 'tool:record-method-answers', `${id} writes only if it records`);
-  }
-  const rights = Object.fromEntries(rightsOf(rows.find(each => each.id === 'tool:record-method-answers')).map(item => [item.kind, item.operations]));
-  assert.deepEqual(rights['method-answer'], ['records:read', 'records:write']);
-  assert.deepEqual(Object.keys(rights).filter(kind => rights[kind].includes('records:write')), ['method-answer']);
 });
 
 test('the rule the tool ships hands an answer whose review is asked to an AI, with the words the answer carries, and nothing else', async () => {

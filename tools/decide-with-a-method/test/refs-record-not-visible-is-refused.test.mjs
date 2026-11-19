@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { addDecisionEvidence, startADecision } from '../read-data/decisions.mjs';
 import { readDecision } from '../read-data/decision-records.mjs';
 import { account, seedSteps } from './old-engine-for-tests.mjs';
-import { refsOfCase } from './fixtures.mjs';
+import { refsOfCase, run, heldOf } from './fixtures.mjs';
 import { readFileSync } from 'node:fs';
 
 const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-method.json', import.meta.url), 'utf8'));
@@ -19,7 +19,7 @@ const input = {
 
 async function caseWithScope() {
   const door = account();
-  const { case_id: id } = await startADecision(input, { door });
+  const { case_id: id } = await run(door, startADecision, input);
   await seedSteps(door, id, ['scope'], { ref: 'user-verbatim' });
   return { door, id };
 }
@@ -30,7 +30,7 @@ test('a root whose refs record is absent is refused on read, and the record stay
   const refsKey = `decision-refs:${id}:c${root.refs}`;
   assert.ok(door.records.has(refsKey), 'the refs record is in the case');
   door.records.delete(refsKey);
-  await assert.rejects(() => readDecision(door, id), /not visible/);
+  assert.throws(() => readDecision(heldOf(door), id), /not visible/);
 });
 
 test('adding evidence to a case whose refs record is absent refuses, and writes nothing', async () => {
@@ -38,7 +38,7 @@ test('adding evidence to a case whose refs record is absent refuses, and writes 
   const refsKey = `decision-refs:${id}:c${door.value(id).refs}`;
   door.records.delete(refsKey);
   const keysBefore = [...door.records.keys()].sort();
-  await assert.rejects(() => addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'The waiting list grew this month' }] }, { door }), /not visible/);
+  assert.throws(() => run(door, addDecisionEvidence, { decision_id: id, evidence: [{ ref: 'e3', claim: 'The waiting list grew this month' }] }), /not visible/);
   assert.deepEqual([...door.records.keys()].sort(), keysBefore);
 });
 
@@ -49,6 +49,6 @@ test('a decision-evidence row that cannot be read is refused, and nothing is wri
   assert.ok(door.records.has(rowKey), 'the first evidence row is in the case');
   door.records.delete(rowKey);
   const keysBefore = [...door.records.keys()].sort();
-  await assert.rejects(() => addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'The waiting list grew this month' }] }, { door }), /not visible/);
+  assert.throws(() => run(door, addDecisionEvidence, { decision_id: id, evidence: [{ ref: 'e3', claim: 'The waiting list grew this month' }] }), /not visible/);
   assert.deepEqual([...door.records.keys()].sort(), keysBefore);
 });

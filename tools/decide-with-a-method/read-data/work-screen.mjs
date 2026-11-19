@@ -12,7 +12,7 @@
 //   (trillion-rust src/local_account/decision_screen_source.rs) is deleted in the same move.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Every record read is the person's own, through the records door, and only the kinds the row's rights name.
+//   1. Every record read is one the caller handed in as `records` from the person's own store, and only the kinds the call names.
 //      This reads and changes nothing else.
 //   2. A bounded page says so: collection_coverage names the limit and whether more decisions, pursuits or plans exist.
 //      Full-history statistics are never approximated from a page.
@@ -26,7 +26,7 @@ import decisionSteps from './decision-progress.json' with { type: 'json' };
 import words from './what-helped-words.json' with { type: 'json' };
 import settings from './decide-with-a-method.json' with { type: 'json' };
 import { decisionResult as outcomeResult, decisionStatus as outcomeStatus } from './decision-outcome.mjs';
-import { joinDecision, refuseUnreadableSteps, settled } from './decision-records.mjs';
+import { joinDecision, recordsIn, refuseUnreadableSteps } from './decision-records.mjs';
 
 // Who wins when the person and a check disagree is the decision tools' own setting.
 const decisionResult = record => outcomeResult(record, settings.precedence);
@@ -351,31 +351,28 @@ export function nativeWorkScreen({owner,records,store,engine,setting,readAllowan
   };
 }
 
-// --- The records door: the person's own rows, read once, served to the moved screen above ---
+// --- The person's own rows the caller handed in, read once and served to the moved screen above ---
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 // A join over a decision reads every answered step whole: helpedItem counts each step's checklist and answer.
 const EVERY_STEP = { includes: () => true };
 
-/** The first `most` rows a query names, in the door's order, and whether there are more. */
-async function firstRows(door, query, most) {
-  const rows = [];
-  for await (const row of door.list({ ...query, limit: Math.min(most + 1, screen.page_rows) })) {
-    rows.push(row);
-    if (rows.length > most) break;
-  }
+/** The first `most` rows a query names, in the order it names, and whether there are more. */
+function firstRows(held, query, most) {
+  const { type, ...options } = query;
+  const rows = held.rows(type, { ...options, limit: Math.min(most + 1, screen.page_rows) });
   return { rows: rows.slice(0, most), more: rows.length > most };
 }
 
 /** Every row a query names, refused past `most` so a reader is told to ask for one bounded page instead. */
-async function everyRow(door, query, most, what) {
-  const { rows, more } = await firstRows(door, query, most);
+function everyRow(held, query, most, what) {
+  const { rows, more } = firstRows(held, query, most);
   if (more) throw new Error(fill(screen.words.too_many, { most, what }));
   return rows;
 }
 
 /** One decision with its lists and every step put back, as the decision tools lay it out. */
-const wholeDecision = async (door, row) => refuseUnreadableSteps(await settled(door, get => joinDecision(row.id, row.value, get, EVERY_STEP)));
+const wholeDecision = (held, row) => refuseUnreadableSteps(joinDecision(row.id, row.value, held.get, EVERY_STEP));
 
 // --- src/decision-store.mjs (summaryOf, summariesOf over rows read here) ---
 const summaryOf = record => ({
@@ -396,9 +393,9 @@ const summaryOf = record => ({
   });
   // These decisions as summaries, each with the titles of the pursuits it cites: only those pursuits are read, so a
   // page of summaries costs the page and what it cites, never every pursuit the person has.
-async function summariesOf(door, found) {
+function summariesOf(held, found) {
     const ids = [...new Set(found.flatMap(summary => summary.cited_pursuit_ids))];
-    const pursuits = Object.fromEntries(await Promise.all(ids.map(async id => [id, await door.read(screen.records.pursuit, id)])));
+    const pursuits = Object.fromEntries(ids.map(id => [id, held.get(screen.records.pursuit, id)]));
     return found.map(({ cited_pursuit_ids, ...summary }) => ({ ...summary, pursuits: cited_pursuit_ids.filter(id => pursuits[id]?.title).map(id => ({ id, title: pursuits[id].title })) }));
 }
 
@@ -408,8 +405,9 @@ async function summariesOf(door, found) {
  * helped } and, for one bounded page (native_collection_page), helped_items, helped_check_text, agent_work,
  * collection_coverage and next_before (the created_at to send as `before` for the next page, when there is one).
  */
-export async function seeMyDecisions(input = {}, { door }) {
+export async function seeMyDecisions(input = {}) {
   if (!object(input)) throw new Error(screen.words.input);
+  const held = recordsIn(input);
   for (const name of ['metadata_only', 'native_collection_page']) if (input[name] !== undefined && typeof input[name] !== 'boolean') throw new Error(fill(screen.words.flag, { name }));
   if (input.before !== undefined && (typeof input.before !== 'string' || !input.before || input.before.length > screen.most_before)) throw new Error(fill(screen.words.before, { most: screen.most_before }));
   if (input.access !== undefined && !(object(input.access) && Array.isArray(input.access.capabilities) && (input.access.limits === undefined || object(input.access.limits)))) throw new Error(screen.words.access);
@@ -418,39 +416,39 @@ export async function seeMyDecisions(input = {}, { door }) {
   // Access the caller's computer reports; none reported is no limit (nothing here invents one).
   const access = input.access ?? { capabilities: [], limits: {} };
   const limit = screen.limit;
-  const held = new Map();
+  const shown = new Map();
   const R = screen.records;
   const decisionQuery = { type: R.decision, order: R.decision_order, reverse: true, ...(input.before ? { below: input.before } : {}) };
 
   // The rows the screen reads, read here once (sync reads below are served from them).
   const page = { decisions: [] };
-  const records = { plans: [], more_plans: false, ids: () => pursuitIds, read: id => held.get(id) ?? null };
+  const records = { plans: [], more_plans: false, ids: () => pursuitIds, read: id => shown.get(id) ?? null };
   const decided = [];
   let pursuitIds = [];
   if (!input.metadata_only) {
-    const first = await firstRows(door, decisionQuery, limit + 1);
-    for (const row of first.rows) page.decisions.push({ ...(await wholeDecision(door, row)), id: row.id });
+    const first = firstRows(held, decisionQuery, limit + 1);
+    for (const row of first.rows) page.decisions.push({ ...wholeDecision(held, row), id: row.id });
     // limit + 1 ids, so the screen's own coverage sees whether there are more.
-    const pursuits = await firstRows(door, { type: R.pursuit }, limit + 1);
+    const pursuits = firstRows(held, { type: R.pursuit }, limit + 1);
     pursuitIds = pursuits.rows.map(row => row.id);
     for (const row of pursuits.rows) {
-      held.set(row.id, object(row.value) ? { ...row.value, id: row.id } : null);
-      held.set(`${CHOICE_TYPE}:${row.id}`, await door.read(CHOICE_TYPE, `${CHOICE_TYPE}:${row.id}`));
+      shown.set(row.id, object(row.value) ? { ...row.value, id: row.id } : null);
+      shown.set(`${CHOICE_TYPE}:${row.id}`, held.get(CHOICE_TYPE, `${CHOICE_TYPE}:${row.id}`));
     }
-    for (const decision of page.decisions) held.set(stanceId(decision.id), await door.read(R.stance, stanceId(decision.id)));
-    const plans = await firstRows(door, { type: R.plan, order: R.plan_order, reverse: true }, limit);
+    for (const decision of page.decisions) shown.set(stanceId(decision.id), held.get(R.stance, stanceId(decision.id)));
+    const plans = firstRows(held, { type: R.plan, order: R.plan_order, reverse: true }, limit);
     records.plans = plans.rows.map(row => planSummary({ id: row.id, ...row.value }));
     records.more_plans = plans.more;
     if (!input.native_collection_page) {
-      for (const row of await everyRow(door, decisionQuery, screen.most_decisions, R.decision)) {
-        if (row.value?.decision) decided.push({ ...(await wholeDecision(door, row)), id: row.id });
+      for (const row of everyRow(held, decisionQuery, screen.most_decisions, R.decision)) {
+        if (row.value?.decision) decided.push({ ...wholeDecision(held, row), id: row.id });
       }
     }
   }
   // Only the step rows of the one Checks list carry question text; word checks, pieces and branches are left to the door.
-  const checkRows = input.metadata_only ? [] : await everyRow(door, { type: R.method_checks, ...R.step_rows }, screen.most_checks, R.method_checks);
+  const checkRows = input.metadata_only ? [] : everyRow(held, { type: R.method_checks, ...R.step_rows }, screen.most_checks, R.method_checks);
   const checkText = Object.fromEntries(checkRows.map(row => [row.value?.id ?? row.id, row.value?.check ?? null]).filter(([, question]) => typeof question === 'string'));
-  const agentWork = input.metadata_only ? [] : (await everyRow(door, { type: R.agent_work.type, prefix: R.agent_work.prefix }, screen.most_agent_work, R.agent_work.prefix))
+  const agentWork = input.metadata_only ? [] : (everyRow(held, { type: R.agent_work.type, prefix: R.agent_work.prefix }, screen.most_agent_work, R.agent_work.prefix))
     .filter(row => object(row.value?.value)).map(row => ({ ...row.value.value, id: row.id }));
 
   const store = {
@@ -458,8 +456,8 @@ export async function seeMyDecisions(input = {}, { door }) {
     settings: () => agentWork.map(value => ({ value })),
   };
   const engine = {
-    summaries: async count => summariesOf(door, page.decisions.slice(0, count).map(summaryOf)),
-    pursuits: async () => pursuitIds.slice(0, limit).map(id => held.get(id)).filter(row => row && currentPursuit(row)),
+    summaries: async count => summariesOf(held, page.decisions.slice(0, count).map(summaryOf)),
+    pursuits: async () => pursuitIds.slice(0, limit).map(id => shown.get(id)).filter(row => row && currentPursuit(row)),
     mapDecided: async fn => decided.map(fn),
   };
   const screenOf = nativeWorkScreen({

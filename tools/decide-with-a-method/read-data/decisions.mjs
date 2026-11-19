@@ -2,7 +2,7 @@
 //
 // Decisions a person's AI makes with a method, as Workshop tools over the person's own records. A decision is one root record
 // of type `decision` and records of its own beside it, laid out by ./decision-records.mjs so a decision of any size fits under
-// the door's write cap: the root holds only fields each set by one call and counts and pointers; each evidence row, option,
+// a record's size bound: the root holds only fields each set by one call and counts and pointers; each evidence row, option,
 // report, receipt, earlier decision and cited pursuit is a record of its own linked to the decision's id. The Decisions screen
 // reads these same records. A decision made before the method became rows kept its answered steps (`decision-answered-step`,
 // `decision-step:<id>:<nnn>`, each superseded version beside it); they stay readable as they were and are written back as they
@@ -30,16 +30,13 @@
 //      `method_walked: false`. The person's word stands over a decision already made, which moves to decision_history.
 import { readFileSync } from 'node:fs';
 import { currentDecisionOutcome, decisionGeneration, decisionStatus, outcomeIsCurrent } from './decision-outcome.mjs';
-import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { canonical, inputIdentity, laidTogether, markRead, mustRead, readDecision, readRevision, recordsOf, retriedOnConflict, writeDecision } from './decision-records.mjs';
-import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
+import { canonical, inputIdentity, laidTogether, mustRead, readDecision, recordsIn, recordsOf, writeDecision } from './decision-records.mjs';
 import { methodAnswered } from '../method-rows/answers.mjs';
 import { methodRecord } from '../method-rows/view.mjs';
 import methodRows from '../method-rows/settings.json' with { type: 'json' };
 
 const settings = JSON.parse(readFileSync(new URL('./decide-with-a-method.json', import.meta.url), 'utf8'));
 const { records: NAMES, words: WORDS, precedence, revision: REVISION, evidence: EVIDENCE, options: OPTIONS } = settings;
-const writeBounds = { rows: settings.writes, bytes: settings.write_bytes };
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
@@ -69,10 +66,10 @@ export function refuseMisplacedFields(toolId, input) {
 export const caseIdFor = sourceId => `${NAMES.case_prefix}${Buffer.from(sourceId).toString('base64url')}`;
 
 // Every row of one of the person's lists, in row id order, as its value; `where` keeps only the rows whose fields
-// equal it, filtered by the door so the rows a call does not use never cross it.
-export async function rowsOf(door, rowType, where) {
+// equal it.
+export function rowsOf(held, rowType, where) {
   const rows = [];
-  for await (const row of door.list({ type: `record:${rowType}`, ...(where ? { where } : {}) })) rows.push(row);
+  for (const row of held.rows(`record:${rowType}`, { ...(where ? { where } : {}) })) rows.push(row);
   return rows.sort((a, b) => (a.id < b.id ? -1 : 1)).map(row => row.value);
 }
 
@@ -100,13 +97,13 @@ function validatedCase(input) {
 }
 
 /** A decision kept again after a change to its own fields (its answered steps unchanged), under request key `key`. */
-export const keepDecision = (door, record, key) => writeDecision(door, recordsOf(record), key);
+export const keepDecision = (held, record) => writeDecision(held, recordsOf(record));
 
 const pursuitIsCurrent = item => item?.status !== 'ended' && item?.status !== 'archived';
-async function currentPursuits(door, most) {
+function currentPursuits(held, most) {
   const found = [];
   let seen = 0;
-  for await (const row of door.list({ type: 'pursuit', fields: ['title', 'now', 'after', 'why_it_matters', 'status'] })) {
+  for (const row of held.rows('pursuit', { fields: ['title', 'now', 'after', 'why_it_matters', 'status'] })) {
     seen += 1;
     if (pursuitIsCurrent(row.value)) found.push({ id: row.id, ...row.value });
     if (found.length > most || seen >= settings.pursuits.scan) break;
@@ -115,13 +112,13 @@ async function currentPursuits(door, most) {
 }
 
 /** What an answer may cite: the decision's own evidence and the cited pursuits that are current, read one by one. */
-async function citable(door, record, refs) {
+function citable(held, record, refs) {
   const evidence = record.input.evidence.filter(item => !item.retracted_at).map(item => item.ref);
   const own = new Set(evidence);
   const pursuits = {};
   for (const ref of refs) {
     if (own.has(ref)) continue;
-    const pursuit = await door.read('pursuit', ref);
+    const pursuit = held.get('pursuit', ref);
     if (pursuit && pursuit.status !== 'ended') pursuits[ref] = pursuit;
   }
   return { refs: new Set([...evidence, ...Object.keys(pursuits)]), pursuits };
@@ -137,72 +134,75 @@ const usageOf = value => {
 };
 
 // The options live on the decision's root, so a new decision's options are bounded (`options` in the settings): the root
-// stays far under the door's write cap however large every other field it holds is.
+// stays far under the record bound however large every other field it holds is.
 function optionsFit(options) {
   if (options === undefined) return;
   if (options.length > OPTIONS.most || Buffer.byteLength(JSON.stringify(options)) > OPTIONS.most_bytes) refuse('options_too_large', { count: OPTIONS.most, bytes: OPTIONS.most_bytes });
 }
 
 export const decisionId = input => { if (!nonempty(input?.decision_id)) refuse('no_decision'); return input.decision_id; };
-export async function decisionOrRefuse(door, id, steps, options) {
-  const record = await readDecision(door, id, steps, options);
+export function decisionOrRefuse(held, id, steps, options) {
+  const record = readDecision(held, id, steps, options);
   if (!record) refuse('not_found');
   return record;
 }
 
 
 // What a call about a decision answers while it is open: where it stands and what to do next, in the order of the tools.
-const openReply = record => ({
+const openReply = (record, keep = []) => ({
   case_id: record.id, source_id: record.source_id, method: methodViewOf(record), decision: record.decision ?? null,
   options: optionsOf(record).map(({ id, label }) => ({ id, label })),
   ai_instructions: [say('read_the_method', { method: methodViewOf(record) }), say('record_the_answers'), say('decide_when_answered')],
+  keep,
 });
 
 /** tool:start-a-decision. input { source_id, goal, evidence: [{ ref, claim }], options: [{ id, label }], method?, parent_decision_id? }:
  * `method` is the id of a saved view over the person's method rows (the default when left out); the answers to its rows are
  * recorded with tool:record-method-answers and the decision is made when every row has one. */
-export async function startADecision(input, { door }) {
+export function startADecision(input) {
   refuseMisplacedFields('tool:start-a-decision', input);
-  const id = validatedCase(input);
-  const method = input.method ?? methodRows.default_method_view;
-  await methodRecord(door, method);
-  const current = await readDecision(door, id);
+  const held = recordsIn(input);
+  // The call's own fields are what the decision keeps and what its identity is taken from: the records handed in are not.
+  const { records: _records, ...call } = input;
+  const id = validatedCase(call);
+  const method = call.method ?? methodRows.default_method_view;
+  methodRecord(held, method);
+  const current = readDecision(held, id);
   if (current) {
-    if ((current.input_identity ?? inputIdentity(current.original_input ?? current.input)) !== inputIdentity(input)) refuse('source_changed', { source_id: input.source_id, case_id: id });
+    if ((current.input_identity ?? inputIdentity(current.original_input ?? current.input)) !== inputIdentity(call)) refuse('source_changed', { source_id: call.source_id, case_id: id });
     return openReply(current);
   }
-  optionsFit(input.options);
-  const parent = await parentOf(door, input.parent_decision_id, id);
+  optionsFit(call.options);
+  const parent = parentOf(held, call.parent_decision_id, id);
   const record = {
-    id, source_id: input.source_id, input, input_identity: inputIdentity(input), method_view: method, scratchpad: [], status: 'needs_decision', decision: null, actions: [], checks: [],
-    pursuits_known: (await currentPursuits(door, 0)).length > 0, created_at: new Date().toISOString(), guidance: [],
+    id, source_id: call.source_id, input: call, input_identity: inputIdentity(call), method_view: method, scratchpad: [], status: 'needs_decision', decision: null, actions: [], checks: [],
+    pursuits_known: (currentPursuits(held, 0)).length > 0, created_at: new Date().toISOString(), guidance: [],
     ...(parent ? { parent: { decision_id: parent.id } } : {}),
   };
-  await writeDecision(door, recordsOf(record), `start-a-decision:${id}`);
-  return openReply(record);
+  return openReply(record, writeDecision(held, recordsOf(record)));
 }
 
 /** The parent a child decision names: another of the person's decisions, never itself. Null when none is named. */
-async function parentOf(door, parentId, id) {
+function parentOf(held, parentId, id) {
   if (parentId === undefined) return null;
   if (!nonempty(parentId) || parentId === id) refuse('parent_invalid');
-  const parent = await readDecision(door, parentId);
+  const parent = readDecision(held, parentId);
   if (!parent) refuse('from_not_found');
   return parent;
 }
 
 
 // Evidence rows as they are added: a claim typed, or a row brought in from another of the person's decisions as it stood.
-async function evidenceRows(door, record, items, now) {
+function evidenceRows(held, record, items, now) {
   const rows = [];
   for (const item of items) {
     if (!object(item) || !nonempty(item.ref)) refuse('evidence_shape');
     if (item.from !== undefined) {
       if (item.claim !== undefined || !object(item.from) || !nonempty(item.from.decision_id) || !nonempty(item.from.ref)) refuse('evidence_shape');
       if (item.from.decision_id === record.id) refuse('from_self');
-      const root = await door.read('decision', item.from.decision_id);
+      const root = held.get('decision', item.from.decision_id);
       if (!root) refuse('from_not_found');
-      const { record: source } = await laidTogether(door, item.from.decision_id, root, ['evidence']);
+      const { record: source } = laidTogether(held, item.from.decision_id, root, ['evidence']);
       const row = (source.input?.evidence ?? []).find(each => each.ref === item.from.ref && !each.retracted_at);
       if (!row) refuse('evidence_from_missing', { ref: item.from.ref });
       rows.push({ ref: item.ref, claim: row.claim, added_at: now, from: { decision_id: item.from.decision_id, ref: item.from.ref } });
@@ -232,22 +232,19 @@ function takeEvidence(record, rows) {
 
 /** tool:add-decision-evidence. input { decision_id, evidence: [{ ref, claim } | { ref, from: { decision_id, ref } }] }: rows
  * added at any time, each kept with when it came in; the same rows again replay, and an answer may cite them at once. */
-export async function addDecisionEvidence(input, { door }) {
+export function addDecisionEvidence(input) {
   refuseMisplacedFields('tool:add-decision-evidence', input);
+  const held = recordsIn(input);
   const id = decisionId(input);
   const items = input.evidence;
   if (!Array.isArray(items) || items.length < 1 || items.length > EVIDENCE.most_per_call) refuse('evidence_count', { count: EVIDENCE.most_per_call });
-  // A changed case is read again and the rows are taken again on the new read; the row that lands keeps the time of that attempt.
-  return retriedOnConflict(async attempt => {
-    const record = await decisionOrRefuse(door, id);
-    const rows = await evidenceRows(door, record, items, new Date().toISOString());
-    const before = record.input.evidence.length;
-    takeEvidence(record, rows);
-    const added = record.input.evidence.slice(before);
-    if (!added.length) return { case_id: id, added: [], replayed: true, evidence: record.input.evidence.length };
-    await writeDecision(door, recordsOf(record), `add-decision-evidence:${id}:${attempt}`);
-    return { case_id: id, added, evidence: record.input.evidence.length };
-  });
+  const record = decisionOrRefuse(held, id);
+  const rows = evidenceRows(held, record, items, new Date().toISOString());
+  const before = record.input.evidence.length;
+  takeEvidence(record, rows);
+  const added = record.input.evidence.slice(before);
+  if (!added.length) return { case_id: id, added: [], replayed: true, evidence: record.input.evidence.length, keep: [] };
+  return { case_id: id, added, evidence: record.input.evidence.length, keep: writeDecision(held, recordsOf(record)) };
 }
 
 function decisionShape(decision, expectedGeneration) {
@@ -258,14 +255,15 @@ function decisionShape(decision, expectedGeneration) {
 
 
 /** tool:make-the-decision. input { decision_id, decision: { option_id, reason, next_action, success_measure, evidence_refs, move? }, usage?, expected_generation? } */
-export async function makeTheDecision(input, { door }) {
+export function makeTheDecision(input) {
   refuseMisplacedFields('tool:make-the-decision', input);
+  const held = recordsIn(input);
   const id = decisionId(input);
   const { decision, expected_generation: expectedGeneration } = input;
-  const record = await decisionOrRefuse(door, id);
+  const record = decisionOrRefuse(held, id);
   const decidedBefore = Boolean(record.decision);
   // Every row of the method has an answer: the method is the person's, and a row it holds is a row they asked to have answered.
-  const { rows, unanswered } = await methodAnswered(door, id, methodViewOf(record));
+  const { rows, unanswered } = methodAnswered(held, id, methodViewOf(record));
   if (unanswered.length) refuse('method_unanswered', { method: methodViewOf(record), count: unanswered.length, rows, first: unanswered.slice(0, settings.unanswered_shown).join(', ') });
   decisionShape(decision, expectedGeneration);
   if (expectedGeneration !== undefined && (record.decision
@@ -274,7 +272,7 @@ export async function makeTheDecision(input, { door }) {
   if (!optionsOf(record).some(option => option.id === decision.option_id)) {
     refuse('unknown_option', { option: JSON.stringify(decision.option_id), options: optionsOf(record).map(option => `${JSON.stringify(option.id)} (${option.label})`).join(', ') });
   }
-  const cited = await citable(door, record, decision.evidence_refs.filter(ref => typeof ref === 'string'));
+  const cited = citable(held, record, decision.evidence_refs.filter(ref => typeof ref === 'string'));
   if (decision.evidence_refs.length === 0 || decision.evidence_refs.some(ref => !cited.refs.has(ref))) refuse('decision_evidence');
   if (record.decision && same(record.decision, decision)) return decidedReply(record, true);
   keepCited(record, cited.pursuits, decision.evidence_refs);
@@ -292,15 +290,14 @@ export async function makeTheDecision(input, { door }) {
   record.decided_at = new Date().toISOString();
   const usage = usageOf(input.usage);
   if (usage) record.decision_usage = usage;
-  await writeDecision(door, recordsOf(record), `make-the-decision:${id}:${record.decision_generation}`);
-  return decidedReply(record, false);
+  return decidedReply(record, false, writeDecision(held, recordsOf(record)));
 }
 
 const outcomeRevision = record => (record.outcome_revision = (record.outcome_revision ?? 0) + 1);
 const carriedOut = record => Boolean(record?.decision) && (record.carried_out ?? []).some(entry => entry.decision_generation === (record.decision_generation ?? 1));
-function decidedReply(record, already) {
+function decidedReply(record, already, keep = []) {
   return {
-    case_id: record.id, source_id: record.source_id, ...(already ? { already_decided: true, note: WORDS.decided_note } : {}),
+    case_id: record.id, source_id: record.source_id, ...(already ? { already_decided: true, note: WORDS.decided_note } : {}), keep,
     decision: record.decision,
     resume: { next_action: record.decision.next_action, success_measure: record.decision.success_measure, instruction: say('resume', record.decision) },
     carried_out: carriedOut(record), ...(carriedOut(record) ? {} : { ai_instructions: [say('carry_out', { ...record.decision, case_id: record.id })] }),
@@ -310,10 +307,10 @@ function decidedReply(record, already) {
 // Where a person's own decision came from (settings `person_verdict`): the message row they sent, read here and found to be
 // theirs with their words in it, or a run their own signed-in page started, which only the engine can attest (the task's
 // origin). Anything else is an AI saying the person decided, and is refused.
-async function personSource(door, person, origin, run) {
+function personSource(held, person, origin, run) {
   const { message: MESSAGE, basis: BASIS } = settings.person_verdict;
   if (nonempty(person.message_id)) {
-    const kept = await door.read(MESSAGE.type, person.message_id);
+    const kept = held.get(MESSAGE.type, person.message_id);
     if (!object(kept)) refuse('person_message_missing', { id: person.message_id });
     if (kept[MESSAGE.speaker_field] !== MESSAGE.person) refuse('person_message_not_theirs', { id: person.message_id, speaker: kept[MESSAGE.speaker_field] ?? 'no one named' });
     if (typeof kept[MESSAGE.text_field] !== 'string' || !kept[MESSAGE.text_field].includes(person.said)) refuse('person_words_not_said', { id: person.message_id });
@@ -328,18 +325,21 @@ async function personSource(door, person, origin, run) {
  * row's stdin): verdict { decision_id, option_id, next_action, success_measure, person: { said, message_id? } }. The person
  * decided; their words and time are the evidence; the method's rows are not answered by it,
  * and need no answer. A decision an AI makes still has every row of its method answered (tool:make-the-decision). */
-export async function recordAPersonsOwnDecision({ verdict, origin, run } = {}, { door }) {
+export function recordAPersonsOwnDecision(input = {}) {
+  const { verdict, origin, run } = input;
+  // The verdict's own fields are the call (its row's input schema), so the records it is handed are its `records`.
+  const held = recordsIn(verdict);
   const PERSON = settings.person_verdict;
   if (!object(verdict)) refuse('person_verdict_shape');
   refuseMisplacedFields('tool:record-a-persons-own-decision', verdict);
   const { option_id: optionId, next_action: nextAction, success_measure: successMeasure, person } = verdict;
   if (!nonempty(optionId) || !nonempty(nextAction) || !nonempty(successMeasure) || !object(person) || !nonempty(person.said)) refuse('person_verdict_shape');
   const id = decisionId(verdict);
-  const record = await decisionOrRefuse(door, id);
+  const record = decisionOrRefuse(held, id);
   if (!optionsOf(record).some(option => option.id === optionId)) {
     refuse('unknown_option', { option: JSON.stringify(optionId), options: optionsOf(record).map(option => `${JSON.stringify(option.id)} (${option.label})`).join(', ') });
   }
-  const source = await personSource(door, person, origin, run);
+  const source = personSource(held, person, origin, run);
   const sameVerdict = decision => decision?.decided_by === PERSON.decided_by && decision.option_id === optionId && decision.next_action === nextAction
     && decision.success_measure === successMeasure && decision.person_source?.source_ref === source.source_ref && decision.person_source?.said === source.said;
   if (sameVerdict(record.decision)) return { ...decidedReply(record, true), ...personNote(record) };
@@ -357,8 +357,7 @@ export async function recordAPersonsOwnDecision({ verdict, origin, run } = {}, {
   record.decision_generation = generation;
   record.status = 'needs_outcome';
   record.decided_at = new Date().toISOString();
-  await writeDecision(door, recordsOf(record), `record-a-persons-own-decision:${id}:${generation}`);
-  return { ...decidedReply(record, false), ...personNote(record) };
+  return { ...decidedReply(record, false, writeDecision(held, recordsOf(record))), ...personNote(record) };
 }
 const personNote = record => ({
   decided_by: record.decided_by, method_walked: false,
@@ -380,14 +379,15 @@ function observedAt(value, now) {
 }
 
 /** tool:report-a-decision-result. input { decision_id, result, summary, answered_by: "person", source_ref?, supersedes?, observed_at?, expected_generation? } */
-export async function reportADecisionResult(input, { door }) {
+export function reportADecisionResult(input) {
   refuseMisplacedFields('tool:report-a-decision-result', input);
+  const held = recordsIn(input);
   const id = decisionId(input);
   if (!['met', 'failed', 'unknown'].includes(input.result) || !nonempty(input.summary)) refuse('result_shape');
   if (input.answered_by !== 'person') refuse('ask_the_person');
   if (input.source_ref !== undefined && !nonempty(input.source_ref)) refuse('source_ref_shape');
   if (input.expected_generation !== undefined && (!Number.isInteger(input.expected_generation) || input.expected_generation < 1)) refuse('report_generation_shape');
-  const record = await decisionOrRefuse(door, id);
+  const record = decisionOrRefuse(held, id);
   if (!record.decision) refuse('no_decision_yet');
   record.reports ??= [];
   const sameWords = item => item.result === input.result && item.summary === input.summary
@@ -409,91 +409,33 @@ export async function reportADecisionResult(input, { door }) {
   };
   record.reports.push(entry);
   applyOutcome(record, entry);
-  await writeDecision(door, recordsOf(record), `report-a-decision-result:${id}:${entry.source_ref}`);
-  return { case_id: id, report: entry, reports: record.reports.length, status: record.status };
+  return { case_id: id, report: entry, reports: record.reports.length, status: record.status, keep: writeDecision(held, recordsOf(record)) };
 }
 
 /** tool:say-what-was-done. input { decision_id, state: "done" | "wall", what_happened, by?, expected_generation? } */
-export async function sayWhatWasDone(input, { door }) {
+export function sayWhatWasDone(input) {
   refuseMisplacedFields('tool:say-what-was-done', input);
+  const held = recordsIn(input);
   const id = decisionId(input);
   if (!['done', 'wall'].includes(input.state) || !nonempty(input.what_happened)) refuse('said_shape');
   if (input.expected_generation !== undefined && (!Number.isInteger(input.expected_generation) || input.expected_generation < 1)) refuse('generation_shape');
-  const record = await decisionOrRefuse(door, id);
+  const record = decisionOrRefuse(held, id);
   if (!record.decision) refuse('no_decision_yet');
   if (input.expected_generation !== undefined && input.expected_generation !== (record.decision_generation ?? 1)) refuse('said_generation_changed');
   const entry = { decision_generation: record.decision_generation ?? 1, state: input.state, what_happened: String(input.what_happened).slice(0, 4000), by: nonempty(input.by) ? String(input.by).slice(0, 200) : null, at: new Date().toISOString() };
   (record.carried_out ??= []).push(entry);
-  await writeDecision(door, recordsOf(record), `say-what-was-done:${id}:${record.carried_out.length}`);
-  return { case_id: id, carried_out: entry, status: record.status };
+  return { case_id: id, carried_out: entry, status: record.status, keep: writeDecision(held, recordsOf(record)) };
 }
 
-// A decision no one will carry on is ended, never deleted: its status becomes `ending.status` and the status it had,
-// when, who and why stay on the record beside every field it already had. Each write is conditioned on the value just
-// read (`expected`), so a decision that changed in between is left as it is and answered as a conflict. A root too large
-// to send beside its own `expected` in one door message is ended through the decision's layout (endLaidApart).
-const CHANGED = 'original_command_conflict';
-const TOO_LARGE = 'http_413';
-const utf8 = new TextEncoder();
-const bytesOf = value => utf8.encode(JSON.stringify(value)).length;
-const contentKey = (prefix, list) => `${prefix}:${makeHashCodeHexFromBytes(utf8.encode(canonical(list)))}`;
-const ENDED_FIELDS = ['status', 'previous_status', 'ended_at', 'ended_by', 'ended_because'];
-
-// The engine's `expected` must carry the whole old root, and a root this large (an old-layout root with its lists inline
-// can be 70 KB) cannot fit beside itself in one 64 KiB message. So this path ends the decision the way sayWhatWasDone
-// keeps a change: read it with its lists, set the ending fields, and lay it apart so every write fits, its root last. It
-// checks for a change by reading the raw root a second time just before the write; the window between that read and
-// the write is not covered. A door that still refuses one of its writes as too large (413) leaves that decision as it
-// was (a part written before the refusal is never counted by its root) and answers it not ended, so it never fails the
-// call for the decisions beside it.
-async function endLaidApart(door, { id, root, value }, answers) {
-  const record = await readDecision(door, id);
-  if (!record) { answers.set(id, { decision_id: id, ended: false, reason: WORDS.not_found }); return; }
-  for (const field of ENDED_FIELDS) record[field] = value[field];
-  const again = await door.read('decision', id);
-  if (canonical(again) !== canonical(root)) {
-    answers.set(id, { decision_id: id, ended: false, conflict: true, reason: WORDS.end_changed });
-    return;
-  }
-  // Each end has its own request keys: an earlier end of this decision that wrote some parts and then failed used
-  // `end-a-decision:${id}` with other content, and the engine refuses a key reused with different input. The same call
-  // retried (same ended_at) still replays under the same keys.
-  markRead(record, await readRevision(door, id));
-  const ending = { id, ended_at: value.ended_at, ended_because: value.ended_because, ended_by: value.ended_by };
-  const key = `end-a-decision:${id}:${makeHashCodeHexFromBytes(utf8.encode(canonical(ending)))}`;
-  try { await writeDecision(door, recordsOf(record), key); }
-  catch (error) {
-    if (error?.code === CHANGED) {
-      answers.set(id, { decision_id: id, ended: false, conflict: true, reason: WORDS.end_changed });
-      return;
-    }
-    if (error?.code !== TOO_LARGE) throw error;
-    answers.set(id, { decision_id: id, ended: false, too_large: true, reason: WORDS.end_too_large });
-    return;
-  }
-  answers.set(id, { decision_id: id, ended: true, previous_status: value.previous_status, ended_at: value.ended_at, laid_apart: true });
-}
-
-async function writeEnded(door, batch, answers, roots) {
-  try {
-    await door.write(batch, { key: contentKey('end-a-decision', batch) });
-    for (const { id, value } of batch) answers.set(id, { decision_id: id, ended: true, previous_status: value.previous_status, ended_at: value.ended_at });
-  } catch (error) {
-    if (error?.code !== CHANGED && error?.code !== TOO_LARGE) throw error;
-    // A refused write changed nothing; each of its decisions is tried alone, so one that changed, or one too large for
-    // the door with its `expected`, holds back only itself.
-    if (batch.length > 1) for (const record of batch) await writeEnded(door, [record], answers, roots);
-    else if (error.code === TOO_LARGE) await endLaidApart(door, { id: batch[0].id, root: roots.get(batch[0].id), value: batch[0].value }, answers);
-    else answers.set(batch[0].id, { decision_id: batch[0].id, ended: false, conflict: true, reason: WORDS.end_changed });
-  }
-}
-
+// A decision no one will carry on is ended, never deleted: its status becomes `ending.status` and the status it had, when,
+// who and why stay on the root beside every field it already had. The root is kept with `expected` (the root as it was
+// handed in), so a store refuses the ending when the decision moved.
 /** tool:end-a-decision. input { decisions: [{ decision_id, because }] (1 to ending.most, each id once), by }: answers
- * { ended, not_ended, decisions: [{ decision_id, ended, ... }] } in the order asked. A decision already ended answers
- * ended with already; one whose status is in ending.keeps_open, or that is not there, is not ended. One whose conditioned
- * write is over `write_bytes` is ended through its layout and answers laid_apart. */
-export async function endDecisions(input, { door }) {
+ * { ended, not_ended, decisions: [{ decision_id, ended, ... }], keep } in the order asked. A decision already ended answers
+ * ended with already; one whose status is in ending.keeps_open, or that is not there, is not ended. */
+export function endDecisions(input) {
   refuseMisplacedFields('tool:end-a-decision', input);
+  const held = recordsIn(input);
   const { ending } = settings;
   const asked = input?.decisions;
   if (!Array.isArray(asked) || asked.length < 1 || asked.length > ending.most || !nonempty(input.by)
@@ -501,27 +443,21 @@ export async function endDecisions(input, { door }) {
     || new Set(asked.map(item => item.decision_id)).size !== asked.length) refuse('end_shape', { most: ending.most });
   const at = new Date().toISOString();
   const by = String(input.by).slice(0, settings.revision.by_max_chars);
-  const answers = new Map();
-  const roots = new Map();
-  const records = [];
-  const large = [];
+  const decisions = [];
+  const keep = [];
   for (const { decision_id: id, because } of asked) {
-    const root = await door.read('decision', id);
+    const root = held.get('decision', id);
     if (root) mustRead('decision', id, root);
-    if (!root) answers.set(id, { decision_id: id, ended: false, reason: WORDS.not_found });
-    else if (root.status === ending.status) answers.set(id, { decision_id: id, ended: true, already: true, previous_status: root.previous_status ?? null, ended_at: root.ended_at ?? null });
-    else if (ending.keeps_open.includes(root.status)) answers.set(id, { decision_id: id, ended: false, status: root.status, reason: say('end_kept_open', { status: root.status }) });
+    if (!root) decisions.push({ decision_id: id, ended: false, reason: WORDS.not_found });
+    else if (root.status === ending.status) decisions.push({ decision_id: id, ended: true, already: true, previous_status: root.previous_status ?? null, ended_at: root.ended_at ?? null });
+    else if (ending.keeps_open.includes(root.status)) decisions.push({ decision_id: id, ended: false, status: root.status, reason: say('end_kept_open', { status: root.status }) });
     else {
-      const value = { ...root, status: ending.status, previous_status: root.status ?? null, ended_at: at, ended_by: by, ended_because: String(because).slice(0, ending.because_max_chars) };
-      const record = { id, type: 'decision', value, expected: { type: 'decision', value: root } };
-      roots.set(id, root);
-      if (bytesOf({ records: [record] }) <= settings.write_bytes) records.push(record);
-      else large.push({ id, root, value });
+      // The root is kept as it was read with the ending fields set: no record of the decision is read or changed beside it.
+      const ended = { status: ending.status, previous_status: root.status ?? null, ended_at: at, ended_by: by, ended_because: String(because).slice(0, ending.because_max_chars) };
+      keep.push({ id, type: 'decision', value: { ...root, ...ended }, expected: held.expected('decision', id) });
+      decisions.push({ decision_id: id, ended: true, previous_status: ended.previous_status, ended_at: at });
     }
   }
-  for (const batch of writeBatches(records, writeBounds)) await writeEnded(door, batch, answers, roots);
-  for (const item of large) await endLaidApart(door, item, answers);
-  const decisions = asked.map(({ decision_id: id }) => answers.get(id));
   const ended = decisions.filter(item => item.ended).length;
-  return { ended, not_ended: decisions.length - ended, decisions };
+  return { ended, not_ended: decisions.length - ended, decisions, keep };
 }

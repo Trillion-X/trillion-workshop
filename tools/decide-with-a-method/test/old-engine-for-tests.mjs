@@ -6,7 +6,7 @@
 // walk that wrote them is gone, the layout stays readable), and `counting` wraps a door so a test can bound what a call reads
 // through it (the old tests counted SQL statements and rows of the store).
 import { readFileSync } from 'node:fs';
-import { methodAccount, memoryDoor, STEP_ROW, METHOD_VIEW, today } from './fixtures.mjs';
+import { methodAccount, memoryDoor, STEP_ROW, METHOD_VIEW, today, run, heldOf } from './fixtures.mjs';
 import { readDecision, recordsOf, writeDecision } from '../read-data/decision-records.mjs';
 import { recordMethodAnswers } from '../method-rows/answers.mjs';
 import { addDecisionEvidence } from '../read-data/decisions.mjs';
@@ -21,34 +21,31 @@ export function account({ door = memoryDoor(), steps } = {}) {
 /** Every row of the decision's method answered through the pair, each citing the evidence ref `ref` (added first when the decision has none of that ref). */
 export async function answerAll(door, decisionId, { ref = 'e1', method = METHOD_VIEW, steps = ['scope', 'outcome', 'proof'] } = {}) {
   const answers = steps.map(step => ({ row: STEP_ROW(step), answer: `A made-up answer to ${step} in its own words`, evidence_refs: [ref] }));
-  return recordMethodAnswers({ decision_id: decisionId, method, answers }, { door });
+  return run(door, recordMethodAnswers, { decision_id: decisionId, method, answers });
 }
 
 /** Answered steps kept on a decision in the layout earlier decisions have them (each step's own record and its summary), one write each. */
 export async function seedSteps(door, id, stepIds, { ref = 'e1' } = {}) {
   for (const stepId of stepIds) {
-    const record = await readDecision(door, id);
+    const record = await readDecision(heldOf(door), id);
     const index = record.guidance.length;
     record.guidance.push({ step_id: stepId, answer: { evidence_refs: [ref], note: `A made-up answer to ${stepId}` }, verdicts: [], judged_checks: 0, answered_at: new Date().toISOString(), version: 1, by: 'calling-ai' });
-    await writeDecision(door, recordsOf(record, [index]), `seed-step:${id}:${stepId}`);
+    door.write(writeDecision(heldOf(door), recordsOf(record, [index])));
   }
-  return readDecision(door, id);
+  return readDecision(heldOf(door), id);
 }
 
-/** `door` with every read and every listed row counted: `reads` (ids read one by one), `listed` (rows a list handed
- * back, by type), and `take()` that returns them and starts again. */
-export function counting(door) {
-  let reads = [];
-  let listed = [];
-  const wrapped = Object.create(door);
-  wrapped.read = async (type, id) => { reads.push({ type, id }); return door.read(type, id); };
-  wrapped.list = async function* (query) { for await (const row of door.list(query)) { listed.push({ type: query.type, id: row.id }); yield row; } };
-  wrapped.write = (...args) => door.write(...args);
+/** `store` with every record a call is handed counted: `all()` hands the records as the store does and notes each as
+ * { type, id }; `take()` returns { handed, crossed } (the notes, and their count) and starts again. */
+export function counting(store) {
+  let handed = [];
+  const wrapped = Object.create(store);
+  // The records a call is handed are what crosses from the caller's store: every record it names by type and id.
+  wrapped.all = () => { const records = store.all(); handed.push(...records.map(({ id, type }) => ({ type, id }))); return records; };
   return Object.assign(wrapped, {
-    get reads() { return reads; },
-    get listed() { return listed; },
-    crossed: () => reads.length + listed.length,
-    take() { const taken = { reads, listed, crossed: reads.length + listed.length }; reads = []; listed = []; return taken; },
+    get handed() { return handed; },
+    crossed: () => handed.length,
+    take() { const taken = { handed, crossed: handed.length }; handed = []; return taken; },
   });
 }
 

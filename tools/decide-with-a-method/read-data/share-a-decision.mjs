@@ -12,6 +12,7 @@ import { readFileSync } from 'node:fs';
 import { findings, privateTerms, redact, redactAll } from '../../learn-from-everyones-results/read-data/plain-privacy-pass.mjs';
 import { contentReviewIdentity } from '../../ask-a-small-model-for-a-verdict/do-work/judge-content.mjs';
 import { canonical, decisionId, decisionOrRefuse, keepDecision, refuse, rowsOf, say } from './decisions.mjs';
+import { recordsIn } from './decision-records.mjs';
 
 const { share: SHARE } = JSON.parse(readFileSync(new URL('./decide-with-a-method.json', import.meta.url), 'utf8'));
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -48,15 +49,16 @@ function sharedEntryOf(rewrite) {
  * rewrite and rubric (`review_binding.input_identity`); without one, the call answers the rubric and content to ask
  * it with. Only then is the entry kept on the decision (`shared`) and answered with the pool tool to send it to.
  */
-export async function shareADecision(input, { door }) {
+export function shareADecision(input) {
+  const held = recordsIn(input);
   const id = decisionId(input);
-  const record = await decisionOrRefuse(door, id);
+  const record = decisionOrRefuse(held, id);
   if (!record.decision) refuse('no_decision_yet');
   const facts = decisionFacts(record);
-  const neverPublish = (await rowsOf(door, SHARE.never_publish_row)).map(row => row?.[SHARE.never_publish_field]).filter(nonempty);
+  const neverPublish = (rowsOf(held, SHARE.never_publish_row)).map(row => row?.[SHARE.never_publish_field]).filter(nonempty);
   const terms = privateTerms({ texts: [facts, record.input.evidence.map(item => item.claim)], neverPublish });
   if (input.rewrite === undefined) {
-    return { case_id: id, next: 'rewrite', ai_instructions: [SHARE.rewrite], facts: redactAll(facts, terms), shape: SHARE.entry_fields };
+    return { case_id: id, next: 'rewrite', ai_instructions: [SHARE.rewrite], facts: redactAll(facts, terms), shape: SHARE.entry_fields, keep: [] };
   }
   const entry = sharedEntryOf(input.rewrite);
   const found = findings(entry, terms);
@@ -65,10 +67,9 @@ export async function shareADecision(input, { door }) {
   const identity = contentReviewIdentity(review);
   const verdict = input.reidentification;
   if (!object(verdict) || verdict.accepted !== true || verdict.review_binding?.input_identity !== identity) {
-    return { case_id: id, next: 'check', ai_instructions: [say('share_check', { tool: SHARE.check_tool })], check: { tool: SHARE.check_tool, ...review, input_identity: identity } };
+    return { case_id: id, next: 'check', ai_instructions: [say('share_check', { tool: SHARE.check_tool })], check: { tool: SHARE.check_tool, ...review, input_identity: identity }, keep: [] };
   }
-  if (record.shared?.review_identity === identity) return { case_id: id, shared: record.shared, send: { tool: SHARE.pool_tool, entry } };
+  if (record.shared?.review_identity === identity) return { case_id: id, shared: record.shared, send: { tool: SHARE.pool_tool, entry }, keep: [] };
   record.shared = { entry, review_identity: identity, at: new Date().toISOString() };
-  await keepDecision(door, record, `share-a-decision:${id}:${identity}`);
-  return { case_id: id, shared: record.shared, send: { tool: SHARE.pool_tool, entry } };
+  return { case_id: id, shared: record.shared, send: { tool: SHARE.pool_tool, entry }, keep: keepDecision(held, record) };
 }

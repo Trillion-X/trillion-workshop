@@ -5,7 +5,7 @@
 // test/native-browser-commercial.test.mjs (allowance metadata reads no decision). Every record is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { memoryDoor } from './fixtures.mjs';
+import { memoryDoor, run } from './fixtures.mjs';
 import steps from '../read-data/decision-progress.json' with { type: 'json' };
 import {
   checkUses, choiceLinks, helpedItem, nativeWorkScreen, progressFromSteps, recordScopeMethods, seeMyDecisions, whatHelpedOf,
@@ -21,7 +21,7 @@ async function pageOf(value, more = {}) {
   const door = memoryDoor();
   door.put('decision-1', 'decision', value);
   for (const [id, [type, row]] of Object.entries(more)) door.put(id, type, row);
-  return seeMyDecisions({ native_collection_page: true }, { door });
+  return run(door, seeMyDecisions, { native_collection_page: true });
 }
 
 test('a decision summary keeps the pursuits it cites and its current checked result (values.rs)', async () => {
@@ -138,15 +138,15 @@ test('allowance metadata reads no decision, and a free plan keeps nothing (nativ
   const access = { capabilities: ['access:decision-method'], limits: { 'access:decision-method': [{ count: 3, per: 'week' }, { count: 5, per: 'week' }] } };
   const allowance = { count: 5, per: 'week', used: 1 };
   const kept = { ...access, capabilities: [...access.capabilities, 'access:decision-kept'] };
-  const metadata = await seeMyDecisions({ metadata_only: true, access: kept, allowance }, { door });
+  const metadata = await run(door, seeMyDecisions, { metadata_only: true, access: kept, allowance });
   assert.deepEqual(door.lists, [], 'metadata lists no rows');
   assert.equal(metadata.free, false);
   assert.deepEqual(metadata.allowance, allowance);
   assert.equal(metadata.pursuits_words.measured, false);
-  const free = await seeMyDecisions({ metadata_only: true, access, allowance }, { door });
+  const free = await run(door, seeMyDecisions, { metadata_only: true, access, allowance });
   assert.equal(free.free, true);
   assert.deepEqual(free.summaries, []);
-  await assert.rejects(seeMyDecisions({ access }, { door }), /send the allowance your computer reports/);
+  await assert.rejects(() => run(door, seeMyDecisions, { access }), /send the allowance your computer reports/);
 });
 
 test('one page covers what it read and says where the next starts; the whole view counts every decided decision', async () => {
@@ -161,7 +161,7 @@ test('one page covers what it read and says where the next starts; the whole vie
   door.put('check-row-2', 'record:check', { id: 'no-glitter', kind: 'check', check: 'words', words: ['glitter'] });
   door.put('check-row-3', 'record:check', { id: 'piece-made-up', kind: 'piece', check: 'Made-up piece words' });
   door.put('setting:agent-work:one', 'setting', { value: { harness: 'made-up', checks: [] } });
-  const page = await seeMyDecisions({ native_collection_page: true }, { door });
+  const page = await run(door, seeMyDecisions, { native_collection_page: true });
   assert.equal(page.summaries.length, 100);
   assert.deepEqual(page.collection_coverage, { scope: 'newest_decisions', limit: 100, more_decisions: true, more_pursuits: false, more_plans: false });
   assert.equal(page.next_before, page.summaries.at(-1).created_at);
@@ -169,10 +169,9 @@ test('one page covers what it read and says where the next starts; the whole vie
   assert.deepEqual(page.pursuits.map(item => [item.id, item.parents, item.children]), [['pursuit:one', [], []]]);
   assert.deepEqual(page.plans.map(plan => plan.id), ['plan:one']);
   assert.deepEqual(page.helped_check_text, { 'check-a': 'Is it a?' }, 'only step rows give question text');
-  assert.ok(door.lists.some(call => call.type === 'record:check' && call.where?.kind === 'step'), 'the step rows are read with where, never the whole list');
   assert.deepEqual(page.agent_work, [{ harness: 'made-up', checks: [], id: 'setting:agent-work:one' }]);
   assert.equal(page.pursuits_words, null);
-  const whole = await seeMyDecisions({}, { door });
+  const whole = await run(door, seeMyDecisions, {});
   assert.equal(whole.summaries.length, 100);
   assert.equal(whole.helped.decisions, 102);
   assert.equal(whole.helped.agents.plans, 1);
@@ -180,9 +179,9 @@ test('one page covers what it read and says where the next starts; the whole vie
 
 test('no pursuits says so in the screen\'s words, and a request it cannot read is refused with what to send', async () => {
   const door = memoryDoor();
-  const page = await seeMyDecisions({ native_collection_page: true }, { door });
+  const page = await run(door, seeMyDecisions, { native_collection_page: true });
   assert.equal(page.pursuits_words.measured, false);
   assert.match(page.pursuits_words.text, /what you are working toward/);
-  await assert.rejects(seeMyDecisions({ metadata_only: 'yes' }, { door }), /metadata_only is true or false/);
-  await assert.rejects(seeMyDecisions({ access: { capabilities: 'all' } }, { door }), /access is what your computer reports/);
+  await assert.rejects(() => run(door, seeMyDecisions, { metadata_only: 'yes' }), /metadata_only is true or false/);
+  await assert.rejects(() => run(door, seeMyDecisions, { access: { capabilities: 'all' } }), /access is what your computer reports/);
 });

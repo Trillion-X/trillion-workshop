@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { addDecisionEvidence, startADecision } from '../read-data/decisions.mjs';
 import { account, seedSteps } from './old-engine-for-tests.mjs';
-import { refsOfCase } from './fixtures.mjs';
+import { refsOfCase, run } from './fixtures.mjs';
 import { readFileSync } from 'node:fs';
 
 const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-method.json', import.meta.url), 'utf8'));
@@ -18,14 +18,14 @@ const input = {
 
 test('a later write refuses a case whose unreadable step is gone, and changes nothing', async () => {
   const door = account();
-  const { case_id: id } = await startADecision(input, { door });
+  const { case_id: id } = await run(door, startADecision, input);
   await seedSteps(door, id, ['scope', 'outcome'], { ref: 'user-verbatim' });
   const before = (await refsOfCase(door, id)).items.answered_steps;
   assert.equal(before.length, 2, 'two answered steps are kept');
   // The outcome step's own record cannot be read (it is gone from the door), while the decision still holds the step.
   door.records.delete(`${ANSWERED}:${id}:001:c${before[1]}`);
   const keysBefore = [...door.records.keys()].sort();
-  await assert.rejects(() => addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'The waiting list grew this month' }] }, { door }), /not visible/);
+  assert.throws(() => run(door, addDecisionEvidence, { decision_id: id, evidence: [{ ref: 'e3', claim: 'The waiting list grew this month' }] }), /not visible/);
   assert.deepEqual([...door.records.keys()].sort(), keysBefore, 'nothing is written in place of the unreadable step');
   assert.equal((await refsOfCase(door, id)).items.answered_steps[1], before[1], 'the reference to the unreadable step stands');
 });

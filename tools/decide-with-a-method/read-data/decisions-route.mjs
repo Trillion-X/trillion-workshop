@@ -18,9 +18,9 @@
 import { seeMyDecisions } from './work-screen.mjs';
 
 /** tool:answer-the-decisions-route */
-export async function answerDecisionsRoute(input = {}, { door } = {}) {
+export async function answerDecisionsRoute(input = {}) {
   const path = String(input?.path ?? '');
   const method = String(input?.method ?? 'GET').toUpperCase();
   if (!(method === 'GET' && path === '/decisions')) return { status: 404, body: { error: 'Not found' } };
-  return { status: 200, body: await seeMyDecisions({}, { door }) };
+  return { status: 200, body: await seeMyDecisions({ records: input.records }) };
 }

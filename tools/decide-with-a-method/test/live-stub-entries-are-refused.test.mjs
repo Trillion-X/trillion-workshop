@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { addDecisionEvidence, makeTheDecision, startADecision } from '../read-data/decisions.mjs';
 import { readDecision } from '../read-data/decision-records.mjs';
 import { account, seedSteps } from './old-engine-for-tests.mjs';
-import { refsOfCase } from './fixtures.mjs';
+import { refsOfCase, run, heldOf } from './fixtures.mjs';
 import { readFileSync } from 'node:fs';
 
 const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-method.json', import.meta.url), 'utf8'));
@@ -20,7 +20,7 @@ const input = {
 // live case holds it: { needs_recheck, version } and no step_id.
 async function caseWithStubStep() {
   const door = account();
-  const { case_id: id } = await startADecision(input, { door });
+  const { case_id: id } = await run(door, startADecision, input);
   await seedSteps(door, id, ['scope', 'outcome'], { ref: 'user-verbatim' });
   const refs = await refsOfCase(door, id);
   const stubKey = `${ANSWERED}:${id}:001:c${refs.items.answered_steps[1]}`;
@@ -31,15 +31,15 @@ async function caseWithStubStep() {
 
 test('reading a case with a step that has no step in it refuses, and names the step', async () => {
   const { door, id } = await caseWithStubStep();
-  await assert.rejects(() => readDecision(door, id), /not visible/);
+  assert.throws(() => readDecision(heldOf(door), id), /not visible/);
 });
 
 test('adding evidence refuses a case with a step that has no step in it', async () => {
   const { door, id } = await caseWithStubStep();
-  await assert.rejects(() => addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'The waiting list grew this month' }] }, { door }), /not visible/);
+  assert.throws(() => run(door, addDecisionEvidence, { decision_id: id, evidence: [{ ref: 'e3', claim: 'The waiting list grew this month' }] }), /not visible/);
 });
 
 test('making the decision refuses a case with a step that has no step in it', async () => {
   const { door, id } = await caseWithStubStep();
-  await assert.rejects(() => makeTheDecision({ decision_id: id, decision: { option_id: 'keep', reason: 'Kept.', next_action: 'Keep it', success_measure: 'Families stay', evidence_refs: ['user-verbatim'] } }, { door }), /not visible/);
+  assert.throws(() => run(door, makeTheDecision, { decision_id: id, decision: { option_id: 'keep', reason: 'Kept.', next_action: 'Keep it', success_measure: 'Families stay', evidence_refs: ['user-verbatim'] } }), /not visible/);
 });

@@ -6,6 +6,7 @@
 // quotes it once more as a JSON string, the most any re-encoding on the way can make of it.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { holding } from '../read-data/decision-records.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-method.json', import.meta.url), 'utf8'));
 export const DOOR_CAP = 64 * 1024;
@@ -25,6 +26,18 @@ export function methodAccount(door = memoryDoor(), { steps = ['scope', 'outcome'
   return door;
 }
 
+// The caller of a tool, as a test plays it: it reads the records the tool needs from its own store (here every record the
+// store holds) and hands them in as `records`, then keeps what the tool answers as `keep`, each record refused when the
+// store no longer holds the value it expected. Returns the tool's answer.
+export function run(store, tool, input = {}) {
+  const answer = tool({ ...input, records: store.all() });
+  if (Array.isArray(answer?.keep) && answer.keep.length) store.write(answer.keep);
+  return answer;
+}
+
+// The records a store holds, as the caller would hand them in: what the tools read by key (read-data/decision-records.mjs).
+export const heldOf = store => holding(store.all());
+
 export function memoryDoor() {
   const records = new Map();
   const writes = [];
@@ -34,6 +47,7 @@ export function memoryDoor() {
   const matches = (kept, where) => !where || Object.entries(where).every(([name, value]) => JSON.stringify(kept.value?.[name]) === JSON.stringify(value));
   return {
     records, writes, lists,
+    all() { return [...records].map(([id, kept]) => ({ id, type: kept.type, value: structuredClone(kept.value) })); },
     put(id, type, value) { records.set(id, { type, value: structuredClone(value) }); },
     value(id) { return structuredClone(records.get(id)?.value ?? null); },
     async read(type, id) { const kept = records.get(id); return kept && kept.type === type ? structuredClone(kept.value) : null; },
@@ -43,16 +57,13 @@ export function memoryDoor() {
       rows.sort(order ? ([, a], [, b]) => (a.value.created_at < b.value.created_at ? 1 : -1) : ([a], [b]) => (a < b ? 1 : -1));
       for (const [id, kept] of rows) yield { id, type, value: structuredClone(view(kept, fields)) };
     },
-    async write(list, { key } = {}) {
-      assert.ok(list.length >= 1 && list.length <= 256, `a write carries 1 to 256 records, not ${list.length}`);
-      const size = bytes({ records: list, key });
-      // The engine refuses a request key over 512 bytes before anything is written (src/mcp.rs `parse_operation`).
-      if (key !== undefined && Buffer.byteLength(key) > 512) throw new Error(`a request key of ${Buffer.byteLength(key)} bytes is over the engine's 512`);
-      assert.ok(size <= DOOR_CAP, `a write of ${size} bytes is over the door's 64 KiB cap (413)`);
+    write(list) {
+      assert.ok(list.length >= 1, 'a keep carries at least one record');
+      const size = bytes(list);
       // A record carrying `expected` is written only if it still holds exactly that ({ type, value }, or null when absent), as the engine checks: otherwise the whole write is refused and nothing changes.
       const sorted = value => JSON.stringify(value, (name, item) => (item && typeof item === 'object' && !Array.isArray(item) ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) : item));
       if (list.some(record => 'expected' in record && sorted(record.expected) !== sorted(records.get(record.id) ?? null))) throw Object.assign(new Error('changed'), { code: 'original_command_conflict' });
-      writes.push({ key, ids: list.map(record => record.id), bytes: size, carried: carried({ records: list, key }), largest: Math.max(...list.map(bytes)) });
+      writes.push({ ids: list.map(record => record.id), bytes: size, carried: carried(list), largest: Math.max(...list.map(bytes)) });
       for (const { id, type, value } of list) {
         assert.ok(typeof type === 'string' && type, `${id} carries its type`);
         if (value === null) records.delete(id); else records.set(id, { type, value: structuredClone(value) });

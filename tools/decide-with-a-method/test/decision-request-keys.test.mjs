@@ -4,7 +4,7 @@ import settings from '../read-data/decide-with-a-method.json' with { type: 'json
 import { addDecisionEvidence, startADecision } from '../read-data/decisions.mjs';
 import { readDecision, recordsOf, writeDecision } from '../read-data/decision-records.mjs';
 import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
-import { memoryDoor, plainMethod, plainChecks } from './fixtures.mjs';
+import { memoryDoor, plainMethod, plainChecks, run, heldOf } from './fixtures.mjs';
 
 function account() {
   const door = memoryDoor();
@@ -21,22 +21,22 @@ const bounded = writes => {
 };
 async function keys(key, list = [row(), part]) {
   const door = memoryDoor();
-  await writeDecision(door, list, key);
+  door.write(writeDecision(heldOf(door), list, key));
   bounded(door.writes);
   return door.writes.map(write => write.key);
 }
 
 test('real controllers accept long sources and long evidence refs, then replay without writes', async () => {
   const door = account();
-  const { case_id } = await startADecision(input(), { door });
+  const { case_id } = await run(door, startADecision, input());
   const evidence = Array.from({ length: 4 }, (_, n) => ({ ref: `synthetic-ref-${n}:` + 'r'.repeat(160), claim: `Synthetic evidence number ${n}` }));
   assert.ok(Buffer.byteLength(`add-decision-evidence:${case_id}:${evidence.map(row => row.ref).join(',')}`) > 512);
-  const reply = await addDecisionEvidence({ decision_id: case_id, evidence }, { door });
+  const reply = await run(door, addDecisionEvidence, { decision_id: case_id, evidence });
   assert.equal(reply.added.length, 4);
-  assert.equal((await readDecision(door, case_id)).input.evidence.length, 5);
+  assert.equal((await readDecision(heldOf(door), case_id)).input.evidence.length, 5);
   bounded(door.writes);
   const count = door.writes.length;
-  assert.equal((await addDecisionEvidence({ decision_id: case_id, evidence }, { door })).replayed, true);
+  assert.equal((await run(door, addDecisionEvidence, { decision_id: case_id, evidence })).replayed, true);
   assert.equal(door.writes.length, count);
 });
 
@@ -55,15 +55,15 @@ test('legacy request family stays exact at 512 bytes, oversized family is bounde
 test('oversized start and multipart evidence publish the root last and read back whole', async () => {
   const door = account();
   const opened = { ...input(), source_id: 'synthetic-unicode-source:' + 'é'.repeat(220) };
-  const { case_id } = await startADecision(opened, { door });
+  const { case_id } = await run(door, startADecision, opened);
   const evidence = Array.from({ length: 3 }, (_, n) => ({ ref: `synthetic-large-${n}:` + 'r'.repeat(180), claim: 'Synthetic multipart evidence. '.repeat(1800) }));
   const start = door.writes.length;
-  await addDecisionEvidence({ decision_id: case_id, evidence }, { door });
+  await run(door, addDecisionEvidence, { decision_id: case_id, evidence });
   const writes = door.writes.slice(start);
   assert.ok(writes.length > 2, 'the actual controller stages several bounded messages');
   assert.deepEqual(writes.at(-1).ids, [case_id], 'only the final write publishes the root');
   assert.equal(new Set(writes.map(write => write.key)).size, writes.length);
-  assert.deepEqual((await readDecision(door, case_id)).input.evidence.slice(1).map(({ ref, claim }) => ({ ref, claim })), evidence);
+  assert.deepEqual((await readDecision(heldOf(door), case_id)).input.evidence.slice(1).map(({ ref, claim }) => ({ ref, claim })), evidence);
   bounded(door.writes);
 });
 
@@ -82,13 +82,13 @@ test('UTF-8 boundary and late intent differences cannot alias, even with the sam
 
 test('a changed CAS basis changes identity for the same oversized intent and desired state', async () => {
   const door = account();
-  const { case_id } = await startADecision(input(), { door });
-  const record = await readDecision(door, case_id);
+  const { case_id } = await run(door, startADecision, input());
+  const record = await readDecision(heldOf(door), case_id);
   record.marker = 'same desired state';
   const first = recordsOf(record);
   const before = door.value(case_id);
   door.put(case_id, 'decision', { ...before, concurrent: true });
-  const later = await readDecision(door, case_id);
+  const later = await readDecision(heldOf(door), case_id);
   delete later.concurrent;
   later.marker = 'same desired state';
   const second = recordsOf(later);
@@ -126,11 +126,11 @@ test('unknown part or root outcomes propagate once, without fallback or a second
 test('previously committed long legacy state keeps its pointers and deduplicates at the controller', async () => {
   const door = account();
   const opened = input();
-  const { case_id } = await startADecision(opened, { door });
+  const { case_id } = await run(door, startADecision, opened);
   const evidence = [{ ref: 'legacy-ref:'.padEnd(800, 'r'), claim: 'Synthetic historical committed evidence' }];
   // Model an older host that accepted a long request: install the real historical records and pointers,
   // including the root, without assuming that native rejection proves no prior effect on every host.
-  const held = await readDecision(door, case_id);
+  const held = await readDecision(heldOf(door), case_id);
   held.input.evidence.push({ ...evidence[0], added_at: '2026-01-01T00:00:00.000Z' });
   const records = recordsOf(held);
   const legacyRequest = `add-decision-evidence:${case_id}:${evidence[0].ref}:${makeHashCodeHexFromJson({ basis: { root: door.value(case_id) }, records })}`;
@@ -139,15 +139,15 @@ test('previously committed long legacy state keeps its pointers and deduplicates
   door.put(records[0].id, records[0].type, records[0].value);
   const before = structuredClone([...door.records]);
   const count = door.writes.length;
-  assert.equal((await addDecisionEvidence({ decision_id: case_id, evidence }, { door })).replayed, true);
+  assert.equal((await run(door, addDecisionEvidence, { decision_id: case_id, evidence })).replayed, true);
   assert.deepEqual([...door.records], before);
   assert.equal(door.writes.length, count);
-  assert.equal((await readDecision(door, case_id)).input.evidence.at(-1).ref, evidence[0].ref);
+  assert.equal((await readDecision(heldOf(door), case_id)).input.evidence.at(-1).ref, evidence[0].ref);
 });
 
 test('real controller propagates a lost root reply and later recognizes the committed evidence', async () => {
   const door = account();
-  const { case_id } = await startADecision(input(), { door });
+  const { case_id } = await run(door, startADecision, input());
   const evidence = [{ ref: 'synthetic-lost-root:'.padEnd(800, 'r'), claim: 'Synthetic evidence committed before reply loss' }];
   const attempts = [];
   const failure = new Error('synthetic root reply lost');
@@ -157,9 +157,9 @@ test('real controller propagates a lost root reply and later recognizes the comm
     if (options.key.endsWith(':root')) throw failure;
     return receipt;
   } };
-  await assert.rejects(addDecisionEvidence({ decision_id: case_id, evidence }, { door: wrapped }), error => error === failure);
+  await assert.throws(() => run(wrapped, addDecisionEvidence, { decision_id: case_id, evidence }), error => error === failure);
   assert.equal(attempts.filter(key => key.endsWith(':root')).length, 1);
   const count = door.writes.length;
-  assert.equal((await addDecisionEvidence({ decision_id: case_id, evidence }, { door })).replayed, true);
+  assert.equal((await run(door, addDecisionEvidence, { decision_id: case_id, evidence })).replayed, true);
   assert.equal(door.writes.length, count);
 });

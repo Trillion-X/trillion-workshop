@@ -1,7 +1,6 @@
 // tools/decide-with-a-method/read-data/decision-records.mjs
 //
-// How a decision is laid out in the person's records, so that a decision of any size fits under the records door's
-// write cap (64 KiB a message). The root `decision` record holds only fields each set by one call (the goal, the options,
+// How a decision is laid out in the person's records, so that a decision of any size keeps every record small (`record_bytes`). The root `decision` record holds only fields each set by one call (the goal, the options,
 // bounded at start by `options` in the settings, the current decision, a share, a plan) and counts and pointers: nothing
 // in it grows as the decision grows. Everything that grows is
 // a record of its own, linked to the decision's id, named in `records` of read-data/decide-with-a-method.json:
@@ -25,13 +24,12 @@
 // (evidence, options, reports and the rest inside it, the method snapshot inline, `answered_steps` on it, or the whole
 // guidance in it) reads as it is and is laid apart at its next change. A root written while options were laid apart too
 // (`decision-option:<id>:<nnn>`, counted in `counts.options`) reads them back, and its next change folds them into the
-// root's input again and removes those records. A change too large for one door message goes in
-// parts with the root last, so a reader never meets a root that counts records not written yet; a reader takes only the
-// first `counts` items of each list, so a part written before a write that failed is never read.
+// root's input again and removes those records. A record too large for `record_bytes` goes in parts, and the root is
+// kept last, so a reader never meets a root that counts records not written yet; a reader takes only the first `counts`
+// items of each list, so a part a store does not hold is never read (it is refused by name).
 // The settings are imported, not read from disk, so the join also runs where this file is bundled (the old engine's Worker).
 import settings from './decide-with-a-method.json' with { type: 'json' };
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 
 
 const { records: NAMES } = settings;
@@ -114,23 +112,18 @@ const MOVED = ['answered_steps', 'original_input', 'candidates', 'reports', 'car
 
 // What was read of each laid-apart list and the method, so a write keeps only what changed.
 const LOADED = new WeakMap();
-// What the door held for the root and its revision record when the decision was read: a write expects the revision to
-// still hold it, so a write made from an older read is refused, not written over newer rows.
-const ROOT_READ = new WeakMap();
 const REVISION = settings.records.record_revision.type;
-// Whether a write expects the revision it was read at. Switched off in DATA while a spurious conflict on the revision is found.
-const CHECK_REVISION = settings.records.record_revision.check !== false;
 const revisionKey = id => `${REVISION}:${id}`;
 
-// What a record can weigh in a door message, however the door carries it on the way: its JSON with every character past
+// What a record can weigh in a store, however the store carries it on the way: its JSON with every character past
 // ASCII written as a \u escape, quoted once more as a JSON string. A part's text is itself JSON, so a quote, backslash or
 // newline in it is already escaped once, and each further encoding doubles that escape again: a part sized by its plain
 // UTF-8 bytes (a 67 KB chat message full of quotes, newlines and emoji) left a write of 46 KB plain that grew to 74 KB
-// carried, and the door answered 413. Sizing parts and writes by this measure keeps every write under the cap.
+// carried. Sizing parts and records by this measure keeps every record under `record_bytes` as a store carries it.
 const PAST_ASCII = /[\u007f-\uffff]/g;
 const escaped = char => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`;
 const carriedText = text => JSON.stringify(text.replace(PAST_ASCII, escaped));
-/** The most bytes `value` can take in a door message: its JSON, past-ASCII escaped, quoted once more. Never under its UTF-8. */
+/** The most bytes `value` can take in a store: its JSON, past-ASCII escaped, quoted once more. Never under its UTF-8. */
 export const carriedBytes = value => carriedText(JSON.stringify(value)).length;
 // What one character of a string adds to its record's carried bytes (each character's escapes are its own).
 const QUOTED = carriedBytes('');
@@ -214,10 +207,6 @@ function fitted(records) {
   }
   return out;
 }
-// Reading is one pure, synchronous join over records already read, so a reader that reads synchronously (the old engine's store)
-// and one that reads through the door call the same code. `get(type, key)` answers the record a reader already holds: its
-// value, null when it is known not to exist, undefined when it was not read yet. The join asks for what it needs through
-// `get`; `settled` runs it again over the records read for the ones it asked about, until it asks about no more.
 /**
  * The one check that a record a read depends on is there: a value that is absent or unreadable (null, or a lost entry) is
  * refused with one named error carrying what it was and which record it is. Nothing is returned in its place.
@@ -242,7 +231,6 @@ export function wholeValue(key, value, get) {
   return unpackStep(JSON.parse(text));
 }
 /** The per-index references of a root (`refs` names the record that holds them); none for a root that names none. */
-// Undefined while the record is not read yet: the join runs again over what is read (see `settled`).
 function refsOf(id, root, get) {
   const none = { step_refs: [], items: {} };
   if (typeof root.refs !== 'string') return none;
@@ -255,27 +243,61 @@ function refsOf(id, root, get) {
   mustRead('refs', key, kept);
   return { step_refs: kept.step_refs ?? [], items: kept.items ?? {} };
 }
-/** The join run over what `door` holds: every record it asked about is read together, until it asks about no more. */
-export async function settled(door, join) {
-  const held = new Map();
-  for (;;) {
-    const asked = new Map();
-    const get = (type, key) => {
-      if (held.has(key)) return held.get(key);
-      asked.set(key, type);
-      return undefined;
-    };
-    const joined = join(get);
-    if (!asked.size) return joined;
-    await Promise.all([...asked].map(async ([key, type]) => held.set(key, (await door.read(type, key)) ?? null)));
+/**
+ * The records a call is given: `input.records`, each { id, type, value }, read by the caller from its own store (every record
+ * the tool reads: a decision's own records, its method, the rows and pursuits it names). Nothing else is read.
+ */
+export function recordsIn(input) {
+  const records = input?.records ?? [];
+  if (!Array.isArray(records) || !records.every(record => object(record) && typeof record.id === 'string' && typeof record.type === 'string' && 'value' in record)) {
+    throw new Error('records must be the records the caller read from its own store, each { id, type, value }.');
   }
+  return holding(records);
 }
+
+/**
+ * The records a decision is read from, handed in by the caller: every record its tool reads, each { id, type, value }, as its
+ * own store holds it. A record that was not handed in is absent: `get` answers null for it. Values are copied, so a join
+ * never changes what was handed in, and `expected` (what a write asserts is still there) is the value as it was handed in.
+ */
+export function holding(records) {
+  const byType = new Map();
+  for (const { id, type, value } of records) {
+    if (!byType.has(type)) byType.set(type, new Map());
+    byType.get(type).set(id, structuredClone(value));
+  }
+  const held = (type, key) => byType.get(type)?.get(key);
+  return {
+    get: (type, key) => structuredClone(held(type, key) ?? null),
+    expected: (type, key) => (held(type, key) === undefined ? null : { type, value: structuredClone(held(type, key)) }),
+    // The rows of one type whose id starts with `prefix` (and whose fields equal `where`), as { id, value }: by id, greatest
+    // first, or by the field `order` names (`<type>/<field>`, ascending); `reverse` flips it, `below` keeps the rows whose order key is less than it
+    // (a page's cursor), `limit` keeps the first rows and `fields` only these.
+    rows(type, { prefix = '', where, fields, order, reverse = false, below, limit } = {}) {
+      const ascending = order ? !reverse : reverse;
+      // An order names a field of the rows as `<type>/<field>` (work-screen.json, similar); the field is what sorts them.
+      const field = order ? order.slice(order.indexOf('/') + 1) : undefined;
+      const keyOf = ({ id, value }) => (order ? value?.[field] : id) ?? null;
+      const matching = [...(byType.get(type) ?? [])].filter(([id, value]) => id.startsWith(prefix)
+        && (!where || Object.entries(where).every(([name, want]) => JSON.stringify(value?.[name]) === JSON.stringify(want)))
+        && (below === undefined || (keyOf({ id, value }) !== null && keyOf({ id, value }) < below)))
+        .map(([id, value]) => ({ id, value }));
+      matching.sort((a, b) => {
+        const [x, y] = ascending ? [keyOf(a), keyOf(b)] : [keyOf(b), keyOf(a)];
+        return x === y ? 0 : x === null ? 1 : y === null ? -1 : x < y ? -1 : 1;
+      });
+      const found = matching.slice(0, limit).map(({ id, value }) => ({ id, value: fields ? Object.fromEntries(fields.filter(name => value && name in value).map(name => [name, value[name]])) : value }));
+      return found;
+    },
+  };
+}
+
 /** One answered step, or one of its versions, whole: its checks and verdicts as lists; null when it cannot be read. */
 export const stepIn = (get, key) => {
   const kept = wholeValue(key, get('decision-step', key), get);
   return kept === undefined ? undefined : unpackStep(kept);
 };
-export const readStep = (door, key) => settled(door, get => stepIn(get, key));
+export const readStep = (held, key) => stepIn(held.get, key);
 
 /** The first `count` items of one list laid apart, in order; one that cannot be read is named as lost. */
 export function itemsIn(get, id, list, count, refs = []) {
@@ -324,7 +346,7 @@ export function joinLaid(id, root, get, lists = LIST_NAMES, { method = false } =
   delete record.counts;
   return { record, loaded };
 }
-export const laidTogether = (door, id, root, lists, options) => settled(door, get => joinLaid(id, root, get, lists, options));
+export const laidTogether = (held, id, root, lists, options) => joinLaid(id, root, held.get, lists, options);
 
 // A decision kept apart (its root names its answered steps) or kept whole (its root holds its guidance itself).
 const keptWhole = root => Array.isArray(root.guidance) && !Array.isArray(root.answered_steps) && !object(root.counts);
@@ -359,47 +381,21 @@ export function refuseUnreadableSteps(decision) {
   (decision.input?.evidence ?? []).forEach((row, n) => mustRead('evidence', `${decision.id}:${n}`, row));
   return decision;
 }
-export async function readDecision(door, id, steps = [], { lost = false } = {}) {
-  // The revision is read before the root: a commit between the two reads then leaves a revision older than the root,
-  // which the write made from this read refuses, never a stale root under a newer revision it would be accepted against.
-  const revision = await readRevision(door, id);
-  const root = await door.read('decision', id);
+export function readDecision(held, id, steps = [], { lost = false } = {}) {
+  const root = held.get('decision', id);
   if (!root) return null;
   mustRead('decision', id, root);
-  const joined = await settled(door, get => joinDecision(id, root, get, steps));
+  const joined = joinDecision(id, root, held.get, steps);
   // `lost` is the repair's read (putBackSteps): it is handed the entries whose step cannot be read, to put them right from
   // the case's own records; every other reader is refused them by name.
   const decision = lost ? joined : refuseUnreadableSteps(joined);
-  markRead(decision, revision);
+  // The revision read with the root is the one the write expects to find (writeDecision keeps it as `expected`).
+  LOADED.set(decision, { ...(LOADED.get(decision) ?? {}), revision: readRevision(held, id)?.revision ?? null });
   return decision;
 }
 
-/** The revision record of a decision as the door holds it now (null when none): read with the root, expected by its write. */
-export const readRevision = (door, id) => door.read(REVISION, revisionKey(id));
-
-/** The case changed under a write that expected it unchanged (the door's original_command_conflict). */
-export const CASE_CHANGED = 'original_command_conflict';
-
-/**
- * Runs `attempt(n)` (n counts from 1) again when the case changed under it: each attempt reads the case afresh and writes
- * under its own key, so the same request is never replayed with the stale expectation the door already answered. Up to
- * `settings.conflict.reads` attempts in all; then the answer says the case was re-read and retried.
- */
-export async function retriedOnConflict(attempt) {
-  for (let n = 1; ; n += 1) {
-    try {
-      return await attempt(n);
-    } catch (error) {
-      if (error?.code !== CASE_CHANGED) throw error;
-      if (n >= settings.conflict.reads) throw Object.assign(new Error('The case changed while this answer was being kept. It was re-read and retried, and it changed again. Read it again and answer again.'), { code: CASE_CHANGED });
-    }
-  }
-}
-
-/** Records that `record` was read with this revision, so the write made from it expects that revision to still hold. */
-export function markRead(record, revision) {
-  ROOT_READ.set(record, { revision: structuredClone(revision ?? null) });
-}
+/** The revision record of a decision as the held records have it (null when none): read with the root, expected by its write. */
+export const readRevision = (held, id) => held.get(REVISION, revisionKey(id));
 
 // Each item of a list that is new or changed since it was read, and a removal for each item past its new end.
 function changedItems(id, list, items, was = [], wasRefs = []) {
@@ -416,24 +412,23 @@ const refsAfter = (items, was = [], wasRefs = [], changedOf = item => item) => i
 export const EVERY_STEP = 'every-step';
 
 // The refs records a case was ever given: write-once, one per write, so together the history of what each index named.
-async function refsHistory(door, id) {
+function refsHistory(held, id) {
   const out = [];
-  for await (const row of door.list({ type: NAMES.refs, prefix: `${NAMES.refs}:${id}${CONTENT}` })) {
-    const value = await settled(door, get => wholeValue(row.id, row.value, get));
+  for (const row of held.rows(NAMES.refs, { prefix: `${NAMES.refs}:${id}${CONTENT}` })) {
+    const value = wholeValue(row.id, row.value, held.get);
     if (object(value)) out.push({ step_refs: value.step_refs ?? [], items: value.items ?? {} });
   }
   return out;
 }
 // The step and the summary a past refs record named at index n, when both are there and are the same graded step.
-async function pastStepAt(door, id, n, past) {
+function pastStepAt(held, id, n, past) {
   const stepRef = past.step_refs[n];
   const summaryRef = past.items.answered_steps?.[n];
   if (!summaryRef) return null;
-  const [step, summary] = await settled(door, get => {
-    const kept = stepIn(get, stepAt(id, n, stepRef));
-    const stub = wholeValue(itemAt('answered_steps', id, n, summaryRef), get(LAID.answered_steps.type, itemAt('answered_steps', id, n, summaryRef)), get);
-    return kept === undefined || stub === undefined ? undefined : [kept, stub];
-  });
+  const { get } = held;
+  const kept = stepIn(get, stepAt(id, n, stepRef));
+  const stub = wholeValue(itemAt('answered_steps', id, n, summaryRef), get(LAID.answered_steps.type, itemAt('answered_steps', id, n, summaryRef)), get);
+  const [step, summary] = kept === undefined || stub === undefined ? [undefined, undefined] : [kept, stub];
   return step && summary && summary.checks !== undefined && step.step_id === summary.step_id ? { step, summary, stepRef, summaryRef } : null;
 }
 const newest = (a, b) => (b === null || (a.step.version ?? 1) > (b.step.version ?? 1)
@@ -446,7 +441,7 @@ const newest = (a, b) => (b === null || (a.step.version ?? 1) > (b.step.version 
  * record is made ready for `recordsOf`, which keeps every other reference as it was read.
  * Returns the steps put right and how many answered steps carried their step before.
  */
-export async function putBackSteps(door, record) {
+export function putBackSteps(held, record) {
   const loaded = LOADED.get(record) ?? { answered_steps: [] };
   const was = loaded.answered_steps.map(text => JSON.parse(text));
   const graded = was.filter(stub => stub.checks !== undefined).length;
@@ -458,10 +453,10 @@ export async function putBackSteps(door, record) {
       if (stubOf(entry).checks !== undefined && was[n].step_id === entry.step_id) repaired.push({ index: n, step_id: entry.step_id, from: 'step' });
       continue;
     }
-    history ??= await refsHistory(door, record.id);
+    history ??= refsHistory(held, record.id);
     let best = null;
     for (const past of history) {
-      const found = await pastStepAt(door, record.id, n, past);
+      const found = pastStepAt(held, record.id, n, past);
       if (found) best = newest(found, best);
     }
     if (!best) continue;
@@ -517,8 +512,8 @@ export function recordsOf(record, changed = [], archived = []) {
   if (refsWritten) root.refs = contentRef(refsValue);
   const { root: fittedRoot, parts: rootParts } = rootFitted(id, root);
   // The revision record is written with the root, in the same write, and expects the revision it was read at (or none).
-  const was = ROOT_READ.get(record)?.revision ?? null;
-  const revision = { id: revisionKey(id), type: REVISION, value: { revision: (was?.revision ?? 0) + 1 }, ...(CHECK_REVISION ? { expected: was ? { type: REVISION, value: was } : null } : {}) };
+  const was = loaded.revision ?? null;
+  const revision = { id: revisionKey(id), type: REVISION, value: { revision: (was?.revision ?? 0) + 1 } };
   return [
     { id, type: 'decision', value: fittedRoot },
     revision,
@@ -532,28 +527,16 @@ export function recordsOf(record, changed = [], archived = []) {
   ];
 }
 
-// One write when it fits one door message (`writes` records, `write_bytes` bytes); otherwise every other record first
-// and the root last, so a root never counts a record that is not there yet. Each part keeps its own request key, so a
-// write sent again answers the receipt it already saved. A record too large for `record_bytes` goes in its parts. Writes
-// are measured as carried (carriedBytes), so one fits the door's cap however the door encodes it on the way.
-const writeBounds = { rows: settings.writes, bytes: settings.write_bytes, measure: carriedBytes };
-export async function writeDecision(door, list, key) {
-  // The key names what is written, so a retry of the same write replays and a different write under the same name is never a conflict.
+// The records one change keeps, as a store holds them: each record with `expected`, the value the store must still hold for
+// it (null when it was not there, so a write-once record must be new). Parts come first, removals with the root, and the
+// revision and the root last: a store that applies the list in order inside one transaction, and refuses it whole when an
+// expected record has moved, commits the root only with the records it names. Nothing is written here.
+const expectedBy = held => ({ id, type, value }) => ({ id, type, value, expected: held.expected(type, id) });
+export function writeDecision(held, list) {
   const [root, revision, ...rest] = list;
-  // A removal is a record the committed root still counts until this write moves it: it lands with the root, never before.
+  // A removal is a record the committed root still counts until this change moves it: it lands with the root, never before.
   const removals = rest.filter(record => record.value === null);
   const parts = fitted(rest.filter(record => record.value !== null));
-  const whole = [root, revision, ...parts, ...removals];
-  const named = `${key}:${identityOf(whole)}`;
-  try {
-    if (writeBatches(whole, writeBounds).length === 1) return await door.write(whole, { key: named });
-    // Several writes. Every record a write adds is write-once (content-addressed) and named by nothing until the root
-    // names it, so parts that land before a refused root are invisible and cannot be written over. Only the root and its
-    // revision commit the change: the revision expectation is checked there, and nothing else moves the revision.
-    for (const [at, batch] of writeBatches(parts, writeBounds).entries()) await door.write(batch, { key: `${named}:part:${at}` });
-    return await door.write([root, revision, ...removals], { key: named });
-  } catch (error) {
-    if (error?.code === CASE_CHANGED) throw Object.assign(new Error('The case changed while this answer was being kept. Read it again and answer again.'), { code: CASE_CHANGED });
-    throw error;
-  }
+  return [...parts, ...removals, revision, root].map(expectedBy(held));
 }
+

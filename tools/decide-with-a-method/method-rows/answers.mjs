@@ -21,12 +21,9 @@
 //   4. The same answer again is no new version; a different answer for a row is its next version, and the earlier one stays
 //      readable in the record's own history.
 import { filterRecords } from '../../formulas/do-work/requests.mjs';
-import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
-import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { laidTogether } from '../read-data/decision-records.mjs';
+import { laidTogether, recordsIn } from '../read-data/decision-records.mjs';
 import { refuse, refuseUnknownFields, rowsOfMethod, say, strictnessOf } from './view.mjs';
 import methodRows from './settings.json' with { type: 'json' };
-import decide from '../read-data/decide-with-a-method.json' with { type: 'json' };
 
 const { answers: ANSWERS, strictness: STRICT, evidence: EVIDENCE, pursuit: PURSUIT_TYPE } = methodRows;
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -50,23 +47,22 @@ function judged(answer, tree) {
   return { passed: false, failed };
 }
 
-// The answers kept for a decision, each read by its own key (one record per decision and row): a list by prefix does not show a
-// record the door was just given, so a retried answer would be written as a new version 1 under the key it already holds.
-async function keptAnswers(door, decision, rows) {
-  const held = await Promise.all(rows.map(async row => [answerKey(decision, row.id), await door.read(ANSWERS.type, answerKey(decision, row.id))]));
-  return new Map(held.filter(([, value]) => object(value)));
+// The answers kept for a decision, each read by its own key (one record per decision and row).
+function keptAnswers(held, decision, rows) {
+  const found = rows.map(row => [answerKey(decision, row.id), held.get(ANSWERS.type, answerKey(decision, row.id))]);
+  return new Map(found.filter(([, value]) => object(value)));
 }
 
 // The refs of the decision's evidence, read as the tools that write it read it: the root with its evidence laid together
 // (read-data/decision-records.mjs), whichever layout it was kept in; evidence retracted is not citable. A decision that is not
 // there is refused. A ref that is not evidence is citable only as one of the person's current pursuits (the same rule a
 // decision's own citations keep).
-async function evidenceRefsOf(door, decision) {
-  const root = await door.read(EVIDENCE.root_type, decision);
+function evidenceRefsOf(held, decision) {
+  const root = held.get(EVIDENCE.root_type, decision);
   if (!object(root)) refuse('decision_not_found', { decision });
-  const { record } = await laidTogether(door, decision, root, [EVIDENCE.list]);
-  const held = Array.isArray(record.input?.evidence) ? record.input.evidence : [];
-  return new Set(held.filter(item => object(item) && !item.retracted_at && nonempty(item.ref)).map(item => item.ref));
+  const { record } = laidTogether(held, decision, root, [EVIDENCE.list]);
+  const items = Array.isArray(record.input?.evidence) ? record.input.evidence : [];
+  return new Set(items.filter(item => object(item) && !item.retracted_at && nonempty(item.ref)).map(item => item.ref));
 }
 
 // What a review of one answer is asked with: the answer is kept with review asked, and the words and label the shipped rule
@@ -84,23 +80,24 @@ function shapeOf(item, position, refusals) {
 }
 
 /** tool:record-method-answers. input { decision_id, method, answers: [{ row, answer, cites?, evidence_refs? }], by? }. */
-export async function recordMethodAnswers(input, { door }) {
+export function recordMethodAnswers(input) {
   refuseUnknownFields('tool:record-method-answers', input);
+  const held = recordsIn(input);
   if (!nonempty(input?.decision_id)) refuse('no_decision');
   if (!nonempty(input.method)) refuse('no_method');
   if (!Array.isArray(input.answers) || input.answers.length < 1) refuse('no_answers');
   const by = input.by ?? ANSWERS.default_by;
   if (!nonempty(by) || by.length > ANSWERS.by_max_chars) refuse('by_too_long', { count: ANSWERS.by_max_chars });
-  const evidence = await evidenceRefsOf(door, input.decision_id);
-  const { record, rows } = await rowsOfMethod(door, input.method);
+  const evidence = evidenceRefsOf(held, input.decision_id);
+  const { record, rows } = rowsOfMethod(held, input.method);
   const byId = new Map(rows.map(row => [row.id, row]));
   const pursuits = new Map();
-  const citable = async ref => {
+  const citable = ref => {
     if (evidence.has(ref)) return true;
-    if (!pursuits.has(ref)) { const pursuit = await door.read(PURSUIT_TYPE, ref); pursuits.set(ref, object(pursuit) && pursuit.status !== 'ended'); }
+    if (!pursuits.has(ref)) { const pursuit = held.get(PURSUIT_TYPE, ref); pursuits.set(ref, object(pursuit) && pursuit.status !== 'ended'); }
     return pursuits.get(ref);
   };
-  const kept = await keptAnswers(door, input.decision_id, rows);
+  const kept = keptAnswers(held, input.decision_id, rows);
 
   const refused = [];
   const seen = new Set();
@@ -119,7 +116,7 @@ export async function recordMethodAnswers(input, { door }) {
     const strayCite = cites.find(cite => !byId.has(cite));
     if (strayCite !== undefined) { refuseRow('cite_not_in_method', { cite: strayCite }); continue; }
     let strayRef;
-    for (const ref of refs) if (!(await citable(ref))) { strayRef = ref; break; }
+    for (const ref of refs) if (!citable(ref)) { strayRef = ref; break; }
     if (strayRef !== undefined) { refuseRow('evidence_not_in_decision', { ref: strayRef }); continue; }
     if (Buffer.byteLength(item.answer) > ANSWERS.most_bytes) { refuseRow('answer_too_large', { count: ANSWERS.most_bytes }); continue; }
     const strictness = strictnessOf(target.values, record);
@@ -136,21 +133,18 @@ export async function recordMethodAnswers(input, { door }) {
     } });
   }
 
-  const recorded = [];
-  for (const batch of writeBatches(records, { rows: decide.writes, bytes: decide.write_bytes })) {
-    const key = `record-method-answers:${input.decision_id}:${makeHashCodeHexFromBytes(Buffer.from(JSON.stringify(batch.map(record => [record.id, record.value.version, record.value.answer, record.value.cites, record.value.evidence_refs]))))}`;
-    await door.write(batch, { key });
-    recorded.push(...batch.map(record => ({ row: record.value.row, version: record.value.version, ...(record.value[STRICT.review_field] ? { review: record.value[STRICT.review_field] } : {}) })));
-  }
+  const recorded = records.map(record => ({ row: record.value.row, version: record.value.version, ...(record.value[STRICT.review_field] ? { review: record.value[STRICT.review_field] } : {}) }));
   const answered = new Set([...kept.values()].map(value => value.row).filter(row => byId.has(row)));
   for (const item of recorded) answered.add(item.row);
-  return { decision_id: input.decision_id, method: input.method, recorded, unchanged, refused, answered: answered.size, rows: rows.length };
+  // Each answer is kept with the value its store must still hold for it (`expected`, null when it was not there).
+  const keep = records.map(record => ({ ...record, expected: held.expected(record.type, record.id) }));
+  return { decision_id: input.decision_id, method: input.method, recorded, unchanged, refused, answered: answered.size, rows: rows.length, keep };
 }
 
 /** The rows of a method and which of them the decision has an answer for: { rows, answered, unanswered: [row ids] }. */
-export async function methodAnswered(door, decision, method) {
-  const { rows } = await rowsOfMethod(door, method);
-  const kept = new Set([...(await keptAnswers(door, decision, rows)).values()].map(value => value.row));
+export function methodAnswered(held, decision, method) {
+  const { rows } = rowsOfMethod(held, method);
+  const kept = new Set([...keptAnswers(held, decision, rows).values()].map(value => value.row));
   const unanswered = rows.map(row => row.id).filter(id => !kept.has(id));
   return { rows: rows.length, answered: rows.length - unanswered.length, unanswered };
 }

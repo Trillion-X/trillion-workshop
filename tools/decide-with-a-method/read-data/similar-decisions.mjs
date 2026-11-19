@@ -2,7 +2,7 @@
 //
 // The person's own earlier decisions brought back when a similar one comes up: at the moment of choice, what was
 // decided in decisions like this one and how each turned out. Ported from the old app's DecisionEngine.related
-// (src/engine.mjs) over the person's `decision` records, read through the records door the run was handed.
+// (src/engine.mjs) over the person's `decision` records, which the caller hands in as `records`.
 //
 // A decision is weighed on its goal and method alone, read from the newest decisions' own fields (`input` and
 // `method_id`, never their method snapshot, answers or calls), and only the few kept are read with their options,
@@ -16,7 +16,7 @@
 //   3. Every weight and bound is read from read-data/decide-with-a-method.json, none is written here.
 import { readFileSync } from 'node:fs';
 import { decisionStatus } from './decision-outcome.mjs';
-import { laidTogether } from './decision-records.mjs';
+import { laidTogether, recordsIn } from './decision-records.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('./decide-with-a-method.json', import.meta.url), 'utf8'));
 const { similar, precedence, words: WORDS } = settings;
@@ -56,23 +56,25 @@ export function broughtBack(other) {
 }
 
 /** tool:bring-back-similar-decisions. input { decision_id, limit? } -> { similar_decisions: [...] } */
-export async function similarDecisions({ decision_id: id, limit } = {}, { door }) {
+export function similarDecisions(input = {}) {
+  const { decision_id: id, limit } = input;
+  const held = recordsIn(input);
   if (typeof id !== 'string' || !id) refuse(WORDS.no_decision);
   const most = Math.min(Number.isInteger(limit) && limit > 0 ? limit : similar.limit, similar.most);
-  const root = await door.read('decision', id);
+  const root = held.get('decision', id);
   if (!root) refuse(WORDS.not_found);
   // A root whose largest fields are laid apart (fields_in_parts) reads them back, so its goal is weighed as it was.
-  const { record } = await laidTogether(door, id, root, []);
+  const { record } = laidTogether(held, id, root, []);
   const goals = [];
-  for await (const row of door.list({ type: 'decision', order: similar.order, reverse: true, fields: ['input', 'method_id'], limit: similar.look_back })) {
+  for (const row of held.rows('decision', { order: similar.order, reverse: true, fields: ['input', 'method_id'], limit: similar.look_back })) {
     goals.push({ id: row.id, goal: row.value?.input?.goal ?? '', method: methodOf(row.value) });
     if (goals.length >= similar.look_back) break;
   }
   const kept = [];
   for (const { id: keptId } of closest({ ...record, id }, goals, most)) {
-    const root = await door.read('decision', keptId);
+    const root = held.get('decision', keptId);
     if (!root) continue;
-    const { record: other } = await laidTogether(door, keptId, root, ['options', 'candidates', 'reports']);
+    const { record: other } = laidTogether(held, keptId, root, ['options', 'candidates', 'reports']);
     kept.push(broughtBack({ ...other, id: keptId }));
   }
   return { similar_decisions: kept };

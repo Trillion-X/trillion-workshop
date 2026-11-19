@@ -10,7 +10,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { canonical, inputIdentity, laidTogether, readDecision } from '../read-data/decision-records.mjs';
 import { seeMyDecisions } from '../read-data/work-screen.mjs';
-import { memoryDoor } from './fixtures.mjs';
+import { memoryDoor, run, heldOf } from './fixtures.mjs';
 import { counting } from './old-engine-for-tests.mjs';
 
 const at = '2026-10-08T12:00:00Z';
@@ -31,18 +31,28 @@ function seed(pursuits) {
   return door;
 }
 
-test('cold decision summaries read the cited pursuits, not every pursuit, as pursuits quadruple', async () => {
+// The records a caller hands the decision summaries: the decisions, and only the pursuits they cite.
+const citedPursuitsOnly = store => ({
+  all: () => {
+    const cited = new Set(store.all().filter(record => record.type === 'decision').flatMap(record => Object.keys(record.value.cited_pursuits ?? {})));
+    return store.all().filter(record => record.type === 'decision' || (record.type === 'pursuit' && cited.has(record.id)));
+  },
+  write: list => store.write(list),
+});
+
+test('decision summaries are the same whether or not unrelated pursuits are handed in, as pursuits quadruple', async () => {
   const samples = [];
   for (const pursuits of [100, 400]) {
-    const door = counting(seed(pursuits));
-    const { summaries } = await seeMyDecisions({ native_collection_page: true }, { door });
+    const base = seed(pursuits);
+    const everything = await run(base, seeMyDecisions, { native_collection_page: true });
+    const door = counting(citedPursuitsOnly(base));
+    const { summaries } = await run(door, seeMyDecisions, { native_collection_page: true });
     assert.equal(summaries.length, 3);
     assert.deepEqual(summaries.map(item => item.pursuits.map(p => p.title)).sort(), [['Pursuit 0'], ['Pursuit 1'], ['Pursuit 2']]);
-    const { reads, listed } = door.take();
-    samples.push({ pursuits, reads: reads.length, rows: listed.length });
+    assert.deepEqual(summaries, everything.summaries, 'the summaries do not change with the unrelated pursuits in the store');
+    samples.push({ pursuits, handed: door.take().crossed });
   }
-  assert.ok(samples[1].reads <= Math.max(samples[0].reads * 1.5, samples[0].reads + 6), JSON.stringify(samples));
-  assert.ok(samples[1].rows <= Math.max(samples[0].rows * 1.5, samples[0].rows + 6), JSON.stringify(samples));
+  assert.equal(samples[1].handed, samples[0].handed, JSON.stringify(samples));
 });
 
 const laidId = 'source:bGFpZC1hcGFydA';
@@ -85,7 +95,7 @@ test('a laid-apart decision with more than 64 KiB of evidence reads whole', asyn
   const door = memoryDoor();
   for (const { id, type, value } of laidApart()) door.put(id, type, value);
 
-  const record = await readDecision(door, laidId, ['outcome']);
+  const record = await readDecision(heldOf(door), laidId, ['outcome']);
   assert.equal(record.input.evidence.length, 400);
   assert.deepEqual(record.input.options, laidInput.options);
   assert.equal(record.method.id, 'careful');
@@ -101,12 +111,12 @@ test('a laid-apart decision with more than 64 KiB of evidence reads whole', asyn
   assert.equal((record.calls ?? []).length, 0);
   assert.equal(record.input_identity, startedWith);
 
-  const { record: own } = await laidTogether(door, laidId, door.value(laidId), ['evidence'], { method: true });
+  const { record: own } = await laidTogether(heldOf(door), laidId, door.value(laidId), ['evidence'], { method: true });
   assert.equal(own.method.id, 'careful');
   assert.equal(own.input.evidence.length, 400);
-  const content = await readDecision(door, laidId);
+  const content = await readDecision(heldOf(door), laidId);
   assert.deepEqual(content.guidance.map(step => step.step_id), ['scope', 'outcome']);
-  const [summary] = (await seeMyDecisions({ native_collection_page: true }, { door })).summaries;
+  const [summary] = (await run(door, seeMyDecisions, { native_collection_page: true })).summaries;
   assert.equal(summary.method, 'careful');
   assert.equal(summary.decided, true);
   assert.equal(summary.carried_out, true);

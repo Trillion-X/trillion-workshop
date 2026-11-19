@@ -20,6 +20,7 @@
 import { filterRecords } from '../../formulas/do-work/requests.mjs';
 import settings from './settings.json' with { type: 'json' };
 import decide from '../read-data/decide-with-a-method.json' with { type: 'json' };
+import { recordsIn } from '../read-data/decision-records.mjs';
 
 const { names, strictness: STRICT, words: WORDS } = settings;
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -35,25 +36,23 @@ export function refuseUnknownFields(toolId, input) {
 }
 
 /** The saved view named, as its record holds it ({ list_id, view: { rules, sort, label }, strictness? }), or a refusal. */
-export async function methodRecord(door, method) {
+export function methodRecord(held, method) {
   if (typeof method !== 'string' || !method.trim()) refuse('no_method');
-  const held = await door.read(names.view_type, method);
-  if (!object(held) || typeof held.list_id !== 'string') refuse('method_not_found', { method });
-  return held;
+  const saved = held.get(names.view_type, method);
+  if (!object(saved) || typeof saved.list_id !== 'string') refuse('method_not_found', { method });
+  return saved;
 }
 
 /** The list a saved view is over, as its record holds it: { row_type, fields }. */
-export async function listOf(door, record) {
-  const list = await door.read(names.list_type, fill(names.list_record, { list_id: record.list_id }));
+export function listOf(held, record) {
+  const list = held.get(names.list_type, fill(names.list_record, { list_id: record.list_id }));
   if (!object(list) || typeof list.row_type !== 'string') refuse('method_not_found', { method: record.list_id });
   return list;
 }
 
-/** Every row of the list, as { id, values } in the door's order. */
-export async function rowsOfList(door, list) {
-  const rows = [];
-  for await (const row of door.list({ type: fill(names.row_type, { row_type: list.row_type }) })) rows.push({ id: row.id, values: row.value ?? {} });
-  return rows;
+/** Every row of the list the caller handed in, as { id, values }, in the order the store gives them. */
+export function rowsOfList(held, list) {
+  return held.rows(fill(names.row_type, { row_type: list.row_type })).map(row => ({ id: row.id, values: row.value ?? {} }));
 }
 
 // The rows a rule tree keeps, as the rule filter decides; only the fields the rules read are handed to it. A rule it could
@@ -89,11 +88,11 @@ export function ordered(rows, sort) {
 }
 
 /** Every row of the saved view, in its order: the one pass both tools of the pair make. */
-export async function rowsOfMethod(door, method) {
-  const record = await methodRecord(door, method);
-  const list = await listOf(door, record);
+export function rowsOfMethod(held, method) {
+  const record = methodRecord(held, method);
+  const list = listOf(held, record);
   const view = record.view ?? {};
-  const rows = ordered(keptRows(await rowsOfList(door, list), list.fields ?? [], view.rules), view.sort);
+  const rows = ordered(keptRows(rowsOfList(held, list), list.fields ?? [], view.rules), view.sort);
   return { record, list, rows };
 }
 
@@ -107,22 +106,23 @@ export function strictnessOf(rowValues, record) {
 }
 
 /** tool:read-a-method. input { method, after?, limit? }: one page of the rows of the saved view `method`, each with the strictness it is checked by. */
-export async function readAMethod(input, { door }) {
+export function readAMethod(input) {
   refuseUnknownFields('tool:read-a-method', input);
+  const held = recordsIn(input);
   const limit = input?.limit ?? settings.read.page_rows;
   if (!Number.isSafeInteger(limit) || limit < 1 || limit > settings.read.page_rows_most) refuse('bad_limit', { most: settings.read.page_rows_most });
   const from = input.after === undefined || input.after === null ? 0 : Number(input.after);
   if (!Number.isSafeInteger(from) || from < 0) refuse('bad_after');
-  const { record, list, rows } = await rowsOfMethod(door, input?.method);
+  const { record, list, rows } = rowsOfMethod(held, input?.method);
   // A page ends at `limit` rows or when the next row would pass `page_bytes`, but always holds one row.
   const page = [];
-  let held = 0;
+  let used = 0;
   for (const row of rows.slice(from, from + limit)) {
     const shown = { id: row.id, values: row.values, strictness: strictnessOf(row.values, record) };
     const size = Buffer.byteLength(JSON.stringify(shown));
-    if (page.length && held + size > settings.read.page_bytes) break;
+    if (page.length && used + size > settings.read.page_bytes) break;
     page.push(shown);
-    held += size;
+    used += size;
   }
   const end = from + page.length;
   return {
