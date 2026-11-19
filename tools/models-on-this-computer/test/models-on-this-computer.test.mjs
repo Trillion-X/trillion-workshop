@@ -4,7 +4,9 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import { askLocal } from '../read-data/models-on-this-computer.mjs';
+import rows from '../tool-rows.json' with { type: 'json' };
 
 const serve = answer => new Promise(resolve => {
   const server = createServer((request, response) => {
@@ -334,4 +336,33 @@ test('the shipped settings name every job\'s models, every wired judge and every
   const served = new Set([...settings.chat, ...settings.classify].map(row => row.model).filter(Boolean));
   for (const offer of settings.offer) assert.ok(served.has(offer.model), `${offer.id} answers at once once got`);
   assert.ok(settings.jobs.default, 'a conversation with no job has a default row');
+});
+
+test('a server is named by its door: the port is the one the computer reports, and a door it does not report is passed over in words', async () => {
+  const { placed, ask } = await import('../read-data/models-on-this-computer.mjs');
+  const shipped = JSON.parse(readFileSync(new URL('../read-data/models-on-this-computer.json', import.meta.url), 'utf8'));
+  assert.doesNotMatch(JSON.stringify(shipped), /127\.0\.0\.1|localhost|:\d{4,5}\//, 'no address or port is written in the shared settings');
+  const asked = [];
+  const server = await serve(body => { asked.push(body); return { choices: [{ message: { content: 'here' } }] }; });
+  try {
+    const settings = { most_tokens: 8, words: { ...words, not_reported: 'This computer does not report a port named {door}.' },
+      chat: [{ id: 'far', door: 'unreported-door', path: '/v1/chat/completions', model: 'far', timeout_seconds: 1 },
+        { id: 'near', door: 'model-door', path: '/v1/chat/completions', model: 'near', timeout_seconds: 2 }] };
+    const at = placed(settings, { 'model-door': server.address().port, 'bad-door': 80 });
+    assert.equal(at.chat[0].url, null);
+    assert.equal(at.chat[0].not_reported, 'This computer does not report a port named unreported-door.');
+    assert.equal(at.chat[1].url, `http://127.0.0.1:${server.address().port}/v1/chat/completions`);
+    assert.equal(placed({ ...settings, chat: [{ ...settings.chat[1], door: 'bad-door' }] }, { 'bad-door': 80 }).chat[0].url, null, 'a port outside 1024-65535 is never used');
+    for (const row of rows.records.filter(row => row.payload.invoke?.local_doors))
+      assert.deepEqual(row.payload.invoke.stdin, { input: { fill: { from: 'input' } }, local_ports: { fill: { from: 'computer', field: 'local_ports' } } });
+    for (const row of rows.records.filter(row => row.payload.invoke?.local_doors)) {
+      const doors = row.payload.invoke.local_doors;
+      assert.deepEqual(doors.filter(door => typeof door === 'string'), ['local-model-server'], 'only the model server is required');
+      const named = new Set(shipped.chat.concat(shipped.classify).map(item => item.door).concat(shipped.server.door));
+      for (const door of named) assert.ok(doors.some(entry => entry === door || entry?.name === door), `${door} is listed`);
+    }
+    const none = await ask({ input: { messages: [{ role: 'user', content: 'hi' }] }, local_ports: {} });
+    assert.ok(none.error, 'with no reported door nothing is asked and the answer says so');
+    assert.equal(asked.length, 0);
+  } finally { server.close(); }
 });

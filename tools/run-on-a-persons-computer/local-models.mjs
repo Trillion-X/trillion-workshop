@@ -29,6 +29,8 @@ import { makeHelperRuntimes } from './helper-runtimes.mjs';
 import { makeFastPathMeter } from './fast-path-meter.mjs';
 import { readManagedSettings, turnedOff } from './managed-settings.mjs';
 import { readOffered } from './offered-endpoints.mjs';
+import { placed } from '../models-on-this-computer/read-data/models-on-this-computer.mjs';
+import { localPortOf } from '../keep-and-wake-ai-sessions-on-this-computer/harness/local-door.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const settingsFile = () => JSON.parse(readFileSync(join(HERE, 'local-models.json'), 'utf8'));
@@ -36,8 +38,14 @@ const settingsFile = () => JSON.parse(readFileSync(join(HERE, 'local-models.json
 // to one classify judge) from the one copy of those rows, tools/models-on-this-computer's DATA.
 const MODEL_ROWS = ['chat', 'jobs', 'classify', 'offer', 'wired'];
 const modelRows = () => JSON.parse(readFileSync(join(HERE, '..', 'models-on-this-computer', 'read-data', 'models-on-this-computer.json'), 'utf8'));
-export const localModelSettings = (rows = modelRows()) => ({ ...settingsFile(), ...Object.fromEntries(MODEL_ROWS.map(name => [name, rows[name]])),
-  offered: () => readOffered() });
+// Each server is named by its local door; placed() makes its address from the port this computer reports for that door
+// (localPortOf, the app's sealed report), so no port is written in either settings file.
+const reportedPorts = (settings, portOf) => Object.fromEntries([settings.server?.door, ...['chat', 'classify'].flatMap(name => (settings[name] ?? []).map(row => row.door))]
+  .filter(door => typeof door === 'string').map(door => [door, portOf(door)]).filter(([, port]) => port !== null));
+export const localModelSettings = (rows = modelRows(), portOf = localPortOf) => {
+  const settings = { ...settingsFile(), ...Object.fromEntries(MODEL_ROWS.map(name => [name, rows[name]])) };
+  return { ...placed(settings, reportedPorts(settings, portOf)), offered: () => readOffered() };
+};
 
 /** askLocal for this computer's person, with this host's priority. */
 export const askHere = () => async (input, options) => askLocal(input, localModelSettings(), options);
@@ -92,6 +100,7 @@ const whyNot = error => (error?.status ? `answered ${error.status}` : error?.nam
  *  row passed over and why, so an empty result can say what happened. */
 export async function firstAnswer(rows, ask, retryAfterSeconds = 0, failures = [], priority = 0, meterPath = 'local-model') {
   for (const row of rows) {
+    if (row.not_reported) { failures.push({ id: row.id, why: row.not_reported }); continue; }
     const key = modelKey(row);
     const resting = unavailableUntil.get(key);
     if (resting && resting.until > Date.now() && priority <= resting.priority) { failures.push({ id: row.id, why: 'is resting after a failure' }); continue; }
@@ -197,6 +206,7 @@ export async function thisMac() {
 
 /** The models the server has, by name, or null when it is not running. */
 async function modelsServed(server) {
+  if (!server?.models) return null;
   try {
     const answer = await fetch(server.models, { signal: AbortSignal.timeout(3000) });
     if (!answer.ok) return null;
@@ -207,6 +217,7 @@ async function modelsServed(server) {
 /** Puts the server on this Mac and waits until it answers. The program comes from the helper owner (computer/helper-runtimes.mjs): a copy the person installed themselves is used as it is, otherwise it is fetched and the receipt says whether it was verified. */
 export async function installServer(server, helpers = makeHelperRuntimes()) {
   let got;
+  if (!server?.models) return null; // a door this computer does not report: installing could not make it reachable
   try { got = await helpers.ensure({ id: server.install.helper }); } catch { return null; }
   await run('open', ['-a', got.path]).catch(() => {});
   for (let waited = 0; waited < server.install.wait_seconds; waited += 3) {

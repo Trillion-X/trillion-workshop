@@ -129,21 +129,24 @@
  "local_chat": [
   {
    "id": "ollama-qwen2.5-14b",
-   "url": "http://127.0.0.1:11434/v1/chat/completions",
+   "door": "local-model-server",
+   "path": "/v1/chat/completions",
    "model": "qwen2.5:14b-instruct",
    "keep_alive": "30m",
    "timeout_seconds": 45
   },
   {
    "id": "ollama-gemma3-4b",
-   "url": "http://127.0.0.1:11434/v1/chat/completions",
+   "door": "local-model-server",
+   "path": "/v1/chat/completions",
    "model": "gemma3:4b",
    "keep_alive": "30m",
    "timeout_seconds": 40
   },
   {
    "id": "ollama-judge-qwen2.5-14b",
-   "url": "http://127.0.0.1:11435/v1/chat/completions",
+   "door": "local-judge-server",
+   "path": "/v1/chat/completions",
    "model": "qwen2.5:14b-instruct",
    "keep_alive": "30m",
    "timeout_seconds": 45,
@@ -151,7 +154,8 @@
   },
   {
    "id": "ollama-awareness-4b",
-   "url": "http://127.0.0.1:11435/v1/chat/completions",
+   "door": "local-judge-server",
+   "path": "/v1/chat/completions",
    "model": "gemma3:4b",
    "keep_alive": -1,
    "timeout_seconds": 120,
@@ -234,7 +238,8 @@
   {
    "id": "ollama-qwen2.5-14b-yes-no",
    "ask": "chat",
-   "url": "http://127.0.0.1:11434/v1/chat/completions",
+   "door": "local-model-server",
+   "path": "/v1/chat/completions",
    "model": "qwen2.5:14b-instruct",
    "keep_alive": "30m",
    "prompt": "Answer with one word: yes or no.",
@@ -243,7 +248,8 @@
   },
   {
    "id": "decider-2b",
-   "url": "http://127.0.0.1:8099/v1/systemone",
+   "door": "local-classifier-server",
+   "path": "/v1/systemone",
    "timeout_seconds": 15
   }
  ],

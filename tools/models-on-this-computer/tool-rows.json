@@ -241,7 +241,7 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [],
-          "local_doors": ["local-model-server"],
+          "local_doors": ["local-model-server", {"name": "local-judge-server", "required": false}, {"name": "local-classifier-server", "required": false}],
           "workdir": "/opt/models-on-this-computer",
           "stdout": "json",
           "argv": [
@@ -251,9 +251,8 @@
             "ask"
           ],
           "stdin": {
-            "fill": {
-              "from": "input"
-            }
+            "input": {"fill": {"from": "input"}},
+            "local_ports": {"fill": {"from": "computer", "field": "local_ports"}}
           },
           "files": {
             "package_files": [
@@ -507,7 +506,7 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [],
-          "local_doors": ["local-model-server"],
+          "local_doors": ["local-model-server", {"name": "local-judge-server", "required": false}, {"name": "local-classifier-server", "required": false}],
           "workdir": "/opt/models-on-this-computer",
           "stdout": "json",
           "argv": [
@@ -517,9 +516,8 @@
             "fit"
           ],
           "stdin": {
-            "fill": {
-              "from": "input"
-            }
+            "input": {"fill": {"from": "input"}},
+            "local_ports": {"fill": {"from": "computer", "field": "local_ports"}}
           },
           "files": {
             "package_files": [

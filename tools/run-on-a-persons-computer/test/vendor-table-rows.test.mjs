@@ -19,6 +19,9 @@ import { linkSettings } from '../../audio-transcription/read-data/hear-here.mjs'
 import { speakSettings } from '../../generate-speech/read-data/speak.mjs';
 import { localModelSettings } from '../local-models.mjs';
 
+// The rows as shipped: what placing them adds for this computer (its address, or why its door is not reported) taken off.
+const shipped = rows => rows.map(({ url, not_reported, ...row }) => row);
+
 // The shipped sign-in apps as a records file: one row of kind oauth-client per golden value, in its order.
 const oauthRecords = { records: golden.oauth_clients.map(payload => ({ id: `oauth-client:${payload.clientId}`, kind: 'oauth-client', payload })) };
 
@@ -31,9 +34,9 @@ test('c. each program reads its settings with its tables in place', () => {
   // An engine row may carry `_measured`, a note of when it was timed; the golden keeps the fields the programs read.
   assert.deepEqual(speak.engines.map(({ _measured, ...engine }) => engine), golden.speech_engines);
   const models = localModelSettings();
-  assert.deepEqual(models.chat, golden.local_chat);
+  assert.deepEqual(shipped(models.chat), golden.local_chat);
   assert.deepEqual(models.jobs, golden.local_jobs);
-  assert.deepEqual(models.classify, golden.local_classify);
+  assert.deepEqual(shipped(models.classify), golden.local_classify);
   assert.deepEqual(models.offer, golden.local_offer);
   assert.ok(models.server && models.words, 'the rest of the settings file is still read');
 });
@@ -42,7 +45,7 @@ test('c. a program that adjusts what it read never changes the shipped rows', ()
   const first = localModelSettings();
   first.chat.length = 0;
   first.jobs.default.models.length = 0;
-  assert.deepEqual(localModelSettings().chat, golden.local_chat);
+  assert.deepEqual(shipped(localModelSettings().chat), golden.local_chat);
   assert.deepEqual(localModelSettings().jobs, golden.local_jobs);
 });
 

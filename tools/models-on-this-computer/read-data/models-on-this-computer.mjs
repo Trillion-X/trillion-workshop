@@ -7,7 +7,9 @@
 //   through tools/workflows/do-work/run-a-function.mjs. Moved from old trillion computer/local-models.mjs.
 //
 // Non-negotiable invariants
-//   1. Which servers and models answer is DATA (read-data/models-on-this-computer.json); this file names none.
+//   1. Which servers and models answer is DATA (read-data/models-on-this-computer.json); this file names none. A server is
+//      named by its local door, never by a port: the port is the one this computer's report names under that door
+//      (`placed`), so a row whose door the computer does not report is never asked.
 //   2. Only this computer's own servers are asked; the words never leave it except as the answer.
 //   3. A server that is not running is skipped; when none answers the tool says so in words (error), and names for each
 //      model why it did not answer (`tried`). A model that refused only this request's shape (400-499, such as a model
@@ -78,6 +80,7 @@ const whyNot = error => (error?.status ? `answered ${error.status}` : error?.nam
  *  row passed over and why, so an empty result can say what happened. */
 export async function firstAnswer(rows, ask, retryAfterSeconds = 0, failures = [], priority = 0) {
   for (const row of rows) {
+    if (row.not_reported) { failures.push({ id: row.id, why: row.not_reported }); continue; }
     const key = modelKey(row);
     const resting = unavailableUntil.get(key);
     if (resting && resting.until > Date.now() && priority <= resting.priority) { failures.push({ id: row.id, why: 'is resting after a failure' }); continue; }
@@ -173,6 +176,7 @@ export async function thisMac() {
 
 /** The models the server has, by name, or null when it is not running. */
 async function modelsServed(server) {
+  if (!server?.models) return null;
   try {
     const answer = await fetch(server.models, { signal: AbortSignal.timeout(3000) });
     if (!answer.ok) return null;
@@ -218,8 +222,29 @@ export async function modelsForThisMac(input, settings) {
   return { ...answer, got };
 }
 
+/**
+ * The settings with each row's address made from this computer's reported ports (`local_ports`, door name -> port): a
+ * row whose door is not reported gets no address and the `not_reported` words, and is passed over with them as its
+ * reason (`tried`), like a server that is not running; no port is ever guessed.
+ */
+export function placed(settings, ports = {}) {
+  const port = door => { const number = ports?.[door]; return Number.isInteger(number) && number >= 1024 && number <= 65535 ? number : null; };
+  const at = (door, path) => port(door) === null ? null : `http://127.0.0.1:${port(door)}${path}`;
+  const row = item => {
+    if (!item || typeof item.door !== 'string') return item;
+    const url = at(item.door, item.path ?? '');
+    return { ...item, url, ...(url ? {} : { not_reported: String(settings.words?.not_reported ?? '').replaceAll('{door}', item.door) }) };
+  };
+  const server = settings.server?.door ? { ...settings.server, models: at(settings.server.door, settings.server.models), pull: at(settings.server.door, settings.server.pull) } : settings.server;
+  return { ...settings, server, chat: (settings.chat ?? []).map(row), classify: (settings.classify ?? []).map(row) };
+}
+
+/** What a row hands in: { input, local_ports } (tool-rows.json stdin); a call with no ports reaches no server. */
+const given = (handed = {}) => handed && typeof handed === 'object' && 'local_ports' in handed
+  ? { input: handed.input ?? {}, ports: handed.local_ports ?? {} } : { input: handed ?? {}, ports: {} };
+
 /** tool:ask-a-model */
-export const ask = (input = {}) => askLocal(input, localModelSettings());
+export const ask = (handed = {}) => { const { input, ports } = given(handed); return askLocal(input, placed(localModelSettings(), ports)); };
 
 /** tool:get-free-models */
-export const fit = (input = {}) => modelsForThisMac(input, localModelSettings());
+export const fit = (handed = {}) => { const { input, ports } = given(handed); return modelsForThisMac(input, placed(localModelSettings(), ports)); };
