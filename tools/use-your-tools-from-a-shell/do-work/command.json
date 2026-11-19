@@ -318,7 +318,9 @@
     "page_limit": 100,
     "most_pages": 1000,
     "cancel": "tools:cancel",
-    "wake": { "switch": "wake:switch", "list": "wake:list" }
+    "wake": { "switch": "wake:switch", "list": "wake:list" },
+    "_need_refusal": "The exact refusal an engine older than trillion-rust 9133c735e gives a call that carries `need` (its parse_operation names every argument that is not a call's, as invalid params). Only this refusal makes the command send the same call once more without `need`; every other refusal is passed through.",
+    "need_refusal": { "code": -32602, "message": "Addressed resource arguments are incomplete: `need` is not an argument of a call." }
   },
   "work": {
     "_what": "Each AI-job command runs one Workshop work tool (trillion-workshop tools/hand-work-to-ais) with tools:run at @tools: `tools` names the tool for who (ais), send, work (see), take and every move (change); `actions` maps a move command to the action tool:change-an-ai-job takes.",

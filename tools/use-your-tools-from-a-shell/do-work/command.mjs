@@ -778,9 +778,20 @@ export function engineClient({ door, credential, fetchImpl = fetch, rules = sett
     if (reply.error) throw new CommandError(reply.error.message ?? fill(rules.words.refused_code, { which: door.name }), { answer: reply.error, detail: fill(rules.words.details.answered, { mcp: door.mcp, status: `an error to ${method}` }) });
     return reply.result;
   }
+  // An engine older than trillion-rust 9133c735e refuses a call that carries `need` (engine.need_refusal) before any effect.
+  // That one refusal sends the same call once more without `need`; from then on the call is sent without it. Any other
+  // refusal is thrown as it was.
+  const refusesNeed = (error, sent) => Object.hasOwn(sent, 'need') && error?.answer?.code === rules.engine.need_refusal.code
+    && error.answer.message === rules.engine.need_refusal.message;
   async function tool(name, args, { idempotent = false } = {}) {
+    let sent = args;
+    const send = () => rpc('tools/call', { name, arguments: sent }, { idempotent });
     for (let attempt = 0; ; attempt += 1) {
-      const result = await rpc('tools/call', { name, arguments: args }, { idempotent });
+      const result = await send().catch(error => {
+        if (!refusesNeed(error, sent)) throw error;
+        sent = Object.fromEntries(Object.entries(sent).filter(([key]) => key !== 'need'));
+        return send();
+      });
       const answer = answerOf(result);
       if (!result?.isError) return answer;
       const error = answer?.error ?? {};
