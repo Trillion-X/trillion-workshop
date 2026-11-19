@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:6908b4062ec57687cc2e3c4a75c8218a785858c14b5eba8c3839b21531dad9f5"
+  "blake3": "1f:edabbbc820adbbf6b347f64861ad4e1fdd0e685555660504183411b9d7b19505"
  },
  "fields": [
   {
@@ -8165,7 +8165,7 @@
    "values": {
     "title": "Plan an event",
     "job": "Turn my draft of a gathering into its session, its catalog entry, the places to open and the link people will use",
-    "description": "Checks an organizer's draft (a retained 128-bit hex id, the owning group, labels in any language, a primary time and an optional alternate in the zone given, a place, a mode and a visibility word the organizer chooses, a capacity of 1 to 1,000,000, the host's web address and the workflow to run) and answers the session, the catalog entry that offers it, the capacity ledger to open for its places (the input of tool:open-a-capacity-ledger), and the preview and share addresses. The same draft always gives the same plan. It plans only: nothing is kept, published or sent. Refuses a half-given alternate, an end before a start, an unsafe route or a web address that is not https (except this computer's own).",
+    "description": "Checks an organizer's draft (a retained 128-bit hex id, the owning group, labels in any language, a primary time and an optional alternate in the zone given, a place, a mode and a visibility word the organizer chooses, a capacity of 1 to 1,000,000, the host's web address and the workflow to run) and answers the session, the catalog entry that offers it, the capacity ledger to open for its places (the input of workflow:hold-places-in-a-finite-pool), and the preview and share addresses. The same draft always gives the same plan. It plans only: nothing is kept, published or sent. Refuses a half-given alternate, an end before a start, an unsafe route or a web address that is not https (except this computer's own).",
     "status": "active",
     "maker": "maker:coordination-sessions",
     "licence_class": "licence:maker-own",

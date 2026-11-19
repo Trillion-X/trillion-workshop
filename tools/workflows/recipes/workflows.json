@@ -94984,7 +94984,7 @@
         },
         "source": {
           "from": "the product's own behaviour",
-          "note": "A lock-in protocol run before, during and after a session, from the person's main pursuit and calendar, with focus on, distracting apps closed and spaced practice after. Runs through tool:hold-a-device-quiet, tool:focus, tool:practice and tool:hold-to-it; the person's own AI does the reading. Names tools that no tool in the Workshop offers yet: tool:focus, tool:hold-a-device-quiet, tool:hold-to-it, tool:practice, tool:release-a-device."
+          "note": "A lock-in protocol run before, during and after a session, from the person's main pursuit and calendar, with focus on, distracting apps closed and spaced practice after. Runs through tool:hold-a-device-quiet, tool:focus, workflow:keep-practice-cards-and-grades and tool:hold-to-it; the person's own AI does the reading. Names tools that no tool in the Workshop offers yet: tool:focus, tool:hold-a-device-quiet, tool:hold-to-it, tool:release-a-device."
         },
         "fires_when": [
           {
@@ -95131,7 +95131,7 @@
           {
             "id": "after",
             "title": "Practise and book the next one",
-            "do": "When the time is up (or the person says they are done), run tool:release-a-device and tool:focus with on false, and put back the look they wore before. Ask the person what got done against done_means and record it in one line. Run tool:practice with operation due and go through what is due with them (ask the prompt, let them answer, grade it). Then schedule the next session at the next free block the calendar shows, running this workflow.",
+            "do": "When the time is up (or the person says they are done), run tool:release-a-device and tool:focus with on false, and put back the look they wore before. Ask the person what got done against done_means and record it in one line. Run workflow:keep-practice-cards-and-grades with operation due and go through what is due with them (ask the prompt, let them answer, grade it). Then schedule the next session at the next free block the calendar shows, running this workflow.",
             "submit": {
               "type": "object",
               "required": [

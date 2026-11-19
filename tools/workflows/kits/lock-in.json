@@ -4,13 +4,13 @@
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
-    "workflow:lock-in"
+    "workflow:lock-in",
+    "workflow:keep-practice-cards-and-grades"
   ],
   "tools": [
     "tool:focus",
     "tool:hold-a-device-quiet",
     "tool:hold-to-it",
-    "tool:practice",
     "tool:release-a-device"
   ],
   "instructions": [
