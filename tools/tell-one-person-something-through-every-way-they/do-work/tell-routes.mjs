@@ -10,8 +10,9 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. The request goes to the moved route, read-data/tell-the-person.mjs handleTellRequest, over makeTellThePerson
 //      with the moved rows (read-data/tell-the-person.json); this file only reads the person's kept notices for it.
-//   2. The kept notices are the person's `told-the-person` records, read the way tools/tell-the-person reads them
-//      (one head naming the notices in order, one record per notice, or an older head holding them all).
+//   2. The kept notices are the told-the-person rows the caller gives as `stored.records` (the AI reads them from the
+//      person's own store), read the way tools/tell-the-person reads them (one head naming the notices in order, one
+//      record per notice, or an older head holding them all). The tool reads no store and keeps nothing.
 //   3. Only GET /tell/notices is this row's: it writes nothing and tells no one, so no sender is wired. Any other path
 //      or method answers 404 { error: 'Not found' }, as the moved route answers a path it has no row for.
 //
@@ -22,12 +23,17 @@ import { readKeptNotices } from '../../tell-the-person/read-data/told.mjs';
 const queryText = query => new URLSearchParams(Object.entries(query && typeof query === 'object' ? query : {})
   .filter(([, value]) => value !== undefined && value !== null).map(([name, value]) => [name, String(value)])).toString();
 
+// The given rows as the reader of tools/tell-the-person asks them: a list of { id, type, value } of one type.
+const givenAsRows = records => ({
+  async *list({ type }) { for (const record of Array.isArray(records) ? records : []) if (record?.type === type) yield record; },
+});
+
 /** tool:answer-the-tell-notices-route */
-export async function answerTellNoticesRoute(input = {}, { door, now = () => new Date() } = {}) {
+export async function answerTellNoticesRoute(input = {}, { now = () => new Date() } = {}) {
   const path = String(input?.path ?? '');
   const method = String(input?.method ?? 'GET').toUpperCase();
   if (!(method === 'GET' && path === '/tell/notices')) return { status: 404, body: { error: 'Not found' } };
-  const kept = await readKeptNotices({}, { door });
+  const kept = await readKeptNotices({}, { door: givenAsRows(input?.stored?.records) });
   const store = {
     choices: () => null,
     notices: () => kept,

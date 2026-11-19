@@ -11,10 +11,10 @@ Old trillion's owner of this, `src/tell-the-person.mjs` (tag `old-trillion-befor
 | `read-data/tell-the-person.mjs` | `makeTellThePerson` (tell, report, recent, forDevice, markRead, act, settings, ...), `handleTellRequest` and the routes it answers |
 | `read-data/tell-the-person.json` | The channels, kinds, actions and words (old `records/tell-the-person.json`) |
 | `read-data/tell-quiet-hours.json`, `read-data/glance-feeds.json`, `read-data/run-progress.json` | Old `src/tell-quiet-hours.json`, `records/glance-feeds.json`, `records/run-progress.json` |
-| `do-work/tell-routes.mjs` | `answerTellNoticesRoute`, `tool:answer-the-tell-notices-route`: the page route GET /work/api/tell/notices as a route tool, the moved route over the person's `told-the-person` records (read as `tools/tell-the-person` reads them). Contract `ports/tell-routes.json` |
+| `do-work/tell-routes.mjs` | `answerTellNoticesRoute`, `tool:answer-the-tell-notices-route`: the page route GET /work/api/tell/notices as a route tool, the moved route over the `told-the-person` rows given as `stored.records` (the AI reads them from the person's own store and gives them; the row reads no store and holds no records method, read as `tools/tell-the-person` reads them). Contract `ports/tell-routes.json` |
 | `tool-rows.json` | The route row |
 | `test/tell-the-person.test.mjs` | Old trillion's test, its assertions unchanged (paths only) |
-| `test/tell-routes.test.mjs` | The route row against the records door stand-in, checked against the moved owner |
+| `test/tell-routes.test.mjs` | The route row over made-up `stored.records`, checked against the moved owner |
 
 ## Not a route yet
 
@@ -22,4 +22,4 @@ Old trillion's owner of this, `src/tell-the-person.mjs` (tag `old-trillion-befor
 
 ## Dependencies
 
-**Depends on:** `tools/tell-the-person` (its reader of `told-the-person` records), `tools/tell-the-person-something-on-all-of-their-own-phones-computers` (`src/tell-devices.mjs`), `tools/shared-code` (`src/workspace/screens.mjs`, `src/web-push.mjs`), `tools/hand-off-jobs-between-agents` (`src/workspace/addresses.mjs`), `tools/keep-and-wake-ai-sessions-on-this-computer` (surfaces and screen rows read by screens.mjs; account tool rows and waiting-on-you rows read by the test), `tools/starting-set` (the test), `tools/records-door`.
+**Depends on:** `tools/tell-the-person` (its reader of `told-the-person` records), `tools/tell-the-person-something-on-all-of-their-own-phones-computers` (`src/tell-devices.mjs`), `tools/shared-code` (`src/workspace/screens.mjs`, `src/web-push.mjs`), `tools/hand-off-jobs-between-agents` (`src/workspace/addresses.mjs`), `tools/keep-and-wake-ai-sessions-on-this-computer` (surfaces and screen rows read by screens.mjs; account tool rows and waiting-on-you rows read by the test), `tools/starting-set` (the test), (no records door: the rows are given as values).

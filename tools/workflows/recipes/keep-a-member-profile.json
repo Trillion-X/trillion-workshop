@@ -1,0 +1,215 @@
+{
+  "about": "workflow:keep-a-member-profile: keeps each member's profile (display name, about text and email) in the person's own store, a save changing only the fields given. It is the store half of tools/person-profile: its two member-profile tool rows (read-a-member-profile, save-a-member-profile) reached member-profile records through the records door, which is retired, so they are deleted and this recipe is their home (rule a-tool-is-only-what-the-store-cannot-do; L101: the recipe reads back first). The layout of a profile stays in that folder as values-in, values-out.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-a-member-profile",
+        "label": "Keep a member's profile",
+        "job": "Keep a member's profile (display name, about text and email) in the person's own store: a save changes only the fields given and keeps the rest of the profile, and a read gives the profile, or nothing when the member has none.",
+        "produces": "The member-profile rows in the person's own store, proven on the example saves and reads in PostgreSQL and a JSON store, with each save kept or refused and each read answered.",
+        "source": {
+          "from": "tools/person-profile do-work/save-member-profile.mjs (saveMemberProfile, readMemberProfile), read on trillion-workshop origin/main; its two tool rows reached member-profile records through the records door, which is retired",
+          "note": "Only the keeping is the store's job: a row per member, the fields it holds, and the save that changes only what is given and reads back before it says saved. The layout of the profile stays in tools/person-profile (tool:lay-out-a-profile), which takes the values in."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the member profiles: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Operations to run this time: save {who, fields} (fields: any of display_name, about, email, as text) or read {who}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read the member profiles the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read the member-profile rows already kept: each row's id (member-profile:<who>) and its display_name, about and email. Submit where they are kept (or null) and how many rows were read.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "rows_read"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "rows_read": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own member-profile rows, once",
+            "do": "When the look step found none, make the store's own objects in its own form: one row per member, id member-profile:<who>, holding display_name, about and email as text (an unset field is an empty text), and updated_at. A save reads the row first, changes only the fields given, keeps the others as they were, writes the row once and reads it back; it refuses an unknown field, an empty set of fields, and a field that is not text, and it says it saved only when the changed fields read back as written. Submit the names of the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the profile rows on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, run these operations in order, each at the time given: [{\"at\": \"2026-11-19T10:00:00Z\", \"op\": \"write\", \"who\": \"member:sample\", \"fields\": {\"display_name\": \"Sam Example\", \"about\": \"Makes things.\"}}, {\"at\": \"2026-11-19T10:01:00Z\", \"op\": \"write\", \"who\": \"member:sample\", \"fields\": {\"email\": \"sam@example.test\"}}, {\"at\": \"2026-11-19T10:02:00Z\", \"op\": \"read\", \"who\": \"member:sample\"}, {\"at\": \"2026-11-19T10:03:00Z\", \"op\": \"read\", \"who\": \"member:nobody\"}, {\"at\": \"2026-11-19T10:04:00Z\", \"op\": \"write\", \"who\": \"member:sample\", \"fields\": {\"nickname\": \"Sam\"}}, {\"at\": \"2026-11-19T10:05:00Z\", \"op\": \"write\", \"who\": \"member:sample\", \"fields\": {}}, {\"at\": \"2026-11-19T10:06:00Z\", \"op\": \"write\", \"who\": \"member:sample\", \"fields\": {\"display_name\": 5}}]. A save answers kept or refused with its reason; a read answers the profile of the member, or null when there is none. Then remove the throwaway place. Submit outcomes (one per attempt, in order) and answers (one per attempt, in order): each answer exactly as the answers the intent gives, which are [{\"saved\": true, \"profile\": {\"display_name\": \"Sam Example\", \"about\": \"Makes things.\", \"email\": \"\"}}, {\"saved\": true, \"profile\": {\"display_name\": \"Sam Example\", \"about\": \"Makes things.\", \"email\": \"sam@example.test\"}}, {\"profile\": {\"display_name\": \"Sam Example\", \"about\": \"Makes things.\", \"email\": \"sam@example.test\"}}, {\"profile\": null}, {\"reason\": \"nickname is not one of display_name, about, email\"}, {\"reason\": \"Send at least one field to save.\"}, {\"reason\": \"Each field to save is text.\"}] and whose outcomes are [\"kept\", \"kept\", \"answered\", \"answered\", \"refused\", \"refused\", \"refused\"].",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answers"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answers": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is kept, answered or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "kept",
+                    "answered",
+                    "answered",
+                    "refused",
+                    "refused",
+                    "refused"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "Each attempt gives the profile, the null, or the refusal reason the intent says",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    {
+                      "saved": true,
+                      "profile": {
+                        "display_name": "Sam Example",
+                        "about": "Makes things.",
+                        "email": ""
+                      }
+                    },
+                    {
+                      "saved": true,
+                      "profile": {
+                        "display_name": "Sam Example",
+                        "about": "Makes things.",
+                        "email": "sam@example.test"
+                      }
+                    },
+                    {
+                      "profile": {
+                        "display_name": "Sam Example",
+                        "about": "Makes things.",
+                        "email": "sam@example.test"
+                      }
+                    },
+                    {
+                      "profile": null
+                    },
+                    {
+                      "reason": "nickname is not one of display_name, about, email"
+                    },
+                    {
+                      "reason": "Send at least one field to save."
+                    },
+                    {
+                      "reason": "Each field to save is text."
+                    }
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's member profile",
+            "do": "Save or read the member profile the request names through the store's own rows, and read the answer back. Submit outcome (saved, answered or refused, with the store's words when refused) and the profile that answered.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": "string"
+                },
+                "profile": {
+                  "type": "object"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

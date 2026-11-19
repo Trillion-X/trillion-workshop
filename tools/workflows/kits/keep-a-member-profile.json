@@ -1,0 +1,55 @@
+{
+  "start_here": "Say to your AI: \"Keep the member profile of member:sample: its display name is Sam Example and it makes things\", with {\"store\":{\"where\":\"postgresql database example_shop on my own computer\",\"language\":\"SQL (PostgreSQL)\",\"credential_name\":\"example-shop-postgres-connection\"},\"operations\":[{\"op\":\"write\",\"who\":\"member:sample\",\"fields\":{\"display_name\":\"Sam Example\",\"about\":\"Makes things.\"}}]}. It runs workflow:keep-a-member-profile and answers {\"outcome\":\"saved\",\"profile\":{\"display_name\":\"Sam Example\",\"about\":\"Makes things.\",\"email\":\"\"}}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: the member profiles are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-a-member-profile"
+  ],
+  "tools": [
+    "tool:lay-out-a-profile"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-a-member-profile\" with store and the operations to run: save {who, fields} or read {who}.",
+    "3. The first run makes the store's own member-profile rows once and proves them on the example attempts: every answer must be the one the intent says, or the run stops and says which.",
+    "4. Lay the profile out for a screen with tool:lay-out-a-profile, giving it the values this workflow read back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Save a member's display name and about text",
+      "ask": "Keep the member profile of member:sample: its display name is Sam Example and it makes things",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-a-member-profile",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "operations": [
+                {
+                  "op": "write",
+                  "who": "member:sample",
+                  "fields": {
+                    "display_name": "Sam Example",
+                    "about": "Makes things."
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-a-member-profile",
+      "step": "keep",
+      "given": "The look step found the member-profile rows the store keeps; member:sample has none yet.",
+      "hands_back": "answers [{\"saved\": true, \"profile\": {\"display_name\": \"Sam Example\", \"about\": \"Makes things.\", \"email\": \"\"}}] and the row member-profile:member:sample kept."
+    }
+  ]
+}

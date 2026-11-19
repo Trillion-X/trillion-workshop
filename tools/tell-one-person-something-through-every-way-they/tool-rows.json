@@ -215,7 +215,7 @@
     "status": "active",
     "read_only": true,
     "job": "Answer the Trillion page route GET /work/api/tell/notices: the notices the open page shows, or what one channel's devices read, as old Trillion did",
-    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. GET /tell/notices answers 200 { notices }: the newest notices the open Trillion page carried (its own channel), newest first, each with its read mark, the surface it was read on, how far each way got, its state, chips and buttons. With query channel (and after, a notice number) it answers what that channel's devices read after it, oldest first; a channel that does not exist answers 400 { error }. Any other path or method answers 404. It reads the person's told-the-person records and writes nothing.",
+    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. GET /tell/notices answers 200 { notices }: the newest notices the open Trillion page carried (its own channel), newest first, each with its read mark, the surface it was read on, how far each way got, its state, chips and buttons. With query channel (and after, a notice number) it answers what that channel's devices read after it, oldest first; a channel that does not exist answers 400 { error }. Any other path or method answers 404. It reads only the told-the-person records given to it as `records` and writes nothing.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -239,7 +239,7 @@
       },
       "stored": {
         "type": "object",
-        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of told-the-person, as this row's `stored` lists. What is not given is not there."
+        "description": "What this run reads of the person's own things: stored = { records: [{id, type, value}] } of told-the-person, which your AI reads from the person's own store and gives here (this tool reads no store). What is not given is not there."
       }
      }
     },
@@ -391,14 +391,6 @@
       "output_selector": "$.status",
       "contains": "200"
      }
-    ],
-    "stored": [
-      {
-        "kind": "told-the-person",
-        "operations": [
-          "records:list"
-        ]
-      }
     ]
    }
   }

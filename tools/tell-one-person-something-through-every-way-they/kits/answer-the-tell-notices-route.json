@@ -2,7 +2,7 @@
   "drafted_from": "tool:answer-the-tell-notices-route's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Answer the Trillion page route GET /work/api/tell/notices: the notices the open page shows, or what one channel's devices read, as old Trillion did\", with {\"path\":\"/tell/notices\",\"method\":\"GET\",\"query\":{},\"body\":{},\"browser\":{}}. It runs tool:answer-the-tell-notices-route and answers {\"status\":200,\"body\":{\"notices\":[]}}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (told-the-person) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and the told-the-person rows given as records, and keeps nothing.",
   "workflows": [],
   "tools": [
     "tool:answer-the-tell-notices-route"
@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Answer the Trillion page route GET /work/api/tell/notices: the notices the open page shows, or what one channel's devices read, as old Trillion did\", and give it path (The route after /work/api); method.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:answer-the-tell-notices-route and its input (the worked example shows one).",
     "3. Read what comes back: A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }.",
-    "4. It reads and writes only its own rows through the records door: told-the-person (records:list)."
+    "4. It reads only the told-the-person rows your AI reads from your own store and gives as records; it keeps nothing."
   ],
   "worked_examples": [
     {
