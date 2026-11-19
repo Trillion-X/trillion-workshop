@@ -37,7 +37,7 @@ import { promisify } from 'node:util';
 import { evaluate } from './recording-rules.mjs';
 import { isFalseText } from './meeting-ledger.mjs';
 import leaves from './leaves.json' with { type: 'json' };
-import { readWholeFile } from '../../records-door/read-data/whole-file.mjs';
+import hearAFile from './hear-a-file.json' with { type: 'json' };
 import { mayTranscribe, roleHolder } from './what-was-said.mjs';
 import { beforePause, leavesOf } from './listening-pure-functions-core.mjs';
 export { beforePause, leavesOf };
@@ -246,11 +246,12 @@ export function finishMs(asked) {
 /**
  * `tool:hear-for-a-device`: hears a recording another of the person's devices made ({ file, at, device }) exactly as this
  * computer's own listening hears its pieces: every turn in it is named against the voices people enrolled and answered as
- * a `heard` row of that device, dated from `at` (when the device began recording; now when left out). The recording is
- * read once through the run's door into the run's own folder and deleted there once heard; the person's file is left
- * where it is (moved from the product repo's computer/listen.mjs listeningTools.hear).
+ * a `heard` row of that device, dated from `at` (when the device began recording; now when left out). The recording's
+ * bytes come in with the request (`stored.files`, the person's file read by the caller) and are written into the run's own
+ * folder and deleted there once heard; the person's file is left where it is (moved from the product repo's
+ * computer/listen.mjs listeningTools.hear).
  */
-export async function hearForADevice(input, { door }, steps = {}) {
+export async function hearForADevice(input, _context = {}, steps = {}) {
   const device = String(input.device ?? '').trim();
   if (!device) throw Object.assign(new Error('Say which device recorded this: `device` is its name.'), { status: 400 });
   if (!String(input.file ?? '').trim()) throw Object.assign(new Error('Give `file`: the recording\'s name or identity in the person\'s files.'), { status: 400 });
@@ -259,8 +260,11 @@ export async function hearForADevice(input, { door }, steps = {}) {
   const listening = String(input.listening ?? `${device}-${new Date(startMs).toISOString().replace(/[:.]/g, '-')}`);
   const folder = input.folder ?? join(process.env.TMPDIR ?? '.', `heard-${listening}`);
   mkdirSync(folder, { recursive: true, mode: 0o700 });
-  const { title, size, bytes } = await readWholeFile(door, input.file);
-  if (!bytes) throw new Error(`${input.file} is ${size} bytes, more than one run reads.`);
+  const held = input.stored?.files?.[input.file];
+  if (held === undefined) throw Object.assign(new Error(`${input.file} was not handed in: its bytes come in as stored.files.`), { status: 400 });
+  const bytes = Buffer.from(typeof held === 'string' ? held : held.base64 ?? '', typeof held === 'string' ? 'utf8' : 'base64');
+  if (bytes.length > hearAFile.most_bytes) throw new Error(`${input.file} is ${bytes.length} bytes, more than one run takes.`);
+  const title = String(input.file).split('/').pop();
   const file = join(folder, `0${extname(title) || '.wav'}`);
   writeFileSync(file, bytes, { mode: 0o600 });
   async function* one() { yield { file, startMs, endMs: startMs }; }

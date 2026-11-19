@@ -6,20 +6,20 @@ Listens to the microphone until an end time the person gives, and answers each t
 
 | File | Purpose |
 |------|---------|
-| `read-data/listen-for-a-while.mjs` | The tools `listenForAWhile` and `hearForADevice` (run as functions by `tools/records-door`'s command; the second reads its one recording through the files door), the one loop both go through (`hearPieces`), and the pure helpers: the end time, the recorder command, a recorder line as a piece, the `heard` rows of a piece's turns, hearing and naming by the other two tools' scripts. |
+| `read-data/listen-for-a-while.mjs` | The tools `listenForAWhile` and `hearForADevice` (run as functions by `tools/workflows/do-work/run-a-function.mjs`; the second hears the one recording whose bytes are handed in as `stored.files`), the one loop both go through (`hearPieces`), and the pure helpers: the end time, the recorder command, a recorder line as a piece, the `heard` rows of a piece's turns, hearing and naming by the other two tools' scripts. |
 | `read-data/recording-rules.mjs` | The person's opt-in recording rules: `evaluate` (block wins, a false required fact blocks, an unknown one is pending), `mayStart`, `recheck`, the grant book, the notice step and consent events. The listener asks `evaluate` for every piece. |
 | `read-data/recording-rules.json` | The words of each refusal and notice step. |
 | `read-data/meeting-ledger.mjs` | What the listener says about a listening: `isFalseText` (a line that is only text a hearing model makes up out of silence) and `jobState` (a notes job's typed state in plain words with its controls). The loop leaves out a made-up stretch before it is named. |
 | `read-data/meeting-ledger.json` | The made-up phrases and their word limit, and the notes-job states. |
 | `read-data/leaves.json` | What listening sends off this computer and what stays on it, as rows `leavesOf` shows while their `when` tests hold. |
-| `tool-rows.json` | `tool:hear-for-a-device`: a `computer` row with `start-a-program` and the files right to find and read the recording only (no record rights). `tool:listen-for-a-while`: a `computer` row with the `use-the-microphone` and `start-a-program` capabilities (the person grants the `record-and-hear` programs: ffmpeg, whisper-cli and the models folder) and no door at all. `tool:name-a-heard-voice`, `tool:caption-what-is-heard` and `tool:ask-what-was-said`: `computer` rows with no door; the heard rows, captions and cursor are request fields. |
+| `tool-rows.json` | `tool:hear-for-a-device`: a `computer` row with `start-a-program`; the recording's bytes come in as `stored.files`, and it holds no files or record right. `tool:listen-for-a-while`: a `computer` row with the `use-the-microphone` and `start-a-program` capabilities (the person grants the `record-and-hear` programs: ffmpeg, whisper-cli and the models folder) and no door at all. `tool:name-a-heard-voice`, `tool:caption-what-is-heard` and `tool:ask-what-was-said`: `computer` rows with no door; the heard rows, captions and cursor are request fields. |
 | `read-data/voice-session.mjs` | `makeVoiceSession`: bounds an always-listening session. It starts on a wake phrase or `start()`, is refreshed by speech, and ends on silence, on its longest length or on a spoken dismissal. A session that is not active keeps no words. Moved from Trillion's `computer/voice-session.mjs`. |
 | `read-data/voice-session.json` | The wake phrases, the idle and longest seconds, the dismissal phrases and their lead-in words, and every sentence said. |
 | `read-data/hands-free.mjs` | The hands-free loop over injected parts: `makeVad` (speech cut out of a sound stream by loudness), `makeHandsFree` (each utterance heard, passed through the voice session, answered and said, never answering its own voice), `runLoop` and `wavOf`. Moved from Trillion's `computer/hands-free.mjs`, without its Mac parts (see Not yet). |
 | `read-data/hands-free.json` | The capture program, the voice-activity numbers, the hearing row, the answer model's job and prompt, the play program and the mute tail, and every sentence said. |
 | `test/voice-session.test.mjs` | The old app's voice-session tests, repointed to this folder. |
 | `test/hands-free.test.mjs` | The old app's hands-free tests, repointed to this folder. The Mac-only REAL test stayed with the parts that were not moved. |
-| `test/listen-for-a-while.test.mjs` | The loop on a fake recorder, hearing and naming with no records door handed to the run (the answer holds the turns); the recorder reader on a fake process; pause, recording rules, the leaves list, the microphone closed when listening ends early, and a device's recording read through the files door and heard as that device. |
+| `test/listen-for-a-while.test.mjs` | The loop on a fake recorder, hearing and naming with no door handed to the run (the answer holds the turns); the recorder reader on a fake process; pause, recording rules, the leaves list, the microphone closed when listening ends early, and a device's recording read through the files door and heard as that device. |
 | `read-data/private-mode.mjs` | The opt-in private mode for a meeting or space: `available(mode, feature)` (mode off: everything; mode on: only features whose row says `private: true`, an unlisted feature is off), one plain sentence per feature, and a security code (BLAKE3 of the sorted keys, in digit groups) both sides compare out of band. |
 | `read-data/private-mode.json` | Which features exist and which private mode keeps, and its words. |
 | `ports/private-mode.json`, `ports/recording-rules.json` | The SOURCE_FIRST_PORT contracts for `private-mode.mjs` and `recording-rules.mjs`, both moved from the older owner. |
@@ -47,7 +47,7 @@ Listens to the microphone until an end time the person gives, and answers each t
 - One device hears a listening at a time (F-0793): while the request's `transcriber` role (`{ device, until }`) belongs to another device and its `until` has not passed, the piece is let go and `transcriber` names that device.
 - Moved from the product repo's always-on listener (`computer/listen.mjs` invariants 1c, 1d and 1e: `pausedAt`, `beforePause`, `leavesOf`, the per-piece rules check) and its rules owner (`src/recording-rules.mjs` with `src/recording-rules.json` and `test/recording-rules.test.mjs`, carried whole), and its meeting ledger (`computer/meeting-ledger.mjs` and `.json`, carried whole, with the pure assertions of `test/meeting-ledger.test.mjs`; the parts of that test that drove the Mac listener's own `listen` tool and notes job stay with that listener). The listener's own files on the Mac (the switch file, `recording-rules.json`, `recording-facts.json`) are rows here.
 
-- A device's recording (`tool:hear-for-a-device`) is read whole through the run's files door (`tools/records-door` `read-data/whole-file.mjs`) into the run's own folder, heard as one piece dated from `at`, named and answered as that device's `heard` rows, and the copy is deleted. The person's file is left where it is. Moved from `computer/listen.mjs` `listeningTools.hear`.
+- A device's recording (`tool:hear-for-a-device`) is handed in whole as its bytes in `stored.files` (the most is `read-data/hear-a-file.json`) and written into the run's own folder, heard as one piece dated from `at`, named and answered as that device's `heard` rows, and the copy is deleted. The person's file is left where it is. Moved from `computer/listen.mjs` `listeningTools.hear`.
 
 ## Moved from Trillion (browser capture)
 
@@ -55,7 +55,7 @@ Listens to the microphone until an end time the person gives, and answers each t
 
 ## Not yet
 
-- The programs are passed as input (`whisper_cli`, `ffmpeg`) as well as granted: `run-an-export.mjs` hands the function only `input`, and the grant's paths reach a run only through argv fills of `grants.start-a-program.*` (trillion-rust src/runtime/workshop/computer.rs:244). The hearing seam runs `/usr/bin/python3`; whether the Command Line Tools' Python starts inside the base sandbox is unproved.
+- The programs are passed as input (`whisper_cli`, `ffmpeg`) as well as granted: `run-a-function.mjs` hands the function only `input`, and the grant's paths reach a run only through argv fills of `grants.start-a-program.*` (trillion-rust src/runtime/workshop/computer.rs:244). The hearing seam runs `/usr/bin/python3`; whether the Command Line Tools' Python starts inside the base sandbox is unproved.
 
 - Cancelling the run (`tools:cancel`) kills its process group; nothing is answered, so what was heard in that run is lost.
 - The recorder (`ffmpeg`) and `whisper-cli` must be startable by a `computer` run; the `use-the-microphone` capability carries the three audio lookups measured on 2026-10-31, but a program row for them is not proved.
@@ -85,6 +85,6 @@ installed microphone run or native-program eligibility.
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (the door and the command that runs a function), `tools/audio-transcription`, `tools/know-who-is-in-this`, `tools/media-composition` (the models, through know-who-is-in-this); Node 22, python3, ffmpeg and whisper-cli on the computer.
+**Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`, the command that runs a function), `tools/audio-transcription`, `tools/know-who-is-in-this`, `tools/media-composition` (the models, through know-who-is-in-this); Node 22, python3, ffmpeg and whisper-cli on the computer.
 
 **Depended on by:** nothing is imported from here. The `hold-to-it` presence check reads the `heard` rows.

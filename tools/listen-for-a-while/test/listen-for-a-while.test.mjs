@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
-import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PassThrough } from 'node:stream';
@@ -195,25 +195,14 @@ test('a listener that stops early closes the microphone', async () => {
   assert.equal(killed, 'SIGTERM');
 });
 
-test('a recording another device made is read through the files door, heard as that device from `at`, answered as turns, and deleted here', async () => {
+test('a recording another device made is handed in as its bytes, heard as that device from `at`, answered as turns, and deleted here', async () => {
   const { hearForADevice } = await import('../read-data/listen-for-a-while.mjs');
-  const { readWholeFile } = await import('../../records-door/read-data/whole-file.mjs');
-  const door = {};
-  const asked = [];
-  door.files = async (method, request) => {
-    asked.push(method);
-    if (method === 'find_file') return { names: ['/Recordings/phone-piece.m4a'] };
-    const bytes = Buffer.from('abcdef');
-    const part = bytes.subarray(request.offset, request.offset + 4);
-    return { byte_length: bytes.length, bytes_returned: part.length, content: part.toString('base64'), encoding: 'base64' };
-  };
-  assert.deepEqual(await readWholeFile(door, 'x', { readBytes: 4 }), { title: 'phone-piece.m4a', size: 6, bytes: Buffer.from('abcdef') });
-  assert.equal((await readWholeFile(door, 'x', { readBytes: 4, mostBytes: 5 })).bytes, null);
+  const stored = { files: { '/Recordings/phone-piece.m4a': { base64: Buffer.from('abcdef').toString('base64') } } };
   let heardFile = null;
-  const hear = async file => { heardFile = file; assert.equal(existsSync(file), true); return [{ start: 1, end: 2, text: 'from the phone' }]; };
+  const hear = async file => { heardFile = file; assert.equal(existsSync(file), true); assert.equal(readFileSync(file, 'utf8'), 'abcdef'); return [{ start: 1, end: 2, text: 'from the phone' }]; };
   const name = async request => ({ speakers: [turn(1, 2, 'Someone (voice-1)', request.segments[0].text)], records: [] });
   const at = '2026-10-31T12:00:00Z';
-  const tally = await hearForADevice({ file: '/Recordings/phone-piece.m4a', at, device: 'Phone', listening: 'p1' }, { door }, { hear, name });
+  const tally = await hearForADevice({ file: '/Recordings/phone-piece.m4a', at, device: 'Phone', listening: 'p1', stored }, noDoor, { hear, name });
   assert.equal(heardFile.endsWith('.m4a'), true);
   assert.equal(existsSync(heardFile), false, 'the copy read for hearing is gone');
   assert.equal(tally.heard.length, 1);
@@ -221,7 +210,7 @@ test('a recording another device made is read through the files door, heard as t
   assert.equal(row.id, `heard:p1:${Date.parse(at) + 1000}`);
   assert.equal(row.value.device, 'Phone');
   assert.equal(row.value.text, 'from the phone');
-  assert.ok(!asked.includes('delete_file'), "the person's file is left where it is");
-  await assert.rejects(hearForADevice({ file: 'f' }, { door }, { hear, name }), /device/);
-  await assert.rejects(hearForADevice({ device: 'Phone' }, { door }, { hear, name }), /file/);
+  await assert.rejects(hearForADevice({ file: 'f', stored }, noDoor, { hear, name }), /device/);
+  await assert.rejects(hearForADevice({ device: 'Phone', stored }, noDoor, { hear, name }), /file/);
+  await assert.rejects(hearForADevice({ file: '/Recordings/missing.m4a', device: 'Phone', stored }, noDoor, { hear, name }), /not handed in/);
 });
