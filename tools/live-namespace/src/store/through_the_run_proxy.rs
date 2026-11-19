@@ -83,6 +83,11 @@ impl Tunneled {
         self.runtime.block_on(self.client.batch_execute(sql))
     }
 
+    /// The connection ended: the proxy closed the tunnel (a quiet one, after its `quiet_ms`), or the database did.
+    pub(super) fn is_closed(&self) -> bool {
+        self.client.is_closed()
+    }
+
     /// The next notification of a channel this connection listens on; an error once the connection has ended.
     pub(super) fn heard(&self) -> Result<(), mpsc::RecvError> {
         self.heard.recv()
@@ -174,6 +179,25 @@ mod tests {
         assert_eq!(rows[0].get::<_, i64>(0), 1);
         client.batch_execute("LISTEN t9; NOTIFY t9").unwrap();
         assert!(client.heard().is_ok());
+        let _ = postgres.stop();
+    }
+
+    #[test]
+    fn a_tunnel_that_ended_is_known_closed_before_the_next_call() {
+        let (postgres, config) = real_database();
+        let proxy = stand_in_proxy("200 Connection established");
+        let mut tunneled = config.clone();
+        tunneled.application_name("t9-ended");
+        let client = Tunneled::open(&tunneled, &proxy, tokio_postgres::NoTls).unwrap();
+        assert!(!client.is_closed());
+        let settings = postgres.settings();
+        let mut other = postgres::Client::connect(&format!("postgresql://{}:{}@127.0.0.1:{}/postgres", settings.username, settings.password, settings.port), postgres::NoTls).unwrap();
+        other.batch_execute("SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE application_name = 't9-ended'").unwrap();
+        let until = std::time::Instant::now() + std::time::Duration::from_secs(5);
+        while !client.is_closed() && std::time::Instant::now() < until {
+            std::thread::sleep(std::time::Duration::from_millis(20));
+        }
+        assert!(client.is_closed());
         let _ = postgres.stop();
     }
 

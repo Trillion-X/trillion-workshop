@@ -14,6 +14,13 @@
 // Key Concepts:
 // - `Dialect` is the only place the two databases differ: a transaction's first statement, the lock a read takes inside one, how a
 //   column holding an id compares, and the type names of a bound parameter.
+// - A Postgres connection can end under the link: the database restarts, the network drops, or (in a run the engine keeps in its
+//   sandbox) the run's proxy closes a tunnel that stayed quiet past its `quiet_ms`, two minutes (the engine's public-egress.json).
+//   So a Postgres link keeps how it was opened (`Reopen`) and opens again when its connection has ended and no transaction is open:
+//   before any statement, and once more for a statement that changes nothing (a read, a `BEGIN`) that failed because the connection
+//   ended under it. A statement that changes rows is never sent twice: inside a transaction, or a change outside one, its failure is
+//   the call's. A link that listens (`listen`) listens again on its new connection, and its `heard` answers once at that moment,
+//   because a notification sent while it was closed was not heard.
 //
 // AI Assistant Directive:
 // The extensive documentation in this codebase is a critical design feature.
@@ -21,6 +28,7 @@
 
 use super::Error;
 use std::path::Path;
+use zeroize::Zeroizing;
 
 /// One value of a row or of a statement's parameters. A null carries the kind of the column it is for, because Postgres types each
 /// parameter.
@@ -96,7 +104,16 @@ enum Inner {
 pub struct Link {
     inner: Inner,
     place: String,
+    /// How to open a Postgres connection again; none for SQLite, whose file does not go away under it.
+    reopen: Option<Reopen>,
+    /// A transaction is open (`begin` until `commit` or `rollback`): its connection is never replaced under it.
+    in_transaction: bool,
+    /// The channels this link listens on (`listen`), listened on again on a new connection.
+    channels: Vec<String>,
 }
+
+/// The connection string a Postgres link was opened with. It prints nothing and is wiped when the link goes.
+struct Reopen(Zeroizing<String>);
 
 fn unavailable<E>(_: E) -> Error {
     crate::cause!(Error::Unavailable)
@@ -123,13 +140,18 @@ impl Link {
         connection
             .execute_batch("PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA busy_timeout = 10000;")
             .map_err(unavailable)?;
-        Ok(Self { inner: Inner::Sqlite(connection), place })
+        Ok(Self { inner: Inner::Sqlite(connection), place, reopen: None, in_transaction: false, channels: Vec::new() })
     }
 
     /// The person's Postgres database, from the connection string the engine attached to the run (`postgresql://user:password@host:port/database`).
     /// Only a database on this computer's own loopback may be reached without encryption.
     /// In a run the engine keeps in its sandbox (HTTPS_PROXY naming the engine's loopback proxy), any other database is reached through it.
     pub fn postgres(connection: &str) -> Result<Self, Error> {
+        let (inner, place) = Self::open_postgres(connection)?;
+        Ok(Self { inner, place, reopen: Some(Reopen(Zeroizing::new(connection.to_owned()))), in_transaction: false, channels: Vec::new() })
+    }
+
+    fn open_postgres(connection: &str) -> Result<(Inner, String), Error> {
         // libpq's sslmode=verify-ca and verify-full (what a connection string for a database reached over the internet names) are not
         // values the client reads; its TLS here always checks the certificate's chain and the database's name, which is verify-full, so
         // both are read as `require`.
@@ -162,11 +184,51 @@ impl Link {
                 let mut tunneled: tokio_postgres::Config = connection.parse().map_err(|_| Error::Invalid("the database connection is not a Postgres connection string", crate::cause!()))?;
                 tunneled.application_name("live-namespace");
                 let client = super::through_the_run_proxy::Tunneled::open(&tunneled, proxy, tls).map_err(unavailable)?;
-                return Ok(Self { inner: Inner::Tunneled(Box::new(client)), place });
+                return Ok((Inner::Tunneled(Box::new(client)), place));
             }
             config.connect(tls).map_err(unavailable)?
         };
-        Ok(Self { inner: Inner::Postgres(Box::new(client)), place })
+        Ok((Inner::Postgres(Box::new(client)), place))
+    }
+
+    /// The connection ended under the link (a Postgres one only; a SQLite file stays open).
+    fn ended(&self) -> bool {
+        match &self.inner {
+            Inner::Sqlite(_) => false,
+            Inner::Postgres(client) => client.is_closed(),
+            Inner::Tunneled(client) => client.is_closed(),
+        }
+    }
+
+    /// Open the Postgres connection again and listen again on this link's channels.
+    fn open_again(&mut self) -> Result<(), Error> {
+        let Some(reopen) = &self.reopen else { return Err(crate::cause!(Error::Unavailable)) };
+        let (inner, _) = Self::open_postgres(&reopen.0)?;
+        self.inner = inner;
+        for channel in self.channels.clone() {
+            self.batch_once(&format!("LISTEN {channel}"))?;
+        }
+        Ok(())
+    }
+
+    /// Before a statement: a connection that ended with no transaction open is opened again.
+    fn ready(&mut self) -> Result<(), Error> {
+        if !self.in_transaction && self.ended() {
+            self.open_again()?;
+        }
+        Ok(())
+    }
+
+    /// A statement that changes nothing: sent once more on a new connection when the first one ended under it, outside a transaction.
+    fn unchanging<T>(&mut self, mut send: impl FnMut(&mut Self) -> Result<T, Error>) -> Result<T, Error> {
+        self.ready()?;
+        match send(self) {
+            Err(_) if !self.in_transaction && self.ended() => {
+                self.open_again()?;
+                send(self)
+            }
+            answered => answered,
+        }
     }
 
     pub fn dialect(&self) -> Dialect {
@@ -183,6 +245,10 @@ impl Link {
 
     /// Run a statement that answers rows.
     pub fn query(&mut self, sql: &str, params: &[Cell]) -> Result<Vec<Vec<Cell>>, Error> {
+        self.unchanging(|link| link.query_once(sql, params))
+    }
+
+    fn query_once(&mut self, sql: &str, params: &[Cell]) -> Result<Vec<Vec<Cell>>, Error> {
         let text = numbered(self.dialect(), sql, params);
         match &mut self.inner {
             Inner::Sqlite(connection) => {
@@ -234,6 +300,7 @@ impl Link {
 
     /// Run a statement that changes rows; answers how many.
     pub fn execute(&mut self, sql: &str, params: &[Cell]) -> Result<u64, Error> {
+        self.ready()?;
         let text = numbered(self.dialect(), sql, params);
         match &mut self.inner {
             Inner::Sqlite(connection) => {
@@ -256,6 +323,11 @@ impl Link {
 
     /// Run statements with no parameters (the tables, a transaction's brackets).
     pub fn batch(&mut self, sql: &str) -> Result<(), Error> {
+        self.ready()?;
+        self.batch_once(sql)
+    }
+
+    fn batch_once(&mut self, sql: &str) -> Result<(), Error> {
         match &mut self.inner {
             Inner::Sqlite(connection) => connection.execute_batch(sql).map_err(unavailable),
             Inner::Postgres(client) => client.batch_execute(sql).map_err(unavailable),
@@ -263,9 +335,26 @@ impl Link {
         }
     }
 
-    /// Wait for the next notification on a channel this Postgres connection listens on (`LISTEN`); an error when the connection
-    /// ended. A SQLite connection hears nothing and answers an error at once.
+    /// Listen on `channel` (a Postgres name the caller writes, never a person's value), now and on every new connection.
+    pub fn listen(&mut self, channel: &str) -> Result<(), Error> {
+        self.batch(&format!("LISTEN {channel}"))?;
+        self.channels.push(channel.to_owned());
+        Ok(())
+    }
+
+    /// Wait for the next notification on a channel this link listens on (`listen`). When the connection ended, it is opened again
+    /// and this answers at once, since what was sent meanwhile went unheard; an error when it cannot be opened again. A SQLite
+    /// connection hears nothing and answers an error at once.
     pub fn heard(&mut self) -> Result<(), Error> {
+        let heard = self.heard_once();
+        if heard.is_err() && self.ended() {
+            self.open_again()?;
+            return Ok(());
+        }
+        heard
+    }
+
+    fn heard_once(&mut self) -> Result<(), Error> {
         match &mut self.inner {
             Inner::Sqlite(_) => Err(Error::Invalid("a SQLite connection hears no notifications", crate::cause!())),
             Inner::Postgres(client) => match postgres::fallible_iterator::FallibleIterator::next(&mut client.notifications().blocking_iter()) {
@@ -278,20 +367,25 @@ impl Link {
 
     /// Open a transaction that holds the database's one writer from its first statement.
     pub fn begin(&mut self) -> Result<(), Error> {
-        self.batch(match self.dialect() {
+        let opening = match self.dialect() {
             Dialect::Sqlite => "BEGIN IMMEDIATE",
             Dialect::Postgres => "BEGIN",
-        })
+        };
+        self.unchanging(|link| link.batch_once(opening))?;
+        self.in_transaction = true;
+        Ok(())
     }
 
     /// Commit. A commit that fails may have been applied.
     pub fn commit(&mut self) -> Result<(), Error> {
-        self.batch("COMMIT").map_err(|_| crate::cause!(Error::OutcomeUnknown))
+        self.in_transaction = false;
+        self.batch_once("COMMIT").map_err(|_| crate::cause!(Error::OutcomeUnknown))
     }
 
     /// Undo the open transaction. Nothing to undo is not a failure.
     pub fn rollback(&mut self) {
-        let _ = self.batch("ROLLBACK");
+        self.in_transaction = false;
+        let _ = self.batch_once("ROLLBACK");
     }
 }
 
@@ -369,5 +463,54 @@ mod tests {
         assert_eq!(Cell::Text(Some(" 42 ".into())).as_int(), Some(42));
         assert_eq!(Cell::Int(Some(7)).as_text().as_deref(), Some("7"));
         assert_eq!(Cell::Text(None).as_int(), None);
+    }
+
+    /// A real Postgres server for this test, in a temporary folder, stopped when the test ends; and its connection string.
+    fn real_database() -> (postgresql_embedded::blocking::PostgreSQL, String) {
+        let mut postgres = postgresql_embedded::blocking::PostgreSQL::new(postgresql_embedded::Settings { timeout: None, ..Default::default() });
+        postgres.setup().unwrap();
+        postgres.start().unwrap();
+        let settings = postgres.settings();
+        let connection = format!("postgresql://{}:{}@127.0.0.1:{}/postgres?sslmode=disable", settings.username, settings.password, settings.port);
+        (postgres, connection)
+    }
+
+    /// End every connection of this program's but the one asking, the way a database restart or a closed tunnel ends them.
+    fn end_the_others(connection: &str) {
+        let mut other = postgres::Client::connect(connection, postgres::NoTls).unwrap();
+        other.batch_execute("SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE application_name = 'live-namespace'").unwrap();
+    }
+
+    #[test]
+    fn a_link_whose_connection_ended_reads_on_a_new_one_and_never_sends_a_change_twice() {
+        let (database, connection) = real_database();
+        let mut link = Link::postgres(&connection).unwrap();
+        link.batch("CREATE TABLE kept (n int8)").unwrap();
+        end_the_others(&connection);
+        assert_eq!(link.query("SELECT 7::int8", &[]).unwrap(), vec![vec![Cell::int(7)]]);
+        link.begin().unwrap();
+        link.execute("INSERT INTO kept VALUES (?)", &[Cell::int(1)]).unwrap();
+        end_the_others(&connection);
+        assert!(link.execute("INSERT INTO kept VALUES (?)", &[Cell::int(2)]).is_err());
+        link.rollback();
+        end_the_others(&connection);
+        link.begin().unwrap();
+        link.execute("INSERT INTO kept VALUES (?)", &[Cell::int(3)]).unwrap();
+        link.commit().unwrap();
+        assert_eq!(link.query("SELECT n FROM kept", &[]).unwrap(), vec![vec![Cell::int(3)]]);
+        let _ = database.stop();
+    }
+
+    #[test]
+    fn a_listener_whose_connection_ended_listens_again_and_says_it_may_have_missed_one() {
+        let (database, connection) = real_database();
+        let mut listener = Link::postgres(&connection).unwrap();
+        listener.listen("t9_heard").unwrap();
+        end_the_others(&connection);
+        assert!(listener.heard().is_ok());
+        let mut sender = postgres::Client::connect(&connection, postgres::NoTls).unwrap();
+        sender.batch_execute("NOTIFY t9_heard").unwrap();
+        assert!(listener.heard().is_ok());
+        let _ = database.stop();
     }
 }

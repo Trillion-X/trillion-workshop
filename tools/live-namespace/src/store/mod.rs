@@ -373,12 +373,16 @@ impl SqlStore {
         if self.dialect != Dialect::Postgres || listener.dialect() != Dialect::Postgres {
             return Err(Error::Invalid("only a Postgres store hears other processes' changes", crate::cause!()));
         }
-        listener.batch(&format!("LISTEN {CHANNEL}"))?;
+        listener.listen(CHANNEL)?;
         let signal = self.signal.clone();
+        // The listener opens its connection again when it ends (link.rs); while it cannot, it is asked again each second.
         std::thread::Builder::new()
             .name("store-hearing".into())
-            .spawn(move || while listener.heard().is_ok() {
-                signal.beat();
+            .spawn(move || loop {
+                match listener.heard() {
+                    Ok(()) => signal.beat(),
+                    Err(_) => std::thread::sleep(std::time::Duration::from_secs(1)),
+                }
             })
             .map_err(unavailable)?;
         Ok(self)
