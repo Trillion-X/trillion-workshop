@@ -160,11 +160,13 @@ test('(y) a woken run is given the fact that woke it as input.fact and its event
   };
   const recipe = { id: 'workflow:made-up-echo', label: 'Echo', definition };
   const detail = { kind: 'row-changes', from: 'run', event_id: 'd:7:3', payload: { kind: 'row-changes', table_name: 'post', op: 'INSERT', position: '3' }, coalesced: 0 };
-  const woken = await runAsTheTool({ run: { recipe }, woken_by: detail });
-  assert.equal(woken.status, 'paused');
+  // A woken run that stops waiting fails, naming the ask: no one answers a run a fact woke.
+  const stopped = async args => { try { await runAsTheTool(args); } catch (error) { return error; } assert.fail('a woken run that waits must fail'); };
+  const woken = await stopped({ run: { recipe }, woken_by: detail });
+  assert.match(woken.message, /woken by a fact and stopped waiting on see \(asks person\)/);
   assert.equal(woken.waiting[0].input.position, '3');
   assert.equal(woken.waiting[0].input.fact_id, 'd:7:3');
-  const folded = await runAsTheTool({ run: { recipe, input: { keep: 1 } }, woken_by: { ...detail, coalesced: 2, last: { event_id: 'd:7:5', payload: { position: '5' } } } });
+  const folded = await stopped({ run: { recipe, input: { keep: 1 } }, woken_by: { ...detail, coalesced: 2, last: { event_id: 'd:7:5', payload: { position: '5' } } } });
   assert.deepEqual([folded.waiting[0].input.position, folded.waiting[0].input.folded, folded.waiting[0].input.last], ['3', 2, '5']);
   const direct = await runAsTheTool({ run: { recipe } });
   assert.equal(direct.waiting?.[0]?.input?.position ?? null, null);
@@ -259,9 +261,10 @@ test('a run woken by a change is given the change the fact carries, and reads no
     payload: { workflow: 'workflow:made-up-reader', condition: 'c', where: 'made-up-connection', table_name: 'lesson_request', op: 'INSERT', key: 'd:9:4', after: '{"topic":"how tides work"}' } };
   const reads = [];
   const host = { async run(tool, input, { key }) { reads.push([tool, input, key]); return {}; } };
-  const ran = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id }, woken_by: detail }, host);
+  const stopped = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id }, woken_by: detail }, host).then(() => null, error => error);
   assert.deepEqual(reads, []);
-  assert.deepEqual(ran.waiting[0].input, { after: '{"topic":"how tides work"}', op: 'INSERT' });
+  assert.ok(stopped, 'a woken run that waits on an ai ask fails, naming it');
+  assert.deepEqual(stopped.waiting[0].input, { after: '{"topic":"how tides work"}', op: 'INSERT' });
 });
 
 test('a refusal of the step\'s own call fails the step with the door\'s code; a right not granted still waits', async () => {

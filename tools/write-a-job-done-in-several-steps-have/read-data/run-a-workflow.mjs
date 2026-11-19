@@ -160,10 +160,20 @@ export async function runWorkflow({ definitions = null, workflow_id = null, reci
   return { ...run, definition, kit };
 }
 
-/** tool:run-workflow-definition as the engine calls it: { run, woken_by? } → runWorkflow(run), the waking fact in its input. */
+/** tool:run-workflow-definition as the engine calls it: { run, woken_by? } → runWorkflow(run), the waking fact in its input. A
+ *  woken run that ends paused throws, naming what it waits on (its error's `waiting` holds each ask). */
 export async function runAsTheTool({ run = {}, woken_by = null } = {}, host = null) {
   if (!woken_by || typeof woken_by !== 'object' || woken_by.payload === undefined) return runWorkflow(run, host);
   const woken = { fact: woken_by.payload, ...(typeof woken_by.event_id === 'string' ? { fact_id: woken_by.event_id } : {}), ...(woken_by.coalesced > 0 ? { folded: woken_by.coalesced, last: woken_by.last?.payload ?? null } : {}) };
   const listed = typeof run.row === 'string' && run.input === undefined;
-  return runWorkflow(listed ? { ...run, ...woken } : { ...run, input: { ...(run.input ?? {}), ...woken } }, host);
+  const ran = await runWorkflow(listed ? { ...run, ...woken } : { ...run, input: { ...(run.input ?? {}), ...woken } }, host);
+  // A run a fact woke has no one to answer what it waits on: paused, it would sit forever while its wake said it ran (26
+  // gauntlet cases, 8 many-agents runs and more on Nov 19 2026). It fails instead, naming each waiting ask, so the engine
+  // turns its wake failed and tells the person once (tell-when-a-wake-stops). A person's own call still pauses for them.
+  if (ran?.status === 'paused') {
+    const waiting = Array.isArray(ran.waiting) ? ran.waiting : [];
+    const named = waiting.map(({ step_id, asks, why }) => `${step_id} (asks ${asks}${why ? `: ${why}` : ''})`).join('; ');
+    throw Object.assign(new Error(`This run was woken by a fact and stopped waiting on ${named || 'an ask no one can answer here'}; no one answers a woken run, so it did not finish.`), { waiting });
+  }
+  return ran;
 }

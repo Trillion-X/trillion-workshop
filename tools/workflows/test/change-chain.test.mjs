@@ -95,6 +95,7 @@ function tellDoor({ rows, claimed = true, fail = null }) {
     if (name === 'tool:score-writing-with-a-voice-adapter') return { result: { paragraph_scores: [{ index: 0, chars: 40, p_pass: 0.8 }], body_min: 0.8 } };
     if (name === 'tool:judge-against-rules') return { passed: true, status: 'passed', findings: [], lines: [], said: 'clean' };
     if (name === 'tool:save-a-mail-draft') return { draft_id: 'draft-1', message_id: null, thread_id: null };
+    if (name === 'tool:delete-a-mail-draft') return { deleted: true };
     throw new Error(`no stand-in for ${name}`);
   });
 }
