@@ -2,8 +2,8 @@
 //
 // PURPOSE
 //   The drives connected to the person's computer, what is in one folder on one of them, what is on one by kind of file,
-//   the icon Finder shows for one, and which programs are using one. Functions run by tools/records-door's
-//   run-an-export as `computer` rows that hold the `see-connected-drives` capability. How a computer knows its drives is
+//   the icon Finder shows for one, and which programs are using one. Functions run by tools/workflows's
+//   run-a-function as `computer` rows that hold the `see-connected-drives` capability. How a computer knows its drives is
 //   a reader row in drives.json, chosen by which reader's `at` path the place has: Finder's volumes (`mount`,
 //   `diskutil`, `osascript` for icons, reads under /Volumes) or a kernel mount table (reads under its mount roots).
 //
