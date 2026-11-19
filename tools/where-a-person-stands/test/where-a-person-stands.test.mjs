@@ -59,7 +59,7 @@ test('only the person\'s own stand is kept, with their words exactly, and partly
   assert.deepEqual([back.stance, 'said' in back, 'why' in back], [null, false, false]);
 });
 
-// A records:history page, newest first: versions numbered from 1, a tombstone with value null and deleted true.
+// A page of a stance's history, newest first: versions numbered from 1, a tombstone with value null and deleted true.
 const page = (rows, next = null) => ({ versions: [...rows].reverse(), next });
 const version = (n, value, at) => ({ version: n, value, deleted: value === null, at });
 
@@ -72,7 +72,7 @@ test('the newest version of a history is the stand, every older one is earlier, 
   assert.deepEqual(one.earlier.map(item => [item.version, item.stance, item.why, item.deleted]), [[1, 'agree', 'good', false]]);
   const none = standFrom({ versions: [], next: null });
   assert.deepEqual([none.stance, none.earlier, none.complete], [null, [], true]);
-  assert.throws(() => standFrom({ versions: [{ version: 0, value: agreed }], next: null }), /records:history/);
+  assert.throws(() => standFrom({ versions: [{ version: 0, value: agreed }], next: null }), /as the store gives it/);
 });
 
 test('a tombstone or a stand taken back is no stand, and the stands before it stay earlier', () => {
@@ -140,14 +140,21 @@ for (const row of rows) {
   });
 }
 
-test('the kept record is the one keeps_records selects, with its type and id read from its own fields', () => {
+test('the stance record the row answers has its type and id read from its own fields, and no row keeps records itself', () => {
   const keep = rows.find(row => row.id === 'tool:keep-where-you-stand');
+  assert.equal(keep.keeps_records, undefined);
   const ran = run(keep.invoke.argv.slice(1), { ...said, stance: 'agree', why: 'good', at: '2026-01-01T11:00:00Z' });
   const output = at(JSON.parse(ran.stdout.trim().split('\n').at(-1)), keep.result_selector);
-  const [rule] = keep.keeps_records;
-  const record = at(output, rule.output_selector);
-  assert.deepEqual([record[rule.type_field], record[rule.id_field]], ['stance', `stance:file:${IDENTITY}`]);
+  const record = output.stance_record;
+  assert.deepEqual([record.type, record.id], ['stance', `stance:file:${IDENTITY}`]);
   const refused = run(keep.invoke.argv.slice(1), { ...said, stance: 'agree', answered_by: 'ai' });
   assert.equal(refused.status, 1);
   assert.match(JSON.parse(refused.stdout.trim().split('\n').at(-1)).error, /answered_by/);
+});
+
+test('no row names the records door, a records method, or the stored input the door read', () => {
+  for (const row of rows) {
+    assert.doesNotMatch(JSON.stringify(row), /records:(read|write|list|history)|@own-records|records-door|run-an-export|"stored"/, row.id);
+    assert.ok(!row.uses_tools.includes('trillion-workshop/records-door'), row.id);
+  }
 });

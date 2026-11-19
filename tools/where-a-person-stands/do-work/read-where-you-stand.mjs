@@ -1,8 +1,8 @@
 // tools/where-a-person-stands/do-work/read-where-you-stand.mjs
 //
 // Where the person stands on one thing, with their own words and every earlier stand, from its stance record's history.
-// The caller (the AI that holds the person's key) pages records:history at @own-records for stance:<kind>:<identity>
-// and passes { versions, next }; this tool reads nothing itself. Run by the Workshop tool `tool:read-where-you-stand`
+// The caller (the AI that holds the person's key) reads the history of stance:<kind>:<identity> from the store
+// the person keeps it in and passes { versions, next }; this tool reads nothing itself. Run by the Workshop tool `tool:read-where-you-stand`
 // in the tool container:
 //
 //   node do-work/read-where-you-stand.mjs < <the input as JSON>

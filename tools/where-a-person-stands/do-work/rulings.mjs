@@ -25,7 +25,7 @@ export const TOOL = 'where-a-person-stands';
 
 /**
  * The input with the person's setting under it: `settings_record` is their row of list:settings for this tool
- * (record:setting:where-a-person-stands~<scope kind>~<scope id>) as the caller read it with records:read (the record, its
+ * (record:setting:where-a-person-stands~<scope kind>~<scope id>) as the caller read it from the person's store (the record, its
  * value, or a list of them), read by the one shared reader, tools/settings `setting`. The input's own fields win over the
  * setting's. Without settings_record the input is used as it is.
  */
@@ -72,5 +72,5 @@ export function examplesFromRulings({ rulings = [], real = ['person'], needs = [
   return { items, left_out };
 }
 
-/** `tool:make-examples-from-rulings`, run by tools/records-door run-an-export: examplesFromRulings over the setting and input. */
+/** `tool:make-examples-from-rulings`, run by the plain function runner (workflows run-a-function): examplesFromRulings over the setting and input. */
 export const makeExamplesFromRulings = async input => examplesFromRulings(await withSettings(input));

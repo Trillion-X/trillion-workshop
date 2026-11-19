@@ -48,5 +48,5 @@ export function rulingStatus({ rulings = [], real = ['person'], needs = [], need
   };
 }
 
-/** `tool:count-real-rulings`, run by tools/records-door run-an-export: rulingStatus over the setting and input. */
+/** `tool:count-real-rulings`, run by the plain function runner (workflows run-a-function): rulingStatus over the setting and input. */
 export const countRealRulings = async input => rulingStatus(await withSettings(input));

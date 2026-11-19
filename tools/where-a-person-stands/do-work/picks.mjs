@@ -91,5 +91,5 @@ export function examplesFromPicks({ films = [], rulings = [], real = ['person'],
   return { items, left_out, units_needed };
 }
 
-/** `tool:make-examples-from-picks`, run by tools/records-door run-an-export: examplesFromPicks over the setting and input. */
+/** `tool:make-examples-from-picks`, run by the plain function runner (workflows run-a-function): examplesFromPicks over the setting and input. */
 export const makeExamplesFromPicks = async input => examplesFromPicks(await withSettings(input));

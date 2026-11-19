@@ -246,7 +246,7 @@
   "instructions": [
     "1. Keep your rulings as rows of list:checks (tool:keep-rulings-on-lines) and your settings for this tool as a row of list:settings: real (who counts), needs (fields a ruling must carry, such as film) and bad_label.",
     "2. Collect the lines you said yourself as speech ({text, sets}) and the lists of lines a model was trained on as exclude.",
-    "3. The AI reads the rulings (records:list type record:check prefix record:check:ruling-) and your settings row, then runs tool:make-examples-from-rulings at @tools with {rulings, speech, exclude, settings_record}. The input's own fields win over the setting.",
+    "3. The AI reads the rulings (the person's Checks list: type record:check with id prefix record:check:ruling-) and your settings row, then runs tool:make-examples-from-rulings at @tools with {rulings, speech, exclude, settings_record}. The input's own fields win over the setting.",
     "4. Read the answer: items ({text, good, bad_for, split, source ruling or speech, context}) and left_out (texts ruled both ways, texts in exclude). Only rulings by the people in real, carrying every field in needs, count. It writes nothing."
   ],
   "worked_examples": [
@@ -344,7 +344,7 @@
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than least_coverage of the kit's fields match, and otherwise answers the records:write that adds the example rows to your list, leaving your own rows untouched.",
+    "how": "Name the list you already keep for the same job and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than least_coverage of the kit's fields match, and otherwise answers the records that add the example rows to your list, leaving your own rows untouched.",
     "example": {
       "kit_list": "list:checks",
       "into": {

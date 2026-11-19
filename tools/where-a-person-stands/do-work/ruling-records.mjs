@@ -2,11 +2,11 @@
 //
 // Purpose
 //   Rulings on single lines (good, bad or escalated, by whom, under which rule), kept as rows of the person's generic
-//   Checks list (list:checks, record:check): the records:write input that adds the rulings not already in it. Ported from the copy gate's
+//   Checks list (list:checks, record:check): the records that add the rulings not already in it. Ported from the copy gate's
 //   verdict log (source-repo-a tools/copy-gate/verdicts.mjs recordVerdicts), whose JSON-lines file in the
 //   repository is now the person's list; `freshRulings` was its first port here and is unchanged. This file reads and
-//   writes nothing: the caller hands in the rulings already in the list (`existing`, as records:list pages them) and
-//   sends `write` with records:write at @own-records.
+//   writes nothing: the caller hands in the rulings already in the list (`existing`, read from where the person keeps
+//   them) and keeps the `write.records` there.
 //
 // Non-negotiable invariants
 //   1. Nothing is edited or removed. One record per (text, verdict, by, rule): its id is record:check:ruling- and the
@@ -65,7 +65,7 @@ function checkRow({ kind, ...ruling }, { unruled_part_of, escalated_verdicts }) 
 }
 
 /**
- * The records:write input that keeps the `rows` (each { text, verdict, by, rule?, kind?, at?, where?, ...any field kept })
+ * The records that keep the `rows` (each { text, verdict, by, rule?, kind?, at?, where?, ...any field kept })
  * not already in `existing` as rows of the person's list:checks (record:check, id record:check:ruling-<hex>). A row
  * without its own `at` takes `at` (default the time of this call); a row without its place takes it from `where` by
  * `place`; a row with no rule is part_of `unruled_part_of`. Returns { write: { records: [{ id, type, value }] }, fresh }.
@@ -86,5 +86,5 @@ export function rulingRecords({ rows = [], existing = [], refuse = [], place = n
     value: checkRow(ruling, { unruled_part_of, escalated_verdicts }) })) }, fresh: fresh.length };
 }
 
-/** `tool:keep-rulings-on-lines`, run by tools/records-door run-an-export: rulingRecords over the setting and input. */
+/** `tool:keep-rulings-on-lines`, run by the plain function runner (workflows run-a-function): rulingRecords over the setting and input. */
 export const keepRulings = async input => rulingRecords(await withSettings(input));

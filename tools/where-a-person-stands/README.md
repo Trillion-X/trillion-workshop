@@ -1,6 +1,6 @@
 # tools/where-a-person-stands/
 
-Where a person stands on one thing made for them (a title, a voice take, a plan, a file): agree, disagree or partly, with their own words for why. Each kind of thing and identity gets one `stance` record, named `stance:<kind>:<identity>`. The Workshop's `keeps_records` writes it, so the engine's ordinary record write keeps it. A change of mind is a new version of the same record, so every earlier stand is part of that record's history and never a copy inside it. The reader takes those versions and gives the current stand, the person's words, and every stand before it.
+Where a person stands on one thing made for them (a title, a voice take, a plan, a file): agree, disagree or partly, with their own words for why. Each kind of thing and identity gets one `stance` record, named `stance:<kind>:<identity>`. The tool answers that record and the caller keeps it where the person keeps stances: no row names a records method or the records door. A change of mind is a new version of the same record, so every earlier stand is part of that record's history and never a copy inside it. The reader takes those versions and gives the current stand, the person's words, and every stand before it.
 
 `do-work/artifact-ref.mjs` is the only place that decides how a thing is identified. A text is `1f:` + BLAKE3 of the text after the owner's DATA fold, so the same title typed again finds the same stand. A file or JSON view is BLAKE3 of its bytes. Every check that keys a stand on a thing imports it. `tool:plan-a-stance-reload` turns stands kept elsewhere into these records' versions, earlier stands first, and says what would change before anything is written.
 
@@ -8,7 +8,7 @@ Words said elsewhere (a chat, a transcript, a note) are kept only when they are 
 
 Rulings are lighter: rulings on single lines (good, bad or escalated, by whom, under which rule) from anyone, such as a line a checker flagged. Each is a row of the person's generic Checks list (`list:checks`), one `record:check` per (text, verdict, by, rule) (`record:check:ruling-<BLAKE3 hex>`, never a decider labelled-line id): kind `labelled-line` for a good or bad ruling, `escalated-line` for a line a checker escalated, `part_of` the rule it was given under (or the branch the setting's `unruled_part_of` names), its own copy kind kept as `line_kind`. A ruling already in the list is not written again, so the first one keeps its time. A write holding a row the person's `refuse` setting names (a test piece, a temporary folder) is refused whole. Only the rulings by the people the person names count: they become calibration examples for a small model (`tool:make-examples-from-rulings`), the options a person picked or rejected become examples too (`tool:make-examples-from-picks`), and `tool:count-real-rulings` says whether there are enough real bad rulings for a model row to fail lines and how many each row catches. `tool:count-where-a-person-stands` counts the stands read back by kind.
 
-Who counts, the fields a ruling needs, the number needed, the bad label, the refused pieces and folders, the place pattern and the words a hand-given ruling may use are the person's setting for this tool: a row of `list:settings` (`record:setting:where-a-person-stands~<scope kind>~<scope id>`), handed in as `settings_record` (the record as `records:read` gives it) and read with the one shared reader, `tools/settings` (`setting`). The input's own fields win over it, which is how a test runs with no account.
+Who counts, the fields a ruling needs, the number needed, the bad label, the refused pieces and folders, the place pattern and the words a hand-given ruling may use are the person's setting for this tool: a row of `list:settings` (`record:setting:where-a-person-stands~<scope kind>~<scope id>`), handed in as `settings_record` (the record as the person's store gives it) and read with the one shared reader, `tools/settings` (`setting`). The input's own fields win over it, which is how a test runs with no account.
 
 The rulings tools are the copy gate's verdict log, moved from source-repo-a `tools/copy-gate/verdicts.mjs` (at 5a9ba398): its log file became rows of the person's list:checks, its `ask-rules.json` `promote_when` and `verdict-log.json` refusals became the setting, and its `add --by <person>`, `backfill` and `stances` commands are `tool:keep-where-you-stand`, `tool:plan-a-stance-reload` and `tool:read-where-you-stand` with `tool:count-where-a-person-stands`. Its `stance-items` are `tool:make-examples-from-where-a-person-stands` in `tools/check-against-a-persons-rules-and-verdicts`. The port contracts are in `ports/`. Old trillion had no owner of either job: `git grep -i -E "verdict|ruling"` finds nothing in its `tools/judge-words`, and its one person-scoped DATA kind was `setting` (`src/decision-store.mjs` before 4ffa1dc4a2, lines 8 and 751-762), which `tools/settings` ports.
 
@@ -25,7 +25,7 @@ This is taken from the decision engine's record-stance owner: the stands, the pe
 | `do-work/read-where-you-stand.mjs` | `tool:read-where-you-stand`: one thing's stand now, its why and its earlier stands, from the history the caller read (it reads no records itself). |
 | `read-data/rulings.json` | The record type, id prefix and kinds of a ruling row in list:checks, and the words of every refusal. |
 | `do-work/rulings.mjs` | `examplesFromRulings` (calibration examples from the real rulings and the person's own speech, leaving out texts ruled both ways or trained on) and `withSettings` (the person's setting under the input of every rulings tool); `makeExamplesFromRulings` is `tool:make-examples-from-rulings`. |
-| `do-work/ruling-records.mjs` | `rulingRecords` (the records:write input that keeps the rulings not already in the list, refusing a write that holds a refused row) around `freshRulings`; `keepRulings` is `tool:keep-rulings-on-lines`. |
+| `do-work/ruling-records.mjs` | `rulingRecords` (the records that keep the rulings not already in the list, refusing a write that holds a refused row) around `freshRulings`; `keepRulings` is `tool:keep-rulings-on-lines`. |
 | `do-work/picks.mjs` | `examplesFromPicks` (examples the picked and rejected options imply); `makeExamplesFromPicks` is `tool:make-examples-from-picks`. |
 | `do-work/ruling-status.mjs` | `rulingStatus` (real bad rulings against the number needed, then what each model row catches once the check's results on them are sent); `countRealRulings` is `tool:count-real-rulings`. |
 | `ports/*.json` | The port contracts of `ruling-records.mjs`, `picks.mjs` and `ruling-status.mjs`. |
@@ -33,7 +33,7 @@ This is taken from the decision engine's record-stance owner: the stands, the pe
 | `test/rulings-from-the-verdict-log.test.mjs` | The copy gate's verdict-log tests on the list: once per (text, verdict, by, rule), refused test pieces, temporary and scratch folders, real film rulings only, t_fail, the default kind, hand-given words, the pick ledger, the stand count, the input alone without a setting, and the setting read by tools/settings. |
 | `do-work/plan-stance-reload.mjs` | `tool:plan-a-stance-reload`: the versions to write and a summary (by kind, refs changed, fold collisions). It writes nothing. |
 | `part.json` | `do-work/where-a-person-stands.mjs`, `do-work/artifact-ref.mjs`, `do-work/rulings.mjs`, `do-work/ruling-records.mjs`, `do-work/picks.mjs` and `do-work/ruling-status.mjs` are public. |
-| `tool-rows.json` | The Workshop rows Trillion reads for this folder: `tool:keep-where-you-stand` (with `keeps_records`), `tool:read-where-you-stand`, `tool:plan-a-stance-reload`, `tool:keep-rulings-on-lines`, `tool:make-examples-from-rulings`, `tool:make-examples-from-picks`, `tool:count-real-rulings` and `tool:count-where-a-person-stands`. Each packs `@noble/hashes` (BLAKE3) into the container; the rulings rows run through `tools/records-door` `run-an-export` and pack `tools/settings`. |
+| `tool-rows.json` | The Workshop rows Trillion reads for this folder: `tool:keep-where-you-stand`, `tool:read-where-you-stand`, `tool:plan-a-stance-reload`, `tool:keep-rulings-on-lines`, `tool:make-examples-from-rulings`, `tool:make-examples-from-picks`, `tool:count-real-rulings` and `tool:count-where-a-person-stands`. Each packs `@noble/hashes` (BLAKE3) into the container; the rulings rows run through the plain function runner `workflows` `run-a-function` and pack `tools/settings`. |
 | `test/where-a-person-stands.test.mjs` | The fold order, BLAKE3 test vectors, identity refs, person-only stands, verbatim words, newest-wins with earlier stands, silence as no stand, the reload plan, and every row's sample run as the container runs it. |
 
 ## Key Types / Functions
@@ -46,7 +46,7 @@ This is taken from the decision engine's record-stance owner: the stands, the pe
 | `artifactRef` | `({ text?, contains?, view? }, fold) -> "1f:<hex>"` | A view by its bytes, otherwise the text or part folded. |
 | `stanceRecord` | `({ kind, artifact_ref \| text \| contains \| view, fold?, stance, why?, answered_by: "person", by?, at?, rule?, source_text?, source?, after_line? }) -> record` | The record to keep. Refuses anything but the person's own stand, a name instead of an identity, text without a fold, a bad rule id, and words not literally in the `source_text` sent. |
 | `verbatimInSource` | `(why, source_text, { after_line?, source?, json_lines? }) -> { ok, reason, binding }` | Where the words are in their source: `{ source?, blake3, text, byte_start, byte_end, line, encoding? }`. |
-| `standFrom` | `({ versions, next }) -> { id, kind, artifact, ..., stance, said, why, by, at, version, taken_back?, earlier, complete }` | The exact records:history output (the versions of every page read, together, and the last page's `next`). Ordered by `version` with overlaps counted once; the newest is the stand and every older one is in `earlier`, oldest first, a tombstone marked `deleted`. No version, a tombstone or a stand taken back reads `stance: null` with `taken_back`. `complete` is false while `next` is not null. |
+| `standFrom` | `({ versions, next }) -> { id, kind, artifact, ..., stance, said, why, by, at, version, taken_back?, earlier, complete }` | The stance record's history as the store gives it (the versions of every page read, together, and the last page's `next`). Ordered by `version` with overlaps counted once; the newest is the stand and every older one is in `earlier`, oldest first, a tombstone marked `deleted`. No version, a tombstone or a stand taken back reads `stance: null` with `taken_back`. `complete` is false while `next` is not null. |
 | `planReload` | `({ stances, fold, by?, sources?, kept? }) -> { writes, summary }` | Rows kept elsewhere become versions (each record's `earlier` first, oldest first). A row or earlier stand naming a `source` is checked against `sources`, and a row that fails is listed in `unverified` by its record id; a version in `kept` is not written again. `summary` holds `rows`, `records`, `versions`, `by_kind`, `refs_changed`, `collisions`, `already` and `unverified`. |
 | `rulingRecords` | `({ rows, existing?, unruled_part_of, refuse?, place?, by_hand?, hand_rulings?, escalated_verdicts?, at? }) -> { write: { records }, fresh }` | Rulings as list:checks rows, one record per (text, verdict, by, rule), only those not in `existing`. |
 | `asRulings` | `(records or values) -> rulings` | Ruling rows read back from list:checks as rulings (line_kind back under kind); every rulings tool applies it to `rulings`. |
@@ -58,19 +58,19 @@ This is taken from the decision engine's record-stance owner: the stands, the pe
 
 ## Reading a stand: two steps
 
-A tool run is not given the person's record history, so the AI that holds their key reads it and hands it over:
+A tool run is not given the person's record history, so the AI that holds their key reads it from where the person keeps it and hands it over:
 
-1. Page `records:history` at `@own-records` with `{ id: "stance:<kind>:<identity>", limit: 100 }`, then again with `before_version: <next>` until `next` is null. Each page is `{ versions: [{ version, value, deleted, at }], next }`, newest first.
+1. Read the stance record's history from the person's store: id `stance:<kind>:<identity>`, newest version first, up to 100 versions a page. Read again with `before_version` set to `next` until `next` is null. Each page is `{ versions: [{ version, value, deleted, at }], next }`.
 2. Run `tool:read-where-you-stand` with `{ versions: <every page's versions together>, next: <the last page's next> }`.
 
-The identity comes from `do-work/artifact-ref.mjs` (or `stanceRecordId`), so the AI asks for the same record the keep tool wrote.
+The identity comes from `do-work/artifact-ref.mjs` (or `stanceRecordId`), so the AI reads the same record the keep tool answered.
 
 ## Keeping a ruling: two steps
 
-1. Page the person's ruling rows (`records:list` `{ type: "record:check", prefix: "record:check:ruling-" }` at `@own-records`) for the rulings already there.
-2. Read the person's setting (`records:read` `record:setting:where-a-person-stands~person~<id>`) and run `tool:keep-rulings-on-lines` with `{ settings_record: <that record>, rows, existing }` and send its `write` with `records:write` at `@own-records`.
+1. Read the person's ruling rows (type `record:check`, id prefix `record:check:ruling-`) from the Checks list (`list:checks`) where they are kept.
+2. Read the person's setting row (`record:setting:where-a-person-stands~person~<id>`) from where settings are kept, then run `tool:keep-rulings-on-lines` with `{ settings_record: <that row>, rows, existing }`. Keep its `write.records` where the person keeps the Checks list.
 
-The same pages are the `rulings` the example and count tools take.
+The same rows are the `rulings` the example and count tools take.
 
 ## Counting real rulings: two steps
 
@@ -88,6 +88,6 @@ jq -n --slurpfile s <export>.json --slurpfile r <rules>.json '{stances: $s[0].st
 
 ## Dependencies
 
-**Depends on:** `tools/settings` (the one reader of the person's setting, packed at `/opt/settings`), `tools/records-door` (`run-an-export`, packed at `/opt/records-door`), `tools/content-identity` (the BLAKE3 identity of bytes, packed at `/opt/content-identity` by each row), `@noble/hashes` (packed at `/opt/node_modules/@noble/hashes` by each row), Node 24 in the tool container.
+**Depends on:** `tools/settings` (the one reader of the person's setting, packed at `/opt/settings`), `workflows` (`do-work/run-a-function.mjs`, packed at `/opt/workflows`), `tools/content-identity` (the BLAKE3 identity of bytes, packed at `/opt/content-identity` by each row), `@noble/hashes` (packed at `/opt/node_modules/@noble/hashes` by each row), Node 24 in the tool container.
 
 **Depended on by:** `tool-rows.json` and `test/where-a-person-stands.test.mjs`.

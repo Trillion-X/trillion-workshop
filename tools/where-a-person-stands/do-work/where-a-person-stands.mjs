@@ -14,7 +14,7 @@
 //      thing is identified): `artifact_ref` (`1f:` and 64 hex digits, with or without `file:`), or the thing itself as
 //      `text`, `contains` (a part of a text) or `view` (any JSON) with the `fold` its owner declares. A name is not an
 //      identity and is refused, so two names for one file are one stand. One record per kind and identity.
-//   3. The newest version governs: a record's history (its versions as the records door's records:history pages them,
+//   3. The newest version governs: a record's history (its versions, as the store gives them,
 //      newest first) is ordered by `version`, the newest is the stand, and every older one is an earlier stand, oldest
 //      first. A deleted version (a tombstone) is the stand taken back. A history whose last page still has `next` is
 //      incomplete and says so: earlier stands it did not read are unknown, never none.
@@ -120,13 +120,13 @@ export function stanceRecord({ kind, artifact_ref, text, contains, view, fold, s
   };
 }
 
-// One version as records:history gives it: { version, value, deleted, at }. A tombstone has value null.
+// One version as the store gives it: { version, value, deleted, at }. A tombstone has value null.
 const stand = ({ version, value, deleted, at }) => (deleted || !value
   ? { version, stance: null, said: null, why: null, by: null, at, deleted: true }
   : { version, stance: value.stance ?? null, said: value.said ?? null, why: value.why ?? null, by: value.by ?? null, at: value.at ?? at, deleted: false });
 
 /**
- * Where the person stands on one thing, from its stance record's history: `versions` as records:history returns them
+ * Where the person stands on one thing, from its stance record's history: `versions` as the store gives them
  * ({ version, value, deleted, at }, newest first; the versions of every page read, in any order, may be passed
  * together) and `next`, the last page's. Returns { id, kind, artifact, text? | contains? | view?, stance, said, why, by,
  * at, version, earlier: [{ version, stance, said, why, by, at, deleted }] (oldest first), complete }. No version, or a
