@@ -11,7 +11,7 @@ import { DEFAULT_TASK_TABLES, readTaskPage, taskPageFrom, taskPageSql } from '..
 const answer = {
   tasks: [
     { id: 'goal-1', title: 'Goal', plain_title: null, plain_detail: null, parent: null, status: 'To do', waiting_on: null },
-    { id: 'step-1', title: 'Step', plain_title: 'A step', plain_detail: 'Details', parent: 'goal-1', status: 'Done', waiting_on: null },
+    { id: 'step-1', title: 'Step', plain_title: 'A step', plain_detail: 'Details', parent: 'goal-1', status: 'Done', waiting_on: null, evidence: 'Read back 3 of 3' },
   ],
   statuses: [
     { name: 'Done', mark: 'done', tone: null, counts_as_done: true, closed: true, place: 1 },
@@ -47,7 +47,8 @@ test('readTaskPage calls the caller runner once and maps the rows', async () => 
   const page = await readTaskPage(runSql);
   assert.equal(calls.length, 1);
   assert.equal(calls[0], taskPageSql());
-  assert.deepEqual(page.tasks[0], { id: 'goal-1', title: 'Goal', plain_title: null, plain_detail: null, parent: null, status: 'To do', waiting_on: null });
+  assert.deepEqual(page.tasks[0], { id: 'goal-1', title: 'Goal', plain_title: null, plain_detail: null, parent: null, status: 'To do', waiting_on: null, evidence: null });
+  assert.equal(page.tasks[1].evidence, 'Read back 3 of 3', 'a row\'s evidence (why its status stands) reaches the page');
   assert.equal(page.tasks[1].parent, 'goal-1');
   assert.equal(page.tasks[1].plain_title, 'A step');
   assert.deepEqual(page.statuses[0], { name: 'Done', mark: 'done', tone: null, counts_as_done: true, closed: true, place: 1 });

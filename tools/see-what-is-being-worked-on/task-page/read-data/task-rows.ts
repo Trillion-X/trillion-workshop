@@ -3,7 +3,7 @@
 // closed, its mark and colour) is a row of task_statuses, never a name in code.
 import type { StepMarkState } from 'trillion-workshop/tools/ui/show/step-mark/StepMark';
 
-export type Task = { id: string; title: string; parent: string | null; status: string; plain_title?: string | null; plain_detail?: string | null; waiting_on?: string | null };
+export type Task = { id: string; title: string; parent: string | null; status: string; plain_title?: string | null; plain_detail?: string | null; waiting_on?: string | null; evidence?: string | null };
 export type Change = { task: string; at: string; kind: string; status: string | null; title?: string | null };
 export type Status = { name: string; mark: StepMarkState; tone: string | null; counts_as_done: boolean; closed: boolean; place: number };
 /** A show: a thing a task produced, drawn inline when the task is opened. `made_at` says when it was made; History draws it only from then on. */

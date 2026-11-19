@@ -66,7 +66,7 @@ export function NowView({ data, tree, now, seenBefore }: { data: Data; tree: Tre
         {isOpen && (
           <div style={{ paddingLeft: 46 }}>
             {task.waiting_on && <p className="m-0 pb-1 text-[13px] leading-5"><span style={{ color: look?.tone ?? muted }}>Waiting on</span> {task.waiting_on}</p>}
-            <Detail id={`now-${task.id}`} detail={task.plain_detail} title={task.title} shows={shows.get(task.id) ?? []} />
+            <Detail id={`now-${task.id}`} detail={task.plain_detail} evidence={task.evidence} look={look} title={task.title} shows={shows.get(task.id) ?? []} />
           </div>
         )}
       </li>
