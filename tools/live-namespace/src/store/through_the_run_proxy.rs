@@ -23,6 +23,20 @@ use std::net::TcpStream;
 use std::sync::mpsc;
 use tokio_postgres::tls::{MakeTlsConnect, TlsConnect};
 
+/// One statement sent in a pipeline: a prepared one answering rows or a count, or plain statements with no parameters.
+pub(super) enum Ask<'a> {
+    Rows(&'a tokio_postgres::Statement, Vec<&'a (dyn tokio_postgres::types::ToSql + Sync)>),
+    Count(&'a tokio_postgres::Statement, Vec<&'a (dyn tokio_postgres::types::ToSql + Sync)>),
+    Simple(&'a str),
+}
+
+/// What one `Ask` was answered.
+pub(super) enum Told {
+    Rows(Vec<tokio_postgres::Row>),
+    Count(u64),
+    Done,
+}
+
 /// A Postgres client whose one connection is a CONNECT tunnel through the run's proxy.
 pub(super) struct Tunneled {
     runtime: tokio::runtime::Runtime,
@@ -71,16 +85,25 @@ impl Tunneled {
         Ok(Self { runtime, client, heard })
     }
 
-    pub(super) fn query(&self, text: &str, params: &[&(dyn tokio_postgres::types::ToSql + Sync)]) -> Result<Vec<tokio_postgres::Row>, tokio_postgres::Error> {
-        self.runtime.block_on(self.client.query(text, params))
+    /// Prepare every one of `texts` at once: every Parse is sent before any answer is awaited, so they cost one round trip
+    /// together, however far the database is.
+    pub(super) fn prepare_all(&self, texts: &[&str]) -> Vec<Result<tokio_postgres::Statement, tokio_postgres::Error>> {
+        let client = &self.client;
+        self.runtime.block_on(futures_util::future::join_all(texts.iter().map(|text| client.prepare(text))))
     }
 
-    pub(super) fn execute(&self, text: &str, params: &[&(dyn tokio_postgres::types::ToSql + Sync)]) -> Result<u64, tokio_postgres::Error> {
-        self.runtime.block_on(self.client.execute(text, params))
-    }
-
-    pub(super) fn batch_execute(&self, sql: &str) -> Result<(), tokio_postgres::Error> {
-        self.runtime.block_on(self.client.batch_execute(sql))
+    /// Send every one of `asks`, in order, before awaiting any answer (the driver's pipelining: each request is written when its
+    /// future is first polled, and `join_all` polls them in order), so they cost one round trip together. Each answers on its
+    /// own; inside a transaction, a step after a failed one fails too, as the database answers it.
+    pub(super) fn send_all(&self, asks: &[Ask<'_>]) -> Vec<Result<Told, tokio_postgres::Error>> {
+        let client = &self.client;
+        self.runtime.block_on(futures_util::future::join_all(asks.iter().map(|ask| async move {
+            match ask {
+                Ask::Rows(statement, params) => client.query(*statement, params).await.map(Told::Rows),
+                Ask::Count(statement, params) => client.execute(*statement, params).await.map(Told::Count),
+                Ask::Simple(sql) => client.batch_execute(sql).await.map(|()| Told::Done),
+            }
+        })))
     }
 
     /// The connection ended: the proxy closed the tunnel (a quiet one, after its `quiet_ms`), or the database did.
@@ -122,7 +145,7 @@ fn tunnel(proxy: &str, host: &str, port: u16) -> io::Result<TcpStream> {
 }
 
 #[cfg(test)]
-mod tests {
+pub(super) mod tests {
     use super::*;
     use std::net::{Ipv4Addr, Shutdown, TcpListener};
 
@@ -138,7 +161,7 @@ mod tests {
     }
 
     /// A proxy that answers each CONNECT with `status`, and on a 200 joins it to the host the CONNECT names.
-    fn stand_in_proxy(status: &'static str) -> String {
+    pub(in crate::store) fn stand_in_proxy(status: &'static str) -> String {
         let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).unwrap();
         let address = format!("http://{}", listener.local_addr().unwrap());
         std::thread::spawn(move || {
@@ -175,9 +198,11 @@ mod tests {
         let (postgres, config) = real_database();
         let proxy = stand_in_proxy("200 Connection established");
         let client = Tunneled::open(&config, &proxy, tokio_postgres::NoTls).unwrap();
-        let rows = client.query("SELECT 1::int8", &[]).unwrap();
+        let statement = client.prepare_all(&["SELECT 1::int8"]).pop().unwrap().unwrap();
+        let mut told = client.send_all(&[Ask::Rows(&statement, vec![]), Ask::Simple("LISTEN t9; NOTIFY t9")]);
+        assert!(matches!(told.pop(), Some(Ok(Told::Done))));
+        let Some(Ok(Told::Rows(rows))) = told.pop() else { panic!("no rows") };
         assert_eq!(rows[0].get::<_, i64>(0), 1);
-        client.batch_execute("LISTEN t9; NOTIFY t9").unwrap();
         assert!(client.heard().is_ok());
         let _ = postgres.stop();
     }

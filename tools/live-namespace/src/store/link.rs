@@ -28,6 +28,7 @@
 
 use super::Error;
 use std::path::Path;
+use super::through_the_run_proxy::{Ask, Told};
 use zeroize::Zeroizing;
 
 /// One value of a row or of a statement's parameters. A null carries the kind of the column it is for, because Postgres types each
@@ -110,6 +111,14 @@ pub struct Link {
     in_transaction: bool,
     /// The channels this link listens on (`listen`), listened on again on a new connection.
     channels: Vec<String>,
+    /// A statement failed saying the connection is gone, before the driver marked it closed.
+    lost: bool,
+    /// The transaction open has only begun and read: on a connection that ended under it, it may be begun again.
+    fresh: bool,
+    /// Statements written down to go with the next one awaited (`defer`), through the run's proxy only.
+    waiting: Vec<Waiting>,
+    /// The statements prepared on this connection, by their text.
+    statements: std::collections::HashMap<String, postgres::Statement>,
 }
 
 /// The connection string a Postgres link was opened with. It prints nothing and is wiped when the link goes.
@@ -140,7 +149,7 @@ impl Link {
         connection
             .execute_batch("PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA busy_timeout = 10000;")
             .map_err(unavailable)?;
-        Ok(Self { inner: Inner::Sqlite(connection), place, reopen: None, in_transaction: false, channels: Vec::new() })
+        Ok(Self { inner: Inner::Sqlite(connection), place, reopen: None, in_transaction: false, channels: Vec::new(), lost: false, fresh: false, waiting: Vec::new(), statements: Default::default() })
     }
 
     /// The person's Postgres database, from the connection string the engine attached to the run (`postgresql://user:password@host:port/database`).
@@ -148,7 +157,7 @@ impl Link {
     /// In a run the engine keeps in its sandbox (HTTPS_PROXY naming the engine's loopback proxy), any other database is reached through it.
     pub fn postgres(connection: &str) -> Result<Self, Error> {
         let (inner, place) = Self::open_postgres(connection)?;
-        Ok(Self { inner, place, reopen: Some(Reopen(Zeroizing::new(connection.to_owned()))), in_transaction: false, channels: Vec::new() })
+        Ok(Self { inner, place, reopen: Some(Reopen(Zeroizing::new(connection.to_owned()))), in_transaction: false, channels: Vec::new(), lost: false, fresh: false, waiting: Vec::new(), statements: Default::default() })
     }
 
     fn open_postgres(connection: &str) -> Result<(Inner, String), Error> {
@@ -165,6 +174,14 @@ impl Link {
             (Some(postgres::config::Host::Tcp(host)), Some(port), Some(database)) => format!("postgres://{host}:{port}/{database}"),
             _ => "postgres".to_owned(),
         };
+        // Tests prove the tunneled path on a database of their own on this computer, through a stand-in proxy they name.
+        #[cfg(test)]
+        if let (true, Ok(proxy)) = (loopback, std::env::var("NAMESPACE_POSTGRES_TEST_PROXY")) {
+            let mut tunneled: tokio_postgres::Config = connection.parse().map_err(unavailable)?;
+            tunneled.application_name("live-namespace");
+            let client = super::through_the_run_proxy::Tunneled::open(&tunneled, &proxy, tokio_postgres::NoTls).map_err(unavailable)?;
+            return Ok((Inner::Tunneled(Box::new(client)), place));
+        }
         let client = if loopback {
             config.connect(postgres::NoTls).map_err(unavailable)?
         } else {
@@ -195,18 +212,22 @@ impl Link {
     fn ended(&self) -> bool {
         match &self.inner {
             Inner::Sqlite(_) => false,
-            Inner::Postgres(client) => client.is_closed(),
-            Inner::Tunneled(client) => client.is_closed(),
+            Inner::Postgres(client) => self.lost || client.is_closed(),
+            Inner::Tunneled(client) => self.lost || client.is_closed(),
         }
     }
 
-    /// Open the Postgres connection again and listen again on this link's channels.
+    /// Open the Postgres connection again and listen again on this link's channels. What was prepared or waiting on the
+    /// ended connection is gone with it.
     fn open_again(&mut self) -> Result<(), Error> {
         let Some(reopen) = &self.reopen else { return Err(crate::cause!(Error::Unavailable)) };
         let (inner, _) = Self::open_postgres(&reopen.0)?;
         self.inner = inner;
+        self.lost = false;
+        self.statements.clear();
+        self.waiting.clear();
         for channel in self.channels.clone() {
-            self.batch_once(&format!("LISTEN {channel}"))?;
+            self.send(Waiting::plain(&format!("LISTEN {channel}")), Want::Done).map_err(|_| crate::cause!(Error::Unavailable))?;
         }
         Ok(())
     }
@@ -219,15 +240,126 @@ impl Link {
         Ok(())
     }
 
-    /// A statement that changes nothing: sent once more on a new connection when the first one ended under it, outside a transaction.
-    fn unchanging<T>(&mut self, mut send: impl FnMut(&mut Self) -> Result<T, Error>) -> Result<T, Error> {
+    /// A statement that changes nothing: sent once more on a new connection when the first one ended under it, while nothing
+    /// sent with it changed a row (outside a transaction, or in one that has only begun and read: it is begun again).
+    fn unchanging(&mut self, last: Waiting, want: Want) -> Result<Answer, Error> {
         self.ready()?;
-        match send(self) {
-            Err(_) if !self.in_transaction && self.ended() => {
+        let again = (!self.in_transaction || self.fresh) && self.waiting.iter().all(|waiting| waiting.text == BEGIN);
+        let retry = again.then(|| last.clone());
+        match self.send(last, want) {
+            Err(_) if retry.is_some() && self.ended() => {
                 self.open_again()?;
-                send(self)
+                if self.in_transaction {
+                    self.waiting.push(Waiting::plain(BEGIN));
+                }
+                self.send(retry.unwrap_or_else(|| Waiting::plain("")), want).map_err(|_| crate::cause!(Error::Unavailable))
             }
-            answered => answered,
+            sent => sent.map_err(|_| crate::cause!(Error::Unavailable)),
+        }
+    }
+
+    /// Send what waits (`defer`) and then `last`, and answer `last`'s answer. Through the run's proxy they all go before any
+    /// answer is awaited, so the whole lot costs one round trip (and one more the first time a statement is prepared on this
+    /// connection); a direct connection sends `last` alone, since nothing waits on it. `Unsent::Before` when a statement
+    /// sent before `last` failed (inside a transaction, the database then refuses the rest and a COMMIT answers ROLLBACK).
+    fn send(&mut self, last: Waiting, want: Want) -> Result<Answer, Unsent> {
+        let Self { inner, statements, waiting, lost, .. } = self;
+        // A failure that says the connection is gone (closed, or ended by the database with a FATAL) is known at once, before the
+        // driver has seen the connection close.
+        let mut gone = |error: &postgres::Error| {
+            *lost |= error.is_closed() || error.as_db_error().is_some_and(|db| db.severity() == "FATAL");
+        };
+        match inner {
+            Inner::Sqlite(connection) => match want {
+                Want::Rows => {
+                    let mut statement = connection.prepare_cached(&last.text).map_err(|_| Unsent::Last)?;
+                    let columns = statement.column_count();
+                    let bound: Vec<rusqlite::types::Value> = last.params.iter().map(sqlite_value).collect();
+                    let mut rows = statement.query(rusqlite::params_from_iter(bound)).map_err(|_| Unsent::Last)?;
+                    let mut out = Vec::new();
+                    while let Some(row) = rows.next().map_err(|_| Unsent::Last)? {
+                        let mut cells = Vec::with_capacity(columns);
+                        for at in 0..columns {
+                            cells.push(match row.get_ref(at).map_err(|_| Unsent::Last)? {
+                                rusqlite::types::ValueRef::Null => Cell::Text(None),
+                                rusqlite::types::ValueRef::Integer(number) => Cell::Int(Some(number)),
+                                rusqlite::types::ValueRef::Real(number) => Cell::Int(Some(number as i64)),
+                                rusqlite::types::ValueRef::Text(bytes) | rusqlite::types::ValueRef::Blob(bytes) => {
+                                    Cell::Text(Some(String::from_utf8_lossy(bytes).into_owned()))
+                                }
+                            });
+                        }
+                        out.push(cells);
+                    }
+                    Ok(Answer::Rows(out))
+                }
+                Want::Count => {
+                    let bound: Vec<rusqlite::types::Value> = last.params.iter().map(sqlite_value).collect();
+                    let mut statement = connection.prepare_cached(&last.text).map_err(|_| Unsent::Last)?;
+                    statement.execute(rusqlite::params_from_iter(bound)).map(|changed| Answer::Count(changed as u64)).map_err(|_| Unsent::Last)
+                }
+                Want::Done => connection.execute_batch(&last.text).map(|()| Answer::Done).map_err(|_| Unsent::Last),
+            },
+            Inner::Postgres(client) => {
+                if want == Want::Done {
+                    return client.batch_execute(&last.text).map(|()| Answer::Done).map_err(|error| { gone(&error); Unsent::Last });
+                }
+                if !statements.contains_key(&last.text) {
+                    if statements.len() >= MOST_STATEMENTS {
+                        statements.clear();
+                    }
+                    let prepared = client.prepare(&last.text).map_err(|error| { gone(&error); Unsent::Last })?;
+                    statements.insert(last.text.clone(), prepared);
+                }
+                let statement = &statements[&last.text];
+                let bound = postgres_values(&last.params);
+                let refs: Vec<&(dyn postgres::types::ToSql + Sync)> = bound.iter().map(Bound::as_ref).collect();
+                match want {
+                    Want::Rows => rows_of(client.query(statement, &refs).map_err(|error| { gone(&error); Unsent::Last })?).map(Answer::Rows).map_err(|_| Unsent::Last),
+                    _ => client.execute(statement, &refs).map(Answer::Count).map_err(|error| { gone(&error); Unsent::Last }),
+                }
+            }
+            Inner::Tunneled(client) => {
+                let mut steps = std::mem::take(waiting);
+                steps.push(last);
+                let unprepared: Vec<&str> = {
+                    let mut texts: Vec<&str> = steps.iter().filter(|step| !step.plain && !statements.contains_key(&step.text)).map(|step| step.text.as_str()).collect();
+                    texts.sort_unstable();
+                    texts.dedup();
+                    texts
+                };
+                if !unprepared.is_empty() {
+                    if statements.len() + unprepared.len() > MOST_STATEMENTS {
+                        statements.retain(|text, _| unprepared.contains(&text.as_str()));
+                    }
+                    for (text, prepared) in unprepared.iter().zip(client.prepare_all(&unprepared)) {
+                        statements.insert((*text).to_owned(), prepared.map_err(|error| { gone(&error); Unsent::Before })?);
+                    }
+                }
+                let bound: Vec<Vec<Bound>> = steps.iter().map(|step| postgres_values(&step.params)).collect();
+                let lastly = steps.len() - 1;
+                let mut asks = Vec::with_capacity(steps.len());
+                for (at, (step, values)) in steps.iter().zip(&bound).enumerate() {
+                    let refs: Vec<&(dyn postgres::types::ToSql + Sync)> = values.iter().map(Bound::as_ref).collect();
+                    asks.push(match (step.plain, at == lastly && want == Want::Rows) {
+                        (true, _) => Ask::Simple(&step.text),
+                        (false, true) => Ask::Rows(&statements[&step.text], refs),
+                        (false, false) => Ask::Count(&statements[&step.text], refs),
+                    });
+                }
+                let mut told = client.send_all(&asks);
+                told.iter().filter_map(|told| told.as_ref().err()).for_each(&mut gone);
+                let answered = told.pop();
+                if told.iter().any(Result::is_err) {
+                    return Err(Unsent::Before);
+                }
+                match answered {
+                    Some(Ok(Told::Rows(rows))) => rows_of(rows).map(Answer::Rows).map_err(|_| Unsent::Last),
+                    Some(Ok(Told::Count(count))) => Ok(Answer::Count(count)),
+                    Some(Ok(Told::Done)) => Ok(Answer::Done),
+                    _ => Err(Unsent::Last),
+                }
+            }
         }
     }
 
@@ -245,94 +377,50 @@ impl Link {
 
     /// Run a statement that answers rows.
     pub fn query(&mut self, sql: &str, params: &[Cell]) -> Result<Vec<Vec<Cell>>, Error> {
-        self.unchanging(|link| link.query_once(sql, params))
-    }
-
-    fn query_once(&mut self, sql: &str, params: &[Cell]) -> Result<Vec<Vec<Cell>>, Error> {
-        let text = numbered(self.dialect(), sql, params);
-        match &mut self.inner {
-            Inner::Sqlite(connection) => {
-                let mut statement = connection.prepare_cached(&text).map_err(unavailable)?;
-                let columns = statement.column_count();
-                let bound: Vec<rusqlite::types::Value> = params.iter().map(sqlite_value).collect();
-                let mut rows = statement.query(rusqlite::params_from_iter(bound)).map_err(unavailable)?;
-                let mut out = Vec::new();
-                while let Some(row) = rows.next().map_err(unavailable)? {
-                    let mut cells = Vec::with_capacity(columns);
-                    for at in 0..columns {
-                        cells.push(match row.get_ref(at).map_err(unavailable)? {
-                            rusqlite::types::ValueRef::Null => Cell::Text(None),
-                            rusqlite::types::ValueRef::Integer(number) => Cell::Int(Some(number)),
-                            rusqlite::types::ValueRef::Real(number) => Cell::Int(Some(number as i64)),
-                            rusqlite::types::ValueRef::Text(bytes) | rusqlite::types::ValueRef::Blob(bytes) => {
-                                Cell::Text(Some(String::from_utf8_lossy(bytes).into_owned()))
-                            }
-                        });
-                    }
-                    out.push(cells);
-                }
-                Ok(out)
-            }
-            Inner::Postgres(_) | Inner::Tunneled(_) => {
-                let bound = postgres_values(params);
-                let refs: Vec<&(dyn postgres::types::ToSql + Sync)> = bound.iter().map(|value| value.as_ref()).collect();
-                let rows = match &mut self.inner {
-                    Inner::Postgres(client) => client.query(&text, &refs).map_err(unavailable)?,
-                    Inner::Tunneled(client) => client.query(&text, &refs).map_err(unavailable)?,
-                    Inner::Sqlite(_) => return Err(crate::cause!(Error::Unavailable)),
-                };
-                let mut out = Vec::with_capacity(rows.len());
-                for row in rows {
-                    let mut cells = Vec::with_capacity(row.len());
-                    for at in 0..row.len() {
-                        cells.push(if *row.columns()[at].type_() == postgres::types::Type::INT8 {
-                            Cell::Int(row.try_get::<_, Option<i64>>(at).map_err(unavailable)?)
-                        } else {
-                            Cell::Text(row.try_get::<_, Option<String>>(at).map_err(unavailable)?)
-                        });
-                    }
-                    out.push(cells);
-                }
-                Ok(out)
-            }
+        match self.unchanging(Waiting::bound(numbered(self.dialect(), sql, params), params), Want::Rows)? {
+            Answer::Rows(rows) => Ok(rows),
+            _ => Err(crate::cause!(Error::Unavailable)),
         }
     }
 
     /// Run a statement that changes rows; answers how many.
     pub fn execute(&mut self, sql: &str, params: &[Cell]) -> Result<u64, Error> {
         self.ready()?;
-        let text = numbered(self.dialect(), sql, params);
-        match &mut self.inner {
-            Inner::Sqlite(connection) => {
-                let bound: Vec<rusqlite::types::Value> = params.iter().map(sqlite_value).collect();
-                let mut statement = connection.prepare_cached(&text).map_err(unavailable)?;
-                statement.execute(rusqlite::params_from_iter(bound)).map(|changed| changed as u64).map_err(unavailable)
-            }
-            Inner::Postgres(client) => {
-                let bound = postgres_values(params);
-                let refs: Vec<&(dyn postgres::types::ToSql + Sync)> = bound.iter().map(|value| value.as_ref()).collect();
-                client.execute(&text, &refs).map_err(unavailable)
-            }
-            Inner::Tunneled(client) => {
-                let bound = postgres_values(params);
-                let refs: Vec<&(dyn postgres::types::ToSql + Sync)> = bound.iter().map(|value| value.as_ref()).collect();
-                client.execute(&text, &refs).map_err(unavailable)
-            }
+        self.fresh = false;
+        match self.send(Waiting::bound(numbered(self.dialect(), sql, params), params), Want::Count) {
+            Ok(Answer::Count(count)) => Ok(count),
+            _ => Err(crate::cause!(Error::Unavailable)),
         }
     }
 
-    /// Run statements with no parameters (the tables, a transaction's brackets).
+    /// Change rows inside the open transaction without awaiting the answer: the statement is sent with the next one that is
+    /// awaited, and its failure is that one's (and the commit's: a transaction with a failed statement commits nothing). A
+    /// direct connection sends it at once.
+    pub fn defer(&mut self, sql: &str, params: &[Cell]) -> Result<(), Error> {
+        self.defer_waiting(Waiting::bound(numbered(self.dialect(), sql, params), params))
+    }
+
+    /// `defer` for statements with no parameters (a `NOTIFY`).
+    pub fn defer_plain(&mut self, sql: &str) -> Result<(), Error> {
+        self.defer_waiting(Waiting::plain(sql))
+    }
+
+    fn defer_waiting(&mut self, waiting: Waiting) -> Result<(), Error> {
+        self.ready()?;
+        self.fresh = false;
+        if matches!(self.inner, Inner::Tunneled(_)) {
+            self.waiting.push(waiting);
+            return Ok(());
+        }
+        let want = if waiting.plain { Want::Done } else { Want::Count };
+        self.send(waiting, want).map(|_| ()).map_err(|_| crate::cause!(Error::Unavailable))
+    }
+
+    /// Run statements with no parameters (the tables).
     pub fn batch(&mut self, sql: &str) -> Result<(), Error> {
         self.ready()?;
-        self.batch_once(sql)
-    }
-
-    fn batch_once(&mut self, sql: &str) -> Result<(), Error> {
-        match &mut self.inner {
-            Inner::Sqlite(connection) => connection.execute_batch(sql).map_err(unavailable),
-            Inner::Postgres(client) => client.batch_execute(sql).map_err(unavailable),
-            Inner::Tunneled(client) => client.batch_execute(sql).map_err(unavailable),
-        }
+        self.fresh = false;
+        self.send(Waiting::plain(sql), Want::Done).map(|_| ()).map_err(|_| crate::cause!(Error::Unavailable))
     }
 
     /// Listen on `channel` (a Postgres name the caller writes, never a person's value), now and on every new connection.
@@ -365,28 +453,102 @@ impl Link {
         }
     }
 
-    /// Open a transaction that holds the database's one writer from its first statement.
+    /// Open a transaction that holds the database's one writer from its first statement. Through the run's proxy the `BEGIN`
+    /// waits to go with the transaction's first read.
     pub fn begin(&mut self) -> Result<(), Error> {
-        let opening = match self.dialect() {
-            Dialect::Sqlite => "BEGIN IMMEDIATE",
-            Dialect::Postgres => "BEGIN",
-        };
-        self.unchanging(|link| link.batch_once(opening))?;
+        self.ready()?;
+        match self.dialect() {
+            Dialect::Sqlite => self.send(Waiting::plain("BEGIN IMMEDIATE"), Want::Done).map(|_| ()).map_err(|_| crate::cause!(Error::Unavailable))?,
+            Dialect::Postgres if matches!(self.inner, Inner::Tunneled(_)) => self.waiting.push(Waiting::plain(BEGIN)),
+            Dialect::Postgres => {
+                self.unchanging(Waiting::plain(BEGIN), Want::Done)?;
+            }
+        }
         self.in_transaction = true;
+        self.fresh = true;
         Ok(())
     }
 
-    /// Commit. A commit that fails may have been applied.
+    /// Commit, with what waits sent before it. A commit that fails may have been applied, unless a statement before it failed on
+    /// a connection that is still open: then the transaction was refused and nothing was applied.
     pub fn commit(&mut self) -> Result<(), Error> {
         self.in_transaction = false;
-        self.batch_once("COMMIT").map_err(|_| crate::cause!(Error::OutcomeUnknown))
+        self.fresh = false;
+        match self.send(Waiting::plain("COMMIT"), Want::Done) {
+            Ok(_) => Ok(()),
+            Err(Unsent::Before) if !self.ended() => {
+                self.rollback();
+                Err(crate::cause!(Error::Unavailable))
+            }
+            Err(_) => Err(crate::cause!(Error::OutcomeUnknown)),
+        }
     }
 
-    /// Undo the open transaction. Nothing to undo is not a failure.
+    /// Undo the open transaction, and drop what waits to be sent in it. Nothing to undo is not a failure.
     pub fn rollback(&mut self) {
         self.in_transaction = false;
-        let _ = self.batch_once("ROLLBACK");
+        self.fresh = false;
+        self.waiting.clear();
+        let _ = self.send(Waiting::plain("ROLLBACK"), Want::Done);
     }
+}
+
+/// The `BEGIN` of a Postgres transaction, as it waits to be sent.
+const BEGIN: &str = "BEGIN";
+/// The most statements a link keeps prepared on its connection; past it the oldest set is let go and prepared again on use.
+const MOST_STATEMENTS: usize = 512;
+
+/// A statement to send: its text (numbered for its dialect) and values, or plain statements with no parameters.
+#[derive(Clone)]
+struct Waiting {
+    text: String,
+    params: Vec<Cell>,
+    plain: bool,
+}
+impl Waiting {
+    fn plain(text: &str) -> Self {
+        Self { text: text.to_owned(), params: Vec::new(), plain: true }
+    }
+    fn bound(text: String, params: &[Cell]) -> Self {
+        Self { text, params: params.to_vec(), plain: false }
+    }
+}
+
+/// What a sent statement is to answer.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Want {
+    Rows,
+    Count,
+    Done,
+}
+
+enum Answer {
+    Rows(Vec<Vec<Cell>>),
+    Count(u64),
+    Done,
+}
+
+/// Which statement of a send failed: one sent before the last, or the last.
+enum Unsent {
+    Before,
+    Last,
+}
+
+/// Postgres rows as cells: an `int8` column as a number, every other column as text.
+fn rows_of(rows: Vec<postgres::Row>) -> Result<Vec<Vec<Cell>>, Error> {
+    let mut out = Vec::with_capacity(rows.len());
+    for row in rows {
+        let mut cells = Vec::with_capacity(row.len());
+        for at in 0..row.len() {
+            cells.push(if *row.columns()[at].type_() == postgres::types::Type::INT8 {
+                Cell::Int(row.try_get::<_, Option<i64>>(at).map_err(unavailable)?)
+            } else {
+                Cell::Text(row.try_get::<_, Option<String>>(at).map_err(unavailable)?)
+            });
+        }
+        out.push(cells);
+    }
+    Ok(out)
 }
 
 /// The statement text with each `?` made the parameter marker of its value in `dialect`.
@@ -511,6 +673,36 @@ mod tests {
         let mut sender = postgres::Client::connect(&connection, postgres::NoTls).unwrap();
         sender.batch_execute("NOTIFY t9_heard").unwrap();
         assert!(listener.heard().is_ok());
+        let _ = database.stop();
+    }
+
+    /// A link to `connection` through a stand-in proxy of the run (through_the_run_proxy.rs), as a sandboxed run opens it.
+    fn tunneled(connection: &str, proxy: &str) -> Link {
+        let config: tokio_postgres::Config = connection.parse().unwrap();
+        let client = super::super::through_the_run_proxy::Tunneled::open(&config, proxy, tokio_postgres::NoTls).unwrap();
+        Link { inner: Inner::Tunneled(Box::new(client)), place: "postgres".into(), reopen: None, in_transaction: false, channels: Vec::new(),
+            lost: false, fresh: false, waiting: Vec::new(), statements: Default::default() }
+    }
+
+    #[test]
+    fn through_the_proxy_waiting_changes_go_with_the_next_statement_and_a_failed_one_commits_nothing() {
+        let (database, connection) = real_database();
+        let proxy = super::super::through_the_run_proxy::tests::stand_in_proxy("200 Connection established");
+        let mut link = tunneled(&connection, &proxy);
+        link.batch("CREATE TABLE kept (n int8 PRIMARY KEY)").unwrap();
+        link.begin().unwrap();
+        assert!(link.query("SELECT n FROM kept", &[]).unwrap().is_empty());
+        link.defer("INSERT INTO kept VALUES (?)", &[Cell::int(1)]).unwrap();
+        link.defer("INSERT INTO kept VALUES (?)", &[Cell::int(2)]).unwrap();
+        assert_eq!(link.waiting.len(), 2);
+        assert_eq!(link.query("SELECT count(*)::int8 FROM kept", &[]).unwrap(), vec![vec![Cell::int(2)]]);
+        link.defer_plain("NOTIFY t9_kept").unwrap();
+        link.commit().unwrap();
+        link.begin().unwrap();
+        link.defer("INSERT INTO kept VALUES (?)", &[Cell::int(3)]).unwrap();
+        link.defer("INSERT INTO kept VALUES (?)", &[Cell::int(1)]).unwrap();
+        assert!(matches!(link.commit(), Err(Error::Unavailable(_))));
+        assert_eq!(link.query("SELECT n FROM kept ORDER BY n", &[]).unwrap(), vec![vec![Cell::int(1)], vec![Cell::int(2)]]);
         let _ = database.stop();
     }
 }

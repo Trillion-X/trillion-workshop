@@ -613,14 +613,14 @@ impl SqlStore {
         let request = [Cell::text(&input.request_key), Cell::text(&identity)];
         if input.deleted {
             let kept = minted.and_then(|field| current.as_ref().and_then(|(record, _, _)| record.value.get(field)).and_then(Value::as_i64));
-            link.execute("DELETE FROM ns_gone WHERE scope = ? AND id = ?", &[Cell::text(scope), Cell::text(&input.id)])?;
-            link.execute(
+            link.defer("DELETE FROM ns_gone WHERE scope = ? AND id = ?", &[Cell::text(scope), Cell::text(&input.id)])?;
+            link.defer(
                 "INSERT INTO ns_gone (scope, id, version, request_key, request_identity, minted, changed) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 &[Cell::text(scope), Cell::text(&input.id), Cell::int(version), request[0].clone(), request[1].clone(), Cell::Int(kept), Cell::int(order)],
             )?;
             match table {
-                Some(table) => link.execute(&format!("DELETE FROM {} WHERE scope = ? AND id = ?", table.table), &[Cell::text(scope), Cell::text(&input.id)])?,
-                None => link.execute(&format!("DELETE FROM {} WHERE scope = ? AND id = ?", declared().generic), &[Cell::text(scope), Cell::text(&input.id)])?,
+                Some(table) => link.defer(&format!("DELETE FROM {} WHERE scope = ? AND id = ?", table.table), &[Cell::text(scope), Cell::text(&input.id)])?,
+                None => link.defer(&format!("DELETE FROM {} WHERE scope = ? AND id = ?", declared().generic), &[Cell::text(scope), Cell::text(&input.id)])?,
             };
         } else {
             match table {
@@ -633,16 +633,16 @@ impl SqlStore {
                         let mut params = vec![Cell::int(version), request[0].clone(), request[1].clone()];
                         params.extend(cells);
                         params.extend([Cell::int(order), Cell::text(scope), Cell::text(&input.id)]);
-                        link.execute(
+                        link.defer(
                             &format!("UPDATE {} SET version = ?, request_key = ?, request_identity = ?, {set}, extra = ?, changed = ? WHERE scope = ? AND id = ?", table.table),
                             &params,
                         )?;
                     } else {
-                        link.execute("DELETE FROM ns_gone WHERE scope = ? AND id = ?", &[Cell::text(scope), Cell::text(&input.id)])?;
+                        link.defer("DELETE FROM ns_gone WHERE scope = ? AND id = ?", &[Cell::text(scope), Cell::text(&input.id)])?;
                         let mut params = vec![Cell::text(scope), Cell::text(&input.id), Cell::int(version), request[0].clone(), request[1].clone()];
                         params.extend(cells);
                         params.push(Cell::int(order));
-                        link.execute(
+                        link.defer(
                             &format!("INSERT INTO {} (scope, id, version, request_key, request_identity, {names}, extra, changed) VALUES (?, ?, ?, ?, ?, {marks}, ?)", table.table),
                             &params,
                         )?;
@@ -651,13 +651,13 @@ impl SqlStore {
                 None => {
                     let text = serde_json::to_string(&value).map_err(unavailable)?;
                     if current.is_some() {
-                        link.execute(
+                        link.defer(
                             &format!("UPDATE {} SET version = ?, request_key = ?, request_identity = ?, value = ?, changed = ? WHERE scope = ? AND id = ?", declared().generic),
                             &[Cell::int(version), request[0].clone(), request[1].clone(), Cell::text(&text), Cell::int(order), Cell::text(scope), Cell::text(&input.id)],
                         )?;
                     } else {
-                        link.execute("DELETE FROM ns_gone WHERE scope = ? AND id = ?", &[Cell::text(scope), Cell::text(&input.id)])?;
-                        link.execute(
+                        link.defer("DELETE FROM ns_gone WHERE scope = ? AND id = ?", &[Cell::text(scope), Cell::text(&input.id)])?;
+                        link.defer(
                             &format!("INSERT INTO {} (scope, id, version, request_key, request_identity, value, changed) VALUES (?, ?, ?, ?, ?, ?, ?)", declared().generic),
                             &[Cell::text(scope), Cell::text(&input.id), Cell::int(version), request[0].clone(), request[1].clone(), Cell::text(&text), Cell::int(order)],
                         )?;
@@ -674,7 +674,7 @@ impl SqlStore {
             .and_then(|cells| cells[0].as_int())
             .ok_or(crate::cause!(Error::Unavailable))?;
         if self.dialect == Dialect::Postgres {
-            link.batch(&format!("NOTIFY {CHANNEL}"))?;
+            link.defer_plain(&format!("NOTIFY {CHANNEL}"))?;
         }
         Ok(Change { sequence, changed: order, id: input.id.clone(), version, deleted: input.deleted, value: (!input.deleted).then_some(value) })
     }
