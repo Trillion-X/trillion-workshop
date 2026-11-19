@@ -547,7 +547,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -614,7 +613,7 @@
         "label": "Write a copy of a repository into my files, for citations to be checked against",
         "status": "active",
         "job": "Write the files of a repository, the dates of its commits and a stamp naming the commit into my own files under /source-copies/<root>/, so a check of what a finding cites can read them on any computer",
-        "description": "Takes a root name, the ref and head the copy was made from, a list of files ({path, text}, at most 64, each at most 4 MiB), the commit dates ({<full hash>: <ISO date>}) and whether the list is every tracked file. Writes each file, then .commit-dates.json, and the stamp .source-copy.json last, under /source-copies/<root>/, so a copy whose stamp is old never claims a new head. The stamp holds ref, head, copied_at and files: the sorted paths the copy holds (the earlier stamp's files plus these, or exactly these when complete is true; also_held paths, written by earlier runs of the same head, are added). A big copy can be sent in several runs: with final false a run writes only its files (no dates, no stamp) and answers final:false; the last run (final true, the default) writes the dates and the stamp. A path with .., ., an empty part, a leading / or a backslash is refused and nothing is written. The tool never reads a repository: the caller reads git and hands in the text.",
+        "description": "Takes a root name, the ref and head the copy was made from, a list of files ({path, text}, at most 64, each at most 4 MiB), the commit dates ({<full hash>: <ISO date>}), whether the list is every tracked file, and stored.files: the files already under /source-copies/<root>/ that the caller read from where the person keeps them (a file not handed in is not there). It reads and writes no store: it answers keep, each file { file, identity, base64, expected } in order (expected is the identity of the file as handed in, null when it was not there, so a store refuses a keep whose file moved): each file, then .commit-dates.json, and the stamp .source-copy.json last, under /source-copies/<root>/, so a copy whose stamp is old never claims a new head. A file handed in that already holds the bytes sent is left out of keep. The stamp holds ref, head, copied_at and files: the sorted paths the copy holds (the earlier stamp's files plus these, or exactly these when complete is true; also_held paths, written by earlier runs of the same head, are added). A big copy can be sent in several runs: with final false a run keeps only its files (no dates, no stamp) and answers final:false; the last run (final true, the default) keeps the dates and the stamp. A path with .., ., an empty part, a leading / or a backslash is refused and nothing is kept. The tool never reads a repository: the caller reads git and hands in the text.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -682,7 +681,7 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /source-copies/, as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them and handed in: files: {name: text or {base64}, or null when not there} under /source-copies/<root>/, at least the earlier stamp .source-copy.json. What is not given is not there."
             }
           }
         },
@@ -709,7 +708,16 @@
             },
             "keep": {
               "type": "array",
-              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+              "description": "The files the run made, in order, for the caller to keep where the person keeps them: { file, identity, base64, expected } (expected is the identity of the file as it was handed in, null when it was not there, so a store refuses the write when it moved). The run itself writes nothing.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "identity",
+                  "base64",
+                  "expected"
+                ]
+              }
             }
           }
         },
@@ -717,7 +725,7 @@
           "kind": "container",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/workflows/read-data/write-a-source-copy.mjs",
             "writeASourceCopy"
           ],
@@ -738,17 +746,10 @@
               {
                 "package": "workflows",
                 "paths": [
+                  "do-work/run-a-function.mjs",
                   "read-data/write-a-source-copy.mjs"
                 ],
                 "at": "/opt/workflows"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -770,20 +771,6 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           }
@@ -821,14 +808,7 @@
         ],
         "stored": [
           {
-            "files": "/source-copies/",
-            "operations": [
-              "find_file",
-              "read_file",
-              "write_file_start",
-              "write_file_piece",
-              "write_file_finish"
-            ]
+            "files": "/source-copies/"
           }
         ]
       }

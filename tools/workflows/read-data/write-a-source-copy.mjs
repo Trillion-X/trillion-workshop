@@ -1,27 +1,31 @@
 // tools/workflows/read-data/write-a-source-copy.mjs
 //
-// Writes a copy of a repository's files into the person's own files at /source-copies/<root>/, the folder the
-// citation resolver reads (citation-resolvers.mjs: a root's `{files}` source). The caller reads git (a Mac-side job) and
-// hands in the files' text, the commit dates and the head; this tool never reads a repository.
+// Makes a copy of a repository's files for the person's own files at /source-copies/<root>/, the folder the citation
+// resolver reads (citation-resolvers.mjs: a root's `{files}` source). The caller reads git (a Mac-side job) and hands in
+// the files' text, the commit dates and the head; this tool never reads a repository and reads or writes no store: the
+// caller hands in what is already in that folder as `stored.files` and keeps what the run answers as `keep`.
 //
-//   writeASourceCopy({ input: { root, ref, head, files: [{ path, text }], dates: { <fullhash>: <ISO date> }, complete? }, task }, { door })
-//     -> { root, head, written, bytes }
+//   writeASourceCopy({ input: { root, ref, head, files: [{ path, text }], dates: { <fullhash>: <ISO date> }, complete?,
+//                               stored?: { files: { <name>: text | { text } | { base64 } | null } } }, task })
+//     -> { root, head, written, bytes, keep: [{ file, identity, base64, expected }] }
 //
-// A big copy goes in several runs of one head: every run but the last sends `final: false` and writes only its files
+// A file not handed in is not there. keep holds, in order, each file whose bytes are not already what was handed in;
+// expected is the identity of the file as it was handed in, null when it was not there, so a store refuses a keep whose
+// file has moved.
+//
+// A big copy goes in several runs of one head: every run but the last sends `final: false` and keeps only its files
 // (no dates, no stamp, so the stamp never claims the new head early; it returns final:false). The last run sends the
 // default `final: true` and `also_held`, the paths the earlier runs wrote, which join the stamp's `files`.
 //
 // Order: every file, then .commit-dates.json, then .source-copy.json LAST, so a copy whose stamp is old never claims a
-// new head. A file that already holds exactly the bytes sent is left alone, so the same copy sent twice at one head is written
-// once and answers both times. Each write uses an upload id derived from root + head + path + the bytes, so a retry resumes and other text at the same head starts its own upload. The stamp's `files` are the
-// sorted paths the copy holds: the earlier stamp's files that are still held plus the new ones, or exactly the sent
-// list when `complete` is true.
+// new head. A file handed in that already holds exactly the bytes sent is left out of keep, so the same copy sent twice at
+// one head is kept once and answers both times. The stamp's `files` are the sorted paths the copy holds: the earlier
+// stamp's files that are still held plus the new ones, or exactly the sent list when `complete` is true.
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { readWholeFile, writeWholeFileOnce } from '../../records-door/read-data/whole-file.mjs';
 
 export const MOST_FILES = 64;
 export const MOST_TEXT_BYTES = 4 * 1024 * 1024;
-const ALLOWED_INPUT = new Set(['root', 'ref', 'head', 'files', 'dates', 'complete', 'final', 'also_held']);
+const ALLOWED_INPUT = new Set(['root', 'ref', 'head', 'files', 'dates', 'complete', 'final', 'also_held', 'stored']);
 export const MOST_ALSO_HELD = 256;
 const ROOT = /^[a-z0-9][a-z0-9-]*$/;
 export const STAMP = '.source-copy.json';
@@ -29,11 +33,17 @@ export const DATES = '.commit-dates.json';
 
 // The same rule the reader applies to a cited path.
 const badPath = path => typeof path !== 'string' || !path || path.startsWith('/') || path.includes('\\') || path.split('/').some(part => part === '..' || part === '.' || part === '');
-const uploadId = (root, head, path, data) => makeHashCodeHexFromBytes(Buffer.concat([Buffer.from(`source-copy\n${root}\n${head}\n${path}\n`, 'utf8'), data])).replace(/^1f:/, '').slice(0, 32);
+// The bytes of a file handed in, or null when it was handed in as not there.
+const bytesOfHeld = held => (held === null || held === undefined ? null
+  : typeof held === 'string' ? Buffer.from(held, 'utf8')
+  : held.text !== undefined ? Buffer.from(String(held.text), 'utf8') : Buffer.from(String(held.base64 ?? ''), 'base64'));
 
-export async function writeASourceCopy({ input = {}, task = {} } = {}, { door }) {
+export async function writeASourceCopy({ input = {}, task = {} } = {}) {
   for (const key of Object.keys(input)) if (!ALLOWED_INPUT.has(key)) throw new Error(`input.${key} is not taken.`);
-  const { root, ref, head, files, dates, complete = false, final = true, also_held = [] } = input;
+  const { root, ref, head, files, dates, complete = false, final = true, also_held = [], stored = {} } = input;
+  if (stored === null || typeof stored !== 'object' || Array.isArray(stored)) throw new Error('input.stored must be { files: { name: text or { base64 } } }.');
+  const handed = stored.files ?? {};
+  if (handed === null || typeof handed !== 'object' || Array.isArray(handed)) throw new Error('input.stored.files must be an object of file name to text or { base64 }.');
   if (typeof root !== 'string' || !ROOT.test(root)) throw new Error('input.root must be lowercase letters, digits and hyphens, starting with a letter or digit.');
   if (typeof ref !== 'string' || !ref) throw new Error('input.ref must name the ref the copy was made from.');
   if (typeof head !== 'string' || !head) throw new Error('input.head must be the commit the copy was made from.');
@@ -56,25 +66,27 @@ export async function writeASourceCopy({ input = {}, task = {} } = {}, { door })
   for (const [hash, when] of Object.entries(dates)) if (typeof when !== 'string' || Number.isNaN(Date.parse(when)) || !hash) throw new Error(`input.dates.${hash} is not an ISO date.`);
 
   const at = `/source-copies/${root}/`;
-  // The earlier stamp; unreadable means none.
+  const before = name => (Object.hasOwn(handed, name) ? bytesOfHeld(handed[name]) : null);
+  // The earlier stamp; not handed in or unreadable means none.
   let earlier = null;
-  try {
-    const done = await readWholeFile(door, `${at}${STAMP}`);
-    earlier = done.bytes ? JSON.parse(done.bytes.toString('utf8')) : null;
-  } catch { earlier = null; }
+  try { earlier = JSON.parse(before(`${at}${STAMP}`)?.toString('utf8') ?? 'null'); } catch { earlier = null; }
 
+  const keep = [];
   let bytes = 0;
-  const put = async (path, text, mediaType) => {
+  const put = (path, text) => {
+    const name = `${at}${path}`;
     const data = Buffer.from(text, 'utf8');
-    const kept = await writeWholeFileOnce(door, `${at}${path}`, data, { mediaType, uploadId: uploadId(root, head, path, data) });
-    if (!kept?.already_kept) bytes += data.length;
+    const was = before(name);
+    if (was && was.equals(data)) return;
+    keep.push({ file: name, identity: makeHashCodeHexFromBytes(data), base64: data.toString('base64'), expected: was ? makeHashCodeHexFromBytes(was) : null });
+    bytes += data.length;
   };
-  for (const file of files) await put(file.path, file.text, 'text/plain');
-  if (!final) return { root, head, written: files.length, bytes, final: false };
-  await put(DATES, JSON.stringify(dates), 'application/json');
+  for (const file of files) put(file.path, file.text);
+  if (!final) return { root, head, written: files.length, bytes, final: false, keep };
+  put(DATES, JSON.stringify(dates));
   const held = new Set([...files.map(file => file.path), ...also_held]);
   if (!complete && Array.isArray(earlier?.files)) for (const path of earlier.files) if (typeof path === 'string' && !badPath(path)) held.add(path);
   const stamp = { ref, head, copied_at: task.at ?? task.time ?? new Date().toISOString(), files: [...held].sort(), complete };
-  await put(STAMP, JSON.stringify(stamp), 'application/json');
-  return { root, head, written: files.length, bytes };
+  put(STAMP, JSON.stringify(stamp));
+  return { root, head, written: files.length, bytes, keep };
 }
