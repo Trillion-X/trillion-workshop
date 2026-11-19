@@ -5,8 +5,9 @@
 // depth, were done, and its own status shows beside it when that is not done. A row with nothing under it is a work
 // item, the only thing that gets a tick. A row not made yet is faint.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { faint, goalComplete, momentsOf, muted, plain, standing, statusWord, tally, treeOf, when, type Data, type Moment, type Task, type Tree } from '../read-data/task-rows';
+import { faint, goalComplete, momentsOf, muted, plain, shownBy, showsOf, standing, statusWord, tally, treeOf, when, type Data, type Moment, type Task, type Tree } from '../read-data/task-rows';
 import { Chevron, Detail, Mark, Ring, Word } from './task-marks';
+import { OpenedShows } from './task-shows';
 
 const STOP = 36; // the room between two moments' dots on the rail, in pixels
 const SWIPE_PER_MOMENT = 30; // trackpad scroll over the timeline, in pixels, that moves one moment
@@ -16,6 +17,8 @@ const INDENT = 24;
 function Checklist({ data, tree, moments, index }: { data: Data; tree: Tree; moments: Moment[]; index: number }) {
   const looks = useMemo(() => new Map(data.statuses.map(s => [s.name, s])), [data]);
   const { made, status } = useMemo(() => standing(moments, index), [moments, index]);
+  const shows = useMemo(() => showsOf(data), [data]);
+  const asOf = moments[index].at;
   const [closed, setClosed] = useState<Set<string>>(new Set());
   const [open, setOpen] = useState<Set<string>>(new Set());
   const flip = (set: (f: (s: Set<string>) => Set<string>) => void, id: string) => set(now => { const next = new Set(now); if (!next.delete(id)) next.add(id); return next; });
@@ -31,7 +34,7 @@ function Checklist({ data, tree, moments, index }: { data: Data; tree: Tree; mom
           <Word look={statusWord(look)} />
           <Chevron open={isOpen} />
         </button>
-        {isOpen && <Detail id={`tl-${task.id}`} detail={task.plain_detail} title={task.title} />}
+        {isOpen && <Detail id={`tl-${task.id}`} detail={task.plain_detail} title={task.title} shows={shownBy(shows.get(task.id), asOf)} />}
       </li>
     );
   };
@@ -50,6 +53,7 @@ function Checklist({ data, tree, moments, index }: { data: Data; tree: Tree; mom
           <Word look={statusWord(own, true)} />
           <Chevron open={isOpen} />
         </button>
+        {isOpen && <OpenedShows shows={shownBy(shows.get(task.id), asOf)} />}
         {isOpen && <ul id={`tl-${task.id}`} className="m-0 list-none p-0 pb-1">{rows(task.id, 1)}</ul>}
       </li>
     );

@@ -73,3 +73,20 @@ test('a status word shows only when the status is not done and has a colour of i
   assert.equal(statusWord(looks.get('To do')), undefined);
   assert.equal(statusWord(looks.get('To do'), true)?.name, 'To do');
 });
+
+test('a task\'s shows are kept in the order they were made, and History draws only those made by the moment', async () => {
+  const { showsOf, shownBy } = await import('../read-data/task-rows.ts');
+  const withShows = {
+    ...data,
+    shows: [
+      { task: 'a', ref: 'https://example.com/late', label: 'Late', made_at: '2026-11-18T14:00:00.000Z' },
+      { task: 'a', ref: 'https://example.com/early', label: 'Early', made_at: '2026-11-18T11:00:00.000Z' },
+      { task: 'c', ref: 'https://example.com/c', label: 'C', made_at: '2026-11-18T11:00:00.000Z' },
+    ],
+  };
+  const byTask = showsOf(withShows);
+  assert.deepEqual(byTask.get('a').map(show => show.label), ['Late', 'Early'], 'the map keeps the rows\' order');
+  assert.equal(byTask.get('b'), undefined);
+  assert.deepEqual(shownBy(byTask.get('a'), '2026-11-18T12:00:00.000Z').map(show => show.label), ['Early'], 'only shows made by the moment');
+  assert.deepEqual(shownBy(undefined, '2026-11-18T12:00:00.000Z'), []);
+});

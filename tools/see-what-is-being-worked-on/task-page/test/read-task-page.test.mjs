@@ -6,6 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DEFAULT_TASK_TABLES, readTaskPage, taskPageFrom, taskPageSql } from '../read-data/read-task-page.mjs';
+// The shows table is one more of the four the one SELECT reads; a pursuit's own name for it is passed the same way.
 
 const answer = {
   tasks: [
@@ -20,6 +21,9 @@ const answer = {
     { task: 'step-1', at: '2026-11-18T14:00:00.000-06:00', kind: 'made', status: 'To do', title: null },
     { task: 'step-1', at: '2026-11-18T15:00:00.000-06:00', kind: 'from transcript', status: 'Done', title: 'Said so' },
   ],
+  shows: [
+    { task: 'step-1', ref: 'https://example.com/page', label: 'The page', made_at: '2026-11-18T16:00:00.000-06:00' },
+  ],
 };
 
 test('the SQL reads the three default task tables in one read-only SELECT', () => {
@@ -31,8 +35,8 @@ test('the SQL reads the three default task tables in one read-only SELECT', () =
 });
 
 test('table names are plain identifiers; another pursuit names its own tables', () => {
-  const sql = taskPageSql({ tasks: 'work_items', changes: 'work_says', statuses: 'work_statuses' });
-  assert.ok(sql.includes('from work_items)') && sql.includes('from work_says)') && sql.includes('from work_statuses)'));
+  const sql = taskPageSql({ tasks: 'work_items', changes: 'work_says', statuses: 'work_statuses', shows: 'work_shows' });
+  assert.ok(sql.includes('from work_items)') && sql.includes('from work_says)') && sql.includes('from work_statuses)') && sql.includes('from work_shows)'));
   assert.throws(() => taskPageSql({ tasks: 'x; drop table y' }), /plain identifier/);
   assert.throws(() => taskPageSql({ changes: 'Public.Changes' }), /plain identifier/);
 });
@@ -50,11 +54,13 @@ test('readTaskPage calls the caller runner once and maps the rows', async () => 
   assert.equal(page.changes[0].title, null);
   assert.equal(page.changes[1].title, 'Said so');
   assert.equal(page.changes.length, 2);
+  assert.deepEqual(page.shows, [{ task: 'step-1', ref: 'https://example.com/page', label: 'The page', made_at: '2026-11-18T16:00:00.000-06:00' }]);
 });
 
 test('an empty table is an empty list, and a missing field is null or false', () => {
   const page = taskPageFrom([{ data: { tasks: null, statuses: [{ name: 'X', mark: 'todo', place: '3' }], changes: [{ task: 't', at: 'a', kind: 'made' }] } }]);
   assert.deepEqual(page.tasks, []);
+  assert.deepEqual(page.shows, []);
   assert.deepEqual(page.statuses[0], { name: 'X', mark: 'todo', tone: null, counts_as_done: false, closed: false, place: 3 });
   assert.deepEqual(page.changes[0], { task: 't', at: 'a', kind: 'made', status: null, title: null });
 });

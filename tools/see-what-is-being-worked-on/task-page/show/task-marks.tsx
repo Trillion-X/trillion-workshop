@@ -2,7 +2,8 @@
 // open/closed chevron, and the status word. Colours come from the status rows; the only motion is a 250 ms fill.
 import React from 'react';
 import { StepMark } from 'trillion-workshop/tools/ui/show/step-mark/StepMark';
-import { muted, type Status } from '../read-data/task-rows';
+import { muted, type Show, type Status } from '../read-data/task-rows';
+import { OpenedShows } from './task-shows';
 
 export const MARK_CSS = `
 .tl-mark{display:inline-flex;flex:none;align-items:center;justify-content:center;width:20px;height:20px}
@@ -51,9 +52,12 @@ export const Word = ({ look }: { look: Status | undefined }) =>
   look ? <span className="flex-none text-[13px]" style={{ color: look.tone ?? muted }}>{look.name}</span> : null;
 
 /** A row's plain detail and the exact task row's title, drawn when the row is opened. */
-export const Detail = ({ id, detail, title }: { id: string; detail?: string | null; title: string }) => (
-  <div id={id} className="flex flex-col gap-1.5 pb-3 pl-8 pr-6">
-    {detail && <p className="m-0 text-[14px] leading-[1.55]" style={{ textWrap: 'pretty' }}>{detail}</p>}
-    <p className="m-0 text-[12px] leading-4" style={{ color: muted }}>The exact task: {title}</p>
-  </div>
+export const Detail = ({ id, detail, title, shows }: { id: string; detail?: string | null; title: string; shows: Show[] }) => (
+  <>
+    <div id={id} className="flex flex-col gap-1.5 pb-3 pl-8 pr-6">
+      {detail && <p className="m-0 text-[14px] leading-[1.55]" style={{ textWrap: 'pretty' }}>{detail}</p>}
+      <p className="m-0 text-[12px] leading-4" style={{ color: muted }}>The exact task: {title}</p>
+    </div>
+    <OpenedShows shows={shows} />
+  </>
 );

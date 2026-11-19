@@ -14,6 +14,9 @@ The screens that show a file in its own form: the file-content renderer (markdow
 | `web/src/workspace/note-review-tools.tsx` | The tools on a meeting note's Summary and Action Items tabs: template and language, copy and PDF, a rating and the action items as tasks. |
 | `web/src/workspace/note-transcript.tsx` | A recording's transcript on its note, over the shared transcript reader, with speaker names, links to a passage, another language, copy, PDF and splitting a passage. |
 | `web/src/workspace/editable-text-document.tsx` | The editable text document the File screen shows for a text file the person may change. |
+| `read-data/classify-ref.mjs` | `classifyRef(ref)` → `{ kind, src }`: `image`, `video`, `audio`, `page` (an https address or a relative file that is not a picture, video or sound; drawn in a frame) or `unsupported` (any other scheme). Decided from the text alone; opens and fetches nothing. |
+| `show/ShowRef.tsx` | `ShowRef({ source, label })`: one ref drawn as itself (a picture, a video or a sound with its controls, or a page in a frame), with its label and an "Open in a new tab" link. Mounted only when its host draws it, so a closed row loads nothing. Used by the task page's opened rows. |
+| `test/classify-ref.test.mjs` | Run with `node --test test/classify-ref.test.mjs`. |
 | `show/file-mount.tsx` | The screen's module entry, the file its row names: `mount` is the screen's own mount function. |
 | `README.md` | This file |
 

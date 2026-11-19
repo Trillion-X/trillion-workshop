@@ -6,7 +6,9 @@ import type { StepMarkState } from 'trillion-workshop/tools/ui/show/step-mark/St
 export type Task = { id: string; title: string; parent: string | null; status: string; plain_title?: string | null; plain_detail?: string | null; waiting_on?: string | null };
 export type Change = { task: string; at: string; kind: string; status: string | null; title?: string | null };
 export type Status = { name: string; mark: StepMarkState; tone: string | null; counts_as_done: boolean; closed: boolean; place: number };
-export type Data = { tasks: Task[]; changes: Change[]; statuses: Status[] };
+/** A show: a thing a task produced, drawn inline when the task is opened. `made_at` says when it was made; History draws it only from then on. */
+export type Show = { task: string; ref: string; label: string; made_at: string };
+export type Data = { tasks: Task[]; changes: Change[]; statuses: Status[]; shows: Show[] };
 export type Moment = { at: string; changes: Change[]; label: string; title: string };
 /** kids: each task's rows in the fixed order (null: the roots); items: the work items under each task, at any depth. */
 export type Tree = { kids: Map<string | null, Task[]>; items: Map<string, string[]>; allItems: string[]; byId: Map<string, Task> };
@@ -84,6 +86,16 @@ export function treeOf(data: Data, looks: Map<string, Status>): Tree {
   for (const list of kids.values()) list.sort((a, b) => key.get(a.id)!.localeCompare(key.get(b.id)!));
   return { kids, items, allItems, byId };
 }
+
+/** Each task's shows, in the order they were made. */
+export function showsOf(data: Data): Map<string, Show[]> {
+  const out = new Map<string, Show[]>();
+  for (const show of data.shows) out.set(show.task, [...(out.get(show.task) ?? []), show]);
+  return out;
+}
+
+/** The shows a task had made by the moment `at` (an ISO time). */
+export const shownBy = (shows: Show[] | undefined, at: string) => (shows ?? []).filter(show => Date.parse(show.made_at) <= Date.parse(at));
 
 /** How work items count: done ones, and the total that still matters (a closed item that is not done, such as one
  *  ruled out, leaves the total). */
