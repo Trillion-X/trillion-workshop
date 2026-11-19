@@ -1,6 +1,6 @@
 // tools/make-a-video-playable-at-ingest/do-work/make-a-video-playable-at-ingest.mjs
 //
-// tool:decide-a-video-at-ingest, run as a function (tools/records-door do-work/run-an-export.mjs): the one decision
+// tool:decide-a-video-at-ingest, run as a function (tools/workflows do-work/run-a-function.mjs): the one decision
 // about a video at ingest, by src/ingest-normalization.mjs unchanged. It runs nothing: a runner (a computer's ffmpeg, a
 // container) takes plan.args and plan.output_name and does the conversion.
 //

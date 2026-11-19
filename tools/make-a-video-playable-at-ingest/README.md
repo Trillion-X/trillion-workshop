@@ -6,7 +6,7 @@ Moved from Trillion-X/trillion (commit b92aa549f2) byte for byte by `tools/move-
 
 ## How it runs
 
-`tool:decide-a-video-at-ingest` run `do-work/make-a-video-playable-at-ingest.mjs` in a small container with no internet, through `tools/records-door/do-work/run-an-export.mjs`. It reads no records and writes nothing; everything it works on is handed in.
+`tool:decide-a-video-at-ingest` run `do-work/make-a-video-playable-at-ingest.mjs` in a small container with no internet, through `tools/workflows/do-work/run-a-function.mjs`. It reads no records and writes nothing; everything it works on is handed in.
 
 ## What stays in the old tree
 
@@ -27,6 +27,6 @@ Moved from Trillion-X/trillion (commit b92aa549f2) byte for byte by `tools/move-
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (the run command), Node.
+**Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`, the run command), Node.
 
 **Depended on by:** `tool-rows.json`.
