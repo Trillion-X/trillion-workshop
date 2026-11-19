@@ -112,7 +112,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -190,7 +189,7 @@
         },
         "label": "Name the voices from the call app",
         "job": "Name the unnamed voices of a recorded call from who the call app showed as speaking on screen, only where the screen evidence is enough, one name to one voice",
-        "description": "Give turns ([{ start, end, who }] in seconds, such as tool:who-is-in-this answered) and samples ([{ at, names }] or [{ at, elements }] in milliseconds from the start of the recording, elements being the call window's accessibility elements), and app (the call app's name) when known. Only voices whose label is still unnamed (Someone (...), Unsure (...)) are laid over. Returns assignments ([{ voice, name, share, overlap_ms }]) and unnamed ([{ voice, candidates }]). Writing the names into the person's Trillion is the caller's (name_speaker).",
+        "description": "Give turns ([{ start, end, who }] in seconds, such as tool:who-is-in-this answered) and samples ([{ at, names }] or [{ at, elements }] in milliseconds from the start of the recording, elements being the call window's accessibility elements), and app (the call app's name) when known. Only voices whose label is still unnamed (Someone (...), Unsure (...)) are laid over. Returns assignments ([{ voice, name, share, overlap_ms }]) and unnamed ([{ voice, candidates }]). With apply, returns writes (each a name_speaker call's arguments, evidence included) for the caller to send; nothing is written here.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -219,6 +218,15 @@
             },
             "app": {
               "type": "string"
+            },
+            "apply": {
+              "type": "object",
+              "required": [
+                "app",
+                "since",
+                "until"
+              ],
+              "description": "Answer each name as a name_speaker write (writes) for the caller to send: the app, and the ISO times since and until"
             }
           },
           "required": [
@@ -249,7 +257,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/name-voices-from-the-call/read-data/name-from-the-call.mjs",
             "name"
           ],
@@ -268,47 +276,11 @@
                 "at": "/opt/name-voices-from-the-call"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "at": "/opt/workflows"
               }
             ]
           }

@@ -34,7 +34,6 @@
   "words": {
     "needs_turns": "Give turns: [{ start, end, who }] in seconds, such as the speakers tool:who-is-in-this answered.",
     "needs_samples": "Give samples: [{ at, names }] or [{ at, elements }] in milliseconds from the start of the recording.",
-    "needs_apply": "To name the voices in the person's Trillion give apply: { app, since, until }, where since and until are ISO times.",
-    "needs_caller": "Naming the voices in the person's Trillion is done by the caller that holds the name_speaker door; this run gives the assignments only. Leave out apply."
+    "needs_apply": "To name the voices in the person's Trillion give apply: { app, since, until }, where since and until are ISO times."
   }
 }

@@ -46,24 +46,21 @@ test('a voice is named only on enough of the screen evidence, and a name goes to
   assert.ok(found.unnamed.some(u => u.voice === 'V4'), 'one second is under least_overlap_seconds');
 });
 
-test('the tool lays the screen over unnamed voices only and writes each name through name_speaker with its evidence', async () => {
-  const calls = [];
+test('the tool lays the screen over unnamed voices only and answers each name as a name_speaker write for its caller', async () => {
   const turns = [
     { start: 0, end: 10, who: 'Someone (voice-1)' }, { start: 10, end: 20, who: 'Someone (voice-2)' },
     { start: 20, end: 30, who: 'Maria' },
   ];
   const samples = Array.from({ length: 20 }, (_, index) => ({ at: index * 1000 + 600, elements: [{ label: `${index < 10 ? 'Priya' : 'Ben'}, is speaking` }] }))
     .concat(Array.from({ length: 10 }, (_, index) => ({ at: 20_600 + index * 1000, names: ['Maria'] })));
-  const answer = await callTools.name({ turns, samples, app: 'Some Call App', apply: { app: 'Listening', since: '2026-10-19T09:00:00.000Z', until: '2026-10-19T09:01:00.000Z' } },
-    { call: async (tool, args) => { calls.push({ tool, args }); return { renamed: 3 }; } });
+  const answer = await callTools.name({ turns, samples, app: 'Some Call App', apply: { app: 'Listening', since: '2026-10-19T09:00:00.000Z', until: '2026-10-19T09:01:00.000Z' } });
   assert.deepEqual(answer.assignments.map(a => [a.voice, a.name]), [['Someone (voice-1)', 'Priya'], ['Someone (voice-2)', 'Ben']]);
-  assert.equal(calls.length, 2, 'Maria is already named and is not laid over');
-  assert.equal(calls[0].tool, 'name_speaker');
-  assert.equal(calls[0].args.speaker, 'Someone (voice-1)');
-  assert.match(calls[0].args.evidence, /99% of the time this voice spoke, 10 seconds/);
-  console.log('REAL readback of the name_speaker call:', JSON.stringify(calls[0]));
-  await assert.rejects(callTools.name({ turns, samples, apply: { app: 'Listening' } }, { call: async () => ({}) }), /since and until/);
+  assert.equal(answer.writes.length, 2, 'Maria is already named and is not laid over');
+  assert.equal(answer.writes[0].tool, 'name_speaker');
+  assert.equal(answer.writes[0].args.speaker, 'Someone (voice-1)');
+  assert.match(answer.writes[0].args.evidence, /99% of the time this voice spoke, 10 seconds/);
+  await assert.rejects(callTools.name({ turns, samples, apply: { app: 'Listening' } }), /since and until/);
   await assert.rejects(callTools.name({ turns: [], samples }), /Give turns/);
   const dry = await callTools.name({ turns, samples, app: 'Some Call App' });
-  assert.equal(dry.named, undefined, 'without apply nothing is written');
+  assert.equal(dry.writes, undefined, 'without apply nothing is written');
 });

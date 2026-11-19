@@ -11,9 +11,12 @@ test('the row reads only what it is handed and runs the name export', () => {
   assert.equal(row.invoke.records, undefined);
 });
 
-test('without a name_speaker door handed in, apply is refused and nothing is written', async () => {
+test('apply answers each name as a name_speaker write, and nothing is written without apply', async () => {
   const turns = [{ start: 0, end: 10, who: 'Someone (voice-1)' }];
   const samples = Array.from({ length: 10 }, (_, index) => ({ at: index * 1000 + 600, names: ['Sample Person'] }));
-  assert.deepEqual((await name({ turns, samples })).assignments.map(a => a.name), ['Sample Person']);
-  await assert.rejects(name({ turns, samples, apply: { app: 'Listening', since: '2026-11-03T09:00:00Z', until: '2026-11-03T09:01:00Z' } }, { door: null }), /caller that holds the name_speaker door/);
+  const plain = await name({ turns, samples });
+  assert.deepEqual(plain.assignments.map(a => a.name), ['Sample Person']);
+  assert.equal(plain.writes, undefined);
+  const applied = await name({ turns, samples, apply: { app: 'Listening', since: '2026-11-03T09:00:00Z', until: '2026-11-03T09:01:00Z' } });
+  assert.deepEqual(applied.writes.map(w => [w.tool, w.args.speaker, w.args.name, w.args.app]), [['name_speaker', 'Someone (voice-1)', 'Sample Person', 'Listening']]);
 });

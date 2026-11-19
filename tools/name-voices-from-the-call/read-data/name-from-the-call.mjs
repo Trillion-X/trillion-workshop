@@ -6,9 +6,9 @@
 //   the call runs (by the caller: tools/read-what-is-on-screen, or the Mac app's screen reader), `namesSpeaking` reads who the app shows as speaking, the samples
 //   become intervals shifted by the app's lag, and `reconcile` lays them over the voices of the recording (the turns
 //   tool:who-is-in-this answers). It is tool:name-voices-from-the-call, run on the person's computer as
-//     node /opt/records-door/do-work/run-an-export.mjs /opt/name-voices-from-the-call/read-data/name-from-the-call.mjs name
-//   Applying a name goes through the account's one name_speaker door, exactly as a voice named by enrolment does; the
-//   caller that holds that door hands it in as `call` (the old app's MCP client with the account key is not carried).
+//     node /opt/workflows/do-work/run-a-function.mjs /opt/name-voices-from-the-call/read-data/name-from-the-call.mjs name
+//   Applying a name is not done here: with `apply`, the run answers each name as a `writes` entry (the name_speaker call's
+//   arguments, evidence included) and the caller sends it through the account's own name_speaker tool.
 //
 // Non-negotiable invariants
 //   1. Read only on the call app: this reads elements it is handed; it clicks and types nothing. Which element marks a
@@ -104,9 +104,9 @@ export function reconcile(turns, intervals, { sure_share: sure = 0.6, least_over
 export const callTools = {
   /**
    * { turns: [{ start, end, who }] (seconds), samples: [{ at, names? | elements? }] (ms), app?, apply?: { app, since, until } }
-   * -> { assignments, unnamed, named? }. With `apply`, each assignment is written through name_speaker.
+   * -> { assignments, unnamed, writes? }. With `apply`, each assignment comes back as a name_speaker write for the caller to send.
    */
-  async name(input, context = {}) {
+  async name(input) {
     const settings = callSettings();
     if (!Array.isArray(input.turns) || !input.turns.length) throw fail(settings.words.needs_turns);
     if (!Array.isArray(input.samples) || !input.samples.length) throw fail(settings.words.needs_samples);
@@ -120,15 +120,13 @@ export const callTools = {
     if (!input.apply) return found;
     const { app, since, until } = input.apply;
     if (!app || !since || !until) throw fail(settings.words.needs_apply);
-    const call = context.call;
-    if (typeof call !== 'function') throw fail(settings.words.needs_caller);
-    const named = await Promise.all(found.assignments.map(assignment => call('name_speaker', {
+    const writes = found.assignments.map(assignment => ({ tool: 'name_speaker', args: {
       app, speaker: assignment.voice, name: assignment.name, since, until,
       evidence: fill(settings.evidence, { share: `${Math.round(assignment.share * 100)}%`, seconds: Math.round(assignment.overlap_ms / 1000) }),
-    }).then(answer => ({ voice: assignment.voice, name: assignment.name, answer }), error => ({ voice: assignment.voice, name: assignment.name, error: String(error.message ?? error) }))));
-    return { ...found, named };
+    } }));
+    return { ...found, writes };
   },
 };
 
-/** tool:name-voices-from-the-call as the named export run-an-export calls: fn(input, { door }). */
-export const name = (input, context = {}) => callTools.name(input, context);
+/** tool:name-voices-from-the-call as the named export run-a-function calls: fn(input). */
+export const name = input => callTools.name(input);
