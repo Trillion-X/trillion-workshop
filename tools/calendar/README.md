@@ -1,6 +1,6 @@
 # tools/calendar/
 
-A person's calendar, built from their own records. Any records that have a start and an end (bookings, scheduled work, reservations, events) become time blocks through a lens the person writes; the blocks are laid out for a day, week, month or agenda view with overlapping blocks in columns and clashes named; and events can be read from the person's own Google calendar with their own credential. Three Workshop tools run in the deployed tool container: `tool:read-time-blocks`, `tool:lay-out-a-calendar-view` and `tool:read-google-calendar-events`. Ported from bitfield-packages `packages/calendar` (its time-block projection, account and sync-state readers, view descriptors, day and month grids, overlap packing, and the request and normalizer of its Google sync); its drawing was not brought in (see Not brought in). Nothing here writes a calendar.
+A person's calendar, built from their own records. Any records that have a start and an end (bookings, scheduled work, reservations, events) become time blocks through a lens the person writes; the blocks are laid out for a day, week, month or agenda view with overlapping blocks in columns and clashes named; and events can be read from the person's own calendar on whichever provider it is on (Google Calendar or Outlook Calendar today; a new provider is a row of `read-data/calendar-providers.json` and an adapter file), through their connected account. Three Workshop tools: `tool:read-time-blocks`, `tool:lay-out-a-calendar-view` and `tool:read-calendar-events`. Ported from bitfield-packages `packages/calendar` (its time-block projection, account and sync-state readers, view descriptors, day and month grids, overlap packing, and the request and normalizer of its Google sync); its drawing was not brought in (see Not brought in). Nothing here writes a calendar.
 
 ## Files
 
@@ -8,16 +8,17 @@ A person's calendar, built from their own records. Any records that have a start
 |------|---------|
 | `read-data/time-blocks.mjs` | `readSelector` (path, column, fallback), `readTimeBlocks` (lenses over rows into ordered blocks, with an issue for a lens that is unusable or has no rows), `readAccounts`, `readSyncStates` (queued changes and conflicts as blocks). |
 | `read-data/calendar-views.mjs` | `chooseView`, `timeGridDays`, `monthGridDays`, `packOverlappingBlocks`, `clashesOf`, `layOutView` (the person's own days by UTC offset; time grid, month grid, agenda list). |
-| `read-data/google-events.mjs` | `requestProblems`, `eventsUrl`, `readEvents`: the Google events request and the reading of its answer as blocks. |
+| `read-data/calendar-providers.json` | The calendar providers, one row each: the connection kind, the hosts its key may go to, how the key is renewed, and the adapter. The tool row's `by_input` variants are derived from these rows. |
+| `read-data/calendar-events.mjs` | `readCalendarEvents`: the one entry of `tool:read-calendar-events`. Picks the provider row, reads the key from descriptor 4 only for a request to that provider's own host, and turns the adapter's events into time blocks. |
+| `read-data/adapters/google.mjs`, `read-data/adapters/graph.mjs` | The Google Calendar and Microsoft Graph requests for one calendar's events in a range, read into one neutral event shape. |
 | `do-work/command.mjs` | How every command here runs: JSON on stdin, one JSON line out, a refusal on stderr. |
 | `do-work/read-time-blocks.mjs` | The command of `tool:read-time-blocks`. |
 | `do-work/lay-out-a-calendar-view.mjs` | The command of `tool:lay-out-a-calendar-view`. |
-| `do-work/read-google-calendar-events.mjs` | The command of `tool:read-google-calendar-events`: the only place the three credentials are read and sent. |
 | `tool-rows.json` | The three rows. |
 | `part.json` | No public files: only the tools run this code. |
 | `test/time-blocks.test.mjs` | The package's projection, account and sync-state cases on a bakery's pickups, plus unusable and empty lenses. |
 | `test/calendar-views.test.mjs` | The package's overlap and view cases, plus offsets, month, agenda, clashes and a view the code never named. |
-| `test/google-events.test.mjs` | The request, the reading, and the sending against a stand-in network, with no credential in any answer. |
+| `test/calendar-providers.test.mjs` | Both providers against a stand-in network: the request, the blocks, the refusals, and the key going only to the provider's own host. |
 | `test/calendar-tools.test.mjs` | Each tool run the way its row runs it, the verify samples, refusals listing every problem. |
 | `web/src/workspace/shared-calendar-screen-mount.tsx` | The Calendar's module entry, the file the rows `tool:screen-calendar`, `tool:screen-calendar-grid`, `tool:screen-calendar-settings` and `tool:screen-calendar-tasks` name: `mount` is the screen's own mount function. |
 | `web/src/workspace/email-screen-mount.tsx` | The Mail screen's module entry (`tool:screen-mail`): `mount` is `mountEmailScreen`. |

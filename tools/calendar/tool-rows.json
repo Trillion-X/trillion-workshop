@@ -491,6 +491,10 @@
     },
     {
       "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:calendar",
         "uses_tools": [
           "trillion-workshop/account-session",
           "trillion-workshop/addressed-marks",
@@ -670,119 +674,263 @@
           "trillion-workshop/write-a-job-done-in-several-steps-have",
           "trillion-workshop/write-a-post-for-each-place"
         ],
-        "kind": "ai-tool-descriptor",
-        "id": "tool:read-google-calendar-events",
-        "label": "Read events from my Google calendar",
-        "status": "active",
-        "job": "Read the events in a time range from one of the person's own Google calendars and give them back as time blocks",
-        "description": "Asks Google for the events of one calendar between two times (every occurrence of a repeating event, in start order) with the person's own Google OAuth client id, client secret and refresh token, and gives them back as time blocks that read-time-blocks and lay-out-a-calendar-view understand. A cancelled event is marked cancelled; an all-day event is a date. It reads only: it never creates, changes or removes an event. The three credentials arrive only on private pipes under the held-value names the row names; no answer or error carries them. Without all three it refuses.",
+        "id": "tool:read-calendar-events",
+        "label": "Read events from my calendar",
+        "job": "Read the events in a time range from one of the person's own calendars, on whichever provider it is on, and give them back as time blocks",
+        "description": "Asks the person's calendar provider (a row of read-data/calendar-providers.json: Google Calendar or Outlook Calendar today; a new provider is a row and an adapter file) for the events of one calendar between two times, every occurrence of a repeating event in start order, as the person, through their connected account, and gives them back as time blocks that read-time-blocks and lay-out-a-calendar-view understand. A cancelled event is marked cancelled; an all-day event is a date. It reads only: it never creates, changes or removes an event. The account's key arrives on a private descriptor and goes only to the provider's own host; no answer or error carries it.",
         "input_schema": {
           "type": "object",
-          "required": ["range_start", "range_end"],
+          "additionalProperties": false,
+          "required": [
+            "provider",
+            "connection",
+            "range_start",
+            "range_end"
+          ],
           "properties": {
-            "range_start": { "type": "string", "description": "ISO time the range starts" },
-            "range_end": { "type": "string", "description": "ISO time the range ends" },
-            "calendar_id": { "type": "string", "description": "Which of the person's calendars; their primary one when absent" },
-            "max_results": { "type": "integer", "description": "At most this many events, 1 to 2500; 50 when absent" },
-            "connection_ref": { "type": "string", "description": "A name the person uses for this account; carried on each block" }
-          },
-          "additionalProperties": false
+            "provider": {
+              "type": "string",
+              "description": "Which calendar provider the account is on: an id of read-data/calendar-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected (not read by the run)"
+                }
+              }
+            },
+            "range_start": {
+              "type": "string",
+              "description": "ISO time the range starts"
+            },
+            "range_end": {
+              "type": "string",
+              "description": "ISO time the range ends"
+            },
+            "calendar_id": {
+              "type": "string",
+              "description": "Which of the person's calendars; their main one when absent"
+            },
+            "max_results": {
+              "type": "integer",
+              "description": "At most this many events, 1 to 2500; 50 when absent"
+            }
+          }
         },
         "output_schema": {
           "type": "object",
-          "required": ["blocks", "issues", "source"],
-          "properties": { "blocks": { "type": "array" }, "issues": { "type": "array" }, "range_start": { "type": "string" }, "range_end": { "type": "string" }, "source": { "type": "object" } }
+          "required": [
+            "blocks",
+            "issues",
+            "source"
+          ],
+          "properties": {
+            "blocks": {
+              "type": "array"
+            },
+            "issues": {
+              "type": "array"
+            },
+            "range_start": {
+              "type": "string"
+            },
+            "range_end": {
+              "type": "string"
+            },
+            "source": {
+              "type": "object"
+            }
+          }
         },
         "invoke": {
           "kind": "container",
+          "workdir": "/opt/calendar",
           "internet": true,
-          "files": { "package_files": { "package": "calendar", "paths": ["do-work", "read-data"], "at": "/opt/parts/calendar" } },
-          "workdir": "/opt/parts/calendar",
           "stdout": "json",
-          "argv": ["node", "do-work/read-google-calendar-events.mjs"],
-          "stdin": { "fill": { "from": "input" } },
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/calendar/read-data/calendar-events.mjs",
+            "readCalendarEvents"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
           "credential_mounts": [
-            { "secret_name": "google-calendar-client-id", "fd": 3 },
-            { "secret_name": "google-calendar-client-secret", "fd": 4 },
-            { "secret_name": "google-calendar-refresh-token", "fd": 5 }
-          ]
-        },
-        "needs": { "expected_seconds": 20, "network_egress": true, "memory_mb": 256 },
-        "licence_class": "licence:maker-own",
-        "placements": ["placement:deployed-container"],
-        "maker": "maker:calendar",
-        "result_selector": "$",
-        "provenance": { "source": "bitfield-packages packages/calendar (the Google calendar sync workflow's request and normalizer)" },
-        "verify": [{
-          "kind": "sample-run",
-          "input": {
-            "range_start": "2030-08-12T00:00:00Z",
-            "range_end": "2030-08-13T00:00:00Z",
-            "connection_ref": "sample-account"
-          },
-          "held": {
-            "google-calendar-client-id": "sample-client-id.example.test",
-            "google-calendar-client-secret": "sample-client-secret",
-            "google-calendar-refresh-token": "sample-refresh-token"
-          },
-          "replies": [
             {
-              "request": {
-                "method": "POST",
-                "url": "https://oauth2.googleapis.com/token"
-              },
-              "status": 200,
-              "body": {
-                "access_token": "sample-access-token",
-                "expires_in": 3599,
-                "scope": "https://www.googleapis.com/auth/calendar.readonly",
-                "token_type": "Bearer"
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "url": "https://www.googleapis.com/calendar/v3/calendars/primary/events"
-              },
-              "status": 200,
-              "body": {
-                "kind": "calendar#events",
-                "summary": "Sample calendar",
-                "timeZone": "UTC",
-                "items": [
-                  {
-                    "kind": "calendar#event",
-                    "id": "sampleevent1",
-                    "status": "confirmed",
-                    "htmlLink": "https://calendar.example.test/event?eid=sampleevent1",
-                    "summary": "Sample meeting",
-                    "start": {
-                      "dateTime": "2030-08-12T15:00:00Z",
-                      "timeZone": "UTC"
-                    },
-                    "end": {
-                      "dateTime": "2030-08-12T16:00:00Z",
-                      "timeZone": "UTC"
-                    }
-                  },
-                  {
-                    "kind": "calendar#event",
-                    "id": "sampleevent2",
-                    "status": "confirmed",
-                    "summary": "Sample day off",
-                    "start": {
-                      "date": "2030-08-12"
-                    },
-                    "end": {
-                      "date": "2030-08-13"
-                    }
-                  }
-                ]
-              }
+              "field_id": "access_token",
+              "fd": 4
             }
           ],
-          "shape_read_at": "2026-11-03"
-        }]
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "google-calendar": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook-calendar": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "calendar",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/calendar"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "placements": [
+          "placement:small-container"
+        ],
+        "result_selector": "$",
+        "provenance": {
+          "source": "tools/calendar read-google-calendar-events (Google request and reading), made provider-neutral the way tools/read-and-write-mail is"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "google-calendar",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "range_start": "2026-11-20T00:00:00Z",
+              "range_end": "2026-11-21T00:00:00Z"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://www.googleapis.com/calendar/v3/calendars/primary/events"
+                },
+                "status": 200,
+                "body": {
+                  "items": [
+                    {
+                      "id": "ev1",
+                      "summary": "Call",
+                      "status": "confirmed",
+                      "start": {
+                        "dateTime": "2026-11-20T15:00:00Z"
+                      },
+                      "end": {
+                        "dateTime": "2026-11-20T15:15:00Z"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-19",
+            "output_selector": "$.blocks.0.display.title"
+          }
+        ]
       }
     }
   ]

@@ -74,7 +74,7 @@ test('a kept change is one statement of the told change, keyed by where, place, 
 // The person's own switch input: everything this row names none of.
 const SETTINGS = { history: { credential_name: 'my-history-connection' }, address_scheme: 'email', soon_minutes: 120,
   owner: { audience_refs: ['person:owner'], kind: 'needs-you', privacy_class: 'private' },
-  mail: { provider: 'gmail', connection: { connection_id: 'service_connection:google-account:example' } }, calendar: { calendar_id: 'primary', connection_ref: 'my-calendar' },
+  mail: { provider: 'gmail', connection: { connection_id: 'service_connection:google-account:example' } }, calendar: { provider: 'google-calendar', connection: { connection_id: 'service_connection:google-account:example' }, calendar_id: 'primary' },
   voice: { adapter: '/opt/example-adapter', base_model: '/opt/example-model', criterion: { id: 'x' }, min_paragraph_chars: 40, decider_common_dir: '/opt/example-decider' },
   phrase_rules: [{ id: 'no-filler', words: ['just checking in'] }] };
 const due = (soon, extra = {}) => ({ thing_scheme: 'person', thing_value: 'person:bo', through: 9, meanings: ['booked', 'cancelled'], words: 'moved the call', addresses: address('bo'), address: address('bo.work'),
@@ -89,7 +89,7 @@ function tellDoor({ rows, claimed = true, fail = null }) {
     }
     if (name === 'tool:ask-a-model') return { choices: [{ message: { role: 'assistant', content: '{"subject":"Our call","text":"See you then."}' } }] };
     if (name === 'tool:find-mail') return { messages: [{ subject: 'Your call', to: address('bo') }] };
-    if (name === 'tool:read-google-calendar-events') return { blocks: [{ title: 'Call with Bo', start: '2026-11-21T13:00:00Z' }] };
+    if (name === 'tool:read-calendar-events') return { blocks: [{ title: 'Call with Bo', start: '2026-11-21T13:00:00Z' }] };
     if (name === 'tool:score-writing-with-a-voice-adapter') return { result: { paragraph_scores: [{ index: 0, chars: 40, p_pass: 0.8 }], body_min: 0.8 } };
     if (name === 'tool:judge-against-rules') return { passed: true, status: 'passed', findings: [], lines: [], said: 'clean' };
     if (name === 'tool:save-a-mail-draft') return { draft_id: 'draft-1', message_id: null, thread_id: null };
@@ -97,7 +97,7 @@ function tellDoor({ rows, claimed = true, fail = null }) {
   });
 }
 const tellRun = d => runAsTheTool(wake(TELL, 'every-five-minutes', { schedule_id: 'x' }, 'clock::due@1', SETTINGS), d);
-const DRAFTED = ['WITH', 'INSERT', 'tool:find-mail', 'tool:read-google-calendar-events', 'tool:ask-a-model', 'tool:score-writing-with-a-voice-adapter', 'tool:judge-against-rules', 'tool:save-a-mail-draft', 'tool:record-a-notification'];
+const DRAFTED = ['WITH', 'INSERT', 'tool:find-mail', 'tool:read-calendar-events', 'tool:ask-a-model', 'tool:score-writing-with-a-voice-adapter', 'tool:judge-against-rules', 'tool:save-a-mail-draft', 'tool:record-a-notification'];
 const asked = d => d.calls.map(call => call.name === 'tool:run-sql-in-my-database' ? call.input.sql.split(/\s/)[0] : call.name);
 
 test('a settled person is told once: a checked draft to the address used last, in the owner\'s mailbox, and a notice that it is there', async () => {
@@ -132,7 +132,7 @@ test('changes already told are not told again: the claim refuses and nothing is 
 });
 
 test('a draft step that fails still tells what changed; a notice that fails gives its claim back and removes its draft', async () => {
-  for (const failing of ['tool:find-mail', 'tool:read-google-calendar-events', 'tool:ask-a-model', 'tool:score-writing-with-a-voice-adapter', 'tool:judge-against-rules', 'tool:save-a-mail-draft']) {
+  for (const failing of ['tool:find-mail', 'tool:read-calendar-events', 'tool:ask-a-model', 'tool:score-writing-with-a-voice-adapter', 'tool:judge-against-rules', 'tool:save-a-mail-draft']) {
     const d = tellDoor({ rows: [due(false)], fail: failing });
     assert.equal((await tellRun(d)).status, 'completed');
     assert.deepEqual(asked(d).slice(-2), [failing, 'tool:record-a-notification'], failing);

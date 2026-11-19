@@ -33,7 +33,7 @@
             },
             "calendar": {
               "type": "object",
-              "description": "The owner's calendar for tool:read-google-calendar-events: calendar_id and connection_ref"
+              "description": "The owner's calendar for tool:read-calendar-events: provider, connection {connection_id} and calendar_id (none means the main calendar)"
             },
             "voice": {
               "type": "object",
@@ -627,7 +627,7 @@
                   "id": "read-the-calendar",
                   "kind": "ask",
                   "config": {
-                    "name": "tool:read-google-calendar-events",
+                    "name": "tool:read-calendar-events",
                     "input": {
                       "range_start": {
                         "$kind": "binding",
@@ -650,11 +650,18 @@
                           "path": "calendar.calendar_id"
                         }
                       },
-                      "connection_ref": {
+                      "provider": {
                         "$kind": "binding",
                         "select": {
                           "from": "input",
-                          "path": "calendar.connection_ref"
+                          "path": "calendar.provider"
+                        }
+                      },
+                      "connection": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "calendar.connection"
                         }
                       }
                     },
@@ -1876,7 +1883,7 @@
             "tool:delete-a-mail-draft",
             "tool:find-mail",
             "tool:judge-against-rules",
-            "tool:read-google-calendar-events",
+            "tool:read-calendar-events",
             "tool:record-a-notification",
             "tool:run-sql-in-my-database",
             "tool:save-a-mail-draft",

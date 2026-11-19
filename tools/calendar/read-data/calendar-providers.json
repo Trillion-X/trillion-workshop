@@ -1,0 +1,115 @@
+{
+  "_what": "The calendar providers a person's calendar can be on, one row each: the connection kind that reaches the account (connection_vendor: a connection `service_connection:<vendor>` or `service_connection:<vendor>:<name>`), the one host family a held key may go to (hosts, base_url), how its key is renewed (refresh, the engine's own descriptor), which wire adapter turns its requests and replies into time blocks (adapter: read-data/adapters/<adapter>.mjs) and which operations it offers. Read by read-data/calendar-events.mjs and by test/calendar-providers.test.mjs, which derives the tool row's by_input variants from these rows so this file is the only owner of what differs between providers. A new provider is a row and an adapter file; no tool id or row names one.",
+  "operations": [
+    "read-calendar-events"
+  ],
+  "words": {
+    "not_offered": "{label} does not offer this: {job}.",
+    "refused": "{label} refused the request ({status}): {said}",
+    "no_key": "Your {label} connection holds no access key. Connect {label} again.",
+    "host": "A connection's key goes only to {hosts}, so nothing was sent to {host}.",
+    "no_provider": "Give provider: one of {providers}.",
+    "no_such_provider": "{provider} is not a calendar provider here; the providers are {providers}.",
+    "empty": "{label} answered, but no events were returned for the range."
+  },
+  "providers": [
+    {
+      "id": "google-calendar",
+      "label": "Google Calendar",
+      "adapter": "google",
+      "connection_vendor": "google-account",
+      "connect_path": "/work/connect/google-account",
+      "hosts": [
+        "www.googleapis.com"
+      ],
+      "base_url": "https://www.googleapis.com/calendar/v3",
+      "refresh": {
+        "token_url": "https://oauth2.googleapis.com/token",
+        "asked": {
+          "method": "POST",
+          "grant_type": "refresh_token",
+          "token_param": "refresh_token"
+        },
+        "client_auth": "form",
+        "client": {
+          "id": {
+            "name": "google-sign-in-client-id"
+          },
+          "secret": {
+            "name": "google-sign-in-client-secret"
+          }
+        },
+        "access_field": "access_token",
+        "token_paths": [
+          [
+            "access_token"
+          ]
+        ],
+        "expires_path": [
+          "expires_in"
+        ],
+        "refresh": {
+          "field": "refresh_token",
+          "token_paths": [
+            [
+              "refresh_token"
+            ]
+          ]
+        },
+        "when_expiry_unknown": true
+      },
+      "operations": [
+        "read-calendar-events"
+      ]
+    },
+    {
+      "id": "outlook-calendar",
+      "label": "Outlook Calendar",
+      "adapter": "graph",
+      "connection_vendor": "microsoft-account",
+      "connect_path": "/work/connect/microsoft-account",
+      "hosts": [
+        "graph.microsoft.com"
+      ],
+      "base_url": "https://graph.microsoft.com/v1.0",
+      "refresh": {
+        "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+        "asked": {
+          "method": "POST",
+          "grant_type": "refresh_token",
+          "token_param": "refresh_token"
+        },
+        "client_auth": "form",
+        "client": {
+          "id": {
+            "name": "microsoft-sign-in-client-id"
+          },
+          "secret": {
+            "name": "microsoft-sign-in-client-secret"
+          }
+        },
+        "access_field": "access_token",
+        "token_paths": [
+          [
+            "access_token"
+          ]
+        ],
+        "expires_path": [
+          "expires_in"
+        ],
+        "refresh": {
+          "field": "refresh_token",
+          "token_paths": [
+            [
+              "refresh_token"
+            ]
+          ]
+        },
+        "when_expiry_unknown": true
+      },
+      "operations": [
+        "read-calendar-events"
+      ]
+    }
+  ]
+}

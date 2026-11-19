@@ -56,7 +56,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `browser-saved-items` | `tool:organize-saved-browser-tabs` |
 | `build-a-screen-from-patches` | `tool:apply-a-view-patch`, `tool:build-a-screen-spec-from-a-patch-stream`, `tool:make-a-view-patch` |
 | `build-and-send-a-sales-contract` | `tool:plan-what-a-sent-deal-sets-up` |
-| `calendar` | `tool:lay-out-a-calendar-view`, `tool:read-google-calendar-events`, `tool:read-time-blocks` |
+| `calendar` | `tool:lay-out-a-calendar-view`, `tool:read-calendar-events`, `tool:read-time-blocks` |
 | `calibrate-a-camera-frame` | `tool:calibrate-a-camera-frame` |
 | `carry-a-computer-to-a-meeting-point` | `tool:carry-a-computer-to-a-meeting-point` |
 | `carry-an-account-into-its-own-records` | `tool:check-imported-history-receipt` |

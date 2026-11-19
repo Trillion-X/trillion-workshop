@@ -29,16 +29,6 @@ test('every row\'s sample run gives what its verify says', () => {
   }
 });
 
-test('the Google row mounts three held values on three descriptors and reads, never writes', () => {
-  const row = rows.find(item => item.id === 'tool:read-google-calendar-events');
-  assert.deepEqual(row.invoke.credential_mounts.map(mount => mount.fd), [3, 4, 5]);
-  assert.ok(row.invoke.credential_mounts.every(mount => /^google-calendar-[a-z-]+$/.test(mount.secret_name)));
-  assert.equal(row.invoke.internet, true);
-  const code = ['do-work/read-google-calendar-events.mjs', 'read-data/google-events.mjs'].map(file => readFileSync(resolve(folder, file), 'utf8')).join('\n');
-  assert.doesNotMatch(code, /method:\s*'(PUT|PATCH|DELETE)'/);
-  assert.doesNotMatch(code, /console\.|process\.env/);
-});
-
 test('reading time blocks through the row: blocks, accounts and sync states together', () => {
   const answer = runByRow('tool:read-time-blocks', {
     lenses: [{ kind: 'time-block-lens', lens_id: 'orders', input_address: 'pickups', owner_ref: 'bakery', selectors: { identity: 'id', start: 's', end: 'e' } }],
@@ -69,9 +59,4 @@ test('bad input is refused with every problem listed', () => {
   const laid = runByRow('tool:lay-out-a-calendar-view', { blocks: [{ id: 'x' }], views: 'day', anchor: 4, utc_offset_minutes: 5000 });
   for (const part of ['views must be a list', 'blocks\\[0\\] must be', 'anchor must be text', 'utc_offset_minutes']) assert.match(laid.refused, new RegExp(part));
   assert.match(runByRow('tool:read-time-blocks', 5).refused, /Give \{ lenses, feeds \}/);
-});
-
-test('the Google row without its credentials refuses by name and sends nothing', () => {
-  const refused = runByRow('tool:read-google-calendar-events', { range_start: '2026-06-01T00:00:00Z', range_end: '2026-07-01T00:00:00Z' }, { stdio: ['pipe', 'pipe', 'pipe'] });
-  assert.match(refused.refused, /No Google client id arrived/);
 });

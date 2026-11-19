@@ -10,7 +10,7 @@
     "tool:run-sql-in-my-database",
     "tool:record-a-notification",
     "tool:find-mail",
-    "tool:read-google-calendar-events",
+    "tool:read-calendar-events",
     "tool:ask-a-model",
     "tool:score-writing-with-a-voice-adapter",
     "tool:judge-against-rules",
@@ -20,7 +20,7 @@
   "instructions": [
     "1. Keep changes in your history first (workflow:keep-each-told-change-in-the-history).",
     "2. In your history, give each meaning that should reach you a tell_after (how long it settles) and tell_words for the sets of meanings told together; mark the schemes you are told about (told_about).",
-    "3. Switch on every-five-minutes with your own input: history, address_scheme, soon_minutes (a next call sooner than that is a call to make now), owner (audience_refs, kind, privacy_class for the notice), mail (provider, connection), calendar (calendar_id, connection_ref), voice (the scorer's draft-mode settings) and phrase_rules.",
+    "3. Switch on every-five-minutes with your own input: history, address_scheme, soon_minutes (a next call sooner than that is a call to make now), owner (audience_refs, kind, privacy_class for the notice), mail (provider, connection), calendar (provider, connection, calendar_id), voice (the scorer's draft-mode settings) and phrase_rules.",
     "4. Each draft waits in your mailbox: sending it is your yes. Your sent-mail waiter tells the sent message back into your history as a sent statement, which has no tell_after, so it starts nothing.",
     "5. Each notice is about one person, once: a second look at the same changes finds them told."
   ],
@@ -60,8 +60,11 @@
                 "privacy_class": "private"
               },
               "calendar": {
-                "calendar_id": "primary",
-                "connection_ref": "my-calendar"
+                "provider": "google-calendar",
+                "connection": {
+                  "connection_id": "service_connection:google-account:example"
+                },
+                "calendar_id": "primary"
               },
               "phrase_rules": [
                 {

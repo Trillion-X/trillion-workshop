@@ -1,0 +1,41 @@
+{
+  "drafted_from": "tool:read-calendar-events's own row (its words, input schema and sample run) and what that sample answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read the events in a time range from one of the person's own calendars, on whichever provider it is on, and give them back as time blocks\", with {\"provider\":\"google-calendar\",\"connection\":{\"connection_id\":\"service_connection:google-account:sample\"},\"range_start\":\"2026-11-20T00:00:00Z\",\"range_end\":\"2026-11-21T00:00:00Z\"}. It runs tool:read-calendar-events and answers {\"blocks\":[{\"id\":\"google-calendar:ev1\",\"source\":{\"lensId\":\"events\",\"inputAddress\":\"google-calendar.primary.events\",\"ownerRef\":\"google-calendar\",\"rowRef\":\"ev1\"},\"interval\":{\"start\":\"2026-11-20T15:00:00Z\",\"end\":\"2026-11-20T15:15:00Z\",\"allDay\":false,\"timezone\":\"local\"},\"display\":{\"title\":\"Call\",\"color\":\"\",\"ownerLabel\":\"Google Calendar\"},\"state\":{\"ref\":\"ready\",\"lane\":\"google-calendar\"},\"relations\":{\"account\":[\"service_connection:google-account:sample\"],\"list\":[\"google-calendar:primary\"],\"linkedRecord\":[],\"conflict\":[]}}],\"issues\":[],\"range_start\":\"2026-11-20T00:00:00.000Z\",\"range_end\":\"2026-11-21T ...",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:read-calendar-events"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Read the events in a time range from one of the person's own calendars, on whichever provider it is on, and give them back as time blocks\", and give it provider (google-calendar or outlook-calendar, a row of tools/calendar/read-data/calendar-providers.json), connection (your connected account by its handle), range_start and range_end (ISO times).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-calendar-events and its input (the worked example shows one).",
+    "3. Read what comes back: the events of that calendar in the range as time blocks that read-time-blocks and lay-out-a-calendar-view understand; a cancelled event is marked cancelled and an all-day event is a date. It reads only."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read one day of my Google calendar on its own sample",
+      "ask": "Read the events in a time range from one of the person's own calendars, on whichever provider it is on, and give them back as time blocks",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-calendar-events",
+            "input": {
+              "provider": "google-calendar",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "range_start": "2026-11-20T00:00:00Z",
+              "range_end": "2026-11-21T00:00:00Z"
+            }
+          }
+        }
+      },
+      "given": "The input {\"provider\":\"google-calendar\",\"connection\":{\"connection_id\":\"service_connection:google-account:sample\"},\"range_start\":\"2026-11-20T00:00:00Z\",\"range_end\":\"2026-11-21T00:00:00Z\"}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"blocks\":[{\"id\":\"google-calendar:ev1\",\"source\":{\"lensId\":\"events\",\"inputAddress\":\"google-calendar.primary.events\",\"ownerRef\":\"google-calendar\",\"rowRef\":\"ev1\"},\"interval\":{\"start\":\"2026-11-20T15:00:00Z\",\"end\":\"2026-11-20T15:15:00Z\",\"allDay\":false,\"timezone\":\"local\"},\"display\":{\"title\":\"Call\",\"color\":\"\",\"ownerLabel\":\"Google Calendar\"},\"state\":{\"ref\":\"ready\",\"lane\":\"google-calendar\"},\"relations\":{\"account\":[\"service_connection:google-account:sample\"],\"list\":[\"google-calendar:primary\"],\"linkedRecord\":[],\"conflict\":[]}}],\"issues\":[],\"range_start\":\"2026-11-20T00:00:00.000Z\",\"range_end\":\"2026-11-21T ...."
+    }
+  ]
+}

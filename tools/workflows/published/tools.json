@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:72ae78a08594b370e2818eddf9a9f5c25bb8fdd6dd0ef834388fa37ada31bef2"
+  "blake3": "1f:19aeace9c56d02dda4bd5eadac169a759906b6a7e8ba4d6236ca15ec7e491626"
  },
  "fields": [
   {
@@ -2421,6 +2421,21 @@
    }
   },
   {
+   "id": "tool:choose-programs-left-running",
+   "values": {
+    "title": "Choose the programs left running",
+    "job": "Choose which running programs were left behind by a session that ended, judged only by the person's own left-behind and never-stop rule rows",
+    "description": "Reads nothing and changes nothing. Give programs and complete as tool:list-running-programs answered them with commands, left_behind (the person's rows saying how a program is left behind: parent_pid and/or session_owner_gone, older_than_minutes, and optionally cpu_share_at_least, command_pattern and name_pattern, every condition holding at once) and never_stop (the person's rows naming a command_pattern and/or name_pattern that is never stopped). A list not given is refused, never read as empty. A program whose session still has an owner, or that the rows cannot be judged on, is always kept. Returns read (how many rows of each list it read), picked (each program to stop with the row that says so and why), kept (the programs a never-stop row kept) and said.",
+    "status": "active",
+    "maker": "maker:running-programs",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "running-programs"
+   }
+  },
+  {
    "id": "tool:choose-the-feed-each-widget-shows",
    "values": {
     "title": "Choose the feed each widget shows",
@@ -4230,9 +4245,9 @@
   {
    "id": "tool:free-what-the-list-says-can-be-got-back",
    "values": {
-    "title": "Check which files from my list can go to Trash",
-    "job": "Check the files and folders my list says I can get back, and hand the ones that pass to the native Trash step",
-    "description": "Give 1 to 100 rows, each { id, value }. Eligibility requires the saved state, no hold, a regular file or folder inside the granted folder, no top-level link or git-tracked files, at least one source address or recipe, every source answering, every recipe tracked, unchanged and pushed, and no changes within the quiet hours or during the check. A source answering proves availability only, not identical or complete recovery bytes. This row moves nothing and writes no list. Each eligible row returns trash_handoff { path, expected_generation }; the native caller moves that path to recoverable Trash only while it still has that generation, and writes the moved state itself. path_bytes and eligible_path_bytes describe observed path allocation, not reclaimed storage. Field names and state words are DATA in read-data/kept-file-shape.json, overridden by shape. The folder comes from the change-a-folder grant in stdin, never from the rows.",
+    "title": "Move eligible files from my list to Trash",
+    "job": "Move files and folders my list says I can get back to recoverable Trash after checking the listed sources and recipes",
+    "description": "Give 1 to 100 rows, each { id, value }, and the folder granted for change. Eligibility requires the saved state, no hold, a regular file or folder inside the grant, no top-level link or git-tracked files, at least one source address or recipe, every source answering, every recipe tracked, unchanged and pushed, and no changes within the quiet hours or during the check. A source answering proves availability only, not identical or complete recovery bytes. dry_run defaults to true and moves nothing. A real run asks the native macOS Trash service; it never permanently deletes or empties Trash, and a denied move returns no next_value. Only a confirmed move returns next_value with the moved-to-Trash state. path_bytes and trashed_path_bytes describe observed path allocation, not reclaimed storage; freed_bytes is null because it is unmeasured. The change-a-folder grant may refuse Trash access; this tool never widens it. Field names and state words are DATA in read-data/kept-file-shape.json, overridden by shape.",
     "status": "active",
     "maker": "maker:free-what-the-list-says-can-be-got-back",
     "licence_class": "licence:maker-own",
@@ -4879,7 +4894,7 @@
    "values": {
     "title": "Hear a recording into timed words on my computer",
     "job": "Turn a recording in my files into its words with times, heard free on my own computer",
-    "description": "Reads a recording from the person's files (`file`, its name or identity) through the run's door into the run's own folder, hears it with the whisper-cli and ggml model the person granted (do-work/audio_transcription.py transcribe), and answers text, timed segments and language. The copy is removed once heard; the person's file is never changed. Nothing is sent to a paid speech service.",
+    "description": "Reads a recording from the person's files (`file`, its name or identity) through the run's files right into the run's own folder, hears it with the whisper-cli and ggml model the person granted (do-work/audio_transcription.py transcribe), and answers text, timed segments and language. The copy is removed once heard; the person's file is never changed. Nothing is sent to a paid speech service.",
     "status": "active",
     "maker": "maker:audio-transcription",
     "licence_class": "licence:maker-own",
@@ -6024,7 +6039,7 @@
    "values": {
     "title": "Programs running on my computer",
     "job": "List the programs running on this person's computer and how much memory each one uses, the largest first, optionally only the programs whose name has some words",
-    "description": "Runs on the person's computer with the right they granted it to see the programs running there. Returns total, programs (each with pid, name, footprint_bytes and resident_bytes; null memory for a program the person may not read) and complete (false when the list was cut at `most`).",
+    "description": "Runs on the person's computer with the right they granted it to see the programs running there. Returns total, programs (each with pid, name, footprint_bytes and resident_bytes, parent_pid, session_id, started_at_ms and cpu_ms, the processor time it has used; null for what the person may not read; and command, its command line, when commands is true) and complete (false when the list was cut at `most`).",
     "status": "active",
     "maker": "maker:running-programs",
     "licence_class": "licence:maker-own",
@@ -7570,7 +7585,7 @@
    "values": {
     "title": "Notice when something shows up, and tell the engine",
     "job": "Keep watching for things outside (a stretch of time passing, a drive attached or removed, files someone finished putting in a place, a delivery over the network) and tell the person's engine one fact each time, so any tool whose wake hears that kind of fact starts",
-    "description": "Give waiters: the standing orders the noticer keeps (notice-when-something-shows-up.waiter-descriptor rows, each naming one mechanism in do-work/mechanisms, its settings and the kind of fact it emits). It runs as a kept-open program: while its wake is on, each waiter waits, and each time something shows up or goes away it tells the engine one fact at wake:arrive, of the waiter's kind, with the change's fields as text. A tool hears it by declaring a wake {fact: {kind, from: [\"run\"], match}}. This row may tell only the kinds its rights name. Each fact told or refused is one line of the program's output. Given for_seconds, it watches that long and answers {told, refused}. A second wake, keep-noticing-row-changes, watches one database's changes (the row-changes leaf) over the connection the person keeps under own-rows-postgres-connection; it is off until the person switches it on, and only then does the run hold that connection and reach its host.",
+    "description": "Give waiters: the standing orders the noticer keeps (notice-when-something-shows-up.waiter-descriptor rows, each naming one mechanism in do-work/mechanisms, its settings and the kind of fact it emits). It runs as a kept-open program: while its wake is on, each waiter waits, and each time something shows up or goes away it tells the engine one fact at wake:arrive, of the waiter's kind, with the change's fields as text. A tool hears it by declaring a wake {fact: {kind, from: [\"run\"], match}}. This row may tell only the kinds its rights name. Each fact told or refused is one line of the program's output. Given for_seconds, it watches that long and answers {told, refused}. A second wake, keep-noticing-row-changes, watches one database's changes (the row-changes leaf) over the connection the person keeps under own-rows-postgres-connection; it is off until the person switches it on, and only then does the run hold that connection and reach its host. A third wake, keep-noticing-one-source, names no waiter and no credential: the person switches it on with their own input (wake:switch input {credential_name, waiters}), so a source of theirs (a booking service's list, their sent mail) is watched from their own DATA and never from a shared row; one source per switch, because a run reaches only the hosts every value it holds may go to.",
     "status": "active",
     "licence_class": "licence:maker-own",
     "placements": [
@@ -9078,7 +9093,7 @@
    "values": {
     "title": "Read the settings a person keeps for a tool, for one person, film, piece or their whole account (runs on your computer)",
     "job": "Read the settings a person keeps for one of their tools, choosing the row for this piece, else this film, else this person, else their whole account, or make the settings row to write",
-    "description": "A tool's settings are rows of the person's list:settings (record:setting:<workshop-folder>~<scope_kind>~<scope_id>; fields name, tool, scope_kind, scope_id, settings as JSON, from, status). read: give the records your AI read from the person's own store (or the path of the file holding them), the tool's folder and the scopes to try, most specific first; the answer is the settings of the first scope that has an active row, or the default given when none does. make: give the folder, scope, settings, name, tool and where the values came from; the answer is the record your AI writes to the person's own store, with the list:settings record when asked. The same reader is a library for Python (read-data/settings.py) and JavaScript (read-data/settings.mjs) tools.",
+    "description": "A tool's settings are rows of the person's list:settings (record:setting:<workshop-folder>~<scope_kind>~<scope_id>; fields name, tool, scope_kind, scope_id, settings as JSON, from, status). read: give the records your AI read from the person's own store (or the path of the file holding them), the tool's folder and the scopes to try, most specific first; the answer is the settings of the first scope that has an active row, or the default given when none does. A row id given as settings_record is looked up in the rows handed in stored.records; with settings_record left out, the setting rows in stored.records are read. make: give the folder, scope, settings, name, tool and where the values came from, and the current rows in stored.records when they exist; the answer is keep: the row your AI keeps in the person's own store, with the list:settings row when asked, each with expected (the row as handed, or null when it was not there), so the store refuses a write made from a stale read. The same reader is a library for Python (read-data/settings.py) and JavaScript (read-data/settings.mjs) tools.",
     "status": "active",
     "maker": "maker:settings",
     "licence_class": "licence:maker-own",
@@ -9279,6 +9294,21 @@
    }
   },
   {
+   "id": "tool:read-calendar-events",
+   "values": {
+    "title": "Read events from my calendar",
+    "job": "Read the events in a time range from one of the person's own calendars, on whichever provider it is on, and give them back as time blocks",
+    "description": "Asks the person's calendar provider (a row of read-data/calendar-providers.json: Google Calendar or Outlook Calendar today; a new provider is a row and an adapter file) for the events of one calendar between two times, every occurrence of a repeating event in start order, as the person, through their connected account, and gives them back as time blocks that read-time-blocks and lay-out-a-calendar-view understand. A cancelled event is marked cancelled; an all-day event is a date. It reads only: it never creates, changes or removes an event. The account's key arrives on a private descriptor and goes only to the provider's own host; no answer or error carries it.",
+    "status": "active",
+    "maker": "maker:calendar",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "calendar"
+   }
+  },
+  {
    "id": "tool:read-current-worn-look",
    "values": {
     "title": "Read my current screen look",
@@ -9355,21 +9385,6 @@
      "placement:small-container"
     ],
     "folder": "ask-questions-sort-answers-follow-up"
-   }
-  },
-  {
-   "id": "tool:read-google-calendar-events",
-   "values": {
-    "title": "Read events from my Google calendar",
-    "job": "Read the events in a time range from one of the person's own Google calendars and give them back as time blocks",
-    "description": "Asks Google for the events of one calendar between two times (every occurrence of a repeating event, in start order) with the person's own Google OAuth client id, client secret and refresh token, and gives them back as time blocks that read-time-blocks and lay-out-a-calendar-view understand. A cancelled event is marked cancelled; an all-day event is a date. It reads only: it never creates, changes or removes an event. The three credentials arrive only on private pipes under the held-value names the row names; no answer or error carries them. Without all three it refuses.",
-    "status": "active",
-    "maker": "maker:calendar",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:deployed-container"
-    ],
-    "folder": "calendar"
    }
   },
   {
@@ -9908,7 +9923,7 @@
    "values": {
     "title": "Read transcript and caption files into timed words, and check quotes against them (runs on your computer)",
     "job": "Read a folder of transcript files (srt, vtt, txt, json) or a channel's downloaded YouTube captions into one timed-words shape, and check that quotes really are in the transcripts at the times they cite",
-    "description": "Five readers on the person's own computer, none of which hears audio or reads the network. pick_transcript_files.py picks, from an asset index (JSON lines with root, ext, name, display_path, sha256), the files of one drive or library that look like transcripts (srt or vtt, or a name with transcript, _raw., _clean., _cleaned_up or _rag.), names each one's kind, and joins each to the person's file store by its sha256 (the files door's answer given as a JSON file, or a namespace sqlite copy opened read only), listing one the store does not hold as missing. read_transcript_files.py reads each listed file's bytes (or one file) into a words.json: srt and vtt cues, '## h:mm:ss.fff - h:mm:ss.fff' txt blocks with their source line, 'hh:mm:ss:ff' timecode txt at the frames per second given, or a recognizer's json with its words; it says whether the timing is per word, per segment or none, and keeps the whole text of a file with no times. caption_transcripts.py turns a channel download (raw/json3 caption files, raw/meta and raw/flat-videos.jsonl, as yt-dlp leaves them for tool:keep-channels-latest-videos-and-captions) into one [m:ss] paragraph transcript per video, preferring a video's manual English track, and an index of every listed video. find_whisper_quotes.py checks each quote cited from a whisper transcript: it finds the quote's exact words among the word times and says whether it starts inside the cited window. show_segments.py prints a transcript's segments between two seconds. Each prints its account and a last line {\"result\": ...}.",
+    "description": "Five readers on the person's own computer, none of which hears audio or reads the network. pick_transcript_files.py picks, from an asset index (JSON lines with root, ext, name, display_path, sha256), the files of one drive or library that look like transcripts (srt or vtt, or a name with transcript, _raw., _clean., _cleaned_up or _rag.), names each one's kind, and joins each to the person's file store by its sha256 (the person's file store's answer given as a JSON file, or a namespace sqlite copy opened read only), listing one the store does not hold as missing. read_transcript_files.py reads each listed file's bytes (or one file) into a words.json: srt and vtt cues, '## h:mm:ss.fff - h:mm:ss.fff' txt blocks with their source line, 'hh:mm:ss:ff' timecode txt at the frames per second given, or a recognizer's json with its words; it says whether the timing is per word, per segment or none, and keeps the whole text of a file with no times. caption_transcripts.py turns a channel download (raw/json3 caption files, raw/meta and raw/flat-videos.jsonl, as yt-dlp leaves them for tool:keep-channels-latest-videos-and-captions) into one [m:ss] paragraph transcript per video, preferring a video's manual English track, and an index of every listed video. find_whisper_quotes.py checks each quote cited from a whisper transcript: it finds the quote's exact words among the word times and says whether it starts inside the cited window. show_segments.py prints a transcript's segments between two seconds. Each prints its account and a last line {\"result\": ...}.",
     "status": "active",
     "maker": "maker:audio-transcription",
     "licence_class": "licence:maker-own",
@@ -10985,7 +11000,7 @@
    "values": {
     "title": "Run SQL in my database",
     "job": "Run one SQL statement in my own database and see its rows",
-    "description": "Runs exactly one SQL statement as written (sql, with params for $1, $2 and so on) in the person's own database, as the login the connection string names: the server refuses text holding more than one command, and a login that may only read (the read connection) cannot write, because the database says so. Give credential_name, the vault name the person saved the connection under (a login that may only read, for a share that may only read), and optionally statement_timeout_ms. Answers columns, rows and row_count, or the database's own error text. It adds no shape, no list names and no record types. With recipe instead of sql it runs a role recipe (read-data/role-recipes.json, the SQL that makes, grants and takes away a kind of login) as the owner login, in one transaction unless the recipe says otherwise: create with role_credential_name makes that standing login with the password the person holds under that name; create with recipe.valid_until mints a login that stops working then and answers its connection once; drop takes a role away. The connection may name any server that speaks the Postgres wire protocol that this computer reaches on a local port it reports as own-rows-postgres.",
+    "description": "Runs exactly one SQL statement as written (sql, with params for $1, $2 and so on) in the person's own database, as the login the connection string names: the server refuses text holding more than one command, and a login that may only read (the read connection) cannot write, because the database says so. Give database, the name of one of the person's databases as this computer names it (the computer picks the login), or credential_name, the vault name the person saved the connection under (a login that may only read, for a share that may only read), and optionally statement_timeout_ms. Answers columns, rows and row_count, or the database's own error text. It adds no shape, no list names and no record types. With recipe instead of sql it runs a role recipe (read-data/role-recipes.json, the SQL that makes, grants and takes away a kind of login) as the owner login, in one transaction unless the recipe says otherwise: create with role_credential_name makes that standing login with the password the person holds under that name; create with recipe.valid_until mints a login that stops working then and answers its connection once; drop takes a role away. The connection may name any server that speaks the Postgres wire protocol that this computer reaches on a local port it reports as own-rows-postgres.",
     "status": "active",
     "maker": "maker:run-sql-in-my-database",
     "licence_class": "licence:maker-own",
@@ -11392,9 +11407,9 @@
   {
    "id": "tool:score-writing-with-a-voice-adapter",
    "values": {
-    "title": "Score labelled or unlabeled passages with a writing-voice adapter",
-    "job": "Score passages with a trained writing-voice adapter and report every probability, with the exposure of the passages to the training rows",
-    "description": "Runs on the person's computer that holds the decider model snapshot. Validates the challenge with the maintained validator before weights load, binds the adapter and its receipt by BLAKE3, keeps every row's probabilities and the audit of what the adapter was trained on, and never invents accuracy for unlabeled rows.",
+    "title": "Score labelled or unlabeled passages, or one draft, with a writing-voice adapter",
+    "job": "Score passages with a trained writing-voice adapter and report every probability, with the exposure of the passages to the training rows, or score one draft paragraph by paragraph",
+    "description": "Runs on the person's computer that holds the decider model snapshot. Validates the challenge with the maintained validator before weights load, binds the adapter and its receipt by BLAKE3, keeps every row's probabilities and the audit of what the adapter was trained on, and never invents accuracy for unlabeled rows. Draft mode (mode \"draft\") scores one draft text instead: it splits the text at blank lines, keeps paragraphs shorter than min_paragraph_chars as skipped, scores every other one with the same request a v3 row gets, and answers paragraph_scores and body_min (the lowest p_pass) with no decision; the caller compares body_min with its own setting.",
     "status": "active",
     "maker": "maker:train-and-evaluate-a-writing-voice-classifier",
     "licence_class": "licence:maker-own",
@@ -11470,7 +11485,7 @@
    "values": {
     "title": "Search everything I keep",
     "job": "Find anything in my account with one question across every list and file, by what was said, seen, named or written",
-    "description": "One question over every record and file name the caller hands in, and each installed semantic index among them. The caller reads the person's records and files from the person's own store and gives them as `records` and `files`; this run searches them and reads no store, and changes nothing. Results are fused by rank, never by scores across models, with addresses (the person's own record by id and kind, or a file by path), places (said, seen, name, written), timed moments and their original evidence scores. Semantic-index-descriptor records are discovered automatically; no index choice is needed. places and sources narrow the requested search. unavailable names every source or model that could not answer (a source not handed in too); pending names work still in progress. A missing model leaves literal words usable.",
+    "description": "One question over every record and file name the caller hands in, and each installed semantic index among them. The caller reads the person's records and files from the person's own store and gives them as `records` and `files`; this run searches them and reads no store, and changes nothing. Results are fused by rank, never by scores across models, with addresses (the person's own record by id and kind, or a file by path), places (said, seen, name, written), timed moments and their original evidence scores. Semantic-index-descriptor records are discovered automatically; no index choice is needed. places and sources narrow the requested search. unavailable names every source or model that could not answer (a source not handed in too); pending names work still in progress. A missing model leaves literal words usable. A model with an encoder in the settings (a picture model) is asked with the query vector handed in as query_vectors; without one this row runs that encoder (the one other tool it may run).",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -12604,6 +12619,21 @@
      "placement:small-container"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:stop-programs-left-running",
+   "values": {
+    "title": "Stop the programs left running",
+    "job": "Ask each program chosen as left running to end, wait for it, and say what happened to each, with one notice for the sweep when any ended",
+    "description": "Runs on the person's computer with the rights they granted it to see the programs running there and to stop one. Give programs (the picked list tool:choose-programs-left-running answered) and optionally grace_ms (how long to wait for each to end, 10000 when not given, at most 60000). Each program is asked to end (SIGTERM) only when the same program is still there (the same pid and start time); nothing is forced. Returns stops (one per program: address, pid, started_at_ms, name, command, rule, why, asked_at, ended_at and outcome: ended, still-running, already-gone, not-the-same-program or not-allowed) and notices (one notice for the sweep when any program ended, none otherwise).",
+    "status": "active",
+    "maker": "maker:running-programs",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "running-programs"
    }
   },
   {
@@ -13976,7 +14006,22 @@
    "values": {
     "title": "Your files",
     "job": "Every name of the person's files, listed, followed as it changes, read by range, written, moved, shared and released, for an AI or a device's folder, through the engine's one door",
-    "description": "The person's files (tools/live-namespace) as a session the engine keeps open and reaches only by calls: tools:run at @tools {tool: \"tool:your-files\", call: {name, arguments}} sends one MCP tools/call to the account's one session of this row, which the first call starts (trillion-rust src/tool_runs/tools/sessions.rs `call`); each call is answered on its own, so a list_changes that waits holds back no read. `name` is an operation of mcp-tools.json: list_files, list_changes, show_item, read_file_span, write_file, write_file_start, write_file_piece, write_file_finish, move_names, set_aside, put_back, make_folder, set_pin_rule, thumbnail, bounds, this_computer and the rest. The answer is {tool, result} with the operation's answer in result.structuredContent; a refusal is result.isError with {code, outcome}. read_file_span with raw: true answers the span's bytes themselves: {byte_slice: {total, offset, length, base64}}, or, to a request that accepts application/octet-stream, the raw bytes as the HTTP body with X-Total-Bytes and X-Offset (session.byte_result), so they cross the wire once, the first of them as soon as the store sends it. write_file_piece takes its piece raw the same way: a POST whose Content-Type is application/octet-stream, whose body is the piece and whose X-Call header is the base64url of the tools/call JSON; the engine names the body it kept as the call's content_file (session.byte_argument). The run opens no port. Its names are rows in the person's own Postgres database (own-rows-postgres-connection, reached on the loopback port the computer reports as own-rows-postgres); its bytes are the person's own files-store connection, each field mounted on the descriptor settings.json `attached` names and never printed. The program is the live-namespace this computer keeps among its program folders.",
+    "description": "The person's files (tools/live-namespace) as a session the engine keeps open and reaches only by calls: tools:run at @tools {tool: \"tool:your-files\", call: {name, arguments}} sends one MCP tools/call to the account's one session of this row, which the first call starts (trillion-rust src/tool_runs/tools/sessions.rs `call`); each call is answered on its own, so a list_changes that waits holds back no read. `name` is an operation of mcp-tools.json: list_files, list_changes, show_item, read_file_span, write_file, write_file_start, write_file_piece, write_file_finish, move_names, set_aside, put_back, make_folder, set_pin_rule, thumbnail, bounds, this_computer and the rest. The answer is {tool, result} with the operation's answer in result.structuredContent; a refusal is result.isError with {code, outcome}. read_file_span with raw: true answers the span's bytes themselves: {byte_slice: {total, offset, length, base64}}, or, to a request that accepts application/octet-stream, the raw bytes as the HTTP body with X-Total-Bytes and X-Offset (session.byte_result), so they cross the wire once, the first of them as soon as the store sends it. write_file_piece takes its piece raw the same way: a POST whose Content-Type is application/octet-stream, whose body is the piece and whose X-Call header is the base64url of the tools/call JSON; the engine names the body it kept as the call's content_file (session.byte_argument). The run opens no port. Its bytes are the person's own files-store connection, each field mounted on the descriptor settings.json `attached` names and never printed. Its names are rows a session of tool:your-files-names keeps (the one run that holds the person's database login), reached by calls through this run's door (invoke.records, descriptor 9): the engine lets one process reach only hosts every value it holds may go to, so a run holding the byte store's key and the database login could reach none. The program is the live-namespace this computer keeps among its program folders.",
+    "status": "active",
+    "maker": "maker:live-namespace",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "live-namespace"
+   }
+  },
+  {
+   "id": "tool:your-files-names",
+   "values": {
+    "title": "Your files' names",
+    "job": "The names of the person's files (names, folders, chunks, shares), kept in the person's own database and answered by calls to the run of tool:your-files, so that run never holds the database login",
+    "description": "The names rows of the person's files (tools/live-namespace `live-namespace rows`, src/serve/rows.rs), as a session the engine keeps open and reaches only by calls. Each call is one operation of the store's Rows (get, get_many, held_record_with_version, list_page, ids, mutate, stamp, totals, search, place, order, changes, minted, wait_for_order: src/store/by_calls.rs), each atomic alone, and is answered as a file of bytes (session.byte_result), so a page of rows is never held to one message. tool:your-files is its caller (its invoke.records.runs). It holds the person's database login alone (own-rows-postgres-connection on descriptor 3), so its reach is the database's host, and tool:your-files holds the byte store's key alone.",
     "status": "active",
     "maker": "maker:live-namespace",
     "licence_class": "licence:maker-own",
