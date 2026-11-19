@@ -42,8 +42,48 @@
           {
             "id": "every-ten-minutes",
             "on": {
-              "time": {
-                "every_ms": 600000
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:stop-programs-left-running:every-ten-minutes"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:stop-programs-left-running:every-ten-minutes",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-01",
+                      "local_window": {
+                        "start": "00:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:stop-programs-left-running",
+                        "owner_dispatch": {
+                          "name": "workflow:stop-programs-left-running",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "minute",
+                        "interval": 10
+                      }
+                    }
+                  ]
+                }
               }
             },
             "budget": {

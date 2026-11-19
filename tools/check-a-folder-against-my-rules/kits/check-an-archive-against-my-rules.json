@@ -1,0 +1,62 @@
+{
+  "drafted_from": "tool:check-an-archive-against-my-rules's own row (its words and input schema) and what one real run answered on Nov 19 2026 over a public repository's commit archive of 7,481 judged files (its address is written here as an example address); read it before relying on it",
+  "start_here": "Say to your AI: \"Check the files of a repository's commit, as its host serves it, against rules the person wrote down, and say which files break which rule, where, and why the rule exists\", with the https address of the commit's archive and your rules. It runs tool:check-an-archive-against-my-rules and answers {\"passed\": true, \"said\": \"0 finding(s) from 1 rule(s) over 7481 file(s) of https://code-host.example/owner/repository/tar.gz/<commit>.\", \"archive\": \"https://code-host.example/owner/repository/tar.gz/<commit>\", \"written\": 20651, \"skipped\": 5, \"files\": 7481}.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row; the archive's files are written into a private folder of the run and removed before the answer.",
+  "workflows": [
+    "workflow:check-my-code-against-my-rules"
+  ],
+  "tools": [
+    "tool:check-an-archive-against-my-rules",
+    "tool:check-a-folder-against-my-rules"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Check the files of a repository's commit, as its host serves it, against rules the person wrote down, and say which files break which rule, where, and why the rule exists\", and give it archive (the https address of a .tar.gz, such as a host's archive of one commit) and rules (one row each).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:check-an-archive-against-my-rules and its input (the worked example shows one).",
+    "3. Read what comes back: passed, said, and each violation's rule, path, line and evidence; a finding about a name another repository retired says where it moved when that is recorded (subjects_from).",
+    "4. To have it checked each hour, switch on workflow:check-my-code-against-my-rules's wake hourly with the same input."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a commit's files against a rule I wrote",
+      "ask": "Check the files of a repository's commit, as its host serves it, against rules the person wrote down, and say which files break which rule, where, and why the rule exists",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-an-archive-against-my-rules",
+            "input": {
+              "archive": "https://code-host.example/owner/repository/tar.gz/<commit>",
+              "rules": [
+                {
+                  "kind": "source-file-rule",
+                  "id": "a-program-knows-it-is-run-by-any-path",
+                  "why": "A program that compares import.meta.url with its plain started path never runs its main part from a folder with a space (the Mac engine's Application Support): it exits 0 and prints nothing. Compare with pathToFileURL(realpathSync(process.argv[1])).href.",
+                  "scope": {
+                    "path_matches": "\\.(mjs|js|cjs|ts)$",
+                    "path_excludes": "(^|/)node_modules/"
+                  },
+                  "violation": {
+                    "unit": {
+                      "split": "\\n"
+                    },
+                    "forbidden": [
+                      {
+                        "pattern": "import\\.meta\\.url\\s*!?={2,3}\\s*`file://\\$\\{process\\.argv\\[1\\]\\}`|`file://\\$\\{process\\.argv\\[1\\]\\}`\\s*!?={2,3}\\s*import\\.meta\\.url|!?={2,3}\\s*`file://\\$\\{process\\.argv\\[1\\]\\}`"
+                      }
+                    ]
+                  },
+                  "message": "compares import.meta.url with the plain started path"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The archive https://code-host.example/owner/repository/tar.gz/<commit> and one rule, a-program-knows-it-is-run-by-any-path.",
+      "hands_back": "It answered {\"passed\": true, \"said\": \"0 finding(s) from 1 rule(s) over 7481 file(s) of https://code-host.example/owner/repository/tar.gz/<commit>.\", \"archive\": \"https://code-host.example/owner/repository/tar.gz/<commit>\", \"written\": 20651, \"skipped\": 5, \"files\": 7481}."
+    }
+  ]
+}

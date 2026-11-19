@@ -1,5 +1,5 @@
 {
-  "start_here": "Switch on the at-its-time wake of workflow:send-each-post-at-its-time with store {\"where\": \"the person's own database\", \"language\": \"SQL (PostgreSQL)\", \"credential_name\": \"the name the person saved their database login under\"}. From then on a post set to go at its time is sent at that time, within a minute, to each of its destinations not yet sent or failed.",
+  "start_here": "Switch on the at-its-time wake of workflow:send-each-post-at-its-time with store {\"where\": \"the person's own database\", \"language\": \"SQL (PostgreSQL)\", \"credential_name\": \"the name the person saved their database login under\"}. From then on a post set to go at its time is sent at that time, within five minutes, to each of its destinations not yet sent or failed.",
   "lists": [],
   "no_lists_because": "It names no list: it reads the person's posts and connections from their own database with run-sql, and writes each post back as its send answered it.",
   "workflows": [

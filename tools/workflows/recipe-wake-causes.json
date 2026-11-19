@@ -1,10 +1,10 @@
 {
   "about": "What a recipe's `wakes` list may say, copied from what the engine's wake primitive accepts, so a recipe that passes here is a wake the engine takes. The engine reads `wakes` from every Workshop row, a listed recipe row included, and a Workshop row's wake is off until the person switches it on; one malformed item refuses every row's wakes, which is why each is checked here before it ships. A wake is { id, on: { <one cause>: { ...its fields } }, budget: { <dimension>: whole number }, input: { start_at: <step id>, ...input_schema fields } }: exactly the engine's declaration, nothing added. `start_at` in its input is the step a woken run starts at. Adding a cause is adding a row to `causes` once the engine takes it; a field shape is one of text (a non-empty string), texts (a non-empty list of non-empty strings), zone (an IANA time zone name the time zone database knows; a repeat in a zone keeps its wall-clock time), whole (a whole number from 0), positive (a whole number above 0), strings (an object whose values are strings), flag (true or false) or object (any object, kept as written). A cause's `draws` names the ledger its budget comes from, or {by, ledgers, otherwise}: the ledger each value of field `by` names (for a fact, who told it), else `otherwise`; a wake's budget must fit every ledger its values may draw from. A field may carry its own `refusal` words. A field's `in` names a list in this file its value (each item of a texts value) must be one of; `keys_in` names an object in this file whose entry under the value of field `by` lists the keys allowed; `only_with` names a field that must be present for this one to be. The budget must hold at least `least_budget` (the engine's run cost plus its reserved run time, below which a firing is never funded) and at most the ledger its cause draws from (a firing above it is never funded either).",
   "engine": {
-    "commit": "d3fbcac50",
+    "commit": "99d1ec71f",
     "read_from": [
-      "src/wake.rs: enum On (time, running, fact; deny_unknown_fields) and Waker::declared (time at_ms or every_ms above 0 with from_ms and zone only beside every_ms and a zone the time zone database does not name refused; fact kind and from non-empty, from naming the tellers computer, run and sender (COMPUTER, RUN, SENDER), match fields equal to the fact's payload, fold true or false, watch kept as written and never read; budget keys only ledger dimensions, input an object, ids unique per row)",
-      "src/wake/wake.json: draws (time from work; a fact by its teller, draws.facts run: work, else arrival: inbound)",
+      "src/wake.rs: enum On (running, fact; deny_unknown_fields; the engine keeps no clock, so a time comes as a due-time fact a run tells) and Waker::declared (fact kind and from non-empty, from naming the tellers computer, run and sender (COMPUTER, RUN, SENDER), match fields equal to the fact's payload, fold true or false, watch kept as written and never read; budget keys only ledger dimensions, input an object, ids unique per row)",
+      "src/wake/wake.json: draws (a fact by its teller, draws.facts run: work, else arrival: inbound)",
       "src/wake/workshop_runner.rs: WAKES_FIELD, the row field the engine reads wakes from",
       "product/wake.json: ledgers, draws, run_cost, wall_dimension, max_wakes",
       "product/tool-runs.json: deadline_ms (the time reserved for every run)"
@@ -21,18 +21,6 @@
   },
   "tellers": ["computer", "run", "sender", "wake"],
   "causes": [
-    {
-      "cause": "time",
-      "meaning": "A time comes: once at at_ms, or every every_ms counted from from_ms (0 when absent); with a zone, from_ms's wall-clock time in that zone moved by every_ms of wall-clock time, so a daylight saving change keeps it. A missed slot fires once.",
-      "draws": "work",
-      "fields": [
-        { "field": "at_ms", "shape": "whole" },
-        { "field": "every_ms", "shape": "positive" },
-        { "field": "from_ms", "shape": "whole", "only_with": "every_ms" },
-        { "field": "zone", "shape": "zone", "only_with": "every_ms", "refusal": "must name a time zone the time zone database knows, for example Europe/Lisbon." }
-      ],
-      "exactly_one_of": ["at_ms", "every_ms"]
-    },
     {
       "cause": "running",
       "meaning": "Keep the tool's program running while the wake is on: one cause starts it as a kept-open session, and switching the wake off ends it.",

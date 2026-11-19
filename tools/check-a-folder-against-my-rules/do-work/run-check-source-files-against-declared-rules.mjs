@@ -216,7 +216,7 @@ function assertRuleIdsAreUnique(rules) {
  *  import it instead of launching this file as a second node process and parsing its stdout.
  *  Returns `{summary, failed}`: `summary` is exactly the `--json` document, `failed` is the
  *  exit decision. Throws `RunRefusal` where the CLI exits 2. */
-export function checkRepository({ repoRoot, rules: given = null, rulesPath = null, under = null, recorded = null, recordedPath = null }) {
+export function checkRepository({ repoRoot, rules: given = null, rulesPath = null, under = null, recorded = null, recordedPath = null, subjects = {} }) {
   if (typeof repoRoot !== 'string' || !path.isAbsolute(repoRoot)) {
     throw new RunRefusal('--repo <repo-root> is required, as an absolute path');
   }
@@ -285,7 +285,11 @@ export function checkRepository({ repoRoot, rules: given = null, rulesPath = nul
   // outside that directory into a missing one.
   const everyPath = corpus.join('\n');
 
+  // A caller may supply more named subjects (a set computed outside this folder, such as the ids
+  // another repository stopped declaring). One may never replace every_path, which this run owns.
+  if ('every_path' in subjects) throw new RunRefusal('the subject every_path is supplied by the run itself');
   const violations = violationsAcrossFiles(rules, files, {
+    ...subjects,
     every_path: everyPath,
   });
   const report = reportByRule(rules, violations);

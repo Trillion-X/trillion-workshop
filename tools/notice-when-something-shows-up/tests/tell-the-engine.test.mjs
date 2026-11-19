@@ -60,3 +60,22 @@ test('a record becomes a fact of at most eight text fields, nested lists left ou
   assert.equal(Object.keys(fact.payload).length, 8);
   assert.equal(fact.payload.matched_source_refs, undefined);
 });
+
+test('a fact whose own key is longer than the door takes is told under a fixed-length name of that key, the same each time', async () => {
+  const keys = [];
+  const fetchImpl = async (url, { body }) => {
+    keys.push(JSON.parse(body).params.arguments.request_key);
+    return new Response(JSON.stringify({ result: { structuredContent: { kept: true } } }), { status: 200 });
+  };
+  const carrier = engineCarrier({ door: { url: 'http://door.test/mcp', capability: 'run-capability' }, waiters: [], fetchImpl, say: () => {} });
+  // A due time's occurrence key names its schedule, zone and four times: 283 bytes for a daily schedule of one workflow.
+  const long = `timed-action.recurring-window::${encodeURIComponent(JSON.stringify(['schedule:workflow:grow-the-one-tree:daily', '1', '1', 'UTC',
+    '2026-11-19', '14:00', '2026-11-19', '14:01', '2026-11-19', '14:00', '2026-11-19', '14:01', 'earlier']))}`;
+  await carrier.writeRecord({ addressLabel: 'due', payload: { kind: 'due-time' }, eventKey: long });
+  await carrier.writeRecord({ addressLabel: 'due', payload: { kind: 'due-time' }, eventKey: long });
+  await carrier.writeRecord({ addressLabel: 'tick', payload: { kind: 'clock-tick' }, eventKey: '1' });
+  assert.ok(Buffer.byteLength(`fact:${long}`) > 255);
+  assert.ok(keys.every(key => Buffer.byteLength(key) <= 255), keys.join('\n'));
+  assert.equal(keys[0], keys[1], 'the same fact keeps one key, so a retry is answered as the first call was');
+  assert.equal(keys[2], 'fact:tick@1', 'a key within the bound is sent as it is');
+});

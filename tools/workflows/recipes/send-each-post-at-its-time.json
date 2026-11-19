@@ -6,11 +6,11 @@
         "kind": "workflow-recipe",
         "id": "workflow:send-each-post-at-its-time",
         "label": "Send each post at its time",
-        "job": "Each minute, send every post the person set to go at its time whose time has come, to each of its destinations not yet sent or failed, and write each post back as its send answered it.",
+        "job": "Every five minutes, send every post the person set to go at its time whose time has come, to each of its destinations not yet sent or failed, and write each post back as its send answered it.",
         "produces": "The posts that came due, each destination's answer, and the write of each post; proven on the example attempts: a due post is read once, a later post and a draft and an unarmed post are not, the connection is read, and a stale write conflicts.",
         "source": {
-          "from": "tools/social-posts read-data/send-a-post.mjs sendEachPostAtItsTime and tool:send-each-post-at-its-time (retired in this commit: its row, kit and wake). Its timed send, one per destination at the post's scheduled_for, is this recipe's minute wake: a run reads the due posts and hands each destination to tool:send-a-post, which refuses a send the post no longer arms.",
-          "note": "The minute wake reads the posts whose time has come, so a post goes at its time within a minute of it. The store login is the one value the person sets when they switch the wake on: input.store.credential_name names their own database connection."
+          "from": "tools/social-posts read-data/send-a-post.mjs sendEachPostAtItsTime and tool:send-each-post-at-its-time (retired in this commit: its row, kit and wake). Its timed send, one per destination at the post's scheduled_for, is this recipe's five-minute wake: a run reads the due posts and hands each destination to tool:send-a-post, which refuses a send the post no longer arms.",
+          "note": "The five-minute wake reads the posts whose time has come, so a post goes within five minutes of its time. The store login is the one value the person sets when they switch the wake on: input.store.credential_name names their own database connection."
         },
         "input_schema": {
           "type": "object",
@@ -46,8 +46,48 @@
           {
             "id": "at-its-time",
             "on": {
-              "time": {
-                "every_ms": 60000
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:send-each-post-at-its-time:at-its-time"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:send-each-post-at-its-time:at-its-time",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-01",
+                      "local_window": {
+                        "start": "00:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:send-each-post-at-its-time",
+                        "owner_dispatch": {
+                          "name": "workflow:send-each-post-at-its-time",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "minute",
+                        "interval": 5
+                      }
+                    }
+                  ]
+                }
               }
             },
             "budget": {

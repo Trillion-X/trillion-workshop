@@ -259,6 +259,13 @@
                 "at": "/opt/run-work-later-or-on-a-repeat"
               },
               {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
                 "package": "run-sql-in-my-database",
                 "paths": [
                   "do-work/through-the-run-proxy.mjs"

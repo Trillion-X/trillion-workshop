@@ -31,6 +31,7 @@ import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { text } from 'node:stream/consumers';
 import { runResidentEmitter } from './emit-arrival-fact.mjs';
+import { requestKeyForEngine } from '../../content-identity/read-data/identity.mjs';
 
 const DESCRIPTOR_FD = 3;
 const ARRIVE = 'wake:arrive';
@@ -99,7 +100,9 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
   async function operate(method, input, requestKey) {
     calls += 1;
     const body = JSON.stringify({ jsonrpc: '2.0', id: calls, method: 'tools/call', params: { name: 'do_one_thing_in_my_account',
-      arguments: { address: door.resource ?? '@own-records', method, request_key: requestKey, input } } });
+      // A fact's own key (a due time's occurrence key names its schedule, its zone and four times) can be longer than the
+      // door takes; content-identity gives a longer one a fixed-length name of its own, so the same fact keeps one key.
+      arguments: { address: door.resource ?? '@own-records', method, request_key: requestKeyForEngine(requestKey), input } } });
     const response = await fetchImpl(door.url, { method: 'POST', body, headers: { authorization: `Bearer ${door.capability}`,
       'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': '2025-06-18' } });
     const raw = await response.text();

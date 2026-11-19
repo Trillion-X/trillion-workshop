@@ -66,7 +66,9 @@ async function sweep(programs, { rules = { 'left-behind': LEFT_BEHIND, 'never-st
 }
 
 test('the recipe wakes every ten minutes at its first step, names no program, and holds the rights of exactly the tools it asks', () => {
-  assert.deepEqual(wake.on, { time: { every_ms: 600_000 } });
+  // The engine keeps no clock: the ten minutes are a due-time schedule the noticer tells as a fact.
+  assert.deepEqual(wake.on.fact.watch.schedules[0].cadence, { unit: 'minute', interval: 10 });
+  assert.equal(wake.on.fact.match.schedule_id, wake.on.fact.watch.schedules[0].schedule_id);
   assert.equal(wake.input.start_at, recipe.definition.steps[0].id);
   assert.deepEqual(recipe.records.runs, ['tool:choose-programs-left-running', 'tool:list-running-programs', 'tool:run-sql-in-my-database', 'tool:stop-programs-left-running', 'tool:tell-the-person']);
   const definition = JSON.stringify(recipe.definition);

@@ -1,0 +1,6 @@
+{
+  "_what": "Bounds of tool:check-an-archive-against-my-rules (do-work/check-an-archive.mjs). most_archive_bytes: the most compressed bytes read from the address; most_file_bytes: a file larger than this is listed (rules still see its path) but not written, and the answer counts it as skipped; most_written_bytes: the most bytes all written files may hold together. Measured Nov 19 2026: trillion-workshop's main is a 57 MB archive of 25,939 files.",
+  "most_archive_bytes": 268435456,
+  "most_file_bytes": 4194304,
+  "most_written_bytes": 1073741824
+}

@@ -31,9 +31,10 @@ function project(t) {
 const NO_BRAND = { kind: 'source-file-rule', id: 'no-brand-in-a-lock-name', why: 'a lock is unique by its id; a brand in front adds nothing',
   scope: { path_matches: '\\.mjs$' }, violation: { unit: { split: '\\n' }, forbidden: { pattern: 'acme', flags: 'i' } }, message: 'a brand in a lock name' };
 
-test('both rows run on the person\'s computer with only the folder capability they need, and reach no internet', () => {
-  assert.deepEqual(rows.map(item => item.invoke.capabilities), [['read-a-folder'], ['change-a-folder']]);
-  for (const item of rows) {
+test('both folder rows run on the person\'s computer with only the folder capability they need, and reach no internet', () => {
+  const folderRows = rows.filter(item => item.invoke.kind === 'computer');
+  assert.deepEqual(folderRows.map(item => item.invoke.capabilities), [['read-a-folder'], ['change-a-folder']]);
+  for (const item of folderRows) {
     assert.equal(item.invoke.kind, 'computer');
     assert.notEqual(item.invoke.internet, true);
     assert.deepEqual(item.placements, ['placement:your-computer']);
