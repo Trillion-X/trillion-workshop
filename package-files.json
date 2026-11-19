@@ -21817,6 +21817,429 @@
     "split2"
    ],
    "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "bring-in-new-items-from-this-computer",
+   "paths": [
+    "computer/connections/incoming-items.mjs",
+    "computer/connections/whatsapp.mjs"
+   ],
+   "at": "/opt/bring-in-new-items-from-this-computer"
+  },
+  {
+   "package": "run-on-a-persons-computer",
+   "paths": [
+    "carry-connections.json"
+   ],
+   "at": "/opt/run-on-a-persons-computer"
+  },
+  {
+   "packages": [
+    "node_modules/@borewit/text-codec"
+   ],
+   "at": "/opt/node_modules/@borewit/text-codec"
+  },
+  {
+   "packages": [
+    "node_modules/@cacheable/memory"
+   ],
+   "at": "/opt/node_modules/@cacheable/memory"
+  },
+  {
+   "packages": [
+    "node_modules/@cacheable/node-cache"
+   ],
+   "at": "/opt/node_modules/@cacheable/node-cache"
+  },
+  {
+   "packages": [
+    "node_modules/@cacheable/utils"
+   ],
+   "at": "/opt/node_modules/@cacheable/utils"
+  },
+  {
+   "packages": [
+    "node_modules/@hapi/boom"
+   ],
+   "at": "/opt/node_modules/@hapi/boom"
+  },
+  {
+   "packages": [
+    "node_modules/@hapi/hoek"
+   ],
+   "at": "/opt/node_modules/@hapi/hoek"
+  },
+  {
+   "packages": [
+    "node_modules/@img/colour"
+   ],
+   "at": "/opt/node_modules/@img/colour"
+  },
+  {
+   "packages": [
+    "node_modules/@keyv/bigmap"
+   ],
+   "at": "/opt/node_modules/@keyv/bigmap"
+  },
+  {
+   "packages": [
+    "node_modules/@keyv/serialize"
+   ],
+   "at": "/opt/node_modules/@keyv/serialize"
+  },
+  {
+   "packages": [
+    "node_modules/@pinojs/redact"
+   ],
+   "at": "/opt/node_modules/@pinojs/redact"
+  },
+  {
+   "packages": [
+    "node_modules/@protobufjs/aspromise"
+   ],
+   "at": "/opt/node_modules/@protobufjs/aspromise"
+  },
+  {
+   "packages": [
+    "node_modules/@protobufjs/base64"
+   ],
+   "at": "/opt/node_modules/@protobufjs/base64"
+  },
+  {
+   "packages": [
+    "node_modules/@protobufjs/codegen"
+   ],
+   "at": "/opt/node_modules/@protobufjs/codegen"
+  },
+  {
+   "packages": [
+    "node_modules/@protobufjs/eventemitter"
+   ],
+   "at": "/opt/node_modules/@protobufjs/eventemitter"
+  },
+  {
+   "packages": [
+    "node_modules/@protobufjs/fetch"
+   ],
+   "at": "/opt/node_modules/@protobufjs/fetch"
+  },
+  {
+   "packages": [
+    "node_modules/@protobufjs/float"
+   ],
+   "at": "/opt/node_modules/@protobufjs/float"
+  },
+  {
+   "packages": [
+    "node_modules/@protobufjs/path"
+   ],
+   "at": "/opt/node_modules/@protobufjs/path"
+  },
+  {
+   "packages": [
+    "node_modules/@protobufjs/pool"
+   ],
+   "at": "/opt/node_modules/@protobufjs/pool"
+  },
+  {
+   "packages": [
+    "node_modules/@protobufjs/utf8"
+   ],
+   "at": "/opt/node_modules/@protobufjs/utf8"
+  },
+  {
+   "packages": [
+    "node_modules/@tokenizer/inflate"
+   ],
+   "at": "/opt/node_modules/@tokenizer/inflate"
+  },
+  {
+   "packages": [
+    "node_modules/@tokenizer/token"
+   ],
+   "at": "/opt/node_modules/@tokenizer/token"
+  },
+  {
+   "packages": [
+    "node_modules/@types/node"
+   ],
+   "at": "/opt/node_modules/@types/node"
+  },
+  {
+   "packages": [
+    "node_modules/@whiskeysockets/baileys"
+   ],
+   "at": "/opt/node_modules/@whiskeysockets/baileys"
+  },
+  {
+   "packages": [
+    "node_modules/@whiskeysockets/baileys/node_modules/lru-cache"
+   ],
+   "at": "/opt/node_modules/@whiskeysockets/baileys/node_modules/lru-cache"
+  },
+  {
+   "packages": [
+    "node_modules/async-mutex"
+   ],
+   "at": "/opt/node_modules/async-mutex"
+  },
+  {
+   "packages": [
+    "node_modules/atomic-sleep"
+   ],
+   "at": "/opt/node_modules/atomic-sleep"
+  },
+  {
+   "packages": [
+    "node_modules/cacheable"
+   ],
+   "at": "/opt/node_modules/cacheable"
+  },
+  {
+   "packages": [
+    "node_modules/content-type"
+   ],
+   "at": "/opt/node_modules/content-type"
+  },
+  {
+   "packages": [
+    "node_modules/curve25519-js"
+   ],
+   "at": "/opt/node_modules/curve25519-js"
+  },
+  {
+   "packages": [
+    "node_modules/debug"
+   ],
+   "at": "/opt/node_modules/debug"
+  },
+  {
+   "packages": [
+    "node_modules/detect-libc"
+   ],
+   "at": "/opt/node_modules/detect-libc"
+  },
+  {
+   "packages": [
+    "node_modules/eventemitter3"
+   ],
+   "at": "/opt/node_modules/eventemitter3"
+  },
+  {
+   "packages": [
+    "node_modules/file-type"
+   ],
+   "at": "/opt/node_modules/file-type"
+  },
+  {
+   "packages": [
+    "node_modules/hashery"
+   ],
+   "at": "/opt/node_modules/hashery"
+  },
+  {
+   "packages": [
+    "node_modules/hookified"
+   ],
+   "at": "/opt/node_modules/hookified"
+  },
+  {
+   "packages": [
+    "node_modules/ieee754"
+   ],
+   "at": "/opt/node_modules/ieee754"
+  },
+  {
+   "packages": [
+    "node_modules/keyv"
+   ],
+   "at": "/opt/node_modules/keyv"
+  },
+  {
+   "packages": [
+    "node_modules/libsignal"
+   ],
+   "at": "/opt/node_modules/libsignal"
+  },
+  {
+   "packages": [
+    "node_modules/long"
+   ],
+   "at": "/opt/node_modules/long"
+  },
+  {
+   "packages": [
+    "node_modules/media-typer"
+   ],
+   "at": "/opt/node_modules/media-typer"
+  },
+  {
+   "packages": [
+    "node_modules/ms"
+   ],
+   "at": "/opt/node_modules/ms"
+  },
+  {
+   "packages": [
+    "node_modules/music-metadata"
+   ],
+   "at": "/opt/node_modules/music-metadata"
+  },
+  {
+   "packages": [
+    "node_modules/on-exit-leak-free"
+   ],
+   "at": "/opt/node_modules/on-exit-leak-free"
+  },
+  {
+   "packages": [
+    "node_modules/p-queue"
+   ],
+   "at": "/opt/node_modules/p-queue"
+  },
+  {
+   "packages": [
+    "node_modules/p-timeout"
+   ],
+   "at": "/opt/node_modules/p-timeout"
+  },
+  {
+   "packages": [
+    "node_modules/pino"
+   ],
+   "at": "/opt/node_modules/pino"
+  },
+  {
+   "packages": [
+    "node_modules/pino-abstract-transport"
+   ],
+   "at": "/opt/node_modules/pino-abstract-transport"
+  },
+  {
+   "packages": [
+    "node_modules/pino-std-serializers"
+   ],
+   "at": "/opt/node_modules/pino-std-serializers"
+  },
+  {
+   "packages": [
+    "node_modules/process-warning"
+   ],
+   "at": "/opt/node_modules/process-warning"
+  },
+  {
+   "packages": [
+    "node_modules/protobufjs"
+   ],
+   "at": "/opt/node_modules/protobufjs"
+  },
+  {
+   "packages": [
+    "node_modules/qified"
+   ],
+   "at": "/opt/node_modules/qified"
+  },
+  {
+   "packages": [
+    "node_modules/qified/node_modules/hookified"
+   ],
+   "at": "/opt/node_modules/qified/node_modules/hookified"
+  },
+  {
+   "packages": [
+    "node_modules/quick-format-unescaped"
+   ],
+   "at": "/opt/node_modules/quick-format-unescaped"
+  },
+  {
+   "packages": [
+    "node_modules/real-require"
+   ],
+   "at": "/opt/node_modules/real-require"
+  },
+  {
+   "packages": [
+    "node_modules/safe-stable-stringify"
+   ],
+   "at": "/opt/node_modules/safe-stable-stringify"
+  },
+  {
+   "packages": [
+    "node_modules/semver"
+   ],
+   "at": "/opt/node_modules/semver"
+  },
+  {
+   "packages": [
+    "node_modules/sharp"
+   ],
+   "at": "/opt/node_modules/sharp"
+  },
+  {
+   "packages": [
+    "node_modules/sonic-boom"
+   ],
+   "at": "/opt/node_modules/sonic-boom"
+  },
+  {
+   "packages": [
+    "node_modules/split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "packages": [
+    "node_modules/strtok3"
+   ],
+   "at": "/opt/node_modules/strtok3"
+  },
+  {
+   "packages": [
+    "node_modules/thread-stream"
+   ],
+   "at": "/opt/node_modules/thread-stream"
+  },
+  {
+   "packages": [
+    "node_modules/token-types"
+   ],
+   "at": "/opt/node_modules/token-types"
+  },
+  {
+   "packages": [
+    "node_modules/tslib"
+   ],
+   "at": "/opt/node_modules/tslib"
+  },
+  {
+   "packages": [
+    "node_modules/uint8array-extras"
+   ],
+   "at": "/opt/node_modules/uint8array-extras"
+  },
+  {
+   "packages": [
+    "node_modules/undici-types"
+   ],
+   "at": "/opt/node_modules/undici-types"
+  },
+  {
+   "packages": [
+    "node_modules/whatsapp-rust-bridge"
+   ],
+   "at": "/opt/node_modules/whatsapp-rust-bridge"
+  },
+  {
+   "packages": [
+    "node_modules/win-guid"
+   ],
+   "at": "/opt/node_modules/win-guid"
+  },
+  {
+   "packages": [
+    "node_modules/ws"
+   ],
+   "at": "/opt/node_modules/ws"
   }
  ],
  "tool:observe-live-usage": [
@@ -37492,6 +37915,101 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  }
+ ],
+ "tool:show-one-purchase-plan-card-and-receipts": [
+  {
+   "package": "take-payments",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/take-payments"
+  },
+  {
+   "package": "funnels-and-offers",
+   "paths": [
+    "read-data/read-offers.ts",
+    "read-data/offer-variants.mjs"
+   ],
+   "at": "/opt/funnels-and-offers"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/build-provider-request.mjs",
+    "src/encode-provider-form.mjs",
+    "src/provider-operation-map.json",
+    "src/provider-request-mapper.mjs"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "take-payments",
+   "paths": [
+    "things-to-store-and-run.json"
+   ],
+   "at": "/opt/take-payments"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
   }
  ],
  "tool:show-the-courses-a-learner-is-on": [

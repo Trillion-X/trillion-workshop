@@ -17,11 +17,13 @@
 //   1. A package is pinned only by bytes whose sha512 is the lockfile's integrity, so a pin is never a guess.
 //   2. A module tree holds the lockfile's resolution (nested folder first, then each folder up, as Node looks them up).
 //      A required dependency the lockfile does not install, or a package that runs an install script, refuses the tree
-//      by name: nothing the engine fetches runs a script. An optional package for one platform only is left out.
+//      by name: nothing the engine fetches runs a script. The one exception is a package install-scripts-not-needed.json
+//      names, whose script was read and changes no file the package runs with (a Node version check, a printed warning). An optional package for one platform only is left out.
 //   3. Entries that are not npm packages (programs, wheels, models, the compile command) are kept as they are.
 
 import { createHash } from 'node:crypto';
 import { makeHashCodeHexFromBytes } from '../tools/content-identity/read-data/identity.mjs';
+import scriptsNotNeeded from './install-scripts-not-needed.json' with { type: 'json' };
 
 export const PINNED_FILES = 'pinned-files.json';
 export const MODULES = 'node_modules/';
@@ -46,8 +48,12 @@ export function resolveDependency(packages, from, dependency) {
   return packages[top] ? top : null;
 }
 
-/** The lockfile keys of the module `name` and everything it needs to run, sorted. */
-export function treeOf(packages, name) {
+/** The packages whose install script the engine may leave unrun (install-scripts-not-needed.json), each with why. */
+export const SCRIPTS_NOT_NEEDED = Object.freeze({ ...scriptsNotNeeded.packages });
+
+/** The lockfile keys of the module `name` and everything it needs to run, sorted. A package that runs an install script refuses
+ *  the tree unless `notNeeded` names it (its script was read and changes no file the package runs with). */
+export function treeOf(packages, name, notNeeded = SCRIPTS_NOT_NEEDED) {
   const top = `${MODULES}${name}`;
   if (!installs(packages[top])) throw new Error(`the lockfile does not install ${name}`);
   const seen = new Set();
@@ -57,7 +63,7 @@ export function treeOf(packages, name) {
     if (seen.has(key)) continue;
     seen.add(key);
     const entry = packages[key];
-    if (entry.hasInstallScript) throw new Error(`${key} runs an install script, and nothing the engine fetches runs one`);
+    if (entry.hasInstallScript && !Object.hasOwn(notNeeded, key)) throw new Error(`${key} runs an install script, and nothing the engine fetches runs one`);
     for (const [field, required] of [['dependencies', true], ['optionalDependencies', false], ['peerDependencies', false]]) {
       for (const dependency of Object.keys(entry[field] ?? {})) {
         const found = resolveDependency(packages, key, dependency);

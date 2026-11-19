@@ -108,8 +108,12 @@ const registered = folder => {
  * load:     () → the Baileys module (imported only when WhatsApp is used)
  * log:      entry → void (one JSON line)
  * changed:  () → void, when whether WhatsApp is carried changes (the helper publishes its card again)
+ * observe:  ({ event, data, account, socket }) → void, given every message event of the open socket as Baileys sent it
+ *           (messages.upsert, messages.update, messaging-history.set), so another reader (the noticer's
+ *           whatsapp-linked-device waiter) hears them from this one socket owner instead of opening a second socket
+ * socketOptions: more of Baileys' socket settings, such as `agent` (how the socket reaches WhatsApp through a proxy)
  */
-export function whatsapp(settings, { load = () => import('@whiskeysockets/baileys'), log = () => {}, changed = () => {}, keepFile = null, folder: folderOverride = null, now = () => Date.now() } = {}) {
+export function whatsapp(settings, { load = () => import('@whiskeysockets/baileys'), log = () => {}, changed = () => {}, keepFile = null, folder: folderOverride = null, now = () => Date.now(), observe = null, socketOptions = {} } = {}) {
   const words = settings.words;
   const folder = folderOverride ?? home(settings.session_folder);
   const session = join(folder, 'session');
@@ -288,7 +292,7 @@ export function whatsapp(settings, { load = () => import('@whiskeysockets/bailey
         const setKeys = state.keys.set.bind(state.keys);
         state.keys = { ...state.keys, set: data => writeCredentials(wanted, () => setKeys(data)) };
       }
-      sock = makeSocket({ auth: state, version, logger: silent, printQRInTerminal: false, markOnlineOnConnect: false, syncFullHistory: false, qrTimeout: settings.code_seconds * 1000 });
+      sock = makeSocket({ auth: state, version, logger: silent, printQRInTerminal: false, markOnlineOnConnect: false, syncFullHistory: false, qrTimeout: settings.code_seconds * 1000, ...socketOptions });
       socket = sock;
       let asking = false;
       sock.ev.on('creds.update', () => {
@@ -296,13 +300,26 @@ export function whatsapp(settings, { load = () => import('@whiskeysockets/bailey
         void writeCredentials(wanted, saveCreds);
         return credentialWrites;
       });
+      // Another reader hears what this socket hears, never through a socket of its own; its failure is logged, never this one's.
+      const tell = (event, data) => {
+        if (!observe || stopped || mine !== generation || socket !== sock) return;
+        try { observe({ event, data, account: jidFor('me', sock.user?.id), socket: sock }); }
+        catch (error) { log({ whatsapp: 'observer_failed', event, error: String(error.message ?? error) }); }
+      };
       sock.ev.on('messages.upsert', ({ messages, type }) => {
         if (stopped || mine !== generation || socket !== sock) return;
+        tell('messages.upsert', { messages: messages ?? [], type });
         try { if (type === 'notify' || type === 'append') keepIncoming(messages ?? [], sock, type); }
         catch (error) { log({ whatsapp: 'incoming_failed', error: String(error.message ?? error) }); }
         void keep(messages ?? [], baileys, sock).catch(error => log({ whatsapp: 'messages_failed', error: String(error.message ?? error) }));
       });
-      sock.ev.on('messaging-history.set', ({ messages }) => { if (!stopped && mine === generation && socket === sock) void keep(messages ?? [], baileys, sock).catch(error => log({ whatsapp: 'history_failed', error: String(error.message ?? error) })); });
+      sock.ev.on('messaging-history.set', history => {
+        if (stopped || mine !== generation || socket !== sock) return;
+        tell('messaging-history.set', history ?? {});
+        void keep(history?.messages ?? [], baileys, sock).catch(error => log({ whatsapp: 'history_failed', error: String(error.message ?? error) }));
+      });
+      // Edits and deletes come as updates of a message already told; only a reader that asked hears them.
+      if (observe) sock.ev.on('messages.update', updates => tell('messages.update', updates ?? []));
       sock.ev.on('connection.update', update => {
         if (stopped || mine !== generation || socket !== sock) return;
         // A code for "Link with phone number instead", asked for again on every pairing window.
@@ -410,7 +427,7 @@ export function whatsapp(settings, { load = () => import('@whiskeysockets/bailey
     status() {
       const state = incoming?.state();
       const account = currentAccount();
-      return { state: open && !stopped ? 'connected' : state?.status ?? 'not_linked', account, linked: registered(session) && !detached(), remote_revoked: state?.status === 'revoked', incoming_accounts: incoming?.accounts() ?? [], incoming: incoming?.summary(account) ?? { pending: 0, delivered: 0, erased: 0 } };
+      return { state: open && !stopped ? 'connected' : state?.status ?? 'not_linked', account, linked: registered(session) && !detached(), logged_out: loggedOut, remote_revoked: state?.status === 'revoked', incoming_accounts: incoming?.accounts() ?? [], incoming: incoming?.summary(account) ?? { pending: 0, delivered: 0, erased: 0 } };
     },
     disconnect({ account } = {}) {
       const named = requireAccount(account);
@@ -498,6 +515,10 @@ export function whatsapp(settings, { load = () => import('@whiskeysockets/bailey
       if (open) return { state: 'connected', account: socket?.user?.id?.split(':')[0] ?? null };
       if (!phone) return { state: 'needs_phone', error: words.phone_needed };
       stopped = false;
+      // Logged out (401) leaves a session WhatsApp no longer takes: it is moved aside, never deleted, so pairing starts fresh
+      // instead of offering the refused session again.
+      if (loggedOut && !socket && existsSync(session)) renameSync(session, `${session}-logged-out-${now()}`);
+      if (loggedOut && !socket) loggedOut = false;
       if (pairingAttempt?.result?.state === 'pairing_required' && pairingAttempt.expires_at <= now()) {
         const previousSocket = socket;
         pairingAttempt = null;

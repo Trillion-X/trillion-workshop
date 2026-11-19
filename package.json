@@ -55,6 +55,7 @@
     "@sqlite.org/sqlite-wasm": "3.53.4-build2",
     "@tailwindcss/node": "4.2.4",
     "@tanstack/react-virtual": "3.14.8",
+    "@whiskeysockets/baileys": "7.0.0-rc14",
     "ajv": "^8.20.0",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",

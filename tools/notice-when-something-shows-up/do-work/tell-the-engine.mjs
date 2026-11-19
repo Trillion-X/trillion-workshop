@@ -19,6 +19,8 @@
 //   mechanism's state are kept there, one file per waiter address, written whole (a new file renamed over the old),
 //   only after the engine accepted the fact. Two waiters that emit at one address keep apart (each file is the waiter and its address). A restarted waiter resumes from it (its sequence, a repeat's next due
 //   time). Without one they are kept in memory for this run alone.
+// - A waiter that keeps files of its own (a linked device's session) is given its own folder in the kept folder
+//   (`folderFor`, waiter-folders/<waiter id as base64url>), which outlasts the run like the rest of the kept folder.
 // - One line per fact told goes to standard error, so the session's output says what was told and what was refused.
 // - A mechanism may ask which switched-on wakes hear a kind of fact (`listening`, the door's `wake:list`, a right
 //   {at, id: <kind>, operations: ["wake:list"]}): the due-time leaf watches the schedules those wakes name in `watch`.
@@ -149,6 +151,13 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
       }
       const wakes = result.structuredContent?.wakes ?? [];
       return wakes.filter(wake => wake.switched_on === true);
+    },
+    /** A folder of the waiter's own inside the kept folder, made on first ask; null without a kept folder. */
+    folderFor(waiterRef) {
+      if (keep === null || typeof waiterRef !== 'string' || waiterRef === '') return null;
+      const folder = path.join(keep, 'waiter-folders', Buffer.from(waiterRef).toString('base64url'));
+      mkdirSync(folder, { recursive: true });
+      return folder;
     },
     async keepState(addressLabel, state, waiterRef) {
       const as = keptAs(addressLabel, waiterRef);

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { installs, manifestProblems, PINNED_FILES, resolveDependency, treeOf, writePinnedFiles } from '../test-helpers/pinned-files.mjs';
+import { installs, manifestProblems, PINNED_FILES, resolveDependency, treeOf, writePinnedFiles, SCRIPTS_NOT_NEEDED } from '../test-helpers/pinned-files.mjs';
 
 const top = resolve(import.meta.dirname, '..');
 const read = name => JSON.parse(readFileSync(resolve(top, name), 'utf8'));
@@ -42,6 +42,9 @@ test('a module tree is the lockfile resolution: nested folder first, then each f
   assert.throws(() => treeOf(packages, 'dev-only'), /does not install/);
   assert.throws(() => treeOf({ ...packages, 'node_modules/kit': entry('1.0.0', { dependencies: { missing: '^1' } }) }, 'kit'), /needs missing/);
   assert.throws(() => treeOf({ ...packages, 'node_modules/plain': entry('1.0.0', { hasInstallScript: true }) }, 'plain'), /install script/);
+  // A package whose install script was read and changes no file it runs with (install-scripts-not-needed.json) is admitted.
+  assert.deepEqual(treeOf({ ...packages, 'node_modules/plain': entry('1.0.0', { hasInstallScript: true }) }, 'plain', { 'node_modules/plain': 'prints a warning only' }), ['node_modules/plain']);
+  for (const [key, why] of Object.entries(SCRIPTS_NOT_NEEDED)) assert.ok(key.startsWith('node_modules/') && why.length > 40, `${key} says what its script does`);
 });
 
 test('writing the pinned files keeps a pin at the same address and version, reads a new one against its sha512 and refuses other bytes', async () => {

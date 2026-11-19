@@ -1,0 +1,7 @@
+{
+  "_what": "Packages whose install script the engine may leave unrun, each with what its script does, read from the script itself. test-helpers/pinned-files.mjs treeOf refuses any other package that runs an install script, because the engine runs none. Add a package only after reading its script and finding it changes no file the package runs with.",
+  "packages": {
+    "node_modules/@whiskeysockets/baileys": "preinstall `node ./engine-requirements.js` exits with an error on Node older than 20 and does nothing else; the engine's Node is 24 (read in 7.0.0-rc14, Nov 19 2026).",
+    "node_modules/protobufjs": "postinstall `node scripts/postinstall` only prints a warning when a dependent names protobufjs with another version scheme, and writes no file (read in 7.6.6, Nov 19 2026)."
+  }
+}

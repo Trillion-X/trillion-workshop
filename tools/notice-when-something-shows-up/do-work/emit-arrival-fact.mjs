@@ -173,6 +173,8 @@ export function readWaiterRow(row) {
     // the run holds it on (tell-the-engine.mjs waitersWithTheirCredentials), so one run watches many places.
     credential_name: nonEmpty(row.credential_name) ?? null,
     credential_fd: Number.isInteger(row.credential_fd) && row.credential_fd >= 3 ? row.credential_fd : null,
+    // The place a waiter that reads with no credential names its facts by (a linked device has no vault value to name it).
+    where: nonEmpty(row.where) ?? null,
   };
 }
 
@@ -352,7 +354,8 @@ export function buildScope(declared, transition, { observedAt, sequence, matched
     observed_identity: transition?.observed_identity ?? {},
     matched_source_refs: matched,
     sequence,
-    where: connection,
+    // The connection the waiter reads with names the place; a waiter that reads with none may name it in its row (`where`).
+    where: connection ?? declared.where ?? null,
     connection,
   };
 }
@@ -627,6 +630,9 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, c
     state: current?.state ?? null,
     credentialFd: declared.credential_name ? declared.credential_fd : null,
     keepState: (state) => carrier.keepState?.(emitted.address_label, state, declared.waiter_ref),
+    // A folder of this waiter's own that outlasts the run, when the carrier keeps one (a linked device's session lives
+    // there); null otherwise.
+    folder: carrier.folderFor ? carrier.folderFor(declared.waiter_ref) : null,
     // Which switched-on wakes hear a kind of fact, as the engine lists them (a carrier over the engine's door).
     listening: (kind) => (carrier.listening ? carrier.listening(kind) : Promise.resolve([])),
     async onTransition(transition) {
