@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Answer the Formats page: list my content formats, list what can fill them, shape a thought into them and follow a script\", and give it path (The page route after /work/api: /content-formats, /content-formats/sources, /content-formats/shape, /content-formats/follow); method.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:answer-the-content-formats-page and its input (the worked example shows one).",
     "3. Read what comes back: The Formats page's routes, as the old account owner answered them: GET /content-formats (the saved formats handed in as `saved` first, then the starters, with removed_starters and example_kinds); POST /content-formats { formats } checks their own list whole and answers the list it would keep (a refused list is 400); nothing is stored here, the caller stores the answer; GET /content-formats/sources (their recordings and notes from their files and the `pursuits` rows handed in, newest first); POST /content-formats/shape { thought?, source?, format_ids?",
-    "4. It reaches only these places in the person's files: /Recordings from the web/ (list_files, read_file); /Recordings from iPhone/ (list_files, read_file); /Notes/ (list_files, read_file); /Notes from members/ (list_files, read_file)."
+    "4. It reads no store: your AI reads the saved formats, the pursuit rows and the files under /Recordings from the web/, /Recordings from iPhone/, /Notes/ and /Notes from members/ from where they are kept and hands them in as saved, pursuits and stored.files, and keeps a saved list the answer gives back."
   ],
   "worked_examples": [
     {

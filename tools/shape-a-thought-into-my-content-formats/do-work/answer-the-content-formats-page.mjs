@@ -2,102 +2,76 @@
 //
 // The Formats page's routes, answered by old trillion's owner (read-data/content-formats.mjs, ported from
 // src/content-formats.mjs at tag old-trillion-before-worker-retire). The engine runs this as a @workshop-routes tool:
-// input { path, method, query, body, browser, saved, pursuits }, result { status, body }. It keeps nothing: the person's
-// saved list (`saved`) and pursuit rows (`pursuits`) are read by the caller's AI from a store and handed in, and a save
-// answers the list it checked and would keep, for the caller to store. Only the person's recordings and notes are read
-// here, through the run's files door.
+// input { path, method, query, body, browser, saved, pursuits, stored }, result { status, body }. It reads and keeps
+// nothing itself: the person's saved list (`saved`), pursuit rows (`pursuits`) and recordings and notes (`stored.files`)
+// are read by the caller's AI from where the person keeps them and handed in, and a save answers the list it checked and
+// would keep, for the caller to store.
 //
 //   GET  /content-formats            the person's saved formats, then the starters
 //   POST /content-formats            checks the person's own list and answers it (nothing is stored here)
-//   GET  /content-formats/sources    their recordings, notes and pursuits a format can be filled from, newest first
+//   GET  /content-formats/sources    their recordings and notes by name, then their pursuits newest first
 //   POST /content-formats/shape      one thought or source dropped into each format
 //   POST /content-formats/follow     how far through a script the words heard reach
 //
 // Where the old owner kept things, and where they are here:
 //   - the saved list (workshop fact `content-formats`) is the request's `saved` list of formats;
-//   - recordings and notes (the `files` reader over Namespace listings) are the person's Namespace files under each
-//     source kind's folders and every folder beneath them, reached with the door's list_files and read_file;
+//   - recordings and notes (the `files` reader over Namespace listings) are the files handed in as `stored.files`
+//     ({ name: text | { base64 } }) under each source kind's folders and every folder beneath them;
 //   - pursuits (the engine's pursuit rows) are the request's `pursuits`, each { id, ...value }.
 // A source is named by its file's identity, as the old listing named it; its words are read only when that identity is
-// one of the kind's own files, so a source outside the account, or outside the kind's folders, is not in this account.
+// one of the kind's own files handed in, so a source not handed in, or outside the kind's folders, is not in this account.
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { handleContentFormatsRequest, makeContentFormats } from '../read-data/content-formats.mjs';
 
 const MOST_SOURCE_BYTES = 256 * 1024;
-const LISTED_PER_FOLDER = 50;
-const READ_BYTES = 262144;
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const folderOf = name => (name.endsWith('/') ? name : `${name}/`);
 const baseName = name => name.slice(name.lastIndexOf('/') + 1);
 const titleOf = (kind, name) => (kind.title_drops && name.endsWith(kind.title_drops) ? baseName(name).slice(0, -kind.title_drops.length) : baseName(name));
+const bytesOf = held => (typeof held === 'string' ? Buffer.from(held, 'utf8')
+  : Buffer.from(object(held) && typeof held.base64 === 'string' ? held.base64 : '', 'base64'));
 
-// Every file under one folder and every folder beneath it, up to LISTED_PER_FOLDER names a folder.
-async function filesUnder(files, folder) {
-  const found = [];
-  const walk = async at => {
-    const page = await files('list_files', { folder: folderOf(at), limit: LISTED_PER_FOLDER }).catch(() => null);
-    if (!page) return;
-    found.push(...(page.names ?? []));
-    for (const child of page.folders ?? []) await walk(typeof child === 'string' ? child : child.name);
-  };
-  await walk(folder);
-  return found;
-}
+// The files handed in, each { name, identity, bytes }, in name order.
+const filesOf = given => Object.entries(object(given) ? given : {})
+  .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+  .map(([name, held]) => { const bytes = bytesOf(held); return { name, identity: makeHashCodeHexFromBytes(bytes), bytes }; });
 
 // The kind's own files: under its folders, with one of its name endings and small enough to read.
-async function kindFiles(files, kind) {
-  const rows = [];
-  for (const folder of kind.folders ?? []) rows.push(...await filesUnder(files, folder));
-  return rows.filter(row => typeof row?.name === 'string' && (kind.name_endings ?? []).some(end => row.name.endsWith(end)) && row.byte_length <= MOST_SOURCE_BYTES);
-}
+const kindFiles = (files, kind) => files.filter(file => (kind.folders ?? []).some(folder => file.name.startsWith(folderOf(folder)))
+  && (kind.name_endings ?? []).some(end => file.name.endsWith(end)) && file.bytes.length <= MOST_SOURCE_BYTES);
 
-async function textOf(files, name) {
-  const parts = [];
-  let offset = 0, total = null;
-  for (;;) {
-    const page = await files('read_file', { name_or_identity: name, offset, length: READ_BYTES });
-    total = page.byte_length;
-    if (!page.bytes_returned) break;
-    parts.push(Buffer.from(page.content ?? '', page.encoding === 'base64' ? 'base64' : 'utf8'));
-    offset += page.bytes_returned;
-    if (offset >= total) break;
-  }
-  return Buffer.concat(parts).toString('utf8');
-}
-
-/** The source readers the old person store gave makeContentFormats: the files over the door, the pursuits from the request. */
-export function doorReaders(door, pursuitRows = []) {
-  const files = (operation, input) => door.files(operation, input);
-  const pursuits = async () => pursuitRows.filter(row => object(row) && typeof row.id === 'string')
+/** The source readers the old person store gave makeContentFormats, over the files and pursuit rows handed in. */
+export function givenReaders(givenFiles = {}, pursuitRows = []) {
+  const files = filesOf(givenFiles);
+  const pursuits = pursuitRows.filter(row => object(row) && typeof row.id === 'string')
     .sort((a, b) => String(b.recorded_at ?? '').localeCompare(String(a.recorded_at ?? '')));
   return {
     pursuits: {
-      list: async (kind, limit) => (await pursuits()).slice(0, limit).map(row => ({ id: row.id, title: row[kind.title] ?? '', at: row.recorded_at ?? '' })),
+      list: async (kind, limit) => pursuits.slice(0, limit).map(row => ({ id: row.id, title: row[kind.title] ?? '', at: row.recorded_at ?? '' })),
       words: async (kind, id) => {
-        const row = (await pursuits()).find(one => one.id === id);
+        const row = pursuits.find(one => one.id === id);
         return row ? { title: row[kind.title] ?? '', words: (kind.fields ?? []).map(key => row[key]).filter(value => typeof value === 'string').join('\n') } : null;
       },
     },
     files: {
-      list: async (kind, limit) => (await kindFiles(files, kind))
-        .sort((a, b) => (b.modified_at_ms ?? 0) - (a.modified_at_ms ?? 0)).slice(0, limit)
-        .map(row => ({ id: row.identity, title: titleOf(kind, row.name), at: row.modified_at_ms ? new Date(row.modified_at_ms).toISOString() : '' })),
+      list: async (kind, limit) => kindFiles(files, kind).slice(0, limit).map(file => ({ id: file.identity, title: titleOf(kind, file.name), at: '' })),
       words: async (kind, identity) => {
-        const row = (await kindFiles(files, kind)).find(one => one.identity === identity);
-        if (!row) return null;
-        const text = await textOf(files, row.name);
+        const file = kindFiles(files, kind).find(one => one.identity === identity);
+        if (!file) return null;
+        const text = file.bytes.toString('utf8');
         const at = kind.words_after ? text.indexOf(kind.words_after) : -1;
-        return { title: titleOf(kind, row.name), words: at >= 0 ? text.slice(at + kind.words_after.length) : text };
+        return { title: titleOf(kind, file.name), words: at >= 0 ? text.slice(at + kind.words_after.length) : text };
       },
     },
   };
 }
 
-/** tool:answer-the-content-formats-page: run by tools/records-door/do-work/run-an-export.mjs as fn(input, { door }). */
-export async function answerTheContentFormatsPage(input, { door }) {
-  const { path = '', method = 'GET', query = {}, body, saved: given, pursuits = [] } = object(input) ? input : {};
+/** tool:answer-the-content-formats-page: run by tools/workflows/do-work/run-a-function.mjs as fn(input). */
+export async function answerTheContentFormatsPage(input) {
+  const { path = '', method = 'GET', query = {}, body, saved: given, pursuits = [], stored = {} } = object(input) ? input : {};
   let saved = Array.isArray(given) ? given : null;
   const store = { saved: () => saved, putSaved: list => { saved = structuredClone(list); } };
-  const formats = makeContentFormats({ store, readers: doorReaders(door, Array.isArray(pursuits) ? pursuits : []) });
+  const formats = makeContentFormats({ store, readers: givenReaders(object(stored) ? stored.files : {}, Array.isArray(pursuits) ? pursuits : []) });
   const search = new URLSearchParams(object(query) ? query : {}).toString();
   const request = new Request(`https://person${path}${search ? `?${search}` : ''}`, method === 'GET' ? {} : { method, body: JSON.stringify(body ?? {}) });
   const response = await handleContentFormatsRequest(formats, request);

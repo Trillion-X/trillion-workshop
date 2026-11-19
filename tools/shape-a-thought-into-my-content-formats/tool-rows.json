@@ -1,7 +1,7 @@
 {
  "kind": "tool-rows",
  "record_set": "shape-a-thought-into-my-content-formats-tool-rows",
- "what_this_is": "The Workshop row for tools/shape-a-thought-into-my-content-formats: the Formats page's routes (the person's content formats, the sources that fill them, a thought shaped into each and a script followed), answered from the saved list and pursuits handed in, and from the person's files through the run's files door; nothing is written.",
+ "what_this_is": "The Workshop row for tools/shape-a-thought-into-my-content-formats: the Formats page's routes (the person's content formats, the sources that fill them, a thought shaped into each and a script followed), answered from the saved list, pursuits and files handed in; nothing is read or written by the run itself.",
  "records": [
   {
    "id": "package::shape-a-thought-into-my-content-formats::tool::answer-the-content-formats-page",
@@ -122,7 +122,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -245,7 +244,7 @@
       },
       "stored": {
         "type": "object",
-        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /Notes from members/, /Notes/, /Recordings from iPhone/, /Recordings from the web/, as this row's `stored` lists. What is not given is not there."
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}}, the files under /Recordings from the web/, /Recordings from iPhone/, /Notes/ and /Notes from members/ (data/content-format-sources.json names the folders). What is not given is not there."
       }
      }
     },
@@ -309,12 +308,11 @@
         "at": "/opt/tweak-live-controls"
        },
        {
-        "package": "records-door",
+        "package": "workflows",
         "paths": [
-         "do-work",
-         "read-data"
+         "do-work/run-a-function.mjs"
         ],
-        "at": "/opt/records-door"
+        "at": "/opt/workflows"
        },
        {
         "package": "content-identity",
@@ -338,20 +336,6 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
-       },
-       {
-        "package": "browse-and-upload-my-files",
-        "paths": [
-         "built-stored-bytes/content-chunks/content_chunks.js",
-         "do-work/content-chunks.mjs",
-         "do-work/namespace-client.mjs",
-         "do-work/send-a-file-to-a-namespace.mjs",
-         "do-work/send-retry.mjs",
-         "do-work/send-window.mjs",
-         "do-work/shared-file-reference.mjs",
-         "send-settings.json"
-        ],
-        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      },
@@ -360,7 +344,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/shape-a-thought-into-my-content-formats/do-work/answer-the-content-formats-page.mjs",
       "answerTheContentFormatsPage"
      ],
@@ -393,37 +377,7 @@
       }
      }
     ],
-    "result_selector": "$.result",
-    "stored": [
-      {
-        "files": "/Recordings from the web/",
-        "operations": [
-          "list_files",
-          "read_file"
-        ]
-      },
-      {
-        "files": "/Recordings from iPhone/",
-        "operations": [
-          "list_files",
-          "read_file"
-        ]
-      },
-      {
-        "files": "/Notes/",
-        "operations": [
-          "list_files",
-          "read_file"
-        ]
-      },
-      {
-        "files": "/Notes from members/",
-        "operations": [
-          "list_files",
-          "read_file"
-        ]
-      }
-    ]
+    "result_selector": "$.result"
    }
   }
  ]
