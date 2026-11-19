@@ -17,7 +17,7 @@
 // - Given a kept folder (`--keep <folder>`: the row's `invoke.kept_folder`, one folder per account and tool that lasts
 //   between runs, trillion-rust src/tool_runs/tools/container.rs `kept_folder`), each waiter's last fact and its
 //   mechanism's state are kept there, one file per waiter address, written whole (a new file renamed over the old),
-//   only after the engine accepted the fact. A restarted waiter resumes from it (its sequence, a repeat's next due
+//   only after the engine accepted the fact. Two waiters that emit at one address keep apart (each file is the waiter and its address). A restarted waiter resumes from it (its sequence, a repeat's next due
 //   time). Without one they are kept in memory for this run alone.
 // - One line per fact told goes to standard error, so the session's output says what was told and what was refused.
 // - A mechanism may ask which switched-on wakes hear a kind of fact (`listening`, the door's `wake:list`, a right
@@ -77,6 +77,9 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
   /** Each waiter's {payload, state}, by address. */
   const current = new Map();
   const fileOf = addressLabel => path.join(keep, `${Buffer.from(addressLabel).toString('base64url')}.json`);
+  /** What one waiter's last fact and state are kept under: its address, and its waiter when it names one, so two waiters
+   *  that emit at one address keep apart. */
+  const keptAs = (addressLabel, waiterRef) => (typeof waiterRef === 'string' && waiterRef !== '' ? `${waiterRef}@${addressLabel}` : addressLabel);
   function kept(addressLabel) {
     if (current.has(addressLabel) || keep === null) return current.get(addressLabel) ?? null;
     try {
@@ -127,14 +130,15 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
   return {
     answer,
     async scanUnderPath() { return { entries: waiters }; },
-    async readCurrent(addressLabel) { return kept(addressLabel); },
+    async readCurrent(addressLabel, waiterRef) { return kept(keptAs(addressLabel, waiterRef)); },
     async writeRecord(record) {
       const count = told.get(record.addressLabel) ?? 0;
       told.set(record.addressLabel, count + 1);
       const eventId = record.eventKey == null ? `${record.addressLabel}#${startedAt}#${count}` : `${record.addressLabel}@${record.eventKey}`;
       await arrive(factOf(record, eventId));
-      const state = record.state === undefined ? kept(record.addressLabel)?.state ?? null : record.state;
-      remember(record.addressLabel, { payload: record.payload, state });
+      const as = keptAs(record.addressLabel, record.waiterRef);
+      const state = record.state === undefined ? kept(as)?.state ?? null : record.state;
+      remember(as, { payload: record.payload, state });
     },
     /** The switched-on wakes that hear facts of `kind` (wake:list), each as the engine lists it. */
     async listening(kind) {
@@ -146,8 +150,9 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
       const wakes = result.structuredContent?.wakes ?? [];
       return wakes.filter(wake => wake.switched_on === true);
     },
-    async keepState(addressLabel, state) {
-      remember(addressLabel, { payload: kept(addressLabel)?.payload ?? null, state });
+    async keepState(addressLabel, state, waiterRef) {
+      const as = keptAs(addressLabel, waiterRef);
+      remember(as, { payload: kept(as)?.payload ?? null, state });
     },
   };
 }

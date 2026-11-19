@@ -587,7 +587,10 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, c
 
   let current = null;
   try {
-    current = await carrier.readCurrent(emitted.address_label);
+    // Kept under the waiter as well as its address: two waiters may emit at one address (every service-list and row-change
+    // waiter emits at where::something-changed), and one's state read as the other's made a restarted waiter take the
+    // other's list as all it had seen, so every change made while it was down was never told (Nov 19 2026).
+    current = await carrier.readCurrent(emitted.address_label, declared.waiter_ref);
   } catch {
     // Nothing has ever been written at this address. Starting at the beginning
     // is the correct answer, not a failure.
@@ -616,7 +619,7 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, c
     // What this waiter kept with its last fact (a carrier with a kept folder keeps it across restarts), and a way to
     // keep more before anything is told: a mechanism's own memory, never a second store.
     state: current?.state ?? null,
-    keepState: (state) => carrier.keepState?.(emitted.address_label, state),
+    keepState: (state) => carrier.keepState?.(emitted.address_label, state, declared.waiter_ref),
     // Which switched-on wakes hear a kind of fact, as the engine lists them (a carrier over the engine's door).
     listening: (kind) => (carrier.listening ? carrier.listening(kind) : Promise.resolve([])),
     async onTransition(transition) {
@@ -639,6 +642,7 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, c
         // state is kept with it once it is told.
         await carrier.writeRecord({
           addressLabel: emitted.address_label,
+          waiterRef: declared.waiter_ref,
           pathLabels: emitted.path_labels,
           payload,
           eventKey: transition?.event_key ?? null,
