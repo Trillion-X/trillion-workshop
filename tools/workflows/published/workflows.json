@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "f6fb70e565466db48b37e18f8c4e234a7a19767fad80dfabda1a0e7e04056aa4",
+  "blake3": "b4e24d7195712568403128c1be5800bc811ebcf8de5895d8ccf906e989299e94",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -357,6 +357,7 @@
     "set-and-change-the-price-of-a-product",
     "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped",
     "set-up-a-business-on-the-account",
+    "set-up-a-first-online-shop-from-an-idea-to-launch-day",
     "set-up-a-recurring-task-that-is-safe-to-repeat",
     "set-up-a-standing-agent-loop",
     "set-up-an-ai-assistant-project-that-remembers-its-work",
@@ -7191,6 +7192,21 @@
     "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
     "fires_when": "[{\"label\": \"a part asks to make a bold promise believable to a skeptical buyer\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"request-to-write\", \"ad-to-improve\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Sweat Equity (Marketing Examined)'s method, taught in 3 videos: the person's old kept store, table video_transcripts creator \\\"Sweat Equity (Marketing Examined)\\\" (deconstruct a funnel; ads not converting; why nobody trusts your brand), https://episodes.captivate.fm/episode/c8b81629-821f-40dd-a4ce-b591ee813d1b.mp3, https://podcasts.captivate.fm/media/8be05775-db0b-413d-b1fa-0129ae2357ff/EP-43-Audio-Final.mp3, https://episodes.captivate.fm/episode/1680b8cc-3646-4504-b384-1ad8676d4615.mp3; the label is the condition in words.\"}]",
     "source": "{\"from\": \"Sweat Equity (Marketing Examined)'s method, taught in 3 videos: the person's old kept store, table video_transcripts creator \\\"Sweat Equity (Marketing Examined)\\\" (deconstruct a funnel; ads not converting; why nobody trusts your brand), https://episodes.captivate.fm/episode/c8b81629-821f-40dd-a4ce-b591ee813d1b.mp3, https://podcasts.captivate.fm/media/8be05775-db0b-413d-b1fa-0129ae2357ff/EP-43-Audio-Final.mp3, https://episodes.captivate.fm/episode/1680b8cc-3646-4504-b384-1ad8676d4615.mp3, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "set-up-a-first-online-shop-from-an-idea-to-launch-day",
+   "values": {
+    "title": "Set up a first online shop from an idea to launch day",
+    "recipe": "workflow:set-up-a-first-online-shop-from-an-idea-to-launch-day",
+    "job": "Takes a first-time seller from a problem worth solving to a live shop with a stated promise, a source for the product, a waiting list, the basic page elements and a launch check. For someone starting a small product business.",
+    "produces": "A validated idea, a one-line promise, a supplier sample, a waiting list, a built shop with the five page elements, and a launch checklist with each item ticked or open.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to set up a first online shop from an idea to launch day\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"request-to-sell\", \"product-to-launch\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \\\"Foundr \\\" (10 easy steps; shop tutorial for beginners; 5 elements of a perfect shop), https://www.youtube.com/watch?v=fC72zINnNg0, https://www.youtube.com/watch?v=NKo_M1qhIXc, https://www.youtube.com/watch?v=oOm2-RDLpbI; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \\\"Foundr \\\" (10 easy steps; shop tutorial for beginners; 5 elements of a perfect shop), https://www.youtube.com/watch?v=fC72zINnNg0, https://www.youtube.com/watch?v=NKo_M1qhIXc, https://www.youtube.com/watch?v=oOm2-RDLpbI, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
    }
   }
  ]

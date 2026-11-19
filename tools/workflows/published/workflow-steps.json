@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "5b2c4e5e6d9c07f5312705f24921abe007079dcdb677bd4cee30bc5b79fcbe4e",
+  "blake3": "89b5f13a6b659716ef9e260cf05e8a1764c41fb10ede425e1ce3ab299b6a3379",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -357,6 +357,7 @@
     "set-and-change-the-price-of-a-product",
     "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped",
     "set-up-a-business-on-the-account",
+    "set-up-a-first-online-shop-from-an-idea-to-launch-day",
     "set-up-a-recurring-task-that-is-safe-to-repeat",
     "set-up-a-standing-agent-loop",
     "set-up-an-ai-assistant-project-that-remembers-its-work",
@@ -69998,6 +69999,222 @@
     ],
     "part_of": [
      "workflow:make-a-bold-promise-believable-to-a-skeptical-buyer"
+    ]
+   }
+  },
+  {
+   "id": "set-up-a-first-online-shop-from-an-idea-to-launch-day--find-a-problem-and-validate-it",
+   "values": {
+    "title": "Start from a problem a group has and check that people want the answer",
+    "recipe": [
+     "set-up-a-first-online-shop-from-an-idea-to-launch-day"
+    ],
+    "position": 0,
+    "step": "find-a-problem-and-validate-it",
+    "do": "Pick a market you know or care about and write one problem it faces and the product that solves it. Look for a current trend that raises interest in it. Check demand with search-trend data, website traffic data and sales on big marketplaces, then ask about 10 people in the target group whether they would buy and what appeals or puts them off.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A person wants to start selling a product.",
+    "done_when": "A written problem, product, trend and the answers of about 10 target buyers.",
+    "if_missing": "If fewer than half of the people asked are interested, change the problem or the product.",
+    "why": "Demand shown by data and by people costs less than stock nobody wants.",
+    "good_answer": "Passes: \"owners lose pets; tracker collar; 7 of 10 would buy, 3 asked about battery life\". Fails: an idea chosen because it looks nice.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (10 easy steps; shop tutorial for beginners; 5 elements of a perfect shop), https://www.youtube.com/watch?v=fC72zINnNg0, https://www.youtube.com/watch?v=NKo_M1qhIXc, https://www.youtube.com/watch?v=oOm2-RDLpbI"
+    ],
+    "part_of": [
+     "workflow:set-up-a-first-online-shop-from-an-idea-to-launch-day"
+    ]
+   }
+  },
+  {
+   "id": "set-up-a-first-online-shop-from-an-idea-to-launch-day--write-the-one-line-promise-from-four-differences",
+   "values": {
+    "title": "Write the one-line promise from four ways to differ: design, time, function and price",
+    "recipe": [
+     "set-up-a-first-online-shop-from-an-idea-to-launch-day"
+    ],
+    "position": 1,
+    "step": "write-the-one-line-promise-from-four-differences",
+    "do": "For design, ask what can be personal or custom. For time, ask whether limited stock or a deadline fits. For function, ask which pain of the market you remove. For price, choose above the market (exclusive) or below it (accessible) and say why. Join the strongest into one sentence saying who it is for and why it is different. Write the target buyer in the same note.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The idea passed the check.",
+    "done_when": "One sentence promise, the choice made on each of the four, and a described target buyer.",
+    "if_missing": "If one of the four has no answer, leave it out and say so.",
+    "why": "A short promise shows buyers at once what the product is and why it beats others.",
+    "good_answer": "Passes: \"A tracker collar with your dog name engraved, for owners who fear losing a pet\", priced above the market. Fails: \"great quality collars\".",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (10 easy steps; shop tutorial for beginners; 5 elements of a perfect shop), https://www.youtube.com/watch?v=fC72zINnNg0, https://www.youtube.com/watch?v=NKo_M1qhIXc, https://www.youtube.com/watch?v=oOm2-RDLpbI"
+    ],
+    "part_of": [
+     "workflow:set-up-a-first-online-shop-from-an-idea-to-launch-day"
+    ]
+   }
+  },
+  {
+   "id": "set-up-a-first-online-shop-from-an-idea-to-launch-day--start-the-audience-and-the-waiting-list",
+   "values": {
+    "title": "Start the audience where the buyers are and open a waiting list before launch",
+    "recipe": [
+     "set-up-a-first-online-shop-from-an-idea-to-launch-day"
+    ],
+    "position": 2,
+    "step": "start-the-audience-and-the-waiting-list",
+    "do": "Choose the one place the target buyer spends time and post there before launch so launch does not meet an empty room. A tag-to-win giveaway can speed this up. Give people a strong reason to join an email waiting list so the first message goes to people ready to buy.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The promise is written.",
+    "done_when": "A chosen place, a posting start date, and a waiting-list sign-up that works with a stated incentive.",
+    "if_missing": "If the audience is small, add a giveaway or work with small creators.",
+    "why": "The first sales come from people who already know you.",
+    "good_answer": "Passes: sign-up tested end to end with a confirmation, 14 days of posts. Fails: a list with no reason to join.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (10 easy steps; shop tutorial for beginners; 5 elements of a perfect shop), https://www.youtube.com/watch?v=fC72zINnNg0, https://www.youtube.com/watch?v=NKo_M1qhIXc, https://www.youtube.com/watch?v=oOm2-RDLpbI"
+    ],
+    "part_of": [
+     "workflow:set-up-a-first-online-shop-from-an-idea-to-launch-day"
+    ]
+   }
+  },
+  {
+   "id": "set-up-a-first-online-shop-from-an-idea-to-launch-day--source-and-sample-the-product",
+   "values": {
+    "title": "Find a maker, order a sample and plan packaging",
+    "recipe": [
+     "set-up-a-first-online-shop-from-an-idea-to-launch-day"
+    ],
+    "position": 3,
+    "step": "source-and-sample-the-product",
+    "do": "Search for a local or overseas maker, compare minimum order sizes and price per unit, and choose one with a small first order. Order a sample, check it, then order the first batch. Find packaging that can be ordered in small numbers. Write the cost per unit.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A person has a product concept.",
+    "done_when": "A chosen maker, a checked sample, a first order size and a cost per unit with packaging.",
+    "if_missing": "If the minimum order is too high, ask for a smaller trial run or choose another maker.",
+    "why": "A small first order keeps the cost of a mistake low.",
+    "good_answer": "Passes: sample received and checked, first order of 100 units at 1.5 a unit. Fails: ordering a full batch with no sample.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (10 easy steps; shop tutorial for beginners; 5 elements of a perfect shop), https://www.youtube.com/watch?v=fC72zINnNg0, https://www.youtube.com/watch?v=NKo_M1qhIXc, https://www.youtube.com/watch?v=oOm2-RDLpbI"
+    ],
+    "part_of": [
+     "workflow:set-up-a-first-online-shop-from-an-idea-to-launch-day"
+    ]
+   }
+  },
+  {
+   "id": "set-up-a-first-online-shop-from-an-idea-to-launch-day--secure-name-brand-basics-and-contact",
+   "values": {
+    "title": "Secure the name, domains, a minimum brand and a business email",
+    "recipe": [
+     "set-up-a-first-online-shop-from-an-idea-to-launch-day"
+    ],
+    "position": 4,
+    "step": "secure-name-brand-basics-and-contact",
+    "do": "Check that the name is free in each country you will sell to and buy the domain names (or the nearest alternatives). Make a minimum brand: a logo, a heading font, a body font and three or four colours used the same everywhere. Set up a business email on your own domain.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A name is chosen.",
+    "done_when": "Domains owned, a logo, two fonts, three or four colours, and a business email that works.",
+    "if_missing": "If the .com is taken or too dear, take another ending and write down the choice.",
+    "why": "Matching names and a plain brand make a new shop look real.",
+    "good_answer": "Passes: names bought for 4 countries, email sends and receives. Fails: a free personal email on the store.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (10 easy steps; shop tutorial for beginners; 5 elements of a perfect shop), https://www.youtube.com/watch?v=fC72zINnNg0, https://www.youtube.com/watch?v=NKo_M1qhIXc, https://www.youtube.com/watch?v=oOm2-RDLpbI"
+    ],
+    "part_of": [
+     "workflow:set-up-a-first-online-shop-from-an-idea-to-launch-day"
+    ]
+   }
+  },
+  {
+   "id": "set-up-a-first-online-shop-from-an-idea-to-launch-day--build-the-shop-with-the-five-page-elements",
+   "values": {
+    "title": "Build the shop and give its page five elements: email capture, promise, trust, bundles and offer",
+    "recipe": [
+     "set-up-a-first-online-shop-from-an-idea-to-launch-day"
+    ],
+    "position": 5,
+    "step": "build-the-shop-with-the-five-page-elements",
+    "do": "Use a template shop builder. Add an email capture box, the one-line promise and what the product is on the first screen, customer photos and reviews, bundles that raise the average order (and quantity price breaks), and a clear offer such as free shipping or a first-order discount with a stock bar or countdown if true. Take clean product photos, write product copy, set the price after checking competitors, and connect payment methods.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Product and brand basics exist.",
+    "done_when": "A live shop with all five elements, product photos, copy, a price and payment methods tested with a real order.",
+    "if_missing": "If there are no reviews yet, send the product to friends and small creators first and add theirs.",
+    "why": "Each element answers a reason a visitor leaves.",
+    "good_answer": "Passes: five elements present and a test order completed. Fails: a shop with no reviews and no offer.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (10 easy steps; shop tutorial for beginners; 5 elements of a perfect shop), https://www.youtube.com/watch?v=fC72zINnNg0, https://www.youtube.com/watch?v=NKo_M1qhIXc, https://www.youtube.com/watch?v=oOm2-RDLpbI"
+    ],
+    "part_of": [
+     "workflow:set-up-a-first-online-shop-from-an-idea-to-launch-day"
+    ]
+   }
+  },
+  {
+   "id": "set-up-a-first-online-shop-from-an-idea-to-launch-day--pick-channels-and-prepare-the-launch",
+   "values": {
+    "title": "Pick the first channels and complete the launch checklist",
+    "recipe": [
+     "set-up-a-first-online-shop-from-an-idea-to-launch-day"
+    ],
+    "position": 6,
+    "step": "pick-channels-and-prepare-the-launch",
+    "do": "Choose from paid ads, organic posting, small creators and email, and start testing from the first week. Before launch tick: reviews on the shop, small creators lined up to post, the launch email written and scheduled, and the waiting list ready to receive it.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The shop is live.",
+    "done_when": "A named set of channels and a launch checklist with each item ticked or marked open.",
+    "if_missing": "If an item is not ready, move the date and say which item holds it.",
+    "why": "Launching with a ready audience and proof gives the first day real sales.",
+    "good_answer": "Passes: 10 creators lined up, launch email scheduled. Fails: launching with nothing prepared.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (10 easy steps; shop tutorial for beginners; 5 elements of a perfect shop), https://www.youtube.com/watch?v=fC72zINnNg0, https://www.youtube.com/watch?v=NKo_M1qhIXc, https://www.youtube.com/watch?v=oOm2-RDLpbI"
+    ],
+    "part_of": [
+     "workflow:set-up-a-first-online-shop-from-an-idea-to-launch-day"
+    ]
+   }
+  },
+  {
+   "id": "set-up-a-first-online-shop-from-an-idea-to-launch-day--record-the-launch-and-what-matters-next",
+   "values": {
+    "title": "Record the launch result and what matters most next",
+    "recipe": [
+     "set-up-a-first-online-shop-from-an-idea-to-launch-day"
+    ],
+    "position": 7,
+    "step": "record-the-launch-and-what-matters-next",
+    "do": "After the first week record sales by source, the waiting list conversion, what visitors asked, and the one change to make first.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A week has passed since launch.",
+    "done_when": "A short record with sales by source, the conversion of the waiting list and one next change.",
+    "if_missing": "If sales are zero, write which step of the chain lost people and test that.",
+    "why": "The record tells whoever decides what matters most next.",
+    "good_answer": "Passes: \"40 sales; 30 from the list; change: add a bundle\". Fails: only a total.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (10 easy steps; shop tutorial for beginners; 5 elements of a perfect shop), https://www.youtube.com/watch?v=fC72zINnNg0, https://www.youtube.com/watch?v=NKo_M1qhIXc, https://www.youtube.com/watch?v=oOm2-RDLpbI"
+    ],
+    "part_of": [
+     "workflow:set-up-a-first-online-shop-from-an-idea-to-launch-day"
     ]
    }
   }
