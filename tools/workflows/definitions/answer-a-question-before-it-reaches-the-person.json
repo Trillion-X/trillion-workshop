@@ -1,0 +1,66 @@
+{
+  "_what": "Before anyone working for the person (a chat, a helper, a run) puts a question to the person, the question is answered here from the person's own rulings, and reaches the person only when the answer names one of the three things only the person holds: a device in their hand, a payment, or a choice between two of their own rules, each named. Input: {question, why_it_came_up}. The shape of each answer is the check: the engine refuses an answer that says the question reaches the person without naming which of the three it is (and, for a choice, both rules with where each lives), and refuses an answer that keeps the question away from the person without quoting the ruling that decides it and saying where it lives. Nothing here lists rulings: they are read where they live each time.",
+  "definitions": [
+    {
+      "id": "workflow:answer-a-question-before-it-reaches-the-person",
+      "name": "Answer a question before it reaches the person",
+      "kind": "workflow",
+      "is_active": true,
+      "version": 1,
+      "steps": [
+        {
+          "id": "read-the-rulings",
+          "kind": "ask",
+          "config": {
+            "name": {"$kind": "binding", "select": {"from": "context", "path": "actor.user_id"}},
+            "input": {
+              "do": "Read, where they live, the person's rulings that bear on this question before judging it: their standing instructions to every AI, their lessons and decisions rows, the task row the question came from and its notes, and the run or workflow that raised it. Quote each ruling that bears on the question word for word with the place it lives (a file path with line, a row id, a commit). A ruling you remember but did not read now does not count.",
+              "question": {"$kind": "binding", "select": {"from": "input", "path": "question"}},
+              "why_it_came_up": {"$kind": "binding", "select": {"from": "input", "path": "why_it_came_up"}},
+              "submit": {
+                "type": "object",
+                "required": ["question", "read"],
+                "additionalProperties": false,
+                "properties": {
+                  "question": {"type": "string", "minLength": 8},
+                  "read": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["where", "quote"], "additionalProperties": false,
+                    "properties": {"where": {"type": "string", "minLength": 3}, "quote": {"type": "string", "minLength": 8}}}}
+                }
+              }
+            },
+            "context": {"step_id": "read-the-rulings", "title": "Read the rulings that bear on the question"}
+          }
+        },
+        {
+          "id": "judge",
+          "kind": "ask",
+          "config": {
+            "name": {"$kind": "binding", "select": {"from": "context", "path": "actor.user_id"}},
+            "input": {
+              "do": "Say whether the question reaches the person. It reaches them only when the answer needs something only they hold: a device in their hand (a passkey, a phone, a screen only they see), a payment, or a choice between two of their own rules that conflict here (name both, with where each lives). Otherwise answer it yourself from the ruling that decides it, quote that ruling with where it lives, and say the next step you take now. 'Should I go ahead' is decided by a standing yes when one is read; a plan, a review or bookkeeping is never a gate.",
+              "read": {"$kind": "binding", "select": {"from": "steps", "key": "read-the-rulings", "path": "output.read"}},
+              "submit": {
+                "oneOf": [
+                  {"type": "object", "required": ["reaches_the_person", "ruling", "answer", "next_step"], "additionalProperties": false,
+                    "properties": {"reaches_the_person": {"const": false},
+                      "ruling": {"type": "object", "required": ["where", "quote"], "additionalProperties": false, "properties": {"where": {"type": "string", "minLength": 3}, "quote": {"type": "string", "minLength": 8}}},
+                      "answer": {"type": "string", "minLength": 3}, "next_step": {"type": "string", "minLength": 3}}},
+                  {"type": "object", "required": ["reaches_the_person", "holds", "what_only_they_can_do", "ask"], "additionalProperties": false,
+                    "properties": {"reaches_the_person": {"const": true}, "holds": {"enum": ["a device in their hand", "a payment"]},
+                      "what_only_they_can_do": {"type": "string", "minLength": 8}, "ask": {"type": "string", "minLength": 8}}},
+                  {"type": "object", "required": ["reaches_the_person", "holds", "rules", "ask"], "additionalProperties": false,
+                    "properties": {"reaches_the_person": {"const": true}, "holds": {"const": "a choice between two of their own rules"},
+                      "rules": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "object", "required": ["where", "quote"], "additionalProperties": false,
+                        "properties": {"where": {"type": "string", "minLength": 3}, "quote": {"type": "string", "minLength": 8}}}},
+                      "ask": {"type": "string", "minLength": 8}}}
+                ]
+              }
+            },
+            "context": {"step_id": "judge", "title": "Decide whether it reaches the person"}
+          }
+        }
+      ],
+      "edges": [{"from": "read-the-rulings", "to": "judge", "kind": "always"}]
+    }
+  ]
+}
