@@ -1,7 +1,7 @@
 // tools/hold-one-thing-until-done/do-work/hold.mjs
 //
 // PURPOSE
-//   The two rows of this tool, run by tools/records-door/do-work/run-an-export.mjs: seeWhatHoldsMe answers whether the
+//   The two rows of this tool, run by do-work/run-given.mjs with the input the request carries: seeWhatHoldsMe answers whether the
 //   required-setup cover stands and which one must-do row the hold shows; changeWhatHoldsMe answers the hold setting after
 //   the held row is set aside, handed back, given a stake, asked off or turned on. Both read and keep nothing: the
 //   rows they work from come in with the request and what they make comes back in the answer.

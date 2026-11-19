@@ -5,20 +5,19 @@
 //   - the doer gate is tools/who-does-each-step's whoDoesEachStep over the old DATA (tools/shared-code/src/who-does-it.json),
 //     where old trillion's src/who-does-it.mjs read that same DATA itself;
 //   - 'the held fact and its devices ...' runs on the route over the person's own records instead of the old person
-//     store: its device runs are started through the run's door (`runs`), keyed `native-hold-devices:` as old
+//     store: its device runs are answered as `runs` for the caller to start, keyed `native-hold-devices:` as old
 //     src/native-waiting-account-owner.mjs keyed them (the person store this old test drove keyed them `hold-devices:`).
 // Not here: 'startup hold reads current ranked cards without waiting for voice clip enrichment' (voices and their
 // Namespace clip searches are not records; see README.md).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { chooseStake, stakeJob, withoutHanded } from '../read-data/needs-you-hold.mjs';
 import { makeWaitingNudge } from '../read-data/waiting-nudge.mjs';
 import { whoDoesEachStep as whoDoes } from '../../who-does-each-step/read-data/who-does.mjs';
 import whoData from '../../shared-code/src/who-does-it.json' with { type: 'json' };
 import settings from '../../keep-and-wake-ai-sessions-on-this-computer/src/waiting-on-you.json' with { type: 'json' };
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import { answerHoldWithTools } from './hold-tools-door.mjs';
+import { answerNeedsYouHoldRoute } from '../do-work/needs-you-hold-route.mjs';
+import { keptAfter } from './kept-rows.mjs';
 
 const whoDoesEachStep = input => whoDoes({ ...whoData, ...input });
 const hold = { ...settings.hold, default_on: true };
@@ -65,16 +64,15 @@ test('walking away carries out the stake: the walked-away rung hands its job to 
 });
 
 test('the held fact and its devices name the person\'s own card, not one the AIs take', async () => {
-  const ROUTE = rowOf(JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')), 'tool:answer-the-needs-you-hold-route');
   const row = (id, values) => ({ id: `record:waiting-on-you:${id}`, type: 'record:waiting-on-you', value: values });
   const records = [{ id: 'setting:needs_you_hold_rules', type: 'setting', value: { value: hold } },
     row('print', { what: 'Print the shelf cards', needs: 'print labels', added: ago(600), status: 'Open' }),
     row('mom', { what: 'Reply to Mom', needs: 'write', only_you_because: 'their-own-relationship', added: ago(600), status: 'Open' })];
-  const run = await answerHoldWithTools(ROUTE, { path: '/needs-you-hold', method: 'GET', query: {}, body: {}, browser: {} }, { records });
-  assert.equal(run.result.status, 200, JSON.stringify(run.result.body));
-  const held = run.kept.find(record => record.id === 'setting:needs_you_held').value.value;
+  const run = await answerNeedsYouHoldRoute({ path: '/needs-you-hold', method: 'GET', query: {}, body: {}, browser: {}, stored: { records } });
+  assert.equal(run.status, 200, JSON.stringify(run.body));
+  const held = keptAfter(records, run.keep).find(record => record.id === 'setting:needs_you_held').value.value;
   assert.equal(held.title, 'Reply to Mom', 'the held fact names the card the person is shown');
-  const runs = run.runs.map(item => ({ tool_id: item.tool, input: item.input, request_key: item.key }));
+  const runs = run.runs.map(item => ({ tool_id: item.tool_id, input: item.input, request_key: item.key }));
   assert.ok(runs.length && runs.every(item => !String(item.request_key).includes('print')), 'no device run starts for the AI card');
   for (const device of hold.devices.when_held) {
     assert.ok(runs.some(item => item.tool_id === device.tool_id && String(item.request_key).startsWith(`native-hold-devices:${device.tool_id}:${held.key}:`)), `${device.tool_id} runs for the person's card`);

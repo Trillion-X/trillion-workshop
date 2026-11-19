@@ -120,7 +120,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -340,14 +339,6 @@
                 "at": "/opt/hold-one-thing-until-done"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
                 "package": "content-identity",
                 "paths": [
                   "read-data"
@@ -489,7 +480,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hold-one-thing-until-done/do-work/run-given.mjs",
             "/opt/hold-one-thing-until-done/do-work/hold.mjs",
             "seeWhatHoldsMe"
           ],
@@ -658,7 +649,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -832,14 +822,6 @@
                 "at": "/opt/hold-one-thing-until-done"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
                 "package": "content-identity",
                 "paths": [
                   "read-data"
@@ -981,7 +963,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hold-one-thing-until-done/do-work/run-given.mjs",
             "/opt/hold-one-thing-until-done/do-work/hold.mjs",
             "changeWhatHoldsMe"
           ],
@@ -1124,7 +1106,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1192,7 +1173,7 @@
         "label": "Answer the page that shows the one thing that holds me",
         "status": "active",
         "job": "Answer the Trillion page routes GET and POST /work/api/needs-you-hold: the one thing held for me now, and setting it aside, handing it back, choosing a stake, asking off or turning it on",
-        "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. GET /needs-you-hold answers 200 with the hold over the person's Waiting on you rows (record:waiting-on-you), their hold setting (setting:needs_you_hold) and their hold rules (setting:needs_you_hold_rules): { on, held, ranked, ..., said, words }; a read that fails answers 503 { error, busy: true }. POST /needs-you-hold with { op, key?, title?, reason?, way?, stake?, values? } (op: read, seen, aside, hand_back, stake, off or on) changes the hold setting on condition of what was read (409 when it changed meanwhile), keeps each job the change hands to the person's AIs as an ai-job record once, and answers the change with the read after it; seen marks read the notices the held thing's own device runs told, on this page's surface. Every read keeps the held thing as setting:needs_you_held when it changed; a refused change answers 400 { error }. Any other path or method answers 404.",
+        "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser, stored } and answers the page with { status, body }; it reads and writes no store: stored.records are the person's records it works from, and it answers the rows to keep (keep) and the device runs to start (runs). GET /needs-you-hold answers 200 with the hold over the person's Waiting on you rows (record:waiting-on-you), their hold setting (setting:needs_you_hold) and their hold rules (setting:needs_you_hold_rules): { on, held, ranked, ..., said, words }; a read that fails answers 503 { error, busy: true }. POST /needs-you-hold with { op, key?, title?, reason?, way?, stake?, values? } (op: read, seen, aside, hand_back, stake, off or on) changes the hold setting on condition of what was read (409 when the store refuses the kept setting), keeps each job the change hands to the person's AIs as an ai-job record once, and answers the change with the read after it; seen marks read the notices the held thing's own device runs told, on this page's surface. Every read keeps the held thing as setting:needs_you_held when it changed; a refused change answers 400 { error }. Any other path or method answers 404.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -1222,9 +1203,13 @@
               "type": "object",
               "description": "Full authoritative waiting answer; preserves every source section and finish control."
             },
+            "pages": {
+              "type": "object",
+              "description": "The results of the reader tools a waiting source names, { [tool id]: [result, ...] }, each reader's results in the order it was run."
+            },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of setting (the row setting:needs_you_hold), setting (the row setting:needs_you_held), setting (the row setting:needs_you_hold_rules), record:waiting-on-you, ai-job (ids starting ai-job:hold-), told-the-person, told-the-person (the row told-the-person), told-the-person (ids starting told-the-person:), record:waiting-sources, ai-job, post, as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here as { records: [{id, type, value}] } of setting (the row setting:needs_you_hold), setting (the row setting:needs_you_held), setting (the row setting:needs_you_hold_rules), record:waiting-on-you, ai-job (ids starting ai-job:hold-), told-the-person, told-the-person (the row told-the-person), told-the-person (ids starting told-the-person:), record:waiting-sources, ai-job, post, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -1241,7 +1226,11 @@
             "body": {},
             "keep": {
               "type": "array",
-              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+              "description": "What the run would keep, for the caller to keep where the person keeps it: rows { id, type, value, expected } (value null removes; expected is the record as it was handed in, or null for a new one, so a store refuses a row whose record moved). The run itself writes nothing."
+            },
+            "runs": {
+              "type": "array",
+              "description": "Device tool runs the hold starts: { tool_id, input, key }. The caller starts each through its own run path only after every keep row is written, once per key."
             }
           }
         },
@@ -1321,14 +1310,6 @@
                   "do-work/same-origin.mjs"
                 ],
                 "at": "/opt/http-client"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -1415,7 +1396,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hold-one-thing-until-done/do-work/run-given.mjs",
             "/opt/hold-one-thing-until-done/do-work/needs-you-hold-route.mjs",
             "answerNeedsYouHoldRoute"
           ],
@@ -1423,16 +1404,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "runs": [
-              "tool:hold-a-device-quiet",
-              "tool:take-me-there",
-              "tool:release-a-device",
-              "tool:my-notification-devices",
-              "tool:see-my-decisions"
-            ]
           }
         },
         "needs": {
@@ -1452,78 +1423,42 @@
         "stored": [
           {
             "kind": "setting",
-            "id": "setting:needs_you_hold",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "id": "setting:needs_you_hold"
           },
           {
             "kind": "setting",
-            "id": "setting:needs_you_held",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "id": "setting:needs_you_held"
           },
           {
             "kind": "setting",
-            "id": "setting:needs_you_hold_rules",
-            "operations": [
-              "records:read"
-            ]
+            "id": "setting:needs_you_hold_rules"
           },
           {
-            "kind": "record:waiting-on-you",
-            "operations": [
-              "records:list"
-            ]
+            "kind": "record:waiting-on-you"
           },
           {
             "kind": "ai-job",
-            "prefix": "ai-job:hold-",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "prefix": "ai-job:hold-"
+          },
+          {
+            "kind": "told-the-person"
           },
           {
             "kind": "told-the-person",
-            "operations": [
-              "records:list"
-            ]
+            "id": "told-the-person"
           },
           {
             "kind": "told-the-person",
-            "id": "told-the-person",
-            "operations": [
-              "records:write"
-            ]
+            "prefix": "told-the-person:"
           },
           {
-            "kind": "told-the-person",
-            "prefix": "told-the-person:",
-            "operations": [
-              "records:write"
-            ]
+            "kind": "record:waiting-sources"
           },
           {
-            "kind": "record:waiting-sources",
-            "operations": [
-              "records:list"
-            ]
+            "kind": "ai-job"
           },
           {
-            "kind": "ai-job",
-            "operations": [
-              "records:list"
-            ]
-          },
-          {
-            "kind": "post",
-            "operations": [
-              "records:list"
-            ]
+            "kind": "post"
           }
         ]
       }
