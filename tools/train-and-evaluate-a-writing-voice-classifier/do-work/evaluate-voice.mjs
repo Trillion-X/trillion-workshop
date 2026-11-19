@@ -9,7 +9,7 @@
  * Usage:
  *   node evaluate-voice.mjs --data <challenge.json> --out <results.json> --live (--settings-record <record.json> | --endpoint <url> --model <id>)
  *        [--workers N] [--single-attempt] [--resume]
- *   (--settings-record names a JSON file holding the person's setting row as records:read gives it: { id, type, value })
+ *   (--settings-record names a JSON file holding the person's setting row as the store gives it: { id, type, value })
  *   or one JSON request on standard input (the tool row): { action, data, settings_record?, replies?, report? }, where
  *   settings_record is that row already read (tools/settings reads it)
  */
@@ -322,7 +322,7 @@ return writeReport(complete);
 
 
 /** The settings a run uses: the person's list:settings row for this tool (record:setting:<this folder>~<scope_kind>~
- * <scope_id>), as records:read gave it, read with tools/settings, else the endpoint and model given directly. */
+ * <scope_id>), as the store gave it, read with tools/settings, else the endpoint and model given directly. */
 export async function settingsFrom({ settings_record, endpoint, model, workers } = {}) {
   const fromRow = settings_record == null ? null : setting(settings_record, { folder: FOLDER, tool: TOOL });
   if (settings_record != null && fromRow === null) throw new Error(`settings_record holds no settings for ${FOLDER}: give the person's list:settings row for this tool (record:setting:${FOLDER}~<scope_kind>~<scope_id>).`);
@@ -422,7 +422,7 @@ async function standardInput() {
   for await (const chunk of process.stdin) chunks.push(chunk);
   try {
     const request = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
-    if (typeof request?.settings_record === 'string') throw new Error('settings_record is the setting row as records:read gave it ({ id, type, value }), not its id or a path.');
+    if (typeof request?.settings_record === 'string') throw new Error('settings_record is the setting row as the store gave it ({ id, type, value }), not its id or a path.');
     console.log(JSON.stringify({ result: await answer(request) }));
   }
   catch (error) { console.log(JSON.stringify({ error: String(error?.message ?? error) })); process.exitCode = 1; }

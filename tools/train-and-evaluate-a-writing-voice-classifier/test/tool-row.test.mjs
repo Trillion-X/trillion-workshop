@@ -22,8 +22,9 @@ function run(row, input) {
   return JSON.parse(result.stdout.trim().split('\n').at(-1));
 }
 
-test('no row declares a records door: the setting row comes in the request and nothing is kept', () => {
+test('no row declares a door: the setting row comes in the request and nothing is kept', () => {
   for (const row of rows) assert.equal(row.invoke.records, undefined, row.id);
+  assert.doesNotMatch(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'), /records:(read|write|list)|records-door/);
   assert.ok(evaluateRow.input_schema.properties.settings_record);
 });
 
@@ -68,7 +69,7 @@ test('settings come from the person\'s row for this tool, and their absence is r
   await assert.rejects(answer({ data: binary, settings_record: { ...kept, value: { ...kept.value, status: 'retired' } } }), /retired/);
   await assert.rejects(answer({ data: binary, settings_record: { ...kept, id: 'record:setting:some-other-folder~person~made-up-writer' } }), /holds no settings for train-and-evaluate/);
   await assert.rejects(answer({ data: binary, settings_record: { ...kept, value: { ...kept.value, settings: '{"model":"m"}' } } }), /settings need endpoint/);
-  assert.match(run(evaluateRow, { data: binary, settings_record: kept.id }).error, /as records:read gave it/);
+  assert.match(run(evaluateRow, { data: binary, settings_record: kept.id }).error, /as the store gave it/);
 });
 
 test('plan sends the passage and criterion context only, and an unknown action is refused', async () => {
