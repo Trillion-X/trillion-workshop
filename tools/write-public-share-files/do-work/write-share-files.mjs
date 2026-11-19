@@ -2,17 +2,18 @@
 //
 // The thin shell around share-files.mjs: takes the person's sharing rows, the Lists they share and those Lists' rows as
 // the records the caller read from the person's own store and handed in (input.records), reads the files the shown
-// rows name through the run's files door (read_file), hands them to the pure core, and writes the public files into
+// rows name from the files the caller handed in (input.stored.files), hands them to the pure core, and writes the public files into
 // the folder the caller names, at the paths the public server serves under /share/. It then writes manifest.json: every
 // file with its BLAKE3 content identity (tools/content-identity), and which files of the last run it removed because
 // their link was revoked, expired, narrowed or changed. It holds no records method: the store is never read here.
 //
-//   writeShareFiles({ input: { origin, row_kind, records? }, folder }, { door, now?, filterRows? })
+//   writeShareFiles({ input: { origin, row_kind, records, stored?: { files?: { name: text | { base64, media_type? } } } }, folder },
+//                   { now?, filterRows? })
 //     → { written, unchanged, removed, published, left_out, ended, next_change_at, wake_effects, host_files }
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Records are the ones handed in as input.records; files are read only through the run's files door (read_file).
-//      Nothing else of the person's is read.
+//   1. Records are the ones handed in as input.records; files are the ones handed in as input.stored.files. Nothing
+//      else of the person's is read: a file that was not given is not there.
 //   2. A file is written whole under a temporary name and renamed into place, and the bytes of a shared file must
 //      have the identity the row names, or the run stops before the manifest changes.
 //   3. Every path the last manifest names that this run did not write is removed: no stale copy of an ended link or a
@@ -28,7 +29,6 @@ import { partOf, shareFiles } from './share-files.mjs';
 
 const MANIFEST = 'manifest.json';
 const SCHEMA = 'trillion.public-share-files/v1';
-const READ_BYTES = 512 * 1024;
 const TOOL = 'tool:write-public-share-files';
 const say = (code, words) => Object.assign(new Error(words), { code });
 const enc = new TextEncoder();
@@ -55,28 +55,30 @@ async function writeWhole(target, bytes) {
   await rename(temporary, target);
 }
 
-// The bytes of one shared file, page after page, checked against the identity a shown row named.
-async function fileBytes(door, identity) {
-  const parts = [];
-  for (let offset = 0, total = null; total === null || offset < total;) {
-    const page = await door.files('read_file', { name_or_identity: identity, offset, length: READ_BYTES });
-    if (page.identity !== identity) throw say('file_changed', `${identity} changed while it was read.`);
-    total = page.byte_length;
-    const part = Buffer.from(page.content ?? '', page.encoding === 'base64' ? 'base64' : 'utf8');
-    if (!page.bytes_returned && total > 0) throw say('file_short', `${identity} did not answer its bytes.`);
-    parts.push(part); offset += part.length;
-    if (!part.length) break;
-  }
-  const bytes = Buffer.concat(parts);
-  if (makeHashCodeHexFromBytes(bytes) !== identity) throw say('file_changed', `${identity} does not hold the bytes its identity names.`);
-  return bytes;
+// The files the caller handed in as input.stored.files ({ name: text | { base64, media_type? } }), each with its BLAKE3
+// identity, so a row may name a file by its name or its identity.
+function givenFiles(files = {}) {
+  const given = Object.entries(files).map(([name, held]) => {
+    const bytes = Buffer.from(typeof held === 'string' ? held : held?.base64 ?? '', typeof held === 'string' ? 'utf8' : 'base64');
+    return { name, bytes, identity: makeHashCodeHexFromBytes(bytes), media_type: held?.media_type ?? null };
+  });
+  const byKey = new Map(given.flatMap(file => [[file.name, file], [file.identity, file]]));
+  return key => byKey.get(key) ?? null;
+}
+
+// The bytes of one shared file, checked against the identity a shown row named.
+function fileBytes(fileOf, identity) {
+  const file = fileOf(identity);
+  if (!file) throw say('file_missing', `${identity} was not given to this run.`);
+  if (file.identity !== identity) throw say('file_changed', `${identity} does not hold the bytes its identity names.`);
+  return file.bytes;
 }
 
 // The records of one type the caller handed in as input.records: { id, type, value }.
 const recordsOf = (records, type) => records.filter(record => record?.type === type && record.value && typeof record.value === 'object');
 
 // The shares as the core takes them: each link grant with the List (or the List of the row) it shares and its rows.
-async function readShares(records, rowKind, door) {
+function readShares(records, rowKind, given) {
   const shares = [];
   const lists = new Map();
   const listOf = ref => {
@@ -97,13 +99,9 @@ async function readShares(records, rowKind, door) {
     }
     return lists.get(ref);
   };
-  const facts = new Map();
   const fileOf = async name => {
-    if (!facts.has(name)) {
-      const page = await door.files('read_file', { name_or_identity: name, offset: 0, length: 0 }).catch(() => null);
-      facts.set(name, page?.identity ? { identity: page.identity, media_type: page.media_type ?? null, name: page.name ?? (name.startsWith('/') ? name : null) } : null);
-    }
-    return facts.get(name);
+    const file = given(name);
+    return file && { identity: file.identity, media_type: file.media_type, name: name.startsWith('/') ? name : null };
   };
   for (const record of recordsOf(records, 'sharing')) {
     const sharing = record.value;
@@ -115,14 +113,13 @@ async function readShares(records, rowKind, door) {
   return shares;
 }
 
-export async function writeShareFiles({ input = {}, folder } = {}, { door, now = Date.now(), filterRows = defaultFilter } = {}) {
+export async function writeShareFiles({ input = {}, folder } = {}, { now = Date.now(), filterRows = defaultFilter } = {}) {
   if (typeof folder !== 'string' || !folder) throw say('bad_input', 'Name the folder the public share files are written to.');
-  if (!door) throw say('bad_input', 'This tool reads the shared files through the run\'s files door.');
   if (typeof input.row_kind !== 'string' || !input.row_kind.startsWith('record:')) throw say('bad_input', 'row_kind is the record kind of the shared Lists\' rows, record:<the List\'s row_type>.');
   // The records are never read here: a run without them is refused, so it never publishes or removes from a partial view.
   if (!Array.isArray(input.records)) throw say('bad_input', 'records are required: the caller reads the sharing, List and row records from the person\'s own store and hands them in.');
-  const records = input.records;
-  const result = await shareFiles({ origin: input.origin, now, shares: await readShares(records, input.row_kind, door), filterRows });
+  const given = givenFiles(input.stored?.files);
+  const result = await shareFiles({ origin: input.origin, now, shares: readShares(input.records, input.row_kind, given), filterRows });
   const before = await readManifest(folder);
   const held = new Map((before?.files ?? []).map(file => [file.path, file.identity]));
   const files = [];
@@ -134,7 +131,7 @@ export async function writeShareFiles({ input = {}, folder } = {}, { door, now =
     const kept = held.get(item.path) === identity && await readFile(target).then(found => makeHashCodeHexFromBytes(found) === identity, () => false);
     if (kept) unchanged += 1;
     else {
-      bytes ??= await fileBytes(door, identity);
+      bytes ??= fileBytes(given, identity);
       await writeWhole(target, bytes);
       written += 1;
     }

@@ -1,9 +1,9 @@
 // tools/write-public-share-files/test/write-share-files.test.mjs
 //
-// The shell (do-work/write-share-files.mjs) over the records handed in as input and a stand-in files door in a temporary folder: it writes every public
+// The shell (do-work/write-share-files.mjs) over the records and files handed in as input, in a temporary folder: it writes every public
 // file at its served path, a manifest with each file's BLAKE3 identity, writes nothing again when nothing changed,
-// removes every file of a link that ended and names them in the manifest, refuses bytes that are not the identity a row
-// names, and asks to be woken at a link's expiry. Every name and address here is made up.
+// removes every file of a link that ended and names them in the manifest, refuses a file a row names that was not given,
+// and asks to be woken at a link's expiry. Every name and address here is made up.
 import assert from 'node:assert/strict';
 import { mkdtemp, readFile, rm, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -27,19 +27,8 @@ function recordsOf({ grant } = {}) {
   ];
 }
 
-// The run's files door only: it answers the shared bytes and holds no records method.
-function doorOf({ bytes = picture } = {}) {
-  const reads = [];
-  return {
-    reads,
-    async files(method, { name_or_identity: name, offset, length }) {
-      reads.push(`${method} ${name} ${length}`);
-      if (name !== '/Menu/bun.png' && name !== identity) throw new Error('no such file');
-      const part = Buffer.from(bytes).subarray(offset, offset + length);
-      return { identity, byte_length: bytes.length, media_type: 'image/png', bytes_returned: part.length, content: part.toString('base64'), encoding: 'base64' };
-    },
-  };
-}
+// The files the caller read from the person's own files and hands in as input.stored.files.
+const stored = (bytes = picture) => ({ files: { '/Menu/bun.png': { base64: Buffer.from(bytes).toString('base64'), media_type: 'image/png' } } });
 const grantOf = extra => ({ share_id: 's1', code: CODE, scope: { kind: 'public' }, can: ['view'], created_at: '2026-10-01T00:00:00Z', address: 'menu', listed: true, revoked_at: null, expires_at: null, ...extra });
 const exists = path => stat(path).then(() => true, () => false);
 
@@ -47,8 +36,8 @@ test('writes every public file at its served path with a BLAKE3 manifest, rewrit
   const folder = await mkdtemp(join(tmpdir(), 'share-files-'));
   t.after(() => rm(folder, { recursive: true, force: true }));
   const base = { origin: 'https://share.example', row_kind: 'record:dish' };
-  const input = { input: { ...base, records: recordsOf({ grant: grantOf({ expires_at: '2026-11-01T00:00:00Z' }) }) }, folder };
-  const first = await writeShareFiles(input, { door: doorOf(), now: NOW });
+  const input = { input: { ...base, records: recordsOf({ grant: grantOf({ expires_at: '2026-11-01T00:00:00Z' }) }), stored: stored() }, folder };
+  const first = await writeShareFiles(input, { now: NOW });
   assert.deepEqual(first.published, [{ code: CODE, name: 'menu', listed: true }]);
   assert.deepEqual(first.wake_effects, [{ wake: { tool: 'tool:write-public-share-files', at_ms: Date.parse('2026-11-01T00:00:00Z'), input: base } }], 'the wake carries no records: it asks for fresh ones');
   const manifest = JSON.parse(await readFile(join(folder, 'manifest.json'), 'utf8'));
@@ -65,10 +54,10 @@ test('writes every public file at its served path with a BLAKE3 manifest, rewrit
   assert.equal(first.written, 8);
   assert.deepEqual(first.host_files, { path: '/share/', folder, index: 'index.html', exclude: ['manifest.json'], media_types: { [`files/${identity}`]: 'image/png' } });
 
-  const again = await writeShareFiles({ input: { ...base, records: recordsOf({ grant: grantOf({ expires_at: '2026-11-01T00:00:00Z' }) }) }, folder }, { door: doorOf(), now: NOW });
+  const again = await writeShareFiles({ input: { ...base, records: recordsOf({ grant: grantOf({ expires_at: '2026-11-01T00:00:00Z' }) }), stored: stored() }, folder }, { now: NOW });
   assert.deepEqual([again.written, again.unchanged, again.removed], [0, 8, []]);
 
-  const revoked = await writeShareFiles({ input: { ...base, records: recordsOf({ grant: grantOf({ revoked_at: '2026-10-05T12:00:00Z' }) }) }, folder }, { door: doorOf(), now: NOW });
+  const revoked = await writeShareFiles({ input: { ...base, records: recordsOf({ grant: grantOf({ revoked_at: '2026-10-05T12:00:00Z' }) }), stored: stored() }, folder }, { now: NOW });
   assert.deepEqual(revoked.ended, [CODE]);
   assert.deepEqual(revoked.host_files.media_types, {}, 'ended media no longer appears in desired host DATA');
   assert.deepEqual(revoked.removed, [`files/${identity}`, `${CODE}.json`, 'menu.json', 'menu/caramel-twist/index.html', 'menu/index.html', 'menu/sea-salt-bun/index.html']);
@@ -80,35 +69,44 @@ test('writes every public file at its served path with a BLAKE3 manifest, rewrit
   assert.doesNotMatch(await readFile(join(folder, 'sitemap.xml'), 'utf8'), /menu/);
 });
 
-test('a shared file whose bytes are not the identity its row names stops the run before the manifest changes', async t => {
+test('a file a shown row names that was not handed in is not published, and its row never points at it', async t => {
   const folder = await mkdtemp(join(tmpdir(), 'share-files-'));
   t.after(() => rm(folder, { recursive: true, force: true }));
-  await assert.rejects(writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:dish', records: recordsOf({ grant: grantOf() }) }, folder }, { door: doorOf({ bytes: new TextEncoder().encode('other bytes') }), now: NOW }), /changed|identity/);
-  assert.equal(await exists(join(folder, 'manifest.json')), false);
+  const out = await writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:dish', records: recordsOf({ grant: grantOf() }) }, folder }, { now: NOW });
+  assert.deepEqual(out.published, [{ code: CODE, name: 'menu', listed: true }]);
+  const files = JSON.parse(await readFile(join(folder, 'manifest.json'), 'utf8')).files.map(file => file.path);
+  assert.equal(files.some(path => path.startsWith('files/')), false);
+  assert.doesNotMatch(await readFile(join(folder, `${CODE}.json`), 'utf8'), new RegExp(identity));
 });
 
-test('a link for named people reads no file of the person and writes no share files', async t => {
+test('a link for named people writes no share files and none of the given files', async t => {
   const folder = await mkdtemp(join(tmpdir(), 'share-files-'));
   t.after(() => rm(folder, { recursive: true, force: true }));
-  const door = doorOf();
-  const out = await writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:dish', records: recordsOf({ grant: grantOf({ scope: { kind: 'email', value: 'user-23ef710c@example.com' } }) }) }, folder }, { door, now: NOW });
+  const out = await writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:dish', records: recordsOf({ grant: grantOf({ scope: { kind: 'email', value: 'user-23ef710c@example.com' } }) }), stored: stored() }, folder }, { now: NOW });
   assert.deepEqual(out.published, []);
-  assert.equal(door.reads.some(read => read.startsWith('read_file')), false);
   assert.deepEqual(JSON.parse(await readFile(join(folder, 'manifest.json'), 'utf8')).files.map(file => file.path), ['llms.txt', 'sitemap.xml']);
 });
 
 test('the folder is named, and nothing is written outside it', async () => {
-  await assert.rejects(writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:dish', records: recordsOf({ grant: grantOf() }) } }, { door: doorOf() }), /Name the folder/);
+  await assert.rejects(writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:dish', records: recordsOf({ grant: grantOf() }), stored: stored() } }), /Name the folder/);
 });
 
-test('a List whose rows are a kind this run was not granted is left out and its rows are never listed', async t => {
+test('a List whose rows are a kind this run was not granted is left out and none of its files are written', async t => {
   const folder = await mkdtemp(join(tmpdir(), 'share-files-'));
   t.after(() => rm(folder, { recursive: true, force: true }));
-  const door = doorOf();
-  const out = await writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:other', records: recordsOf({ grant: grantOf() }) }, folder }, { door, now: NOW });
+  const out = await writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:other', records: recordsOf({ grant: grantOf() }), stored: stored() }, folder }, { now: NOW });
   assert.deepEqual(out.published, []);
   assert.equal(out.left_out.length, 1);
-  assert.deepEqual(door.reads, [], 'no shared file of the other kind is read');
-  await assert.rejects(writeShareFiles({ input: { origin: 'https://share.example', records: [] }, folder }, { door, now: NOW }), /row_kind/);
-  await assert.rejects(writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:dish' }, folder }, { door, now: NOW }), /records are required/);
+  assert.equal(await exists(join(folder, 'files', identity)), false, 'no shared file of the other kind is written');
+  await assert.rejects(writeShareFiles({ input: { origin: 'https://share.example', records: [] }, folder }, { now: NOW }), /row_kind/);
+});
+
+test('the sharing rows are the consent: leaving them out is refused, while an empty list given on purpose publishes nothing', async t => {
+  const folder = await mkdtemp(join(tmpdir(), 'share-files-'));
+  t.after(() => rm(folder, { recursive: true, force: true }));
+  await assert.rejects(writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:dish', stored: stored() }, folder }, { now: NOW }), /records are required/);
+  assert.equal(await exists(join(folder, 'manifest.json')), false, 'a refused run changes nothing');
+  const out = await writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:dish', records: [], stored: stored() }, folder }, { now: NOW });
+  assert.deepEqual([out.published, out.left_out], [[], []]);
+  assert.deepEqual(JSON.parse(await readFile(join(folder, 'manifest.json'), 'utf8')).files.map(file => file.path), ['llms.txt', 'sitemap.xml']);
 });

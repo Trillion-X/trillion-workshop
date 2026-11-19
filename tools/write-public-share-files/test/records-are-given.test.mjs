@@ -17,10 +17,13 @@ test('the tool row names no records method and holds no stored records', async (
   assert.deepEqual(row.stored.map(entry => entry.operations ?? []).flat().filter(op => op.startsWith('records:')), []);
   assert.equal(row.input_schema.properties.records.type, 'array');
   assert.deepEqual(row.input_schema.required, ['origin', 'row_kind', 'records']);
+  assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs', 'the row runs the plain function runner');
+  assert.equal(row.invoke.files.package_files.some(entry => entry.package === 'records-door'), false, 'the records door is not mounted');
+  assert.equal(row.uses_tools.includes('trillion-workshop/records-door'), false);
 });
 
-test('the shell reads no store: it calls no records method on the door', async () => {
+test('the shell reads no store: it holds no door and calls no records method', async () => {
   const code = await readFile(SHELL, 'utf8');
-  assert.doesNotMatch(code, /door\.(list|read|write)\s*\(/);
+  assert.doesNotMatch(code, /\bdoor\b|values-door|records-door/);
   assert.doesNotMatch(code, /records:(list|read|write)/);
 });

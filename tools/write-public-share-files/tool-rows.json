@@ -118,7 +118,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -190,7 +189,7 @@
         "placements": ["placement:your-computer"],
         "needs": { "expected_seconds": 20, "network_egress": false },
         "job": "Write the public files of every share link of mine that anyone may open, into the folder my public server serves, and remove the files of links I revoked or that expired",
-        "description": "Takes the person's sharing rows (each link grant), the Lists those links share (a whole List, or one row of it) and the List's rows as input.records, read by the caller from the person's own store, reads the files its shown rows name through the run's files door, and writes into the folder the person granted: <code>.json (and <name>.json for a link with a readable address) in the shape { kind: \"list\", title, about, changed, fields, rows: [{ id, title, address, url, values }], files: [{ identity, name, url, media_type }] }, whole and never paged; <name>/index.html for the List and <name>/<row address>/index.html for each row; files/<identity> for each file a shown row names; sitemap.xml and llms.txt over every listed link; and manifest.json, every file with its BLAKE3 content identity and the files this run removed. A link has public files only while it is published, not revoked, not expired and open to anyone; a link for named people, an email, an audience or an access code has none. What leaves is the List's share rule less the fields the person left out, only the rows whose own rules hold and only the files they name. A link with its own condition, a match-only field, or a row rule that counts opens or reads the clock is left out with its reason, because a file on a public server cannot check it at each open. Runs on its own when a sharing row or a List changes, and again at the earliest expiry of a published link. Returns written, unchanged, removed, published, left_out, ended and next_change_at.",
+        "description": "Takes the person's sharing rows (each link grant), the Lists those links share (a whole List, or one row of it) and the List's rows as input.records, read by the caller from the person's own store, reads the files its shown rows name from the files the caller hands in as input.stored.files, and writes into the folder the person granted: <code>.json (and <name>.json for a link with a readable address) in the shape { kind: \"list\", title, about, changed, fields, rows: [{ id, title, address, url, values }], files: [{ identity, name, url, media_type }] }, whole and never paged; <name>/index.html for the List and <name>/<row address>/index.html for each row; files/<identity> for each file a shown row names; sitemap.xml and llms.txt over every listed link; and manifest.json, every file with its BLAKE3 content identity and the files this run removed. A link has public files only while it is published, not revoked, not expired and open to anyone; a link for named people, an email, an audience or an access code has none. What leaves is the List's share rule less the fields the person left out, only the rows whose own rules hold and only the files they name. A link with its own condition, a match-only field, or a row rule that counts opens or reads the clock is left out with its reason, because a file on a public server cannot check it at each open. Runs on its own when a sharing row or a List changes, and again at the earliest expiry of a published link. Returns written, unchanged, removed, published, left_out, ended and next_change_at.",
         "input_schema": {
           "type": "object",
           "required": ["origin", "row_kind", "records"],
@@ -233,7 +232,7 @@
           "workdir": "/opt/write-public-share-files",
           "internet": false,
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/write-public-share-files/do-work/write-share-files.mjs", "writeShareFiles"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/write-public-share-files/do-work/write-share-files.mjs", "writeShareFiles"],
           "stdin": {
             "input": { "fill": { "from": "input" } },
             "folder": { "fill": { "from": "task", "field": "grants.change-a-folder.folder" } }
@@ -249,12 +248,11 @@
                 "at": "/opt/write-public-share-files"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -292,20 +290,6 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           }
