@@ -190,7 +190,7 @@
                           "select": {
                             "from": "steps",
                             "key": "check",
-                            "path": "output"
+                            "path": "output.result"
                           }
                         }
                       ]
@@ -209,7 +209,7 @@
                       "select": {
                         "from": "steps",
                         "key": "check",
-                        "path": "output.findings"
+                        "path": "output.result.findings"
                       }
                     },
                     "item_var": "finding",
