@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "notifications-tool-rows",
-  "what_this_is": "The Workshop rows for a person's notification choices and the notices recorded for them, in tools/notifications, kept in their own records through the run's records door.",
+  "what_this_is": "The Workshop rows for a person's notification choices and the notices recorded for them, in tools/notifications, kept in their own records; each run is given the rows it reads and answers the rows it keeps.",
   "records": [
     {
       "id": "package::notifications::tool::my-notification-choice",
@@ -121,7 +121,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -215,7 +214,7 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-setting, notification-choice, as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here as rows: [{id, type, value}] of notification-setting, notification-choice, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -286,20 +285,13 @@
           "kind": "container",
           "files": {
             "package_files": [
+              { "package": "workflows", "paths": ["do-work/run-a-function.mjs"], "at": "/opt/workflows" },
               {
                 "package": "notifications",
                 "paths": [
                   "read-data"
                 ],
                 "at": "/opt/notifications"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -321,20 +313,6 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -343,7 +321,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/notifications/read-data/notifications.mjs",
             "myNotificationChoice"
           ],
@@ -354,7 +332,7 @@
           }
         },
         "provenance": {
-          "source": "bitfield-packages notifications read-data/read-notifications-policy.ts (option list, current value, empty and invalid status), ported to the records door without its modes or its action route"
+          "source": "bitfield-packages notifications read-data/read-notifications-policy.ts (option list, current value, empty and invalid status), ported to given rows without its modes or its action route"
         },
         "verify": [
           {
@@ -440,16 +418,10 @@
         },
         "stored": [
           {
-            "kind": "notification-setting",
-            "operations": [
-              "records:read"
-            ]
+            "kind": "notification-setting"
           },
           {
-            "kind": "notification-choice",
-            "operations": [
-              "records:read"
-            ]
+            "kind": "notification-choice"
           }
         ]
       }
@@ -572,7 +544,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -669,7 +640,7 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-setting, notification-choice, as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here as rows: [{id, type, value}] of notification-setting, notification-choice, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -710,20 +681,13 @@
           "kind": "container",
           "files": {
             "package_files": [
+              { "package": "workflows", "paths": ["do-work/run-a-function.mjs"], "at": "/opt/workflows" },
               {
                 "package": "notifications",
                 "paths": [
                   "read-data"
                 ],
                 "at": "/opt/notifications"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -745,20 +709,6 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -767,7 +717,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/notifications/read-data/notifications.mjs",
             "chooseMyNotificationChoice"
           ],
@@ -778,7 +728,7 @@
           }
         },
         "provenance": {
-          "source": "bitfield-packages notifications do-work/save-setting.ts (insert the chosen option id), ported to a records-door write of the choice after checking it is a described option"
+          "source": "bitfield-packages notifications do-work/save-setting.ts (insert the chosen option id), ported to a kept row of the choice after checking it is a described option"
         },
         "verify": [
           {
@@ -818,17 +768,10 @@
         "result_selector": "$.result",
         "stored": [
           {
-            "kind": "notification-setting",
-            "operations": [
-              "records:read"
-            ]
+            "kind": "notification-setting"
           },
           {
-            "kind": "notification-choice",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "notification-choice"
           }
         ]
       }
@@ -951,7 +894,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1155,7 +1097,7 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-event, notification-event-rules, as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here as rows: [{id, type, value}] of notification-event, notification-event-rules, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -1186,20 +1128,13 @@
           "kind": "container",
           "files": {
             "package_files": [
+              { "package": "workflows", "paths": ["do-work/run-a-function.mjs"], "at": "/opt/workflows" },
               {
                 "package": "notifications",
                 "paths": [
                   "read-data"
                 ],
                 "at": "/opt/notifications"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -1221,20 +1156,6 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -1243,7 +1164,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/notifications/read-data/notifications.mjs",
             "recordANotification"
           ],
@@ -1254,7 +1175,7 @@
           }
         },
         "provenance": {
-          "source": "bitfield-packages notifications things-to-store-and-run.json action record-notification-event (its input schema and the record it wrote), ported to the records door"
+          "source": "bitfield-packages notifications things-to-store-and-run.json action record-notification-event (its input schema and the record it wrote), ported to given rows"
         },
         "verify": [
           {
@@ -1287,17 +1208,10 @@
         "result_selector": "$.result",
         "stored": [
           {
-            "kind": "notification-event",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "notification-event"
           },
           {
-            "kind": "notification-event-rules",
-            "operations": [
-              "records:read"
-            ]
+            "kind": "notification-event-rules"
           }
         ]
       }
@@ -1420,7 +1334,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1518,7 +1431,7 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-event, as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here as rows: [{id, type, value}] of notification-event, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -1548,20 +1461,13 @@
           "kind": "container",
           "files": {
             "package_files": [
+              { "package": "workflows", "paths": ["do-work/run-a-function.mjs"], "at": "/opt/workflows" },
               {
                 "package": "notifications",
                 "paths": [
                   "read-data"
                 ],
                 "at": "/opt/notifications"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -1583,20 +1489,6 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -1605,7 +1497,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/notifications/read-data/notifications.mjs",
             "myNotificationEvents"
           ],
@@ -1616,7 +1508,7 @@
           }
         },
         "provenance": {
-          "source": "bitfield-packages notifications notification-events feed, read back by audience through the records door"
+          "source": "bitfield-packages notifications notification-events feed, read back by audience from the rows given"
         },
         "verify": [
           {
@@ -1658,10 +1550,7 @@
         "result_selector": "$.result",
         "stored": [
           {
-            "kind": "notification-event",
-            "operations": [
-              "records:list"
-            ]
+            "kind": "notification-event"
           }
         ]
       }
@@ -1784,7 +1673,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1867,7 +1755,7 @@
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
-          "properties": { "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-device (ids starting notification-device:), as this row's `stored` lists. What is not given is not there." } }
+          "properties": { "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here as rows: [{id, type, value}] of notification-device (ids starting notification-device:), as this row's `stored` lists. What is not given is not there." } }
         },
         "output_schema": {
           "type": "object",
@@ -1892,20 +1780,13 @@
           "internet": false,
           "files": {
             "package_files": [
+              { "package": "workflows", "paths": ["do-work/run-a-function.mjs"], "at": "/opt/workflows" },
               {
                 "package": "notifications",
                 "paths": [
                   "read-data"
                 ],
                 "at": "/opt/notifications"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -1937,20 +1818,6 @@
                   "lib"
                 ],
                 "at": "/opt/node_modules/undici"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -1958,7 +1825,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/notifications/read-data/device-notifications.mjs",
             "listMyNotificationDevices"
           ],
@@ -1969,7 +1836,7 @@
           }
         },
         "provenance": {
-          "source": "Native device notice and APNs owners, implemented through the Workshop records door and held credential pipe"
+          "source": "Native device notice and APNs owners, implemented over the rows the caller gives and the held credential pipe"
         },
         "verify": [
           {
@@ -1983,10 +1850,7 @@
         "stored": [
           {
             "kind": "notification-device",
-            "prefix": "notification-device:",
-            "operations": [
-              "records:list"
-            ]
+            "prefix": "notification-device:"
           }
         ]
       }
@@ -2109,7 +1973,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -2241,7 +2104,7 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-device (ids starting notification-device:), as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here as rows: [{id, type, value}] of notification-device (ids starting notification-device:), as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -2280,20 +2143,13 @@
           "internet": false,
           "files": {
             "package_files": [
+              { "package": "workflows", "paths": ["do-work/run-a-function.mjs"], "at": "/opt/workflows" },
               {
                 "package": "notifications",
                 "paths": [
                   "read-data"
                 ],
                 "at": "/opt/notifications"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -2325,20 +2181,6 @@
                   "lib"
                 ],
                 "at": "/opt/node_modules/undici"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -2346,7 +2188,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/notifications/read-data/device-notifications.mjs",
             "registerMyNotificationDevice"
           ],
@@ -2357,7 +2199,7 @@
           }
         },
         "provenance": {
-          "source": "Native device notice and APNs owners, implemented through the Workshop records door and held credential pipe"
+          "source": "Native device notice and APNs owners, implemented over the rows the caller gives and the held credential pipe"
         },
         "verify": [
           {
@@ -2374,12 +2216,7 @@
         "stored": [
           {
             "kind": "notification-device",
-            "prefix": "notification-device:",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
+            "prefix": "notification-device:"
           }
         ]
       }
@@ -2502,7 +2339,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -2594,7 +2430,7 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-device (ids starting notification-device:), as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here as rows: [{id, type, value}] of notification-device (ids starting notification-device:), as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -2626,20 +2462,13 @@
           "internet": false,
           "files": {
             "package_files": [
+              { "package": "workflows", "paths": ["do-work/run-a-function.mjs"], "at": "/opt/workflows" },
               {
                 "package": "notifications",
                 "paths": [
                   "read-data"
                 ],
                 "at": "/opt/notifications"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -2671,20 +2500,6 @@
                   "lib"
                 ],
                 "at": "/opt/node_modules/undici"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -2692,7 +2507,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/notifications/read-data/device-notifications.mjs",
             "removeMyNotificationDevice"
           ],
@@ -2703,7 +2518,7 @@
           }
         },
         "provenance": {
-          "source": "Native device notice and APNs owners, implemented through the Workshop records door and held credential pipe"
+          "source": "Native device notice and APNs owners, implemented over the rows the caller gives and the held credential pipe"
         },
         "verify": [
           {
@@ -2719,12 +2534,7 @@
         "stored": [
           {
             "kind": "notification-device",
-            "prefix": "notification-device:",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
+            "prefix": "notification-device:"
           }
         ]
       }
@@ -2847,7 +2657,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -2959,7 +2768,7 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-live-activity (ids starting notification-live-activity:), as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here as rows: [{id, type, value}] of notification-live-activity (ids starting notification-live-activity:), as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -2998,20 +2807,13 @@
           "internet": false,
           "files": {
             "package_files": [
+              { "package": "workflows", "paths": ["do-work/run-a-function.mjs"], "at": "/opt/workflows" },
               {
                 "package": "notifications",
                 "paths": [
                   "read-data"
                 ],
                 "at": "/opt/notifications"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -3043,20 +2845,6 @@
                   "lib"
                 ],
                 "at": "/opt/node_modules/undici"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -3064,7 +2852,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/notifications/read-data/device-notifications.mjs",
             "registerMyLiveActivity"
           ],
@@ -3075,7 +2863,7 @@
           }
         },
         "provenance": {
-          "source": "Native device notice and APNs owners, implemented through the Workshop records door and held credential pipe"
+          "source": "Native device notice and APNs owners, implemented over the rows the caller gives and the held credential pipe"
         },
         "verify": [
           {
@@ -3093,12 +2881,7 @@
         "stored": [
           {
             "kind": "notification-live-activity",
-            "prefix": "notification-live-activity:",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
+            "prefix": "notification-live-activity:"
           }
         ]
       }
@@ -3221,7 +3004,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -3419,20 +3201,13 @@
           "internet": true,
           "files": {
             "package_files": [
+              { "package": "workflows", "paths": ["do-work/run-a-function.mjs"], "at": "/opt/workflows" },
               {
                 "package": "notifications",
                 "paths": [
                   "read-data"
                 ],
                 "at": "/opt/notifications"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -3464,20 +3239,6 @@
                   "lib"
                 ],
                 "at": "/opt/node_modules/undici"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -3485,7 +3246,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/notifications/read-data/device-notifications.mjs",
             "sendNotificationWithHeldApnsKey"
           ],
@@ -3648,7 +3409,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -3945,20 +3705,13 @@
           "internet": true,
           "files": {
             "package_files": [
+              { "package": "workflows", "paths": ["do-work/run-a-function.mjs"], "at": "/opt/workflows" },
               {
                 "package": "notifications",
                 "paths": [
                   "read-data"
                 ],
                 "at": "/opt/notifications"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -3990,20 +3743,6 @@
                   "lib"
                 ],
                 "at": "/opt/node_modules/undici"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -4011,7 +3750,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/notifications/read-data/device-notifications.mjs",
             "sendLiveActivityWithHeldApnsKey"
           ],
@@ -4166,7 +3905,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -4271,20 +4009,13 @@
           "internet": false,
           "files": {
             "package_files": [
+              { "package": "workflows", "paths": ["do-work/run-a-function.mjs"], "at": "/opt/workflows" },
               {
                 "package": "notifications",
                 "paths": [
                   "read-data"
                 ],
                 "at": "/opt/notifications"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -4316,20 +4047,6 @@
                   "lib"
                 ],
                 "at": "/opt/node_modules/undici"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -4337,7 +4054,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/notifications/read-data/device-notifications.mjs",
             "myBrowserPushApplicationServerKeyFromHeldCredential"
           ],

@@ -2,7 +2,7 @@
   "drafted_from": "tool:choose-my-notification-choice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep one of a notification setting's options as this person's choice\", with {\"setting\":\"sample-digest\",\"choice\":\"daily\"}. It runs tool:choose-my-notification-choice and answers {\"setting\":\"sample-digest\",\"choice\":\"daily\",\"previous\":null,\"changed\":true,\"said\":\"sample-digest is now daily.\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (notification-setting, notification-choice) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and takes only its own rows (notification-setting, notification-choice) from the rows its caller gives it.",
   "workflows": [],
   "tools": [
     "tool:choose-my-notification-choice",
@@ -12,7 +12,7 @@
     "1. Say to your AI: \"Keep one of a notification setting's options as this person's choice\", and give it setting; choice.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:choose-my-notification-choice and its input (the worked example shows one).",
     "3. Read what comes back: setting is the setting's name and choice one option id from tool:my-notification-choice.",
-    "4. It reads and writes only its own rows through the records door: notification-setting (records:read); notification-choice (records:read, records:write)."
+    "4. It reads only its own rows, from the rows its caller gives it, and answers the rows it makes as keep for the caller to keep: notification-setting; notification-choice."
   ],
   "worked_examples": [
     {

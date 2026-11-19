@@ -3,18 +3,14 @@ import assert from 'node:assert/strict';
 import { generateKeyPairSync } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { openSync } from 'node:fs';
 import { createServer } from 'node:net';
-import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
-import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
-import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { registerMyNotificationDevice, registerMyLiveActivity, sendNotificationToMyDevices, sendLiveActivityUpdate, myBrowserPushApplicationServerKey, heldNotificationSigningKeys } from '../read-data/device-notifications.mjs';
 import { base64url, makeSigningKey, publicPoint } from '../read-data/web-push.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import deliveryContract from '../read-data/delivery-contract.json' with { type: 'json' };
 
 const row = id => rowOf(rows, id);
-const rights = id => rightsOf(row(id));
 const event = {
   notification_id: 'n-1', kind: 'work-finished', audience_refs: ['person:owner'], conversation_ref: 'conversation:1',
   privacy_class: 'private', title: 'The report is ready', body: 'Your report is ready to read.', occurred_at: '2026-10-31T18:00:00Z',
@@ -68,10 +64,10 @@ test('device registration validates addresses, keeps a stable opaque identity, a
   const { keep, ...said } = first.result;
   assert.equal(JSON.stringify(said).includes(token), false, 'the answer apart from the row to keep never holds the token');
   assert.deepEqual(keep.map(item => item.type), ['notification-device']);
-  const saved = first.kept.find(item => item.type === 'notification-device');
+  const saved = keep.find(item => item.type === 'notification-device');
   assert.equal(saved.value.address, token);
   assert.match(saved.value.device_id, /^1f[a-f0-9]{64}$/);
-  const again = await answerOf(register, { route: 'apns', address: token, app: 'com.example.app', environment: 'sandbox', can_show: 'allowed' }, { records: first.kept });
+  const again = await answerOf(register, { route: 'apns', address: token, app: 'com.example.app', environment: 'sandbox', can_show: 'allowed' }, { records: keep });
   assert.equal(again.result.changed, false);
   assert.equal(again.result.device_id, first.result.device_id);
   const bad = await answerOf(register, { route: 'apns', address: 'not-a-token', app: 'com.example.app' });
@@ -84,9 +80,9 @@ test('device registration validates addresses, keeps a stable opaque identity, a
 test('device removal deletes the address only for the named registration', async () => {
   const registered = await answerOf(row('tool:register-my-notification-device'), { route: 'live', address: 'mac-stable-12345678' });
   const deviceId = registered.result.device_id;
-  const removed = await answerOf(row('tool:remove-my-notification-device'), { device_id: deviceId }, { records: registered.kept });
+  const removed = await answerOf(row('tool:remove-my-notification-device'), { device_id: deviceId }, { records: registered.result.keep });
   assert.equal(removed.result.removed, true);
-  assert.equal(removed.kept.some(item => item.type === 'notification-device'), false);
+  assert.deepEqual(removed.result.keep.map(item => [item.type, item.value]), [['notification-device', null]], 'the removal keeps the registration out');
   assert.equal((await answerOf(row('tool:remove-my-notification-device'), { device_id: deviceId })).result.removed, false);
 });
 
@@ -99,26 +95,17 @@ test('Live Activity registration keeps an opaque idempotent token and removes it
   assert.equal(first.result.ended, false);
   const { keep: _rows, ...shown } = first.result;
   assert.equal(JSON.stringify(shown).includes(token), false, 'the answer apart from the row to keep never holds the token');
-  const record = first.kept.find(item => item.type === 'notification-live-activity');
+  const record = first.result.keep.find(item => item.type === 'notification-live-activity');
   assert.equal(record.value.token, token);
-  const again = await answerOf(rowTool, { board_key: 'running', token, app: 'com.example.app', environment: 'sandbox' }, { records: first.kept });
+  const again = await answerOf(rowTool, { board_key: 'running', token, app: 'com.example.app', environment: 'sandbox' }, { records: first.result.keep });
   assert.equal(again.result.changed, false);
-  const ended = await answerOf(rowTool, { board_key: 'running', token, app: 'com.example.app', ended: true }, { records: first.kept });
+  const ended = await answerOf(rowTool, { board_key: 'running', token, app: 'com.example.app', ended: true }, { records: first.result.keep });
   assert.equal(ended.result.ended, true);
-  assert.equal(ended.kept.some(item => item.type === 'notification-live-activity'), false);
+  assert.deepEqual(ended.result.keep.map(item => [item.type, item.value]), [['notification-live-activity', null]]);
   const invalidEnvironment = await answerOf(rowTool, { board_key: 'running', token, app: 'com.example.app', environment: 'staging' });
   assert.equal(invalidEnvironment.status, 1);
   assert.match(invalidEnvironment.error, /environment must be sandbox or production/);
 });
-
-async function withDoor(rowId, records, run) {
-  const fake = await startFakeDoor({ rights: rights(rowId), records, pageCut: 1 });
-  const fd = openSync(fake.descriptor, 'r');
-  try {
-    const door = openRecordsDoor({ descriptor: fd });
-    return await run({ fake, door });
-  } finally { await fake.close(); }
-}
 
 test('notification dispatch answers each device, hides addresses, distinguishes accepted from read and keeps nothing', async () => {
   const sends = [];
@@ -142,9 +129,10 @@ test('notification dispatch answers each device, hides addresses, distinguishes 
   assert.equal(JSON.stringify(answer).includes(device.value.address), false);
 });
 
-test('a sender row takes everything as input and mounts no records door', () => {
+test('a sender row takes everything as input and mounts no door', () => {
   for (const id of ['tool:send-notification-to-my-devices', 'tool:send-live-activity-update']) {
     assert.equal(row(id).invoke.records, undefined);
+    assert.equal(JSON.stringify(row(id)).includes('records-door'), false);
     assert.equal(JSON.stringify(row(id)).includes('records:write'), false);
   }
 });
@@ -154,12 +142,12 @@ test('the sender rows answer their result through the real row with no records d
   assert.equal(sent.status, 0, sent.error);
   assert.equal(sent.result.stage, 'not-sent');
   assert.deepEqual(sent.result.routes, {});
-  assert.deepEqual(sent.kept, []);
+  assert.equal(sent.result.keep, undefined, 'a sender keeps nothing');
   const live = await answerOf(row('tool:send-live-activity-update'), { board_key: 'running', update_id: 'empty-row', items: [] }, { held: { 'notification-signing-keys': '{}' } });
   assert.equal(live.status, 0, live.error);
   assert.equal(live.result.state, 'not-running');
   assert.deepEqual(live.result.retired_activity_ids, []);
-  assert.deepEqual(live.kept, []);
+  assert.equal(live.result.keep, undefined, 'a sender keeps nothing');
 });
 
 test('the answer names the devices that read notices themselves without leaking their private addresses', async () => {
@@ -317,9 +305,9 @@ test('the sender default reaches APNs through HTTP/2 CONNECT rather than fetch',
   }
 });
 
-test('the browser push key row answers from its held key alone, with no records door mounted', async () => {
+test('the browser push key row answers from its held key alone, run by the function runner with no door', async () => {
   const command = row('tool:my-browser-push-application-key').invoke.argv.slice(1).map(part => part
-    .replace('/opt/records-door/', fileURLToPath(new URL('../../records-door/', import.meta.url)))
+    .replace('/opt/workflows/', fileURLToPath(new URL('../../workflows/', import.meta.url)))
     .replace('/opt/notifications/', fileURLToPath(new URL('../', import.meta.url))));
   const jwk = await makeSigningKey();
   // As the engine runs it: the input on standard input, the held bundle on descriptor 4, nothing on descriptor 3.

@@ -5,6 +5,7 @@ import DELIVERY from './delivery-contract.json' with { type: 'json' };
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { base64url as browserBase64url, applicationServerKey, checkedSubscription, sendPush } from './web-push.mjs';
 import { requestHttp2 } from './http2-request.mjs';
+import { splitGiven, recordOf, rowsOf, keepRow } from './given-rows.mjs';
 
 export const DEVICE = 'notification-device';
 export const ACTIVITY = 'notification-live-activity';
@@ -44,12 +45,6 @@ const CAN_SHOW = new Set(['allowed', 'denied', 'not-asked', 'quiet']);
 const PRESENT = new Set(['here', 'away']);
 const TURN_ON_SCHEMES = new Set(['https', 'x-apple.systempreferences', 'app-settings', 'ms-settings']);
 
-async function all(door, type, prefix) {
-  const result = [];
-  for await (const row of door.list({ type, prefix })) result.push(row);
-  return result;
-}
-
 function publicDevice(row) {
   const { device_id, route, label, app, environment, can_show, turn_on, present, present_at, added_at } = row.value;
   return { device_id, route, label, ...(app ? { app } : {}), ...(environment ? { environment } : {}), ...(can_show ? { can_show } : {}), ...(turn_on ? { turn_on } : {}), ...(present ? { present, present_at } : {}), added_at };
@@ -76,13 +71,15 @@ const addressIdentity = (route, address) => route === 'web-push'
   ? address.endpoint
   : JSON.stringify(address);
 
-export async function listMyNotificationDevices(_input, { door }) {
-  const devices = (await all(door, DEVICE, DEVICE_PREFIX)).map(publicDevice).sort((a, b) => a.added_at.localeCompare(b.added_at));
+export function listMyNotificationDevices(raw) {
+  const { records } = splitGiven(raw);
+  const devices = rowsOf(records, DEVICE, DEVICE_PREFIX).map(publicDevice).sort((a, b) => a.added_at.localeCompare(b.added_at));
   return { devices, said: `${devices.length} ${devices.length === 1 ? 'device is' : 'devices are'} registered.` };
 }
 
 /** Repeating the same route/address preserves its id and original added_at; address never leaves this function. */
-export async function registerMyNotificationDevice(input, { door, now = () => new Date() }) {
+export function registerMyNotificationDevice(raw, { now = () => new Date() } = {}) {
+  const { input, records } = splitGiven(raw);
   const route = word(input?.route, 80, 'route');
   const address = checkedAddress(route, input?.address);
   const id = deviceId(route, addressIdentity(route, address));
@@ -90,7 +87,7 @@ export async function registerMyNotificationDevice(input, { door, now = () => ne
   if (['apns', 'apns-activity'].includes(route) && !app) throw new Error('An Apple device registration needs the app bundle id for its APNs topic.');
   const attributes_type = route === 'apns-activity' ? activityAttributesType(input.attributes_type) : null;
   if (input.environment !== undefined && !['sandbox', 'production'].includes(input.environment)) throw new Error('environment must be sandbox or production.');
-  const prior = await door.readRecord(DEVICE, id);
+  const prior = recordOf(records, DEVICE, id);
   const canShow = input.can_show == null ? null : word(input.can_show, 40, 'can_show');
   if (canShow && !CAN_SHOW.has(canShow)) throw new Error(`can_show must be one of ${[...CAN_SHOW].join(', ')}.`);
   const present = input.present == null ? null : word(input.present, 40, 'present');
@@ -116,31 +113,29 @@ export async function registerMyNotificationDevice(input, { door, now = () => ne
     added_at: before?.added_at ?? isoNow(now),
   };
   if (before && same(before, value)) {
-    const devices = (await all(door, DEVICE, DEVICE_PREFIX)).map(publicDevice);
+    const devices = rowsOf(records, DEVICE, DEVICE_PREFIX).map(publicDevice);
     return { device_id: value.device_id, changed: false, devices, said: 'This device was already registered with these details.' };
   }
-  const records = await all(door, DEVICE, DEVICE_PREFIX);
-  const byId = new Map(records.map(row => [row.id, row]));
+  const byId = new Map(rowsOf(records, DEVICE, DEVICE_PREFIX).map(row => [row.id, row]));
   byId.set(id, { id, type: DEVICE, value });
   const ordered = [...byId.values()].sort((a, b) => String(a.value.added_at).localeCompare(String(b.value.added_at)));
   const expired = ordered.slice(0, Math.max(0, ordered.length - 40)).filter(row => row.id !== id);
-  const writes = [{ id, type: DEVICE, value, expected: prior ? { type: DEVICE, value: prior.value } : null },
-    ...expired.map(row => ({ id: row.id, type: DEVICE, value: null, expected: { type: DEVICE, value: row.value } }))];
-  await door.write(writes, { key: `register-notification-device:${id}:${idFor(JSON.stringify(sorted(value)))}` });
-  const devices = (await all(door, DEVICE, DEVICE_PREFIX)).map(publicDevice).sort((a, b) => a.added_at.localeCompare(b.added_at));
-  return { device_id: value.device_id, changed: true, devices, said: 'This device is registered for notices.' };
+  const keep = [keepRow(DEVICE, id, value), ...expired.map(row => keepRow(DEVICE, row.id, null))];
+  const devices = ordered.filter(row => !expired.includes(row)).map(publicDevice).sort((a, b) => a.added_at.localeCompare(b.added_at));
+  return { device_id: value.device_id, changed: true, devices, said: 'This device is registered for notices.', keep };
 }
 
-export async function removeMyNotificationDevice(input, { door }) {
+export function removeMyNotificationDevice(raw) {
+  const { input, records } = splitGiven(raw);
   const device_id = word(input?.device_id, 80, 'device_id');
   const id = `${DEVICE_PREFIX}${device_id}`;
-  const prior = await door.readRecord(DEVICE, id);
+  const prior = recordOf(records, DEVICE, id);
   if (!prior || !object(prior.value)) return { device_id, removed: false, said: 'That device was not registered.' };
-  await door.write([{ id, type: DEVICE, value: null, expected: { type: DEVICE, value: prior.value } }], { key: `remove-notification-device:${id}:${idFor(JSON.stringify(sorted(prior.value)))}` });
-  return { device_id, removed: true, said: 'The device was removed.' };
+  return { device_id, removed: true, said: 'The device was removed.', keep: [keepRow(DEVICE, id, null)] };
 }
 
-export async function registerMyLiveActivity(input, { door, now = () => new Date() }) {
+export function registerMyLiveActivity(raw, { now = () => new Date() } = {}) {
+  const { input, records } = splitGiven(raw);
   const board_key = word(input?.board_key, 200, 'board_key');
   const token = word(input?.token, 400, 'token').toLowerCase();
   if (!/^[0-9a-f]{32,400}$/.test(token)) throw new Error('A Live Activity token must be the hex token its system gave it.');
@@ -148,15 +143,16 @@ export async function registerMyLiveActivity(input, { door, now = () => new Date
   if (input.environment !== undefined && !['sandbox', 'production'].includes(input.environment)) throw new Error('environment must be sandbox or production.');
   const environment = input.environment ?? 'production';
   const id = activityId(board_key, token);
-  const prior = await door.readRecord(ACTIVITY, id);
+  const prior = recordOf(records, ACTIVITY, id);
   if (input.ended === true) {
-    if (prior) await door.write([{ id, type: ACTIVITY, value: null, expected: { type: ACTIVITY, value: prior.value } }], { key: `end-live-activity:${id}` });
-    return { board_key, kept: false, ended: true, said: 'The Live Activity token was removed.' };
+    return {
+      board_key, kept: false, ended: true, said: 'The Live Activity token was removed.',
+      ...(prior ? { keep: [keepRow(ACTIVITY, id, null)] } : {}),
+    };
   }
   const value = { board_key, token, app, environment, kept_at: prior?.value?.kept_at ?? now().toISOString() };
   if (prior && same(prior.value, value)) return { board_key, kept: true, ended: false, changed: false, said: 'This Live Activity was already registered.' };
-  await door.write([{ id, type: ACTIVITY, value, expected: prior ? { type: ACTIVITY, value: prior.value } : null }], { key: `register-live-activity:${id}:${idFor(JSON.stringify(sorted(value)))}` });
-  return { board_key, kept: true, ended: false, changed: true, said: 'The Live Activity is registered.' };
+  return { board_key, kept: true, ended: false, changed: true, said: 'The Live Activity is registered.', keep: [keepRow(ACTIVITY, id, value)] };
 }
 
 function apnsKey(credentials) {
@@ -425,8 +421,8 @@ export async function sendLiveActivityUpdate(input, { credentials = '', send, no
 
 export const heldNotificationSigningKeys = (fd = 4, read) => readSigningKeys(fd, read);
 
-// These three rows mount no records door, so the run's context is not spread (spreading it reads its `door`, which
-// opens descriptor 3, and a run with none fails ENXIO).
+// These three rows are run by the function runner, which calls each export with the input alone: the held key is read
+// here from descriptor 4, and no door is opened.
 export const myBrowserPushApplicationServerKeyFromHeldCredential = (input) => {
   const keys = readSigningKeys();
   return myBrowserPushApplicationServerKey(input, { webCredentials: keys.web_push });

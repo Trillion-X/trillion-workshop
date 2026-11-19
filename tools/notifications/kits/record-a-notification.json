@@ -2,7 +2,7 @@
   "drafted_from": "tool:record-a-notification's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Record one notification event for the audience the caller names, so it is kept and can be read back; nothing is delivered\", with {\"notification_id\":\"sample-notice-1\",\"kind\":\"report\",\"audience_refs\":[\"person:sample\"],\"conversation_ref\":\"conversation:sample-1\",\"privacy_class\":\"private\",\"title\":\"Sample report\",\"body\":\"A made-up report is ready.\",\"occurred_at\":\"2026-11-03T12:00:00Z\",\"source_refs\":[\"source:sample-1\"],\"proof_refs\":[\"proof:sample-1\"]}. It runs tool:record-a-notification and answers {\"notification_id\":\"sample-notice-1\",\"recorded\":true,\"said\":\"sample-notice-1 is recorded for 1 audience; nothing was delivered.\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (notification-event, notification-event-rules) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and takes only its own rows (notification-event, notification-event-rules) from the rows its caller gives it.",
   "workflows": [],
   "tools": [
     "tool:record-a-notification"
@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Record one notification event for the audience the caller names, so it is kept and can be read back; nothing is delivered\", and give it notification_id; kind; audience_refs; conversation_ref; privacy_class; title; body; occurred_at; source_refs; proof_refs.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:record-a-notification and its input (the worked example shows one).",
     "3. Read what comes back: Pass the event: notification_id, kind, conversation_ref, privacy_class, title, body, occurred_at (words) and audience_refs, source_refs, proof_refs (each at least one reference).",
-    "4. It reads and writes only its own rows through the records door: notification-event (records:read, records:write); notification-event-rules (records:read)."
+    "4. It reads only its own rows, from the rows its caller gives it, and answers the rows it makes as keep for the caller to keep: notification-event; notification-event-rules."
   ],
   "worked_examples": [
     {

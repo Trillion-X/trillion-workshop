@@ -1,4 +1,4 @@
-// The four notification rows run as the container runs them, against the fake records door with exactly each row's rights.
+// The four notification rows run as the container runs them: each is given the rows it reads as stored.records and answers the rows to keep.
 // The setting and the people are made up: a bakery that lets its owner choose how orders are announced.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -25,7 +25,8 @@ const event = (id, extra = {}) => ({
   privacy_class: 'private', title: `Order ${id} is ready`, body: 'Two loaves are ready for pickup.', occurred_at: '2026-01-02T08:00:00Z',
   source_refs: ['order:1'], proof_refs: ['proof:1'], ...extra,
 });
-const kept = (answer, id) => answer.kept.find(record => record.id === id);
+// The row a run answers to keep (its keep list), by id.
+const kept = (answer, id) => (answer.result?.keep ?? []).find(record => record.id === id);
 
 test('the options come from the person\'s setting, an option may be given as id or value, and the default is the current choice', async () => {
   const answer = await answerOf(choiceRow, { setting: 'order-alerts' }, { records: [setting(options, { default: 'quiet' })] });
@@ -48,7 +49,7 @@ test('a saved choice the options no longer hold is reported as invalid and left 
   const answer = await answerOf(choiceRow, { setting: 'order-alerts' }, { records: [setting(options), chosen('retired-option')] });
   assert.equal(answer.result.status, 'invalid');
   assert.equal(answer.result.current, 'retired-option');
-  assert.equal(kept(answer, 'notification-choice:order-alerts').value.value, 'retired-option');
+  assert.equal(answer.result.keep, undefined, 'an invalid saved choice is reported, not corrected or kept');
 });
 
 test('an option may be given by key, and a setting with no options is empty, and a setting that is not there is said in words with what to do', async () => {
@@ -80,7 +81,7 @@ test('a choice that is not an option is refused, and a setting that is missing o
   const wrong = await answerOf(chooseRow, { setting: 'order-alerts', choice: 'shout' }, { records: [setting(options)] });
   assert.equal(wrong.status, 1);
   assert.match(wrong.error, /shout is not an option of order-alerts. The options are every-order, daily-summary, quiet/);
-  assert.equal(wrong.kept.some(record => record.type === 'notification-choice'), false);
+  assert.equal(wrong.result, undefined, 'a refused choice answers nothing to keep');
   const none = await answerOf(chooseRow, { setting: 'order-alerts', choice: 'quiet' }, { records: [setting([])] });
   assert.equal(none.status, 0, none.error);
   assert.equal(none.result.changed, false);
@@ -89,7 +90,7 @@ test('a choice that is not an option is refused, and a setting that is missing o
   assert.equal(absent.status, 0, absent.error);
   assert.equal(absent.result.changed, false);
   assert.match(absent.result.said, /no notification setting order-alerts.*Nothing was chosen/);
-  assert.equal(absent.calls.filter(call => call.method === 'records:write').length, 0);
+  assert.equal(absent.result.keep, undefined, 'a setting that is not described keeps nothing');
   const blank = await answerOf(chooseRow, { setting: 'order-alerts' }, { records: [setting(options)] });
   assert.match(blank.error, /Say what to choose/);
 });
@@ -98,7 +99,6 @@ test('a choice is answered as a row to keep: the run writes nothing anywhere its
   const answer = await answerOf(chooseRow, { setting: 'order-alerts', choice: 'every-order' }, { records: [setting(options)] });
   assert.equal(answer.status, 0, answer.error);
   assert.deepEqual(answer.result.keep.map(item => [item.id, item.type]), [['notification-choice:order-alerts', 'notification-choice']]);
-  assert.equal(answer.calls.length, 0, 'nothing is sent to any door: the caller keeps the row where the person keeps it');
 });
 
 test('an event is recorded as given, delivers nothing, and the same event again changes nothing', async () => {
@@ -109,11 +109,11 @@ test('an event is recorded as given, delivers nothing, and the same event again 
   assert.deepEqual(keep.map(item => item.id), ['notification-event:n1']);
   assert.deepEqual(kept(first, 'notification-event:n1').value, event('n1'));
   assert.equal(kept(first, 'notification-event:n1').type, 'notification-event');
-  const again = await answerOf(recordRow, event('n1'), { records: first.kept });
+  const again = await answerOf(recordRow, event('n1'), { records: first.result.keep });
   assert.deepEqual(again.result, { notification_id: 'n1', recorded: false, said: 'n1 was already recorded.' });
   assert.equal(again.result.keep, undefined, 'the same event again gives nothing to keep');
   const reordered = Object.fromEntries(Object.entries(event('n1')).reverse());
-  assert.equal((await answerOf(recordRow, reordered, { records: first.kept })).result.recorded, false);
+  assert.equal((await answerOf(recordRow, reordered, { records: first.result.keep })).result.recorded, false);
 });
 
 test('notice actions keep their native payload intact and reject duplicate or unusable actions', async () => {
@@ -134,10 +134,11 @@ test('notice actions keep their native payload intact and reject duplicate or un
 
 test('a different event under a recorded id is refused and the first one stays', async () => {
   const first = await answerOf(recordRow, event('n1'));
-  const clash = await answerOf(recordRow, event('n1', { body: 'Something else.' }), { records: first.kept });
+  const clash = await answerOf(recordRow, event('n1', { body: 'Something else.' }), { records: first.result.keep });
   assert.equal(clash.status, 1);
   assert.match(clash.error, /different notification is already recorded as n1/);
-  assert.equal(kept(clash, 'notification-event:n1').value.body, 'Two loaves are ready for pickup.');
+  assert.equal(clash.result, undefined, 'a refused event keeps nothing');
+  assert.equal(first.result.keep[0].value.body, 'Two loaves are ready for pickup.', 'the first one stays');
 });
 
 test('an event with a field missing, an empty audience, a stray field or no words is refused with each problem named', async () => {
@@ -147,7 +148,7 @@ test('an event with a field missing, an empty audience, a stray field or no word
   for (const named of ['audience_refs is required', 'title is required', 'source_refs is required', 'proof_refs is required', 'extra is not a field', 'idempotencyKey must be words']) {
     assert.ok(bad.error.includes(named), `${named} in: ${bad.error}`);
   }
-  assert.equal(bad.kept.length, 0);
+  assert.equal(bad.result, undefined, 'a refused event keeps nothing');
 });
 
 test('events are limited to the kinds and privacy classes the person\'s rules list, and any words pass when there are none', async () => {
@@ -158,7 +159,7 @@ test('events are limited to the kinds and privacy classes the person\'s rules li
   assert.equal(bad.status, 1);
   assert.ok(bad.error.includes('kind other.kind is not one of the kinds'), bad.error);
   assert.ok(bad.error.includes('privacy_class public is not one of the privacy classes'), bad.error);
-  assert.equal(bad.kept.some(record => record.type === 'notification-event'), false);
+  assert.equal(bad.result, undefined, 'a refused event keeps nothing');
   const free = await answerOf(recordRow, event('r3', { kind: 'anything', privacy_class: 'whatever' }));
   assert.equal(free.result.recorded, true);
   const partial = await answerOf(recordRow, event('r4', { privacy_class: 'public' }), { records: [{ ...rules, value: { kinds: ['order.ready'] } }] });
@@ -187,9 +188,10 @@ test('events are read for the audience they name, newest occurrence first, with 
   assert.match((await answerOf(eventsRow, {}, { records })).error, /Say whose events/);
 });
 
-test('each row asks the door for no more than its job needs', () => {
-  assert.deepEqual(rightsOf(choiceRow), [{ kind: 'notification-setting', operations: ['records:read'] }, { kind: 'notification-choice', operations: ['records:read'] }]);
-  assert.deepEqual(rightsOf(chooseRow), [{ kind: 'notification-setting', operations: ['records:read'] }, { kind: 'notification-choice', operations: ['records:read', 'records:write'] }]);
-  assert.deepEqual(rightsOf(recordRow), [{ kind: 'notification-event', operations: ['records:read', 'records:write'] }, { kind: 'notification-event-rules', operations: ['records:read'] }]);
-  assert.deepEqual(rightsOf(eventsRow), [{ kind: 'notification-event', operations: ['records:list'] }]);
+test('each row names only the kinds of its own rows it is given', () => {
+  assert.deepEqual(rightsOf(choiceRow), [{ kind: 'notification-setting' }, { kind: 'notification-choice' }]);
+  assert.deepEqual(rightsOf(chooseRow), [{ kind: 'notification-setting' }, { kind: 'notification-choice' }]);
+  assert.deepEqual(rightsOf(recordRow), [{ kind: 'notification-event' }, { kind: 'notification-event-rules' }]);
+  assert.deepEqual(rightsOf(eventsRow), [{ kind: 'notification-event' }]);
+  for (const row of [choiceRow, chooseRow, recordRow, eventsRow]) assert.equal(JSON.stringify(row).includes('records:'), false);
 });

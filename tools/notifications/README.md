@@ -1,7 +1,8 @@
 # tools/notifications/
 
 A person's notification choices, device registrations, recorded notice events and device delivery, kept in their own
-records and reached through the run's records door (`tools/records-door`). A notice is delivered only when a caller
+records. Each run is given the rows it reads as `stored.records` and answers the rows it keeps as `keep` (`read-data/given-rows.mjs`);
+the run reads and writes no store itself, and the caller keeps what it is given where the person keeps it. A notice is delivered only when a caller
 passes the event and an audience that event names; the two senders (`tool:send-notification-to-my-devices`,
 `tool:send-live-activity-update`) take the event, devices and tokens as input, answer what each provider said and keep
 nothing: the caller reads those from its own records and keeps what it needs from the answer. Push-token addresses stay in the person's records;
@@ -64,10 +65,11 @@ The old action fixed an event's `kind` to one name and its `privacy_class` to on
 
 | File | Purpose |
 |------|---------|
-| `read-data/notifications.mjs` | `myNotificationChoice`, `chooseMyNotificationChoice`, `recordANotification`, `myNotificationEvents`, run by `tools/records-door/do-work/run-an-export.mjs`. |
+| `read-data/notifications.mjs` | `myNotificationChoice`, `chooseMyNotificationChoice`, `recordANotification`, `myNotificationEvents`, run by `tools/workflows/do-work/run-a-function.mjs`. |
+| `read-data/given-rows.mjs` | Reads the given rows of one type and id, and makes the `keep` rows a run answers (value null removes). |
 | `tool-rows.json` | The notification choice, event, device, delivery and Live Activity rows. |
 | `part.json` | The folder's public files. |
-| `test/notifications.test.mjs` | The rows against the fake records door with exactly their rights: options and defaults, invalid and empty settings, choosing, refusals, recording, repeats, clashes and reads. |
+| `test/notifications.test.mjs` | The rows run with the rows they are given: options and defaults, invalid and empty settings, choosing, refusals, recording, repeats, clashes and reads. |
 | `test/device-notifications.test.mjs` | Device registration, private addresses, the senders' answers (per device, gone, uncertain, partial) with no records door, and the Live Activity lifecycle. |
 | `read-data/http2-request.mjs` | Bounded HTTP/2 transport with verified TLS and the engine’s HTTPS CONNECT proxy. |
 | `test/http2-request.test.mjs` | Local TLS/proxy, deadline, response bounds, certificate and cleanup checks. |
@@ -84,4 +86,4 @@ The old action fixed an event's `kind` to one name and its `privacy_class` to on
 
 ## Dependencies
 
-**Depends on:** `tools/records-door`.
+**Depends on:** `tools/workflows` (its `do-work/run-a-function.mjs` runner, which calls each export with the input alone).

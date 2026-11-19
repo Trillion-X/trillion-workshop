@@ -1,8 +1,9 @@
 // tools/notifications/read-data/notifications.mjs
 //
-// A person's notification choices and the notices recorded for them, kept as their own records and reached through the
-// run's records door (tools/records-door). Nothing here delivers a notice, names a choice or infers who a notice is for:
-// the options of a setting, and the audience of an event, are what the person's records say.
+// A person's notification choices and the notices recorded for them. The caller gives the rows this run reads as
+// `stored.records` and keeps the rows it answers as `keep` (read-data/given-rows.mjs). Nothing here delivers a notice,
+// names a choice or infers who a notice is for: the options of a setting, and the audience of an event, are what the
+// person's records say.
 //
 // Records:
 //   notification-setting  id notification-setting:<setting>  { title?, description?, options: [{ id | value, label?, description? }], default? }
@@ -10,6 +11,8 @@
 //   notification-event    id notification-event:<notification_id>  the event as it was given
 //   notification-event-rules  id notification-event-rules:events  { kinds?: [text], privacy_classes?: [text] }
 //     what the person's events may be called and how private they may be; with none, any words are accepted
+import { splitGiven, valueOf, rowsOf, keepRow } from './given-rows.mjs';
+
 export const SETTING = 'notification-setting';
 export const CHOICE = 'notification-choice';
 export const EVENT = 'notification-event';
@@ -31,8 +34,8 @@ function settingNamed(input) {
   return setting;
 }
 
-async function described(door, setting) {
-  const descriptor = await door.read(SETTING, `${SETTING}:${setting}`);
+function described(records, setting) {
+  const descriptor = valueOf(records, SETTING, `${SETTING}:${setting}`);
   if (!object(descriptor)) return null;
   const options = (Array.isArray(descriptor.options) ? descriptor.options : []).filter(object)
     .map((option, index) => ({ id: text(option.id) || text(option.value) || text(option.key) || `option:${index}`, label: text(option.label), description: text(option.description) }))
@@ -46,12 +49,13 @@ const noSetting = setting => `There is no notification setting ${setting}. Save 
  * tool:my-notification-choice: the options a setting describes, which one the person chose (or the setting's default),
  * and whether that choice is one of the options. A saved choice the options no longer hold is reported, not corrected.
  */
-export async function myNotificationChoice(input, { door }) {
+export function myNotificationChoice(raw) {
+  const { input, records } = splitGiven(raw);
   const setting = settingNamed(input);
-  const found = await described(door, setting);
+  const found = described(records, setting);
   if (!found) return { setting, heading: setting, explanation: '', options: [], current: null, status: 'missing', said: noSetting(setting) };
   const { descriptor, options } = found;
-  const kept = await door.read(CHOICE, `${CHOICE}:${setting}`);
+  const kept = valueOf(records, CHOICE, `${CHOICE}:${setting}`);
   const current = (object(kept) && text(kept.value)) || text(descriptor.default) || null;
   const status = options.length === 0 ? 'empty' : current !== null && !options.some(option => option.id === current) ? 'invalid' : 'ready';
   const said = {
@@ -69,25 +73,26 @@ export async function myNotificationChoice(input, { door }) {
  * tool:choose-my-notification-choice: keeps one of the setting's described options as the person's choice. A setting
  * that is not described, or describes no options, has nothing to choose from: that is said in words and nothing is kept.
  */
-export async function chooseMyNotificationChoice(input, { door }) {
+export function chooseMyNotificationChoice(raw) {
+  const { input, records } = splitGiven(raw);
   const setting = settingNamed(input);
   const choice = text(input.choice);
   if (!choice) throw new Error('Say what to choose: pass one option id as choice.');
-  const found = await described(door, setting);
+  const found = described(records, setting);
   if (!found) return { setting, choice, previous: null, changed: false, said: `${noSetting(setting)} Nothing was chosen.` };
   const { options } = found;
   if (options.length === 0) return { setting, choice, previous: null, changed: false, said: `The setting ${setting} describes no choices, so nothing was chosen.` };
   if (!options.some(option => option.id === choice)) throw new Error(`${choice} is not an option of ${setting}. The options are ${options.map(option => option.id).join(', ')}.`);
-  const kept = await door.read(CHOICE, `${CHOICE}:${setting}`);
+  const kept = valueOf(records, CHOICE, `${CHOICE}:${setting}`);
   const previous = (object(kept) && text(kept.value)) || null;
   if (previous === choice) return { setting, choice, previous, changed: false, said: `${setting} was already ${choice}.` };
-  await door.write([{ id: `${CHOICE}:${setting}`, type: CHOICE, value: { value: choice, at: new Date().toISOString() } }], { key: `${CHOICE}:${setting}:${previous ?? 'none'}:${choice}` });
-  return { setting, choice, previous, changed: true, said: `${setting} is now ${choice}.` };
+  const keep = [keepRow(CHOICE, `${CHOICE}:${setting}`, { value: choice, at: new Date().toISOString() })];
+  return { setting, choice, previous, changed: true, said: `${setting} is now ${choice}.`, keep };
 }
 
 // The names an event may carry for one of its fields, when the person's rules limit them.
-async function ruleProblems(event, door) {
-  const rules = await door.read(EVENT_RULES, `${EVENT_RULES}:events`);
+function ruleProblems(event, records) {
+  const rules = valueOf(records, EVENT_RULES, `${EVENT_RULES}:events`);
   if (!object(rules)) return [];
   const problems = [];
   for (const [field, allowed] of [['kind', rules.kinds], ['privacy_class', rules.privacy_classes]]) {
@@ -144,27 +149,31 @@ function eventProblems(event) {
  * happened; this records the event and delivers nothing, infers no audience, and keeps the first event of an id: the
  * same event again changes nothing, a different one under the same id is refused.
  */
-export async function recordANotification(input, { door }) {
+export function recordANotification(raw) {
+  const { input, records } = splitGiven(raw);
   const problems = eventProblems(input);
-  if (problems.length === 0) problems.push(...await ruleProblems(input, door));
+  if (problems.length === 0) problems.push(...ruleProblems(input, records));
   if (problems.length) throw new Error(`The notification was not recorded. ${problems.join(' ')}`);
   const id = input.notification_id;
-  const kept = await door.read(EVENT, `${EVENT}:${id}`);
+  const kept = valueOf(records, EVENT, `${EVENT}:${id}`);
   if (object(kept)) {
     if (!same(kept, input)) throw new Error(`A different notification is already recorded as ${id}. Use a new notification_id for a new event.`);
     return { notification_id: id, recorded: false, said: `${id} was already recorded.` };
   }
-  await door.write([{ id: `${EVENT}:${id}`, type: EVENT, value: input }], { key: `${EVENT}:${id}` });
-  return { notification_id: id, recorded: true, said: `${id} is recorded for ${words(input.audience_refs.length, 'audience', 'audiences')}; nothing was delivered.` };
+  return {
+    notification_id: id, recorded: true, said: `${id} is recorded for ${words(input.audience_refs.length, 'audience', 'audiences')}; nothing was delivered.`,
+    keep: [keepRow(EVENT, `${EVENT}:${id}`, input)],
+  };
 }
 
 /** tool:my-notification-events: the recorded events that name this audience, newest occurrence first. */
-export async function myNotificationEvents(input, { door }) {
+export function myNotificationEvents(raw) {
+  const { input, records } = splitGiven(raw);
   const audience = object(input) ? text(input.audience) : '';
   if (!audience) throw new Error('Say whose events to read: pass the audience reference as audience.');
   const most = Math.max(1, Math.min(MOST, Number(input.limit) || USUAL));
   const events = [];
-  for await (const record of door.list({ type: EVENT })) {
+  for (const record of rowsOf(records, EVENT)) {
     if (object(record.value) && Array.isArray(record.value.audience_refs) && record.value.audience_refs.includes(audience)) events.push(record.value);
   }
   events.sort((a, b) => String(b.occurred_at).localeCompare(String(a.occurred_at)));
