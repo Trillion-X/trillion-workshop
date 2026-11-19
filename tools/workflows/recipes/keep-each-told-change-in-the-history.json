@@ -1,0 +1,194 @@
+{
+  "_what": "Keeps each change a source told, that its own waiter row gave kinds to, as one statement of the person's own history (the history-and-identity mechanism: statements, mentions, meaning_rules, mention_rules). The fact that woke it is workflow-chosen, told by workflow:route-each-row-change, and holds at most eight fields, so the statement's at is when it was kept (within one look_again_seconds of the change). The told id is the source's own where, place, key, change and carried values, so the same change told again is the same statement (UNIQUE (source, told)) and a later change of the same thing is a new one. Its meaning and the identifiers it mentions come from the history's own rule rows, never from here.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-each-told-change-in-the-history",
+        "label": "Keep each change a source told in my history",
+        "job": "When a source tells a change it gave kinds to (a booking made, moved or cancelled, a message that arrived), keep it as one statement in the person's own history, so every workflow that reads the history, and the one that tells the owner what changed, sees it",
+        "produces": "one statement in the person's history for each change, kept once however often the change is told; the history's own meaning_rules and mention_rules give it its meaning and the people it is about",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "fact": {
+              "type": "object",
+              "description": "The workflow-chosen fact that woke this run: where (the vault name the noticer read the source with, the statement's source), place, change, key, after (the change's carried values as JSON text) and kinds"
+            },
+            "history": {
+              "type": "object",
+              "description": "Where the person's history is: credential_name, the vault name of its database connection"
+            }
+          }
+        },
+        "fires_when": [
+          {
+            "label": "a change a source told carries kinds",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                },
+                {
+                  "id": "change",
+                  "kind": "choice",
+                  "path": [
+                    "change"
+                  ]
+                },
+                {
+                  "id": "where",
+                  "kind": "text",
+                  "path": [
+                    "where"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "is_not_empty"
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "change",
+                    "operator": "is_any_of",
+                    "params": {
+                      "values": [
+                        "added",
+                        "changed",
+                        "removed"
+                      ]
+                    }
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "where",
+                    "operator": "is_not_empty"
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "input": {
+              "start_at": "keep",
+              "history": {
+                "credential_name": "own-rows-postgres-connection"
+              }
+            },
+            "evidence": "Written 2026-11-19 for the change chain (lane change-chain): a source's own waiter row gives a change its kinds (service-lists shape.kinds) from the whole thing, which only the noticer holds, so any labelled change is worth keeping, whatever workflow its kinds also choose. A seed part with kinds but no source (where) and no change (a thought, a note) is not a told change, so it is not kept here."
+          }
+        ],
+        "wakes": [
+          {
+            "id": "chosen--a-change-a-source-told-carries-kinds",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:keep-each-told-change-in-the-history",
+                  "condition": "a change a source told carries kinds"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "keep",
+              "history": {
+                "credential_name": "own-rows-postgres-connection"
+              }
+            }
+          }
+        ],
+        "definition": {
+          "id": "workflow:keep-each-told-change-in-the-history",
+          "name": "Keep each change a source told in my history",
+          "kind": "workflow",
+          "is_active": true,
+          "version": 1,
+          "steps": [
+            {
+              "id": "keep",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "history.credential_name"
+                    }
+                  },
+                  "sql": "INSERT INTO statements (source, told, place, change, at, key, after)\nVALUES ($1::text, concat_ws(':', $2::text, $4::text, $3::text, coalesce($5::text, '')), $2::text, $3::text, clock_timestamp(), $4::text, $5::jsonb)\nON CONFLICT (source, told) DO NOTHING RETURNING id, meaning",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.where"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.place"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.change"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.key"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.after"
+                      }
+                    }
+                  ]
+                },
+                "context": {
+                  "step_id": "keep"
+                }
+              }
+            }
+          ],
+          "edges": []
+        },
+        "records": {
+          "runs": [
+            "tool:run-sql-in-my-database"
+          ]
+        }
+      }
+    }
+  ]
+}

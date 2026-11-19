@@ -1,5 +1,5 @@
 {
-  "_what": "One workflow every change the person's store tells wakes. Whatever tells a change (a Postgres table the person's AI attached record_row_change() to, read by the noticer; or any store the person's AI taught to tell its changes, workflow:tell-me-when-something-changes) tells a row-changes fact that carries the change itself: where (the vault name of what is watched), table_name (what changed, in the store's own name), op, at, key (the change's own key in the store's words), and before and after as JSON text when each fits a fact field. This run makes the change one part, asks tool:choose-the-workflows-that-fire which workflows' fires_when conditions keep that part, and tells one workflow-chosen fact for each choice {workflow, condition, where, table_name, op, key, before, after}. It reads nothing from any store and names no reader tool: a fact is at most 8 text fields of 1,024 bytes (the engine's fact inbox, src/wake/host-events.json), so a change too big to carry arrives without before or after, and a chosen workflow that needs them reads them by key in the store's own language. It starts no workflow itself: each chosen workflow starts from its own wake on that fact, under its own switch and its own rights, with the input its condition names. The event id is the change's own key plus the workflow and the condition, so a retried run tells each choice once.",
+  "_what": "One workflow every change the person's store tells wakes. Whatever tells a change (a Postgres table the person's AI attached record_row_change() to, read by the noticer; or any store the person's AI taught to tell its changes, workflow:tell-me-when-something-changes) tells a something-changed fact that carries the change itself: where (the vault name of what is watched), place (what changed, in the store's own name), change (added, changed or removed), at, key (the change's own key in the store's words), before and after as JSON text when each fits a fact field, and kinds (a JSON list of the kinds of change the teller's own rules gave it, for example a booking waiter row's shape.kinds). This run makes the change one part (where, place, change, before, after and kinds as a list), asks tool:choose-the-workflows-that-fire which workflows' fires_when conditions keep that part, and tells one workflow-chosen fact for each choice {workflow, condition, where, place, change, key, after, kinds}: eight fields, the most one fact holds, so before stays out and a chosen workflow that needs it reads it by key. It reads nothing from any store and names no reader tool: a fact is at most 8 text fields of 1,024 bytes (the engine's fact inbox, src/wake/host-events.json), so a change too big to carry arrives without before or after, and a chosen workflow that needs them reads them by key in the store's own language. It starts no workflow itself: each chosen workflow starts from its own wake on that fact, under its own switch and its own rights, with the input its condition names. The event id is the event id the engine admitted the change under (input.fact_id: one per change its teller told, so a second change of the same row is a second choice), or the change's own key when the change is handed in directly, plus the workflow and the condition, so a retried run tells each choice once.",
   "records": [
     {
       "payload": {
@@ -96,6 +96,18 @@
                             "op": "op:core.json_parse"
                           }
                         ]
+                      },
+                      "kinds": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "fact.kinds"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.json_parse"
+                          }
+                        ]
                       }
                     }
                   ],
@@ -149,7 +161,7 @@
                         "$kind": "binding",
                         "select": {
                           "from": "input",
-                          "path": "fact.key"
+                          "path": "fact_id"
                         },
                         "resolve_nested_bindings": true,
                         "transform": [
@@ -161,8 +173,32 @@
                                   "$kind": "binding",
                                   "select": {
                                     "from": "input",
-                                    "path": "fact.key"
-                                  }
+                                    "path": "fact_id"
+                                  },
+                                  "resolve_nested_bindings": true,
+                                  "transform": [
+                                    {
+                                      "op": "op:core.coalesce",
+                                      "args": {
+                                        "values": [
+                                          {
+                                            "$kind": "binding",
+                                            "select": {
+                                              "from": "input",
+                                              "path": "fact_id"
+                                            }
+                                          },
+                                          {
+                                            "$kind": "binding",
+                                            "select": {
+                                              "from": "input",
+                                              "path": "fact.key"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
                                 },
                                 ":",
                                 {
@@ -207,18 +243,18 @@
                             "path": "fact.where"
                           }
                         },
-                        "table_name": {
+                        "place": {
                           "$kind": "binding",
                           "select": {
                             "from": "input",
-                            "path": "fact.table_name"
+                            "path": "fact.place"
                           }
                         },
-                        "op": {
+                        "change": {
                           "$kind": "binding",
                           "select": {
                             "from": "input",
-                            "path": "fact.op"
+                            "path": "fact.change"
                           }
                         },
                         "key": {
@@ -228,18 +264,18 @@
                             "path": "fact.key"
                           }
                         },
-                        "before": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.before"
-                          }
-                        },
                         "after": {
                           "$kind": "binding",
                           "select": {
                             "from": "input",
                             "path": "fact.after"
+                          }
+                        },
+                        "kinds": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.kinds"
                           }
                         }
                       }

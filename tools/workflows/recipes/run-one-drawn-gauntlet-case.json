@@ -97,7 +97,7 @@
           {
             "id": "read-the-case",
             "title": "Read the drawn case from the change",
-            "do": "Parse input.fact.after (JSON text): it is the drawn case, {k, words, call, drawn_by}. If after is missing (the case was too big to carry in the fact), read the entry whose key is input.fact.key from input.fact.table_name in the store named by input.fact.where, in that store's own language. Submit the case.",
+            "do": "Parse input.fact.after (JSON text): it is the drawn case, {k, words, call, drawn_by}. If after is missing (the case was too big to carry in the fact), read the entry whose key is input.fact.key from input.fact.place in the store named by input.fact.where, in that store's own language. Submit the case.",
             "submit": {
               "type": "object",
               "required": [

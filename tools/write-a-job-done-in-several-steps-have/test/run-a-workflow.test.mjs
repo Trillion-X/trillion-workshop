@@ -151,22 +151,24 @@ test('(x) a start_at that names no step is refused, and fields of its own are re
 
 // A woken run's input holds the fact that woke it: the engine hands the task's cause.detail ({kind, from, event_id,
 // payload, coalesced, last?}) as woken_by, and a direct call has none.
-test('(y) a woken run is given the fact that woke it as input.fact, and folded facts as folded and last', async () => {
+test('(y) a woken run is given the fact that woke it as input.fact and its event id as input.fact_id, and folded facts as folded and last', async () => {
   assert.deepEqual(toolRow.invoke.stdin, { run: { fill: { from: 'input' } }, woken_by: { fill: { from: 'task', field: 'cause.detail' } } });
   const bind = path => ({ $kind: 'binding', select: { from: 'input', path } });
   const definition = {
     id: 'workflow:made-up-echo', name: 'Echo', kind: 'workflow', is_active: true, version: 1, edges: [],
-    steps: [{ id: 'see', kind: 'ask', config: { name: 'person', input: { position: bind('fact.position'), folded: bind('folded'), last: bind('last.position') }, context: { step_id: 'see' } } }],
+    steps: [{ id: 'see', kind: 'ask', config: { name: 'person', input: { position: bind('fact.position'), fact_id: bind('fact_id'), folded: bind('folded'), last: bind('last.position') }, context: { step_id: 'see' } } }],
   };
   const recipe = { id: 'workflow:made-up-echo', label: 'Echo', definition };
   const detail = { kind: 'row-changes', from: 'run', event_id: 'd:7:3', payload: { kind: 'row-changes', table_name: 'post', op: 'INSERT', position: '3' }, coalesced: 0 };
   const woken = await runAsTheTool({ run: { recipe }, woken_by: detail });
   assert.equal(woken.status, 'paused');
   assert.equal(woken.waiting[0].input.position, '3');
+  assert.equal(woken.waiting[0].input.fact_id, 'd:7:3');
   const folded = await runAsTheTool({ run: { recipe, input: { keep: 1 } }, woken_by: { ...detail, coalesced: 2, last: { event_id: 'd:7:5', payload: { position: '5' } } } });
   assert.deepEqual([folded.waiting[0].input.position, folded.waiting[0].input.folded, folded.waiting[0].input.last], ['3', 2, '5']);
   const direct = await runAsTheTool({ run: { recipe } });
   assert.equal(direct.waiting?.[0]?.input?.position ?? null, null);
+  assert.equal(direct.waiting?.[0]?.input?.fact_id ?? null, null);
 });
 
 // A tool ask runs through the run's door in the same call; an answer given wins; a tool the run may not start waits.

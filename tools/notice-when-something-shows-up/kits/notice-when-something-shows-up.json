@@ -12,7 +12,7 @@
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:notice-when-something-shows-up and its input (the worked example shows one).",
     "3. Read what comes back: Give waiters: the standing orders the noticer keeps (notice-when-something-shows-up.waiter-descriptor rows, each naming one mechanism in do-work/mechanisms, its settings and the kind of fact it emits).",
     "4. To hear a service that calls out (a payment, mail or booking service, or a service that watches many apps for you): give a waiter with mechanism_leaf signed-service-calls.mjs, its `verify` row (which headers hold the signature and timestamp, the signed text, sha256, hex or base64, the replay window: copy it from the service's webhook documentation) and its `shape` row (where the change's kind, id and time sit in the call), credential_name the vault name of the signing secret, and emitted_record change_kind something-changed with payload_fields [where, place, change, at, key, before, after]. Point the service's webhook at the address the waiter listens on. A call not signed as the row says is refused and told to nobody.",
-    "5. To hear a service that cannot call out: give a waiter with mechanism_leaf service-lists.mjs, its `request` (the list's url and headers, with {credential} where the key goes), its `shape` (the path of the list, each thing's key, place and time, the next page) and `look_again_seconds`, credential_name the vault name of the key. The first read tells nothing; each later read tells what was added, changed or removed (removed only when list_is_whole)."
+    "5. To hear a service that cannot call out: give a waiter with mechanism_leaf service-lists.mjs, its `request` (the list's url and headers, with {credential} where the key goes), its `shape` (the path of the list, each thing's key, place and time, the next page) and `look_again_seconds`, credential_name the vault name of the key. To label each change with the kinds your workflows' fires_when conditions read, add `shape.kinds` rules ({change?, has?, lacks?, kinds}: every rule that holds over the whole thing adds its kinds), and add kinds to payload_fields; when a thing is larger than one fact field (1,000 bytes), name in `shape.carry` the paths its readers need, and after carries only those. The first read tells nothing; each later read tells what was added, changed or removed (removed only when list_is_whole)."
   ],
   "worked_examples": [
     {
@@ -139,8 +139,46 @@
                         "value": "booking"
                       },
                       "key": "id",
-                      "at": "updated_at",
-                      "at_unit": "iso"
+                      "at": [
+                        "cancelled_at",
+                        "updated_at"
+                      ],
+                      "at_unit": "iso",
+                      "kinds": [
+                        {
+                          "change": "added",
+                          "lacks": "cancelled_at",
+                          "kinds": [
+                            "call-booked"
+                          ]
+                        },
+                        {
+                          "change": "changed",
+                          "kinds": [
+                            "booking-changed"
+                          ]
+                        },
+                        {
+                          "has": "cancelled_at",
+                          "kinds": [
+                            "booking-changed"
+                          ]
+                        },
+                        {
+                          "change": "removed",
+                          "kinds": [
+                            "booking-changed"
+                          ]
+                        }
+                      ],
+                      "carry": [
+                        "id",
+                        "email",
+                        "name",
+                        "starts_at",
+                        "ends_at",
+                        "cancelled_at"
+                      ]
                     },
                     "list_is_whole": false,
                     "look_again_seconds": 300
@@ -159,7 +197,8 @@
                       "at",
                       "key",
                       "before",
-                      "after"
+                      "after",
+                      "kinds"
                     ]
                   },
                   "candidate_identity_feed": null
@@ -170,7 +209,7 @@
         }
       },
       "given": "From tests/service-lists.test.mjs ('the first read tells nothing; the next tells what changed; a refused tell is told again'): a stand-in booking service whose list gains booking 4 between two reads (made-up rows).",
-      "hands_back": "One fact of kind something-changed with where my-booking-service-key, place booking, change added, at 2026-11-18T22:00:00.000Z, key 4 and after the booking as JSON text; a wake {fact: {kind: something-changed, from: [run], match: {place: booking}}} hears it."
+      "hands_back": "One fact of kind something-changed with where my-booking-service-key, place booking, change added, at 2026-11-18T22:00:00.000Z, key 4, kinds [\"call-booked\"] as JSON text and after the carried paths of the booking as JSON text; route-each-row-change hears it and chooses each workflow whose fires_when reads one of its kinds."
     }
   ]
 }

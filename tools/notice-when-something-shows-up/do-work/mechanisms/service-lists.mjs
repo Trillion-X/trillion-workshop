@@ -22,13 +22,26 @@
  *     says the list is whole (`list_is_whole`), never for a list read in part.
  *   - A tell the engine refused stops the read; the state is not moved past it,
  *     so it is told again next time.
+ *   - What kind of change a thing is (`kinds`) is decided here, by the row's
+ *     `shape.kinds` rules, because only this read holds the whole thing: a fact
+ *     field carries at most 1,000 bytes, and a booking or a message is larger. The
+ *     kind names are the ones the person's workflows' fires_when conditions read;
+ *     no kind is named in this code.
  *
  * Settings (mechanism_settings)
  *   where               the connection's name (no secret)
  *   credential_fd       the descriptor holding the credential (default 4)
  *   request             { url, method?: "GET", headers?: { <name>: "<text with {credential}>" } }
  *   shape               { items: "<path to the list>", place: "<path>" | { value }, key: "<path>" | [..],
- *                         at?: "<path>", at_unit?: "seconds" | "ms" | "iso", next?: "<path to the next page's url>" }
+ *                         at?: "<path>", at_unit?: "seconds" | "ms" | "iso", next?: "<path to the next page's url>",
+ *                         kinds?: [{ change?: "added" | "changed" | "removed", has?: "<path>", lacks?: "<path>", kinds: [..] }],
+ *                         carry?: ["<path>", ..] | { <name>: "<path>" | ["<path>", ..] } }
+ *                       kinds: every rule whose change, has (a value is there) and lacks (no value is there) hold
+ *                         adds its kinds; the fact's `kinds` is their list as JSON text, null when none holds.
+ *                       carry: the values that make the fact's `after`, so a thing too large for one fact field still
+ *                         carries the parts its readers need: a list of paths (each kept under its own path), or names
+ *                         to paths, so a service's own field names become the words its readers read (a booking's start
+ *                         under starts_at whatever the service calls it); left out, the whole thing.
  *   list_is_whole       true when one read returns every thing that exists
  *   most_pages          the most pages one read follows (default 10)
  *   look_again_seconds  how long between reads (default 300)
@@ -48,7 +61,7 @@ export const carried = (value) => {
 export function describeMechanism() {
   return {
     mechanism_ref: MECHANISM_REF,
-    detail_fields: ["where", "place", "change", "at", "key", "before", "after"],
+    detail_fields: ["where", "place", "change", "at", "key", "before", "after", "kinds"],
     conditions: ["became-reachable"],
   };
 }
@@ -85,6 +98,28 @@ function isoOf(value, unit) {
   return Number.isNaN(time.getTime()) ? null : time.toISOString();
 }
 
+const present = (value) => value !== undefined && value !== null && value !== "";
+
+/** The kinds the row's `shape.kinds` rules give one change of `item` (null for a removed thing), as JSON text or null. */
+export function kindsOf(rules, change, item) {
+  if (!Array.isArray(rules)) return null;
+  const kinds = [];
+  for (const rule of rules) {
+    if (rule?.change !== undefined && rule.change !== change) continue;
+    if (rule?.has !== undefined && !present(at(item ?? {}, rule.has))) continue;
+    if (rule?.lacks !== undefined && present(at(item ?? {}, rule.lacks))) continue;
+    for (const kind of Array.isArray(rule?.kinds) ? rule.kinds : []) if (typeof kind === "string" && !kinds.includes(kind)) kinds.push(kind);
+  }
+  return kinds.length ? JSON.stringify(kinds) : null;
+}
+
+/** What the fact's `after` carries of `item`: the row's `shape.carry` values when it names them, else the whole thing. */
+export function carriedOf(carry, item) {
+  if (carry === undefined || carry === null) return carried(item);
+  const named = Array.isArray(carry) ? carry.map((path) => [path, path]) : Object.entries(carry);
+  return carried(Object.fromEntries(named.map(([name, path]) => [name, at(item, path) ?? null])));
+}
+
 /** Read every page of the list once. Answers {items} or throws with words. */
 export async function readList(own, credential, fetchImpl = fetch) {
   if (!own.request?.url || !own.shape?.items) throw new Error("This waiter row names no request url or no items path.");
@@ -119,14 +154,14 @@ export function compare({ own, seen, items, whole, readAt = new Date() }) {
       key: id, print,
       detail: { where: own.where, place: String(place ?? ""), change: seen[id] === undefined ? "added" : "changed",
         at: isoOf(own.shape.at ? at(item, own.shape.at) : null, own.shape.at_unit) ?? readAt.toISOString(),
-        key: id, before: null, after: carried(item) },
+        key: id, before: null, after: carriedOf(own.shape.carry, item), kinds: kindsOf(own.shape.kinds, seen[id] === undefined ? "added" : "changed", item) },
     });
   }
   if (whole) {
     for (const id of Object.keys(seen)) {
       if (id in now) continue;
       const place = typeof own.shape.place === "object" && own.shape.place !== null && "value" in own.shape.place ? own.shape.place.value : "";
-      changes.push({ key: id, print: null, detail: { where: own.where, place: String(place), change: "removed", at: readAt.toISOString(), key: id, before: null, after: null } });
+      changes.push({ key: id, print: null, detail: { where: own.where, place: String(place), change: "removed", at: readAt.toISOString(), key: id, before: null, after: null, kinds: kindsOf(own.shape.kinds, "removed", null) } });
     }
   }
   changes.sort((a, b) => a.detail.at.localeCompare(b.detail.at));
