@@ -112836,7 +112836,8 @@
                   "minLength": 1,
                   "description": "The name of the credential that opens the business's own management database. The parent workflow passes it."
                 }
-              }
+              },
+              "description": "The business's own management database, when this runs as a stage of a business setup; leave it out to make a clip on its own (no facts, no B-roll rules, no checklist row)"
             },
             "style": {
               "type": "object",
@@ -112859,7 +112860,6 @@
             }
           },
           "required": [
-            "business",
             "style"
           ]
         },
@@ -112908,7 +112908,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call tool:run-sql-in-my-database with { credential_name: input.business.credential_name, sql: \"SELECT coalesce(jsonb_object_agg(name, value), '{}'::jsonb) AS facts FROM business_facts\", params: [] }. Keep the returned facts object. If facts is {} (no fact rows yet), stop this stage: submit blocked with reason \"business facts missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
+            "do": "When input.business is not given (a clip made outside a business setup), keep facts as {} and go on to the next step; nothing is read. Otherwise: Call tool:run-sql-in-my-database with { credential_name: input.business.credential_name, sql: \"SELECT coalesce(jsonb_object_agg(name, value), '{}'::jsonb) AS facts FROM business_facts\", params: [] }. Keep the returned facts object. If facts is {} (no fact rows yet), stop this stage: submit blocked with reason \"business facts missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -113162,7 +113162,7 @@
           {
             "id": "choose-the-clip",
             "title": "Choose the clip to make and its B-roll",
-            "do": "Pick one clip from the proposals: from (start in seconds) and to (end in seconds), at least 15 seconds and at most 60 seconds, with the strongest sentence in it. Pick B-roll cover shots from the B-roll rules: run CREATE TABLE IF NOT EXISTS b_roll_rules (id text PRIMARY KEY, rule text NOT NULL) and then SELECT id, rule FROM b_roll_rules ORDER BY id, both with tool:run-sql-in-my-database on credential input.business.credential_name and params []. If it has no rows, submit a gap and pick none.",
+            "do": "Pick one clip from the proposals: from (start in seconds) and to (end in seconds), at least 15 seconds and at most 60 seconds, with the strongest sentence in it. Pick B-roll cover shots from the B-roll rules: run CREATE TABLE IF NOT EXISTS b_roll_rules (id text PRIMARY KEY, rule text NOT NULL) and then SELECT id, rule FROM b_roll_rules ORDER BY id, both with tool:run-sql-in-my-database on credential input.business.credential_name and params []. If it has no rows, submit a gap and pick none. When input.business is not given (a clip made outside a business setup), skip the B-roll rules and pick none.",
             "submit": {
               "type": "object",
               "required": [
@@ -113439,7 +113439,7 @@
           {
             "id": "hand-the-clip-to-the-post-stage",
             "title": "Save the finished clip for the posting stage",
-            "do": "Run CREATE TABLE IF NOT EXISTS short_clips (clip_id text PRIMARY KEY, rendered_identity text NOT NULL, cover_identity text, caption text, from_s numeric, to_s numeric, kept_at timestamptz NOT NULL DEFAULT now()) with tool:run-sql-in-my-database on credential input.business.credential_name and params []. Then run INSERT INTO short_clips (clip_id, rendered_identity, cover_identity, caption, from_s, to_s, kept_at) VALUES ($1, $2, $3, $4, $5, $6, now()) ON CONFLICT (clip_id) DO UPDATE SET rendered_identity = EXCLUDED.rendered_identity, cover_identity = EXCLUDED.cover_identity, caption = EXCLUDED.caption, from_s = EXCLUDED.from_s, to_s = EXCLUDED.to_s, kept_at = now(), with params [\"<clip id>\", \"<rendered_identity>\", \"<cover_identity>\", \"<the caption line the post will carry>\", <from>, <to>]. Then read the same row back: SELECT clip_id, rendered_identity, cover_identity FROM short_clips WHERE clip_id = $1 with params [\"<clip id>\"], and confirm the value is there. The posting stage drafts the clip from this row.",
+            "do": "When input.business is not given (a clip made outside a business setup), write nothing here: submit handed_over false and record_id null, and the caller keeps the clip where its own task says. Otherwise: Run CREATE TABLE IF NOT EXISTS short_clips (clip_id text PRIMARY KEY, rendered_identity text NOT NULL, cover_identity text, caption text, from_s numeric, to_s numeric, kept_at timestamptz NOT NULL DEFAULT now()) with tool:run-sql-in-my-database on credential input.business.credential_name and params []. Then run INSERT INTO short_clips (clip_id, rendered_identity, cover_identity, caption, from_s, to_s, kept_at) VALUES ($1, $2, $3, $4, $5, $6, now()) ON CONFLICT (clip_id) DO UPDATE SET rendered_identity = EXCLUDED.rendered_identity, cover_identity = EXCLUDED.cover_identity, caption = EXCLUDED.caption, from_s = EXCLUDED.from_s, to_s = EXCLUDED.to_s, kept_at = now(), with params [\"<clip id>\", \"<rendered_identity>\", \"<cover_identity>\", \"<the caption line the post will carry>\", <from>, <to>]. Then read the same row back: SELECT clip_id, rendered_identity, cover_identity FROM short_clips WHERE clip_id = $1 with params [\"<clip id>\"], and confirm the value is there. The posting stage drafts the clip from this row.",
             "submit": {
               "type": "object",
               "required": [
@@ -113451,7 +113451,10 @@
                   "type": "boolean"
                 },
                 "record_id": {
-                  "type": "string"
+                  "type": [
+                    "string",
+                    "null"
+                  ]
                 }
               }
             },
@@ -113471,7 +113474,7 @@
           {
             "id": "record-the-stage",
             "title": "Tick this stage on the checklist and write its gaps",
-            "do": "Run these statements in order with tool:run-sql-in-my-database on credential input.business.credential_name. (1) ALTER TABLE setup_stages ADD COLUMN IF NOT EXISTS steps_status jsonb, ADD COLUMN IF NOT EXISTS gaps text[], params []. (2) INSERT INTO setup_stages (stage, label, status, steps_status, gaps, kept_at) VALUES ($1, $2, $3, $4::jsonb, $5::text[], now()) ON CONFLICT (stage) DO UPDATE SET label = EXCLUDED.label, status = EXCLUDED.status, steps_status = EXCLUDED.steps_status, gaps = EXCLUDED.gaps, kept_at = now(), with params [\"short-videos\", \"Short videos from footage\", \"<Done | Not done | Gap | Blocked | Not applicable>\", \"<JSON text: one entry per step id of this workflow, in this order: read-facts, list-footage, find-silences, suggest-cuts, choose-the-style, choose-the-clip, cut-and-caption, reframe-vertical, render-the-edit, pick-cover, check-the-style, hand-the-clip-to-the-post-stage; each value is Done, Not done, Gap or Not applicable>\", \"<each gap id written in (3)>\"]. (3) For every gap found in this run (a step that used its if_missing branch, a tool that is not live, or a choice the step did not decide), run ALTER TABLE setup_gaps ADD COLUMN IF NOT EXISTS evidence text, params [], then INSERT INTO setup_gaps (id, stage, step, undecided, chosen, evidence, status, kept_at) VALUES ($1, $2, $3, $4, $5, $6, 'open', now()) ON CONFLICT (id) DO UPDATE SET undecided = EXCLUDED.undecided, chosen = EXCLUDED.chosen, evidence = EXCLUDED.evidence, kept_at = now(), with params [\"short-videos:<step id>-<n>\", \"short-videos\", \"<step id>\", \"<what the step did not decide>\", \"<what this run did>\", \"<the tool answer or the missing field>\"]. The gap status is never changed here, so a closed gap stays closed. (4) Read back: SELECT stage, status, steps_status, gaps FROM setup_stages WHERE stage = $1 with params [\"short-videos\"], and SELECT id, status FROM setup_gaps WHERE id = ANY($1::text[]) with the gap ids. Status is Done only when every step is Done or Not applicable and no gap is open. Status is Blocked when a step lacks an input it cannot get. Status is Gap when a step lacks a live tool or a decided choice. Confirm the status and every gap id read back.",
+            "do": "When input.business is not given (a clip made outside a business setup), write nothing: submit status \"Not applicable\", gaps_written 0 and row_read_back true. Otherwise: Run these statements in order with tool:run-sql-in-my-database on credential input.business.credential_name. (1) ALTER TABLE setup_stages ADD COLUMN IF NOT EXISTS steps_status jsonb, ADD COLUMN IF NOT EXISTS gaps text[], params []. (2) INSERT INTO setup_stages (stage, label, status, steps_status, gaps, kept_at) VALUES ($1, $2, $3, $4::jsonb, $5::text[], now()) ON CONFLICT (stage) DO UPDATE SET label = EXCLUDED.label, status = EXCLUDED.status, steps_status = EXCLUDED.steps_status, gaps = EXCLUDED.gaps, kept_at = now(), with params [\"short-videos\", \"Short videos from footage\", \"<Done | Not done | Gap | Blocked | Not applicable>\", \"<JSON text: one entry per step id of this workflow, in this order: read-facts, list-footage, find-silences, suggest-cuts, choose-the-style, choose-the-clip, cut-and-caption, reframe-vertical, render-the-edit, pick-cover, check-the-style, hand-the-clip-to-the-post-stage; each value is Done, Not done, Gap or Not applicable>\", \"<each gap id written in (3)>\"]. (3) For every gap found in this run (a step that used its if_missing branch, a tool that is not live, or a choice the step did not decide), run ALTER TABLE setup_gaps ADD COLUMN IF NOT EXISTS evidence text, params [], then INSERT INTO setup_gaps (id, stage, step, undecided, chosen, evidence, status, kept_at) VALUES ($1, $2, $3, $4, $5, $6, 'open', now()) ON CONFLICT (id) DO UPDATE SET undecided = EXCLUDED.undecided, chosen = EXCLUDED.chosen, evidence = EXCLUDED.evidence, kept_at = now(), with params [\"short-videos:<step id>-<n>\", \"short-videos\", \"<step id>\", \"<what the step did not decide>\", \"<what this run did>\", \"<the tool answer or the missing field>\"]. The gap status is never changed here, so a closed gap stays closed. (4) Read back: SELECT stage, status, steps_status, gaps FROM setup_stages WHERE stage = $1 with params [\"short-videos\"], and SELECT id, status FROM setup_gaps WHERE id = ANY($1::text[]) with the gap ids. Status is Done only when every step is Done or Not applicable and no gap is open. Status is Blocked when a step lacks an input it cannot get. Status is Gap when a step lacks a live tool or a decided choice. Confirm the status and every gap id read back.",
             "submit": {
               "type": "object",
               "required": [
