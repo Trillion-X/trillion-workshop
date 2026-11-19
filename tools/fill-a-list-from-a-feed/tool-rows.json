@@ -112,7 +112,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -237,7 +236,7 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of list, the kind the request names; files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of the list record (id list:<list_id>, type list) and of the rows of row_kind (type record:<row_kind>), as the list stores them. What is not given is not there."
             }
           }
         },
@@ -246,7 +245,7 @@
           "properties": {
             "keep": {
               "type": "array",
-              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value, expected} (value null removes; expected is the record as the run was given it, or null, so the write is conditional), files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -264,7 +263,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/fill-a-list-from-a-feed/do-work/run-given.mjs",
             "/opt/fill-a-list-from-a-feed/read-data/list-feed.mjs",
             "fillAListFromFeed"
           ],
@@ -278,17 +277,10 @@
               {
                 "package": "fill-a-list-from-a-feed",
                 "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/fill-a-list-from-a-feed"
-              },
-              {
-                "package": "records-door",
-                "paths": [
                   "read-data",
                   "do-work"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/fill-a-list-from-a-feed"
               },
               {
                 "package": "content-identity",
@@ -396,10 +388,7 @@
         ],
         "stored": [
           {
-            "kind": "list",
-            "operations": [
-              "records:read"
-            ]
+            "kind": "list"
           },
           {
             "kind": {
@@ -407,19 +396,7 @@
                 "from": "input",
                 "field": "row_kind"
               }
-            },
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
-          },
-          {
-            "files": "/",
-            "operations": [
-              "write_file_start",
-              "write_file_piece",
-              "write_file_finish"
-            ]
+            }
           }
         ]
       }

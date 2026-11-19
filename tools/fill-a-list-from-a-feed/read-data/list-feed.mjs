@@ -38,8 +38,6 @@
 //
 import data from './lists.json' with { type: 'json' };
 import { FEED_ACCEPT, feedItems } from '../../watch-my-sources/read-data/feed-items.mjs';
-import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
-import { writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
 import sharedDatasets from '../../show-one-shelf-of-everything-a-person-or-their-ai-can/from-an-older-version/records/shared-dataset-records.json' with { type: 'json' };
 import { selectDeclaredValue } from '../../ui/read-data/declared-selector.ts';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -86,6 +84,7 @@ const fixedOf = fixed => {
 };
 // What a list field keeps from an item value: a list of words becomes lines, everything else is kept as given.
 const keptValue = value => (Array.isArray(value) && value.every(item => typeof item === 'string') ? value.join('\n') : value);
+const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const httpsAddress = (value, base) => {
   if (typeof value !== 'string' || !value.trim()) return null;
   try { const url = new URL(value, base); return url.protocol === 'https:' ? url : null; } catch { return null; }
@@ -281,18 +280,68 @@ async function fillLibraryFromFeed({ library, read }, { feedUrl, itemsAt, key, v
     said: `${dataset}: ${kept.added.length} added, ${kept.replaced.length} replaced, ${kept.unchanged} unchanged${kept.refused.length ? `, ${kept.refused.length} refused` : ''}${kept.invalid.length ? `, ${kept.invalid.length} not valid` : ''}.` };
 }
 
-// The current lists and Files owners are reached with the admitted run's door.
-// A shared-library host supplies its own admitted add owner; absent means refused,
-// never a fallback to an account's ordinary records.
-export const listFeedActions = ({ door, library, read = fetch }) => ({
-  'fill-a-list-from-a-feed': input => fillListFromFeed({
-    lists: listsOverDoor(door),
-    keepFile: async file => writeWholeFile(door, file.name, Buffer.concat((await file.open()).map(bytes => Buffer.from(bytes))), { mediaType: file.media_type ?? undefined }),
-    library, read,
-  }, input ?? {}),
-});
+// The person's list and its rows are the records the caller gives in `stored.records` (the list's record, and the rows of
+// its kind, read by the caller from the person's own store). Nothing is read from or written to a store here: every row
+// and file the run makes is answered in `keep`, for the caller to keep where the person keeps it, and later reads in the
+// same run see it. A kept row carries `expected` (the record as it was given, or null), so the caller's write is
+// conditional and refuses a row it changed meanwhile.
+export function givenLists(records = []) {
+  const held = new Map((Array.isArray(records) ? records : []).map(record => [record.id, structuredClone(record)]));
+  const keep = [];
+  const asGiven = new Map();
+  const listOf = id => {
+    const record = held.get(`list:${id}`);
+    return record?.type === 'list' && object(record.value) ? { id, ...structuredClone(record.value) } : null;
+  };
+  const recordOf = (found, rowId) => `record:${found.row_type}:${rowId}`;
+  return {
+    keep,
+    async read(id, { row_ids: rowIds = [] } = {}) {
+      const found = listOf(id);
+      if (!found) throw new ListFeedError(`There is no list ${id} in the records given to this run.`);
+      const rows = [];
+      for (const rowId of rowIds) {
+        const record = held.get(recordOf(found, rowId));
+        if (record && record.type === `record:${found.row_type}`) rows.push({ id: rowId, values: structuredClone(record.value) });
+      }
+      return { list: found, rows };
+    },
+    // Each row's values merged over what it holds now (a null takes the field out), answered in keep.
+    async putRows(id, { rows }) {
+      const found = listOf(id);
+      if (!found) throw new ListFeedError(`There is no list ${id} in the records given to this run.`);
+      for (const row of rows) {
+        const recordId = recordOf(found, row.id);
+        const type = `record:${found.row_type}`;
+        if (!asGiven.has(recordId)) asGiven.set(recordId, held.get(recordId) ?? null);
+        const value = { ...(held.get(recordId)?.value ?? {}) };
+        for (const [field, given] of Object.entries(row.values ?? {})) {
+          if (given === null || given === undefined) delete value[field];
+          else value[field] = given;
+        }
+        held.set(recordId, { id: recordId, type, value });
+        // expected: the record as the run was given it, so the caller writes only if the store still holds that.
+        const was = asGiven.get(recordId);
+        keep.push({ id: recordId, type, value, expected: was ? { type: was.type, value: was.value } : null });
+      }
+      return { written: rows.length, kept: rows.map(row => ({ id: row.id })) };
+    },
+    async keepFile(file) {
+      const bytes = Buffer.concat((await file.open()).map(part => Buffer.from(part)));
+      keep.push({ file: file.name, base64: bytes.toString('base64') });
+      return { identity: makeHashCodeHexFromBytes(bytes) };
+    },
+  };
+}
 
-/** The installed tool row uses the same implementation and the admitted run door. */
-export function fillAListFromFeed(input, { door }) {
-  return listFeedActions({ door })['fill-a-list-from-a-feed'](input);
+/**
+ * The installed tool row's function: input is the run's input with `stored` (the records the caller gives). Answers the
+ * fill's result plus `keep`. A shared-library host supplies its own admitted add owner through `library`; absent means
+ * refused, never a fallback to records.
+ */
+export async function fillAListFromFeed(input = {}, { library, read = fetch } = {}) {
+  const { stored = {}, ...rest } = input ?? {};
+  const lists = givenLists(stored?.records);
+  const result = await fillListFromFeed({ lists, keepFile: lists.keepFile, library, read }, rest);
+  return { ...result, keep: lists.keep };
 }
