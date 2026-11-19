@@ -6,9 +6,9 @@ Reads a meeting link (a deep link such as `zoommtg://...` or a web address) thro
 
 | File | Purpose |
 |------|---------|
-| `read-data/meeting-links.mjs` | `readLink(text, settings?)`, `applyRoster(roster, update)`, `linkTools.read` / `linkTools.open`, and the named exports `read` and `open` that `run-an-export.mjs` calls. |
+| `read-data/meeting-links.mjs` | `readLink(text, settings?)`, `applyRoster(roster, update)`, `linkTools.read` / `linkTools.open`, and the named exports `read` and `open` that `run-a-function.mjs` calls. |
 | `read-data/meeting-links.json` | The routes: schemes, host patterns, actions with their parameters and needed ones, each parameter's form and whether it is secret, and every sentence said. A new meeting app is one more route. |
-| `tool-rows.json` | `tool:read-meeting-link` (no capability) and `tool:open-meeting-link` (`open-links-in-their-apps`), run by `tools/records-door`'s `run-an-export.mjs`. |
+| `tool-rows.json` | `tool:read-meeting-link` (no capability) and `tool:open-meeting-link` (`open-links-in-their-apps`), run by `tools/workflows`'s `run-a-function.mjs`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/meeting-links.test.mjs` | The old app's tests, repointed to this folder. |
 | `test/tool-rows.test.mjs` | The rows' capabilities and exports. |
@@ -23,7 +23,7 @@ Reads a meeting link (a deep link such as `zoommtg://...` or a web address) thro
 
 ## Moved from Trillion
 
-`computer/meeting-links.mjs`, `computer/meeting-links.json` and `test/meeting-links.test.mjs` of Trillion-X/trillion (deleted there in `dc79bb0a`), moved one to one. Only the two named exports were added, for `run-an-export.mjs`.
+`computer/meeting-links.mjs`, `computer/meeting-links.json` and `test/meeting-links.test.mjs` of Trillion-X/trillion (deleted there in `dc79bb0a`), moved one to one. Only the two named exports were added, for `run-a-function.mjs`.
 
 ## Not yet
 
@@ -32,6 +32,6 @@ Reads a meeting link (a deep link such as `zoommtg://...` or a web address) thro
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (`run-an-export.mjs`), Node's standard library, and the computer's `/usr/bin/open` for opening.
+**Depends on:** `tools/workflows` (`run-a-function.mjs`), Node's standard library, and the computer's `/usr/bin/open` for opening.
 
 **Depended on by:** `tool-rows.json`.

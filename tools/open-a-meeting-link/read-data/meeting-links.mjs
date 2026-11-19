@@ -6,7 +6,7 @@
 //   checked first. tool:read-meeting-link gives an agent the same road a button has, and `applyRoster` keeps a roster
 //   current from full and incremental attendee updates. The rows run it on the person's computer:
 //
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/open-a-meeting-link/read-data/meeting-links.mjs read|open
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/open-a-meeting-link/read-data/meeting-links.mjs read|open
 //
 // Non-negotiable invariants
 //   1. Routes, hosts, actions, parameters and words are DATA; this file names no meeting app.
@@ -78,6 +78,6 @@ export const linkTools = {
   },
 };
 
-/** tool:read-meeting-link and tool:open-meeting-link as the named exports run-an-export calls. */
+/** tool:read-meeting-link and tool:open-meeting-link as the named exports run-a-function calls. */
 export const read = input => linkTools.read(input);
 export const open = input => linkTools.open(input);
