@@ -1,6 +1,7 @@
 // test-helpers/tool-row-imports.mjs
 //
-// Purpose: for every ai-tool-descriptor row in a Workshop tree, follow the static and dynamic relative imports from the
+// Purpose: for every ai-tool-descriptor row in a Workshop tree (a row of a folder's tool-rows.json, or a row a tool-row-source
+// there lists from its package's records file, as the engine reads them: see rowsOfToolFile), follow the static and dynamic relative imports from the
 // row's declared files and entry programs (invoke.argv under /opt), and report what the row's invoke.files.package_files
 // does not cover. Findings: missing-relative-import (a file the program reaches is not packed), argv-not-declared (the
 // entry program is not packed), bare-import-not-declared (a module name with no module entry), dangling-in-tree (a
@@ -102,12 +103,13 @@ const fileSet = new Set(allFiles);
 const toolRowFiles = allFiles.filter((f) => /^tools\/[^/]+\/tool-rows\.json$/.test(f));
 const codeFiles = allFiles.filter((f) => /^tools\/.+\.(mjs|js|cjs|ts)$/.test(f));
 
-// Batch-read the blobs we need (tool rows + all tool code files) in one git call.
-const want = [...new Set([...toolRowFiles, ...codeFiles, SYSTEM_DATA, LOCKFILE, DOOR_EXCEPTIONS])];
-const req = Buffer.from(want.map((f) => `${REF}:${f}`).join('\n') + '\n');
-const raw = execFileSync('git', ['-C', repo, 'cat-file', '--batch'], { input: req, maxBuffer: 2 ** 31 });
+// The blobs read so far, by workshop path. Each batch is one git call; a file a listed row source names is read in a batch of its own.
 const blobs = new Map();
-{
+const readBlobs = (files) => {
+  const want = [...new Set(files)].filter((f) => !blobs.has(f));
+  if (want.length === 0) return;
+  const req = Buffer.from(want.map((f) => `${REF}:${f}`).join('\n') + '\n');
+  const raw = execFileSync('git', ['-C', repo, 'cat-file', '--batch'], { input: req, maxBuffer: 2 ** 31 });
   let pos = 0;
   for (const f of want) {
     const nl = raw.indexOf(0x0a, pos);
@@ -119,8 +121,56 @@ const blobs = new Map();
     blobs.set(f, raw.slice(pos, pos + size));
     pos += size + 1;
   }
-}
+};
+readBlobs([...toolRowFiles, ...codeFiles, SYSTEM_DATA, LOCKFILE, DOOR_EXCEPTIONS]);
 const text = (f) => (blobs.get(f) ? blobs.get(f).toString('utf8') : null);
+
+// The rows a tools folder offers, read as the engine reads them (trillion-rust src/tool_runs/tools/catalog.rs `parse` and
+// `listed`; the names are tool-runs.json's `rows_file`, `row_kind`, `row_source_kind` and `source_records_file`). A folder's
+// tool-rows.json is { records: [{ payload }] }: a payload of ROW_KIND is a row, and a payload of ROW_SOURCE_KIND lists the rows of
+// the kind it names (list.records.kind) from list.records.file (default SOURCE_RECORDS_FILE) in the folder list.records.package:
+// one .json file, or each .json file directly in a folder, every one holding `things` (else `records`) of { payload }. A row is
+// kept when it has an id that holds no `/` (the engine's tool key separator); a listed row is a row of its own package's files.
+const ROWS_FILE = 'tool-rows.json';
+const ROW_KIND = 'ai-tool-descriptor';
+const ROW_SOURCE_KIND = 'tool-row-source';
+const SOURCE_RECORDS_FILE = 'records.json';
+const relativeInside = (file) => !file.startsWith('/') && file.split('/').every((part) => part !== '' && part !== '.' && part !== '..');
+const listedFilesOf = (pkg, file) => {
+  const path = `tools/${pkg}/${file}`;
+  if (fileSet.has(path)) return [path];
+  return allFiles.filter((f) => f.startsWith(path + '/') && !f.slice(path.length + 1).includes('/') && f.endsWith('.json')).sort();
+};
+// The rows one row source lists. A source the engine cannot read is left out alone, so an unreadable file gives no rows.
+function listedRowsOf(source) {
+  const list = source.list?.records;
+  if (typeof list?.package !== 'string' || typeof list?.kind !== 'string') return [];
+  const file = typeof list.file === 'string' ? list.file : SOURCE_RECORDS_FILE;
+  if (!/^[^/]+$/.test(list.package) || list.package === '.' || list.package === '..' || !relativeInside(file)) return [];
+  const files = listedFilesOf(list.package, file);
+  readBlobs(files);
+  const rows = [];
+  for (const f of files) {
+    let kept;
+    try { kept = JSON.parse(text(f)); } catch { return []; }
+    const things = kept?.things ?? kept?.records;
+    for (const thing of Array.isArray(things) ? things : []) {
+      if (thing?.payload?.kind === list.kind) rows.push(thing.payload);
+    }
+  }
+  return rows;
+}
+// Every row a tool-rows.json offers, direct or listed, with the id the engine keys it by.
+function rowsOfToolFile(rowFile) {
+  const doc = JSON.parse(text(rowFile));
+  const rows = [];
+  for (const rec of doc.records || []) {
+    const payload = rec?.payload;
+    if (payload?.kind === ROW_KIND) rows.push(payload);
+    else if (payload?.kind === ROW_SOURCE_KIND) rows.push(...listedRowsOf(payload));
+  }
+  return rows.filter((row) => typeof row.id === 'string' && row.id !== '' && !row.id.includes('/'));
+}
 const systemNames = new Set(JSON.parse(text(SYSTEM_DATA)).provided_by_the_system);
 // Rows the function-level walk over-reports, each with the reason a reader checked it: they need no records descriptor.
 const doorExceptions = new Set(text(DOOR_EXCEPTIONS) === null ? [] : Object.keys(JSON.parse(text(DOOR_EXCEPTIONS)).rows));
@@ -405,12 +455,10 @@ function checkRow(rowFile, desc) {
 const results = [];
 const shapes = {};
 for (const rf of toolRowFiles) {
-  let doc;
-  try { doc = JSON.parse(text(rf)); } catch (e) { results.push({ row_file: rf, error: 'json-parse ' + e.message }); continue; }
-  for (const rec of doc.records || []) {
-    const d = rec.payload;
-    if (!d || d.kind !== 'ai-tool-descriptor') continue;
-    if (!d.invoke) { results.push({ row_file: rf, id: d.id, status: d.status, note: 'no invoke' }); continue; }
+  let rows;
+  try { rows = rowsOfToolFile(rf); } catch (e) { results.push({ row_file: rf, error: 'json-parse ' + e.message }); continue; }
+  for (const d of rows) {
+    if (!d.invoke) { if (d.kind === ROW_KIND) results.push({ row_file: rf, id: d.id, status: d.status, note: 'no invoke' }); continue; }
     const { findings, items } = checkRow(rf, d);
     results.push({ row_file: rf, id: d.id, status: d.status, package_files: (d.invoke.files?.package_files || []).length, findings, items });
   }
