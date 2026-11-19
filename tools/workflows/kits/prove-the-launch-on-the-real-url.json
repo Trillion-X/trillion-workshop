@@ -177,6 +177,9 @@
     "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
+    "tool:start-a-stripe-checkout",
+    "tool:look-up-a-stripe-checkout",
+    "tool:check-a-sign-up",
     "tool:run-sql-in-my-database",
     "tool:check-a-page-for-search-and-answer-engines",
     "tool:check-given-pages-at-every-width",

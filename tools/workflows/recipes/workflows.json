@@ -140636,6 +140636,103 @@
             ]
           },
           {
+            "id": "a-stranger-signs-in",
+            "title": "A stranger signs up and signs in on the real address",
+            "do": "Call tool:check-a-sign-up with input {\"origin\": \"<https:// + the host the business's sign-in answers on: facts.sign_in_host when kept, else the live address's host>\"}. It signs up one made-up account with a passkey made for this run only, signs in, reads a page only a signed-in person sees, then the same page without the session. Keep its answer.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "origin",
+                "signed_in_read",
+                "steps"
+              ],
+              "properties": {
+                "origin": {
+                  "type": "string"
+                },
+                "address": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "signed_in_read": {
+                  "type": "boolean"
+                },
+                "steps": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "step",
+                      "status"
+                    ],
+                    "properties": {
+                      "step": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [],
+            "when": "After the live page answers on the real address.",
+            "done_when": "signed_in_read is true and every step status is 2xx or 3xx, or the failing step is written as a gap.",
+            "if_missing": "When the business has no sign-in yet, write a gap naming it and go on; a launch without one is not called done.",
+            "why": "A launch is proven only when someone new can make an account and sign in on the real address, not only when the page loads.",
+            "good_answer": "Passes: the answer is the tool's own, signed_in_read true. Fails: a sign-in claimed without the tool's answer, or a failing step left out.",
+            "came_from": [
+              "setup-2: the business setup ends with a stranger signing in and a test checkout"
+            ],
+            "part_of": [
+              "workflow:prove-the-launch-on-the-real-url"
+            ]
+          },
+          {
+            "id": "a-test-checkout",
+            "title": "Make one real checkout page for the first offer and read it back",
+            "do": "Read the first offer the business sells with tool:run-sql-in-my-database on credential input.business.credential_name: SELECT to_jsonb(o) AS row FROM offers o WHERE for_sale ORDER BY sort_order, id LIMIT 1, params []. Call tool:start-a-stripe-checkout with that row as offers, its id and first price option, the business's own Stripe connection as seller_connection (facts.stripe_connection), customer {email: the owner's own address from facts, firstName and lastName from facts.owner_name}, consent {billing: true, legal: true}, a checkoutAttemptId made for this run, and the live address's success and cancel pages. Then call tool:look-up-a-stripe-checkout with that session's id. Nothing is paid: the page is made, read back as open and unpaid, and left to expire on its own.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "offer_id",
+                "session_id",
+                "status",
+                "payment_status"
+              ],
+              "properties": {
+                "offer_id": {
+                  "type": "string"
+                },
+                "session_id": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "payment_status": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": [],
+            "when": "After a stranger signed in.",
+            "done_when": "A checkout session for the first offer was made and read back from Stripe as open and unpaid.",
+            "if_missing": "When no offer is for sale or no Stripe connection is kept, write a gap naming which and go on.",
+            "why": "Buyers can pay only if a checkout can be made for a real offer with the business's own Stripe account; the page loading proves nothing about payment.",
+            "good_answer": "Passes: session_id is what tool:start-a-stripe-checkout answered and status and payment_status are what tool:look-up-a-stripe-checkout read. Fails: a link written by hand, a paid test, or a status not read from Stripe.",
+            "came_from": [
+              "setup-2: the business setup ends with a stranger signing in and a test checkout"
+            ],
+            "part_of": [
+              "workflow:prove-the-launch-on-the-real-url"
+            ]
+          },
+          {
             "id": "measure-the-checklist",
             "title": "Measure the stage checklist for the business",
             "do": "Read the checklist rows with tool:run-sql-in-my-database on credential input.business.credential_name: SELECT stage AS id, status, coalesce(grp, '') AS \"group\" FROM setup_stages ORDER BY stage with params []. Then call tool:measure-a-checklist with input {\"items\": \"<each row of that SELECT as {id, status, group}>\", \"done_statuses\": [\"Done\"], \"skipped_statuses\": [\"Not applicable\"]}. The answer counts done items and names the items not done. Show the counts in this answer.",
@@ -140690,7 +140787,7 @@
           {
             "id": "record-the-stage",
             "title": "Tick this stage on the checklist and write its gaps",
-            "do": "Run these statements in order with tool:run-sql-in-my-database on credential input.business.credential_name. (1) ALTER TABLE setup_stages ADD COLUMN IF NOT EXISTS steps_status jsonb, ADD COLUMN IF NOT EXISTS gaps text[], params []. (2) INSERT INTO setup_stages (stage, label, status, steps_status, gaps, kept_at) VALUES ($1, $2, $3, $4::jsonb, $5::text[], now()) ON CONFLICT (stage) DO UPDATE SET label = EXCLUDED.label, status = EXCLUDED.status, steps_status = EXCLUDED.steps_status, gaps = EXCLUDED.gaps, kept_at = now(), with params [\"launch-proof\", \"Launch proof on the real address\", \"<Done | Not done | Gap | Blocked | Not applicable>\", \"<JSON text: one entry per step id of this workflow, in this order: read-facts, read-the-live-page, check-search-and-answer-readiness, check-every-width, measure-the-checklist; each value is Done, Not done, Gap or Not applicable>\", \"<each gap id written in (3)>\"]. (3) For every gap found in this run (a step that used its if_missing branch, a tool that is not live, or a choice the step did not decide), run ALTER TABLE setup_gaps ADD COLUMN IF NOT EXISTS evidence text, params [], then INSERT INTO setup_gaps (id, stage, step, undecided, chosen, evidence, status, kept_at) VALUES ($1, $2, $3, $4, $5, $6, 'open', now()) ON CONFLICT (id) DO UPDATE SET undecided = EXCLUDED.undecided, chosen = EXCLUDED.chosen, evidence = EXCLUDED.evidence, kept_at = now(), with params [\"launch-proof:<step id>-<n>\", \"launch-proof\", \"<step id>\", \"<what the step did not decide>\", \"<what this run did>\", \"<the tool answer or the missing field>\"]. The gap status is never changed here, so a closed gap stays closed. (4) Read back: SELECT stage, status, steps_status, gaps FROM setup_stages WHERE stage = $1 with params [\"launch-proof\"], and SELECT id, status FROM setup_gaps WHERE id = ANY($1::text[]) with the gap ids. Status is Done only when every step is Done or Not applicable and no gap is open. Status is Blocked when a step lacks an input it cannot get. Status is Gap when a step lacks a live tool or a decided choice. Confirm the status and every gap id read back.",
+            "do": "Run these statements in order with tool:run-sql-in-my-database on credential input.business.credential_name. (1) ALTER TABLE setup_stages ADD COLUMN IF NOT EXISTS steps_status jsonb, ADD COLUMN IF NOT EXISTS gaps text[], params []. (2) INSERT INTO setup_stages (stage, label, status, steps_status, gaps, kept_at) VALUES ($1, $2, $3, $4::jsonb, $5::text[], now()) ON CONFLICT (stage) DO UPDATE SET label = EXCLUDED.label, status = EXCLUDED.status, steps_status = EXCLUDED.steps_status, gaps = EXCLUDED.gaps, kept_at = now(), with params [\"launch-proof\", \"Launch proof on the real address\", \"<Done | Not done | Gap | Blocked | Not applicable>\", \"<JSON text: one entry per step id of this workflow, in this order: read-facts, read-the-live-page, check-search-and-answer-readiness, check-every-width, a-stranger-signs-in, a-test-checkout, measure-the-checklist; each value is Done, Not done, Gap or Not applicable>\", \"<each gap id written in (3)>\"]. (3) For every gap found in this run (a step that used its if_missing branch, a tool that is not live, or a choice the step did not decide), run ALTER TABLE setup_gaps ADD COLUMN IF NOT EXISTS evidence text, params [], then INSERT INTO setup_gaps (id, stage, step, undecided, chosen, evidence, status, kept_at) VALUES ($1, $2, $3, $4, $5, $6, 'open', now()) ON CONFLICT (id) DO UPDATE SET undecided = EXCLUDED.undecided, chosen = EXCLUDED.chosen, evidence = EXCLUDED.evidence, kept_at = now(), with params [\"launch-proof:<step id>-<n>\", \"launch-proof\", \"<step id>\", \"<what the step did not decide>\", \"<what this run did>\", \"<the tool answer or the missing field>\"]. The gap status is never changed here, so a closed gap stays closed. (4) Read back: SELECT stage, status, steps_status, gaps FROM setup_stages WHERE stage = $1 with params [\"launch-proof\"], and SELECT id, status FROM setup_gaps WHERE id = ANY($1::text[]) with the gap ids. Status is Done only when every step is Done or Not applicable and no gap is open. Status is Blocked when a step lacks an input it cannot get. Status is Gap when a step lacks a live tool or a decided choice. Confirm the status and every gap id read back.",
             "submit": {
               "type": "object",
               "required": [
@@ -182427,7 +182524,7 @@
           {
             "id": "check-tools-live",
             "title": "Check every tool the stages name is in the live catalog",
-            "do": "Call do_one_thing_in_my_account with address @tools, method tools:list and input {\"tool\": \"tool:<the id>\"} once per id in this list: add-a-customer, add-an-email-sending-domain, advance-a-community-matchmaker, answer-in-a-community, approve-a-post, attach_domain, break-down-visits-and-sales, cancel-a-stripe-subscription, check-a-page-for-search-and-answer-engines, check-against-a-persons-rules-and-verdicts, check-an-email-sending-domain, check-copy, check-given-pages-at-every-width, check-a-connection, copy-a-site, count-a-paid-installment-in-stripe, critique-a-public-page, cut-and-caption, draft-a-funnel, draft-a-post, expand-a-reply-template, find-a-completed-stripe-checkout, find-silence, list-ended-stripe-subscriptions, list-every-connection, list-my-recordings-and-media, make-a-referral-code, make-a-sending-key, measure-a-checklist, measure-funnel-stages, name_site, pick-cover-frame, publish_site, pull-my-instagram-messages, read-my-community-matches, read-public-web-page, record-a-customer-step, reframe-video, render-an-edit, resolve-a-brand, run-sql-in-my-database, see-how-each-post-did, see-where-each-customer-is, see-who-holds-paid-access, send-a-post, send-an-email, send-due-email-lessons, set-a-post-to-go-at-its-time, set-up-someone-i-pay-in-stripe, set-up-stripe-payment-links, show-which-offers-a-buyer-may-see, sign-someone-up-for-an-email-course, run-workflow-definition, start-a-stripe-checkout-that-pays-someone-else, stop-an-email-course, stripe-events-read_money_since, suggest-media-cuts, tag-a-stripe-subscription, withdraw-a-referral-code, work-out-referral-codes, work-out-where-a-learner-stands, write-legal-documents. An answer with the id and an input_schema means the tool is live. Then keep one tool_checks row for each id: call tool:run-sql-in-my-database with credential_name <input.business.credential_name> and sql CREATE TABLE IF NOT EXISTS tool_checks (tool_id text PRIMARY KEY, live boolean NOT NULL, answer text, kept_at timestamptz NOT NULL DEFAULT now()), params []. Then call it once with sql INSERT INTO tool_checks (tool_id, live, answer) VALUES ($1, $2, $3), ($4, $5, $6) ON CONFLICT (tool_id) DO UPDATE SET live = EXCLUDED.live, answer = EXCLUDED.answer, kept_at = now(), with one VALUES row per id (this example has two), and params in order for each id: the id, live as true when the tool answered with its input_schema and false otherwise, and the tool's answer or its error text. Ids that are not live are source-only or absent: every stage that names one already has its own gap step, so nothing is claimed as run.",
+            "do": "Call do_one_thing_in_my_account with address @tools, method tools:list and input {\"tool\": \"tool:<the id>\"} once per id in this list: add-a-customer, add-an-email-sending-domain, advance-a-community-matchmaker, answer-in-a-community, approve-a-post, attach_domain, break-down-visits-and-sales, cancel-a-stripe-subscription, check-a-connection, check-a-page-for-search-and-answer-engines, check-a-sign-up, check-against-a-persons-rules-and-verdicts, check-an-email-sending-domain, check-copy, check-given-pages-at-every-width, copy-a-site, count-a-paid-installment-in-stripe, critique-a-public-page, cut-and-caption, draft-a-funnel, draft-a-post, expand-a-reply-template, find-a-completed-stripe-checkout, find-silence, list-ended-stripe-subscriptions, list-every-connection, list-my-recordings-and-media, look-up-a-stripe-checkout, make-a-referral-code, make-a-sending-key, measure-a-checklist, measure-funnel-stages, name_site, pick-cover-frame, publish_site, pull-my-instagram-messages, read-my-community-matches, read-public-web-page, record-a-customer-step, reframe-video, render-an-edit, resolve-a-brand, run-sql-in-my-database, run-workflow-definition, see-how-each-post-did, see-where-each-customer-is, see-who-holds-paid-access, send-a-post, send-an-email, send-due-email-lessons, set-a-post-to-go-at-its-time, set-up-someone-i-pay-in-stripe, set-up-stripe-payment-links, show-which-offers-a-buyer-may-see, sign-someone-up-for-an-email-course, start-a-stripe-checkout, start-a-stripe-checkout-that-pays-someone-else, stop-an-email-course, stripe-events-read_money_since, suggest-media-cuts, tag-a-stripe-subscription, withdraw-a-referral-code, work-out-referral-codes, work-out-where-a-learner-stands, write-legal-documents. An answer with the id and an input_schema means the tool is live. Then keep one tool_checks row for each id: call tool:run-sql-in-my-database with credential_name <input.business.credential_name> and sql CREATE TABLE IF NOT EXISTS tool_checks (tool_id text PRIMARY KEY, live boolean NOT NULL, answer text, kept_at timestamptz NOT NULL DEFAULT now()), params []. Then call it once with sql INSERT INTO tool_checks (tool_id, live, answer) VALUES ($1, $2, $3), ($4, $5, $6) ON CONFLICT (tool_id) DO UPDATE SET live = EXCLUDED.live, answer = EXCLUDED.answer, kept_at = now(), with one VALUES row per id (this example has two), and params in order for each id: the id, live as true when the tool answered with its input_schema and false otherwise, and the tool's answer or its error text. Ids that are not live are source-only or absent: every stage that names one already has its own gap step, so nothing is claimed as run.",
             "submit": {
               "type": "object",
               "required": [
