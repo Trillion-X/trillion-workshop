@@ -4,7 +4,7 @@
 //   Saved examples: posts, videos and pages other people made that worked, each kept with where it came from, its
 //   words, its pictures and why it worked, so a person and any AI can make their own work in a shape that is already
 //   proven. Owned here, kept in the person's own store. Reached three ways that all end in this owner:
-//   - any AI, as the Workshop tools tool:save-an-example, tool:list-saved-examples and tool:remove-a-saved-example
+//   - any AI, as the Workshop tool tool:save-an-example and workflow:keep-saved-examples (list and remove)
 //     (records/workshop-saved-example-tool-records.json, account actions in src/person-store.mjs);
 //   - the person's Saved examples screen (src/workspace/saved-examples-screen.tsx, /work/api/saved-examples);
 //   - a share sent with an action that keeps examples (records/share-destination-starters.json

@@ -727,7 +727,7 @@ export function makeTellThePerson({ rows, store, senders, roads = {}, askAgent =
     }
     return { told };
   }
-  // What an AI reads (tool:my-notices): the same notices as recent, optionally of one kind, with where each was seen.
+  // What an AI reads (workflow:read-my-notices): the same notices as recent, optionally of one kind, with where each was seen.
   const told = ({ limit = 20, kind = null } = {}) => {
     // Every kept notice, whichever ways it went, of the kind asked for before the newest are taken, so one kind is found
     // however many of another came after it. Why each way that did not carry it did not, in its sender's own words.

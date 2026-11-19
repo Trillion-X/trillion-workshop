@@ -31,7 +31,7 @@
  ],
  "allowed_deltas": [
   "answerTheSavedExamplesPage added after the owner: the store is the person's saved-example records through the records door, read before and written after the owner runs",
-  "a removed example ({ id, removed_at }) is written as a null value, as tool:remove-a-saved-example removes one",
+  "a removed example ({ id, removed_at }) is written as a null value, as workflow:keep-saved-examples removes one",
   "the link is read by tools/read-a-public-web-link-whole-its-card readLinkCard"
  ],
  "banned_substitutions": [

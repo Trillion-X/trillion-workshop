@@ -1,7 +1,7 @@
 // src/workspace/saved-examples-screen.tsx
 //
 // PURPOSE
-//   Saved examples (entry `saved-examples`, the screen of tool:list-saved-examples,
+//   Saved examples (entry `saved-examples`, the screen of the list workflow:keep-saved-examples keeps,
 //   records/workshop-saved-example-tool-records.json): every post, video and page the person or their AI kept because
 //   it worked, as picture cards or a table through the shared record views, each with its link, its words, its
 //   pictures and why it worked. At the top, one field takes a pasted link: the link is read into its card (the shared

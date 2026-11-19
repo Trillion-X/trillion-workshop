@@ -36,5 +36,5 @@ These files were moved byte for byte from the web client (`moved-from.json` name
 
 | File | Purpose |
 |------|---------|
-| `web/src/workspace/saved-examples-screen.tsx` | Saved examples (`tool:list-saved-examples`): every post, video and page kept because it worked, as cards or a table, with a paste field to add one. |
+| `web/src/workspace/saved-examples-screen.tsx` | Saved examples (`workflow:keep-saved-examples` lists them): every post, video and page kept because it worked, as cards or a table, with a paste field to add one. |
 | `show/saved-examples-mount.tsx` | The module entry the row names for `saved-examples`: `mount` is `mountSavedExamplesScreen`. |
