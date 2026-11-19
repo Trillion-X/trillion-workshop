@@ -1,6 +1,5 @@
 # tools/record-graph/
 
-The one generic record graph over any of the person's records: relations, entities and activities: `tool:relate-records` writes them through records:read, records:list and records:write only, and the two read tools work on the rows given in their request (`records`), as the engine's record model DATA, with every walk bounded by `read-data/record-graph.json`. A relation is participation between any two records with the role as data (`record:crm:pat` is the `dad` of `me`) and an order key per side; an entity is an organisation, group or place made once by its name; an activity is one record per thing that happened, with every record that took part under its own role. Ported from Trillion's `src/record-model-tools.mjs` (`relate`, `orderedRelations`, `contactHistory`, the `relate_records` and `read_model` tools) over `src/record-model.json`; the walks over the whole graph are new. Nothing here is in the engine: the engine stores generic records, and these tools are the only code that reads them as a graph.
 
 ## The model
 
@@ -25,18 +24,14 @@ The one generic record graph over any of the person's records: relations, entiti
 | `read-data/record-graph.json` | The DATA: relation and activity words and bounds (the engine's `product/record-model.json` `relations` and `activities`), read limits and walk bounds. |
 | `read-data/graph-records.mjs` | Shared: the DATA, the old naming (`slug`, `textHash`), the two sides, bounded list reads, one end's relations, the activity read. |
 | `read-data/fractional-order.mjs` | `isOrderKey`, `keyBetween`: Trillion's fractional order keys, unchanged. |
-| `do-work/relate.mjs` | `tool:relate-records` (`relateRecords`): `relate` ported; writes in door-sized batches. |
 | `read-data/read-around.mjs` | `tool:read-the-graph-around-a-record` (`readAround`): relations by side and role in order, `contactHistory`, neighbours; `orderedRelations` ported. |
 | `read-data/rows-as-list.mjs` | `rowsAsList(records)`: the rows a read tool is given, listed the way every bounded read below lists them (`list({ type, where })`); refuses rows that are not `{ id, type, value }`. |
 | `read-data/graph-walk.mjs` | `loadGraph` (one bounded read of the graph), `projectGraphRecords` (pure supplied-record projection), `neighbours`, `paths` (shortest first, no record twice), `shared` (hubs and their members). |
 | `read-data/find-connections.mjs` | `tool:find-how-records-connect` (`findConnections`): paths between two records, or what records share. |
 | `part.json` | The three tools' functions, the walk and the DATA are public. |
-| `tool-rows.json` | The Workshop rows: `tool:relate-records`, `tool:read-the-graph-around-a-record`, `tool:find-how-records-connect`. |
-| `test/relate.test.mjs` | The old relate tests (participation, order and alive, activities), ported over the door. |
 | `test/read-around.test.mjs` | The old history tests, the ordered read, a record's relations grouped, neighbours. |
 | `test/find-connections.test.mjs` | Paths, shared hubs, refusals, every DATA bound, a graph of thousands of records. |
 | `test/record-graph-rows.test.mjs` | The three rows run as the container runs them, with exactly their rights, and their verify samples. |
-| `test/graph-door.mjs`, `test/fixtures.mjs` | The records-door client against the fake door, and made-up activities, for the relate tests. |
 | `test/graph-rows.mjs` | Made-up relation and activity rows the read tools' tests hand in as `records`. |
 
 ## Key Functions

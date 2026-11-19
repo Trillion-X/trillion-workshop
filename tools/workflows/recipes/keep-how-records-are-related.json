@@ -1,0 +1,221 @@
+{
+  "about": "workflow:keep-how-records-are-related: keeps how the person's records are related (relations with their role, activities that happened between them, and named organisations, groups and places), each thing once, with ended relations keeping their places. It replaces tool:relate-records in tools/record-graph (do-work/relate.mjs), whose whole job was writing these rows through the records door (rule a-tool-is-only-what-the-store-cannot-do). The read tools that walk the graph stay in tools/record-graph as values-in, values-out tools.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-how-records-are-related",
+        "label": "Keep how records are related",
+        "job": "Keep how the person's records are related, with the role as data: a relation between two ends (who or what holds it, its role, and what it is with), each end ordering its own links of one role; saying the same relation again writes nothing; ending a relation keeps its place; what happened between records as an activity (its kind, when, its summary and who took part in what role); and an organisation, group or place named by a relation made once, the first time it is named.",
+        "produces": "The store's own objects for relations, activities and named entities, proven on the example attempts, and each relation, end, activity and read kept, repeated, refused or read back.",
+        "source": {
+          "from": "tools/record-graph do-work/relate.mjs (tool:relate-records, ported from the old relate in the record model), read on trillion-workshop origin/main 3047a3317",
+          "note": "Only the keeping is the store's job: the relation, activity and entity objects, their ids (a hash of the parts that name them, so the same thing said twice is the same object), their order keys and the refusals. The walks over the graph (around a record, paths, shared hubs) are not kept here: they read the rows handed to them and stay a values-in, values-out tool (tool:read-the-graph-around-a-record, tool:find-how-records-connect). The record model's words (the relation and activity names) are the model's own DATA in tools/record-graph/read-data/record-graph.json, and the store reads them from there."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Operations to run this time: relate {relations, activities}, end {subject, role, object}, read_relations {of, alive_only}, activity (one activity), history {record}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the relations are already kept (kept_in, or null) and the names of the objects that already keep them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: relation objects (subject, role, object, alive, subject_order, object_order, said), where each end orders its own links of one role on its own (fractional keys, ties by id) and an ended relation keeps its places; activity objects (kind, at, participants as record and role, summary, direction, said, source); and named entity objects (an organisation, a group or a place, with its name, made once). A relation or activity is identified by a hash of the parts that name it, so the same one said again is the same object and writes nothing. The word me is the person's own record. A subject or object is a record id, me, or an entity kind and name; anything else is refused, and a refusal writes nothing. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, run these operations in order, each through the store's own objects: [{\"op\": \"relate\", \"relations\": [{\"subject\": \"record:crm:ann\", \"role\": \"member\", \"object\": \"group:Example Choir\", \"said\": \"sings with the choir\"}]}, {\"op\": \"relate\", \"relations\": [{\"subject\": \"record:crm:ann\", \"role\": \"member\", \"object\": \"group:Example Choir\", \"said\": \"sings with the choir\"}]}, {\"op\": \"relate\", \"relations\": [{\"subject\": \"record:crm:bo\", \"role\": \"member\", \"object\": \"group:Example Choir\"}]}, {\"op\": \"read_relations\", \"of\": \"group:Example Choir\"}, {\"op\": \"end\", \"subject\": \"record:crm:bo\", \"role\": \"member\", \"object\": \"group:Example Choir\"}, {\"op\": \"read_relations\", \"of\": \"group:Example Choir\", \"alive_only\": true}, {\"op\": \"activity\", \"kind\": \"meeting\", \"at\": \"2026-06-01T18:00:00Z\", \"participants\": [{\"record\": \"record:crm:ann\", \"role\": \"attendee\"}, {\"record\": \"me\", \"role\": \"organiser\"}]}, {\"op\": \"activity\", \"kind\": \"meeting\", \"at\": \"2026-06-01T18:00:00Z\", \"participants\": [{\"record\": \"record:crm:ann\", \"role\": \"attendee\"}, {\"record\": \"me\", \"role\": \"organiser\"}]}, {\"op\": \"history\", \"record\": \"record:crm:ann\"}, {\"op\": \"relate\", \"relations\": [{\"subject\": \"a/b\", \"role\": \"x\", \"object\": \"me\"}]}]. Answers: relate gives {kept, same, entities} with each relation as [subject, role, object], where kept is new and same is already held (the same relation again writes nothing), and entities the entity names made by this relate; end gives {ended} with the relation's [subject, role, object]; read_relations gives the subjects of the relations of the record named by of, in id order (alive_only: only the live ones); activity gives {kept, same} (1 and 0 when it is new, 0 and 1 when it is held); history gives [kind, role] for each activity the record took part in, in time order; a refused operation gives refused. Then remove the throwaway place. Submit answers: one per attempt, in order, exactly as the answers above.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt gives the answer the intent says",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    {
+                      "kept": [
+                        [
+                          "record:crm:ann",
+                          "member",
+                          "group:Example Choir"
+                        ]
+                      ],
+                      "same": [],
+                      "entities": [
+                        "group:example-choir"
+                      ]
+                    },
+                    {
+                      "kept": [],
+                      "same": [
+                        [
+                          "record:crm:ann",
+                          "member",
+                          "group:Example Choir"
+                        ]
+                      ],
+                      "entities": []
+                    },
+                    {
+                      "kept": [
+                        [
+                          "record:crm:bo",
+                          "member",
+                          "group:Example Choir"
+                        ]
+                      ],
+                      "same": [],
+                      "entities": []
+                    },
+                    [
+                      "record:crm:ann",
+                      "record:crm:bo"
+                    ],
+                    {
+                      "ended": [
+                        [
+                          "record:crm:bo",
+                          "member",
+                          "group:Example Choir"
+                        ]
+                      ]
+                    },
+                    [
+                      "record:crm:ann"
+                    ],
+                    {
+                      "kept": 1,
+                      "same": 0
+                    },
+                    {
+                      "kept": 0,
+                      "same": 1
+                    },
+                    [
+                      [
+                        "meeting",
+                        "attendee"
+                      ]
+                    ],
+                    "refused"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's relations",
+            "do": "Run each item of operations through the store's own objects, in order, and read back every relation and activity each one kept. With no operations, submit empty lists. Submit answers (one per operation, as in the prove step) and found (each relation read back, as [subject, role, object]).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers",
+                "found"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                },
+                "found": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes a relation, an activity or a named entity; a relation a record is in is removed from that record's view as well."
+      }
+    }
+  ]
+}
