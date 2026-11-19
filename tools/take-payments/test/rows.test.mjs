@@ -5,24 +5,21 @@ import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { closeSync, openSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 
 const tools = join(import.meta.dirname, '..', '..');
 
-// One row's command with its input on stdin and its records door on descriptor 3; a non-zero exit rejects with its stdout.
-function runWithDoor(command, args, input, descriptor) {
-  const door = openSync(descriptor, 'r');
+// One row's command with its input on stdin (no descriptor beyond the three standard ones: no row mounts a door); a non-zero exit rejects with its stdout.
+function runWithDoor(command, args, input) {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, args, { cwd: tools, stdio: ['pipe', 'pipe', 'pipe', door] });
+    const child = spawn(command, args, { cwd: tools, stdio: ['pipe', 'pipe', 'pipe'] });
     let stdout = '';
     let stderr = '';
     child.stdout.on('data', chunk => { stdout += chunk; });
     child.stderr.on('data', chunk => { stderr += chunk; });
     child.on('error', reject);
     child.on('close', code => {
-      closeSync(door);
       if (code === 0) resolve(stdout);
       else reject(Object.assign(new Error(stderr || `exit ${code}`), { stdout }));
     });
@@ -64,8 +61,6 @@ test('a row can reach the internet only to talk to Stripe with the person\'s own
   }
 });
 
-// The two usage tools whose whole job is writing rows (pricing rules; releasing a stored report's cash hold).
-const usageWriters = new Set(['tool:manage-usage-pricing', 'tool:cancel-prepared-resource-usage-report']);
 // The usage tools that compute and answer: they declare no records door (observe-live-usage only the files door that reads the engine's own day rows).
 const keepNothing = ['tool:price-resource-usage', 'tool:keep-resource-usage-observation', 'tool:observe-live-usage', 'tool:settle-shared-resource-cost', 'tool:correct-resource-usage-settlement', 'tool:report-resource-usage', 'tool:reconcile-resource-usage-report'];
 test('the usage tools that compute keep nothing and read no records', () => {
@@ -76,17 +71,12 @@ test('the usage tools that compute keep nothing and read no records', () => {
     assert.equal(rights.length, 0, `${id} declares no right: what it reads comes in the request`);
   }
 });
-// The payment tools keep nothing and open no records door: the person's rows come in the request, the answer holds the result.
-const paymentToolsKeepingNothing = ['tool:price-a-sale', 'tool:start-a-stripe-checkout', 'tool:start-a-stripe-checkout-that-pays-someone-else', 'tool:set-up-stripe-payment-links', 'tool:check-what-a-buyer-paid', 'tool:show-which-offers-a-buyer-may-see', 'tool:keep-completed-stripe-checkouts-as-payment-events'];
-test('payment tools open no records door; usage writers can append only their declared accounting/configuration records', () => {
-  for (const id of paymentToolsKeepingNothing) assert.equal(rows.find(row => row.id === id).invoke.records, undefined, `${id} opens no records door`);
+// No row of this folder opens the records door or declares a record right: each tool takes the rows it works from in its
+// request (the caller reads them from the person's own store) and answers what to keep.
+test('no row opens a records door or declares a record right; the caller hands the rows in', () => {
   for (const row of rows) {
-    for (const right of rightsOf(row) ?? []) {
-      assert.equal(right.files, undefined, `${row.id} reads none of the person's files`);
-      const allowed = usageWriters.has(row.id) ? ['records:list', 'records:read', 'records:write'] : ['records:read', 'records:list'];
-      assert.ok(right.operations.every(operation => allowed.includes(operation)), `${row.id} respects its record action scope`);
-      if (right.operations.includes('records:write')) assert.match(right.kind, /^(usage-pricing-rule(?:-version)?|resource-usage-(observation|settlement(?:-version|-evidence)?|allocation|receipt|cash|applied-source|provider-report))$/, `${row.id} cannot write another feature's records`);
-    }
+    assert.equal(row.invoke.records, undefined, `${row.id} opens no records door`);
+    assert.deepEqual(rightsOf(row) ?? [], [], `${row.id} declares no record right`);
   }
 });
 
@@ -97,11 +87,7 @@ test('each sample run answers what the row says it should', async () => {
     // its seeded records and recorded replies by test/every-process-row-selector.test.mjs.
     for (const sample of (row.verify ?? []).filter(item => item.kind === 'sample-run' && 'output_selector' in item)) {
       const [command, ...rest] = row.invoke.argv.map(onThisComputer);
-      // The engine gives a row its records door on descriptor 3, as run-an-export.mjs reads it: the same fake door the
-      // records-door tests use, with the rights the adjustment list needs.
-      const door = await startFakeDoor({ rights: [{ kind: 'record:checkout-code-adjustment', operations: ['records:list'] }, { kind: 'record:offer-eligibility-rule', operations: ['records:list'] }] });
-      const stdout = await runWithDoor(command === 'node' ? process.execPath : command, rest, sample.input, door.descriptor)
-        .finally(() => door.close());
+      const stdout = await runWithDoor(command === 'node' ? process.execPath : command, rest, sample.input);
       const answer = JSON.parse(stdout.trim().split('\n').at(-1));
       assert.ok(!answer.error, `${row.id}: ${answer.error}`);
       const picked = sample.output_selector.replace(/^\$\.?/, '').split('.').filter(Boolean).reduce((value, part) => {
@@ -112,5 +98,5 @@ test('each sample run answers what the row says it should', async () => {
       checked.push(row.id);
     }
   }
-  assert.deepEqual(checked.sort(), ['tool:check-what-a-buyer-paid', 'tool:price-a-sale', 'tool:price-resource-usage', 'tool:show-which-offers-a-buyer-may-see']);
+  assert.deepEqual(checked.sort(), ['tool:cancel-prepared-resource-usage-report', 'tool:check-what-a-buyer-paid', 'tool:manage-usage-pricing', 'tool:price-a-sale', 'tool:price-resource-usage', 'tool:read-resource-usage-report', 'tool:read-resource-usage-settlement', 'tool:show-which-offers-a-buyer-may-see']);
 });

@@ -2,7 +2,7 @@
   "drafted_from": "tool:read-resource-usage-settlement's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money\", with {\"settlement_id\":\"pool-sample-2026-10\"}. It runs tool:read-resource-usage-settlement and answers {\"record_id\":\"resource-usage-settlement:pool-sample-2026-10\",\"settlement\":{\"id\":\"pool-sample-2026-10\",\"version\":1,\"version_ref\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"result\":{\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"} ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (usage-pricing-rule, usage-pricing-rule-version, resource-usage-observation, resource-usage-settlement, resource-usage-settlement-version, resource-usage-receipt, resource-usage-allocation, resource-usage-settlement-evidence) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes the rows you read from your own store as input and answers the rows to keep, written in the store the person keeps their records in.",
   "workflows": [],
   "tools": [
     "tool:read-resource-usage-settlement"
@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money\", and give it settlement_id.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-resource-usage-settlement and its input (the worked example shows one).",
     "3. Read what comes back: Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money",
-    "4. It reads and writes only its own rows through the records door: usage-pricing-rule (records:read, records:list); usage-pricing-rule-version (records:read, records:list); resource-usage-observation (records:read, records:list); resource-usage-settlement (records:read, records:list); resource-usage-settlement-version (records:read, records:list); resource-usage-receipt (records:read, records:list); resource-usage-allocation (records:read, records:list); resource-usage-settlement-evidence (records:read, records:list)."
+    "4. It reads nothing itself. You read the settlement or version row and its allocation rows (resource-usage-settlement, resource-usage-settlement-version, resource-usage-allocation) from your own store and hand them in as settlement and allocations; it pages them and keeps nothing."
   ],
   "worked_examples": [
     {

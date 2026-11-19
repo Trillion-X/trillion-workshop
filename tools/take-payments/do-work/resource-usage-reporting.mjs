@@ -14,7 +14,6 @@ const sorted = x => Array.isArray(x) ? x.map(sorted) : x && typeof x === 'object
 const canonical = x => JSON.stringify(sorted(x));
 const hash = x => makeHashCodeHexFromBytes(new TextEncoder().encode(canonical(x)));
 const word = (x, name) => { if (typeof x !== 'string' || !x.trim() || x.length > 512) throw new Error(`Give ${name} as nonempty text of at most 512 characters.`); return x; };
-const expected = (type, value) => value === null ? null : { type, value };
 const zero = { n: '0', d: '1' };
 const RETRY_MS = 23 * 60 * 60 * 1000;
 const customerId = value => typeof value === 'string' ? value : value?.id;
@@ -151,9 +150,12 @@ export async function reportResourceUsage(input, context) {
   return answerOf(finishReport(dispatching, receipt));
 }
 
-export async function readResourceUsageReport(input, { door }) {
-  const report = await door.read(usageReportingTypes.report, word(input.report_id, 'report_id'));
-  return { report: report ? publicReport(report) : null };
+/** The report the caller read (`report`, its row value, or null) as the public answer. Keeps nothing. */
+export function readResourceUsageReport(input) {
+  const id = word(input.report_id, 'report_id');
+  if (input.report === undefined) throw new Error('Give report: the report row you read for report_id from your store, or null when there is none.');
+  if (input.report && input.report.id !== id) throw new Error('The report given is another report.');
+  return { report: input.report ? publicReport(input.report) : null };
 }
 
 /** After the safe POST window, read the actual provider object, never repeat the
@@ -175,17 +177,20 @@ export async function reconcileResourceUsageReport(input, context) {
 
 /** Only a known not-dispatched report may release its cash checkpoint. Unknown
  * dispatches retain their hold until the provider receipt is reconciled. */
-export async function cancelPreparedResourceUsageReport(input, { door }) {
-  const report = await door.read(usageReportingTypes.report, word(input.report_id, 'report_id'));
-  if (!report) throw new Error('Read the prepared report before cancelling it.');
-  if (report.state === 'cancelled_before_dispatch') return publicReport(report);
+/** Release an unsent report. The caller gives the report row it read (`report`) and the cash row its `cash_id` names
+ * (`cash`). Answers the public report and `keep`: the cancelled report row and the released cash row, which the caller
+ * writes in one transaction only while both are still at the versions it read. Keeps nothing itself. */
+export function cancelPreparedResourceUsageReport(input) {
+  const id = word(input.report_id, 'report_id');
+  const report = input.report ?? null;
+  if (!report || report.id !== id) throw new Error('Read the prepared report before cancelling it.');
+  if (report.state === 'cancelled_before_dispatch') return { ...publicReport(report), keep: [] };
   if (report.state !== 'prepared' || report.dispatch_started_at) throw new Error('This report may have reached the payment provider; reconcile its receipt instead of cancelling a possible charge.');
-  const cash = await door.read(usageReportingTypes.cash, report.cash_id);
+  const cash = input.cash ?? null;
   if (cash?.pending_report !== report.id) throw new Error('The cash checkpoint belongs to another report; read its current state.');
   const next = { ...report, state: 'cancelled_before_dispatch' };
-  await door.write([
-    { id: report.id, type: usageReportingTypes.report, value: next, expected: expected(usageReportingTypes.report, report) },
-    { id: report.cash_id, type: usageReportingTypes.cash, value: { ...cash, version: cash.version + 1, pending_report: null }, expected: expected(usageReportingTypes.cash, cash) },
-  ], { key: `${report.id}:cancel-before-dispatch` });
-  return publicReport(next);
+  return { ...publicReport(next), keep: [
+    { id: report.id, type: usageReportingTypes.report, value: next },
+    { id: report.cash_id, type: usageReportingTypes.cash, value: { ...cash, version: cash.version + 1, pending_report: null } },
+  ] };
 }

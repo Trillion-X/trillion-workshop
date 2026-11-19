@@ -2,7 +2,7 @@
   "drafted_from": "tool:cancel-prepared-resource-usage-report's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Release only an unsent usage report; retain possible provider charges for reconciliation\", with {\"report_id\":\"resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713\"}. It runs tool:cancel-prepared-resource-usage-report and answers {\"report_id\":\"resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713\",\"state\":\"cancelled_before_dispatch\",\"settlement_ref\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"payer_id\":\"payer:sample-a\",\"currency\":\"usd\",\"exact_delta\":{\"n\":\"13\",\"d\":\"10\"},\"cash_amount\":{\"n\":\"13\",\"d\":\"10\"},\"carry_after\":null,\"planned_carry\":{\"n\":\"0\",\"d\":\"1\"} ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (resource-usage-settlement, resource-usage-settlement-version, resource-usage-allocation, usage-billing-agreement, resource-usage-cash, resource-usage-applied-source, resource-usage-provider-report) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes the rows you read from your own store as input and answers the rows to keep, written in the store the person keeps their records in.",
   "workflows": [],
   "tools": [
     "tool:cancel-prepared-resource-usage-report"
@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Release only an unsent usage report; retain possible provider charges for reconciliation\", and give it report_id.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:cancel-prepared-resource-usage-report and its input (the worked example shows one).",
     "3. Read what comes back: Release only an unsent usage report; retain possible provider charges for reconciliation",
-    "4. It reads and writes only its own rows through the records door: resource-usage-settlement (records:read, records:list); resource-usage-settlement-version (records:read, records:list); resource-usage-allocation (records:read, records:list); usage-billing-agreement (records:read, records:list); resource-usage-cash (records:read, records:list, records:write); resource-usage-applied-source (records:read, records:list, records:write); resource-usage-provider-report (records:read, records:list, records:write)."
+    "4. It reads nothing itself. You read the prepared report row (resource-usage-provider-report) and its cash row (resource-usage-cash, the one its cash_id names) from your own store and hand them in as report and cash. It answers keep: the cancelled report row and the released cash row, which you write in one transaction while both are still at the versions you read."
   ],
   "worked_examples": [
     {

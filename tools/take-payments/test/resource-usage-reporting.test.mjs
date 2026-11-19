@@ -94,12 +94,16 @@ test('the export runner accrues a subcent source with no records door and answer
  assert.equal(out.code,0,out.answer.error);assert.equal(out.answer.result.state,'accrued_no_cash_report');equal(out.answer.result.carry_after,'0.006');equal(out.answer.result.cash.carry,'0.006');assert.equal(out.answer.result.applied.settlement_version,1);
 });
 
-// readResourceUsageReport and cancelPreparedResourceUsageReport still act on a report row a store holds.
-function heldReport(state){const records=new Map();const report={id:'report:held',state,cash_id:'cash:held',payer_id:'payer',agreement:{currency:'usd'},settlement_ref:'ref',exact_delta:'1',cash:{amount:'1',carry:'0'}};
- records.set(report.id,{type:types.report,value:report});records.set('cash:held',{type:types.cash,value:{version:1,pending_report:report.id}});
- const door={async read(type,id){const row=records.get(id);return row?.type===type?structuredClone(row.value):null;},async write(rows){for(const row of rows)records.set(row.id,{type:row.type,value:structuredClone(row.value)});return{changed:true};}};return{door,records};}
-test('read and cancel still act on a stored report row; a possibly dispatched report is never cancelled',async()=>{
- const held=heldReport('prepared');assert.equal((await readResourceUsageReport({report_id:'report:held'},held)).report.state,'prepared');
- assert.equal((await cancelPreparedResourceUsageReport({report_id:'report:held'},held)).state,'cancelled_before_dispatch');assert.equal(held.records.get('cash:held').value.pending_report,null);
- await assert.rejects(cancelPreparedResourceUsageReport({report_id:'report:held'},heldReport('outcome_unknown')),/may have reached/);
+// readResourceUsageReport and cancelPreparedResourceUsageReport act on the report and cash rows the caller hands in.
+function heldReport(state){const report={id:'report:held',state,cash_id:'cash:held',payer_id:'payer',agreement:{currency:'usd'},settlement_ref:'ref',exact_delta:'1',cash:{amount:'1',carry:'0'}};
+ return {report,cash:{version:1,pending_report:report.id}};}
+test('read and cancel act on the report and cash rows the caller hands in; a possibly dispatched report is never cancelled',()=>{
+ assert.throws(()=>readResourceUsageReport({report_id:'report:held'}),/Give report/);
+ const held=heldReport('prepared');
+ assert.equal(readResourceUsageReport({report_id:'report:held',report:held.report}).report.state,'prepared');
+ const cancelled=cancelPreparedResourceUsageReport({report_id:'report:held',report:held.report,cash:held.cash});
+ assert.equal(cancelled.state,'cancelled_before_dispatch');
+ const [reportRow,cashRow]=cancelled.keep; assert.equal(reportRow.value.state,'cancelled_before_dispatch'); assert.equal(cashRow.id,'cash:held'); assert.equal(cashRow.value.pending_report,null); assert.equal(cashRow.value.version,2);
+ const unknown=heldReport('outcome_unknown');
+ assert.throws(()=>cancelPreparedResourceUsageReport({report_id:'report:held',report:unknown.report,cash:unknown.cash}),/may have reached/);
 });

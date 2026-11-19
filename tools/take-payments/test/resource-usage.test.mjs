@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { openSync, closeSync } from 'node:fs';
-import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { resolveUsagePricing, settleResourcePool, priceUsageTree, cashClearing, compareAmounts, addAmounts, resourceReservationQuote, multiplyAmounts, divideAmounts } from '../read-data/resource-usage.mjs';
 import { manageUsagePricing, priceResourceUsage, keepResourceUsageObservation, observationId, settleSharedResourceCost, correctResourceUsageSettlement, readResourceUsageSettlement, usageRecordTypes } from '../do-work/resource-usage.mjs';
 
@@ -120,39 +119,49 @@ test('subcent balances carry without assigning another customer a rounding cent'
   assert.throws(() => cashClearing({ amount: '1', quantum: '0' }), /positive/);
 });
 
-function memoryDoor() {
-  const records = new Map(); const keys = new Map(); const writes = []; let failAfterCommit = false;
-  const door = {
-    async read(type, id) { const row = records.get(id); return row?.type === type ? structuredClone(row.value) : null; },
-    async *list({ type, prefix = '', above, below, reverse } = {}) { if (!reverse) throw new Error('Native unordered kind reads require descending id order.'); for (const [id, row] of [...records].sort(([a], [b]) => b.localeCompare(a))) if (row.type === type && id.startsWith(prefix) && (!above || id > above) && (!below || id < below)) yield { id, ...structuredClone(row) }; },
-    async write(rows, { key: requestKey } = {}) {
-      if (keys.has(requestKey)) return keys.get(requestKey);
-      assert.ok(Buffer.byteLength(JSON.stringify(rows)) < 60000, 'bounded record write does not reproduce the 413 boundary');
-      for (const row of rows) if (Object.hasOwn(row, 'expected')) assert.deepEqual(records.get(row.id) ?? null, row.expected, 'current record snapshot must match');
-      for (const row of rows) records.set(row.id, { type: row.type, value: structuredClone(row.value) });
-      writes.push(rows); keys.set(requestKey, { changed: true });
-      if (failAfterCommit) { failAfterCommit = false; throw new Error('unknown delivery after committed write'); }
-      return { changed: true };
+// The caller's own store, as these tests play it: it reads the rows it hands in, and writes the rows an answer keeps
+// (`keep`, a null value removes a row). A receipt is found by its request_key, the way the caller's store finds it.
+function callerStore() {
+  const rows = new Map(); let failNextKeep = false;
+  const store = {
+    rows,
+    get: id => (rows.has(id) ? structuredClone(rows.get(id).value) : null),
+    receiptFor: requestKey => [...rows.values()].find(row => row.type === usageRecordTypes.receipt && row.value.request_key === requestKey)?.value ?? null,
+    keep(answer) {
+      for (const row of answer.keep ?? []) { if (row.value === null) rows.delete(row.id); else rows.set(row.id, { type: row.type, value: structuredClone(row.value) }); }
+      if (failNextKeep) { failNextKeep = false; throw new Error('unknown delivery after committed write'); }
+      return answer;
     },
+    failNextKeep() { failNextKeep = true; },
   };
-  return { door, writes, records, failNext() { failAfterCommit = true; } };
+  return store;
+}
+const ruleRow = id => `usage-pricing-rule:${encodeURIComponent(id)}`;
+// save, retire or delete as the caller plays it: it reads the rule head, asks the tool, and keeps what it answers.
+async function changePricing(store, input) {
+  return store.keep(await manageUsagePricing({ ...input, current: store.get(ruleRow(input.rule_id)), prior_receipt: store.receiptFor(input.request_key) }));
 }
 
 test('pricing configuration CRUD uses version conflicts, exact retries and immutable purchased snapshots', async () => {
-  const { door } = memoryDoor();
+  const store = callerStore();
   const input = { action: 'save', rule_id: 'default', expected_version: 0, request_key: 'create', rule: rule('ignored') };
-  const saved = await manageUsagePricing(input, { door });
+  const saved = await changePricing(store, input);
   assert.equal(saved.rule.version, 1);
-  assert.deepEqual(await manageUsagePricing(input, { door }), saved);
-  await assert.rejects(manageUsagePricing({ ...input, rule: rule('changed', {}, '5000') }, { door }), /different input/);
-  await assert.rejects(manageUsagePricing({ ...input, request_key: 'stale' }, { door }), /changed/);
+  assert.deepEqual(await changePricing(store, input), { ...saved, keep: [] });
+  await assert.rejects(changePricing(store, { ...input, rule: rule('changed', {}, '5000') }), /different input/);
+  await assert.rejects(changePricing(store, { ...input, request_key: 'stale' }), /changed/);
   const pinned = priceResourceUsage({ at, resource_id: key.resource_id, rules: [saved.rule] }).terms;
-  const second = await manageUsagePricing({ ...input, expected_version: 1, request_key: 'new', rule: rule('ignored', {}, '5000', '2026-11-01T00:00:00Z') }, { door });
+  const second = await changePricing(store, { ...input, expected_version: 1, request_key: 'new', rule: rule('ignored', {}, '5000', '2026-11-01T00:00:00Z') });
   assert.equal(priceResourceUsage({ at, resource_id: key.resource_id, rules: [saved.rule, second.rule] }).terms.markup_bps, '3000');
-  const deleted = await manageUsagePricing({ action: 'delete', rule_id: 'default', expected_version: 2, effective_at: '2026-12-01T00:00:00Z', request_key: 'delete' }, { door });
+  const deleted = await changePricing(store, { action: 'delete', rule_id: 'default', expected_version: 2, effective_at: '2026-12-01T00:00:00Z', request_key: 'delete' });
   assert.throws(() => priceResourceUsage({ at: '2026-12-02T00:00:00Z', resource_id: key.resource_id, rules: [saved.rule, second.rule, deleted.rule] }), /No effective/);
   assert.equal(priceResourceUsage({ at: '2026-12-02T00:00:00Z', resource_id: key.resource_id, pinned_terms: pinned }).terms.markup_bps, '3000');
-  assert.equal((await manageUsagePricing({ action: 'read', rule_id: 'default', version: 1 }, { door })).rule.state, 'active');
+  assert.equal((await manageUsagePricing({ action: 'read', rule_id: 'default', current: store.get(ruleRow('default')), version_row: store.get('usage-pricing-rule:default:v1'), version: 1 })).rule.state, 'active');
+  const page = manageUsagePricing({ action: 'list', rows: [...store.rows].map(([id, row]) => ({ id, value: row.value })).filter(row => row.id.startsWith('usage-pricing-rule:')).reverse(), limit: 1 });
+  assert.equal(page.rules.length, 1); assert.ok(page.next);
+  assert.throws(() => manageUsagePricing({ action: 'list', limit: 10 }), /reads no store/);
+  assert.throws(() => manageUsagePricing({ action: 'save', rule_id: 'default', expected_version: 0, request_key: 'bare', rule: rule('default') }), /Give current/);
+  assert.throws(() => readResourceUsageSettlement({ settlement_id: 'held' }), /Give settlement/);
 });
 
 test('price-resource-usage answers terms and trees from the rules in its request and reads no rows', () => {
@@ -224,20 +233,19 @@ test('a pool with hundreds of payers answers every allocation', () => {
   assert.equal(new Set(answer.allocations.map(row => row.payer_id)).size, 240);
 });
 
-test('an unknown write outcome resumes with the same input and cannot duplicate a ledger event', async () => {
-  const world = memoryDoor(); world.failNext();
+test('an unknown write outcome resumes with the same input and cannot duplicate a pricing version', async () => {
+  const store = callerStore(); store.failNextKeep();
   const input = { action: 'save', rule_id: 'default', expected_version: 0, request_key: 'retry', rule: rule('default') };
-  await assert.rejects(manageUsagePricing(input, world), /unknown delivery/);
-  assert.equal((await manageUsagePricing(input, world)).rule.version, 1);
-  assert.equal([...world.records.values()].filter(row => row.type === usageRecordTypes.ruleVersion).length, 1);
+  await assert.rejects(changePricing(store, input), /unknown delivery/);
+  assert.equal((await changePricing(store, input)).rule.version, 1);
+  assert.equal([...store.rows.values()].filter(row => row.type === usageRecordTypes.ruleVersion).length, 1);
 });
 
-test('two simultaneous pricing edits cannot both replace the same current version', async () => {
-  const { door } = memoryDoor();
-  const create = i => manageUsagePricing({ action: 'save', rule_id: 'same', expected_version: 0, request_key: `create:${i}`, rule: rule('same', {}, String(i * 1000)) }, { door });
-  const results = await Promise.allSettled([create(1), create(2)]);
-  assert.equal(results.filter(r => r.status === 'fulfilled').length, 1);
-  assert.equal(results.filter(r => r.status === 'rejected').length, 1);
+test('two pricing edits made from the same version cannot both keep the same next version', async () => {
+  const store = callerStore();
+  const create = i => ({ action: 'save', rule_id: 'same', expected_version: 0, request_key: `create:${i}`, rule: rule('same', {}, String(i * 1000)) });
+  await changePricing(store, create(1));
+  await assert.rejects(changePricing(store, create(2)), /changed/);
 });
 
 function throughRunner(name, input, descriptor) {
@@ -253,7 +261,7 @@ function throughRunner(name, input, descriptor) {
 }
 
 test('the actual Marketplace export runner answers a saved pricing rule as rows to keep, given no door', async () => {
-  const saved = await throughRunner('manageUsagePricing', { action: 'save', rule_id: 'runner', expected_version: 0, request_key: 'runner-create', rule: rule('runner') });
+  const saved = await throughRunner('manageUsagePricing', { action: 'save', rule_id: 'runner', current: null, expected_version: 0, request_key: 'runner-create', rule: rule('runner') });
   assert.equal(saved.code, 0, saved.stderr); assert.equal(saved.answer.result.rule.version, 1);
   assert.ok(saved.answer.result.keep.some(item => Object.values(usageRecordTypes).includes(item.type)), JSON.stringify(saved.answer.result.keep));
 });
@@ -268,15 +276,14 @@ test('pricing, observation checking and settlement run through the export runner
   equal(settled.answer.result.allocations[0].charged, '0.13');
 });
 
-test('read-resource-usage-settlement still pages a stored settlement from its allocation rows', async () => {
-  const { door, records } = memoryDoor();
+test('read-resource-usage-settlement pages the allocation rows the caller hands in', () => {
   const stored = { id: 'held', version: 1, version_ref: 'resource-usage-settlement:held:v1', allocation_prefix: 'resource-usage-settlement:held:v1:allocation:', allocation_count: 3, result: { state: 'reconciled' } };
-  records.set('resource-usage-settlement:held', { type: usageRecordTypes.settlement, value: stored });
-  for (let i = 0; i < 3; i++) records.set(`${stored.allocation_prefix}${i}`, { type: usageRecordTypes.allocation, value: { payer_id: `p${i}`, kind: 'customer' } });
-  const first = await readResourceUsageSettlement({ settlement_id: 'held', limit: 2 }, { door });
+  const allocations = [2, 1, 0].map(i => ({ id: `${stored.allocation_prefix}${i}`, value: { payer_id: `p${i}`, kind: 'customer' } }));
+  const first = readResourceUsageSettlement({ settlement_id: 'held', settlement: stored, allocations, limit: 2 });
   assert.equal(first.allocations.length, 2); assert.ok(first.next);
-  assert.equal((await readResourceUsageSettlement({ settlement_id: 'held', limit: 2, after: first.next }, { door })).allocations.length, 1);
-  await assert.rejects(readResourceUsageSettlement({ settlement_id: 'held', after: 'foreign:cursor' }, { door }), /another settlement/);
+  assert.equal(readResourceUsageSettlement({ settlement_id: 'held', settlement: stored, allocations, limit: 2, after: first.next }).allocations.length, 1);
+  assert.equal(readResourceUsageSettlement({ settlement_id: 'held', settlement: null, allocations }).settlement, null);
+  assert.throws(() => readResourceUsageSettlement({ settlement_id: 'held', settlement: stored, allocations, after: 'foreign:cursor' }), /another settlement/);
 });
 
 test('exact component projection multiplies and divides without cash rounding', () => {

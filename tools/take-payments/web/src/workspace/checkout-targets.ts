@@ -18,7 +18,7 @@ import { answerTarget } from '#workspace-records';
 import { listRecords } from '#workspace/records-door';
 import { newRunKey, runWorkshopTool } from '#workspace/workshop-tool-api';
 import { readCheckoutOffers, type CheckoutOffer, type SuggestionLists } from '../../../../funnels-and-offers/read-data/read-offers';
-import { suggestionListsOf } from '../../../read-data/suggestion-lists.mjs';
+import { suggestionListsFrom } from '../../../read-data/suggestion-lists.mjs';
 import targets from './checkout-targets.json' with { type: 'json' };
 import { completeAnswer, heldRefsAnswer, prepareAnswer, startAnswer, type CheckoutContext, type RunTool } from './checkout-answers';
 
@@ -33,11 +33,9 @@ async function rowsOf({ type, kind }: { type: string; kind: string }): Promise<R
   return (await listRecords({ type })).flatMap(record => (record.value && typeof record.value === 'object' ? [{ kind, ...record.value }] : []));
 }
 
-const doorOf = { list: async function* ({ type }: { type: string }) { for (const record of await listRecords({ type })) yield record; } };
-
 async function routeOf(offerId: string): Promise<string | undefined> {
   const rows = await rowsOf(targets.offers);
-  return readCheckoutOffers(rows, { suggestionLists: await suggestionListsOf(rows, doorOf) }).find(offer => offer.id === offerId)?.post_purchase_route_path;
+  return readCheckoutOffers(rows, { suggestionLists: suggestionListsFrom(rows, await rowsOf(targets.amount_choices)) }).find(offer => offer.id === offerId)?.post_purchase_route_path;
 }
 
 /** The rows the pricing tools take in their request (they read no store): the person's offers, code adjustments and suggested-amount rows. */
@@ -81,7 +79,7 @@ export function useCheckoutOffers(): CheckoutOffer[] | null {
     let cancelled = false;
     void (async () => {
       const rows = await rowsOf(targets.offers);
-      const lists: SuggestionLists = await suggestionListsOf(rows, doorOf);
+      const lists: SuggestionLists = suggestionListsFrom(rows, await rowsOf(targets.amount_choices));
       if (!cancelled) setOffers(readCheckoutOffers(rows, { suggestionLists: lists }));
     })();
     return () => { cancelled = true; };

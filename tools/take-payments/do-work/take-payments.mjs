@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { openBillingPage } from './billing-portal.mjs';
 import { readCheckoutOffers } from '../../funnels-and-offers/read-data/read-offers.ts';
-import { suggestionListsFrom, suggestionListsOf } from '../read-data/suggestion-lists.mjs';
+import { suggestionListsFrom } from '../read-data/suggestion-lists.mjs';
 import { readCheckoutCodeAdjustments } from '../read-data/read-code-adjustments.ts';
 import { buildCheckoutMaterialQuote, buildCheckoutQuote } from '../read-data/checkout-quote.ts';
 import { applyOfferEligibility } from '../read-data/offer-eligibility.ts';
@@ -62,8 +62,6 @@ function rowsIn(input, field, kind) {
   if (!Array.isArray(input[field])) throw new Error(`Pass your ${field} in the request as an array of rows: this tool reads no store.`);
   return input[field].map(row => ({ kind, ...row }));
 }
-
-export { suggestionListsOf };
 
 /** The offers: the request's own `offers` rows, with the suggested-amount rows its `suggestions` carry. */
 function offersOf(input, options) {
