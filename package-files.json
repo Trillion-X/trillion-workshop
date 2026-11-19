@@ -25871,12 +25871,6 @@
   },
   {
    "packages": [
-    "node_modules/split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  },
-  {
-   "packages": [
     "node_modules/strtok3"
    ],
    "at": "/opt/node_modules/strtok3"
