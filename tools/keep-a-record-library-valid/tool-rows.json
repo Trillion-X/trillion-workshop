@@ -115,7 +115,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -325,7 +324,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -536,7 +534,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -747,7 +744,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -959,7 +955,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1171,7 +1166,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1238,7 +1232,7 @@
         "id": "tool:gate-a-pieces-delivery-checklist",
         "label": "Hold a piece back until every check of its delivery checklist has a pass with evidence (runs on your computer)",
         "job": "Before I show or deliver a piece, tell me which checks of my delivery checklist are still open, failed or answered on old bytes, record each answer with its evidence, and hold back anything already linked for me to watch that has not passed",
-        "description": "Reads a person's delivery checklist (stages of checks, each routed by the piece header's tags, some asked once per option) through the schema they give, and holds a piece back until every routed MUST check has a pass row. A person's row carries evidence and a name; a machine's row (the rendered-video check, the sweep, the copy check on the person's own branch of their Checks list read through their records door, their verdict rows, their fact gate, the audio measure of an audition) carries the pin of the code and rules that measured it; every row carries the BLAKE3 of the files it judged, so a row on other bytes is open again. It records render-check reports, runs the sweep and the content gates, audits the files linked into watch folders (moving open ones aside with --hold) and lists the options a whole-lane gate covers. Every file name, folder, pattern, stage and rule id comes from the schema's delivery_gate.",
+        "description": "Reads a person's delivery checklist (stages of checks, each routed by the piece header's tags, some asked once per option) through the schema they give, and holds a piece back until every routed MUST check has a pass row. A person's row carries evidence and a name; a machine's row (the rendered-video check, the sweep, the copy check on the person's own branch of their Checks list read from the records they hand in, their verdict rows, their fact gate, the audio measure of an audition) carries the pin of the code and rules that measured it; every row carries the BLAKE3 of the files it judged, so a row on other bytes is open again. It records render-check reports, runs the sweep and the content gates, audits the files linked into watch folders (moving open ones aside with --hold) and lists the options a whole-lane gate covers. Every file name, folder, pattern, stage and rule id comes from the schema's delivery_gate.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -1258,7 +1252,7 @@
             },
             "command": {
               "type": "string",
-              "description": "One of: gate <piece> --stage S5,S6 [--option IDS] [--at review|final]; answer <piece> --check ID --answer pass|fail|n/a --evidence TEXT --by NAME [--option ID]; answer-from-render-check <piece> --json REPORT; sweep <piece> --previews DIR; content-gates <piece> --lane-dir DIR [--option IDS] [--at STAGE]; audition-gates <piece> --file F [--at STAGE]; audit-watch <piece> [--hold] [--file F]; scope-options <piece> [--lane L]. Put the records door (--door-records FILE or --door-mcp ARGV) before it for the copy and verdict rows. Put it where {command} is in the command."
+              "description": "One of: gate <piece> --stage S5,S6 [--option IDS] [--at review|final]; answer <piece> --check ID --answer pass|fail|n/a --evidence TEXT --by NAME [--option ID]; answer-from-render-check <piece> --json REPORT; sweep <piece> --previews DIR; content-gates <piece> --lane-dir DIR [--option IDS] [--at STAGE]; audition-gates <piece> --file F [--at STAGE]; audit-watch <piece> [--hold] [--file F]; scope-options <piece> [--lane L]. Put the records (--records FILE: the rows the person's AI read from their own store) before it for the copy and verdict rows. Put it where {command} is in the command."
             }
           }
         },
@@ -1281,7 +1275,7 @@
             "numpy (the rendered-video check)",
             "ffmpeg and ffprobe (audition-gates)"
           ],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Before showing or delivering a piece run `gate` at the delivery stage it is going to (review for a watch folder, final for a release) and read every open, failed and stale item to the person with the command that answers it. Answer a check yourself only with evidence you read, under your own name; never use a machine's name. Run `audit-watch` before linking anything into a watch folder. A copy or verdict row needs the person's records door. If you cannot run commands, give them the command."
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Before showing or delivering a piece run `gate` at the delivery stage it is going to (review for a watch folder, final for a release) and read every open, failed and stale item to the person with the command that answers it. Answer a check yourself only with evidence you read, under your own name; never use a machine's name. Run `audit-watch` before linking anything into a watch folder. A copy or verdict row needs the person's records (--records FILE, the rows their AI read from their store). If you cannot run commands, give them the command."
         },
         "verify": [
           {
@@ -1412,7 +1406,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",

@@ -43,9 +43,9 @@ python3 -I do-work/keep_a_record_library.py --library DIR --schema FILE COMMAND 
 
 `--library` is the folder every file in the schema is relative to. `evidence`, `start`, `finding`, `gate`, `answer`, `answer-from-render-check`, `audit-watch` and `scope-options` take the schema's lock file, so two writers never interleave; `sweep`, `content-gates` and `audition-gates` run their checks unlocked and lock only while they record.
 
-`--schema` is the schema file, or the person's `list:settings` row `record:setting:keep-a-record-library-valid~<scope_kind>~<scope_id>` (a file holding the record as `records:read` gives it, or several of them), whose settings are the schema; it is read with the one shared reader, `tools/settings` `setting`. With several rows, `--scope KIND=ID` (repeatable, most specific first) names the one to read.
+`--schema` is the schema file, or the person's `list:settings` row `record:setting:keep-a-record-library-valid~<scope_kind>~<scope_id>` (a file holding the record as the person's AI read it from their store, or several of them), whose settings are the schema; it is read with the one shared reader, `tools/settings` `setting`. With several rows, `--scope KIND=ID` (repeatable, most specific first) names the one to read.
 
-The delivery gate's run options: `--door-records FILE` or `--door-mcp '<MCP client argv JSON>'` is the person's records door, through which the copy check reads their branch of `list:checks` (without it the copy and verdict rows cannot be pinned and are listed as open with what they need); `--render-check-limits FILE` overrides `delivery_gate.render_check.limits`; `--copy-check-arg ARG` (repeatable, `--name=value` for a value) hands the copy check more arguments, such as `--no-model` or `--decider-python=P`.
+The delivery gate's run option: `--records FILE` holds the rows the person's AI read from their own store (a JSON array of `{ id, type, value }`, or `{ records }`), from which the copy check reads their branch of `list:checks` (without it the copy and verdict rows cannot be pinned and are listed as open with what they need); `--render-check-limits FILE` overrides `delivery_gate.render_check.limits`; `--copy-check-arg ARG` (repeatable, `--name=value` for a value) hands the copy check more arguments, such as `--no-model` or `--decider-python=P`.
 
 ## The schema
 
@@ -162,11 +162,11 @@ Reading the pages: a pair page holds separate BEFORE and AFTER pictures; do not 
 | `read-data/json_patch.py` | An in-place change of one JSON object's members that leaves every other byte of the file as it was. |
 | `read-data/delivery_gate.py` | The delivery gate: `gate`, `record_answer`, `routing`, `file_pins`, `stale_reason`, the render check's reports, `sweep`, `content_gates`, `audition_gates`, `audit_watch`, `scope_options` and their helpers. |
 | `do-work/delivery_gate_commands.py` | The gate's command parsers and run options, and how each command runs. |
-| `do-work/branch-rules.mjs` | The person's branch as the copy check reads it (`rulesOfBranch` through their records door): the ids of their verdict rows and the BLAKE3 of the rows as read; `--rules-out` writes the rows for a review pack. |
+| `do-work/branch-rules.mjs` | The person's branch as the copy check reads it (`rulesOfBranch` over the records given by `--records FILE`): the ids of their verdict rows and the BLAKE3 of the rows as read; `--rules-out` writes the rows for a review pack. |
 | `do-work/measure-reference.sh` | `measure-reference`, run by the command line or on its own. |
 | `ports/*.json` | The port contracts of the delivery gate's files (`tools/check-a-port-against-its-source`). |
 | `test/test_delivery_gate.py` | The gate, its rows, staleness, the render check's reports, the sweep, the content gates on the real copy check, audit-watch, scope-options, auditions, the schema as a settings row, the branch helper and `measure-reference` with stand-in programs, on a made-up library of films. |
-| `test/fixtures/delivery/` | That library: its `schema.json` (with `delivery_gate`), a made-up checklist and a stand-in records door file (`data/check-records.json`) holding a made-up branch of `list:checks` and the copy check's settings row. |
+| `test/fixtures/delivery/` | That library: its `schema.json` (with `delivery_gate`), a made-up checklist and a stand-in records file (`data/check-records.json`) holding a made-up branch of `list:checks` and the copy check's settings row. |
 | `read-data/adoption.py` | `adopt_intervals` and `adopt_source_evidence_only`, driven by the schema's `adoption` profile. |
 | `test/test_keep_a_record_library.py` | Every kind of check passing and failing, the investigation loop, findings and the derived-file commands, on a made-up greenhouse library. |
 | `test/test_derived_data.py` | Every builder kind, the stale check and the rebuild commands, on a made-up garden. |
@@ -179,7 +179,7 @@ Reading the pages: a pair page holds separate BEFORE and AFTER pictures; do not 
 
 **Depends on:** Python 3.10+; for every command that records or checks a file identity, BLAKE3 (the `blake3` python module, else the `b3sum` command); Pillow, only for `frame-pages`; the `sqlite3` command, only for a `sqlite-rows` builder; and, only for `adopt-window`, the public modules `wt_core` and `wt_ops` of the Workshop tool `fill-a-template-without-changing-its-words`, read from the folder beside this one.
 
-For the delivery gate: `tools/settings` (the schema as a settings row); `tools/check-a-rendered-video` beside this folder (Python with numpy; some checks need OpenCV), for `answer-from-render-check`, `sweep`, the proven flags and a spec's drawn text; Node 22 with `tools/check-against-a-persons-rules-and-verdicts`, `tools/judge-words`, `tools/content-identity` and `tools/records-door`, for the copy and verdict rows and their pins; the person's fact gate (a path in their settings); ffmpeg and ffprobe for `audition-gates`. For `measure-reference`: the hf-media executable, a folder with `motion-rhythm.mjs`, a Python with `earshot`, ffprobe, node, and Pillow in the pages Python for a long film.
+For the delivery gate: `tools/settings` (the schema as a settings row); `tools/check-a-rendered-video` beside this folder (Python with numpy; some checks need OpenCV), for `answer-from-render-check`, `sweep`, the proven flags and a spec's drawn text; Node 22 with `tools/check-against-a-persons-rules-and-verdicts`, `tools/judge-words` and `tools/content-identity`, for the copy and verdict rows and their pins; the person's fact gate (a path in their settings); ffmpeg and ffprobe for `audition-gates`. For `measure-reference`: the hf-media executable, a folder with `motion-rhythm.mjs`, a Python with `earshot`, ffprobe, node, and Pillow in the pages Python for a long film.
 
 **Depended on by:** nothing in this repository. A library's own schema file lives with the library.
 
@@ -193,7 +193,7 @@ The delivery checklist gate moved from Trillion-X/source-repo-a `tools/content-i
 | `answers_from_filmqa`, command `answer-from-filmqa` | `answers_from_render_check`, command `answer-from-render-check` |
 | `content_gate_pin` (BLAKE3 of the copy gate's files and the frozen `verdict-rules.json`) | `content_gate_pin`: the copy check's code and the branch rows as read (no file) |
 | `his_rule_ids` (read `verdict-rules.json`) | `verdict_rule_ids` through `branch_rules` (`do-work/branch-rules.mjs`) |
-| `run_check_mjs` (`tools/copy-gate/check.mjs --verdict-rules <file>`) | `run_check_mjs` (`check-a-films-copy.mjs --branch --settings-record` and the door; `copy_gate_verdict` gains `exclude` for the copy row) |
+| `run_check_mjs` (`tools/copy-gate/check.mjs --verdict-rules <file>`) | `run_check_mjs` (`check-a-films-copy.mjs --branch --settings-record` and the records; `copy_gate_verdict` gains `exclude` for the copy row) |
 | `film_qa_tool` (`TRILLION_WORKSHOP`), `FILM_QA_LIMITS` | `film_qa_tool` (the render check beside this tool), `render_check_limits` (setting or `--render-check-limits`) |
 | `start` (auto-start) and `parse_header`, `header_tags`, `route_applies` | `investigation.start`, `routes.py`, already here |
 | `main()` gate parsers and dispatch | `do-work/delivery_gate_commands.py` |

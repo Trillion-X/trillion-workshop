@@ -13,7 +13,7 @@ reviewed pins, the copy check's branch and settings row, the fact gate layouts a
 Moved from source-repo-a tools/content-investigation/cis.py (lines 756-1772), one function to one function; the
 README section "Moved from launch-video" names each. Programs it runs: the Workshop's tools/check-a-rendered-video (beside
 this tool, in this checkout), tools/check-against-a-persons-rules-and-verdicts do-work/check-a-films-copy.mjs (the copy
-check, the person's branch read through their records door), the person's fact gate, ffmpeg and ffprobe.
+check, the person's branch read from the records they hand in), the person's fact gate, ffmpeg and ffprobe.
 """
 from __future__ import annotations
 
@@ -54,7 +54,7 @@ def gate_cfg(store: Store) -> dict:
 
 
 def run_options(store: Store) -> dict:
-    """What a run was given on its command line: `door` (the records door arguments of the copy check), `limits` (the render
+    """What a run was given on its command line: `records` (the --records arguments of the copy check), `limits` (the render
     check's limits file), `checker_args` (more arguments for the copy check). Tests and the command line set store.gate_run."""
     return getattr(store, 'gate_run', None) or {}
 
@@ -165,7 +165,7 @@ def blake3_hex(data: bytes) -> str:
 def content_gate_pin(store: Store, piece: Path, key: str) -> str | None:
     """BLAKE3 of a content gate's own code and the rules it reads: a row counts only while what produced it is unchanged.
     copy: the copy check's code and the branch's generic rows as read; verdict: its code and the branch's verdict rows as read;
-    fact: the fact gate this film runs; audio: this file and the audition marks. None when the branch cannot be read (no door)."""
+    fact: the fact gate this film runs; audio: this file and the audition marks. None when the run was given no records."""
     if key in (role(store, 'copy'), role(store, 'verdict')):
         rules = branch_rules(store)
         if rules is None:
@@ -437,7 +437,7 @@ def gate(store: Store, piece: Path, stages: list[str], options: list[str], at: s
                     row = machine_rows.get(key)         # only a machine's own result, carrying the reviewed pin of what measured it, counts
                     need = required_pin(store, piece, c['id'])
                     if row and need is None and c.get('rule_id') in cfg['content_gates']:
-                        note = 'its pin is the copy check and the branch rows as read: give the records door (--door-records or --door-mcp) to count this row'
+                        note = 'its pin is the copy check and the branch rows as read: give the records (--records FILE) to count this row'
                     content = c.get('rule_id') in cfg['content_gates']
                     row = row if row and row.get('check_pin') == need and not (content and need is None) else None
                 else:
@@ -589,7 +589,7 @@ def sweep(store: Store, piece: Path, preview_dirs: list[str], only: list[str] | 
             if rules_file is None:
                 rules_file = Path(tempfile.mkdtemp(prefix='delivery-gate-rules-')) / 'rules.json'
                 if branch_rules(store, rules_file) is None:
-                    raise ValueError('the review pack needs the person\'s branch rows: give the records door (--door-records or --door-mcp)')
+                    raise ValueError('the review pack needs the person\'s branch rows: give the records (--records FILE)')
             pack_dir = home / f'review-{ts}' / folder.name
             subprocess.run([*launcher, 'review-pack', str(folder), '--out', str(pack_dir), '--rules', str(rules_file), '--limits', str(limits), '--ids', ','.join(p.stem for p in chosen)], check=True, capture_output=True, text=True)
             packs += [str(p) for p in sorted(pack_dir.iterdir())]
@@ -782,22 +782,22 @@ def copy_check_settings(store: Store) -> dict:
     return held
 
 
-def door_args(store: Store) -> list[str] | None:
-    return run_options(store).get('door') or None
+def records_args(store: Store) -> list[str] | None:
+    return run_options(store).get('records') or None
 
 
 def branch_rules(store: Store, rules_out: Path | None = None, _cache: dict = {}) -> dict | None:
-    """The person's branch as the copy check reads it (do-work/branch-rules.mjs, rulesOfBranch through their records door):
-    { verdict_ids, copy_blake3, verdict_blake3, lineage }. None when the run has no door. With `rules_out`, also writes the branch's rows as a
+    """The person's branch as the copy check reads it (do-work/branch-rules.mjs, rulesOfBranch over the records handed in):
+    { verdict_ids, copy_blake3, verdict_blake3, lineage }. None when the run has no records. With `rules_out`, also writes the branch's rows as a
     rules file ({rows}) for the render check's review pack."""
-    door = door_args(store)
-    if not door:
+    records = records_args(store)
+    if not records:
         return None
     branch = copy_check_settings(store)['branch']
-    key = (tuple(door), branch)
+    key = (tuple(records), branch)
     if key in _cache and rules_out is None:
         return _cache[key]
-    run = subprocess.run(['node', str(BRANCH_RULES), '--branch', branch, *door, *(['--rules-out', str(rules_out)] if rules_out else [])],
+    run = subprocess.run(['node', str(BRANCH_RULES), '--branch', branch, *records, *(['--rules-out', str(rules_out)] if rules_out else [])],
                          capture_output=True, text=True, timeout=300)
     if run.returncode != 0:
         raise ValueError(f'the branch {branch} could not be read: {" ".join(run.stderr.split())[-300:]}')
@@ -809,7 +809,7 @@ def verdict_rule_ids(store: Store) -> set[str]:
     """Every rule id a finding of the person's verdict rows can carry: the ids of the branch's verdict rows, its judge_settings stance_rule and novel.rule."""
     rules = branch_rules(store)
     if rules is None:
-        raise ValueError('the content gates read the person\'s branch: give the records door (--door-records or --door-mcp)')
+        raise ValueError('the content gates read the person\'s branch: give the records (--records FILE)')
     return set(rules['verdict_ids'])
 
 
@@ -818,12 +818,12 @@ def run_check_mjs(store: Store, file: str, extra: list[str], held: bool = False,
     fails. Exit 0 passed, 1 failed, 2 unqualified, 3 uncertain; 2 is also its usage error, which writes no result. The result goes to a fresh
     temporary folder, never beside `file`."""
     cfg = copy_check_settings(store)
-    door = door_args(store)
-    if not door:
-        return 'fail', 'ERROR no records door: give --door-records or --door-mcp so the copy check can read the person\'s branch'
+    records = records_args(store)
+    if not records:
+        return 'fail', 'ERROR no records: give --records FILE so the copy check can read the person\'s branch'
     with tempfile.TemporaryDirectory(prefix='delivery-gate-check-') as folder:
         out = Path(folder) / 'result.json'
-        run = subprocess.run(['node', str(COPY_CHECK), file, '--branch', cfg['branch'], '--settings-record', cfg['settings_record'], *door,
+        run = subprocess.run(['node', str(COPY_CHECK), file, '--branch', cfg['branch'], '--settings-record', cfg['settings_record'], *records,
                               '--root', str(store.root), *extra, *run_options(store).get('checker_args', []), '--json', str(out)],
                              capture_output=True, text=True, cwd=str(store.root), timeout=900)
         if run.returncode in (0, 1, 2, 3) and out.is_file():

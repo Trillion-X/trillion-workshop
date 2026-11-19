@@ -16,17 +16,14 @@ LOCKED = ('gate', 'answer', 'answer-from-render-check', 'audit-watch', 'scope-op
 
 
 def add_options(ap: argparse.ArgumentParser) -> None:
-    """The run's own inputs: the person's records door (the copy check reads their branch through it), the render check's limits and more copy check arguments."""
-    ap.add_argument('--door-records', help='the delivery gate: a stand-in records file the copy check reads the person\'s branch from')
-    ap.add_argument('--door-mcp', help='the delivery gate: the MCP client argv (JSON) of the person\'s records door')
+    """The run's own inputs: the records the person's AI read from their store (the copy check reads their branch from them), the render check's limits and more copy check arguments."""
+    ap.add_argument('--records', type=Path, help='the delivery gate: the rows the copy check reads the person\'s branch from (a JSON array of { id, type, value }, or { records })')
     ap.add_argument('--render-check-limits', type=Path, help='the delivery gate: the render check\'s limits file (default delivery_gate.render_check.limits)')
     ap.add_argument('--copy-check-arg', action='append', default=[], metavar='ARG', help='the delivery gate: one more copy check argument, such as --no-model or --decider-python=P (repeatable)')
 
 
 def run_options(a: argparse.Namespace) -> dict:
-    if a.door_records and a.door_mcp:
-        raise ValueError('give one of --door-records or --door-mcp')
-    return {'door': ['--door-records', a.door_records] if a.door_records else ['--door-mcp', a.door_mcp] if a.door_mcp else None,
+    return {'records': ['--records', str(a.records)] if a.records else None,
             'limits': a.render_check_limits, 'checker_args': [x for arg in a.copy_check_arg for x in arg.split('=', 1)]}
 
 

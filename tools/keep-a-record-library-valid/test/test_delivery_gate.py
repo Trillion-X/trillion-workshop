@@ -1,6 +1,6 @@
 """Tests of the delivery checklist gate (read-data/delivery_gate.py and its commands), on a made-up library of films (test/fixtures/delivery)
 copied to a temporary folder. Ported one to one from the launch-video tests of cis.py (classes Gate, FilmDefaults and Audition); every
-film, option, rule, line and verdict row here is made up. The person's branch of their Checks list is a stand-in records door file
+film, option, rule, line and verdict row here is made up. The person's branch of their Checks list is a stand-in records file (the rows the person's AI would hand in)
 (fixtures/delivery/data/check-records.json), read by the real copy check where a test runs it.
 
 Needs python3 with numpy (the render check's modules), BLAKE3 (the blake3 module or b3sum), node, and ffmpeg/ffprobe for the audition
@@ -83,7 +83,7 @@ class Base(unittest.TestCase):
 
     def new_store(self):
         store = Store(self.root, self.root / 'schema.json')
-        store.gate_run = {'door': ['--door-records', str(self.root / 'data' / 'check-records.json')], 'checker_args': ['--no-model']}
+        store.gate_run = {'records': ['--records', str(self.root / 'data' / 'check-records.json')], 'checker_args': ['--no-model']}
         return store
 
     def set_gate(self, key, value):
@@ -200,7 +200,7 @@ class Gate(Base):
         out, err = io.StringIO(), io.StringIO()
         with redirect_stdout(out), redirect_stderr(err):
             status = cli.main(['--library', str(self.root), '--schema', str(self.root / 'schema.json'),
-                               '--door-records', str(self.root / 'data' / 'check-records.json'), *argv])
+                               '--records', str(self.root / 'data' / 'check-records.json'), *argv])
         return status, out.getvalue(), err.getvalue()
 
     def test_cli_gate_exit_code_and_answer(self):
@@ -612,11 +612,11 @@ class Gate(Base):
         next(r for r in records if r['id'] == 'record:check:their-teapot')['value']['words'] = ['kettle']
         changed = self.root / 'data' / 'check-records-2.json'
         changed.write_text(json.dumps(records))
-        self.store.gate_run = {'door': ['--door-records', str(changed)]}
+        self.store.gate_run = {'records': ['--records', str(changed)]}
         self.assertNotEqual(dg.content_gate_pin(self.store, self.piece, 'verdict-rules'), pin)      # a verdict row changed: its rows no longer count
         self.assertEqual(dg.content_gate_pin(self.store, self.piece, 'copy-gate'), copy_pin)       # the generic rows did not
         self.store.gate_run = {}
-        self.assertIsNone(dg.content_gate_pin(self.store, self.piece, 'copy-gate'))                 # no door: the pin cannot be known
+        self.assertIsNone(dg.content_gate_pin(self.store, self.piece, 'copy-gate'))                 # no records: the pin cannot be known
 
     def copy_row(self, answer, evidence):
         lane = getattr(self, '_copy_lane', None) or self.lane([{'type': 'wordtext', 'id': 'w', 'at': 0.5, 'text': 'tofu ice cream'}])
@@ -984,15 +984,20 @@ class SettingsAndHelpers(unittest.TestCase):
 
     def test_the_branch_helper_reads_the_verdict_ids_and_writes_the_rows_for_a_review_pack(self):
         out = self.tmp / 'rules.json'
-        run = subprocess.run(['node', str(dg.BRANCH_RULES), '--branch', 'made-up-content', '--door-records', str(FIXTURE / 'data' / 'check-records.json'), '--rules-out', str(out)],
+        run = subprocess.run(['node', str(dg.BRANCH_RULES), '--branch', 'made-up-content', '--records', str(FIXTURE / 'data' / 'check-records.json'), '--rules-out', str(out)],
                              capture_output=True, text=True)
         self.assertEqual(run.returncode, 0, run.stderr)
         got = json.loads(run.stdout)
         self.assertEqual(got['verdict_ids'], ['synthetic-75ff1d417994', 'their-leverage', 'their-stance', 'their-teapot'])
         self.assertEqual(got['lineage'], ['made-up-content', 'made-up-base'])
         self.assertEqual(sorted(r['id'] for r in json.loads(out.read_text())['rows']), ['no-glorp', 'their-leverage', 'their-teapot'])
-        bad = subprocess.run(['node', str(dg.BRANCH_RULES), '--branch', 'no-such-branch', '--door-records', str(FIXTURE / 'data' / 'check-records.json')], capture_output=True, text=True)
+        bad = subprocess.run(['node', str(dg.BRANCH_RULES), '--branch', 'no-such-branch', '--records', str(FIXTURE / 'data' / 'check-records.json')], capture_output=True, text=True)
         self.assertEqual(bad.returncode, 2)
+        left_out = self.tmp / 'left-out.json'
+        left_out.write_text(json.dumps({'id': 'record:check:x'}))
+        refused = subprocess.run(['node', str(dg.BRANCH_RULES), '--branch', 'made-up-content', '--records', str(left_out)], capture_output=True, text=True)
+        self.assertEqual(refused.returncode, 2)
+        self.assertIn('nothing is checked against no rows', refused.stderr)
 
     def fake(self, name, body):
         path = self.tmp / 'bin' / name
