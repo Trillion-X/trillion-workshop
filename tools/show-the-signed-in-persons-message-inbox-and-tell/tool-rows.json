@@ -115,7 +115,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -184,7 +183,7 @@
         "label": "Answer the web chat message routes",
         "status": "active",
         "job": "Answer the web chat's message routes (GET /work/api/messages, /messages/threads and /messages/thread, POST /work/api/messages/send and /messages/send-all) and keep each message the person sends as a message row in my own records, and wake the AI it is for",
-        "description": "The web chat's message routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. GET /messages and /messages/threads answer the person's conversations newest first ({conversations, next_before}); GET /messages/thread answers one conversation's messages (app and conversation_id). POST /messages/send keeps the person's words to one AI (app, conversation_id, text, client_id?) and POST /messages/send-all keeps them once in the shared Trillion conversation, each as one `message` row in the person's own records, written through the records door only, conditional on what was read. The same client_id sent again is the message already kept. Files ride by reference (each must be one of the person's own, linked in the message). An AI is woken the way the person's AIs take work: a waiting ai-job row kept in the same write (send with agent_id: for that AI; send-all: for any AI, or for the AIs @-mentioned). The answer says the message is kept and read on the AI's next connection; it never says delivered.",
+        "description": "The web chat's message routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. GET /messages and /messages/threads answer the person's conversations newest first ({conversations, next_before}); GET /messages/thread answers one conversation's messages (app and conversation_id). POST /messages/send keeps the person's words to one AI (app, conversation_id, text, client_id?) and POST /messages/send-all keeps them once in the shared Trillion conversation, each as one `message` row, given back in `keep` for the caller to write as new rows: the route holds no database, so it reads only the rows the caller gives as `stored` and writes nothing. The same client_id sent again is the message already kept. Files ride by reference (each must be one of the person's own, linked in the message). An AI is woken the way the person's AIs take work: a waiting ai-job row kept in the same write (send with agent_id: for that AI; send-all: for any AI, or for the AIs @-mentioned). The answer says the message is kept and read on the AI's next connection; it never says delivered.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -212,7 +211,7 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of message, message-source-key, ai-job; files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the route keeps no database) and given here: records: [{id, type, value}] of message and message-source-key, as the caller read them, newest first; file_identities: [identity] of the person's own files a message may name. What is not given is not there."
             }
           }
         },
@@ -240,7 +239,8 @@
               {
                 "package": "content-identity",
                 "paths": [
-                  "read-data/identity.mjs"
+                  "read-data/identity.mjs",
+                  "read-data/blake3.mjs"
                 ],
                 "at": "/opt/content-identity"
               },
@@ -275,16 +275,11 @@
                 "at": "/opt/show-the-signed-in-persons-message-inbox-and-tell"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work/run-an-export.mjs",
-                  "read-data/byte-pages.mjs",
-                  "read-data/records-door.mjs",
-                  "read-data/values-door.mjs",
-                  "read-data/settled-write.mjs",
-                  "read-data/write-batches.mjs"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "packages": ["node_modules/@noble/hashes"],
@@ -299,20 +294,6 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -321,7 +302,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/show-the-signed-in-persons-message-inbox-and-tell/src/message-route.mjs",
             "answerTheMessageRoute"
           ],
@@ -366,32 +347,13 @@
         ],
         "stored": [
           {
-            "kind": "message",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
+            "kind": "message"
           },
           {
-            "kind": "message-source-key",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "message-source-key"
           },
           {
-            "kind": "ai-job",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
-          },
-          {
-            "files": "/",
-            "operations": [
-              "find_file"
-            ]
+            "kind": "file-identity"
           }
         ]
       }

@@ -38,7 +38,7 @@
           }
         }
       },
-      "hands_back": "status 200 with { message_id, recorded: 1, delivery } (a real run kept one message row through the records door)."
+      "hands_back": "status 200 with { message_id, recorded: 1, delivery } (a real run gave back one message row in keep, which the caller wrote as a new row of the person's own store)."
     }
   ]
 }
