@@ -1,0 +1,47 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-cut-suggestions-for-a-recording with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"}, identity 1f:aaaa (your recording's content identity) and mode filler_words.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the recording, its words and its kept cut suggestions are kept in your own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-cut-suggestions-for-a-recording"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-cut-suggestions-for-a-recording\" with store, the recording's identity and the mode (silent_pauses or filler_words).",
+    "3. The first run makes the store's own objects once and proves them on the example asks: the prove step must give every expected proposal count and kept count, or the run stops and says which.",
+    "4. Every later ask answers from the kept suggestion when its words and mode are the same, and says so as cached."
+  ],
+  "worked_examples": [
+    {
+      "title": "Suggest the filler words in a recording, once",
+      "ask": "Find the 'um' and 'uh' in my talk, and cut them.",
+      "workflow": "workflow:keep-cut-suggestions-for-a-recording",
+      "step": "keep",
+      "given": "The talk's words are kept in the store with their word times, and no suggestion is kept for it yet.",
+      "hands_back": "results [{outcome made, proposals: two remove-span cuts for filler words, at 0.5 to 0.8 seconds and 5.7 to 6.0 seconds}], and kept_records [the one suggestion for filler_words], read back in found_records.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-cut-suggestions-for-a-recording",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "identity": "1f:aaaa",
+              "mode": "filler_words"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

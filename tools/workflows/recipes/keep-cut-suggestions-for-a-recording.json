@@ -1,0 +1,216 @@
+{
+  "about": "workflow:keep-cut-suggestions-for-a-recording: the cut suggestions an AI or an analysis proposed for one recording (long silences, or filler words), kept in the person's own store by the recording and the mode, so a later ask with the same words answers from them and is marked cached. It replaces the store half of tools/browse-the-recordings-in-my-media-library-in-a-stable-order (suggest_media_cuts, which read the words and the kept suggestions through the Media routes and merged each new one back). The cutting itself is values in the same folder (suggestMediaCuts) (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-cut-suggestions-for-a-recording",
+        "label": "Keep cut suggestions for a recording",
+        "job": "Keep, for one recording, each cut suggestion asked for (a mode and the words the suggestion was made from) with its proposals, so the same ask answers from the kept entry, and a recording's words are read from its store to make a new one.",
+        "produces": "The store's own cut-suggestion objects, proven on the example asks in PostgreSQL (PGlite) and a folder of JSON files: each ask's lines and proposals, the cached answer of the repeated ask, and the kept entries, all equal to the old tool's.",
+        "source": {
+          "from": "tools/browse-the-recordings-in-my-media-library-in-a-stable-order (src/media-tools.mjs suggest_media_cuts) at the Workshop origin/main 14c80bcd6; the old tool is the oracle of the proof",
+          "note": "The modes (silent_pauses, filler_words) and their rules are DATA of the suggestion stream (media-composition suggestion-stream.json). A suggestion is kept by the recording's identity and the mode, with the algorithm's version, so a later version never reads an earlier answer. A recording with no words answers NO_TRANSCRIPT in words. The recording is named by its content identity (1f: then 64 hex)."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "identity",
+            "mode"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the recording and its words: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "identity": {
+              "type": "string",
+              "description": "The recording's content identity (1f: then 64 hex)"
+            },
+            "mode": {
+              "type": "string",
+              "description": "silent_pauses or filler_words"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read the recording's words (its transcript, with word times) and the cut suggestions already kept for it. Submit where they are kept (kept_in, or null), whether the words are there, and the names of the objects that keep them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "has_words",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "has_words": {
+                  "type": "boolean"
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: a cut suggestion keyed by the recording's identity and the suggestion id (the mode, the algorithm version, its lines and proposals, and the time it was made). Submit the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example asks",
+            "do": "In a throwaway place in the same store, with the same objects, and the recording 1f:aaaa (64 letters a) whose words are: so 0 to 0.4, um 0.5 to 0.8, today 0.9 to 1.3, we 5.0 to 5.2, go 5.3 to 5.6, uh 5.7 to 6.0, now 6.1 to 6.5, run these asks in order: filler_words, filler_words again, silent_pauses. Submit outcomes (made for an ask that makes a suggestion, cached for an ask answered from the kept entry) and the answer: the proposals of each ask, and the number of suggestions kept for the recording.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each ask is made or cached as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "made",
+                    "cached",
+                    "made"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected proposal and kept count",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "proposal_counts": [
+                      2,
+                      2,
+                      1
+                    ],
+                    "kept_suggestions": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's asks",
+            "do": "Read the recording's words and kept suggestions from the store, answer the ask with the values-in function (suggestMediaCuts), and keep each new entry it names under the recording's identity. Submit results (per ask: its outcome and its proposals) and kept_records (each suggestion kept) and found_records (each read back). With no ask, submit empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "results",
+                "kept_records",
+                "found_records"
+              ],
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "kept_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "found_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every suggestion kept is read back",
+                "path": [
+                  "this",
+                  "found_records"
+                ],
+                "of": [
+                  "this",
+                  "kept_records"
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes the kept cut suggestions of a recording; the recording and its words are the person's."
+      }
+    }
+  ]
+}
