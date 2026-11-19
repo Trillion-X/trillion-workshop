@@ -4,18 +4,18 @@
 //   The two Workshop rows over answer_with_a_downloaded_model.py: answer the `ask` questions a check lists (decider-2b,
 //   a LoRA adapter of it, a downloaded MLX chat model, a hosted model through the consult route, or a stand-in), and
 //   calibrate a person's ask rows on lines they already ruled on. Nothing is read from or written to the person's
-//   records: the caller's AI reads the person's rows from their store and passes them in the request; the answer is
+//   rows: the caller's AI reads the person's rows from their store and passes them in the request; the answer is
 //   returned and kept nowhere here. The answering itself is the Python file beside this one.
 //
 // Non-negotiable invariants
 //   1. The settings are read only through tools/settings `setting`, for this tool's folder, from `settings_record`: the
-//      person's setting row as records:read gives it ({ id, type, value }), its value, or a list of them; nothing here
+//      person's setting row as the store gives it ({ id, type, value }), its value, or a list of them; nothing here
 //      has a default for a model, a path or a bar.
 //   2. A set of labelled lines is the `line_rows` the caller passes: check rows of kind `labelled-line` and that `set`,
 //      in their `at` order; a labelled line's own kind of copy is kept in `copy_kind` (the row's `kind` says what the row
 //      is) and handed to the answerer as `kind`, as the lines were before they moved; the row's own fields (part_of, set,
 //      at, from) are not.
-//   3. A rule is a check row passed whole in `rules` ({ id, value } as records:read gives it); a row with no `ask` is
+//   3. A rule is a check row passed whole in `rules` ({ id, value } as the store gives it); a row with no `ask` is
 //      refused, never answered.
 //   4. The last line the Python prints is { result } or { error }; an error is thrown with its words.
 //
@@ -61,7 +61,7 @@ function lineSetsFor(lineRows = [], asks, given = []) {
 /** One check row passed in `rules`, with its id, refused unless it asks a model a question. */
 export function askRowOf(row) {
   const id = row?.id?.replace(/^record:check:/, '');
-  if (!id || !row.value) throw new AnswerRefused('each of rules is a check row as records:read gives it: { id: "record:check:<id>", value }.');
+  if (!id || !row.value) throw new AnswerRefused('each of rules is a check row as the store gives it: { id: "record:check:<id>", value }.');
   if (!row.value.ask) throw new AnswerRefused(`The check row ${id} has no ask: only a row that asks a model a question can be calibrated.`);
   return { ...row.value, id };
 }
@@ -88,7 +88,7 @@ export function runAnswerer(action, request, { python = 'python3' } = {}) {
 const settingsOf = input => {
   const given = input?.settings_record;
   if (given === undefined || given === null || given === '') {
-    throw new AnswerRefused(`settings_record is required: the person's setting row for this tool, ${ID_PREFIX}${TOOL}~<scope_kind>~<scope_id>, as records:read gives it`);
+    throw new AnswerRefused(`settings_record is required: the person's setting row for this tool, ${ID_PREFIX}${TOOL}~<scope_kind>~<scope_id>, as the person's store gives it`);
   }
   if (typeof given === 'string') throw new AnswerRefused(`settings_record is the setting row itself, not its id ${given}: read it from the person's settings and pass it.`);
   const found = setting(given, { folder: TOOL });

@@ -25,6 +25,7 @@ import {fitLines} from './fit-pass-and-fail-lines.mjs'
 import {addCase, asExpected, lastVerdictFor} from './tell-it-when-it-was-wrong.mjs'
 import {noteIt, readCharacters, readMatching, readMemory, shapesFor, whichShape, writeMemory} from './remember-what-was-already-said.mjs'
 import {answerStateQuestions} from './answer-state-questions.mjs'
+import {answerAsks, calibrateAsks} from './answer-with-a-downloaded-model.mjs'
 
 const need = (request, field, what) => {
   if (request[field] === undefined || request[field] === null || request[field] === '') {
@@ -182,6 +183,14 @@ const ACTIONS = {
 
   async 'answer-state-questions'(request) {
     return answerStateQuestions(request)
+  },
+
+  async 'answer-asks'(request) {
+    return answerAsks(request)
+  },
+
+  async 'calibrate-asks'(request) {
+    return calibrateAsks(request)
   },
 }
 

@@ -117,7 +117,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -349,7 +348,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -572,7 +570,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -780,7 +777,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -989,7 +985,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1201,7 +1196,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1501,7 +1495,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1712,7 +1705,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -1926,7 +1918,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -2139,7 +2130,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -2207,7 +2197,7 @@
         "label": "Answer the yes or no questions my checks ask, with a small model on my computer (runs on your computer)",
         "status": "active",
         "job": "Answer the questions a check of my writing asks a model, one line at a time, with the small model, adapter or hosted model each of my check rows names, keeping every answer so a line is never asked twice",
-        "description": "Give settings_record (the person's setting row for this tool, record:setting:ask-a-small-model-for-a-verdict~<scope_kind>~<scope_id>, as records:read gives it), asks, the questions tool:check-against-a-persons-rules-and-verdicts lists: each { question, options, text } with the row's adapter ({ name, blake3 }: decider-2b with that LoRA adapter, its folder the setting's adapters[name], checked by BLAKE3 before loading), model ({ mlx: repo id } a downloaded MLX chat model at its one snapshot, { consult: name } a hosted model through the consult-model route, or { stand_in } fixed answers), examples ({ items: <set>, bad_for }: the person's ruled lines of that set, shown first and never the judged line) and line_rows (the person's labelled-line check rows of the sets the examples name, read by the caller's AI from list:checks) and context (where the line sits in its film). mode live asks a model for what the answer cache lacks; cache answers only from it. Answers one { option: probability } or null per ask, in order.",
+        "description": "Give settings_record (the person's setting row for this tool, record:setting:ask-a-small-model-for-a-verdict~<scope_kind>~<scope_id>, as the person's store gives it), asks, the questions tool:check-against-a-persons-rules-and-verdicts lists: each { question, options, text } with the row's adapter ({ name, blake3 }: decider-2b with that LoRA adapter, its folder the setting's adapters[name], checked by BLAKE3 before loading), model ({ mlx: repo id } a downloaded MLX chat model at its one snapshot, { consult: name } a hosted model through the consult-model route, or { stand_in } fixed answers), examples ({ items: <set>, bad_for }: the person's ruled lines of that set, shown first and never the judged line) and line_rows (the person's labelled-line check rows of the sets the examples name, read by the caller's AI from list:checks) and context (where the line sits in its film). mode live asks a model for what the answer cache lacks; cache answers only from it. Answers one { option: probability } or null per ask, in order.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -2222,7 +2212,7 @@
                 "id",
                 "value"
               ],
-              "description": "The person's setting row for this tool as records:read gives it: record:setting:ask-a-small-model-for-a-verdict~<scope_kind>~<scope_id>."
+              "description": "The person's setting row for this tool as the person's store gives it: record:setting:ask-a-small-model-for-a-verdict~<scope_kind>~<scope_id>."
             },
             "asks": {
               "type": "array",
@@ -2270,7 +2260,7 @@
             },
             "line_rows": {
               "type": "array",
-              "description": "The person's labelled-line check rows (kind labelled-line) for the sets the asks' examples name, as records:list gives them: { id, value }.",
+              "description": "The person's labelled-line check rows (kind labelled-line) for the sets the asks' examples name, as the person's store gives them: { id, value }.",
               "items": {
                 "type": "object",
                 "required": [
@@ -2299,9 +2289,8 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
-            "/opt/ask-a-small-model-for-a-verdict/do-work/answer-with-a-downloaded-model.mjs",
-            "answerAsks"
+            "/opt/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs",
+            "answer-asks"
           ],
           "stdin": {
             "fill": {
@@ -2323,14 +2312,6 @@
                   "read-data"
                 ],
                 "at": "/opt/settings"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -2652,7 +2633,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -2720,7 +2700,7 @@
         "label": "Measure whether a small model can answer my check's question, on lines I already ruled on (runs on your computer)",
         "status": "active",
         "job": "Ask a small model my check rows' questions about every line I already ruled good or bad, and fit where each row should pass and fail a line, and whether it is usable at all",
-        "description": "Give settings_record (the person's setting row for this tool as records:read gives it: its fit bars, good_sets, frame and models), rules (the person's check rows with an ask, { id: record:check:<id>, value }), lines (the name of the set of labelled lines) and line_rows (the labelled-line check rows of that set and of the sets the asks' examples name, read by the caller's AI from list:checks). Ruled lines (each with good) count by their own ruling, optionally only one split and only those with context (context_only); lines kept by set count as good when a set the setting's good_sets names holds them. Each line is asked one question a sentence and scored by its worst sentence, then tool:fit-pass-and-fail-lines fits t_fail, t_pass, AUC, recall and the held-out shares with the setting's bars (fpr overrides fail_good_share_at_most). Answers { <rule id>: finding } and keeps nothing; the person's AI writes a finding into that row's ask.calibration. Lines a model was trained on must never calibrate it.",
+        "description": "Give settings_record (the person's setting row for this tool as the person's store gives it: its fit bars, good_sets, frame and models), rules (the person's check rows with an ask, { id: record:check:<id>, value }), lines (the name of the set of labelled lines) and line_rows (the labelled-line check rows of that set and of the sets the asks' examples name, read by the caller's AI from list:checks). Ruled lines (each with good) count by their own ruling, optionally only one split and only those with context (context_only); lines kept by set count as good when a set the setting's good_sets names holds them. Each line is asked one question a sentence and scored by its worst sentence, then tool:fit-pass-and-fail-lines fits t_fail, t_pass, AUC, recall and the held-out shares with the setting's bars (fpr overrides fail_good_share_at_most). Answers { <rule id>: finding } and keeps nothing; the person's AI writes a finding into that row's ask.calibration. Lines a model was trained on must never calibrate it.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -2736,12 +2716,12 @@
                 "id",
                 "value"
               ],
-              "description": "The person's setting row for this tool as records:read gives it: record:setting:ask-a-small-model-for-a-verdict~<scope_kind>~<scope_id>."
+              "description": "The person's setting row for this tool as the person's store gives it: record:setting:ask-a-small-model-for-a-verdict~<scope_kind>~<scope_id>."
             },
             "rules": {
               "type": "array",
               "minItems": 1,
-              "description": "The check rows with an ask to calibrate, as records:read gives them: { id: record:check:<id>, value }.",
+              "description": "The check rows with an ask to calibrate, as the person's store gives them: { id: record:check:<id>, value }.",
               "items": {
                 "type": "object",
                 "required": [
@@ -2773,7 +2753,7 @@
             },
             "line_rows": {
               "type": "array",
-              "description": "The person's labelled-line check rows (kind labelled-line) for the sets the asks' examples name, as records:list gives them: { id, value }.",
+              "description": "The person's labelled-line check rows (kind labelled-line) for the sets the asks' examples name, as the person's store gives them: { id, value }.",
               "items": {
                 "type": "object",
                 "required": [
@@ -2802,9 +2782,8 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
-            "/opt/ask-a-small-model-for-a-verdict/do-work/answer-with-a-downloaded-model.mjs",
-            "calibrateAsks"
+            "/opt/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs",
+            "calibrate-asks"
           ],
           "stdin": {
             "fill": {
@@ -2826,14 +2805,6 @@
                   "read-data"
                 ],
                 "at": "/opt/settings"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",

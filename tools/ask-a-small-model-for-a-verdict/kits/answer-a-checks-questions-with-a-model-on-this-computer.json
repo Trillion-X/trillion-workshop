@@ -336,7 +336,7 @@
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for lines you ruled good or bad and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than 80% match, and otherwise answers the records:write that adds the example rows, leaving your own rows untouched.",
+    "how": "Name the list you already keep for lines you ruled good or bad and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than 80% match, and otherwise answers with the write that adds the example rows, leaving your own rows untouched.",
     "example": {
       "kit_list": "list:checks",
       "into": {

@@ -248,6 +248,21 @@ test('calibrateAsks takes the ask rows and the line rows in the request and answ
   await assert.rejects(calibrateAsks({ ...request, lines: undefined }), /lines is required/);
 });
 
+test('the two rows run the CLI actions answer-asks and calibrate-asks: the request on standard input, the result on the last line', () => {
+  const cli = join(here, '..', 'do-work', 'ask-a-small-model.mjs');
+  const asks = [{ question: 'Is it vague?', options: ['no', 'yes'], text: 'Stuff.', examples: { items: 'made-up-rulings', bad_for: 'vague' },
+    model: { stand_in: { answers: { Stuff: yes(1) }, otherwise: yes(0.4) } } }];
+  const answered = spawnSync('node', [cli, 'answer-asks'], { input: JSON.stringify({ settings_record: settingRow(), asks, line_rows: LINE_ROWS }), encoding: 'utf8' });
+  assert.equal(answered.status, 0, answered.stderr);
+  assert.deepEqual(JSON.parse(answered.stdout.trim().split('\n').at(-1)), { result: [yes(0.4)] });
+  const refused = spawnSync('node', [cli, 'answer-asks'], { input: JSON.stringify({ asks }), encoding: 'utf8' });
+  assert.equal(refused.status, 1);
+  assert.match(JSON.parse(refused.stdout.trim().split('\n').at(-1)).error, /settings_record is required/);
+  const calibrated = spawnSync('node', [cli, 'calibrate-asks'], { input: JSON.stringify({ settings_record: settingRow(), rules: [VAGUE_ROW], lines: 'made-up-rulings', line_rows: LINE_ROWS, split: 'real', mode: 'cache' }), encoding: 'utf8' });
+  assert.equal(calibrated.status, 0, calibrated.stderr);
+  assert.equal(JSON.parse(calibrated.stdout.trim().split('\n').at(-1)).result['made-up-vague'].status, 'usable');
+});
+
 test('runAnswerer throws the answerer\'s own words', async () => {
   await assert.rejects(runAnswerer('answer', { settings: SETTINGS, asks: [{ question: 'q', options: ['no', 'yes'], text: 'x' }] }), /settings\.cache_file is required/);
 });
