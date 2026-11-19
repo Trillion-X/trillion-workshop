@@ -62,7 +62,6 @@
       "label": "Publishes where others see it",
       "mode": "none",
       "tools": [
-        "publish_post",
         "post_to_community",
         "publish_insight"
       ],
