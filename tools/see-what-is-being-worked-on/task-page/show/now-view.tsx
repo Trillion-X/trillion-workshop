@@ -1,9 +1,11 @@
-// Now: where the work stands, as a summary and not a list. A few sentences first: how much is done, what is held
-// up and on what, how the open work divides, what changed since the reader last looked. Then one tree of the goals,
+// Now: where the work stands, as a summary and not a list. A few sentences first: how much is done, how the open work
+// divides, what changed since the reader last looked. Then one tree of the goals,
 // closed at first: each goal one line (its ring, its name, k of n, and a dot only when something under it is held up);
 // opened in place it shows its sub-goals and its open work, with its done work behind a quiet "Show done". What a
 // status means (open or closed, done, held up, its colour) comes from the task_statuses rows and the rows'
 // `waiting_on`; no status name is in code. One row height, one type scale: goal 15px, item 14px, meta 12px.
+// Every item is drawn once, in its place under its goal: held-up work is marked by its goal's dot and its own status
+// word, never listed a second time above the goals (a page over many pursuits would open on a wall of such lines).
 //
 // Anatomy (inspiration, original code): Workshop ui/show/status-overview (sections and counts, from 21st.dev 28770
 // and Linear/Asana grouped lists on Mobbin), 21st.dev 29442 "Onboarding Checklist" (ring with k of n, rows that open in
@@ -126,15 +128,6 @@ export function NowView({ data, tree, now, seenBefore }: { data: Data; tree: Tre
         <div className="my-2 h-1 w-full overflow-hidden rounded-full" style={{ background: 'color-mix(in srgb, var(--color-foreground) 8%, transparent)' }}>
           <div className="h-full rounded-full" style={{ width: `${(count.done / Math.max(1, count.total)) * 100}%`, background: 'var(--color-success)' }} />
         </div>
-        {held.map(task => {
-          const look = lookOf(task.id);
-          return (
-            <p key={task.id} className="m-0 flex items-baseline gap-2 py-0.5 text-[15px] leading-6">
-              <span className="relative top-[-1px]">{dot(look?.tone)}</span>
-              <span><span style={{ color: look?.tone ?? muted }}>{look?.name}:</span> {plain(task)}{task.waiting_on ? <span style={{ color: muted }}>, waiting on {task.waiting_on}</span> : null}.</span>
-            </p>
-          );
-        })}
         {changedParts.length > 0 && (
           <p className="m-0 text-[13px] leading-6" style={{ color: muted }}>
             Since you last looked ({when(seenBefore!)}, {ago(seenBefore!)}): {changedParts.map(p => `${p.n} ${p.status.name.toLowerCase()}`).join(', ')}.
