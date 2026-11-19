@@ -19,6 +19,7 @@ const filesOf = async (site, pages = PAGES) => (await prepare({ unit: 'caddy.ser
 const siteFile = async (site, pages) => (await filesOf(site, pages))[0];
 
 const BLOCK = readFileSync(new URL('../sites/one-block-per-name.caddy', import.meta.url), 'utf8').trimEnd();
+const REFUSE = readFileSync(new URL('../sites/refuse-other-hosts.caddy', import.meta.url), 'utf8').trimEnd();
 const names = { site_hosts: ['place.example.test', 'www.example.test'], port: 7199 };
 const auth = { auth: { listen: ['127.0.0.1:7201'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' } };
 
@@ -26,10 +27,19 @@ test('the site file is one block per name, with the port, checked by the site\'s
   const file = await siteFile(names);
   assert.equal(file.path, '/etc/caddy/Caddyfile');
   const block = host => `${BLOCK.replace('{SITE}', host).replace('{PORT}', '7199')}\n`;
-  assert.equal(file.text, block('place.example.test') + block('www.example.test'));
+  assert.equal(file.text, block('place.example.test') + block('www.example.test') + `${REFUSE}\n`);
   assert.deepEqual(file.check, ['caddy', 'validate', '--config', '{file}', '--adapter', 'caddyfile']);
   assert.deepEqual(file.then, [['systemctl', 'reload', 'caddy.service']]);
   assert.equal((await siteFile({ ...names, binary: '/opt/example/caddy' })).check[0], '/opt/example/caddy', 'the Caddy that checks is the one the site runs');
+});
+
+test('a Host no block names is refused at Caddy with 421, not answered by its empty 200, in the one-block and single-name shapes', async () => {
+  const block = await siteFile(names);
+  assert.match(block.text, /\nhttps:\/\/ \{\n\trespond 421\n\}\n$/, 'the catch-all is the last block of the one-block site');
+  const single = await siteFile({ site_file: 'single-name-front-door', door_host: 'door.example.test', engine_paths: [], request_max: '4MB', pages_root: '/var/lib/front-door-pages', routes: [], engine_routes: [], grace_period: '150s', pools: {} });
+  assert.match(single.text, /^door\.example\.test \{$/m);
+  assert.ok(single.text.endsWith(`}\n${REFUSE}\n`), 'the catch-all follows the front door block, so a stranger Host gets 421');
+  assert.doesNotMatch(single.text, /\{\{/);
 });
 
 test('the unit keeps its own fields, and a unit with no site is refused', async () => {

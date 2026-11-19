@@ -1,0 +1,5 @@
+# Any Host that no block above names is refused here with 421 Misdirected Request. Caddy answers a Host that no block names with
+# an empty 200 by default, which made an unknown name look like a live front door.
+https:// {
+	respond 421
+}

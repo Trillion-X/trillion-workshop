@@ -57,3 +57,4 @@
 		respond "<!doctype html><meta charset=utf-8><title>Trillion</title><p>One moment, Trillion is reconnecting. Refresh in a few seconds.</p>" 503
 	}
 }
+{{refuse_other_hosts}}

@@ -90,14 +90,16 @@ const innerDoors = site => (site.inner_doors ?? []).map(({ listen, pool }, at) =
 /** One site block per name (`site_hosts`), each sending to the site's `port` (sites/one-block-per-name.caddy); the site's own
  * routes go first inside each block. */
 const BLOCK = readFileSync(new URL('./sites/one-block-per-name.caddy', import.meta.url), 'utf8').trimEnd();
+/** The block every site that names its hosts ends with: a Host no block names gets 421 at Caddy, not Caddy's empty 200. */
+const REFUSE_OTHER_HOSTS = readFileSync(new URL('./sites/refuse-other-hosts.caddy', import.meta.url), 'utf8').trimEnd();
 const blockPerName = (site, texts) => {
   const { site_hosts, port } = site;
   if (!Array.isArray(site_hosts) || !site_hosts.length) throw new Error('caddy.site_hosts needs at least one name');
   const routes = (site.routes ?? []).map(path => routeText(texts, path, site)).join('\n');
-  return site_hosts.map(host => {
+  return `${site_hosts.map(host => {
     const block = BLOCK.replaceAll('{SITE}', host).replaceAll('{PORT}', String(port));
     return `${routes ? block.replace('\n', `\n${routes}\n`) : block}\n`;
-  }).join('');
+  }).join('')}${REFUSE_OTHER_HOSTS}\n`;
 };
 
 /** A site that names `site_file` gets that whole file (sites/<site_file>.caddy): each {{field}} in it is the site's own value
@@ -114,7 +116,7 @@ const wholeFile = (site, texts) => {
   const routes = key => (site[key] ?? []).map(path => routeText(texts, path, site)).join('\n');
   const isRoutes = key => key === 'routes' || key.endsWith('_routes');
   const text = SITE_FILE(site.site_file).replace(/^\{\{([a-z_]+)\}\}\n/gm, (line, key) => isRoutes(key) && !routes(key) ? '' : line);
-  return fillFields(text, site, where, key => (isRoutes(key) ? routes(key) : undefined));
+  return fillFields(text, site, where, key => (isRoutes(key) ? routes(key) : key === 'refuse_other_hosts' ? REFUSE_OTHER_HOSTS : undefined));
 };
 
 /** The Caddy unit as the computer runs it: its `files` are the site file (checked by the site's Caddy, `binary`, and applied by

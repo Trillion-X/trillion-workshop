@@ -22,6 +22,8 @@ The unit names no `template`: Caddy's own unit file is the computer's (a package
 
 A site with `site_hosts` and `port` gets one block per name (`sites/one-block-per-name.caddy`) sending to that port, with the site's `routes` first inside each block.
 
+Every site that names its hosts (`site_hosts`, or `site_file: "single-name-front-door"`) ends with a catch-all (`sites/refuse-other-hosts.caddy`): a Host no block names gets 421 at Caddy. Without it Caddy answers that Host with an empty 200, which looked like a live front door.
+
 A site that names `site_file` gets that whole file from `sites/`, each `{{field}}` filled from the site. A `{{routes}}` or `{{<name>_routes}}` slot is that list of route names (`routes/`), and a line that is only an empty routes slot is left out. Caddy's own `{placeholders}` are left as they are.
 
 `site_file: "single-name-front-door"` makes a computer the front door of one name (`door_host`) with nothing between Caddy and the engine:
