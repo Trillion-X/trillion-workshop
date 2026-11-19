@@ -2,7 +2,9 @@
   "exports": {
     "join-records": "read-data/join-records.mjs",
     "message-task-canvas": "message-task-canvas.mjs",
-    "work-map-sources.json": "read-data/work-map-sources.json"
+    "work-map-sources.json": "read-data/work-map-sources.json",
+    "task-page-read": "task-page/read-data/read-task-page.mjs",
+    "task-page-mount": "task-page/show/mount-task-page.tsx"
   },
   "offers": [
     {

@@ -26,3 +26,7 @@ Moved byte for byte from the web client (`moved-from.json` names each file's sou
 | `show/ai-work-mount.tsx` | Its mount entry: the one `mount(element, props)` export the row's `screen.module.entry` names |
 | `web/src/workspace/message-task-canvas-screen.tsx` | The screen: The tasks every message was broken into (`tool:screen-message-task-canvas`) |
 | `show/message-task-canvas-mount.tsx` | Its mount entry: the one `mount(element, props)` export the row's `screen.module.entry` names |
+
+## Task page
+
+`task-page/` draws a pursuit's task page (Now and History) from that pursuit's own task tables, read on each request by `readTaskPage(runSql)`; its mount is `task-page/show/mount-task-page.tsx`. See `task-page/README.md`.
