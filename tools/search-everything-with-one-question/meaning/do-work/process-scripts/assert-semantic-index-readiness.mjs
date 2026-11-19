@@ -7,6 +7,7 @@
 import fs from "node:fs";
 import { pyDumps } from "./pyjson.mjs";
 import { requireCanonicalMultihash, ValueError } from "./canonical_multihash.mjs";
+import { kinds } from "./semantic-kinds.mjs";
 
 function isDict(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -59,7 +60,7 @@ function indexNotReadyError(indexId) {
 
 function requireSourceDescriptor(reply, indexId) {
   const matches = rows(reply).filter(
-    (row) => row.kind === "capability-index-source-descriptor" && row.index_id === indexId,
+    (row) => row.kind === kinds.capability_index_source_descriptor && row.index_id === indexId,
   );
   if (matches.length === 0) {
     throw indexNotReadyError(indexId);
@@ -91,15 +92,15 @@ function assertReady({
 }) {
   const source = requireSourceDescriptor(sourceDescriptorReply, indexId);
   const descriptor = one(descriptorReply, {
-    kind: "semantic-index-descriptor", identityField: "index_id", identity: indexId,
+    kind: kinds.semantic_index_descriptor, identityField: "index_id", identity: indexId,
     label: "semantic index descriptor",
   });
   const policy = one(policyReply, {
-    kind: "discovery-readiness-policy", identityField: "id", identity: indexId,
+    kind: kinds.discovery_readiness_policy, identityField: "id", identity: indexId,
     label: "readiness policy",
   });
   const convergence = one(convergenceReply, {
-    kind: "semantic-index-convergence", identityField: "id", identity: indexId,
+    kind: kinds.semantic_index_convergence, identityField: "id", identity: indexId,
     label: "convergence receipt",
   });
 
@@ -113,7 +114,7 @@ function assertReady({
     throw new ValueError("current source snapshot count mismatch");
   }
 
-  const indexRef = `semantic-index-descriptor:${indexId}`;
+  const indexRef = `${kinds.semantic_index_descriptor}:${indexId}`;
   if (source.index_ref !== indexRef || policy.index_ref !== indexRef) {
     throw new ValueError("descriptor/readiness index reference mismatch");
   }

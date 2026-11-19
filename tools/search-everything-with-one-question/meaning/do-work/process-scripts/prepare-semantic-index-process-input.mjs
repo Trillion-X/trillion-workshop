@@ -8,6 +8,7 @@
 import fs from "node:fs";
 import { pyDumps } from "./pyjson.mjs";
 import { ValueError } from "./canonical_multihash.mjs";
+import { kinds } from "./semantic-kinds.mjs";
 
 function isDict(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -38,7 +39,7 @@ function rows(reply) {
 
 function exactDescriptor(reply, indexId) {
   const matches = rows(reply).filter(
-    (row) => row.kind === "semantic-index-descriptor" && row.index_id === indexId,
+    (row) => row.kind === kinds.semantic_index_descriptor && row.index_id === indexId,
   );
   if (matches.length !== 1) {
     throw new ValueError("semantic index descriptor requires exactly one current row");

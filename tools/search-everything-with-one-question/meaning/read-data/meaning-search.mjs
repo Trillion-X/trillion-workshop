@@ -186,7 +186,7 @@ async function planOf(descriptor, door) {
 // The descriptor rows of this index in the person's records: the package's read_descriptor reply.
 async function descriptorReply(door, indexId) {
   const items = [];
-  for await (const record of door.list({ type: settings.descriptor_kind })) if (record.value?.index_id === indexId) items.push(record.value);
+  for await (const record of door.list({ type: settings.kinds.semantic_index_descriptor })) if (record.value?.index_id === indexId) items.push(record.value);
   return { items };
 }
 
