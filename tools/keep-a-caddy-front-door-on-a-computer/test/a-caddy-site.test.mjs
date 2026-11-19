@@ -159,6 +159,8 @@ test('each name its own folder: the site file names no site, asks before each ce
   assert.match(text, /^192\.0\.2\.10 \{$/m);
   assert.match(text, /@program file \{\n\t\troot \/run\/example-sites\n\t\ttry_files \/\{site\}\/\n\t\}/, 'a site has a program when its folder exists under programs_root');
   assert.match(text, /reverse_proxy unix\/\/run\/example-sites\/\{site\}\/http\.sock/);
+  // A request waits for a restarting program instead of failing.
+  assert.match(text, /http\.sock \{\n\t+lb_try_duration 15s\n\t+lb_try_interval 250ms\n/);
   assert.doesNotMatch(text, /place\.example\.test|\{\{/, 'no site is named in the file');
   assert.ok(files.some(file => file.path === '/var/lib/example-sites/place.example.test/index.html'), 'a site is its folder');
 });

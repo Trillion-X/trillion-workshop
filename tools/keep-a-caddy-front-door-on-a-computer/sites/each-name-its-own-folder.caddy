@@ -2,7 +2,8 @@
 # for www.<name>, which is sent on to it) is answered from that folder, read-only, with a certificate Caddy gets the first time
 # the name is asked for; a name with no folder gets no certificate. A request no page answers goes to the site's own program
 # when it has one: a program listening on the socket {{programs_root}}/<name>/http.sock (a unit of the computer's row, whose folder is <name>) gets it
-# whole, any method. The computer's own address {{door_host}} keeps its certificate (ACME profile {{certificate_profile}}) and
+# whole, any method. While that program restarts (its socket is gone or refuses), a request waits for it, trying again every
+# 250 ms for up to 15 s, so a restart drops no request that has not reached the old program. The computer's own address {{door_host}} keeps its certificate (ACME profile {{certificate_profile}}) and
 # answers 404. So this file and the computer's row name no site: a site is a folder, and a program of its own is its folder under programs_root.
 {
 	admin localhost:2019
@@ -68,7 +69,10 @@ https:// {
 		file_server
 	}
 	handle @program {
-		reverse_proxy unix/{{programs_root}}/{site}/http.sock
+		reverse_proxy unix/{{programs_root}}/{site}/http.sock {
+			lb_try_duration 15s
+			lb_try_interval 250ms
+		}
 	}
 	handle {
 		respond "Not found" 404

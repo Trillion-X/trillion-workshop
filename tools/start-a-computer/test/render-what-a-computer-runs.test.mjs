@@ -135,4 +135,8 @@ test('serve-a-built-program renders the built program, its interpreter, its cred
   assert.match(file.text, /^LoadCredentialEncrypted=store:\/etc\/credstore\.encrypted\/example-site-store$/m);
   assert.match(file.text, /^RuntimeDirectory=sites\/place\.example\.test$/m);
   assert.match(file.text, /^Group=example-web$/m);
+  // A restart keeps the socket's folder and lets the program finish the calls it holds.
+  assert.match(file.text, /^RuntimeDirectoryPreserve=restart$/m);
+  assert.match(file.text, /^KillMode=mixed$/m);
+  assert.match(file.text, /^TimeoutStopSec=30$/m);
 });
