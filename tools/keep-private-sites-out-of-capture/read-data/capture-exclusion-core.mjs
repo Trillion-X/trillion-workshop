@@ -14,7 +14,7 @@
 //   4. A category the person has not turned on excludes nothing; their choice beats the default.
 //
 // USAGE
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/keep-private-sites-out-of-capture/read-data/capture-exclusion.mjs exclusion
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/keep-private-sites-out-of-capture/read-data/capture-exclusion.mjs exclusion
 //
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
