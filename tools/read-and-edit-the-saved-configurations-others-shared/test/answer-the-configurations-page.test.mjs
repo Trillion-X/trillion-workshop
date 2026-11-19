@@ -128,4 +128,6 @@ test('the row reads and writes no store: it names no records operation and takes
   assert.deepEqual(rightsOf(row), []);
   assert.ok(!/records:(read|write|list|search)\b/.test(JSON.stringify(row)));
   assert.equal(row.invoke.internet, false);
+  assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs', 'the row runs the workflows function runner, not the records door runner');
+  assert.ok(!JSON.stringify(row).includes('records-door'));
 });

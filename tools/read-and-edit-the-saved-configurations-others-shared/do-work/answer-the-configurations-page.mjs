@@ -65,7 +65,7 @@ function heldOf(records) {
   return held;
 }
 
-/** tool:answer-the-configurations-page: called as fn(input) by tools/records-door/do-work/run-an-export.mjs. */
+/** tool:answer-the-configurations-page: called as fn(input) by tools/workflows/do-work/run-a-function.mjs. */
 export async function answerTheConfigurationsPage(input) {
   const { path = '', method = 'GET', query = {}, body, records } = object(input) ? input : {};
   const held = heldOf(records);
