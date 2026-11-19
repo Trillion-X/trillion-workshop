@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:share-a-decision's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words\", with {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\"}. It runs tool:share-a-decision and answers {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"next\":\"rewrite\",\"ai_instructions\":[\"Rewrite this decision so no one could tell who made it. Remove or generalize every name, nickname, company, product, brand, place, event, date, month, age, number, job title, and any unusual detail that could point to one person. Say sizes and shares in words, never as figures, and never write [removed]; write ...",
+  "start_here": "Say to your AI: \"Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words\", with {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"never_publish\":[\"Sample Studio\"]}, the words of the person's never-publish list read from their own rows (an empty list when they have none). It runs tool:share-a-decision and answers {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"next\":\"rewrite\",\"ai_instructions\":[\"Rewrite this decision so no one could tell who made it. Remove or generalize every name, nickname, company, product, brand, place, event, date, month, age, number, job title, and any unusual detail that could point to one person. Say sizes and shares in words, never as figures, and never write [removed]; write ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (decision, decision-revision, decision-step, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, record:never-publish) from the records handed in.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (decision, decision-revision, decision-step, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs) from the records handed in. The never-publish words come in as never_publish, read by the caller; a call without that field is refused.",
   "workflows": [],
   "tools": [
     "tool:share-a-decision",
@@ -10,10 +10,10 @@
     "tool:ask-a-small-model-for-a-verdict"
   ],
   "instructions": [
-    "1. Say to your AI: \"Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words\", and give it decision_id.",
+    "1. Say to your AI: \"Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words\", and give it decision_id and never_publish (the words of the person's never-publish rows; [] when there are none).",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:share-a-decision and its input (the worked example shows one).",
     "3. Read what comes back: In three turns.",
-    "4. It reads only the records handed in as `records` (decision; decision-revision; decision-step; decision-evidence; decision-answered-step; decision-option; decision-candidate; decision-report; decision-carried-out; decision-history; decision-cited-pursuit; decision-method; decision-part; decision-refs; record:never-publish). The changes come back as keep, each with the value it expected, for the caller to write to its own store."
+    "4. It reads only the records handed in as `records` (decision; decision-revision; decision-step; decision-evidence; decision-answered-step; decision-option; decision-candidate; decision-report; decision-carried-out; decision-history; decision-cited-pursuit; decision-method; decision-part; decision-refs). The changes come back as keep, each with the value it expected, for the caller to write to its own store."
   ],
   "worked_examples": [
     {
@@ -27,12 +27,15 @@
           "input": {
             "tool": "tool:share-a-decision",
             "input": {
-              "decision_id": "source:c2FtcGxlOmNsYXNzLXByaWNlLTE"
+              "decision_id": "source:c2FtcGxlOmNsYXNzLXByaWNlLTE",
+              "never_publish": [
+                "Sample Studio"
+              ]
             }
           }
         }
       },
-      "given": "The input {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\"}, with 12 example rows (record:never-publish, decision, decision-evidence, decision-method, decision-step, decision-answered-step) already kept.",
+      "given": "The input {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"never_publish\":[\"Sample Studio\"]}, with 11 example rows (decision, decision-evidence, decision-method, decision-step, decision-answered-step) already kept.",
       "hands_back": "It answered {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"next\":\"rewrite\",\"ai_instructions\":[\"Rewrite this decision so no one could tell who made it. Remove or generalize every name, nickname, company, product, brand, place, event, date, month, age, number, job title, and any unusual detail that could point to one person. Say sizes and shares in words, never as figures, and never write [removed]; write around anything missing in plain general words. Keep the kind of situation, the choices, what was chosen, why, and how success is measured. Send it back as rewrite: { situation, options: [words], chosen, why, measured_by }.\"],\"facts\":{\"goal\":\"Decide the made-up sample class price for spring\" ...."
     }
   ]

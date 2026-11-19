@@ -157,39 +157,64 @@ const decisionKinds = ['decision', 'decision-step', 'decision-call', ...Object.v
 
 test('a decided decision is shared only after the plain pass and a re-identification verdict bound to its exact words', async () => {
   const door = account();
-  door.put(`record:${settings.share.never_publish_row}:1`, `record:${settings.share.never_publish_row}`, { [settings.share.never_publish_field]: 'pottery camp' });
+  const never_publish = ['pottery camp'];
   const id = await answered(door);
-  await assert.throws(() => run(door, shareADecision, { decision_id: id }), /no decision yet/);
+  await assert.throws(() => run(door, shareADecision, { never_publish, decision_id: id }), /no decision yet/);
   await run(door, makeTheDecision, { decision_id: id, decision });
-  const asked = await run(door, shareADecision, { decision_id: id });
+  const asked = await run(door, shareADecision, { never_publish, decision_id: id });
   assert.equal(asked.next, 'rewrite');
   assert.equal(asked.facts.goal, 'Decide the [removed] price for spring', 'the person\'s never-publish phrase is redacted before the AI rewrites');
   assert.deepEqual(asked.shape.map(field => field.name), ['situation', 'options', 'chosen', 'why', 'measured_by']);
   const rewrite = { situation: 'Someone running a small seasonal class weighed raising its price after their costs went up.', options: ['Keep the price', 'Raise the price'], chosen: 'Raise the price', why: 'Costs went up and most people still came.', measured_by: 'About as many sign ups as last season.' };
-  await assert.throws(() => run(door, shareADecision, { decision_id: id, rewrite: { ...rewrite, why: 'The pottery camp costs went up.' } }), /could still point to someone: \[removed\]/);
-  await assert.throws(() => run(door, shareADecision, { decision_id: id, rewrite: { ...rewrite, measured_by: 'Twelve families by 2027.' } }), /could still point to someone: \[removed\]/, 'a refusal never repeats the detail it found');
-  await assert.throws(() => run(door, shareADecision, { decision_id: id, rewrite: { situation: 'A class price.' } }), /A rewrite is/);
-  const check = await run(door, shareADecision, { decision_id: id, rewrite });
+  await assert.throws(() => run(door, shareADecision, { never_publish, decision_id: id, rewrite: { ...rewrite, why: 'The pottery camp costs went up.' } }), /could still point to someone: \[removed\]/);
+  await assert.throws(() => run(door, shareADecision, { never_publish, decision_id: id, rewrite: { ...rewrite, measured_by: 'Twelve families by 2027.' } }), /could still point to someone: \[removed\]/, 'a refusal never repeats the detail it found');
+  await assert.throws(() => run(door, shareADecision, { never_publish, decision_id: id, rewrite: { situation: 'A class price.' } }), /A rewrite is/);
+  const check = await run(door, shareADecision, { never_publish, decision_id: id, rewrite });
   assert.equal(check.next, 'check');
   assert.equal(check.check.tool, settings.share.check_tool);
   assert.deepEqual(check.check.rubric, settings.share.reidentification);
   assert.match(check.check.input_identity, /^blake3:[0-9a-f]{64}$/);
   // A verdict about other words, or one that was not accepted, is not this rewrite's.
-  const other = await run(door, shareADecision, { decision_id: id, rewrite, reidentification: { accepted: true, review_binding: { input_identity: `blake3:${'0'.repeat(64)}` } } });
+  const other = await run(door, shareADecision, { never_publish, decision_id: id, rewrite, reidentification: { accepted: true, review_binding: { input_identity: `blake3:${'0'.repeat(64)}` } } });
   assert.equal(other.next, 'check');
-  const rejected = await run(door, shareADecision, { decision_id: id, rewrite, reidentification: { accepted: false, review_binding: { input_identity: check.check.input_identity } } });
+  const rejected = await run(door, shareADecision, { never_publish, decision_id: id, rewrite, reidentification: { accepted: false, review_binding: { input_identity: check.check.input_identity } } });
   assert.equal(rejected.next, 'check');
   assert.equal(caseView(door, id).shared, undefined, 'nothing is kept as shared before an accepted verdict for these words');
-  const shared = await run(door, shareADecision, { decision_id: id, rewrite, reidentification: { accepted: true, review_binding: { input_identity: check.check.input_identity } } });
+  const shared = await run(door, shareADecision, { never_publish, decision_id: id, rewrite, reidentification: { accepted: true, review_binding: { input_identity: check.check.input_identity } } });
   assert.deepEqual(shared.send, { tool: settings.share.pool_tool, entry: rewrite });
   assert.equal(caseView(door, id).shared.review_identity, check.check.input_identity);
-  const changed = await run(door, shareADecision, { decision_id: id, rewrite: { ...rewrite, why: 'Costs rose and most people still came.' } });
+  const changed = await run(door, shareADecision, { never_publish, decision_id: id, rewrite: { ...rewrite, why: 'Costs rose and most people still came.' } });
   assert.notEqual(changed.check.input_identity, check.check.input_identity, 'the verdict binds exactly the words it reviewed');
 });
 
-test('sharing packs the tools it imports', () => {
+test('sharing needs the never-publish list handed in: a call without it, or with a malformed one, is refused, and an empty list goes through', async () => {
+  const door = account();
+  const id = await answered(door);
+  await run(door, makeTheDecision, { decision_id: id, decision });
+  await assert.throws(() => run(door, shareADecision, { decision_id: id }), /Sharing needs never_publish/, 'a missing list is refused, not read as empty');
+  await assert.throws(() => run(door, shareADecision, { decision_id: id, never_publish: 'pottery camp' }), /Sharing needs never_publish/);
+  await assert.throws(() => run(door, shareADecision, { decision_id: id, never_publish: [''] }), /Sharing needs never_publish/);
+  const asked = await run(door, shareADecision, { decision_id: id, never_publish: [] });
+  assert.equal(asked.next, 'rewrite', 'an empty list means the caller read it and it is empty');
+});
+
+test('a never-publish word the decision holds is redacted, and a rewrite that keeps it is refused', async () => {
+  const door = account();
+  const id = await answered(door);
+  await run(door, makeTheDecision, { decision_id: id, decision });
+  const never_publish = ['pottery camp'];
+  const asked = await run(door, shareADecision, { decision_id: id, never_publish });
+  assert.equal(asked.facts.goal, 'Decide the [removed] price for spring');
+  const rewrite = { situation: 'Someone running a small seasonal class weighed raising its price.', options: ['Keep the price', 'Raise the price'], chosen: 'Raise the price', why: 'The pottery camp costs went up.', measured_by: 'About as many sign ups as last season.' };
+  await assert.throws(() => run(door, shareADecision, { decision_id: id, never_publish, rewrite }), /could still point to someone: \[removed\]/);
+});
+
+test('sharing reads only the decision and the never_publish list it is handed, and packs the tools it imports', () => {
   const row = rows.find(each => each.id === 'tool:share-a-decision');
-  const packed = row.invoke.files.package_files.map(item => item.package ?? item.module);
+  assert.deepEqual(rightsOf(row), [], 'the row reads no store: what it reads is handed in');
+  assert.deepEqual(row.input_schema.required, ['decision_id', 'never_publish']);
+  assert.equal(row.input_schema.properties.never_publish.type, 'array');
+  const packed = row.invoke.files.package_files.flatMap(item => [item.package ?? item.module, ...(item.packages ?? []).map(name => name.replace(/^node_modules\//, ''))]);
   for (const name of ['decide-with-a-method', 'learn-from-everyones-results', 'ask-a-small-model-for-a-verdict', 'content-identity', '@noble/hashes']) assert.ok(packed.includes(name), name);
 });
 

@@ -5471,19 +5471,28 @@
         "id": "tool:share-a-decision",
         "label": "Make a decision safe to share",
         "job": "Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words",
-        "description": "In three turns. With only decision_id: the decision's facts with every private term already redacted, and how to rewrite them in general terms. With rewrite: the plain privacy pass (tools/learn-from-everyones-results) runs on it with the person's own private terms (their never-publish list rows and the proper names in the decision) and must find nothing; then reidentification, the whole answer tool:ask-a-small-model-for-a-verdict gave for the rubric and content this tool names, must be accepted and bound to exactly this rewrite. Only then is the entry kept on the decision as shared and answered with the pool tool to send it to (tool:add-a-shared-situation). Nothing leaves the person's records here.",
+        "description": "In three turns. With decision_id and never_publish (the words of the person's never-publish list, which the caller reads from its own rows; an empty list when there are none; a call without it is refused): the decision's facts with every private term already redacted, and how to rewrite them in general terms. With rewrite: the plain privacy pass (tools/learn-from-everyones-results) runs on it with the person's own private terms (the never_publish words and the proper names in the decision) and must find nothing; then reidentification, the whole answer tool:ask-a-small-model-for-a-verdict gave for the rubric and content this tool names, must be accepted and bound to exactly this rewrite. Only then is the entry kept on the decision as shared and answered with the pool tool to send it to (tool:add-a-shared-situation). Nothing leaves the person's records here.",
         "status": "active",
         "result_selector": "$.result",
         "input_schema": {
           "type": "object",
           "required": [
-            "decision_id"
+            "decision_id",
+            "never_publish"
           ],
           "additionalProperties": false,
           "properties": {
             "decision_id": {
               "type": "string",
               "minLength": 1
+            },
+            "never_publish": {
+              "type": "array",
+              "description": "The words of the person's never-publish list, read by the caller from their own rows. An empty list means the caller read it and it is empty; a missing field is refused.",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
             },
             "rewrite": {
               "type": "object",
@@ -5698,14 +5707,10 @@
             "kind": "sample-run",
             "input": {
               "decision_id": "source:c2FtcGxlOmNsYXNzLXByaWNlLTE",
+              "never_publish": [
+                "Sample Studio"
+              ],
               "records": [
-                {
-                  "id": "record:never-publish:sample-1",
-                  "type": "record:never-publish",
-                  "value": {
-                    "words": "Sample Studio"
-                  }
-                },
                 {
                   "id": "source:c2FtcGxlOmNsYXNzLXByaWNlLTE",
                   "type": "decision",

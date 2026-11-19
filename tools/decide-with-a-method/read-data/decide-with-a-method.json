@@ -550,13 +550,22 @@
     "tool:share-a-decision": {
       "type": "object",
       "required": [
-        "decision_id"
+        "decision_id",
+        "never_publish"
       ],
       "additionalProperties": false,
       "properties": {
         "decision_id": {
           "type": "string",
           "minLength": 1
+        },
+        "never_publish": {
+          "type": "array",
+          "description": "The words of the person's never-publish list, read by the caller from their own rows. An empty list means the caller read it and it is empty; a missing field is refused.",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         },
         "rewrite": {
           "type": "object",
@@ -1020,6 +1029,7 @@
     "said_shape": "Say state (done or wall) and what_happened: what was done, or the exact wall (the file, field, refused command or missing credential)",
     "said_generation_changed": "The decision generation changed before its carried-out receipt. Read the current decision before continuing.",
     "share_shape": "A rewrite is { situation, options: [words], chosen, why, measured_by }, each one words, and nothing else.",
+    "share_never_publish": "Sharing needs never_publish: the words of the person's never-publish list, read from their own rows and handed in as a list (an empty list when they have none). It is not run without that list.",
     "share_not_safe": "The rewrite could still point to someone: {found}. Rewrite those parts in general terms and send it again.",
     "share_check": "Ask {tool} whether these words could point to one person, with exactly this rubric and content, and send its whole answer back as reidentification.",
     "end_shape": "Name 1 to {most} decisions to end, each { decision_id, because } with its own decision_id, and by: who ends them",
@@ -1028,8 +1038,6 @@
     "field_misplaced": "\"{name}\" belongs at the top level of the call, not inside \"{in}\"."
   },
   "share": {
-    "never_publish_row": "never-publish",
-    "never_publish_field": "words",
     "entry_fields": [
       {
         "name": "situation",

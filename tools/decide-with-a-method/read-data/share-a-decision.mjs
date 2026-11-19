@@ -8,10 +8,12 @@
 //   1. A decision is kept as shared only after the plain privacy pass finds nothing in the rewrite with the person's
 //      own private terms and a re-identification verdict is accepted for exactly that rewrite and rubric.
 //   2. Nothing leaves the person's account here: the kept entry is answered with the pool tool to send it to.
+//   3. The privacy pass always runs against the person's never-publish list, which the caller must hand in as
+//      `never_publish` (an empty list means "read, and empty"). A call without that field is refused, never run with [].
 import { readFileSync } from 'node:fs';
 import { findings, privateTerms, redact, redactAll } from '../../learn-from-everyones-results/read-data/plain-privacy-pass.mjs';
 import { contentReviewIdentity } from '../../ask-a-small-model-for-a-verdict/do-work/judge-content.mjs';
-import { canonical, decisionId, decisionOrRefuse, keepDecision, refuse, rowsOf, say } from './decisions.mjs';
+import { canonical, decisionId, decisionOrRefuse, keepDecision, refuse, say } from './decisions.mjs';
 import { recordsIn } from './decision-records.mjs';
 
 const { share: SHARE } = JSON.parse(readFileSync(new URL('./decide-with-a-method.json', import.meta.url), 'utf8'));
@@ -41,21 +43,22 @@ function sharedEntryOf(rewrite) {
 }
 
 /**
- * tool:share-a-decision. input { decision_id, rewrite?, reidentification? }. A decided decision made safe to show
- * strangers, in three turns of the calling AI. Without a rewrite: the decision's facts with every private term already
+ * tool:share-a-decision. input { decision_id, never_publish, rewrite?, reidentification? }. A decided decision made safe to
+ * show strangers, in three turns of the calling AI. Without a rewrite: the decision's facts with every private term already
  * redacted, and how to rewrite them in general terms. With a rewrite: the plain privacy pass on it with the person's own
- * private terms (their never-publish list rows and the proper names in the decision) must find nothing, then a
- * re-identification verdict from tools/ask-a-small-model-for-a-verdict must be accepted and bound to exactly this
- * rewrite and rubric (`review_binding.input_identity`); without one, the call answers the rubric and content to ask
- * it with. Only then is the entry kept on the decision (`shared`) and answered with the pool tool to send it to.
+ * private terms (the `never_publish` words the caller read from their never-publish list, and the proper names in the
+ * decision) must find nothing, then a re-identification verdict from tools/ask-a-small-model-for-a-verdict must be accepted
+ * and bound to exactly this rewrite and rubric (`review_binding.input_identity`); without one, the call answers the rubric
+ * and content to ask it with. Only then is the entry kept on the decision (`shared`) and answered with the pool tool to send it to.
  */
 export function shareADecision(input) {
+  const neverPublish = input.never_publish;
+  if (!Array.isArray(neverPublish) || !neverPublish.every(nonempty)) refuse('share_never_publish');
   const held = recordsIn(input);
   const id = decisionId(input);
   const record = decisionOrRefuse(held, id);
   if (!record.decision) refuse('no_decision_yet');
   const facts = decisionFacts(record);
-  const neverPublish = (rowsOf(held, SHARE.never_publish_row)).map(row => row?.[SHARE.never_publish_field]).filter(nonempty);
   const terms = privateTerms({ texts: [facts, record.input.evidence.map(item => item.claim)], neverPublish });
   if (input.rewrite === undefined) {
     return { case_id: id, next: 'rewrite', ai_instructions: [SHARE.rewrite], facts: redactAll(facts, terms), shape: SHARE.entry_fields, keep: [] };
