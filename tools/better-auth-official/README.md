@@ -237,3 +237,10 @@ From `/api/auth/oauth2/token` with `resource` set to `mcp.resource`: EdDSA JWTs,
 - `caddy-route-*`: the web server's routes to it. `caddy-route-better-auth-pages.mjs` builds its route from `pages/routes.json`, so a page added here is routed with no list in any row.
 
 A row names each file by path, such as `tools/better-auth-official/on-a-computer/serve-better-auth.service`.
+
+## Busy
+
+A sign-in server that answers 429 or any 5xx is busy, not ended: every page's failed answer goes through one `refusal` in
+`pages/sign-in-client.mjs`, which shows the terminal's busy sentence (`words.sign_in_busy` in
+`tools/use-your-tools-from-a-shell/do-work/command.json`, its `{site_name}` filled with the site's name) in the shared alert with Try again.
+`pages/busy.mjs` holds the test for busy and the sentence; test/busy.test.mjs answers 429, 500, 502, 503 and 504 over HTTP and checks the words.
