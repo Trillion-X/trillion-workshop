@@ -38,7 +38,7 @@ test('a cause the engine does not take, two causes, an unknown field and an extr
   assert.match(wakeProblems([{ ...weekly, on: { time: { every_ms: 3600000 } } }], context)[0], /exactly one cause/, 'the engine keeps no clock: a time comes as a due-time fact');
   assert.match(wakeProblems([{ ...weekly, on: { running: {}, arrival: { source: 'x' } } }], context)[0], /exactly one cause/);
   assert.match(wakeProblems([{ ...weekly, on: { fact: { kind: 'due-time', from: ['run'], weekday: 'monday' } } }], context)[0], /^wakes\[0\]\.on\.fact\.weekday is not a field of a fact cause; it takes /);
-  assert.deepEqual(wakeProblems([{ ...weekly, starts: 'weekly' }], context), ['wakes[0].starts is not part of a wake; it takes id, on, budget, input.']);
+  assert.deepEqual(wakeProblems([{ ...weekly, starts: 'weekly' }], context), ['wakes[0].starts is not part of a wake; it takes id, on, budget, input, retry, skip_unchanged, rate, replay.']);
 });
 
 test('a fact names a kind and who may tell it, from the engine\'s tellers only', () => {
@@ -62,6 +62,23 @@ test('a budget below what a run needs, above its ledger, or in an unknown dimens
 test('a recipe with a wake must say what a run produces, in words', () => {
   assert.deepEqual(recipeProblems({ ...recipe([weekly]), produces: undefined }), ['a recipe with a wake must say what a run produces (produces), so the person knows what each firing makes.']);
   assert.deepEqual(recipeProblems({ ...recipe([weekly]), produces: ' ' }), ['produces must say in one line what a run makes that could become something to share.']);
+});
+
+test('the settings of a wake are what the engine takes: retry, skip_unchanged, rate and replay, each checked by its row and only on a fact', () => {
+  const set = settings => [{ ...weekly, ...settings }];
+  assert.deepEqual(wakeProblems(set({ retry: { attempts: 4, first_ms: 60000, factor: 3, most_ms: 3600000 }, skip_unchanged: ['schedule_id'], rate: { most: 2, per_ms: 60000 }, replay: { within_ms: 86400000 } }), context), []);
+  assert.deepEqual(wakeProblems(set({ retry: { attempts: 2, first_ms: 1000 }, skip_unchanged: true }), context), [], 'factor and most_ms are optional');
+  assert.deepEqual(wakeProblems(set({ retry: { attempts: 0, first_ms: 1000 } }), context), ['wakes[0].retry.attempts must be positive.']);
+  assert.deepEqual(wakeProblems(set({ retry: { attempts: 2, first_ms: 5000, most_ms: 10 } }), context), ['wakes[0].retry.most_ms must be at least first_ms.']);
+  assert.deepEqual(wakeProblems(set({ retry: { attempts: 2, first_ms: 1, jitter: 1 } }), context), ['wakes[0].retry.jitter is not a field of retry; it takes attempts, first_ms, factor, most_ms.']);
+  assert.deepEqual(wakeProblems(set({ retry: { first_ms: 1 } }), context), ['wakes[0].retry.attempts is required.']);
+  assert.deepEqual(wakeProblems(set({ retry: 3 }), context), ['wakes[0].retry must be an object of attempts, first_ms, factor, most_ms.']);
+  assert.deepEqual(wakeProblems(set({ skip_unchanged: false }), context), ['wakes[0].skip_unchanged must be true-or-names.']);
+  assert.deepEqual(wakeProblems(set({ skip_unchanged: ['a', 'a'] }), context), ['wakes[0].skip_unchanged must be true-or-names.']);
+  assert.deepEqual(wakeProblems(set({ rate: { most: 2 } }), context), ['wakes[0].rate.per_ms is required.']);
+  assert.deepEqual(wakeProblems(set({ replay: { within_ms: 0 } }), context), ['wakes[0].replay.within_ms must be positive.']);
+  assert.deepEqual(wakeProblems([{ id: 'keep', on: { running: {} }, budget: { steps: 1, wall_ms: 120000 }, input: { start_at: 'first' }, rate: { most: 1, per_ms: 1 } }], context),
+    ['wakes[0].rate is taken only on a fact wake.'], 'a kept program restarts itself and admits once');
 });
 
 test('a repeated wake id and an empty list are refused', () => {

@@ -25,6 +25,7 @@ const SHAPES = {
   whole,
   positive: value => Number.isInteger(value) && value > 0,
   strings: value => object(value) && Object.values(value).every(item => typeof item === 'string'),
+  'true-or-names': value => value === true || (Array.isArray(value) && value.length > 0 && value.every(item => typeof item === 'string' && item.length > 0) && new Set(value).size === value.length),
 };
 
 // The values a field's `in` or `keys_in` names: a list's items, or an object's keys.
@@ -37,7 +38,8 @@ const listed = (vocabulary, name) => {
 function causeProblems(row, fields, where, vocabulary) {
   const problems = [];
   const known = new Map(row.fields.map(field => [field.field, field]));
-  for (const key of Object.keys(fields)) if (!known.has(key)) problems.push(`${where}.${key} is not a field of a ${row.cause} cause; it takes ${[...known.keys()].join(', ')}.`);
+  const what = row.cause ? `a ${row.cause} cause` : `${row.setting}`;
+  for (const key of Object.keys(fields)) if (!known.has(key)) problems.push(`${where}.${key} is not a field of ${what}; it takes ${[...known.keys()].join(', ')}.`);
   for (const field of row.fields) {
     const value = fields[field.field];
     const at = `${where}.${field.field}`;
@@ -45,12 +47,29 @@ function causeProblems(row, fields, where, vocabulary) {
     if (!SHAPES[field.shape](value)) { problems.push(`${at} ${field.refusal ?? `must be ${field.shape}.`}`); continue; }
     if (field.in && ![value].flat().every(item => listed(vocabulary, field.in).includes(item))) problems.push(`${at} must be one of: ${listed(vocabulary, field.in).join(', ')}.`);
     if (field.only_with && fields[field.only_with] === undefined) problems.push(`${at} is taken only beside ${field.only_with}.`);
+    if (field.at_least && whole(fields[field.at_least]) && value < fields[field.at_least]) problems.push(`${at} must be at least ${field.at_least}.`);
     if (field.keys_in) {
       const allowed = vocabulary[field.keys_in]?.[fields[field.by]] ?? [];
       for (const key of Object.keys(value)) if (!allowed.includes(key)) problems.push(`${at}.${key} is not a field ${fields[field.by]} reports; it reports ${allowed.join(', ') || 'nothing'}.`);
     }
   }
   if (row.exactly_one_of && row.exactly_one_of.filter(field => fields[field] !== undefined).length !== 1) problems.push(`${where} needs exactly one of ${row.exactly_one_of.join(', ')}.`);
+  return problems;
+}
+
+// Every problem with a wake's optional settings (`settings` rows): a setting is either one shape, or an object of fields
+// judged as a cause's are, and only on a cause its row's `only_on` names.
+function settingProblems(wake, where, cause, vocabulary) {
+  const problems = [];
+  for (const row of vocabulary.settings ?? []) {
+    const value = wake[row.setting];
+    if (value === undefined) continue;
+    const at = `${where}.${row.setting}`;
+    if (cause && row.only_on && !row.only_on.includes(cause)) problems.push(`${at} is taken only on a ${row.only_on.join(' or ')} wake.`);
+    if (row.shape) { if (!SHAPES[row.shape](value)) problems.push(`${at} must be ${row.shape}.`); continue; }
+    if (!object(value)) { problems.push(`${at} must be an object of ${row.fields.map(field => field.field).join(', ')}.`); continue; }
+    problems.push(...causeProblems(row, value, at, vocabulary));
+  }
   return problems;
 }
 
@@ -95,8 +114,9 @@ export function wakeProblems(wakes, { stepIds, inputFields }, vocabulary = WAKE_
   const ids = new Set();
   wakes.forEach((wake, index) => {
     const where = `${field}[${index}]`;
+    const taken = [...vocabulary.declaration_fields, ...(vocabulary.settings ?? []).map(row => row.setting)];
     if (!object(wake)) { problems.push(`${where} must be { ${vocabulary.declaration_fields.join(', ')} }.`); return; }
-    for (const key of Object.keys(wake)) if (!vocabulary.declaration_fields.includes(key)) problems.push(`${where}.${key} is not part of a wake; it takes ${vocabulary.declaration_fields.join(', ')}.`);
+    for (const key of Object.keys(wake)) if (!taken.includes(key)) problems.push(`${where}.${key} is not part of a wake; it takes ${taken.join(', ')}.`);
     if (!SHAPES.text(wake.id)) problems.push(`${where}.id must name the wake.`);
     else if (ids.has(wake.id)) problems.push(`${where}.id "${wake.id}" is used twice.`);
     ids.add(wake.id);
@@ -105,6 +125,7 @@ export function wakeProblems(wakes, { stepIds, inputFields }, vocabulary = WAKE_
     if (!row) problems.push(`${where}.on must name exactly one cause: ${[...causes.keys()].join(', ')}.`);
     else if (!object(wake.on[row.cause])) problems.push(`${where}.on.${row.cause} must be an object of its fields.`);
     else problems.push(...causeProblems(row, wake.on[row.cause], `${where}.on.${row.cause}`, vocabulary));
+    problems.push(...settingProblems(wake, where, row?.cause, vocabulary));
     problems.push(...budgetProblems(wake.budget, `${where}.budget`, ledgersOf(row, object(wake.on) ? wake.on[row?.cause] : undefined), vocabulary));
     if (!object(wake.input)) { problems.push(`${where}.input must be an object holding ${vocabulary.start_field}.`); return; }
     if (!stepIds.includes(wake.input[vocabulary.start_field])) problems.push(`${where}.input.${vocabulary.start_field} must name a step of this recipe: ${stepIds.join(', ')}.`);
