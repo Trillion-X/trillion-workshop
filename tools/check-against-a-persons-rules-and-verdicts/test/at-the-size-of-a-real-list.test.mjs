@@ -1,8 +1,9 @@
 // tools/check-against-a-persons-rules-and-verdicts: the two piece rows at the sizes measured on a person's real Checks
 // list (Nov 4, 2026): a list of 40,707 rows of which 39,088 are pieces, and whole documents of 31 KB and 120 KB with ```
 // and ~~~ fences. Every row, file and word here is made up. Each row runs as the container runs it
-// (test-helpers/run-a-row.mjs), with the stand-in records door cutting list pages by bytes as the engine's door does
-// and refusing a request body over its 65,536-byte message, under the heap of the row's needs.memory_mb.
+// (test-helpers/run-a-row.mjs), under the heap of the row's needs.memory_mb. The coverage row is handed its check rows
+// as input (`records`); the split row reads its document by name through the stand-in files door, which cuts pages by
+// bytes as the engine's door does and refuses a request body over its 65,536-byte message.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -72,31 +73,28 @@ function expected() {
   return { files, totals: { files: files.size, pieces: sum('pieces'), with_check: sum('with_check'), with_reason: sum('with_reason'), uncovered: sum('uncovered') } };
 }
 
-test('tool:check-every-piece-is-covered finishes on a 40,707-row list (39,088 pieces) in pages, under its heap, in one door message', { timeout: 600_000 }, async t => {
+test('tool:check-every-piece-is-covered finishes on a 40,707-row list (39,088 pieces) handed in as its records, under its heap', { timeout: 600_000 }, async t => {
   const records = madeUpList();
   assert.equal(records.length, 40_707);
   assert.equal(records.filter(record => record.value.kind === 'piece').length, 39_088);
   const want = expected();
   const row = rowOf('tool:check-every-piece-is-covered');
-  const ran = await runHeld(row, {}, { records });
+  const ran = await runHeld(row, { records }, {});
   assert.equal(ran.code, 0, ran.stdout + ran.stderr);
   const answer = ran.last.result;
   assert.equal(answer.status, 'failed');
   assert.deepEqual(answer.totals, want.totals);
   assert.deepEqual(answer.missing_count, { checks: PIECES / 4, covered_by: 0 });
   assert.ok(ran.answer_bytes <= SETTINGS.answer.most_bytes, `the answer is ${ran.answer_bytes} bytes`);
-  const lists = ran.calls.filter(call => call.method === 'records:list');
-  assert.equal(lists.length, ran.calls.length, 'the coverage only lists');
-  assert.ok(lists.every(call => call.input.limit <= 999), 'every read is a bounded page');
   assert.ok(ran.peak_mb < row.needs.memory_mb, `peak ${ran.peak_mb} MB`);
-  t.diagnostic(`40,707 rows (39,088 pieces): ${lists.length} pages, ${ran.ms} ms, peak ${ran.peak_mb} MB, answer ${ran.answer_bytes} bytes, `
+  t.diagnostic(`40,707 rows (39,088 pieces): ${ran.ms} ms, peak ${ran.peak_mb} MB, answer ${ran.answer_bytes} bytes, `
     + `${answer.files.length} of ${answer.totals.files} files on the first page; totals ${JSON.stringify(answer.totals)}`);
 
   // Page by page over every file: each file once, with its whole counts.
   const seen = new Map(answer.files.map(file => [file.file, file]));
   let pages = 1;
   for (let after = answer.next; after !== null; pages += 1) {
-    const page = (await runRow(row, { after }, { records, doorOptions: door })).last.result;
+    const page = (await runRow(row, { records, after }, {})).last.result;
     assert.deepEqual(page.totals, want.totals);
     for (const file of page.files) { assert.ok(!seen.has(file.file), `${file.file} twice`); seen.set(file.file, file); }
     after = page.next;
@@ -111,7 +109,7 @@ test('tool:check-every-piece-is-covered finishes on a 40,707-row list (39,088 pi
   // One file's uncovered pieces, named page by page, each once.
   const one = fileName(7), named = [];
   for (let after = null; ;) {
-    const page = (await runRow(row, after === null ? { file: one } : { file: one, after }, { records, doorOptions: door })).last.result;
+    const page = (await runRow(row, after === null ? { records, file: one } : { records, file: one, after }, {})).last.result;
     assert.ok(Buffer.byteLength(JSON.stringify(page)) <= SETTINGS.answer.most_bytes);
     named.push(...page.files[0].uncovered.map(piece => piece.id));
     if (page.next === null) break;

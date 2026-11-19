@@ -12,16 +12,13 @@
 //   1. A piece is covered when `checked_by` names check rows that all exist, or when `no_check.reason` is words and
 //      every id its `covered_by` names (when given) is a row that exists. Anything else is uncovered, and counted.
 //   2. A piece standing in two files counts in each file.
-//   3. `coverageInRecords` reads the person's records only through the door it is handed, and only in bounded pages
-//      (records:list, never one unbounded read): the ids of the Checks list (`fields: []`), then the piece rows by the
-//      door's `where { kind: "piece" }` narrowed to the fields the coverage reads (never their text). Each page is folded
-//      into a running tally (`coverageTally`) and let go, so what is held is a set of ids, each file's counts and at most
-//      a bounded number of named pieces, never the list. It writes nothing. A list of 40,707 rows (39,088 pieces) is
-//      read in a test under the heap of the row's container.
-//   4. The answer fits the room a door gives a run's answer (`answer.most_bytes`, or the caller's `most_bytes`): every
-//      count is whole, the files and named pieces are those that fit, and `next` is where the next page starts. A run
-//      whose answer were larger would end with an unknown outcome, since the door carries the answer twice in one
-//      65,536-byte message. Record types, bounds and words are DATA in read-data/pieces.json.
+//   3. `coverageOfRecords` reads the person's records only as they were handed in (`records`, read-data/pieces.json
+//      `check_type` rows): the ids of the Checks list, then the piece rows (`kind: "piece"`) narrowed to the fields the
+//      coverage reads (never their text). Each piece is folded into a running tally (`coverageTally`), so what is held
+//      is a set of ids, each file's counts and at most a bounded number of named pieces. It writes nothing.
+//   4. The answer fits the room a run's answer is given (`answer.most_bytes`, or the caller's `most_bytes`): every
+//      count is whole, the files and named pieces are those that fit, and `next` is where the next page starts.
+//      Record types, bounds and words are DATA in read-data/pieces.json.
 //
 // Shapes
 //   sweepAtoms(recorded, current, citing, allChecks) -> { count, with_check, with_reason, changed, gone, uncovered,
@@ -33,8 +30,9 @@
 //     missing_count: { checks, covered_by }, lines, next }
 //       Over every file (no `file`): files after `after` by name, each naming its first uncovered pieces by id.
 //       For one `file`: that file, naming its uncovered pieces by id after `after`, as many as fit.
-//   coverageInRecords(door, { file?, after?, most_bytes? }) -> coverage of the person's piece rows, read page by page
+//   coverageOfRecords(records, { file?, after?, most_bytes? }) -> coverage of the person's piece rows handed in
 import SETTINGS from '../read-data/pieces.json' with { type: 'json' };
+import { recordsOf } from './records-in-hand.mjs';
 
 const fill = (template, values) => String(template).replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 
@@ -158,21 +156,19 @@ export function coverage(pieces, checks, options = {}) {
 const PIECE_FIELDS = ['kind', 'checked_by', 'no_check', 'sources', 'says', 'key'];
 
 /**
- * The coverage of the person's own piece rows, read through `door` (read only), page after page: first the ids of
- * every row of the Checks list (`fields: []`, ids only), then the piece rows (`where { kind: "piece" }`, narrowed to
- * the fields the coverage reads), each folded into the running tally and let go.
+ * The coverage of the person's own piece rows, from the check records the caller handed in (`records`, each
+ * { id, type, value }): the ids of every Checks row, then each piece row narrowed to the fields the coverage reads,
+ * folded into the running tally. Nothing is read from a store and nothing is written.
  */
-export async function coverageInRecords(door, options = {}) {
-  const ids = new Set();
-  for await (const record of door.list({ type: SETTINGS.check_type, fields: [] })) {
-    if (typeof record?.id === 'string' && record.id.startsWith(SETTINGS.record_prefix)) ids.add(record.id.slice(SETTINGS.record_prefix.length));
-  }
+export function coverageOfRecords(records, options = {}) {
+  const checks = recordsOf(records, SETTINGS.check_type);
+  const ids = new Set(checks.filter(record => record.id.startsWith(SETTINGS.record_prefix)).map(record => record.id.slice(SETTINGS.record_prefix.length)));
   const named = options.file == null ? SETTINGS.answer.named_per_file : SETTINGS.answer.named_in_one_file;
   const tally = coverageTally(id => typeof id === 'string' && ids.has(id), { file: options.file ?? null, after: options.file == null ? null : options.after ?? null, named });
-  for await (const record of door.list({ type: SETTINGS.check_type, where: { [SETTINGS.kind_field]: SETTINGS.piece_kind }, fields: PIECE_FIELDS })) {
-    const value = record?.value;
-    if (value && typeof value === 'object' && value[SETTINGS.kind_field] === SETTINGS.piece_kind && typeof record.id === 'string') {
-      tally.add({ ...value, id: record.id.slice(SETTINGS.record_prefix.length) });
+  for (const record of checks) {
+    const value = record.value;
+    if (value && typeof value === 'object' && value[SETTINGS.kind_field] === SETTINGS.piece_kind) {
+      tally.add({ ...Object.fromEntries(PIECE_FIELDS.filter(name => name in value).map(name => [name, value[name]])), id: record.id.slice(SETTINGS.record_prefix.length) });
     }
   }
   const result = tally.result();

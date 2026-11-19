@@ -6,7 +6,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { atomsOf, pieceRows } from '../do-work/pieces.mjs';
-import { coverage, coverageInRecords, sweepAtoms } from '../do-work/piece-sweep.mjs';
+import { coverage, coverageOfRecords, sweepAtoms } from '../do-work/piece-sweep.mjs';
+import { recordsHandedIn } from '../do-work/records-in-hand.mjs';
 import { runRow } from '../../../test-helpers/run-a-row.mjs';
 
 const folder = resolve(import.meta.dirname, '..');
@@ -67,28 +68,17 @@ test('a check or a covered_by naming a row that does not exist covers nothing, a
   assert.ok(coverage(pieces, [{ id: 'made-up-check' }]).files[1].uncovered.some(item => item.says === 'Open'), 'a blank reason is no reason');
 });
 
-test('the coverage of the records pages the ids of the Checks list, then the piece rows narrowed to what it reads, and writes nothing', async () => {
+test('the coverage of the records handed in counts the Checks rows and the piece rows, and changes no record', () => {
   const { pieces } = madeUpPieces();
   const records = [...pieces.map(value => ({ id: `record:check:${value.id}`, type: 'record:check', value })),
     { id: 'record:check:made-up-check', type: 'record:check', value: { id: 'made-up-check', part_of: 'made-up-base', words: ['made-up'] } }];
-  const calls = [];
-  const door = {
-    async read() { throw new Error('the coverage reads no record one by one'); },
-    async *list(query) {
-      calls.push({ op: 'list', ...query });
-      for (const record of records) {
-        if (record.type !== query.type || (query.where && record.value.kind !== query.where.kind)) continue;
-        yield query.fields?.length === 0 ? { id: record.id, type: record.type } : { id: record.id, type: record.type, value: Object.fromEntries(query.fields.filter(name => name in record.value).map(name => [name, record.value[name]])) };
-      }
-    },
-    write() { throw new Error('the coverage writes nothing'); },
-  };
-  const report = await coverageInRecords(door);
+  const before = structuredClone(records);
+  const report = coverageOfRecords(records);
   assert.equal(report.status, 'failed');
   assert.deepEqual(report.totals, { files: 2, pieces: 5, with_check: 3, with_reason: 1, uncovered: 1 });
-  assert.deepEqual(calls, [{ op: 'list', type: 'record:check', fields: [] },
-    { op: 'list', type: 'record:check', where: { kind: 'piece' }, fields: ['kind', 'checked_by', 'no_check', 'sources', 'says', 'key'] }]);
-  await assert.rejects(coverageInRecords({ async read() { return null; }, async *list() {} }), /no piece rows/);
+  assert.deepEqual(records, before, 'the records are read, never changed');
+  assert.throws(() => coverageOfRecords([]), /no piece rows/);
+  assert.throws(() => recordsHandedIn([{ id: 7, type: 'record:check', value: {} }]), /each \{ id, type, value \}/);
 });
 
 test('an answer too large for one door message comes in pages: every file once over the pages, every uncovered piece of one file once', () => {
@@ -120,12 +110,12 @@ test('an answer too large for one door message comes in pages: every file once o
   assert.throws(() => coverage(pieces, [], { file: 'no-such.md' }), /No piece row names the file no-such.md/);
 });
 
-test('tool:check-every-piece-is-covered is given only check rows, and answers its seeded sample', async () => {
+test('tool:check-every-piece-is-covered is given its check rows as input, and answers its seeded sample', async () => {
   const row = rows.find(item => item.id === 'tool:check-every-piece-is-covered');
-  assert.deepEqual(row.stored, [{ kind: 'record:check', operations: ['records:list'] }]);
-  assert.equal(row.invoke.records, undefined, 'the run asks the door for nothing');
-  const sample = row.verify.find(item => item.records);
-  const ran = await runRow(row, sample.input, { records: sample.records });
+  assert.equal(row.stored, undefined, 'the run reads no store');
+  assert.equal(row.invoke.records, undefined, 'the run asks for no store');
+  const sample = row.verify.find(item => item.input.records);
+  const ran = await runRow(row, sample.input, {});
   assert.equal(ran.code, 0, ran.stderr ?? ran.stdout);
   const result = JSON.parse(ran.stdout.trim().split('\n').at(-1)).result;
   assert.equal(result.status, 'failed');

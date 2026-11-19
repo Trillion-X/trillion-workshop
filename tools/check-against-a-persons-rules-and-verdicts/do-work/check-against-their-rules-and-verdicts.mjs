@@ -16,12 +16,13 @@
 // The two piece rows run the same command with their name as its one argument:
 //   split-a-document-into-pieces  { text | name, file?, file_identity? } -> the document's pieces in the answer, nothing kept
 //                                 (do-work/pieces.mjs splitIntoPieces), a named document's bytes from `stored` files
-//   check-every-piece-is-covered  { file?, after?, most_bytes? } -> coverage of the person's piece rows, read page by page
-//                                 (do-work/piece-sweep.mjs coverageInRecords), the rows from `stored`
+//   check-every-piece-is-covered  { records, file?, after?, most_bytes? } -> coverage of the person's piece rows, the
+//                                 check rows given as `records` (do-work/piece-sweep.mjs coverageOfRecords)
 //   check-a-films-copy            { branch, settings_record, files, ... } -> a film's copy checked against the branch, with
 //                                 its report (do-work/check-a-films-copy.mjs checkAFilmsCopy), the rows from `stored`
 // Every mode only reads: what it reads is given, so nothing is kept.
 import { text } from 'node:stream/consumers';
+import { recordsHandedIn } from './records-in-hand.mjs';
 
 const { stored, ...input } = JSON.parse((await text(process.stdin)) || '{}');
 try {
@@ -31,9 +32,8 @@ try {
     const door = typeof input.name === 'string' ? (await import('../../records-door/read-data/values-door.mjs')).valuesDoor(stored).door : null;
     console.log(JSON.stringify({ result: await splitIntoPieces(input, door) }));
   } else if (process.argv[2] === 'check-every-piece-is-covered') {
-    const { coverageInRecords } = await import('./piece-sweep.mjs');
-    const { valuesDoor } = await import('../../records-door/read-data/values-door.mjs');
-    console.log(JSON.stringify({ result: await coverageInRecords(valuesDoor(stored).door, { file: input.file, after: input.after, most_bytes: input.most_bytes }) }));
+    const { coverageOfRecords } = await import('./piece-sweep.mjs');
+    console.log(JSON.stringify({ result: coverageOfRecords(recordsHandedIn(input.records), { file: input.file, after: input.after, most_bytes: input.most_bytes }) }));
   } else if (process.argv[2] === 'check-a-films-copy') {
     const { checkAFilmsCopy } = await import('./check-a-films-copy.mjs');
     const { valuesDoor } = await import('../../records-door/read-data/values-door.mjs');

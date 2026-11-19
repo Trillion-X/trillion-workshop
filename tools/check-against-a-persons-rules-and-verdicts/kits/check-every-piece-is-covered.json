@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:check-every-piece-is-covered's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered\", with {}. It runs tool:check-every-piece-is-covered and answers {\"status\":\"failed\",\"totals\":{\"files\":1,\"pieces\":3,\"with_check\":1,\"with_reason\":1,\"uncovered\":1},\"files\":[{\"file\":\"made-up.md\",\"pieces\":3,\"with_check\":1,\"with_reason\":1,\"uncovered_count\":1,\"uncovered\":[{\"id\":\"piece-dddddddddddddddddddddddd\",\"section\":\"Made-up / Open\",\"says\":\"Open\"}]}],\"missing_checks\":[],\"missing_covered_by\":[],\"missing_count\":{\"checks\":0,\"covered_by\":0},\"lines\":[\"1 files, 3 ...",
+  "start_here": "Say to your AI: \"Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered\", with the check rows you read from your own store as records (the worked example shows them). It runs tool:check-every-piece-is-covered and answers {\"status\":\"failed\",\"totals\":{\"files\":1,\"pieces\":3,\"with_check\":1,\"with_reason\":1,\"uncovered\":1},\"files\":[{\"file\":\"made-up.md\",\"pieces\":3,\"with_check\":1,\"with_reason\":1,\"uncovered_count\":1,\"uncovered\":[{\"id\":\"piece-dddddddddddddddddddddddd\",\"section\":\"Made-up / Open\",\"says\":\"Open\"}]}],\"missing_checks\":[],\"missing_covered_by\":[],\"missing_count\":{\"checks\":0,\"covered_by\":0},\"lines\":[\"1 files, 3 ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:check) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes the record:check rows you read from your own store as its input (records), and reads and writes no store.",
   "workflows": [],
   "tools": [
     "tool:check-every-piece-is-covered",
@@ -11,8 +11,8 @@
   "instructions": [
     "1. Say to your AI: \"Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered\", and give it nothing more: every input is optional.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:check-every-piece-is-covered and its input (the worked example shows one).",
-    "3. Read what comes back: Reads, through the person's records door, read only and in bounded pages, the ids of their Checks list and then its rows whose kind is piece (as the person's AI kept them from tool:split-a-document-into-pieces, without their text), folding each page into a running tally, so a list of any size (40,000 rows and more) is read in one call.",
-    "4. It reads and writes only its own rows through the records door: record:check (records:list)."
+    "3. Read what comes back: Reads the check rows you hand in as records (the ids of the Checks list and its rows whose kind is piece, as tool:split-a-document-into-pieces kept them, without their text), folding each piece into a running tally, so the answer holds counts and a bounded number of named pieces.",
+    "4. It reads and writes no store: the records you hand in are its only input, and the coverage is its answer."
   ],
   "worked_examples": [
     {
@@ -25,11 +25,13 @@
           "method": "tools:run",
           "input": {
             "tool": "tool:check-every-piece-is-covered",
-            "input": {}
+            "input": {
+              "records": [ { "id": "record:check:piece-aaaaaaaaaaaaaaaaaaaaaaaa", "type": "record:check", "value": { "id": "piece-aaaaaaaaaaaaaaaaaaaaaaaa", "kind": "piece", "says": "Checked", "checked_by": ["made-up-check"], "sources": [{ "file": "made-up.md", "section": "Made-up / Checked" }] } } ]
+            }
           }
         }
       },
-      "given": "The input {}, with 4 example rows (record:check) already kept.",
+      "given": "The input's records are the 4 example rows (record:check), read from your own store.",
       "hands_back": "It answered {\"status\":\"failed\",\"totals\":{\"files\":1,\"pieces\":3,\"with_check\":1,\"with_reason\":1,\"uncovered\":1},\"files\":[{\"file\":\"made-up.md\",\"pieces\":3,\"with_check\":1,\"with_reason\":1,\"uncovered_count\":1,\"uncovered\":[{\"id\":\"piece-dddddddddddddddddddddddd\",\"section\":\"Made-up / Open\",\"says\":\"Open\"}]}],\"missing_checks\":[],\"missing_covered_by\":[],\"missing_count\":{\"checks\":0,\"covered_by\":0},\"lines\":[\"1 files, 3 pieces: 1 with a check, 1 with a recorded reason, 1 uncovered\",\"made-up.md: 3 pieces, 1 with a check, 1 with a recorded reason, 1 uncovered\",\"Uncovered in made-up.md: piece-dddddddddddddddddddddddd (Made-up / Open) has no check and no reason. Write a check row and name it in checked_by, or record ...."
     }
   ]

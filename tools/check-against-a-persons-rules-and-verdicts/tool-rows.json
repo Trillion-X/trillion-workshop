@@ -2651,7 +2651,7 @@
     "label": "Check every piece of a person's files has a check or a reason",
     "status": "active",
     "job": "Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered",
-    "description": "Reads, through the person's records door, read only and in bounded pages, the ids of their Checks list and then its rows whose kind is piece (as the person's AI kept them from tool:split-a-document-into-pieces, without their text), folding each page into a running tally, so a list of any size (40,000 rows and more) is read in one call. A piece is covered when checked_by names check rows that all exist, or when no_check has a reason (and every row its covered_by names exists). The answer: totals over every file, and per source file its pieces, those with a check, those with a reason and how many are uncovered, naming the first uncovered pieces by id, section and lead; status failed when any piece is uncovered. Checks and covered_by naming rows that do not exist are counted and the first named. The answer fits one door message (at most most_bytes of JSON): when more files remain, next is the after of the next page; with file, the page names that file's uncovered pieces by id, after after. Nothing is written.",
+    "description": "Reads the Checks rows handed in as records (the person's AI reads them from its own store: the ids of their Checks list and its rows whose kind is piece, as tool:split-a-document-into-pieces kept them, without their text), folding each piece into a running tally, so the run holds counts and a bounded number of named pieces. The run reads and writes no store. A piece is covered when checked_by names check rows that all exist, or when no_check has a reason (and every row its covered_by names exists). The answer: totals over every file, and per source file its pieces, those with a check, those with a reason and how many are uncovered, naming the first uncovered pieces by id, section and lead; status failed when any piece is uncovered. Checks and covered_by naming rows that do not exist are counted and the first named. The answer fits at most most_bytes of JSON: when more files remain, next is the after of the next page; with file, the page names that file's uncovered pieces by id, after after. Nothing is written.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -2670,9 +2670,17 @@
        "maximum": 28000,
        "description": "The most bytes of JSON the answer takes (28000 when left out)"
       },
-      "stored": {
-        "type": "object",
-        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:check, as this row's `stored` lists. What is not given is not there."
+      "records": {
+        "type": "array",
+        "description": "The record:check rows the caller read from the person's own store (their Checks list: the check rows and the piece rows; a piece's text may be left out, the coverage does not read it), each { id, type, value }. What is not given is not there. The run reads and writes no store.",
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "type",
+            "value"
+          ]
+        }
       }
      }
     },
@@ -2899,8 +2907,8 @@
     "needs": {
      "expected_seconds": 60,
      "network_egress": false,
-     "memory_mb": 128,
-     "_what": "memory_mb is the run's peak resident memory at the largest list the row reads, the 40,707-row Checks list (39,088 pieces, 324 pages) measured by at-the-size-of-a-real-list.test.mjs: 118, 116 and 117 MB on three runs (Nov 12, 2026), under the test's heap cap of memory_mb less 80 (48 MB). 128 is the next container step above the largest measured peak; the test asserts the peak stays under memory_mb."
+     "memory_mb": 256,
+     "_what": "memory_mb is the run's peak resident memory at the largest list the row is handed, the 40,707-row Checks list (39,088 pieces) given as the input's records: 157 MB at 512 MB and 185 MB at 256 MB, measured by at-the-size-of-a-real-list.test.mjs (Nov 19, 2026), under the test's heap cap of memory_mb less 80. 256 is the next container step above the measured peak; the test asserts the peak stays under memory_mb."
     },
     "licence_class": "licence:maker-own",
     "placements": [
@@ -2911,107 +2919,100 @@
      "source": "old trillion scripts/method-sources.mjs sweepAtoms and its --coverage report, moved"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {},
-      "records": [
-       {
-        "id": "record:check:piece-aaaaaaaaaaaaaaaaaaaaaaaa",
-        "type": "record:check",
-        "value": {
-         "id": "piece-aaaaaaaaaaaaaaaaaaaaaaaa",
-         "kind": "piece",
-         "says": "Checked",
-         "text": "**Checked.** A made-up rule.",
-         "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaa0000000000000000000000000000000000000000",
-         "key": "Made-up / Checked",
-         "sources": [
-          {
-           "file": "made-up.md",
-           "section": "Made-up / Checked",
-           "file_identity": "1f:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-           "at": 1
-          }
-         ],
-         "tags": [],
-         "kinds": [],
-         "checked_by": [
-          "made-up-check"
-         ]
-        }
-       },
-       {
-        "id": "record:check:piece-bbbbbbbbbbbbbbbbbbbbbbbb",
-        "type": "record:check",
-        "value": {
-         "id": "piece-bbbbbbbbbbbbbbbbbbbbbbbb",
-         "kind": "piece",
-         "says": "Reasoned",
-         "text": "**Reasoned.** A made-up aside.",
-         "identity": "1f:bbbbbbbbbbbbbbbbbbbbbbbb0000000000000000000000000000000000000000",
-         "key": "Made-up / Reasoned",
-         "sources": [
-          {
-           "file": "made-up.md",
-           "section": "Made-up / Reasoned",
-           "file_identity": "1f:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-           "at": 1
-          }
-         ],
-         "tags": [],
-         "kinds": [],
-         "checked_by": [],
-         "no_check": {
-          "reason": "A made-up aside, not a rule."
-         }
-        }
-       },
-       {
-        "id": "record:check:piece-dddddddddddddddddddddddd",
-        "type": "record:check",
-        "value": {
-         "id": "piece-dddddddddddddddddddddddd",
-         "kind": "piece",
-         "says": "Open",
-         "text": "**Open.** Nothing covers this.",
-         "identity": "1f:dddddddddddddddddddddddd0000000000000000000000000000000000000000",
-         "key": "Made-up / Open",
-         "sources": [
-          {
-           "file": "made-up.md",
-           "section": "Made-up / Open",
-           "file_identity": "1f:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-           "at": 1
-          }
-         ],
-         "tags": [],
-         "kinds": [],
-         "checked_by": []
-        }
-       },
-       {
-        "id": "record:check:made-up-check",
-        "type": "record:check",
-        "value": {
-         "id": "made-up-check",
-         "part_of": "made-up-base",
-         "words": [
-          "made-up"
-         ],
-         "says": "A made-up check."
-        }
-       }
-      ],
-      "output_selector": "$.files[0].uncovered[0].id",
-      "contains": "piece-dddddddddddddddddddddddd"
-     }
-    ],
-    "stored": [
       {
-        "kind": "record:check",
-        "operations": [
-          "records:list"
-        ]
+        "kind": "sample-run",
+        "input": {
+          "records": [
+            {
+              "id": "record:check:piece-aaaaaaaaaaaaaaaaaaaaaaaa",
+              "type": "record:check",
+              "value": {
+                "id": "piece-aaaaaaaaaaaaaaaaaaaaaaaa",
+                "kind": "piece",
+                "says": "Checked",
+                "text": "**Checked.** A made-up rule.",
+                "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaa0000000000000000000000000000000000000000",
+                "key": "Made-up / Checked",
+                "sources": [
+                  {
+                    "file": "made-up.md",
+                    "section": "Made-up / Checked",
+                    "file_identity": "1f:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "at": 1
+                  }
+                ],
+                "tags": [],
+                "kinds": [],
+                "checked_by": [
+                  "made-up-check"
+                ]
+              }
+            },
+            {
+              "id": "record:check:piece-bbbbbbbbbbbbbbbbbbbbbbbb",
+              "type": "record:check",
+              "value": {
+                "id": "piece-bbbbbbbbbbbbbbbbbbbbbbbb",
+                "kind": "piece",
+                "says": "Reasoned",
+                "text": "**Reasoned.** A made-up aside.",
+                "identity": "1f:bbbbbbbbbbbbbbbbbbbbbbbb0000000000000000000000000000000000000000",
+                "key": "Made-up / Reasoned",
+                "sources": [
+                  {
+                    "file": "made-up.md",
+                    "section": "Made-up / Reasoned",
+                    "file_identity": "1f:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "at": 1
+                  }
+                ],
+                "tags": [],
+                "kinds": [],
+                "checked_by": [],
+                "no_check": {
+                  "reason": "A made-up aside, not a rule."
+                }
+              }
+            },
+            {
+              "id": "record:check:piece-dddddddddddddddddddddddd",
+              "type": "record:check",
+              "value": {
+                "id": "piece-dddddddddddddddddddddddd",
+                "kind": "piece",
+                "says": "Open",
+                "text": "**Open.** Nothing covers this.",
+                "identity": "1f:dddddddddddddddddddddddd0000000000000000000000000000000000000000",
+                "key": "Made-up / Open",
+                "sources": [
+                  {
+                    "file": "made-up.md",
+                    "section": "Made-up / Open",
+                    "file_identity": "1f:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "at": 1
+                  }
+                ],
+                "tags": [],
+                "kinds": [],
+                "checked_by": []
+              }
+            },
+            {
+              "id": "record:check:made-up-check",
+              "type": "record:check",
+              "value": {
+                "id": "made-up-check",
+                "part_of": "made-up-base",
+                "words": [
+                  "made-up"
+                ],
+                "says": "A made-up check."
+              }
+            }
+          ]
+        },
+        "output_selector": "$.files[0].uncovered[0].id",
+        "contains": "piece-dddddddddddddddddddddddd"
       }
     ]
    }
