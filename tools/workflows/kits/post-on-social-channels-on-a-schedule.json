@@ -277,6 +277,7 @@
   "workflows": [
     "workflow:post-on-social-channels-on-a-schedule",
     "workflow:set-up-a-business-on-the-account",
+    "workflow:send-each-post-at-its-time",
     "workflow:set-up-your-checks"
   ],
   "tools": [
@@ -285,7 +286,6 @@
     "tool:check-copy",
     "tool:draft-a-post",
     "tool:see-how-each-post-did",
-    "tool:send-each-post-at-its-time",
     "tool:set-a-post-to-go-at-its-time"
   ],
   "instructions": [

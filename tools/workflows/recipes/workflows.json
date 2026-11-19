@@ -132644,7 +132644,7 @@
           {
             "id": "schedule",
             "title": "Schedule only the approved posts, or hand them to the person",
-            "do": "For each approved draft, make it a post row with its channel, words and exact time (tool:draft-a-post), then set it to go at that time with tool:set-a-post-to-go-at-its-time, which the post sender sends from (tool:send-each-post-at-its-time), and copy the post id as scheduler_id. Where the channel has no connection the person made, call tool:tell-the-person with the draft's words, channel and exact time so the person posts it. Give each supporting voice from the blitz runbook its own row's time and words with tool:tell-the-person, for the person to pass on. Never schedule a draft that is not approved, and never post from an account the person did not connect.",
+            "do": "For each approved draft, make it a post row with its channel, words and exact time (tool:draft-a-post), then set it to go at that time with tool:set-a-post-to-go-at-its-time, which the post sender sends from (workflow:send-each-post-at-its-time), and copy the post id as scheduler_id. Where the channel has no connection the person made, call tool:tell-the-person with the draft's words, channel and exact time so the person posts it. Give each supporting voice from the blitz runbook its own row's time and words with tool:tell-the-person, for the person to pass on. Never schedule a draft that is not approved, and never post from an account the person did not connect.",
             "submit": {
               "type": "object",
               "required": [
@@ -138572,7 +138572,7 @@
           {
             "id": "confirm-the-at-its-time-send",
             "title": "Confirm the at-its-time send is on",
-            "do": "The sends are made by tool:send-each-post-at-its-time, which runs on its own once its wake is switched on. Read the wake that names send-each-post-at-its-time with wake:list at @own-records. If its on value is true, submit wake_on true. If no such wake row exists, or it is off, submit wake_on false and a gap: \"send-each-post-at-its-time wake is not on; switch it on in the Trillion app (the exact label is not verified here).\" No step sends a post by hand here.",
+            "do": "The sends are made by workflow:send-each-post-at-its-time, which runs on its own once its wake is switched on. Read the wake that names send-each-post-at-its-time with wake:list at @own-records. If its on value is true, submit wake_on true. If no such wake row exists, or it is off, submit wake_on false and a gap: \"send-each-post-at-its-time wake is not on; switch it on in the Trillion app (the exact label is not verified here).\" No step sends a post by hand here.",
             "submit": {
               "type": "object",
               "required": [
@@ -138592,7 +138592,7 @@
             "came_from": [
               "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
-              "tool:send-each-post-at-its-time description",
+              "workflow:send-each-post-at-its-time recipe",
               "tool:check-copy"
             ],
             "part_of": [

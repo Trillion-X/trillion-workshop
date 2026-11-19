@@ -61,14 +61,14 @@ globalThis.fetch = async (url, init = {}) => {
   if (call.tool_id === 'tool:my-browser-push-application-key') result = { applicationServerKey: 'AQID' };
   else if (call.tool_id === 'tool:register-my-notification-device') {
     registered.push(call.input); result = { device_id: 'device-a', changed: true, devices: [] };
-  } else if (call.tool_id === 'tool:my-device-notices') {
+  } else if (call.tool_id === 'workflow:read-my-device-notices') {
     result = { device_id: 'device-a', channel: 'web-push', cursor, notices: cursor === 0 ? [{
       id: 'told:41', title: 'Ready', body: 'The result is ready.', open: '/files/result', read: false,
       actions: [{ id: 'tool:open-result', label: 'Open result' }], level: 'active',
     }] : [] };
     cursor = 41;
-  } else if (call.tool_id === 'tool:act-on-my-notice') result = { done: true, said: 'Opened it.', open: '/files/result' };
-  else if (call.tool_id === 'tool:mark-my-notices-read') {
+  } else if (call.tool_id === 'workflow:act-on-my-notice') result = { done: true, said: 'Opened it.', open: '/files/result' };
+  else if (call.tool_id === 'workflow:mark-my-notices-read') {
     if (failReadOnce) { failReadOnce = false; return Response.json({ jsonrpc: '2.0', id: body.id, result: { isError: true, content: [{ type: 'text', text: 'The account is busy.' }] } }); }
     result = { changed: 1 };
   }
@@ -89,13 +89,13 @@ test('the running worker registers, recovers and acts on a browser-scoped notice
   assert.deepEqual(local.get('browser-notification-device'), { account: 'account-a', device_id: 'device-a' });
 
   await refreshUnread();
-  const list = toolCalls.find(call => call.tool_id === 'tool:my-device-notices');
+  const list = toolCalls.find(call => call.tool_id === 'workflow:read-my-device-notices');
   assert.deepEqual(list.input, { device_id: 'device-a', channel: 'web-push', after: 0, limit: 100 });
   const notice = shown.find(row => row.options?.title === 'Ready');
   assert.ok(notice?.id.includes('account-a'));
 
   await assert.rejects(act(notice.id, 'tool:open-result'), /The account is busy/);
-  const firstAction = toolCalls.find(call => call.tool_id === 'tool:act-on-my-notice');
+  const firstAction = toolCalls.find(call => call.tool_id === 'workflow:act-on-my-notice');
   const pending = session.get('notice-action:account-a:told:41:tool:open-result');
   assert.equal(firstAction.input.id, 'told:41');
   assert.equal(firstAction.input.action, 'tool:open-result');
@@ -103,10 +103,10 @@ test('the running worker registers, recovers and acts on a browser-scoped notice
   assert.equal(firstAction.request_key, pending.submissionId);
 
   await act(notice.id, 'tool:open-result');
-  const actions = toolCalls.filter(call => call.tool_id === 'tool:act-on-my-notice');
+  const actions = toolCalls.filter(call => call.tool_id === 'workflow:act-on-my-notice');
   assert.equal(actions.length, 2);
   assert.equal(actions[0].request_key, actions[1].request_key, 'the same action retry uses the same idempotency key');
-  const read = toolCalls.find(call => call.tool_id === 'tool:mark-my-notices-read');
+  const read = toolCalls.find(call => call.tool_id === 'workflow:mark-my-notices-read');
   assert.deepEqual(read.input, { ids: ['told:41'], read: true, on: { channel: 'browser', device_id: 'device-a' } });
   assert.ok(opened.some(tab => tab.url === 'https://app.gettrillion.ai/files/result'));
 });
@@ -118,11 +118,11 @@ test('a Web Push action message submits the exact notice and action IDs', async 
     waitUntil: promise => { work = promise; },
   });
   await work;
-  const call = toolCalls.filter(row => row.tool_id === 'tool:act-on-my-notice').at(-1);
+  const call = toolCalls.filter(row => row.tool_id === 'workflow:act-on-my-notice').at(-1);
   assert.equal(call.input.id, 'told:push-82');
   assert.equal(call.input.action, 'tool:accept-exact');
   assert.equal(call.input.submission_id, call.request_key);
-  const read = toolCalls.filter(row => row.tool_id === 'tool:mark-my-notices-read').at(-1);
+  const read = toolCalls.filter(row => row.tool_id === 'workflow:mark-my-notices-read').at(-1);
   assert.deepEqual(read.input, { ids: ['told:push-82'], read: true, on: { channel: 'browser', device_id: 'device-a' } });
 });
 
@@ -131,7 +131,7 @@ test('the worker accepts the sender service worker message contract', async () =
   const keepOpen = callbacks.message({ type: 'notice-action', notice_id: 'told:message-93', action: 'tool:exact-message-action' }, {}, value => { response = value; });
   assert.equal(keepOpen, true);
   await new Promise(resolve => setImmediate(resolve));
-  const call = toolCalls.filter(row => row.tool_id === 'tool:act-on-my-notice').at(-1);
+  const call = toolCalls.filter(row => row.tool_id === 'workflow:act-on-my-notice').at(-1);
   assert.equal(call.input.id, 'told:message-93');
   assert.equal(call.input.action, 'tool:exact-message-action');
   assert.equal(response.done, true);

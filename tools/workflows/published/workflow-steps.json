@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "b4007c12d1311ec1789831eea6f37f878504485132bf7cf279872b4f79322ce6",
+  "blake3": "e78e0b74012335269df8bbdf1636cc6af4e94209025ad841e5f65d4b6038d0a3",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -5566,7 +5566,7 @@
    "id": "plan-a-launch-as-a-content-campaign--schedule",
    "values": {
     "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"scheduled\",\"*\",\"draft\"],\"of\":[\"steps\",\"approve\",\"approved\",\"*\"],\"says\":\"Only approved posts are scheduled\"},{\"kind\":\"covers\",\"path\":[\"this\",\"scheduled\",\"*\",\"draft\"],\"of\":[\"steps\",\"approve\",\"approved\",\"*\"],\"says\":\"Every approved post is scheduled or handed over\"}]",
-    "do": "For each approved draft, make it a post row with its channel, words and exact time (tool:draft-a-post), then set it to go at that time with tool:set-a-post-to-go-at-its-time, which the post sender sends from (tool:send-each-post-at-its-time), and copy the post id as scheduler_id. Where the channel has no connection the person made, call tool:tell-the-person with the draft's words, channel and exact time so the person posts it. Give each supporting voice from the blitz runbook its own row's time and words with tool:tell-the-person, for the person to pass on. Never schedule a draft that is not approved, and never post from an account the person did not connect.",
+    "do": "For each approved draft, make it a post row with its channel, words and exact time (tool:draft-a-post), then set it to go at that time with tool:set-a-post-to-go-at-its-time, which the post sender sends from (workflow:send-each-post-at-its-time), and copy the post id as scheduler_id. Where the channel has no connection the person made, call tool:tell-the-person with the draft's words, channel and exact time so the person posts it. Give each supporting voice from the blitz runbook its own row's time and words with tool:tell-the-person, for the person to pass on. Never schedule a draft that is not approved, and never post from an account the person did not connect.",
     "flags": [
      "public"
     ],
@@ -12375,10 +12375,10 @@
     "came_from": [
      "brief:business-on-the-account-2026-11-12:top-of-funnel",
      "L082",
-     "tool:send-each-post-at-its-time description",
+     "workflow:send-each-post-at-its-time recipe",
      "tool:check-copy"
     ],
-    "do": "The sends are made by tool:send-each-post-at-its-time, which runs on its own once its wake is switched on. Read the wake that names send-each-post-at-its-time with wake:list at @own-records. If its on value is true, submit wake_on true. If no such wake row exists, or it is off, submit wake_on false and a gap: \"send-each-post-at-its-time wake is not on; switch it on in the Trillion app (the exact label is not verified here).\" No step sends a post by hand here.",
+    "do": "The sends are made by workflow:send-each-post-at-its-time, which runs on its own once its wake is switched on. Read the wake that names send-each-post-at-its-time with wake:list at @own-records. If its on value is true, submit wake_on true. If no such wake row exists, or it is off, submit wake_on false and a gap: \"send-each-post-at-its-time wake is not on; switch it on in the Trillion app (the exact label is not verified here).\" No step sends a post by hand here.",
     "done_when": "wake_on is true, or the gap is written with the exact tool id named.",
     "flags": [
      "public"

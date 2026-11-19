@@ -8,9 +8,9 @@ test('browser device and notice operations bind to the Workshop device-scoped co
   assert.deepEqual(NOTIFICATION_TOOLS, {
     publicKey: 'tool:my-browser-push-application-key',
     register: 'tool:register-my-notification-device',
-    list: 'tool:my-device-notices',
-    markRead: 'tool:mark-my-notices-read',
-    act: 'tool:act-on-my-notice',
+    list: 'workflow:read-my-device-notices',
+    markRead: 'workflow:mark-my-notices-read',
+    act: 'workflow:act-on-my-notice',
   });
   assert.deepEqual(browserDeviceRegistration({ label: 'Arc', address: { endpoint: 'https://push.example/', keys: { p256dh: 'p', auth: 'a' } } }), {
     route: 'web-push', label: 'Arc', address: { endpoint: 'https://push.example/', keys: { p256dh: 'p', auth: 'a' } },
