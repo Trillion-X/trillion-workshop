@@ -57,7 +57,9 @@ const MOST_KEY_CHARS: usize = 128;
 pub struct Config {
     #[serde(rename = "_what")]
     _what: String,
-    /// The loopback address the route listens on (a front door's route for `/share/*` reaches it).
+    /// Where the route listens: a loopback address (`127.0.0.1:7421`, a front door's route for `/share/*` reaches it), or `unix:` and
+    /// the absolute path of a socket (a front door that sends a name's every request to the socket of the name's own program, as
+    /// keep-a-caddy-front-door-on-a-computer's each-name-its-own-folder does at /run/sites/<name>/http.sock).
     pub listen: String,
     /// The most bytes one read of the store answers a body with.
     pub window_bytes: u64,
@@ -68,11 +70,17 @@ pub struct Config {
 }
 
 impl Config {
+    /// The socket the route listens on, when `listen` names one (`unix:<path>`).
+    pub fn socket_path(&self) -> Option<&std::path::Path> {
+        self.listen.strip_prefix("unix:").map(std::path::Path::new)
+    }
+
     /// Why a config is refused, in words.
     pub fn check(&self) -> Result<(), &'static str> {
         let loopback = self.listen.parse::<std::net::SocketAddr>().is_ok_and(|address| address.ip().is_loopback());
-        if !loopback {
-            return Err("the share route listens on a loopback address");
+        let socket = self.socket_path().is_some_and(|path| path.is_absolute() && !path.as_os_str().is_empty());
+        if !loopback && !socket {
+            return Err("the share route listens on a loopback address or a unix socket (unix:/absolute/path)");
         }
         if !(1..=32 * 1024 * 1024).contains(&self.window_bytes) {
             return Err("a share route window is 1 byte up to 32 MiB");

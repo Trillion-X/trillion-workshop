@@ -241,6 +241,12 @@ pub const ALIAS_KIND: &str = "namespace-alias";
 pub const ORIGIN_KIND: &str = "namespace-origin";
 pub const UPLOAD_KIND: &str = "namespace-upload";
 pub const FILE_SHARE_KIND: &str = "namespace-file-share";
+/// Where the person's share route answers (`SHARE_ROUTE`, id `SHARE_ROUTE_ID`): `{kind, origin}`, written by the route itself when it
+/// starts (`serve-shares` with settings `share.origin`), read by `share_file` when its own settings name no origin, so the files run
+/// on any computer makes links that open where the person's route actually runs, and no settings file carries a person's address.
+pub const SHARE_ROUTE: &str = "@namespace/share-route";
+pub const SHARE_ROUTE_ID: &str = "origin";
+pub const SHARE_ROUTE_KIND: &str = "namespace-share-route";
 pub const SET_ASIDE_KIND: &str = "namespace-set-aside";
 pub const HOME_KIND: &str = "namespace-home";
 pub const USAGE_KIND: &str = "namespace-usage-day";
@@ -1180,8 +1186,12 @@ impl AccountFiles {
         }
         let found = self.resolve(name_or_identity)?;
         let file = &found.file;
-        let origin = self.control.share_origin.clone()
-            .ok_or(AccountFilesError::Invalid("a share needs the address it opens at (settings.json share.origin)", crate::cause!()))?;
+        let origin = match self.control.share_origin.clone() {
+            Some(origin) => origin,
+            None => self.get(SHARE_ROUTE, SHARE_ROUTE_ID)?
+                .and_then(|row| text(&row.value, "origin").filter(|origin| origin.starts_with("https://")).map(|origin| origin.trim_end_matches('/').to_owned()))
+                .ok_or(AccountFilesError::Invalid("a share needs the address it opens at: no share route of this person has started (serve-shares with share.origin), and settings.json names no share.origin", crate::cause!()))?,
+        };
         let size = file
             .value
             .get("byte_length")

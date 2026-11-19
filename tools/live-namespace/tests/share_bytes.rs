@@ -14,7 +14,7 @@ mod account_files_common;
 
 use account_files_common::{account_files, upload, write};
 use live_namespace::{
-    account_files::{AccountFiles, FILES, FILE_SHARES},
+    account_files::{AccountFiles, FILES, FILE_SHARES, SHARE_ROUTE, SHARE_ROUTE_ID, SHARE_ROUTE_KIND},
     share_bytes::{router, Config, Reader, RowGrants, Route, Unavailable},
     store::{Mutation, Store},
 };
@@ -336,4 +336,47 @@ fn an_empty_file_is_an_empty_200_and_a_range_of_it_is_416() {
     let whole = ask(&served, "GET", &p, None);
     assert_eq!((whole.status, whole.body.len()), (200, 0));
     assert_eq!(ask(&served, "GET", &p, Some("bytes=0-")).status, 416);
+}
+
+#[test]
+fn with_no_origin_of_its_own_a_share_opens_where_the_persons_share_route_said_it_answers() {
+    let (mut files, _) = whole_file(&pattern(10));
+    let refused = files.call("share_file", &json!({"name_or_identity": "/a.bin", "seconds": 60})).unwrap();
+    assert!(refused.is_err(), "no route has said where it answers yet");
+    files.store.mutate(SHARE_ROUTE, Mutation { id: SHARE_ROUTE_ID.into(), expected_version: 0, request_key: "r1".into(), deleted: false,
+        value: json!({"kind": SHARE_ROUTE_KIND, "origin": "https://route.example.test/"}) }).unwrap();
+    let shared = files.call("share_file", &json!({"name_or_identity": "/a.bin", "seconds": 60})).unwrap().unwrap();
+    assert!(shared["url"].as_str().unwrap().starts_with("https://route.example.test/share/"), "{shared}");
+    let mut own = files.with_share_origin(ORIGIN);
+    let shared = own.call("share_file", &json!({"name_or_identity": "/a.bin", "seconds": 60})).unwrap().unwrap();
+    assert!(shared["url"].as_str().unwrap().starts_with(ORIGIN), "a run's own origin comes first: {shared}");
+}
+
+#[test]
+fn the_route_listens_on_a_unix_socket_a_front_door_sends_a_names_requests_to() {
+    let check = |listen: &str| serde_json::from_value::<Config>(json!({"_what": "t", "listen": listen, "window_bytes": 10, "recheck_seconds": 0,
+        "inline_types": []})).unwrap().check();
+    assert!(check("unix:/run/sites/files.example.test/http.sock").is_ok());
+    assert!(check("unix:relative/http.sock").is_err());
+    assert!(check("0.0.0.0:7421").is_err());
+    let bytes = pattern(500);
+    let (mut files, _) = whole_file(&bytes);
+    files = files.with_share_origin(ORIGIN);
+    let shared = files.call("share_file", &json!({"name_or_identity": "/a.bin", "seconds": 600})).unwrap().unwrap();
+    let url = shared["url"].as_str().unwrap().to_owned();
+    let folder = tempfile::tempdir().unwrap();
+    let socket = folder.path().join("http.sock");
+    let store = files.store.clone();
+    let route = Route { grants: Arc::new(RowGrants::new(store)), reader: Arc::new(Files { files: Mutex::new(files), reads: Default::default(), hook: Mutex::new(None) }), config: config(100) };
+    let runtime = tokio::runtime::Builder::new_multi_thread().enable_all().build().unwrap();
+    let listener = runtime.block_on(async { tokio::net::UnixListener::bind(&socket) }).unwrap();
+    runtime.spawn(async move { axum::serve(listener, router(route)).await.unwrap() });
+    let mut stream = std::os::unix::net::UnixStream::connect(&socket).unwrap();
+    let path = url.strip_prefix(ORIGIN).unwrap();
+    write!(stream, "GET {path} HTTP/1.1\r\nHost: files.example.test\r\nRange: bytes=100-199\r\nConnection: close\r\n\r\n").unwrap();
+    let mut answer = Vec::new();
+    stream.read_to_end(&mut answer).unwrap();
+    let at = answer.windows(4).position(|w| w == b"\r\n\r\n").unwrap();
+    assert!(answer.starts_with(b"HTTP/1.1 206"), "{}", String::from_utf8_lossy(&answer[..at]));
+    assert_eq!(&answer[at + 4..], &bytes[100..200]);
 }

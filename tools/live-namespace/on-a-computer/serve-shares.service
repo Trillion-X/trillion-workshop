@@ -1,0 +1,36 @@
+[Unit]
+Description={description}
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# The share byte route of one person's files (`live-namespace serve-shares`, src/serve/shares.rs), run by the program the computer
+# row's machine downloads keep at {program}. Each held value the run reads (the byte store's fields, the person's database
+# connection) is sealed for this computer by start-a-computer and loaded below; the shell hands each to the program on the
+# descriptor its settings file ({settings_file}, `attached`) names, so no value is in an argument, an environment variable or a log.
+# The route listens on the socket its settings name under {runtime_directory} (owned by {user}, group {group}: the front door, which
+# sends every request for the name whose folder that is to the socket), and writes the address the public reaches it at into the
+# person's rows as it starts.
+{credential_lines}
+Type=simple
+User={user}
+Group={group}
+WorkingDirectory={state}
+ExecStart=/bin/sh -c 'exec {program} serve-shares --state {state} --settings {settings_file} {descriptors}'
+RuntimeDirectory={runtime_directory}
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=restart
+Restart=always
+RestartSec=3
+KillSignal=SIGTERM
+TimeoutStopSec=30
+UMask=0007
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths={writable}
+ProtectHome=true
+PrivateTmp=true
+LimitCORE=0
+
+[Install]
+WantedBy=multi-user.target

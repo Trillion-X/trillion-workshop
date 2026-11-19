@@ -69,8 +69,16 @@ of the key (compared in constant time), it is published, not revoked, not expire
 `recheck_seconds`. Nothing about a share is cached, so a share stopped with `stop_share` refuses the next request. Every refusal of a key, id or share
 is the same 404; a store that does not answer is 503. Bytes are read a
 `window_bytes` window at a time by range through the account files, each read through the same byte check and usage count as any read.
-Not built here, by their owners: the computer's unit row that runs `serve-shares` and the front door's `/share/*` route to its loopback
-address (the computer row), and the share's page; the route answers bytes for a bare `<video src>`, a download or `curl`.
+`share_bytes.listen` may instead be `unix:` and a socket's absolute path: a front door that sends each name's requests to the socket of
+that name's own program (keep-a-caddy-front-door-on-a-computer's `each-name-its-own-folder`, `/run/sites/<name>/http.sock`) then
+serves the route under its own name with no route of its own. With `share.origin` set, the route writes that address into the
+person's rows as it starts (`@namespace/share-route`, id `origin`), and `share_file` in any files run whose settings name no origin
+makes its links there, so no shipped settings file carries a person's address.
+`on-a-computer/serve-shares.service` is the unit a computer row runs the route with (template fields: `program`, the path the
+row's machine downloads keep the linux build at; `settings_file` and the row's `settings`; `descriptors`, the shell redirections
+that hand each sealed credential to its descriptor, such as `3<"$CREDENTIALS_DIRECTORY/files-store-secret"`; `runtime_directory`,
+`sites/<name>`; `user`, `group` (the front door's), `state`, `writable`). Not built here: the share's page; the route answers bytes
+for a bare `<video src>`, a download or `curl`.
 The run needs what `mcp` needs and nothing more: its state folder and the attached store fields (`files-store`, `own-rows-postgres`).
 
 ## Build and test
