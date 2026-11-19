@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cd3c32d8cd6406bab75d6792b056c469f631d250a3fd28a142c5b13c7aac42a4"
+  "blake3": "1f:a3101326bf01f3e0579a7caa5513a5c8bdc63ebb0c8c1e950dd3dbab41b2ad93"
  },
  "fields": [
   {
@@ -551,7 +551,7 @@
    "values": {
     "title": "Answer the page that lists what Trillion told me",
     "job": "Answer the Trillion page route GET /work/api/tell/notices: the notices the open page shows, or what one channel's devices read, as old Trillion did",
-    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. GET /tell/notices answers 200 { notices }: the newest notices the open Trillion page carried (its own channel), newest first, each with its read mark, the surface it was read on, how far each way got, its state, chips and buttons. With query channel (and after, a notice number) it answers what that channel's devices read after it, oldest first; a channel that does not exist answers 400 { error }. Any other path or method answers 404. It reads the person's told-the-person records and writes nothing.",
+    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. GET /tell/notices answers 200 { notices }: the newest notices the open Trillion page carried (its own channel), newest first, each with its read mark, the surface it was read on, how far each way got, its state, chips and buttons. With query channel (and after, a notice number) it answers what that channel's devices read after it, oldest first; a channel that does not exist answers 400 { error }. Any other path or method answers 404. It reads only the told-the-person records given to it as `records` and writes nothing.",
     "status": "active",
     "maker": "maker:tell-one-person-something-through-every-way-they",
     "licence_class": "licence:maker-own",
@@ -1121,7 +1121,7 @@
    "values": {
     "title": "Call a treg endpoint",
     "job": "Call any endpoint in treg's catalog by its id, with its inputs, paid from the person's treg balance, never above a cost ceiling the caller names",
-    "description": "Sends one call to treg for the endpoint id given, with the person's treg token from their treg connection (the token is placed as the request leaves and never shown), and answers the provider's reply as treg relays it (a routed treg.* endpoint answers {output, raw, _treg}). Send the method the catalog names (endpoint.method), its query fields in query and its body fields in body, exactly as tool:read-a-treg-endpoint-and-its-price lists them; a path field goes in query. max_cost_usd is sent as treg's X-Treg-Route-Max-Cost: treg documents that a call it would bill above it is refused with HTTP 402 route_max_cost before anything is charged. This SPENDS the person's treg balance: read the endpoint's price first, say it to the person, and keep max_cost_usd at what they agreed to. A reply outside 2xx is an error that quotes treg: 402 is an empty balance or the ceiling, 503 provider_capacity_unavailable names other providers of the job; failed calls are not billed. The answer's headers (beside the reply, lower case) say what the call cost and how to follow it: x-treg-cost-micro is the charge in millionths of a US dollar (on an asynchronous submission, the amount held until the task finishes, not a charge; on a replay 0, with x-treg-original-cost-micro), x-treg-call-id is the call's id (keep it), x-treg-served-by the provider a routed call used, x-treg-cache a cached answer, and x-treg-async the descriptor of an asynchronous task. Tell the person the cost with each answer. An answer of 202 with _treg.outcome pending is a task still running: follow it with tool:read-a-treg-call and its call id, never by calling again. A team's own registered tool is called the same way, as <tool-name>/<path>.",
+    "description": "Sends one call to treg for the endpoint id given, with the person's treg token from their saved treg key (the token is placed as the request leaves and never shown), and answers the provider's reply as treg relays it (a routed treg.* endpoint answers {output, raw, _treg}). Send the method the catalog names (endpoint.method), its query fields in query and its body fields in body, exactly as tool:read-a-treg-endpoint-and-its-price lists them; a path field goes in query. max_cost_usd is sent as treg's X-Treg-Route-Max-Cost: treg documents that a call it would bill above it is refused with HTTP 402 route_max_cost before anything is charged. This SPENDS the person's treg balance: read the endpoint's price first, say it to the person, and keep max_cost_usd at what they agreed to. A reply outside 2xx is an error that quotes treg: 402 is an empty balance or the ceiling, 503 provider_capacity_unavailable names other providers of the job; failed calls are not billed. The answer's headers (beside the reply, lower case) say what the call cost and how to follow it: x-treg-cost-micro is the charge in millionths of a US dollar (on an asynchronous submission, the amount held until the task finishes, not a charge; on a replay 0, with x-treg-original-cost-micro), x-treg-call-id is the call's id (keep it), x-treg-served-by the provider a routed call used, x-treg-cache a cached answer, and x-treg-async the descriptor of an asynchronous task. Tell the person the cost with each answer. An answer of 202 with _treg.outcome pending is a task still running: follow it with tool:read-a-treg-call and its call id, never by calling again. A team's own registered tool is called the same way, as <tool-name>/<path>.",
     "status": "active",
     "maker": "maker:treg",
     "licence_class": "licence:maker-own",
@@ -1304,7 +1304,7 @@
    "values": {
     "title": "Finish, fail, give back, withdraw, flag or remove a job handed between my AIs",
     "job": "Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it",
-    "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (any AI, so a watcher can flag it; needs words) and unstuck clears that (any AI); withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why. A finish also needs check: the exact saved outcome, checked_at during this take, consumer evidence ({ref, observation}), and one matching check per saved obligation. This records accountable observation and does not itself prove its truth. wait keeps recoverable work blocked on this same job with continuation {owner, action, after, reason}. resume returns it to waiting when due for its taker, sender or continuation owner. release may retain that same bounded continuation, which delays the next take. No completion automatically creates another job.",
+    "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (any AI, so a watcher can flag it; needs words) and unstuck clears that (any AI); withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why. A finish also needs check: the exact saved outcome, checked_at during this take, consumer evidence ({ref, observation}), and one matching check per saved obligation. This records accountable observation and does not itself prove its truth. wait keeps recoverable work blocked on this same job with continuation {owner, action, after, reason}. resume returns it to waiting when due for its taker, sender or continuation owner. release may retain that same bounded continuation, which delays the next take. No completion automatically creates another job. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -4165,7 +4165,7 @@
    "values": {
     "title": "Check the saved consumer and finish an AI job",
     "job": "Finish an AI job only after its saved acceptance checks pass on the actual persisted consumer",
-    "description": "Reads the exact record target saved in the job acceptance and applies the existing judge-words rules to its current value. Missing target, failed or unavailable checks, mismatched target, stale claim and changed job refuse completion. Receipt strings do not prove success. Keeps the actual consumer content identity and acceptance identity bound to this take. Rights are intersected by the engine with the caller authority; this tool grants no new account access.",
+    "description": "Reads the exact record target saved in the job acceptance and applies the existing judge-words rules to its current value. Missing target, failed or unavailable checks, mismatched target, stale claim and changed job refuse completion. Receipt strings do not prove success. Keeps the actual consumer content identity and acceptance identity bound to this take. Rights are intersected by the engine with the caller authority; this tool grants no new account access. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -4904,26 +4904,11 @@
    }
   },
   {
-   "id": "tool:grant-paid-access-to-people",
-   "values": {
-    "title": "Grant paid access to people",
-    "job": "Give people paid access by hand, all at once or one by one (members who moved over from another place, a gift, a pass with an end date), and end a grant I gave",
-    "description": "Writes one access-grant record for each grant: the person (subject, named the way your access rules name a buyer), the access ref they now hold, an optional grant_ref that names the grant (left out, it is \"grant:\" and the access ref), an optional window (valid_from_ms and expires_at_ms together, whole milliseconds since 1970, the end after the start) and an optional note. Each revoke (subject and grant_ref) writes the record that ends that grant. A record's id comes from the subject and the grant's reference, so running the same request again writes nothing and counts it as already. A grant whose window the access check would never hold (one end only, not whole numbers, the end not after the start), one kept with different terms under the same reference, and one that was ended already are refused with the reason and are not written. Answers written, already and refused (each with its index: grants count from 0, revokes carry on after the last grant). It reads and writes only your access-grant records; it moves no money and writes no payments. tool:see-who-holds-paid-access then shows the access held.",
-    "status": "active",
-    "maker": "maker:paid-access",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "paid-access"
-   }
-  },
-  {
    "id": "tool:hand-a-job-to-an-ai",
    "values": {
     "title": "Hand a job to one of my AIs, or to whichever takes it first",
     "job": "Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take",
-    "description": "Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent. The write is conditioned on the record being absent, so the same key sends the job once: sending it again answers already-there with the job as it is. `key` defaults to the run's request key. An AI named in `to` must be one of the person's ai records. source {kind, ref} preserves incoming provenance; obligations [{id, outcome}] declare independently checked parts. Reuse the incoming stable key and existing source job; do not enqueue duplicate work.",
+    "description": "Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent. The write is conditioned on the record being absent, so the same key sends the job once: sending it again answers already-there with the job as it is. `key` defaults to the run's request key. An AI named in `to` must be one of the person's ai records. source {kind, ref} preserves incoming provenance; obligations [{id, outcome}] declare independently checked parts. Reuse the incoming stable key and existing source job; do not enqueue duplicate work. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -8035,21 +8020,6 @@
    }
   },
   {
-   "id": "tool:people-listening-can-name",
-   "values": {
-    "title": "People listening can name",
-    "job": "List the people my voice and face prints can name, without their voice or face numbers",
-    "description": "Reads the person's voice-print and face-print records on this computer and lists each person once: their name, whether they are the person, how many voice and face samples they have and the consent words they gave. A print's numbers are never in the answer. The voice-print and face-print kinds are stays_on_this_device: true, so this runs on the computer that holds them and asks for no capability.",
-    "status": "active",
-    "maker": "maker:know-who-is-in-this",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "know-who-is-in-this"
-   }
-  },
-  {
    "id": "tool:pick-a-screen-for-typed-words",
    "values": {
     "title": "Pick the screen for what I am typing",
@@ -9227,21 +9197,6 @@
    }
   },
   {
-   "id": "tool:read-a-member-profile",
-   "values": {
-    "title": "Read a member's profile",
-    "job": "Read the name, about text and email a member keeps in their profile",
-    "description": "Give who (the member's id). Returns profile: display_name, about and email when set, or null when the member has no profile yet.",
-    "status": "active",
-    "maker": "maker:person-profile",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "person-profile"
-   }
-  },
-  {
    "id": "tool:read-a-method",
    "values": {
     "title": "Read one of my methods",
@@ -9292,7 +9247,7 @@
    "values": {
     "title": "Read the settings a person keeps for a tool, for one person, film, piece or their whole account (runs on your computer)",
     "job": "Read the settings a person keeps for one of their tools, choosing the row for this piece, else this film, else this person, else their whole account, or make the settings row to write",
-    "description": "A tool's settings are rows of the person's list:settings (record:setting:<workshop-folder>~<scope_kind>~<scope_id>; fields name, tool, scope_kind, scope_id, settings as JSON, from, status). read: give the records records:read returned (or the path of the file holding them), the tool's folder and the scopes to try, most specific first; the answer is the settings of the first scope that has an active row, or the default given when none does. make: give the folder, scope, settings, name, tool and where the values came from; the answer is the record records:write takes, with the list:settings record when asked. The same reader is a library for Python (read-data/settings.py) and JavaScript (read-data/settings.mjs) tools.",
+    "description": "A tool's settings are rows of the person's list:settings (record:setting:<workshop-folder>~<scope_kind>~<scope_id>; fields name, tool, scope_kind, scope_id, settings as JSON, from, status). read: give the records your AI read from the person's own store (or the path of the file holding them), the tool's folder and the scopes to try, most specific first; the answer is the settings of the first scope that has an active row, or the default given when none does. make: give the folder, scope, settings, name, tool and where the values came from; the answer is the record your AI writes to the person's own store, with the list:settings record when asked. The same reader is a library for Python (read-data/settings.py) and JavaScript (read-data/settings.mjs) tools.",
     "status": "active",
     "maker": "maker:settings",
     "licence_class": "licence:maker-own",
@@ -9303,26 +9258,11 @@
    }
   },
   {
-   "id": "tool:read-a-tool-setting-through-my-door",
-   "values": {
-    "title": "Read the settings I keep for one of my tools, from my own lists",
-    "job": "Read the settings I keep for one of my tools from my list:settings, trying the most specific scope first",
-    "description": "Reads the person's list:settings rows for one Workshop tool through their records door at run time (records:read of record:setting:<folder>~<scope_kind>~<scope_id> for each scope given, most specific first) and answers the settings of the first row found, or found false when none is there. The run may read only that tool's rows (its right is the settings_prefix). A retired row, or a row for another tool than the one named, is refused. The same choice as tool:read-a-tool-setting, without first writing the rows to a file.",
-    "status": "active",
-    "maker": "maker:settings",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "settings"
-   }
-  },
-  {
    "id": "tool:read-a-treg-call",
    "values": {
     "title": "Read one treg call by its id",
     "job": "Read one of the person's treg calls by the id it answered: what it cost, and how an asynchronous task it started is going and where its result is",
-    "description": "Give account and call_id, the x-treg-call-id header of a tool:call-a-treg-endpoint answer. Answers treg's own record of that call (GET /calls/<call id>): call (its endpoint, status and cost_charged_micro), async_task when it started an asynchronous task (status pending, settled, released or timed_out; reserved_micro, settled_micro, error, and once settled its result_url, which expires, or fetch_command), ledger (the money entries) and charged_micro. This is how a task is followed: treg itself polls the provider, so after a call answered 202 with _treg.outcome pending (its x-treg-async header says which statuses are final), read the call about 60 seconds later, then every 30 to 60 seconds, until async_task.status is no longer pending. Never send the call again or try another provider while it is pending: the task may still finish and charge. Reads only; spends nothing; the token is never shown.",
+    "description": "Give call_id, the x-treg-call-id header of a tool:call-a-treg-endpoint answer. Answers treg's own record of that call (GET /calls/<call id>): call (its endpoint, status and cost_charged_micro), async_task when it started an asynchronous task (status pending, settled, released or timed_out; reserved_micro, settled_micro, error, and once settled its result_url, which expires, or fetch_command), ledger (the money entries) and charged_micro. This is how a task is followed: treg itself polls the provider, so after a call answered 202 with _treg.outcome pending (its x-treg-async header says which statuses are final), read the call about 60 seconds later, then every 30 to 60 seconds, until async_task.status is no longer pending. Never send the call again or try another provider while it is pending: the task may still finish and charge. Reads only; spends nothing; the token is never shown.",
     "status": "active",
     "maker": "maker:treg",
     "licence_class": "licence:maker-own",
@@ -9815,8 +9755,8 @@
   {
    "id": "tool:read-my-treg-team",
    "values": {
-    "title": "Read which treg team my connection pays from",
-    "job": "Read the treg team a connection's token belongs to, with the team's number that its balance is read by",
+    "title": "Read which treg team my saved key pays from",
+    "job": "Read the treg team the saved key belongs to, with the team's number that its balance is read by",
     "description": "Asks treg who the held token is (GET /auth/me, the request the treg command line makes when it needs the team's number). The answer's org_id is the team number tool:read-my-treg-balance takes. Reads only; spends nothing; the token is never shown.",
     "status": "active",
     "maker": "maker:treg",
@@ -10176,21 +10116,6 @@
      "placement:caller-sandbox"
     ],
     "folder": "walk-through-an-app-like-its-users"
-   }
-  },
-  {
-   "id": "tool:read-what-i-pulled-from-an-account",
-   "values": {
-    "title": "Read what I pulled from a connected account",
-    "job": "Read the conversations, messages and saved items I pulled from a connected account such as Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks or Pinterest",
-    "description": "Give source (discord, slack, telegram, signal, instagram-messages, instagram-comments, messenger-messages, x-bookmarks or pinterest-pins) and optionally account (the name it was pulled under, default \"default\"). Without thread it answers the conversations (id, title, message count), the collections (name, count), who the account is, the cursor and when it was last pulled. With thread (a conversation id from that list) it answers that conversation's messages exactly as the service sent them, the last limit of them (default 100, at most 500). It reads your records and changes nothing; it never reaches the service.",
-    "status": "active",
-    "maker": "maker:pull-from-connected-accounts",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "pull-from-connected-accounts"
    }
   },
   {
@@ -11377,21 +11302,6 @@
    }
   },
   {
-   "id": "tool:save-a-member-profile",
-   "values": {
-    "title": "Save a member's profile fields",
-    "job": "Save the name, about text or email of a member's profile, changing only the fields given and keeping the rest of the profile",
-    "description": "Give who (the member's id) and fields: any of display_name, about and email, as text. Writes the profile once, reads it back, and answers saved: true with the profile only when the fields read back as written. Fields not given, and anything else the profile holds, stay as they were.",
-    "status": "active",
-    "maker": "maker:person-profile",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "person-profile"
-   }
-  },
-  {
    "id": "tool:save-a-snippet",
    "values": {
     "title": "Save a snippet",
@@ -11981,7 +11891,7 @@
    "values": {
     "title": "See the work handed between my AIs: one job, or the newest that match",
     "job": "Show me the jobs my AIs handed each other: what is waiting, who took what, and what each finished with",
-    "description": "With `id`, reads that one ai-job record. Otherwise reads the person's ai-job records, kept to those whose status, to, from or taker equal what is given, and answers the newest `limit` of them by when they were sent (read-data/ai-work.json jobs_shown), with `more` true when more matched. A job comes back whole: its status, words, sender, the AI it is for, priority, outcome, taker and when taken, what blocks it, who gave it back and why, and its result and summary. Nothing is written.",
+    "description": "With `id`, reads that one ai-job record. Otherwise reads the person's ai-job records, kept to those whose status, to, from or taker equal what is given, and answers the newest `limit` of them by when they were sent (read-data/ai-work.json jobs_shown), with `more` true when more matched. A job comes back whole: its status, words, sender, the AI it is for, priority, outcome, taker and when taken, what blocks it, who gave it back and why, and its result and summary. Nothing is written. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -12042,7 +11952,7 @@
    "values": {
     "title": "See my AIs: which are live, what each can do and how many jobs each holds",
     "job": "Show me my AIs and computers: which are live now, what each can do and how many jobs each is doing",
-    "description": "Reads the person's ai records and counts the ai-job records each AI holds as taker. Each AI comes back with its id and its whole stored value, every cell as kept (a caller names it from those cells by its own formula; no name is made here), whether it is live (seen within the minutes its record names, else read-data/ai-work.json live_minutes_default) and when it was last seen. Live AIs come first, then the person's order. `can` keeps only AIs that can do every word given (an AI that can do `any` can do all); `live_only` keeps only live ones. Nothing is written.",
+    "description": "Reads the person's ai records and counts the ai-job records each AI holds as taker. Each AI comes back with its id and its whole stored value, every cell as kept (a caller names it from those cells by its own formula; no name is made here), whether it is live (seen within the minutes its record names, else read-data/ai-work.json live_minutes_default) and when it was last seen. Live AIs come first, then the person's order. `can` keeps only AIs that can do every word given (an AI that can do `any` can do all); `live_only` keeps only live ones. Nothing is written. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -12195,7 +12105,7 @@
    "values": {
     "title": "See where the public door runs",
     "job": "See where my public door runs now and which hosting services it can move between",
-    "description": "Reads the person's Service connections list and answers where their public door runs now (its hosting row, its address and what proves it) and each hosting row with whether the door can move there and why not. It never reads or shows a key and changes nothing.",
+    "description": "Takes the person's Service connections rows as `connections` (the caller reads them from the person's own store and hands them in) and answers where their public door runs now (its hosting row, its address and what proves it) and each hosting row with whether the door can move there and why not. It never reads or shows a key, reads no store and changes nothing.",
     "status": "active",
     "maker": "maker:move-the-public-door",
     "licence_class": "licence:maker-own",
@@ -12330,7 +12240,7 @@
    "values": {
     "title": "Send an email",
     "job": "Send an email, to one person or a list, through the email provider I connected",
-    "description": "Give recipients (a list of addresses; to for one), provider (the id of the email provider row in read-data/message-providers.json that the person's email connection is), the settings that provider's row asks for (region for Amazon SES, such as us-east-1) and the words: subject and text (drawn as an email in the look the person wears, read from their screen-look records (the shipped look until they choose one; an email whose look cannot be read is not sent), with its mark from the mail row's brand and made_with) or your own html, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). Every email comes from the account's own mail row, which the caller hands in as mail_settings (read from the person's `mail-settings` row `settings:mail`; with none the shipped row names no sender and nothing is sent), never from the request; each address may be sent only so many emails of a kind (per_person, counted from the mail_sent rows handed in), the day keeps room for sign-in codes (daily, counted from the mail_day row handed in), a proof address is never sent, and every email is written down under its address: nothing is kept here, the answer's keep holds the mail-sent and mail-day rows as the send left them, each with the row it expected, for the caller to write. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with limited, unknown (it may have gone; it is not sent again) or suppressed. The held keys of the provider named reach the one process on private pipes; they are never shown.",
+    "description": "Give recipients (a list of addresses; to for one), provider (the id of the email provider row in read-data/message-providers.json that the person's email connection is), the settings that provider's row asks for (region for Amazon SES, such as us-east-1) and the words: subject and text (drawn as an email in the look the person wears, read from their screen-look records (the shipped look until they choose one; an email whose look cannot be read is not sent), with its mark from the mail row's site and made_with) or your own html, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). Every email comes from the account's own mail row, which the caller hands in as mail_settings (read from the person's `mail-settings` row `settings:mail`; with none the shipped row names no sender and nothing is sent), never from the request; each address may be sent only so many emails of a kind (per_person, counted from the mail_sent rows handed in), the day keeps room for sign-in codes (daily, counted from the mail_day row handed in), a proof address is never sent, and every email is written down under its address: nothing is kept here, the answer's keep holds the mail-sent and mail-day rows as the send left them, each with the row it expected, for the caller to write. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with limited, unknown (it may have gone; it is not sent again) or suppressed. The held keys of the provider named reach the one process on private pipes; they are never shown.",
     "status": "active",
     "maker": "maker:send-messages",
     "licence_class": "licence:maker-own",
@@ -13192,7 +13102,7 @@
    "values": {
     "title": "Take the next job waiting for me, or one job by its id",
     "job": "Take the next job another of my AIs left for me, so no other AI does it too",
-    "description": "Without `id`, reads the ai-job records a take may move (read-data/ai-work.json: waiting ones for any AI or for `as`, and taken ones held longer than the stale-take time), sorts them by take_order (priority, then oldest first), and takes the first: one write of the whole job as taken by `as` at this time, conditioned on the value it read. When another AI took that job first the write is refused and changes nothing, and the next one is tried, at most take_tries. `only_mine` keeps only jobs addressed to `as`. With `id`, takes that job or answers `taken: null` with reason changed (and the job as it now is) when another AI won it. `taken` is null when there was nothing to take.",
+    "description": "Without `id`, reads the ai-job records a take may move (read-data/ai-work.json: waiting ones for any AI or for `as`, and taken ones held longer than the stale-take time), sorts them by take_order (priority, then oldest first), and takes the first: one write of the whole job as taken by `as` at this time, conditioned on the value it read. When another AI took that job first the write is refused and changes nothing, and the next one is tried, at most take_tries. `only_mine` keeps only jobs addressed to `as`. With `id`, takes that job or answers `taken: null` with reason changed (and the job as it now is) when another AI won it. `taken` is null when there was nothing to take. The caller hands in every record it reads as input stored.records (the ai and ai-job rows, read by the caller from the person's own store); this tool reads no store and calls no records:read. Each write it makes comes back as keep, for the caller to keep in the person's own store.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -13999,21 +13909,6 @@
    }
   },
   {
-   "id": "tool:where-someone-appeared",
-   "values": {
-    "title": "Where someone appeared",
-    "job": "List every recording and time where a person was heard or seen, or every person kept for a recording, from the person's list of where people appeared",
-    "description": "Reads the person's Where people appeared list: give a person id, a recording, or words (a name, a place, a spoken word) and it answers each row in recording order, with the people and the recordings those rows name and how many rows each has. Rows a later keep replaced are left out unless include_superseded is true. A read only: it changes nothing and reads no voice or face numbers.",
-    "status": "active",
-    "maker": "maker:know-who-is-in-this",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "know-who-is-in-this"
-   }
-  },
-  {
    "id": "tool:who-agreed-to-get-which-emails",
    "values": {
     "title": "Who agreed to get which emails",
@@ -14188,7 +14083,7 @@
    "values": {
     "title": "Work out referral codes",
     "job": "See which referral codes are live, what a friend who types one gets, and what each sale earns under my referral reward rules",
-    "description": "Reads the referral events a person saved (a code made, a code withdrawn, a signup that named a referrer) and works out the codes: who made each one, what it points at, and whether it is still live. The first account to make a code keeps it, in any order the events arrive; only the account that made a code can withdraw it. The rules are the person's own rows in their referral reward rules list (one row per rule: who earns, the kind of reward, its terms, which codes and sales it applies to), given in `rules`; nothing about a price, a product or an amount is in the tool. Give it the codes buyers typed and it says for each which live code that is and what the rules give the friend who typed it; give it sales too and it says for each pair whether the sale earns the code and what every rule gives: a whole-cent share, a discount (a checkout code that take-payments takes off a price) or access (a grant). It adds up only: it moves no money, reads nothing and keeps nothing. tool:give-referral-rewards gives the discount and access rows.",
+    "description": "Reads the referral events a person saved (a code made, a code withdrawn, a signup that named a referrer) and works out the codes: who made each one, what it points at, and whether it is still live. The first account to make a code keeps it, in any order the events arrive; only the account that made a code can withdraw it. The rules are the person's own rows in their referral reward rules list (one row per rule: who earns, the kind of reward, its terms, which codes and sales it applies to), given in `rules`; nothing about a price, a product or an amount is in the tool. Give it the codes buyers typed and it says for each which live code that is and what the rules give the friend who typed it; give it sales too and it says for each pair whether the sale earns the code and what every rule gives: a whole-cent share, a discount (a checkout code that take-payments takes off a price) a customer credit for the referrer (given through take-payments' giveACustomerCredit), or access (a grant). It adds up only: it moves no money, reads nothing and keeps nothing. tool:give-referral-rewards gives the discount and access rows and names the customer credits.",
     "status": "active",
     "maker": "maker:referral-codes-and-rewards",
     "licence_class": "licence:maker-own",
