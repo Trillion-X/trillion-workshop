@@ -52,5 +52,5 @@
       "hands_back": "written 1, nothing 0, retired 0, forgot 0, refused [] and the voice-edit record it kept."
     }
   ],
-  "drafted_from": "tool:read-voice and tool:forget-voice (their rows, retired in this commit), tool:save-voice and tool:keep-a-voice-edit (their shaping rows), and the recipe prove step, run on PGlite and a JSON folder: the same nine answers on both."
+  "drafted_from": "tool:read-voice and tool:forget-voice (their rows, retired in this commit), tool:save-voice and tool:keep-a-voice-edit (their shaping rows), and the recipe prove step, run on PGlite and a JSON folder: the same ten answers on both."
 }
