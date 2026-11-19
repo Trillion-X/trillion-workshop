@@ -150,10 +150,10 @@ test('the row\'s sample run answers through the command the row runs', () => {
   const folder = new URL('../', import.meta.url);
   const row = JSON.parse(readFileSync(new URL('tool-rows.json', folder), 'utf8')).records[0].payload;
   const [sample] = row.verify;
-  const door = fileURLToPath(new URL('../records-door/do-work/run-an-export.mjs', folder));
+  const runner = fileURLToPath(new URL('../workflows/do-work/run-a-function.mjs', folder));
   const module = fileURLToPath(new URL('do-work/plan-my-time.mjs', folder));
-  assert.deepEqual(row.invoke.argv.slice(-2), ['/opt/plan-my-time/do-work/plan-my-time.mjs', 'planMyTime']);
-  const run = spawnSync('node', [door, module, 'planMyTime'], { input: JSON.stringify(sample.input), encoding: 'utf8' });
+  assert.deepEqual(row.invoke.argv.slice(-3), ['/opt/workflows/do-work/run-a-function.mjs', '/opt/plan-my-time/do-work/plan-my-time.mjs', 'planMyTime']);
+  const run = spawnSync('node', [runner, module, 'planMyTime'], { input: JSON.stringify(sample.input), encoding: 'utf8' });
   assert.equal(run.status, 0, run.stderr);
   const answer = JSON.parse(run.stdout.trim().split('\n').at(-1));
   assert.equal(answer.result.tasks[0].fit, sample.contains);

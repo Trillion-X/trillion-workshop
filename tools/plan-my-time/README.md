@@ -23,6 +23,6 @@ Places a person's tasks into their free time and judges their meetings against t
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (the command that runs a function), `tools/content-identity`; Node 22.
+**Depends on:** `tools/workflows` (the command that runs a function, do-work/run-a-function.mjs); Node 22.
 
 **Depended on by:** nothing is imported from here.

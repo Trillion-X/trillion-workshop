@@ -2,7 +2,7 @@
 //
 // The Workshop tool "Plan my time": places the person's tasks into their free time and judges their meetings against
 // their pursuits, the way an auto-scheduling calendar does, but ordered by what serves the person's pursuits. Pure: it
-// takes one request and returns the plan (run as a function by tools/records-door/do-work/run-an-export.mjs). It changes
+// takes one request and returns the plan (run as a function by tools/workflows/do-work/run-a-function.mjs). It changes
 // no calendar; callers apply the result through their own calendar actions.
 //
 // Invariants:
@@ -69,7 +69,6 @@ function subtract(intervals, busy) {
 const ms = text => (text == null ? null : Date.parse(text));
 const iso = value => new Date(value).toISOString();
 
-// The command that runs this function hands it a second argument (the person's records door); the plan uses only its request.
 export function planMyTime(request) {
   if (request === null || typeof request !== 'object' || Array.isArray(request)) throw new Error('The request must be an object with tasks, and optionally busy events and meetings.');
   const rules = { ...RULES, ...(request.rules ?? {}) };
