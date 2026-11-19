@@ -3,11 +3,11 @@
   "lists": [],
   "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
   "workflows": [
+    "workflow:keep-paid-access-grants",
     "workflow:give-or-end-access-by-hand"
   ],
   "tools": [
     "tool:check-a-buyer-may-open",
-    "tool:grant-paid-access-to-people",
     "tool:run-workflow-definition",
     "tool:see-who-holds-paid-access"
   ],

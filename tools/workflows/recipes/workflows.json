@@ -69993,7 +69993,7 @@
           {
             "id": "write-the-grant",
             "title": "Write the grant",
-            "do": "Write the grant with tool:grant-paid-access-to-people. Writing the same grant again writes nothing and counts it as already written; different terms under the same reference are refused. A request is at most 256 grants and 256 revokes and is under its size limit.",
+            "do": "Write the grant by running workflow:keep-paid-access-grants with tool:run-workflow-definition, input {\"row\": \"workflow:keep-paid-access-grants\", \"store\": <where the person keeps their access grants>, \"grants\": [{subject, access_ref, grant_ref, valid_from_ms?, expires_at_ms?, note?}]}. Writing the same grant again writes nothing and counts it as already written; different terms under the same reference are refused. A request is at most 256 grants and 256 revokes and is under its size limit.",
             "submit": {
               "type": "object",
               "required": [
@@ -70059,7 +70059,7 @@
           {
             "id": "end-a-grant",
             "title": "End a grant",
-            "do": "Write a revoke naming the grant's reference with tool:grant-paid-access-to-people. A revoke stays even when its grant is not found, so a late grant with the same reference cannot bring access back. To give access again later, use a new grant reference.",
+            "do": "Write a revoke naming the grant's reference by running workflow:keep-paid-access-grants with tool:run-workflow-definition, input {\"row\": \"workflow:keep-paid-access-grants\", \"store\": <the same store>, \"revoke\": [{subject, grant_ref}]}. A revoke stays even when its grant is not found, so a late grant with the same reference cannot bring access back. To give access again later, use a new grant reference.",
             "submit": {
               "type": "object",
               "required": [
@@ -187667,7 +187667,7 @@
           {
             "id": "find-the-check-tools",
             "title": "Find the check tools",
-            "do": "For each of these ids, call do_one_thing_in_my_account with address @tools, method tools:list and input {\"tool\":\"<the id>\"}: tool:check-against-a-persons-rules-and-verdicts (judges words against rule rows and the person's own verdicts) and tool:judge-against-rules (judges words against rule rows only). An answer with that id and an input_schema means the tool is there. If one is missing and this Trillion runs on the person's own computer, call tools:run with input {\"tool\":\"tool:keep-the-workshop-current\",\"input\":{}} once, then ask tools:list again. Report each id and whether it was found.",
+            "do": "For each of these ids, call do_one_thing_in_my_account with address @tools, method tools:list and input {\"tool\":\"<the id>\"}: tool:check-against-a-persons-rules-and-verdicts (judges words against rule rows and the person's own verdicts) and tool:judge-against-rules (judges words against rule rows only). An answer with that id and an input_schema means the tool is there. If one is missing, say which one is missing and stop here; nothing else is run. Report each id and whether it was found.",
             "submit": {
               "type": "object",
               "required": [

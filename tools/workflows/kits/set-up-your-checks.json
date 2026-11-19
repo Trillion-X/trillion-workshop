@@ -92,7 +92,6 @@
     "tool:check-against-a-persons-rules-and-verdicts",
     "tool:judge-against-rules",
     "tool:pour-example-rows-into-my-list",
-    "tool:keep-the-workshop-current",
     "tool:run-sql-in-my-database"
   ],
   "instructions": [
