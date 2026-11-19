@@ -20,7 +20,7 @@
 // rows; here they are the account's own list.
 import { randomBytes } from 'node:crypto';
 import settings from './site-addresses.json' with { type: 'json' };
-import { readWholeFile, writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
+import { readWholeFile, writeWholeFile } from '../../workflows/read-data/whole-file.mjs';
 import { checkedPublicAppFiles, publicAppMediaType } from '../../shared-code/src/public-app-files.mjs';
 import { answerSiteLlms } from '../../choose-which-site-pages-ai-may-show/src/public-app-ai-pages.mjs';
 
@@ -106,20 +106,20 @@ const checkedProofValuePrefix = value => (typeof value === 'string' && /^[a-z0-9
 const addressOf = host => `https://${host}/`;
 
 /** The account's origins list, or an empty one when it keeps none yet. */
-export async function readOrigins(door) {
-  const listed = await door.files('list_files', { folder: `${settings.files_folder}/` });
+export async function readOrigins(runHost) {
+  const listed = await runHost.files('list_files', { folder: `${settings.files_folder}/` });
   const named = (listed?.names ?? []).some(entry => (entry?.name ?? entry) === settings.origins_file);
   if (!named) return [];
-  const { bytes } = await readWholeFile(door, settings.origins_file);
+  const { bytes } = await readWholeFile(runHost, settings.origins_file);
   const list = JSON.parse(Buffer.from(bytes ?? []).toString('utf8'));
   return Array.isArray(list?.origins) ? list.origins : [];
 }
 
-async function writeOrigins(door, origins) {
+async function writeOrigins(runHost, origins) {
   if (origins.length > settings.most_origins) refuse(words.too_many);
   const sorted = [...origins].sort((a, b) => a.host.localeCompare(b.host));
   const bytes = Buffer.from(`${JSON.stringify({ origins: sorted }, null, 2)}\n`);
-  await writeWholeFile(door, settings.origins_file, bytes, { mediaType: 'application/json', pieceBytes: settings.piece_bytes });
+  await writeWholeFile(runHost, settings.origins_file, bytes, { mediaType: 'application/json', pieceBytes: settings.piece_bytes });
   return sorted;
 }
 
@@ -133,11 +133,11 @@ const shown = origins => origins.map(({ host, installation, moved_to: movedTo })
  */
 // A file named by its place in the person's Files (`{ from_files: "<name>" }`) is read from there, so its bytes never
 // travel in the request. Its media type comes from its path, as every other file's does.
-async function filesWithNamedBytes(files, door) {
+async function filesWithNamedBytes(files, runHost) {
   const out = {};
   for (const [path, content] of Object.entries(files)) {
     if (content !== null && typeof content === 'object' && typeof content.from_files === 'string') {
-      const { bytes } = await readWholeFile(door, content.from_files);
+      const { bytes } = await readWholeFile(runHost, content.from_files);
       if (!bytes) refuse(words.from_files);
       out[path] = `data:${publicAppMediaType(path)};base64,${Buffer.from(bytes).toString('base64')}`;
     } else out[path] = content;
@@ -145,28 +145,28 @@ async function filesWithNamedBytes(files, door) {
   return out;
 }
 
-export async function publishSite(input = {}, { door, newId = () => randomBytes(settings.installation_hex / 2).toString('hex') } = {}) {
+export async function publishSite(input = {}, runHost = {}, { newId = () => randomBytes(settings.installation_hex / 2).toString('hex') } = {}) {
   let files = input.files;
   if (!files && typeof input.site === 'string') {
-    const { bytes } = await readWholeFile(door, input.site);
+    const { bytes } = await readWholeFile(runHost, input.site);
     files = JSON.parse(Buffer.from(bytes ?? []).toString('utf8'))?.files;
   }
   if (!files || typeof files !== 'object') refuse(words.site);
-  const checked = checkedPublicAppFiles(await filesWithNamedBytes(files, door));
+  const checked = checkedPublicAppFiles(await filesWithNamedBytes(files, runHost));
   const installation = input.installation === undefined ? newId() : checkedInstallation(input.installation);
   let bytes = 0;
   for (const [path, file] of Object.entries(checked)) {
-    await writeWholeFile(door, `${settings.files_folder}/${installation}/${path}`, Buffer.from(file.bytes),
+    await writeWholeFile(runHost, `${settings.files_folder}/${installation}/${path}`, Buffer.from(file.bytes),
       { mediaType: file.media_type, pieceBytes: settings.piece_bytes });
     bytes += file.size;
   }
   // A site that already has an address lists its pages for AI apps at /llms.txt (the AI page listing of
   // tools/choose-which-site-pages-ai-may-show, old trillion's site answer at that path), unless it ships its own.
-  const live = (await readOrigins(door)).find(origin => origin.installation === installation && !origin.moved_to);
+  const live = (await readOrigins(runHost)).find(origin => origin.installation === installation && !origin.moved_to);
   let llms = false;
   if (live && !checked['llms.txt']) {
     const text = await siteLlms(checked, `https://${live.host}`, live.host);
-    await writeWholeFile(door, `${settings.files_folder}/${installation}/llms.txt`, Buffer.from(text),
+    await writeWholeFile(runHost, `${settings.files_folder}/${installation}/llms.txt`, Buffer.from(text),
       { mediaType: 'text/plain; charset=utf-8', pieceBytes: settings.piece_bytes });
     llms = true;
   }
@@ -185,8 +185,8 @@ export async function siteLlms(checked, origin, name) {
   return answer.text();
 }
 
-async function published(door, installation) {
-  const listed = await door.files('list_files', { folder: `${settings.files_folder}/${installation}/` });
+async function published(runHost, installation) {
+  const listed = await runHost.files('list_files', { folder: `${settings.files_folder}/${installation}/` });
   return (listed?.names ?? []).length > 0 || (listed?.folders ?? []).length > 0;
 }
 
@@ -194,13 +194,13 @@ async function published(door, installation) {
  * name_site: the site's address under the names host: `name`, else one made from `title`. A site that had another name
  * keeps it, sending visitors on to the new one; a name it once had becomes its name again.
  */
-export async function nameSite(input = {}, { door } = {}) {
+export async function nameSite(input = {}, runHost = {}) {
   const installation = checkedInstallation(input.installation);
   const name = input.name !== undefined ? checkedName(input.name) : nameFromTitle(input.title) ?? refuse(words.no_name);
-  if (!await published(door, installation)) refuse(words.not_published);
+  if (!await published(runHost, installation)) refuse(words.not_published);
   const suffix = checkedHostInput(input.suffix, words.suffix);
   const host = nameHost(name, suffix);
-  const origins = await readOrigins(door);
+  const origins = await readOrigins(runHost);
   const held = origins.find(origin => origin.host === host);
   if (held && held.installation !== installation) refuse(words.taken);
   const earlier = origins.filter(origin => origin.installation === installation && isName(origin.host, suffix) && origin.host !== host && !origin.moved_to)
@@ -213,7 +213,7 @@ export async function nameSite(input = {}, { door } = {}) {
     return origin;
   });
   next.push({ host, installation });
-  const kept = await writeOrigins(door, next);
+  const kept = await writeOrigins(runHost, next);
   return { address: addressOf(host), name, installation, renamed_from: earlier.map(addressOf), origins: shown(kept), said: words.live_when };
 }
 
@@ -221,7 +221,7 @@ export async function nameSite(input = {}, { door } = {}) {
  * attach_domain: the person's own domain shows the site. Answers the two DNS records to add: the TXT record naming the
  * account, and the address record pointing at the forwarder.
  */
-export async function attachDomain(input = {}, { door } = {}) {
+export async function attachDomain(input = {}, runHost = {}) {
   const installation = checkedInstallation(input.installation);
   const suffix = checkedHostInput(input.suffix, words.suffix);
   const host = checkedDomain(input.domain, suffix);
@@ -229,11 +229,11 @@ export async function attachDomain(input = {}, { door } = {}) {
   const pointsAt = checkedPointsAt(input.points_at);
   const proofLabel = checkedHostInput(input.proof_label, words.proof_label);
   const proofValuePrefix = checkedProofValuePrefix(input.proof_value_prefix);
-  if (!await published(door, installation)) refuse(words.not_published);
-  const origins = await readOrigins(door);
+  if (!await published(runHost, installation)) refuse(words.not_published);
+  const origins = await readOrigins(runHost);
   const held = origins.find(origin => origin.host === host);
   if (held && held.installation !== installation) refuse(words.taken);
-  const kept = held ? origins : await writeOrigins(door, [...origins, { host, installation }]);
+  const kept = held ? origins : await writeOrigins(runHost, [...origins, { host, installation }]);
   return {
     address: addressOf(host),
     installation,
@@ -247,11 +247,11 @@ export async function attachDomain(input = {}, { door } = {}) {
 }
 
 /** let_go_of_address: the site stops answering at `host`, and every address moved to it goes with it. */
-export async function letGo(input = {}, { door } = {}) {
+export async function letGo(input = {}, runHost = {}) {
   const host = String(input.host ?? '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/\.$/, '');
-  const origins = await readOrigins(door);
+  const origins = await readOrigins(runHost);
   if (!origins.some(origin => origin.host === host)) refuse(words.unknown_host);
-  const kept = await writeOrigins(door, origins.filter(origin => origin.host !== host && origin.moved_to !== host));
+  const kept = await writeOrigins(runHost, origins.filter(origin => origin.host !== host && origin.moved_to !== host));
   return { let_go: addressOf(host), origins: shown(kept) };
 }
 
@@ -259,16 +259,16 @@ export async function letGo(input = {}, { door } = {}) {
  * What the forwarder last answered the list with, as the person's computer kept it (`told_file`): { state: answering,
  * hosts } or { state: refused, why }, with when; null before the computer handed the list in.
  */
-export async function readTold(door) {
-  const listed = await door.files('list_files', { folder: `${settings.files_folder}/` });
+export async function readTold(runHost) {
+  const listed = await runHost.files('list_files', { folder: `${settings.files_folder}/` });
   if (!(listed?.names ?? []).some(entry => (entry?.name ?? entry) === settings.told_file)) return null;
-  const { bytes } = await readWholeFile(door, settings.told_file);
+  const { bytes } = await readWholeFile(runHost, settings.told_file);
   const told = JSON.parse(Buffer.from(bytes ?? []).toString('utf8'));
   const why = told?.state === 'refused' ? words.refusals[told.why] ?? told.why : null;
   return { state: told?.state ?? null, told_at: Number.isFinite(told?.told_at_ms) ? new Date(told.told_at_ms).toISOString() : null, ...(why ? { why } : {}) };
 }
 
 /** site_addresses: every address the person's sites answer at, where each was moved to, and what the forwarder said. */
-export async function siteAddresses(_input = {}, { door } = {}) {
-  return { origins: shown(await readOrigins(door)), told: await readTold(door) };
+export async function siteAddresses(_input = {}, runHost = {}) {
+  return { origins: shown(await readOrigins(runHost)), told: await readTold(runHost) };
 }

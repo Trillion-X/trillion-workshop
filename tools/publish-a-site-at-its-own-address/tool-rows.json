@@ -246,7 +246,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/publish-a-site-at-its-own-address/read-data/site-addresses.mjs",
       "publishSite"
      ],
@@ -265,13 +265,15 @@
         "at": "/opt/publish-a-site-at-its-own-address"
        },
        {
-        "package": "records-door",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/records-door"
-       },
+ "package": "workflows",
+ "paths": [
+   "do-work/run-a-function.mjs",
+   "read-data/host-actions.mjs",
+   "read-data/whole-file.mjs",
+   "read-data/large-file.json"
+ ],
+ "at": "/opt/workflows"
+},
        {
         "package": "shared-code",
         "paths": [
@@ -656,7 +658,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/publish-a-site-at-its-own-address/read-data/site-addresses.mjs",
       "nameSite"
      ],
@@ -675,13 +677,15 @@
         "at": "/opt/publish-a-site-at-its-own-address"
        },
        {
-        "package": "records-door",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/records-door"
-       },
+ "package": "workflows",
+ "paths": [
+   "do-work/run-a-function.mjs",
+   "read-data/host-actions.mjs",
+   "read-data/whole-file.mjs",
+   "read-data/large-file.json"
+ ],
+ "at": "/opt/workflows"
+},
        {
         "package": "shared-code",
         "paths": [
@@ -1072,7 +1076,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/publish-a-site-at-its-own-address/read-data/site-addresses.mjs",
       "attachDomain"
      ],
@@ -1091,13 +1095,15 @@
         "at": "/opt/publish-a-site-at-its-own-address"
        },
        {
-        "package": "records-door",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/records-door"
-       },
+ "package": "workflows",
+ "paths": [
+   "do-work/run-a-function.mjs",
+   "read-data/host-actions.mjs",
+   "read-data/whole-file.mjs",
+   "read-data/large-file.json"
+ ],
+ "at": "/opt/workflows"
+},
        {
         "package": "shared-code",
         "paths": [
@@ -1448,7 +1454,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/publish-a-site-at-its-own-address/read-data/site-addresses.mjs",
       "letGo"
      ],
@@ -1467,13 +1473,15 @@
         "at": "/opt/publish-a-site-at-its-own-address"
        },
        {
-        "package": "records-door",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/records-door"
-       },
+ "package": "workflows",
+ "paths": [
+   "do-work/run-a-function.mjs",
+   "read-data/host-actions.mjs",
+   "read-data/whole-file.mjs",
+   "read-data/large-file.json"
+ ],
+ "at": "/opt/workflows"
+},
        {
         "package": "shared-code",
         "paths": [
@@ -1822,7 +1830,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/publish-a-site-at-its-own-address/read-data/site-addresses.mjs",
       "siteAddresses"
      ],
@@ -1841,13 +1849,15 @@
         "at": "/opt/publish-a-site-at-its-own-address"
        },
        {
-        "package": "records-door",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/records-door"
-       },
+ "package": "workflows",
+ "paths": [
+   "do-work/run-a-function.mjs",
+   "read-data/host-actions.mjs",
+   "read-data/whole-file.mjs",
+   "read-data/large-file.json"
+ ],
+ "at": "/opt/workflows"
+},
        {
         "package": "shared-code",
         "paths": [
