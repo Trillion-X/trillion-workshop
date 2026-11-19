@@ -1,0 +1,168 @@
+{
+  "about": "workflow:keep-operation-work-records: keeps the work records of operations in the person's own store, each write made only on the version it was read at, and a batch all or nothing, so no two AIs take the same work. It is the work-record part of tools/operation-records (read-data/operation-work-store.ts), whose whole job was those compare-and-swap writes through the engine client (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-operation-work-records",
+        "label": "Keep operation work records",
+        "job": "Keep the work records of operations in the person's own store, each write made only on the version it was read at: a write to a record that has moved on is refused, and a batch of writes and checks is all or nothing, so two AIs never both take the same piece of work.",
+        "produces": "The store's own objects for work records with their versions, proven on the example attempts, and each write, batch and read kept, refused as a conflict or read back.",
+        "source": {
+          "from": "tools/operation-records read-data/operation-work-store.ts (the atomic work-record store of the operation records package, with its address names), read on trillion-workshop origin/main 3047a3317",
+          "note": "Only the keeping is the store's job: a work record, its version, and a write that is made only when the version it was read at still holds. The engine client that carried these writes (the retired runtime) is not carried; the record's address names are the package's own (operation-records.work-fact:<ref> and the other kinds in operationWorkAddresses)."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Operations to run this time: write {address, value, expected_version (null when the record must not exist)}, batch {writes, preconditions}, read {address}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the work records are already kept (kept_in, or null) and the names of the objects that already keep them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: work records (address, value as a JSON object, version), where a version rises by one with each write and starts at 1. A write is made in one transaction only when the record's current version is the expected one (null: the record does not exist yet); otherwise it is a conflict and nothing changes. A batch makes all its writes, and checks all its preconditions, in one transaction; if any precondition or write conflicts, the whole batch is a conflict and nothing changes. A value that is not a JSON object is refused. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, run these operations in order, each through the store's own objects: [{\"op\": \"write\", \"address\": \"operation-records.work-fact:w1\", \"value\": {\"state\": \"open\"}, \"expected_version\": null}, {\"op\": \"write\", \"address\": \"operation-records.work-fact:w1\", \"value\": {\"state\": \"claimed\"}, \"expected_version\": null}, {\"op\": \"write\", \"address\": \"operation-records.work-fact:w1\", \"value\": {\"state\": \"claimed\"}, \"expected_version\": 1}, {\"op\": \"write\", \"address\": \"operation-records.work-fact:w1\", \"value\": {\"state\": \"done\"}, \"expected_version\": 1}, {\"op\": \"read\", \"address\": \"operation-records.work-fact:w1\"}, {\"op\": \"batch\", \"writes\": [{\"address\": \"operation-records.work-fact:w2\", \"value\": {\"state\": \"open\"}, \"expected_version\": null}], \"preconditions\": [{\"address\": \"operation-records.work-fact:w1\", \"expected_version\": 2}]}, {\"op\": \"batch\", \"writes\": [{\"address\": \"operation-records.work-fact:w4\", \"value\": {\"state\": \"open\"}, \"expected_version\": null}], \"preconditions\": [{\"address\": \"operation-records.work-fact:w1\", \"expected_version\": 1}]}, {\"op\": \"read\", \"address\": \"operation-records.work-fact:w4\"}]. Answers: a write gives written or conflict; a batch gives written or conflict; a read gives {value, version} of the record, or null when there is none. Then remove the throwaway place. Submit answers: one per attempt, in order, exactly as the answers above.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt gives the answer the intent says",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    "written",
+                    "conflict",
+                    "written",
+                    "conflict",
+                    {
+                      "value": {
+                        "state": "claimed"
+                      },
+                      "version": 2
+                    },
+                    "written",
+                    "conflict",
+                    null
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's work records",
+            "do": "Run each item of operations through the store's own objects, in order, and read back each record it wrote. With no operations, submit empty lists. Submit answers (one per operation, as in the prove step) and found (each address read back, with its version).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers",
+                "found"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                },
+                "found": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes a work record and its version; a work record that another AI's job still holds is ended with that job's own tool."
+      }
+    }
+  ]
+}
