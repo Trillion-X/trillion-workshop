@@ -77,3 +77,21 @@ test('a stop the run explained says the run\'s own words; one it did not explain
   assert.deepEqual((await kept(db)).map(row => row.body), [`It stopped because: ${said}.`,
     'It stopped because: engine::b@src/b.rs:1:1:condition: run_answered_an_error#unknown.']);
 });
+
+test('the same findings in one archive are one notice however many hours they stay, and a change is a new one', async () => {
+  const code = recipe('check-my-code-against-my-rules');
+  const db = new PGlite();
+  let found = 'fixed rule-a gone.mjs';
+  let files = 100;
+  const hands = door(db, { 'tool:check-an-archive-against-my-rules': () => ({ passed: false, said: `1 finding over ${files} file(s)`, found }) });
+  const hour = async () => {
+    files += 7;
+    const run = await runWorkflow({ recipe: code, input: { ...code.wakes[0].input, store: STORE, checks: [{ archive: 'https://code-host.example/main.tar.gz', rules: [] }] } }, hands);
+    assert.equal(run.status, 'completed', run.error_message ?? JSON.stringify(run.waiting));
+  };
+  await hour(); await hour(); await hour();
+  assert.equal((await kept(db)).length, 1, 'three hours of the same findings, whatever the file count: one notice');
+  found = 'appeared rule-a new.mjs\nfixed rule-a gone.mjs';
+  await hour(); await hour();
+  assert.deepEqual((await kept(db)).map(row => row.body), ['1 finding over 107 file(s)', '1 finding over 128 file(s)'], 'a new finding is told once');
+});

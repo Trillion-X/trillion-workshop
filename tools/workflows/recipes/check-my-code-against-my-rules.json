@@ -6,7 +6,7 @@
         "id": "workflow:check-my-code-against-my-rules",
         "label": "Check my code against my rules",
         "job": "Check each repository's commit the person names, as its host serves it, against rules the person wrote down, each hour, and tell the person when something breaks a rule: which file, which line, why the rule exists, and where a retired name moved to when that is recorded. The repositories, their rules and their recorded findings are the input the person switches the wake on with, one check per repository, so one workflow and one switch check any number of repositories.",
-        "produces": "Nothing when every rule holds. Otherwise one notice kept in the person's store (notices) per repository that broke a rule, kind needs-you, titled with its archive, whose body is that run's count of findings, rules and files.",
+        "produces": "Nothing when every rule holds. Otherwise one notice kept in the person's store (notices) per repository that broke a rule, kind needs-you, titled with its archive, whose body is that run's count of findings, rules and files. The same findings in the same archive are one notice, however many hours they stay: each notice is kept under the archive and what was found (the check's `found`), so the person is told again only when that changes.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -328,7 +328,40 @@
                             "path": "output.said"
                           }
                         },
-                        null
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "check.archive"
+                          },
+                          "resolve_nested_bindings": true,
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  "check-my-code ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "loop",
+                                      "path": "check.archive"
+                                    }
+                                  },
+                                  "\n",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "steps",
+                                      "key": "check",
+                                      "path": "output.found"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
                       ]
                     },
                     "context": {

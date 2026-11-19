@@ -142,3 +142,18 @@ test('a held token reaches only the archive address\'s own host, and an address 
   await assert.rejects(fetchArchive('http://code-host.example/a.tar.gz', undefined, 'made-up-token', 'code-host.example', fetchImpl), /https/);
   assert.equal(seen.length, 3);
 });
+
+test('what a run found is one text, the same for the same findings whatever the file count or order, and another for others', async () => {
+  const bad = `if (import.meta.url === ${'`file://${process.argv[1]}`'}) main();\n`;
+  const one = await run([{ name: 'top/a.mjs', text: bad }, { name: 'top/b.mjs', text: 'export const b = 1;\n' }]);
+  const again = await run([{ name: 'top/c.mjs', text: 'export const c = 1;\n' }, { name: 'top/a.mjs', text: bad }, { name: 'top/d.mjs', text: '\n' }]);
+  assert.equal(one.found, again.found, 'more files, another order: the same findings');
+  assert.notEqual(one.said, again.said, 'while what it says counts the files');
+  const two = await run([{ name: 'top/a.mjs', text: bad }, { name: 'top/e.mjs', text: bad }]);
+  assert.notEqual(two.found, one.found, 'another finding is another text');
+  assert.equal((await run([{ name: 'top/b.mjs', text: 'export const b = 1;\n' }])).found, '', 'a clean run found nothing');
+  const recorded = { known_findings: { [RULE.id]: ['a.mjs', 'b.mjs'] } };
+  const stale = await run([{ name: 'top/a.mjs', text: bad }, { name: 'top/b.mjs', text: 'export const b = 1;\n' }], { recorded });
+  assert.equal(stale.passed, false);
+  assert.equal(stale.found, `fixed ${RULE.id} b.mjs`, 'a recorded finding that was fixed is named, and the recorded one still there is not');
+});

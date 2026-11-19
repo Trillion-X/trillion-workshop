@@ -172,6 +172,18 @@ const said = ({ violations, files, rules, no_applicable_rule: none, ratchet }, a
   return `${violations.length} finding(s) from ${rules} rule(s) over ${files} file(s) of ${archive}.${against}`;
 };
 
+/** What the run found, as one text that is the same whenever the same things were found: with a recorded set, each finding
+ *  that appeared, each recorded one that was fixed and each recorded one not looked at, by rule and path; without one, every finding by rule and path; and
+ *  each covered file not judged. Sorted, so its order is never a change. A teller keeps one notice per `found` and archive,
+ *  so a check that finds the same thing every hour tells the person once. */
+const foundOf = (summary, violations, unjudged) => {
+  const named = (kind, rows) => rows.map((row) => `${kind} ${row.rule_id ?? ''} ${row.path}`);
+  const lines = summary.ratchet
+    ? [...named('appeared', summary.ratchet.appeared ?? []), ...named('fixed', summary.ratchet.fixed ?? []), ...named('unverified', summary.ratchet.unverified ?? [])]
+    : named('found', violations);
+  return [...lines, ...unjudged.map(({ path: p }) => `not judged ${p}`)].sort().join('\n');
+};
+
 /** The whole run for one input; `bytesOf` reads the archive (fetchArchive, or a test's own bytes), within `limits`. */
 export async function checkAnArchive(input, bytesOf = fetchArchive, limits = LIMITS, secret = '') {
   if (typeof input.archive !== 'string') throw new RunRefusal('give archive: the https address of a .tar.gz');
@@ -193,7 +205,7 @@ export async function checkAnArchive(input, bytesOf = fetchArchive, limits = LIM
     // A file a rule covers that was never written was never judged: the run cannot say it holds, so it is not a pass.
     const unjudged = skipped.filter(({ path: skippedPath }) => rules.some((rule) => ruleCoversPath(rule, skippedPath)));
     const notJudged = unjudged.length ? ` ${unjudged.length} file(s) a rule covers were not judged: ${unjudged.map(({ path: p, why }) => `${p} (${why})`).join(', ')}.` : '';
-    return { passed: !failed && unjudged.length === 0, said: `${said(summary, input.archive)}${notJudged}`, archive: input.archive, written,
+    return { passed: !failed && unjudged.length === 0, said: `${said(summary, input.archive)}${notJudged}`, found: foundOf(summary, violations, unjudged), archive: input.archive, written,
       skipped: skipped.length, skipped_paths: skipped, unjudged_paths: unjudged.map(({ path: p }) => p), ...summary, violations, ...subjectCounts, scanned_from: 'archive' };
   } finally {
     await rm(root, { recursive: true, force: true });
