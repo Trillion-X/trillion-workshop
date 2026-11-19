@@ -8,7 +8,8 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 // The pages draw the site block they are given: this run's has a mark, so the pages that name it can be checked.
 const given = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
@@ -170,6 +171,18 @@ test('pages/assets/sign-in.js is the build of the client as it is now (npm run b
   const { options } = await import('../build-pages.mjs');
   const built = await build({ ...options, write: false });
   assert.equal(built.outputFiles[0].text, readFileSync(new URL('assets/sign-in.js', dir), 'utf8'));
+});
+
+test('the bundle holds one React, this tool\'s, whatever node_modules sit above the shared parts (two made the alert throw and show no error)', async () => {
+  const { build } = await import('esbuild');
+  const { options } = await import('../build-pages.mjs');
+  const built = await build({ ...options, write: false, metafile: true });
+  const reacts = Object.keys(built.metafile.inputs).filter(input => /(^|\/)node_modules\/react(-dom)?\//.test(input));
+  assert.ok(reacts.length > 0);
+  const mine = fileURLToPath(new URL('../node_modules/', import.meta.url));
+  for (const input of reacts) assert.ok(resolve(input).startsWith(mine), `${input} is this tool's React`);
+  const versions = new Set(readFileSync(new URL('assets/sign-in.js', dir), 'utf8').match(/version="19\.[0-9.]+"/g));
+  assert.equal(versions.size, 1, [...versions].join(' '));
 });
 
 test('the consent page offers Sign out in small text at the bottom, and the device review shows a named device and a hyphenated code', () => {
