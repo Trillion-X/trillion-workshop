@@ -3,10 +3,11 @@
   "start_here": "Say to your AI: \"Work out the rewards my referral reward rules say a code earns and give back the discount and access rows that give them\", with {\"events\":[{\"kind\":\"referral_code_created\",\"subject\":\"account:ada\",\"material\":{\"event_type\":\"referral_code_created\",\"referral_code\":\"BREAD-7K3Q\",\"target\":{\"on\":\"product_id\",\"value\":\"loaf\"},\"occurred_at\":\"2026-01-01T00:00:00Z\"}}],\"codes\":[\"BREAD-7K3Q\"],\"sales\":[{\"id\":\"sale-1\",\"product_id\":\"loaf\",\"amount_cents\":2000}],\"rules\":[{\"id\":\"referral-reward-rule:friend-off\",\"type\":\"record:referral-reward-rule\",\"value\":{\"label\":\"Five dollars off for the friend\",\"state\":\"active\",\"earner\":\"friend\",\"reward\":\"discount\",\"code_points_at\":\"product_id\",\"amount_cents\":500,\"currency\":\"usd\",\"duration\":\"once\"}}]}. It runs tool:give-referral-rewards and answers {\"codes\":[{\"code\":\"BREAD-7K3Q\",\"referrer\":\"account:ada\",\"target\":{\"on\":\"product_id\",\"value\":\"loaf\"},\"created_at\":\"2026-01-01T00:00:00Z\",\"live\":true}],\"rules_used\":[\"referral-reward-rule:friend-off\"],\"rules_refused\":[],\"typed\":[{\"typed\":\"BREAD-7K3Q\",\"code\":{\"code\":\"BREAD-7K3Q\",\"referrer\":\"account:ada\",\"target\":{\"on\":\"product_id\",\"value\":\"loaf\"},\"created_at\":\"2026-01-01T00:00:00Z\"} ...",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes its input, your AI reads your referral reward rule rows from your store and gives them in `rules`, and the tool keeps nothing.",
-  "workflows": [],
+  "workflows": [
+    "workflow:keep-paid-access-grants"
+  ],
   "tools": [
     "tool:give-referral-rewards",
-    "tool:grant-paid-access-to-people",
     "tool:work-out-referral-codes"
   ],
   "instructions": [

@@ -5,14 +5,12 @@
   "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
-    "tool:prepare-ad-conversions",
-    "tool:meta-ads-send-conversion-events",
-    "tool:google-ads-send-conversions"
+    "tool:prepare-ad-conversions"
   ],
   "instructions": [
     "1. Say to your AI: \"Prepare sign-ups and payments to send back to Meta Ads and Google Ads\", and give it project; visits (First-touch visits: one per visitor, with the click ids they arrived with); conversions (What each visitor did: outcome, time, value, email or phone); destinations (Where conversions go, each turned on with its account and which outcome is which event).",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:prepare-ad-conversions and its input (the worked example shows one).",
-    "3. Read what comes back: the sends, each a connection tool (tool:meta-ads-send-conversion-events or tool:google-ads-send-conversions) with its exact input, and the conversions skipped with why. Email and phone are hashed; the plain values never appear. Run each send's tool with its input."
+    "3. Read what comes back: the sends, each a connection tool (tool:meta-ads-send-conversion-events or tool:google-ads-send-conversions) with its exact input, and the conversions skipped with why. Email and phone are hashed; the plain values never appear. This Workshop does not offer the Meta Ads or Google Ads send tools yet, so nothing is sent from here."
   ],
   "worked_examples": [
     {

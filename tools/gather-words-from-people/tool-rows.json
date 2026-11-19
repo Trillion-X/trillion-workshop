@@ -1544,7 +1544,7 @@
     "id": "tool:read-words-that-may-show",
     "label": "Read the words that may be shown",
     "job": "Read the words of a list that may be shown on a page: approved, consented to be shown, and unchanged since approval, as items for a page's proof section",
-    "description": "Takes the list's rows and returns only those whose state is approved, whose consent allows showing and whose pin still matches the speaker, words and consent now in the row, as items {heading, body, row_id} that tool:write-a-sales-page takes as a proof section's items (heading = the name as the consent says: whole, first name only, or the list's own anonymous heading). Every other row is counted in held_back by its reason (not_approved, changed_since_approved, consent_does_not_allow_showing) and never returned. limit keeps the first items. Returns items, shown, may_show_total and held_back.",
+    "description": "Takes the list's rows and returns only those whose state is approved, whose consent allows showing and whose pin still matches the speaker, words and consent now in the row, as items {heading, body, row_id} that a sales page takes as a proof section's items (heading = the name as the consent says: whole, first name only, or the list's own anonymous heading). Every other row is counted in held_back by its reason (not_approved, changed_since_approved, consent_does_not_allow_showing) and never returned. limit keeps the first items. Returns items, shown, may_show_total and held_back.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,

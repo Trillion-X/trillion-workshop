@@ -3609,7 +3609,7 @@
         "id": "tool:use-a-snippet",
         "label": "Use a snippet",
         "job": "Fill in one of my snippets with this time's names and give me its words to put in what I am writing",
-        "description": "Give snippet_id (from tool:find-snippets) and values: { name: words } for each {name} blank. Returns snippet_id, title, text (the words with every given blank filled wherever it appears), left_blank (the blanks given no value, left exactly as written) and said naming them, so nothing is sent with a hole unseen. It counts and stores nothing and never changes the snippet's words. It sends nothing. Give records: the snippet's record. Refuses an unknown snippet_id.",
+        "description": "Give snippet_id (the snippet's id as the store keeps it) and values: { name: words } for each {name} blank. Returns snippet_id, title, text (the words with every given blank filled wherever it appears), left_blank (the blanks given no value, left exactly as written) and said naming them, so nothing is sent with a hole unseen. It counts and stores nothing and never changes the snippet's words. It sends nothing. Give records: the snippet's record. Refuses an unknown snippet_id.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -3620,7 +3620,7 @@
           "properties": {
             "snippet_id": {
               "type": "string",
-              "description": "A snippet_id from tool:find-snippets"
+              "description": "The snippet's id as the store keeps it"
             },
             "values": {
               "type": "object",

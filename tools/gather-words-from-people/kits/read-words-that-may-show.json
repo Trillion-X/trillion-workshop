@@ -140,7 +140,6 @@
   "workflows": [],
   "tools": [
     "tool:read-words-that-may-show",
-    "tool:write-a-sales-page",
     "tool:approve-words-to-show",
     "tool:keep-the-words-a-person-gave",
     "tool:pour-example-rows-into-my-list"

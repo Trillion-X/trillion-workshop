@@ -5,13 +5,12 @@
   "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
-    "tool:use-a-snippet",
-    "tool:find-snippets"
+    "tool:use-a-snippet"
   ],
   "instructions": [
-    "1. Say to your AI: \"Fill in one of my snippets with this time's names and give me its words to put in what I am writing\", and give it snippet_id (A snippet_id from tool:find-snippets); records (The snippet's record, as the caller read it from a store ({ id, type: 'snippet', value }).).",
+    "1. Say to your AI: \"Fill in one of my snippets with this time's names and give me its words to put in what I am writing\", and give it snippet_id (the id of the snippet as your store keeps it); records (The snippet's record, as the caller read it from a store ({ id, type: 'snippet', value }).).",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:use-a-snippet and its input (the worked example shows one).",
-    "3. Read what comes back: Give snippet_id (from tool:find-snippets) and values: { name: words } for each {name} blank."
+    "3. Read what comes back: Give snippet_id (the id of the snippet as your store keeps it) and values: { name: words } for each {name} blank."
   ],
   "worked_examples": [
     {

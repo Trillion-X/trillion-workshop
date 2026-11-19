@@ -110,7 +110,7 @@
   "workflows": [],
   "tools": [
     "tool:fill-a-scripts-blanks-with-small-local-models",
-    "tool:fill-a-template-without-changing-its-words",
+    "tool:fill-a-word-template",
     "tool:read-a-tool-setting",
     "tool:pour-example-rows-into-my-list"
   ],
