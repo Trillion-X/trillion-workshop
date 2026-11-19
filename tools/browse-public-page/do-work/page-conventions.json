@@ -47,5 +47,50 @@
     "min_delay_seconds": 2,
     "default_delay_seconds": 2,
     "max_delay_seconds": 30
+  },
+  "blocked_addresses": {
+    "about": "Addresses this reader never fetches: the same blocked ranges and names as the one service rule (tools/refuse-requests-to-private-addresses/public-address.json). test/page-facts-blocked-addresses-match-the-engine-rule.test.mjs keeps the two copies equal.",
+    "names": [
+      "localhost",
+      "local",
+      "internal",
+      "intranet",
+      "lan",
+      "home",
+      "home.arpa",
+      "corp",
+      "private",
+      "localdomain"
+    ],
+    "ipv4": [
+      "0.0.0.0/8",
+      "10.0.0.0/8",
+      "100.64.0.0/10",
+      "127.0.0.0/8",
+      "169.254.0.0/16",
+      "172.16.0.0/12",
+      "192.0.0.0/24",
+      "192.0.2.0/24",
+      "192.168.0.0/16",
+      "198.18.0.0/15",
+      "198.51.100.0/24",
+      "203.0.113.0/24",
+      "224.0.0.0/4",
+      "240.0.0.0/4"
+    ],
+    "ipv6": [
+      "::/128",
+      "::1/128",
+      "fc00::/7",
+      "fe80::/10",
+      "ff00::/8",
+      "2001:db8::/32",
+      "fd00:ec2::254/128"
+    ],
+    "ipv4_inside_ipv6": [
+      "::ffff:0:0",
+      "64:ff9b::",
+      "::"
+    ]
   }
 }

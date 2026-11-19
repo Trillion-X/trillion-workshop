@@ -17,7 +17,13 @@ Thank you for making a tool. Every merged tool is offered to every Trillion user
 
 ## Checks
 
-`npm test` runs every tool's tests and `test/every-tool-row.test.mjs`, which reads the rows the way Trillion does. A pull request must pass it.
+This repository runs no hosted checks: it has no GitHub Actions workflows, and the Git hooks on a maintainer's computer are not versioned here. The checks are the ones you run locally:
+
+- `npm test` runs every tool's tests, `test/every-tool-row.test.mjs` (which reads the rows the way Trillion does) and the other root tests.
+- `npm run check-kits` runs the kit gate alone.
+- `npm run catalogue` rewrites the tool catalogue in `README.md` from the rows; `test/tool-catalogue-is-current.test.mjs` (part of `npm test`) fails when it is stale.
+
+Run `npm test` before you open a pull request, and list in the pull request the tests you ran.
 
 ## Adding a repository from GitHub
 

@@ -21,7 +21,58 @@ const MAX_TEXT = 30_000;
 const MAX_LINKS = 100;
 const MAX_DESCRIPTION = 280;
 
-/** The page address a reader may fetch: http(s) on its standard port, with a host and no user name or password. */
+// The addresses and names a reader never fetches: page-conventions.json's blocked_addresses, the same ranges and names as
+// the one service rule (tools/refuse-requests-to-private-addresses/public-address.json; a test keeps the copies equal).
+// The URL parser has already written every IP literal in canonical form (decimal dotted IPv4, eight hex groups for IPv6,
+// so an IPv4 address inside IPv6 is its last two groups), so only the numbers need reading here.
+const blocked = conventions.blocked_addresses;
+const ipv4Number = text => text.split('.').reduce((total, part) => total * 256 + Number(part), 0);
+const ipv4Ranges = blocked.ipv4.map(range => {
+  const [base, bits] = range.split('/');
+  const start = ipv4Number(base);
+  return { start, end: start + 2 ** (32 - Number(bits)) - 1 };
+});
+const ipv6Groups = text => {
+  const [head, tail] = text.includes('::') ? text.split('::') : [text, null];
+  const left = head ? head.split(':') : [];
+  const right = tail ? tail.split(':') : [];
+  const groups = tail === null ? left : [...left, ...Array(8 - left.length - right.length).fill('0'), ...right];
+  return groups.length === 8 ? groups.map(group => parseInt(group || '0', 16)) : null;
+};
+const ipv6Ranges = blocked.ipv6.map(range => {
+  const [base, bits] = range.split('/');
+  return { groups: ipv6Groups(base), bits: Number(bits) };
+});
+const embeddedPrefixes = blocked.ipv4_inside_ipv6.map(prefix => ipv6Groups(prefix));
+const blockedIpv4 = address => {
+  const value = ipv4Number(address);
+  return ipv4Ranges.some(({ start, end }) => value >= start && value <= end);
+};
+function blockedIpv6(text) {
+  const groups = ipv6Groups(text);
+  if (!groups) return true;
+  for (const known of embeddedPrefixes) {
+    if (known.slice(0, 6).every((group, at) => group === groups[at])
+      && blockedIpv4(`${groups[6] >> 8}.${groups[6] & 255}.${groups[7] >> 8}.${groups[7] & 255}`)) return true;
+  }
+  return ipv6Ranges.some(({ groups: base, bits }) => {
+    for (let bit = 0; bit < bits; bit += 1) {
+      const mask = 1 << (15 - (bit % 16));
+      if ((base[Math.floor(bit / 16)] & mask) !== (groups[Math.floor(bit / 16)] & mask)) return false;
+    }
+    return true;
+  });
+}
+
+/** Whether a host (as URL.hostname gives it) is this computer, a private, shared or link-local address, or a name only a private network resolves. */
+export function blockedHost(hostname) {
+  const host = hostname.toLowerCase().replace(/\.$/, '');
+  if (host.startsWith('[')) return blockedIpv6(host.slice(1, -1));
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(host)) return blockedIpv4(host);
+  return blocked.names.some(name => host === name || host.endsWith(`.${name}`));
+}
+
+/** The page address a reader may fetch: public http(s) on its standard port, with a host and no user name or password. */
 export function checkedUrl(input) {
   if (typeof input !== 'string' || !input || input.length > 4096) throw new Error('url must be a web address under 4096 characters.');
   let url;
@@ -30,6 +81,7 @@ export function checkedUrl(input) {
   if (url.username || url.password) throw new Error('Page addresses cannot include a username or password.');
   if (!url.hostname) throw new Error('url must include a host name.');
   if (url.port && url.port !== (url.protocol === 'https:' ? '443' : '80')) throw new Error('Only the standard HTTP and HTTPS ports are supported.');
+  if (blockedHost(url.hostname)) throw new Error('That address is this computer, a private network or link-local, so it is not read. Give a public web address.');
   return url;
 }
 

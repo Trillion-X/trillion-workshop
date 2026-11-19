@@ -20,7 +20,7 @@ test('shared browser tool uses the bundled Node reader in the network-enabled co
   assert.deepEqual(row.placements, ['placement:small-container']);
 });
 
-test('address checks refuse anything but a web page address; which addresses are public is the engine\'s to judge', () => {
+test('address checks refuse anything but a public web page address', () => {
   for (const [url, expected] of [
     ['file:///etc/passwd', /Only public HTTP and HTTPS/],
     ['https://user:pass@example.com/', /cannot include a username or password/],
@@ -40,6 +40,7 @@ test('HTML extraction and redirects keep bounded readable output', async () => {
   assert.deepEqual(seen, ['https://example.com/start', 'https://example.com/next']);
   assert.equal(result.title, 'Example & Test');
   assert.equal(result.final_url, 'https://example.com/next');
-  await assert.rejects(readPublicPage('https://example.com/', async () => ({ status: 302, headers: { location: 'http://127.0.0.1/' } })), /unencrypted HTTP/);
+  await assert.rejects(readPublicPage('https://example.com/', async () => ({ status: 302, headers: { location: 'http://127.0.0.1/' } })), /private network/);
+  await assert.rejects(readPublicPage('https://example.com/', async () => ({ status: 302, headers: { location: 'http://example.org/' } })), /unencrypted HTTP/);
   await assert.rejects(readPublicPage('https://example.com/', async () => ({ status: 200, headers: { 'content-type': 'text/html' }, body: Buffer.alloc(2_000_001) })), /2 MB limit/);
 });
