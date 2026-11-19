@@ -2,10 +2,8 @@
 //
 // The rows' seams over read-data/list-review.mjs (moved unchanged from old trillion src/list-review.mjs):
 //
-//   reviewListRows({ list_id, action, row_ids?, owner?, expires_days?, by? }, { door })
-//       one review action on one of the person's lists, through their records door (tools/records-door lists-door.mjs):
-//       set_up adds the review fields and views a list lacks; verify, flag_outdated, request_verification and assign set
-//       the state, check-again date, checker or owner on each row named.
+//   The review writes are not here: workflow:keep-what-a-list-says-true reads the list, then applies reviewWrites
+//   (read-data/list-review.mjs), which answers what a set_up saves or what each row named takes (values in, values out).
 //   findColdRows({ list, rows, heats, owner?, cursor? })
 //       the rows nobody uses, from the rows and heat records handed in ({ [row id]: { heat, at } }), leaving out rows
 //       whose review is current.
@@ -18,18 +16,11 @@
 //       a row's heat as of now (heatNow), and with used: true the heat record a use leaves (usedHeat; null inside the gap).
 //
 // Nothing here decides anything: the moved functions and their data (read-data/lists.json) do.
-import { coldRows, heatNow, reviewRows, rowsNeedingReview, usedHeat } from '../read-data/list-review.mjs';
+import { coldRows, heatNow, rowsNeedingReview, usedHeat } from '../read-data/list-review.mjs';
 import { evaluateFormula, filterRecords } from '../../formulas/do-work/requests.mjs';
-import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const need = (ok, sentence) => { if (!ok) throw new Error(sentence); };
-
-export async function reviewListRows(input, { door }) {
-  need(isObject(input) && typeof input.list_id === 'string' && input.list_id, 'Send list_id (one of the person\'s lists) and action.');
-  const { list_id: listId, by, row_kind: _rowKind, ...rest } = input;
-  return reviewRows(listsOverDoor(door), listId, rest, { actor: typeof by === 'string' && by ? { by } : undefined });
-}
 
 // The lists coldRows reads, kept in the request: one list, its rows in order, a page at a time, and their heat records.
 function handedIn({ list, rows, heats }) {

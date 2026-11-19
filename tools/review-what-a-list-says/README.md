@@ -11,18 +11,19 @@ Keeps what a list says true, and notices what nobody uses.
 
 | Path | What it is |
 |---|---|
-| `read-data/list-review.mjs` | `reviewRows`, `rowsNeedingReview`, `coldRows`, `heatNow`, `usedHeat`: moved unchanged from old trillion `src/list-review.mjs`. |
+| `read-data/list-review.mjs` | `reviewWrites` (values in, values out: what a set up saves and what each row takes), `rowsNeedingReview`, `coldRows`, `heatNow`, `usedHeat`: from the old tree `src/list-review.mjs`. |
 | `read-data/lists.json` | The slices of old trillion `src/lists.json` it reads (`review`, `use_heat`, two `limits`, the refusal `words`), under the same names. |
-| `read-data/list-refusals.mjs` | `listSay`, moved from old trillion `src/list-refusals.mjs`, without the old app's configuration-error branch. |
-| `do-work/review-a-list.mjs` | The rows' seams: `reviewListRows` over the person's lists through `tools/records-door/read-data/lists-door.mjs`, `findColdRows` over rows and heat records handed in, `findRowsNeedingReview` over the list and rows handed in, `heatOfARow`. |
-| `test/list-review-and-heat.test.mjs` | Old trillion `test/list-review-and-heat.test.mjs`: the heat test unchanged; review and cold rows over an in-memory records door. |
+| `read-data/list-refusals.mjs` | `listSay`, moved from the old tree `src/list-refusals.mjs`, without the old app's configuration-error branch. |
+| `do-work/review-a-list.mjs` | The rows' seams (the review writes are the store half, below): `findColdRows` over rows and heat records handed in, `findRowsNeedingReview` over the list and rows handed in, `heatOfARow`. |
+| `test/list-review-and-heat.test.mjs` | The heat test unchanged; `reviewWrites` values (set up, a row action, refusals) and cold rows over rows handed in. |
 | `test/rows-needing-review.test.mjs` | `findRowsNeedingReview` over a list `set_up` left: each reason, one owner, a later `now`, and the refusals. |
 
 ## The rows
 
+Setting a list up for review and verifying, flagging, asking to check or assigning its rows is the store half: `workflow:keep-what-a-list-says-true` (recipe and kit in tools/workflows). It reads the list, calls `reviewWrites` here, and keeps what it answers. The old `tool:review-rows-of-a-list` (which read and wrote through the records door) is removed. Proof: lane prove.mjs, the old `reviewRows` as oracle against PostgreSQL (PGlite) and a JSON folder: the writes, the answers, the refusals and the final rows are equal.
+
 | Row | Does |
 |---|---|
-| `tool:review-rows-of-a-list` | Sets a list up for review, or verifies, flags, asks to check or assigns its rows |
 | `tool:find-cold-rows` | The rows nobody uses, leaving out rows whose review is current |
 | `tool:find-rows-needing-review` | Each owner's rows that need review, with why: not verified, past their check-again date, or empty |
 | `tool:heat-of-a-row` | A row's heat as of a moment, and the record one more use leaves |

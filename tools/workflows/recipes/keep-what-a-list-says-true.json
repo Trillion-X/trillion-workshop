@@ -1,0 +1,244 @@
+{
+  "about": "workflow:keep-what-a-list-says-true: keeps a list of the person's own rows true, in the person's own store: a list set up for review gets an owner, a review state and a check-again date on each row, and the person or their AI marks rows checked, outdated or asking to be checked, or names their owner. It replaces the store half of tools/review-what-a-list-says (tool:review-rows-of-a-list, which read the list and wrote its fields, views and rows through the records door, reviewListRows in do-work/review-a-list.mjs). The rules that decide which fields, states, dates and owners each action writes are values in read-data/list-review.mjs (reviewWrites), and which rows need review or are cold stay there too (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-what-a-list-says-true",
+        "label": "Keep what a list says true",
+        "job": "Set a list of the person's own rows up for review (its owner, review state and check-again fields, and the saved views that show which rows need review), then apply one review action to the rows named: verify (checked, with the check-again date set and the checker kept), flag outdated (the date cleared), request verification, or assign an owner; and read back each row it changed.",
+        "produces": "The store's own list definition with its review fields and views, and each row's review values, proven on the example attempts in PostgreSQL (PGlite) and a folder of JSON files: every write, refusal and final row equal to the old owner's writes.",
+        "source": {
+          "from": "tools/review-what-a-list-says (read-data/list-review.mjs reviewRows and do-work/review-a-list.mjs reviewListRows, at the Workshop origin/main 14c80bcd6); the old owner (reviewRows over the lists engine) is the oracle of the proof",
+          "note": "The review fields, the states, the actions, the saved views, the refusal words, the default expiry and the row limit are the person's data (lists.json review), not defaults of this recipe: the default check-again period is 90 days unless the list keeps its own. set_up adds only the fields and views the list lacks, so a second set_up adds nothing. A verify, request or other action with a check-again date sets the date to now plus the list's period; flag outdated clears it. An action names rows by id (no slash, at most 200 characters, a limit per write); assign needs an owner name. A row's values are merged, so the other fields of the row stay. The actor's name is kept as the verifier when the action records one. Refuse, in the words the old owner used, a list that is not there, a list not set up for review, a missing row list, an unknown action, a set up with a bad period, and an assign with no owner."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "list_id",
+            "action"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps this list: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "list_id": {
+              "type": "string",
+              "description": "One of the person's lists"
+            },
+            "action": {
+              "type": "string",
+              "description": "set_up, verify, flag_outdated, request_verification or assign"
+            },
+            "row_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The rows the action names (not for set_up)"
+            },
+            "owner": {
+              "type": "string",
+              "description": "For assign: the owner's name"
+            },
+            "expires_days": {
+              "type": "number",
+              "description": "For set_up: the check-again period in days, above 0"
+            },
+            "by": {
+              "type": "string",
+              "description": "The name of who checked, when the action records it"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read the list named by list_id: its definition (fields, views, review settings) and whether it is set up for review. Submit where the list is kept (kept_in, or null), whether it is set up, and the names of the objects that keep it.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "set_up",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "set_up": {
+                  "type": "boolean"
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: a list definition keyed by the list id (fields, views and the review settings), and a row review object keyed by the list id and the row id (review state, check-again date, checker and owner, kept with the row's other values). A row write merges its values into the row. Submit the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, and a list docs with fields title and body, run these in order: set_up; verify row-1 by sam; flag_outdated row-2; request_verification row-1; assign row-2 to kim; verify on the row named bad/id (refused); assign row-1 with no owner (refused); set_up again. Submit outcomes (kept or refused for each) and the answer: each row's values after the attempts, which must be row-1 with review state Verification requested, verified by sam and no check-again date, and row-2 with review state Outdated, owner kim and no check-again date.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is kept or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "kept",
+                    "kept",
+                    "kept",
+                    "kept",
+                    "refused",
+                    "refused",
+                    "kept"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give the expected row values",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "row-1": {
+                      "review_state": "Verification requested",
+                      "verified_by": "sam",
+                      "review_due": null
+                    },
+                    "row-2": {
+                      "owner": "kim",
+                      "review_state": "Outdated",
+                      "review_due": null
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's review action",
+            "do": "Run the action in order through the store's own objects: set_up saves the list's missing review fields and views and the period (the period is the list's own or 90 days); any other action refuses unless the list is set up and the rows are named, and then writes each row named with the values the action gives, the check-again date set to now plus the period for verify and request, or cleared for flag outdated. Submit results (the answer each action gave, or its refusal in the words above), kept_records (each list definition and row written) and found_records (each read back). With no action, submit empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "results",
+                "kept_records",
+                "found_records"
+              ],
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "kept_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "found_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every record written is read back",
+                "path": [
+                  "this",
+                  "found_records"
+                ],
+                "of": [
+                  "this",
+                  "kept_records"
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes the review fields and the review values on the rows of the list; the rows and their other values are the person's and are changed only by their own requests."
+      }
+    }
+  ]
+}

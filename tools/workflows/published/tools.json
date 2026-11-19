@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:922f52ba5fa08bf4d1bd977139b8b3b917e6536b9a913a461790653bde93190a"
+  "blake3": "1f:20b8831e95739af45ddd07a0489e274f35c31d01f82e5a197245ce77f4af5e5c"
  },
  "fields": [
   {
@@ -11074,22 +11074,6 @@
      "placement:your-computer"
     ],
     "folder": "conversations"
-   }
-  },
-  {
-   "id": "tool:review-rows-of-a-list",
-   "values": {
-    "title": "Review the rows of a list",
-    "job": "Keep what a list of mine says true: set it up for review (an owner, a review state and a check-again date on each row, and views of what needs review), and mark rows verified, outdated or asking to be checked, or name their owner",
-    "description": "Give list_id (one of the person's lists), row_kind (record:<its row_type>, the records its rows are) and action. set_up (expires_days optional, 90 as shipped) adds the review fields (owner, review_state, review_due, verified_by) and the views review-needed, review-expired and review-empty a list lacks; fields it already has stay as they are. verify (row_ids, by: who checked) sets Verified and a check-again date expires_days ahead; flag_outdated and request_verification set their state and clear the date; assign (row_ids, owner) names the owner. Answers what changed. An unknown action, or a row action on a list not set up, is refused with the words saying what to send. Every write is conditional on the rows as read, so a row changed meanwhile refuses the write.",
-    "status": "active",
-    "maker": "maker:review-what-a-list-says",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "listed_on": "2026-11-03T16:00:00Z",
-    "folder": "review-what-a-list-says"
    }
   },
   {

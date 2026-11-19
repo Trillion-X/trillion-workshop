@@ -5,14 +5,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import data from '../read-data/lists.json' with { type: 'json' };
 import { findRowsNeedingReview } from '../do-work/review-a-list.mjs';
-import { reviewRows } from '../read-data/list-review.mjs';
+import { reviewWrites } from '../read-data/list-review.mjs';
 
-// The list as set_up leaves it: the moved reviewRows over one list record kept in memory.
+// The list as set_up leaves it: reviewWrites answers the save, and the caller keeps it (here, in memory).
 async function setUpList() {
-  let kept = { id: 'docs', title_field: 'title', fields: [{ id: 'title', label: 'Title', kind: 'text' }], views: [] };
-  const lists = { find: async id => (id === kept.id ? kept : null), save: async list => { kept = { ...kept, ...list }; return kept; } };
-  await reviewRows(lists, 'docs', { action: 'set_up' });
-  return kept;
+  const kept = { id: 'docs', title_field: 'title', fields: [{ id: 'title', label: 'Title', kind: 'text' }], views: [] };
+  const { save } = reviewWrites(kept, 'docs', { action: 'set_up' });
+  return { ...kept, ...save };
 }
 
 const rows = [

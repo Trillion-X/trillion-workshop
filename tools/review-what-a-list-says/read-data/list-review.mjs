@@ -3,7 +3,7 @@
 // Purpose: keeping what a list says true, and noticing what nobody uses. A list set up for review gives each row an owner,
 // a review state and a date by which it must be checked again (src/lists.json `review`), and saved views that decide,
 // with the formula engine's rules, which rows need review and why: never checked or flagged, past their date, empty. A
-// person or their AI marks rows checked, outdated or asking to be checked, or names their owner (reviewRows), and each
+// person or their AI marks rows checked, outdated or asking to be checked, or names their owner (reviewWrites), and each
 // owner reads the rows they must look at (rowsNeedingReview). Every row also gathers use heat that halves with time
 // (lists.json `use_heat`): useRows adds to it (src/lists.mjs noteUse), and coldRows lists the rows nobody has used,
 // leaving out those whose review is current.
@@ -49,9 +49,13 @@ const resolved = (value, roles) => (Array.isArray(value) ? value.map(item => res
  *   <action> { row_ids, owner? } sets the state, due date, checker or owner the action names on each row
  * Answers what changed.
  */
-export async function reviewRows(lists, id, input = {}, { actor } = {}) {
+/**
+ * What one review action writes, as values: a set_up saves the list's fields, views and review settings (`save`), and any
+ * other action puts the state, check-again date, checker or owner on each row named (`putRows`). `list` is the list as the
+ * caller read it (null when it is not there). Nothing is read or written here: the caller keeps what this answers.
+ */
+export function reviewWrites(list, id, input = {}, { actor, now = Date.now() } = {}) {
   const slug = slugOf(id);
-  const list = await lists.find(slug);
   if (!list) throw say('no_list', { list_id: slug });
   const actions = Object.keys(review.actions).filter(name => !name.startsWith('_'));
   if (input.action === 'set_up') {
@@ -61,8 +65,11 @@ export async function reviewRows(lists, id, input = {}, { actor } = {}) {
     const roles = roleIds(list);
     const views = review.views.filter(view => !(list.views ?? []).some(kept => kept.id === view.id))
       .map(({ reason: _reason, ...view }) => resolved(view, roles));
-    await lists.save({ id: slug, fields: [...list.fields, ...missing], views: [...(list.views ?? []), ...views], review: { expires_days: days } }, { actor });
-    return { list_id: slug, set_up: true, fields_added: missing.map(field => field.id), views_added: views.map(view => view.id), expires_days: days };
+    return {
+      list_id: slug, action: 'set_up', actor: actor ?? null,
+      save: { id: slug, fields: [...list.fields, ...missing], views: [...(list.views ?? []), ...views], review: { expires_days: days } },
+      answer: { list_id: slug, set_up: true, fields_added: missing.map(field => field.id), views_added: views.map(view => view.id), expires_days: days },
+    };
   }
   const action = review.actions[input.action];
   if (!action || String(input.action).startsWith('_')) throw say('bad_review', { actions: ['set_up', ...actions].join(', ') });
@@ -71,7 +78,6 @@ export async function reviewRows(lists, id, input = {}, { actor } = {}) {
     throw say('bad_row', { index: 'row_ids' });
   if (action.owner === 'set' && (typeof input.owner !== 'string' || !input.owner.trim())) throw say('bad_review', { actions: actions.join(', ') });
   const roles = roleIds(list);
-  const now = Date.now();
   const days = list.review?.expires_days ?? review.expires_days;
   const values = {
     ...(action.state !== undefined ? { [roles.state]: action.state } : {}),
@@ -79,8 +85,10 @@ export async function reviewRows(lists, id, input = {}, { actor } = {}) {
     ...(action.by === 'set' ? { [roles.by]: actor?.by ?? null } : {}),
     ...(action.owner === 'set' ? { [roles.owner]: input.owner.trim() } : {}),
   };
-  const answer = await lists.putRows(slug, { rows: input.row_ids.map(rowId => ({ id: rowId, values })) }, { actor });
-  return { list_id: slug, action: input.action, kept: answer.kept.map(row => row.id), ...(answer.conflicts ? { conflicts: answer.conflicts } : {}), ...(answer.settled ? { settled: answer.settled } : {}) };
+  return {
+    list_id: slug, action: input.action, actor: actor ?? null,
+    putRows: { list_id: slug, rows: input.row_ids.map(rowId => ({ id: rowId, values })) },
+  };
 }
 
 /**
