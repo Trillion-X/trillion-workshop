@@ -4,8 +4,10 @@
 // A row says who earns (the referrer whose code a buyer typed, or the friend who typed it), what kind of reward it is
 // and its terms, and which codes and sales it applies to. A reward is made out of what already exists, never paid here:
 //   share     a whole-cent share of a sale (the caller pays it however it pays people);
-//   discount  a `checkout-code-adjustment` row, which take-payments takes off a price (a credit is a discount with an
-//             amount that applies once);
+//   discount  a `checkout-code-adjustment` row, which take-payments takes off a price (duration once takes it off the first
+//             invoice only);
+//   credit    a customer credit of whole cents for the referrer, given on their next invoice (the caller gives it through
+//             take-payments' giveACustomerCredit, keyed by the credit's id);
 //   access    an `access-grant` row, which the access rules hold.
 // Nothing here names a business, a product, a price or an amount: they are all in the rows.
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -21,7 +23,7 @@ const encoder = new TextEncoder();
 const hexOf = words => makeHashCodeHexFromBytes(encoder.encode(words)).slice('1f:'.length);
 
 const EARNERS = ['referrer', 'friend'];
-const REWARDS = ['share', 'discount', 'access'];
+const REWARDS = ['share', 'discount', 'credit', 'access'];
 const DURATIONS = ['once', 'repeating', 'forever'];
 
 /** One rule row as a rule, or the reasons it is refused. A row whose state is `inactive` is { inactive: true }. */
@@ -67,6 +69,11 @@ function readRule(id, value) {
       duration, ...(duration === 'repeating' ? { duration_in_months: value.duration_in_months } : {}),
       ...(present(value.max_redemptions) ? { max_redemptions: value.max_redemptions } : {}),
     });
+  } else if (value.reward === 'credit') {
+    if (value.earner !== 'referrer') problems.push('a credit goes to the referrer, on their next invoice');
+    if (!(Number.isSafeInteger(value.amount_cents) && value.amount_cents > 0)) problems.push('a credit needs amount_cents, a whole number of cents above 0');
+    if (!/^[a-z]{3}$/i.test(text(value.currency) ?? '')) problems.push('a credit needs currency, a three-letter code');
+    Object.assign(rule, { amount_cents: value.amount_cents, currency: text(value.currency)?.toLowerCase() });
   } else if (value.reward === 'access') {
     if (!text(value.access_ref)) problems.push('access needs access_ref, the access given');
     if (present(value.access_days) && !(Number.isSafeInteger(value.access_days) && value.access_days > 0)) problems.push('access_days must be a whole number of days above 0');
@@ -155,6 +162,9 @@ export function rewardsForSale(code, sale, rules) {
     } else if (rule.reward === 'discount') {
       const id = `${ADJUSTMENT_TYPE}:referral:${rule.id}:${saleId}`;
       rewards.push({ ...base, subject: code.referrer, adjustment: adjustmentRow(rule, id, `RWD-${hexOf(id).slice(0, 8).toUpperCase()}`) });
+    } else if (rule.reward === 'credit') {
+      const id = `credit:referral:${rule.id}:${saleId}`;
+      rewards.push({ ...base, subject: code.referrer, credit: { id, subject: code.referrer, amount_cents: rule.amount_cents, currency: rule.currency, description: rule.label } });
     } else {
       const subject = rule.earner === 'referrer' ? code.referrer : text(sale[rule.friend_field]);
       const grantRef = `grant:referral:${rule.id}:${saleId}`;

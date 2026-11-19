@@ -10,8 +10,9 @@
 //                          what the sale earns, rule by rule
 //   giveReferralRewards    the same work, then the rewards as the rows the existing primitives read, for the caller to
 //                          keep: `checkout-code-adjustment` rows (take-payments takes them off a price) and
-//                          `access-grant` rows (the rows tool:grant-paid-access-to-people writes). Nothing is sent and no
-//                          money moves here.
+//                          `access-grant` rows (the rows tool:grant-paid-access-to-people writes); and the customer
+//                          `credits` (each { id, subject, amount_cents, currency, description }) for the caller to give
+//                          through take-payments' giveACustomerCredit, keyed by id. Nothing is sent and no money moves here.
 import { isDeepStrictEqual } from 'node:util';
 import { grantRow } from '../../paid-access/read-data/access-grants.mjs';
 import { makeReferralCode, normalizeReferralCode, referralCodeApplies, referralCodeCreatedEvent, referralCodeFor, referralCodesFromEvents, referralStateFor } from '../read-data/referral-codes.mjs';
@@ -97,12 +98,36 @@ function accessRows(grants) {
   return { rows: [...rows].map(([id, value]) => ({ id, type: 'access-grant', value })), refused };
 }
 
-/** tool:give-referral-rewards: the same work as workOutReferralCodes, then the rows that give the rewards, in the answer. */
+/** The customer credits the rewards give, once each by id (the id is the idempotency key the credit is given under); one id with two different terms is refused with why. */
+function creditRows(rewards) {
+  const credits = new Map();
+  const refused = [];
+  for (const item of rewards) {
+    if (!item.credit) continue;
+    const held = credits.get(item.credit.id);
+    if (!held) credits.set(item.credit.id, item.credit);
+    else if (!isDeepStrictEqual(held, item.credit)) refused.push({ id: item.credit.id, reason: `${item.credit.id} would be given with two different terms in this request` });
+  }
+  return { credits: [...credits.values()], refused };
+}
+
+/**
+ * tool:give-referral-rewards: the same work as workOutReferralCodes, then what gives the rewards, in the answer: the rows
+ * (checkout-code adjustments and access grants, once each by id) and the customer credits, each given through take-payments'
+ * giveACustomerCredit with its id as the idempotency key.
+ */
 export function giveReferralRewards(input) {
   const answer = plan(input);
   const rewards = [...(answer.typed ?? []).flatMap(item => item.friend_rewards), ...(answer.checked ?? []).flatMap(item => item.rewards)]
     .filter(item => item.reward !== 'share' && !item.refused);
   const adjustments = adjustmentRows(rewards);
   const access = accessRows(rewards.filter(item => item.grant).map(item => item.grant));
-  return { ...answer, rows: { adjustments: adjustments.rows, access_grants: access.rows }, rows_refused: { adjustments: adjustments.refused, access_grants: access.refused } };
+  const credits = creditRows(rewards);
+  return {
+    ...answer,
+    rows: { adjustments: adjustments.rows, access_grants: access.rows },
+    rows_refused: { adjustments: adjustments.refused, access_grants: access.refused },
+    credits: credits.credits,
+    credits_refused: credits.refused,
+  };
 }

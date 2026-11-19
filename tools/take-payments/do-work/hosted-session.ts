@@ -66,8 +66,16 @@ export type CreateHostedSessionInput = {
     /** Authoritative total expected on the first subscription invoice. */
     initial_amount_cents?: number;
     cadence?: string;
-    /** Extra string metadata the caller wants echoed back on the session and the subscription. */
+    /**
+     * Extra text metadata the caller wants echoed back on the session and the subscription: at most 50 keys, each key 1 to 40
+     * characters, each value at most 500, and none of the keys this file sets for the grant path (GRANT_METADATA_KEYS).
+     */
     metadata?: Record<string, string>;
+    /**
+     * Discounts taken off this session, each a Stripe coupon id (a coupon made for a checkout code of duration once, which
+     * takes its amount off the first invoice only).
+     */
+    discounts?: Array<{ coupon: string }>;
     /** Total requested units — metadata only (not a Stripe quantity). */
     unit_count?: number;
     /** Days before the first charge; 0/undefined = no trial. $0 charged today when > 0. */
@@ -248,7 +256,7 @@ export function sessionRequestBody(session: CreateHostedSessionInput['session'])
   const clientRef = text(session.client_reference_id);
   const unitCount = positiveInt(session.unit_count);
   const trialDays = positiveInt(session.trial_days);
-  const metadata: Record<string, string> = {};
+  const metadata = callerMetadataOf(session.metadata);
   if (offerId) metadata.offer_id = offerId;
   if (clientRef) metadata.checkout_attempt_id = clientRef;
   if (unitCount > 0) metadata.unit_count = String(unitCount);
@@ -260,7 +268,6 @@ export function sessionRequestBody(session: CreateHostedSessionInput['session'])
   if (validatedAmountCents > 0) metadata.validated_amount_cents = String(validatedAmountCents);
   if (cadence) metadata.cadence = cadence;
   if (initialAmountCents > 0) metadata.initial_amount_cents = String(initialAmountCents);
-  Object.assign(metadata, stringMetadata(session.metadata));
 
   const body: Record<string, unknown> = {
     mode: stripeMode,
@@ -268,6 +275,12 @@ export function sessionRequestBody(session: CreateHostedSessionInput['session'])
     cancel_url: text(session.cancel_url),
   };
   if (lineItems.length > 0) body.line_items = lineItems;
+  if (session.discounts !== undefined) {
+    if (!Array.isArray(session.discounts) || session.discounts.some(discount => !text(discount?.coupon))) {
+      throw new HostedSessionError('Each discount on a checkout session names a coupon.', 400);
+    }
+    body.discounts = session.discounts.map(discount => ({ coupon: text(discount.coupon) }));
+  }
 
   if (scheduled?.checkout.keepTheCardForLater) {
     // EVERYTHING SCHEDULED DEPENDS ON THIS ONE FIELD.
@@ -357,6 +370,28 @@ function subscriptionRecurringCents(subscription: Record<string, unknown>): numb
     total += unit * qty;
   }
   return total;
+}
+
+/** The keys this file writes into a checkout session's and its subscription's metadata for the grant path. A caller's metadata may not use them. */
+const GRANT_METADATA_KEYS = [
+  'offer_id', 'checkout_attempt_id', 'unit_count', 'price_option_id', 'validated_amount_cents', 'cadence',
+  'initial_amount_cents', 'installment_count', 'installments_paid', 'customer_email',
+];
+
+/** The caller's metadata, checked against Stripe's limits and kept apart from the grant keys above. */
+function callerMetadataOf(value: unknown): Record<string, string> {
+  if (value === undefined || value === null) return {};
+  if (!isRecord(value)) throw new HostedSessionError('metadata must be an object of text keys and text values.', 400);
+  const entries = Object.entries(value);
+  if (entries.length > 50) throw new HostedSessionError('metadata holds at most 50 keys.', 400);
+  const out: Record<string, string> = {};
+  for (const [key, raw] of entries) {
+    if (key.length < 1 || key.length > 40) throw new HostedSessionError('A metadata key is 1 to 40 characters.', 400);
+    if (typeof raw !== 'string' || raw.length > 500) throw new HostedSessionError(`metadata ${key} must be text of at most 500 characters.`, 400);
+    if (GRANT_METADATA_KEYS.includes(key)) throw new HostedSessionError(`metadata ${key} is set by the checkout itself.`, 400);
+    out[key] = raw;
+  }
+  return out;
 }
 
 function stringMetadata(value: unknown): Record<string, string> {

@@ -30,6 +30,7 @@ export type SerializedQuote = {
   canonicalPlanId?: string;
   checkoutAttemptId?: string;
   currency?: string;
+  appliedAdjustment?: { code: string; discountCents: string; duration: string; id: string; label: string; resultLabel: string };
   customer?: { email?: string };
   installmentCount?: number;
   offerId?: string;
@@ -121,8 +122,11 @@ function returnUrls(urls: Partial<ReturnUrls> | undefined): ReturnUrls {
   return { success_url, cancel_url };
 }
 
-/** Build the provider-neutral session intent from the worked-out quote. */
-export function sessionIntentFromQuote(quote: SerializedQuote, urls: Partial<ReturnUrls> | undefined) {
+/**
+ * Build the provider-neutral session intent from the worked-out quote. `metadata` is the caller's own text metadata, carried
+ * onto the session and its subscription; hosted-session.ts checks it against the provider's limits when the body is built.
+ */
+export function sessionIntentFromQuote(quote: SerializedQuote, urls: Partial<ReturnUrls> | undefined, metadata?: unknown) {
   const { success_url: successUrl, cancel_url: cancelUrl } = returnUrls(urls);
   const attemptId = text(quote.checkoutAttemptId);
   const offerId = text(quote.offerId);
@@ -154,10 +158,13 @@ export function sessionIntentFromQuote(quote: SerializedQuote, urls: Partial<Ret
   // Recurring and installment charge the quoted recurring amount (per cycle); one-time charges the amount due today.
   // The quote already folded the base plus metering into each.
   const lineAmountCents = isRecurringSession ? recurringAmountCents : oneTimeAmountCents;
+  // A code of duration once is the one way the first invoice is below the recurring amount: the recurring line stays the full
+  // price and the provider takes the discount off the first invoice, named below as `first_invoice_discount`.
+  const firstInvoiceDiscount = isRecurringSession && quote.appliedAdjustment?.duration === 'once' ? quote.appliedAdjustment : undefined;
   const initialContributionCents = isSubscription
     ? Math.max(0, oneTimeAmountCents - recurringAmountCents)
     : 0;
-  if (isSubscription && oneTimeAmountCents > 0 && oneTimeAmountCents < recurringAmountCents) {
+  if (isSubscription && !firstInvoiceDiscount && oneTimeAmountCents > 0 && oneTimeAmountCents < recurringAmountCents) {
     throw new SessionIntentError('The initial subscription amount cannot be less than its recurring amount.');
   }
   if (lineAmountCents <= 0) {
@@ -204,6 +211,12 @@ export function sessionIntentFromQuote(quote: SerializedQuote, urls: Partial<Ret
       // When money is taken and how much, forwarded whole and untouched beside the older fields: the offer in its own words, which the
       // provider module turns into whatever that provider calls those things.
       schedule: scheduleForTheProvider(quote),
+      metadata,
+      // The discount of a once code, as the coupon that takes it off the first invoice is made: the caller makes the coupon
+      // and passes its id to the session as `discounts`.
+      first_invoice_discount: firstInvoiceDiscount
+        ? { adjustment_id: firstInvoiceDiscount.id, amount_cents: Number(firstInvoiceDiscount.discountCents), currency }
+        : undefined,
       success_url: successUrl,
       cancel_url: cancelUrl,
       // A subscription may carry one first-invoice uplift: the one-time line is charged on the first invoice while

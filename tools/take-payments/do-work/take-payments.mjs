@@ -100,15 +100,47 @@ export function priceASale(input) {
 /**
  * Price the sale and make the hosted Stripe Checkout Session the buyer is sent to. Needs the buyer's agreement to the
  * billing and legal terms in `consent`. Success and cancel addresses only say where the browser lands; access follows
- * the checked payment event.
+ * the checked payment event. `metadata` (text keys and values) is carried onto the session and its subscription. A code of
+ * duration once is taken off the first invoice by a coupon made for it (the same amount the quote took off).
  */
 export async function startAStripeCheckout(input, context) {
   const offers = offersOf(input);
   const adjustments = adjustmentsOf(input);
   const quote = serializeQuote(buildCheckoutQuote(offers, input, adjustments));
-  const intent = sessionIntentFromQuote(quote, { success_url: input.success_url, cancel_url: input.cancel_url });
-  const session = await createHostedSession(intent, { send: sender(context) });
+  const intent = sessionIntentFromQuote(quote, { success_url: input.success_url, cancel_url: input.cancel_url }, input.metadata);
+  const send = sender(context);
+  const discount = intent.session.first_invoice_discount;
+  const discounts = discount
+    ? [{ coupon: (await call(send, 'operation:create-coupon', {
+      amount_off: discount.amount_cents,
+      currency: discount.currency,
+      duration: 'once',
+      metadata: { adjustment_id: discount.adjustment_id },
+    }, { idempotencyKey: `checkout-coupon:${discount.adjustment_id}:${discount.amount_cents}:${discount.currency}` })).id }]
+    : undefined;
+  const session = await createHostedSession({ ...intent, session: { ...intent.session, discounts } }, { send });
   return { ...checkoutMaterialFromQuote(quote), providerSessionId: session.provider_session_id, redirectUrl: session.url };
+}
+
+/**
+ * Give a customer a credit on their next invoice: a negative balance transaction, which Stripe takes off the customer's next
+ * invoices by itself. One credit per idempotency key, through the one send seam. Refuses before sending when the request is
+ * malformed, and refuses the answer when Stripe did not book the credit asked for.
+ */
+export async function giveACustomerCredit(input, context) {
+  const { customer, amount_cents: amount, currency, description, idempotency_key: key } = input ?? {};
+  if (typeof customer !== 'string' || !customer.trim()) throw new Error('customer names the Stripe customer the credit is for.');
+  if (!Number.isSafeInteger(amount) || amount <= 0) throw new Error('amount_cents must be a whole number of cents above 0.');
+  if (typeof currency !== 'string' || !/^[a-z]{3}$/i.test(currency)) throw new Error('currency must be a three-letter code.');
+  if (typeof description !== 'string' || !description.trim() || description.length > 350) throw new Error('description says what the credit is for, in up to 350 characters.');
+  if (typeof key !== 'string' || !key.trim() || key.length > 255) throw new Error('idempotency_key is required, up to 255 characters, so a repeated ask makes one credit.');
+  const booked = await call(sender(context), 'operation:create-customer-balance-transaction', {
+    amount: -amount,
+    currency: currency.toLowerCase(),
+    description: description.trim(),
+  }, { ref: customer.trim(), idempotencyKey: key.trim() });
+  if (booked.amount !== -amount) throw new Error(`Stripe booked ${booked.amount} for this credit, not ${-amount}.`);
+  return { balance_transaction: booked.id, customer: customer.trim(), credit_cents: amount, currency: booked.currency, ending_balance: booked.ending_balance };
 }
 
 /** A hosted checkout whose money goes to someone the person pays, with the person's fee kept back. */

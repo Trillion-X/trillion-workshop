@@ -305,11 +305,25 @@ function applyCheckoutAdjustment(
     applied: {
       code: adjustment.code,
       discountCents,
+      duration: adjustment.duration ?? 'forever',
       id: adjustment.id,
       label: adjustment.label,
       resultLabel: adjustment.result_label ?? '$0 access',
     },
   };
+}
+
+/**
+ * The schedule of a price whose code takes its discount off the first charge only: the first charge is the full amount less
+ * the discount, and every later charge stays at the full amount.
+ */
+function scheduleAfterFirstInvoiceDiscount(price: CommercialPriceOption, fullAmount: bigint, discountCents: bigint) {
+  const schedule = whenMoneyIsTaken(price, fullAmount);
+  const [first, ...later] = schedule.charges;
+  if (!first || first.amountCents < discountCents) {
+    throw new Error('A checkout code cannot take more off this price than its first charge.');
+  }
+  return { ...schedule, charges: [{ ...first, amountCents: first.amountCents - discountCents }, ...later] };
 }
 
 export function buildCheckoutMaterialQuote(
@@ -340,14 +354,17 @@ export function buildCheckoutMaterialQuote(
     throw new Error('An upfront founding contribution cannot be combined with a deferred trial charge.');
   }
   const initialAmountDueBeforeTrial = amountDueBeforeTrial + initialContribution;
-  if (price.voluntary_amount_policy) {
-    validateVoluntaryAmountSelection(price, Number(amountDueBeforeTrial));
-  }
+  // A code of duration once takes its discount off the first invoice only, so the price it repeats at stays the full one. The
+  // provider takes the discount off that first invoice (session-intent.ts names it, take-payments.mjs makes its coupon).
+  const firstInvoiceDiscount = appliedAdjustment?.duration === 'once' && (mode === 'subscription' || mode === 'installment')
+    ? appliedAdjustment
+    : undefined;
+  const repeatingAmount = firstInvoiceDiscount ? amount : amountDueBeforeTrial;
   // A trial defers the first charge: $0 is due TODAY, but the plan is not "free"
-  // — it bills amountDueBeforeTrial after trialDays. Only a genuinely $0 price is 'free'.
+  // — it bills the repeating amount after trialDays. Only a genuinely $0 price is 'free'.
   const amountDueToday = trialDays > 0 ? 0n : initialAmountDueBeforeTrial;
-  const adjustedMode = amountDueBeforeTrial === 0n ? 'free' : mode;
-  const recurringAmount = adjustedMode === 'one_time' || adjustedMode === 'free' ? 0n : amountDueBeforeTrial;
+  const adjustedMode = repeatingAmount === 0n ? 'free' : mode;
+  const recurringAmount = adjustedMode === 'one_time' || adjustedMode === 'free' ? 0n : repeatingAmount;
 
   // When money is taken and how much, as one thing, for whoever has to arrange
   // it with a payment provider. A price that writes its own charges is read as
@@ -368,7 +385,9 @@ export function buildCheckoutMaterialQuote(
   }
   const schedule = adjustedMode === 'free'
     ? null
-    : whenMoneyIsTaken(price, amountDueBeforeTrial);
+    : firstInvoiceDiscount
+      ? scheduleAfterFirstInvoiceDiscount(price, amount, firstInvoiceDiscount.discountCents)
+      : whenMoneyIsTaken(price, amountDueBeforeTrial);
 
   return {
     accessRefs: offer.access_refs,

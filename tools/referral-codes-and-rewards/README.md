@@ -9,12 +9,12 @@ Make the list once: a record of type `list` whose id and value are `list` in `re
 | Column | Meaning |
 |---|---|
 | `state` | `active` or `inactive`; only active rows are read. A malformed active row is skipped and named, with every problem, in the answer's `rules_refused`. |
-| `earner`, `reward` | Who earns it (`referrer` is the account that made the code, `friend` is the buyer who typed it) and what kind: `share` (referrer only), `discount` or `access`. |
+| `earner`, `reward` | Who earns it (`referrer` is the account that made the code, `friend` is the buyer who typed it) and what kind: `share` (referrer only), `discount`, `credit` (referrer only: a customer credit on their next invoice) or `access`. |
 | `code_points_at`, `code_points_at_value` | The rule applies to codes whose target is this sale attribute (and this value, when given). These attributes are also the only ones `tool:make-a-referral-code` lets a code point at. |
 | `offer_ids` | When given, only sales of these offers (the sale's `offer_id`) earn it; a discount's checkout code applies to these offers. |
 | `arm_group`, `weight` | Rows in one group are arms of a test: each referrer lands on one arm, the same one every time, by weight. |
 | `amount_field`, `basis_points` | A share: the sale field holding the amount, and the share in basis points, rounded down to whole cents. |
-| `percent` or `amount_cents` + `currency`, `duration`, `duration_in_months`, `max_redemptions` | A discount, as a checkout-code-adjustment (a credit is an amount that applies once). |
+| `percent` or `amount_cents` + `currency`, `duration`, `duration_in_months`, `max_redemptions` | A discount, as a checkout-code-adjustment (`duration` once takes it off the first invoice only). A credit uses `amount_cents` and `currency` alone. |
 | `access_ref`, `access_days`, `friend_field` | Access, as a grant: for the referrer, or for the person the sale's `friend_field` names; `access_days` needs the sale's `occurred_at_ms`. |
 
 A friend's discount is the referral code itself as a checkout code (typed at checkout); a referrer's discount or access is given per sale, from the sale's `id`, so the same sale gives the same reward once. Trillion's cookies, links and the 90-day window a friend's offer is shown are the sign-up flow's, not reward rules; `tools/referrals/src/referrals.json` is the old tree's copy of them (its importer still reads it) and its reward values are no longer the source: the rows are.
@@ -24,15 +24,16 @@ A friend's discount is the referral code itself as a checkout code (typed at che
 | File | Purpose |
 |------|---------|
 | `read-data/referral-codes.mjs` | The pure parts: `makeReferralCode`, `normalizeReferralCode`, the created and withdrawn events, `referralCodesFromEvents` (first maker keeps a code, only the maker can withdraw it, order does not matter), `referralCodeFor`, `referralCodeApplies`, `referralStateFor` (newest code and accepted referrals of one account), `shareEarned`. |
-| `read-data/referral-reward-rules.mjs` | The rows as rules (`readRewardRules`, every problem listed), the arm a referrer lands on, and what a code gives a friend (`rewardsForCode`) or a sale earns (`rewardsForSale`). |
+| `read-data/referral-reward-rules.mjs` | The rows as rules (`readRewardRules`, every problem listed), the arm a referrer lands on, and what a code gives a friend (`rewardsForCode`) or a sale earns (`rewardsForSale`). A `credit` is a whole-cent customer credit for the referrer, one per sale, with its id. |
 | `read-data/referral-reward-list.json` | The list and its columns, as data. |
-| `do-work/referral-rewards.mjs` | `makeAReferralCode`, `workOutReferralCodes` and `giveReferralRewards`, run through the export command with the business's rule rows given in the request (`rules`). |
+| `do-work/referral-rewards.mjs` | `makeAReferralCode`, `workOutReferralCodes` and `giveReferralRewards`, run through the export command with the business's rule rows given in the request (`rules`). `giveReferralRewards` also answers the `credits`, once each by id, for take-payments' `giveACustomerCredit`. |
 | `do-work/withdraw-a-referral-code.mjs` | The command of `tool:withdraw-a-referral-code`: `{ referrer, code, occurred_at? }` gives `{ event }`. |
 | `records.json` | The tool rows of make, withdraw, work out and give rewards. |
 | `tool-rows.json` | Lists `records.json`'s rows into the Workshop (`source:referral-code-tools`). |
 | `part.json` | No public files: only the tools run this code. |
 | `test/referral-codes.test.mjs` | The package's cases on a made-up bakery: readable codes, refused targets, first maker wins in any order, matching sales, withdrawal only by the maker, account state, whole-cent shares. |
 | `test/referral-rewards.test.mjs` | Each tool run as its row runs it with no records door: a changed rule row changes the answer, codes point only at what a rule names, the friend and referrer discounts are rows take-payments reads, access is held by the access rules, a second ask gives the same rows, malformed rows are named. |
+| `test/referral-credit-reward.test.mjs` | The credit kind: a referrer's credit per sale keyed by its id, a credit with no sale id refused with why, the credit's rule checks, and a friend's once discount row. |
 
 ## Key Types / Functions
 
@@ -47,7 +48,7 @@ A friend's discount is the referral code itself as a checkout code (typed at che
 
 ## Invariants
 
-- No money moves and nothing is sent, and no tool reads or writes a record: saving an event, a rule or a reward row is the person's own act through their AI and their store. `tool:give-referral-rewards` answers the `checkout-code-adjustment` and `access-grant` rows, once each by id (one id with two different terms in a request is refused with why).
+- No money moves and nothing is sent, and no tool reads or writes a record: saving an event, a rule or a reward row is the person's own act through their AI and their store. `tool:give-referral-rewards` answers the `checkout-code-adjustment` and `access-grant` rows, once each by id (one id with two different terms in a request is refused with why), and the customer `credits`, once each by id: the id is the idempotency key take-payments' `giveACustomerCredit` gives them under.
 - A reward's amount, field, offer or access is never in the code: only in a rule row.
 - The first account to make a code keeps it, whatever order events arrive in; a withdrawal by another account is ignored.
 - A code points at one `{ on, value }` and only an attribute an active rule row names.

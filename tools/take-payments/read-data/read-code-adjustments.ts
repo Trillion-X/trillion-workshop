@@ -31,6 +31,8 @@ export type CheckoutCodeAdjustment = {
 
 export type AppliedCheckoutCodeAdjustment = {
   code: string;
+  /** How long the discount lasts: `once` takes it off the first invoice only, and the price keeps repeating in full. */
+  duration: 'forever' | 'once' | 'repeating';
   discountCents: bigint;
   id: string;
   label: string;
