@@ -55,7 +55,7 @@ export function sweepAtoms(recorded, current, citing, allChecks) {
   return { count: current.length, with_check, with_reason, changed, gone, uncovered, orphan_checks, missing_covered_by };
 }
 
-// The running tally of a coverage: one piece folded in at a time, so a list of any size is read page by page and only
+// The running tally of a coverage: one piece folded in at a time, so a list of any size is one pass over its rows and only
 // counts, and at most `named` uncovered pieces of each file, are held. `exists(id)` says whether a check row exists.
 // `file` (when given) keeps only that file; `after` then skips its uncovered pieces up to that id, so a caller pages
 // through every uncovered piece of one file by id.

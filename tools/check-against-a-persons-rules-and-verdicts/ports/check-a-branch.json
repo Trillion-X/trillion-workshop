@@ -8,7 +8,7 @@
   "quote": "Turn all his checks into ONE generic check system; everything in lists, one generic process, the decision engine under it too, for any kind of thing: book, script, article, post."
  },
  "mode": "NO_PRIOR_OWNER",
- "job": "check against a branch: read the rules and verdict rows of a branch from the person's check rows through the records door, then check with the one judge",
+ "job": "check against a branch: read the rules and verdict rows of a branch from the person's check rows handed in as records, then check with the one judge",
  "sources": [],
  "targets": [
   {
@@ -64,7 +64,7 @@
  "proof": {
   "search": {
    "phrasings": [
-    "check against a branch: read the rules and verdict rows of a branch from the person's check rows through the records door, then check with the one judge",
+    "check against a branch: read the rules and verdict rows of a branch from the person's check rows handed in as records, then check with the one judge",
     "rules of a branch",
     "check a branch",
     "verdict rows of a branch"

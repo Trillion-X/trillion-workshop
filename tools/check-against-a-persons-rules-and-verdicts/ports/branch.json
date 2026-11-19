@@ -8,7 +8,7 @@
   "quote": "Turn all his checks into ONE generic check system; everything in lists, one generic process, the decision engine under it too, for any kind of thing: book, script, article, post."
  },
  "mode": "SOURCE_FIRST_PORT",
- "job": "Find a branch's ancestors nearest first, select the check rows that belong to its lineage, and build door filters for those rows.",
+ "job": "Find a branch's ancestors nearest first, select the check rows that belong to its lineage, and build row filters for those rows.",
  "sources": [
   {
    "repository": "trillion-workshop",
@@ -43,7 +43,7 @@
   }
  ],
  "preserve": [
-  "The complete branch implementation: refusal types, scalar and list link reading, one-parent checks, records-door where filters, nearest-first lineage, refusal of unknown parents and cycles, and branch check filtering.",
+  "The complete branch implementation: refusal types, scalar and list link reading, one-parent checks, row filters, nearest-first lineage, refusal of unknown parents and cycles, and branch check filtering.",
   "The current public API exports and behavior; branch.mjs forwards every export to this core so existing consumers keep their entry path.",
   "The original methodLineage history in decide-with-a-method/read-data/method.mjs and the older extends model are preserved as provenance; whole-method loading remains a separate job."
  ],
@@ -55,7 +55,7 @@
  ],
  "banned_substitutions": [
   "A person, branch, check row, or link-field choice embedded in the implementation.",
-  "Replacing the existing lineage, refusal, list-link, or door-filter behavior with a second implementation or a weaker check."
+  "Replacing the existing lineage, refusal, list-link, or row-filter behavior with a second implementation or a weaker check."
  ],
  "baseline": {
   "commit": "a4e865bebc80fa21aec481b5dab55e4da6e9c68f",
@@ -74,7 +74,7 @@
   {
    "repository": "trillion",
    "path": "src/private-method.mjs",
-   "why": "The old app resolves extends while loading whole methods. The current branch implementation supplies generic lineage, row filters and records-door where shapes; those are different jobs."
+   "why": "The old app resolves extends while loading whole methods. The current branch implementation supplies generic lineage and row filters; those are different jobs."
   }
  ],
  "proof": {
@@ -83,8 +83,6 @@
    "export class BranchRefusal",
    "export function linksOf(",
    "export function parentOf(",
-   "export function whereOfLink(",
-   "export function wheresOfLink(",
    "export function lineageOf(",
    "export function checksOfBranch("
   ],

@@ -5,8 +5,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { atomsOf, carriedBytes, pieceRow, pieceRows } from '../do-work/pieces.mjs';
+import { atomsOf, carriedBytes, pieceRow, pieceRows, splitIntoPieces } from '../do-work/pieces.mjs';
 import { runRow } from '../../../test-helpers/run-a-row.mjs';
+import SETTINGS from '../read-data/pieces.json' with { type: 'json' };
 
 const folder = resolve(import.meta.dirname, '..');
 
@@ -97,6 +98,21 @@ test('tool:split-a-document-into-pieces answers the pieces of its text and keeps
     assert.equal(refused.code, 1);
     assert.match(refused.last.error, /Send text/);
   }
+});
+
+test('a named file is read whole through the run\'s host, and a file the host cannot read or that is too large is refused', async () => {
+  const text = '## Made-up\n\n- one\n- two\n';
+  const name = '/Notes/made-up.md';
+  const reads = [];
+  const host = { readWholeFile: async (given, options) => { reads.push([given, options]); return { title: 'made-up.md', size: Buffer.byteLength(text), bytes: Buffer.from(text) }; } };
+  const answer = await splitIntoPieces({ name }, host);
+  assert.deepEqual(answer.pieces.map(piece => piece.key), ['Made-up / one', 'Made-up / two']);
+  assert.equal(answer.file, name);
+  assert.deepEqual(reads, [[name, { readBytes: SETTINGS.split.read_bytes, mostBytes: SETTINGS.split.most_file_bytes }]]);
+  const big = { readWholeFile: async () => ({ title: 'big.md', size: 5_000_000, bytes: null }) };
+  await assert.rejects(splitIntoPieces({ name }, big), /the split reads at most/);
+  const unreadable = { readWholeFile: async () => { throw new Error('the native side refused: no_files'); } };
+  await assert.rejects(splitIntoPieces({ name }, unreadable), /could not be read as one of the person's files: the native side refused/);
 });
 
 test('the pieces come a page per call: after names the last piece of the page before, and every piece comes once', async () => {

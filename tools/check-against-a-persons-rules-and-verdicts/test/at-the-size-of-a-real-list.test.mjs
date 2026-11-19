@@ -2,14 +2,13 @@
 // list (Nov 4, 2026): a list of 40,707 rows of which 39,088 are pieces, and whole documents of 31 KB and 120 KB with ```
 // and ~~~ fences. Every row, file and word here is made up. Each row runs as the container runs it
 // (test-helpers/run-a-row.mjs), under the heap of the row's needs.memory_mb. The coverage row is handed its check rows
-// as input (`records`); the split row reads its document by name through the stand-in files door, which cuts pages by
-// bytes as the engine's door does and refuses a request body over its 65,536-byte message.
+// as input (`records`); the split row reads its document by name through the run's host (a stub here, in process).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { runRow } from '../../../test-helpers/run-a-row.mjs';
-import { pieceRows } from '../do-work/pieces.mjs';
+import { pieceRows, splitIntoPieces } from '../do-work/pieces.mjs';
 import SETTINGS from '../read-data/pieces.json' with { type: 'json' };
 
 const folder = resolve(import.meta.dirname, '..');
@@ -152,21 +151,39 @@ async function pagesOf(row, input, sample) {
   return ran;
 }
 
+// The run's host, in process, answering the made-up text under its name as the host's readWholeFile reads it. The row
+// runs of this file measure memory; the named reads below run in process, so they measure none.
+const hostWith = (name, text) => ({
+  readWholeFile: async (given, { mostBytes }) => {
+    if (given !== name) throw new Error(`no file named ${given}`);
+    const bytes = Buffer.from(text);
+    return { title: name.split('/').pop(), size: bytes.length, bytes: bytes.length > mostBytes ? null : bytes };
+  },
+});
+
+// Every page of a named file, each call's `next` the next call's `after`.
+async function namedPagesOf(name, text) {
+  const host = hostWith(name, text), pages = [];
+  let after;
+  do {
+    const page = await splitIntoPieces({ name, ...(after === undefined ? {} : { after }) }, host);
+    pages.push(page);
+    after = page.next ?? undefined;
+  } while (after !== undefined);
+  return pages;
+}
+
 for (const [label, bytes] of [['31 KB', 31 * 1024], ['120 KB', 120 * 1024]]) {
-  test(`tool:split-a-document-into-pieces answers every piece of a whole ${label} file, read by name, page by page, and keeps nothing`, { timeout: 240_000 }, async t => {
+  test(`tool:split-a-document-into-pieces answers every piece of a whole ${label} file, read by name, page by page, and keeps nothing`, { timeout: 240_000 }, async () => {
     const text = madeUpSkill(bytes);
     const name = '/Skills/made-up/SKILL.md';
     const want = pieceRows([{ text, file: name }]);
-    const row = rowOf('tool:split-a-document-into-pieces');
-    const ran = await pagesOf(row, { name }, { door_files: { [name]: text } });
-    const answered = ran.flatMap(page => page.last.result.pieces);
-    t.diagnostic(`${label}: ${ran.length} pages, peak ${Math.max(...ran.map(page => page.peak_mb))} MB of ${row.needs.memory_mb} MB`);
+    const ran = await namedPagesOf(name, text);
+    const answered = ran.flatMap(page => page.pieces);
     assert.deepEqual(answered, want, 'the pages hold the pieces, in reading order, once each');
-    assert.ok(ran.every(page => page.last.result.total === want.length && page.last.result.too_large.length === 0));
-    assert.ok(ran.every(page => page.answer_bytes <= SETTINGS.split.most_bytes), 'every answer is within its room');
-    assert.ok(ran.every(page => page.peak_mb < row.needs.memory_mb));
-    assert.ok(ran.every(page => !page.calls.some(call => call.refused_bytes)), 'no call is over the door message');
-    assert.ok(ran.every(page => page.kept.length === 0 && !page.calls.some(call => call.method === 'records:write')), 'nothing is written');
+    assert.ok(ran.every(page => page.total === want.length && page.too_large.length === 0));
+    assert.ok(ran.every(page => Buffer.byteLength(JSON.stringify({ result: page })) <= SETTINGS.split.most_bytes), 'every answer is within its room');
+    assert.ok(ran.every(page => page.keep === undefined), 'nothing is kept');
     // Every ~~~ fence is one piece, with the ``` lines it holds; every ```` fence holds its ~~~ lines.
     const fenced = want.filter(piece => piece.text.startsWith('~~~sh'));
     assert.ok(fenced.length > 0 && fenced.every(piece => piece.text.endsWith('\n~~~') && piece.text.includes('not a closing fence')));
@@ -184,27 +201,25 @@ test('a 31 KB file also splits whole as text; 120 KB as text is over the door\'s
 
 test('a piece too large for one answer is named and not carried, and the rest of the file is answered', async () => {
   const text = `## Made-up\n\nCarried.\n\n~~~\n${'made-up line\n'.repeat(6000)}~~~\n`;
-  const pages = await pagesOf(rowOf('tool:split-a-document-into-pieces'), { name: '/made-up.md' }, { door_files: { '/made-up.md': text } });
-  const answer = pages[0].last.result;
+  const pages = await namedPagesOf('/made-up.md', text);
+  const answer = pages[0];
   assert.deepEqual([answer.total, answer.pieces.length, answer.too_large.length], [2, 1, 1]);
   assert.match(answer.lines[1], /more than one answer holds/);
   assert.deepEqual(answer.pieces.map(piece => piece.says), ['Carried.']);
 });
 
-test('the largest file the row reads (4 MiB less 4 KiB) answers a first page, then a page from the middle by after, within the row\'s memory', { timeout: 240_000 }, async () => {
+test('the largest file the row reads (4 MiB less 4 KiB) answers a first page, then a page from the middle by after', { timeout: 240_000 }, async () => {
   const text = madeUpSkill(4 * 1024 * 1024 - 4096);
   const name = '/Skills/made-up/SKILL.md';
   const want = pieceRows([{ text, file: name }]);
-  const row = rowOf('tool:split-a-document-into-pieces');
-  const first = await runHeld(row, { name }, { door_files: { [name]: text } });
-  assert.equal(first.code, 0, first.stdout + first.stderr);
-  assert.deepEqual(first.last.result.pieces, want.slice(0, first.last.result.pieces.length));
+  const host = hostWith(name, text);
+  const first = await splitIntoPieces({ name }, host);
+  assert.deepEqual(first.pieces, want.slice(0, first.pieces.length));
   const after = want[Math.floor(want.length / 2)].id;
-  const middle = await runHeld(row, { name, after }, { door_files: { [name]: text } });
-  assert.equal(middle.code, 0, middle.stdout + middle.stderr);
-  assert.equal(middle.last.result.pieces[0].id, want[Math.floor(want.length / 2) + 1].id);
-  for (const ran of [first, middle]) {
-    assert.ok(ran.answer_bytes <= SETTINGS.split.most_bytes && ran.peak_mb < row.needs.memory_mb, `${ran.answer_bytes} bytes, peak ${ran.peak_mb} MB`);
-    assert.ok(ran.kept.length === 0 && !ran.calls.some(call => call.method === 'records:write'));
+  const middle = await splitIntoPieces({ name, after }, host);
+  assert.equal(middle.pieces[0].id, want[Math.floor(want.length / 2) + 1].id);
+  for (const page of [first, middle]) {
+    assert.ok(Buffer.byteLength(JSON.stringify({ result: page })) <= SETTINGS.split.most_bytes);
+    assert.equal(page.keep, undefined, 'nothing is kept');
   }
 });

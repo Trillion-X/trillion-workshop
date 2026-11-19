@@ -14,7 +14,7 @@
 //   1. The branch rows are found once among the records handed in by `kind: branch`, then only the rows of the branches
 //      of the lineage, each the rows whose link names it, never a whole list. A branch part of a branch is a branch below,
 //      never judged: it is counted in rows_used.skipped.branch. Until the rows are rewritten, the old link fields
-//      (read-data/branch.json `old_link_fields`) are read too, one `where` each; a row's parent is its first link that
+//      (read-data/branch.json `old_link_fields`) are read too; a row's parent is its first link that
 //      names one, so a row read by an old field whose `part_of` names another branch is not this branch's row.
 //   2. A row with `step` is a question of a decision step (tools/decide-with-a-method asks it); its `check` is question
 //      text, not a judge-words check name, so it never reaches makeJudge. A row whose `on` is "Off" is not judged.
@@ -40,7 +40,7 @@
 //                                  read_by_a_model; its `questions` are one entry a rule in one page (rules-and-verdicts.mjs
 //                                  askedOf; input `questions_after` the next), with questions_page and ask_all; with no row
 //                                  to judge or read, status no-applicable-rule
-import { lineageOf, linksOf, wheresOfLink } from './branch.mjs';
+import { lineageOf, linksOf } from './branch.mjs';
 import { askedOf, check, CheckRefusal, compileVerdictRules, linesOf, statusOf } from './rules-and-verdicts.mjs';
 import { SELECTOR_NAMES } from '../../judge-words/do-work/judge-words.mjs';
 import { recordOf, recordsOf } from './records-in-hand.mjs';
@@ -78,13 +78,11 @@ function valuesOf(records, type, where = null) {
   return recordsOf(records, type, where).map(record => record.value).filter(object);
 }
 
-// The rows part of branch `id`: one read a field of the link, each row once, kept only when its first link names `id`.
-function rowsPartOf(records, branchRows, id) {
+// The rows part of branch `id`: each check row once, kept when the link it is read by (its first field that names any) names `id`.
+function rowsPartOf(records, id) {
   const byId = new Map();
-  for (const where of wheresOfLink(branchRows, LINK, id)) {
-    for (const row of valuesOf(records, SETTINGS.check_type, where)) {
-      if (!byId.has(row.id) && linksOf(row, LINK).includes(id)) byId.set(row.id, row);
-    }
+  for (const row of valuesOf(records, SETTINGS.check_type)) {
+    if (!byId.has(row.id) && linksOf(row, LINK).includes(id)) byId.set(row.id, row);
   }
   return [...byId.values()];
 }
@@ -132,7 +130,7 @@ export function rulesOfBranch(records, branch) {
   const listsRead = new Set();
   for (const [at, id] of lineage.entries()) {
     const isVerdict = judgeAt >= 0 && at <= judgeAt;
-    const own = rowsPartOf(records, methods, id)
+    const own = rowsPartOf(records, id)
       .sort((a, b) => (String(a.id) < String(b.id) ? -1 : 1));
     rows_used.branches[id] = own.length;
     take(own, isVerdict);

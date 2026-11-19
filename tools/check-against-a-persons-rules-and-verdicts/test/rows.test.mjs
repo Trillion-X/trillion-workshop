@@ -16,8 +16,8 @@ const run = (argv, input) => spawnSync(process.execPath, argv, { cwd: folder, in
 for (const row of rows) {
   test(`${row.id} answers its own sample on the last line`, async () => {
     for (const sample of row.verify.filter(item => item.kind === 'sample-run')) {
-      // A sample that seeds files runs as the container does, with the stand-in files door holding them; records are in its input.
-      const ran = sample.door_files ? await runRow(row, sample.input, { door_files: sample.door_files }) : run(row.invoke.argv.slice(1), sample.input);
+      // Every sample runs as the container runs it (its argv at its /opt paths); records are in its input.
+      const ran = await runRow(row, sample.input, {});
       assert.equal(ran.status ?? ran.code, 0, ran.stderr ?? ran.stdout);
       const answer = at(JSON.parse(ran.stdout.trim().split('\n').at(-1)), row.result_selector);
       assert.ok(String(at(answer, sample.output_selector)).includes(sample.contains), JSON.stringify(answer));

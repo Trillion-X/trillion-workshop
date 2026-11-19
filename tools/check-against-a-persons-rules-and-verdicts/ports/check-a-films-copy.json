@@ -100,9 +100,9 @@
   "questions go to a decider command and come back as one { option: p } or null each; --no-model never calls it and keeps every question unknown"
  ],
  "allowed_deltas": [
-  "the rules come from the person's branch of list:checks through the door (rulesOfBranch), never from copy-rules.json, ask-rules.json or verdict-rules.json",
+  "the rules come from the person's branch of list:checks among the records handed in (rulesOfBranch), never from copy-rules.json, ask-rules.json or verdict-rules.json",
   "the layouts, spans, profiles, owners, fields, origin words and reader-knowledge rows come from the person's settings row (tools/settings readSettings)",
-  "the check is checkAFilmsCopy(input, door), the container row tool:check-a-films-copy; the command line is its computer run with --door-mcp or --door-records",
+  "the check is checkAFilmsCopy(input, records), the container row tool:check-a-films-copy; the command line is its computer run with --records",
   "the escalated lines are listed in the report for the person's verdict log instead of appended to a log file here",
   "BLAKE3 from tools/content-identity instead of the b3sum program"
  ],

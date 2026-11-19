@@ -21,13 +21,13 @@
 //     sources: [{ file, section, file_identity, at }], tags: [], kinds: [], checked_by: [] }
 //     section: the piece's key in that file; at: the line of that file where the piece starts
 //   pieceRows([{ text, file?, file_identity? }]) -> piece rows, one per identity, sources in reading order
-//   splitIntoPieces({ text? | name?, file?, file_identity?, after?, most_bytes? }, door) -> { file, file_identity, total, pieces, next,
+//   splitIntoPieces({ text? | name?, file?, file_identity?, after?, most_bytes? }, host) -> { file, file_identity, total, pieces, next,
 //     too_large, lines }
 //
 // Splitting a whole file in one call (tool:split-a-document-into-pieces)
-//   4. The document comes as `text`, or by reference as `name`, one of the person's files read through the run's files
-//      door (read_file, page after page, every page of the same identity), so a file larger than one request body
-//      (the door refuses bodies over 64 KiB) is never sent in one.
+//   4. The document comes as `text`, or by reference as `name`, one of the person's files read whole through the run's
+//      host (host.readWholeFile, read_file page after page inside the host action), so a file larger than one request
+//      body (the door refuses bodies over 64 KiB) is never sent in one.
 //   5. The answer holds the piece rows (one per identity, a repeated text a second source of its row) and keeps nothing:
 //      the person's AI keeps them in whatever store it chooses. Nothing is read from or written to the person's rows.
 //   6. A run's answer is carried twice in one 65,536-byte door message (the pieces of a 31 KB file are about 280 KB of
@@ -85,24 +85,14 @@ export function carriedBytes(value) {
   return bytes;
 }
 
-// One of the person's files, read whole by name through the files door, every page of one identity.
-async function readByName(door, name, { read_bytes: readBytes, most_file_bytes: most } = SETTINGS.split) {
-  const parts = [];
-  let offset = 0, identity = null;
-  for (;;) {
-    let page;
-    try { page = await door.files('read_file', { name_or_identity: name, offset, length: readBytes }); }
-    catch (error) { throw new SplitRefusal(fill(SETTINGS.words.file_unreadable, { name, why: error.message })); }
-    if (page.byte_length > most) throw new SplitRefusal(fill(SETTINGS.words.file_too_large, { name, bytes: page.byte_length, most }));
-    if (identity !== null && page.identity !== identity) throw new SplitRefusal(fill(SETTINGS.words.file_changed, { name }));
-    identity = page.identity ?? null;
-    const part = Buffer.from(page.content ?? '', page.encoding === 'base64' ? 'base64' : 'utf8');
-    parts.push(part);
-    offset += part.length;
-    if (!part.length || offset >= page.byte_length) break;
-  }
-  const bytes = Buffer.concat(parts);
-  return { text: bytes.toString('utf8'), identity: identity ?? makeHashCodeHexFromBytes(bytes) };
+// One of the person's files, read whole by name through the run's files right (host.readWholeFile, which reads the file
+// page by page inside the host action): a file above `most_file_bytes` is refused, as is one the host cannot read.
+async function readByName(host, name, { read_bytes: readBytes, most_file_bytes: most } = SETTINGS.split) {
+  let whole;
+  try { whole = await host.readWholeFile(name, { readBytes, mostBytes: most }); }
+  catch (error) { throw new SplitRefusal(fill(SETTINGS.words.file_unreadable, { name, why: error.message })); }
+  if (whole.bytes === null) throw new SplitRefusal(fill(SETTINGS.words.file_too_large, { name, bytes: whole.size, most }));
+  return { text: whole.bytes.toString('utf8'), identity: makeHashCodeHexFromBytes(whole.bytes) };
 }
 
 /**
@@ -110,14 +100,14 @@ async function readByName(door, name, { read_bytes: readBytes, most_file_bytes: 
  * reading order, as many as fit `most_bytes` as the door carries them. `next` is the id to send as `after` for the next
  * page, null on the last. A piece too large for any page is named in `too_large`, not carried.
  */
-export async function splitIntoPieces(input, door, settings = SETTINGS.split) {
+export async function splitIntoPieces(input, host, settings = SETTINGS.split) {
   const hasText = typeof input?.text === 'string', hasName = typeof input?.name === 'string' && input.name.length > 0;
   if (hasText === hasName) throw new SplitRefusal(SETTINGS.words.text);
   if (input.file !== undefined && typeof input.file !== 'string') throw new SplitRefusal(SETTINGS.words.file_name);
   if (input.after !== undefined && typeof input.after !== 'string') throw new SplitRefusal(SETTINGS.words.after);
   const room = input.most_bytes ?? settings.most_bytes;
   if (!Number.isInteger(room) || room < settings.least_bytes || room > settings.most_bytes) throw new SplitRefusal(fill(SETTINGS.words.room, settings));
-  const read = hasName ? await readByName(door, input.name, settings) : { text: input.text, identity: null };
+  const read = hasName ? await readByName(host, input.name, settings) : { text: input.text, identity: null };
   const file = input.file ?? (hasName ? input.name : null);
   const file_identity = input.file_identity ?? read.identity ?? makeHashCodeHexFromBytes(new TextEncoder().encode(read.text));
   const all = pieceRows([{ text: read.text, file, file_identity }]);

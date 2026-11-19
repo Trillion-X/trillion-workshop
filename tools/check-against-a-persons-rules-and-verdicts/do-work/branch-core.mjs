@@ -26,8 +26,6 @@
 //   checksOfBranch(rows, lineage, link) -> the rows whose link is absent or names a branch of the lineage, in their order
 //   linksOf(row, link)                  -> the ids the row's link names: [] | [id] | [id, ...]
 //   parentOf(row, link)                 -> the one id a branch row is part of, or undefined for a root
-//   whereOfLink(branchRows, link, id)   -> the door's `where` for the rows part of `id`, in the shape the rows store
-//   wheresOfLink(branchRows, link, id)  -> one such `where` for each field of the link, the link first
 //   link: 'part_of' | ['part_of', <old field>, ...]
 export class BranchRefusal extends Error {}
 
@@ -52,18 +50,6 @@ export function parentOf(row, link) {
   const ids = linksOf(row, link), name = nameOf(link);
   if (ids.length > 1) throw new BranchRefusal(`Branch ${row?.id} is ${name} ${ids.join(' and ')}; a branch is ${name} one branch, fix its ${name}.`);
   return ids[0];
-}
-
-/** The `where` that matches the rows part of `id`: the door matches the whole value, so a list when the rows keep lists. */
-export function whereOfLink(branchRows, link, id) {
-  const field = nameOf(link);
-  const listed = (branchRows ?? []).some(row => Array.isArray(row?.[field]));
-  return { [field]: listed ? [id] : id };
-}
-
-/** One `where` for each field of the link, the link first; a row found by more than one is the same row. */
-export function wheresOfLink(branchRows, link, id) {
-  return fieldsOf(link).map(field => whereOfLink(branchRows, field, id));
 }
 
 /** The branch `id` and every branch it is part of through `link`, nearest first. Refuses an unknown id or a cycle. */

@@ -37,10 +37,10 @@
  "allowed_deltas": [
   "the header names its new home and shapes",
   "coverage(pieces, checks) is the --coverage report of scripts/method-sources.mjs:150-160 over piece rows instead of a sources file: per file, pieces, with a check, with a reason, uncovered by name, and status failed when any is uncovered",
-  "coverageInRecords reads the piece rows and the checks they name through the records door, read only",
+  "coverageInRecords reads the piece rows and the checks they name from the records it is handed (records), read only",
   "words are DATA in read-data/pieces.json",
-  "coverageInRecords reads in bounded pages only (records:list: the ids of the Checks list with fields [], then the piece rows by where { kind: piece } narrowed to the fields the coverage reads) and folds each page into a running tally (coverageTally), never holding the list or reading a check one by one: a list of 40,707 rows (39,088 pieces) answered with an unknown outcome reading the whole list in one go",
-  "the answer fits one door message (read-data/pieces.json answer.most_bytes): totals and every file's counts are whole, the files shown and the pieces named are those that fit, and next pages on over every file or, with file, over one file's uncovered pieces"
+  "coverageInRecords makes one pass over the rows it is handed (the ids of the Checks rows, then the piece rows narrowed to the fields the coverage reads) and folds each piece into a running tally (coverageTally), holding counts and a bounded number of named pieces, never the list: a list of 40,707 rows (39,088 pieces) answered with an unknown outcome reading the whole list in one go",
+  "the answer fits one message (read-data/pieces.json answer.most_bytes): totals and every file's counts are whole, the files shown and the pieces named are those that fit, and next pages on over every file or, with file, over one file's uncovered pieces"
  ],
  "banned_substitutions": [
   "a sources file on disk in place of the person's rows",

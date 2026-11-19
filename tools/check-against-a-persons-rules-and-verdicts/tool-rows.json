@@ -120,7 +120,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -559,13 +558,6 @@
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
        {
-        "package": "records-door",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/records-door"
-       },
-       {
         "package": "judge-words",
         "paths": [
          "do-work"
@@ -974,7 +966,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -1193,19 +1184,6 @@
          "read-data/settings.mjs"
         ],
         "at": "/opt/settings"
-       },
-       {
-        "package": "records-door",
-        "paths": [
-         "read-data/byte-pages.mjs",
-         "read-data/records-door.mjs",
-         "read-data/values-door.mjs",
-         "read-data/settled-write.mjs",
-         "read-data/stdio-mcp-door.mjs",
-         "read-data/read-many.mjs",
-         "read-data/write-batches.mjs"
-        ],
-        "at": "/opt/records-door"
        },
        {
         "package": "documents-as-list-rows",
@@ -1442,7 +1420,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -1879,19 +1856,6 @@
         "at": "/opt/settings"
        },
        {
-        "package": "records-door",
-        "paths": [
-         "read-data/byte-pages.mjs",
-         "read-data/records-door.mjs",
-         "read-data/values-door.mjs",
-         "read-data/settled-write.mjs",
-         "read-data/stdio-mcp-door.mjs",
-         "read-data/read-many.mjs",
-         "read-data/write-batches.mjs"
-        ],
-        "at": "/opt/records-door"
-       },
-       {
         "package": "documents-as-list-rows",
         "paths": [
          "read-data/atoms.mjs"
@@ -2123,7 +2087,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -2303,6 +2266,14 @@
      "kind": "container",
      "files": {
       "package_files": [
+        {
+          "package": "workflows",
+          "paths": [
+            "do-work/run-a-function.mjs",
+            "read-data/host-actions.mjs"
+          ],
+          "at": "/opt/workflows"
+        },
        {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
@@ -2357,13 +2328,6 @@
         "at": "/opt/node_modules/@noble/hashes"
        },
        {
-        "package": "records-door",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/records-door"
-       },
-       {
         "package": "settings",
         "paths": [
          "read-data/settings.mjs"
@@ -2396,11 +2360,7 @@
      "workdir": "/opt/check-against-a-persons-rules-and-verdicts",
      "internet": false,
      "stdout": "json",
-     "argv": [
-      "node",
-      "do-work/check-against-their-rules-and-verdicts.mjs",
-      "split-a-document-into-pieces"
-     ],
+     "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/check-against-a-persons-rules-and-verdicts/do-work/pieces.mjs", "splitIntoPieces"],
      "stdin": {
       "fill": {
        "from": "input"
@@ -2423,17 +2383,6 @@
      "source": "old trillion scripts/method-atoms.mjs atomsOf, read from its home tools/documents-as-list-rows/read-data/atoms.mjs"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "name": "/Notes/made-up.md"
-      },
-      "door_files": {
-       "/Notes/made-up.md": "# Made-up title\n\n## Made-up part\n\n**Made-up lead.** Then the rest.\n\n~~~\nmade-up fenced line\n\nstill fenced\n~~~\n\n- one made-up item\n"
-      },
-      "output_selector": "$.file",
-      "contains": "/Notes/made-up.md"
-     },
      {
       "kind": "sample-run",
       "input": {
@@ -2571,7 +2520,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -2796,13 +2744,6 @@
          "read-data"
         ],
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
-       },
-       {
-        "package": "records-door",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/records-door"
        },
        {
         "package": "judge-words",
@@ -3122,7 +3063,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -3373,13 +3313,6 @@
          "read-data"
         ],
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
-       },
-       {
-        "package": "records-door",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/records-door"
        },
        {
         "package": "judge-words",
