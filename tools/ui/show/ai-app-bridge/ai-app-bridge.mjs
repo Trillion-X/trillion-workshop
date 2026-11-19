@@ -147,7 +147,10 @@ export function connectToAiApp(win, { appName = 'view', protocolVersion = '2026-
      * `sendFollowUpMessage`). Rejects with the app's words when it refuses. */
     sendMessage: async text => {
       if (!answered && typeof win.openai?.sendFollowUpMessage === 'function') { await win.openai.sendFollowUpMessage({ prompt: text }); return; }
-      await request('ui/message', { role: 'user', content: { type: 'text', text } });
+      // Content is a list of blocks (ext-apps 2.0.4 spec.types McpUiMessageRequest); an app that cannot deliver it may answer
+      // isError rather than an error.
+      const given = await request('ui/message', { role: 'user', content: [{ type: 'text', text }] });
+      if (given?.isError) throw new Error('The app did not say this in the chat.');
     },
     /** Asks the app to open an address outside the chat. */
     openLink: url => {

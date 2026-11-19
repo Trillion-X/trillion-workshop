@@ -31,7 +31,7 @@ window.addEventListener('message', async event => {
   if (m.method) (window.heard ??= []).push(m);
   if (m.method === 'ui/initialize') reply({ protocolVersion: '2026-01-26', hostContext: { displayMode: 'inline', theme: 'dark', availableDisplayModes: ['inline', 'fullscreen'] } });
   if (m.method === 'ui/request-display-mode') reply({ mode: m.params.mode });
-  if (m.method === 'ui/message') reply({});
+  if (m.method === 'ui/message') { if (Array.isArray(m.params?.content)) reply({}); else f.contentWindow.postMessage({ jsonrpc: '2.0', id: m.id, error: { code: -32602, message: 'Invalid MCP message params' } }, '*'); }
   if (m.method === 'tools/call') { window.calls.push(m.params); reply(await window.door(m.params)); }
 });
 window.say = (method, params) => f.contentWindow.postMessage({ jsonrpc: '2.0', method, params }, '*');
@@ -220,7 +220,7 @@ test('a press on the screen is said in the conversation as the person, so the AI
     await picked.frame().click('#b');
     await picked.tab.waitForTimeout(150);
     const told = (await picked.heard()).filter(m => m.method === 'ui/message');
-    assert.deepEqual(told.map(m => m.params), [{ role: 'user', content: { type: 'text', text: 'I picked: Find decisions' } }]);
+    assert.deepEqual(told.map(m => m.params), [{ role: 'user', content: [{ type: 'text', text: 'I picked: Find decisions' }] }]);
   } finally { await browser.close(); }
 });
 
