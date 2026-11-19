@@ -2,7 +2,7 @@
   "drafted_from": "tool:gate-a-piece-against-a-checklist's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Before I am shown anything I made, list the required checks that apply to it and identify which answers are open, stale or failed, without changing my files\", with {\"schema\":\"schema.json\",\"command\":\"checklist --problems\"}. It runs tool:gate-a-piece-against-a-checklist and answers {\"result\":{\"all_passed\":true,\"problems\":[]},\"exit_code\":0}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (ai-job, record:workflow-recipe, record:workflow-step) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:gate-a-piece-against-a-checklist"
@@ -10,8 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"Before I am shown anything I made, list the required checks that apply to it and identify which answers are open, stale or failed, without changing my files\", and give it library (The folder the schema's files are relative to, put where {library} is in the command.); schema (The schema file on the person's computer (see the README for its keys), put where {schema} is in the command.); command (A read-only command: gate <piece> --stage ID[,ID] [--option ITEM]...).",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:gate-a-piece-against-a-checklist and its input (the worked example shows one).",
-    "3. Read what comes back: { result, exit_code } from the existing gate consumer. For gate, result contains all_passed, the routed checks, stale or failed answers, and items not evaluated; scope lists item ids; audit lists offenders; checklist reports its generated comparison or problems. exit_code is 0 when the selected read passes, 1 when a gate is open or failed, and 2 for unreadable inputs. The private native run omits temporary answer command paths.",
-    "4. It reads and writes only its own rows through the records door: ai-job (records:read, records:write); record:workflow-recipe (records:read); record:workflow-step (records:list)."
+    "3. Read what comes back: { result, exit_code } from the existing gate consumer. For gate, result contains all_passed, the routed checks, stale or failed answers, and items not evaluated; scope lists item ids; audit lists offenders; checklist reports its generated comparison or problems. exit_code is 0 when the selected read passes, 1 when a gate is open or failed, and 2 for unreadable inputs. The private native run omits temporary answer command paths."
   ],
   "worked_examples": [
     {

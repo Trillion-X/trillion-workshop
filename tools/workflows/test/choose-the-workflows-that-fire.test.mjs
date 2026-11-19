@@ -16,14 +16,14 @@ const installed = [...new Map(readdirSync(RECIPES).filter(name => name.endsWith(
   .reverse().map(recipe => [recipe.id, recipe])).values()];
 
 // The person's own workflow rows, exactly these ({ slug, value }), as the input field the chooser is given them in.
-const doorOver = rows => ({ own: rows.map(row => ({ id: row.slug, value: row.value })) });
+const handedIn = rows => ({ own: rows.map(row => ({ id: row.slug, value: row.value })) });
 
 const kinds = values => ({ fields: [{ id: 'kinds', kind: 'tags', path: ['kinds'] }], tree: { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'kinds', operator: 'has_any_of', params: { values } }] } });
 const condition = (label, values, extra = {}) => ({ label, condition: kinds(values), made_by: 'the person', state: 'On', ...extra });
 const ownRow = (slug, value) => ({ slug, value: { recipe: `workflow:${slug}`, ...value } });
 
 test('on a blank account the installed workflows choose by their own conditions, and every installed workflow is a candidate', async () => {
-  const answer = await chooseTheWorkflowsThatFire({ parts: [{ words: 'Most teams skip the plan.', kinds: ['claim'], subjects: ['planning'] }], ...doorOver([]) });
+  const answer = await chooseTheWorkflowsThatFire({ parts: [{ words: 'Most teams skip the plan.', kinds: ['claim'], subjects: ['planning'] }], ...handedIn([]) });
   assert.equal(answer.workflows, installed.length);
   assert.equal(answer.own, 0);
   assert.ok(answer.chosen.some(item => item.workflow === 'workflow:research-what-everyone-says' && item.part === 0 && item.from === 'catalog'));
@@ -35,9 +35,9 @@ test('on a blank account the installed workflows choose by their own conditions,
 test('a workflow added to the person\'s list is chosen at once, with no list of branches edited', async () => {
   const added = ownRow('research-to-plan', { title: 'Research to plan', job: 'Turn research findings into a facts-first plan.', fires_when: JSON.stringify([condition('a research finding arrives', ['finding'])]) });
   const parts = [{ words: 'A finding: most small teams never write their plan down.', kinds: ['finding'] }, { words: 'Buy milk.', kinds: ['errand'] }];
-  const before = await chooseTheWorkflowsThatFire({ parts, ...doorOver([]) });
+  const before = await chooseTheWorkflowsThatFire({ parts, ...handedIn([]) });
   assert.ok(!before.chosen.some(item => item.workflow === 'workflow:research-to-plan'));
-  const after = await chooseTheWorkflowsThatFire({ parts, ...doorOver([added]) });
+  const after = await chooseTheWorkflowsThatFire({ parts, ...handedIn([added]) });
   assert.deepEqual(after.chosen.filter(item => item.workflow === 'workflow:research-to-plan').map(({ workflow, label, part, condition, made_by, from }) => ({ workflow, label, part, condition, made_by, from })), [
     { workflow: 'workflow:research-to-plan', label: 'Research to plan', part: 0, condition: 'a research finding arrives', made_by: 'the person', from: 'own' },
   ]);
@@ -48,14 +48,14 @@ test('a workflow added to the person\'s list is chosen at once, with no list of 
 test('the person\'s own conditions win over the installed ones', async () => {
   const id = 'workflow:research-what-everyone-says';
   const mine = ownRow('research-what-everyone-says', { fires_when: JSON.stringify([condition('only when I ask for research', ['research-request'])]) });
-  const answer = await chooseTheWorkflowsThatFire({ parts: [{ words: 'x', kinds: ['claim'] }, { words: 'y', kinds: ['research-request'] }], ...doorOver([mine]) });
+  const answer = await chooseTheWorkflowsThatFire({ parts: [{ words: 'x', kinds: ['claim'] }, { words: 'y', kinds: ['research-request'] }], ...handedIn([mine]) });
   assert.deepEqual(answer.chosen.filter(item => item.workflow === id).map(item => [item.part, item.from]), [[1, 'own']]);
 });
 
 test('a row of the person\'s with only {recipe, fires_when} adds conditions to an installed workflow, whose installed steps still run', async () => {
   const id = 'workflow:first-win';
-  const door = doorOver([ownRow('first-win', { fires_when: JSON.stringify([condition('a trial starts', ['trial-started'])]) })]);
-  const answer = await chooseTheWorkflowsThatFire({ parts: [{ words: 'x', kinds: ['trial-started'] }], ...door });
+  const handed = handedIn([ownRow('first-win', { fires_when: JSON.stringify([condition('a trial starts', ['trial-started'])]) })]);
+  const answer = await chooseTheWorkflowsThatFire({ parts: [{ words: 'x', kinds: ['trial-started'] }], ...handed });
   assert.ok(answer.chosen.some(item => item.workflow === id && item.from === 'own'));
   const run = await runWorkflow({ row: id });
   assert.notEqual(run.status, 'failed', run.error_message);
@@ -64,12 +64,12 @@ test('a row of the person\'s with only {recipe, fires_when} adds conditions to a
 
 test('an Off condition chooses nothing, an unfinished one is named, and a workflow with neither is unconditioned', async () => {
   const unfinished = { label: 'broken', condition: { fields: [{ id: 'kinds', kind: 'tags', path: ['kinds'] }], tree: { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'nope', operator: 'has_any_of', params: { values: ['x'] } }] } }, made_by: 'the person', state: 'On' };
-  const door = doorOver([
+  const handed = handedIn([
     ownRow('off-one', { title: 'Off', fires_when: JSON.stringify([condition('retired', ['x'], { state: 'Off' })]) }),
     ownRow('broken-one', { title: 'Broken', fires_when: JSON.stringify([unfinished]) }),
     ownRow('bare-one', { title: 'Bare' }),
   ]);
-  const answer = await chooseTheWorkflowsThatFire({ parts: [{ words: 'x', kinds: ['x'] }], ...door });
+  const answer = await chooseTheWorkflowsThatFire({ parts: [{ words: 'x', kinds: ['x'] }], ...handed });
   assert.ok(!answer.chosen.some(item => ['workflow:off-one', 'workflow:broken-one'].includes(item.workflow)));
   assert.deepEqual(answer.unfinished.map(item => item.workflow), ['workflow:broken-one']);
   assert.ok(answer.unconditioned.some(item => item.workflow === 'workflow:off-one'));
@@ -88,14 +88,14 @@ test('every installed condition is one the engine evaluates; one it cannot, or t
 test('matches are ranked by how rare the tags they met are, times the condition\'s measured weight', async () => {
   const both = (slug, values, extra) => ownRow(slug, { title: slug, fires_when: JSON.stringify([condition(slug, values, extra)]) });
   // common-tag is held by four workflows, rare-tag by three; c meets the part on both, d and e on rare-tag alone.
-  const door = doorOver([both('a', ['common-tag']), both('b', ['common-tag']), both('f', ['common-tag']), both('c', ['common-tag', 'rare-tag']), both('d', ['rare-tag'], { weight: 0.5 }), both('e', ['rare-tag'])]);
-  const answer = await chooseTheWorkflowsThatFire({ parts: [{ words: 'x', kinds: ['common-tag', 'rare-tag'] }], ...door });
+  const handed = handedIn([both('a', ['common-tag']), both('b', ['common-tag']), both('f', ['common-tag']), both('c', ['common-tag', 'rare-tag']), both('d', ['rare-tag'], { weight: 0.5 }), both('e', ['rare-tag'])]);
+  const answer = await chooseTheWorkflowsThatFire({ parts: [{ words: 'x', kinds: ['common-tag', 'rare-tag'] }], ...handed });
   const mine = answer.chosen.filter(item => ['a', 'b', 'c', 'd', 'e', 'f'].includes(item.workflow.replace('workflow:', '')));
   const score = id => mine.find(item => item.workflow === `workflow:${id}`).score;
   assert.ok(score('c') > score('e') && score('e') > score('a'), 'two tags met beat one, and the rarer tag beats the commoner');
   assert.ok(Math.abs(score('d') - score('e') / 2) < 1e-5, 'half the measured weight, half the score');
   assert.equal(score('a'), score('b'));
-  const three = await chooseTheWorkflowsThatFire({ parts: [{ words: 'x', kinds: ['common-tag', 'rare-tag'] }, { words: 'y', kinds: ['common-tag'] }, { words: 'z', kinds: [] }], ...door });
+  const three = await chooseTheWorkflowsThatFire({ parts: [{ words: 'x', kinds: ['common-tag', 'rare-tag'] }, { words: 'y', kinds: ['common-tag'] }, { words: 'z', kinds: [] }], ...handed });
   const broad = three.broad.map(entry => entry.workflow);
   assert.ok(broad.includes('workflow:a') && !broad.includes('workflow:e'), 'a condition keeping 2 of 3 parts is broad, one keeping 1 of 3 is not');
   assert.equal(mine.find(item => item.workflow === 'workflow:c').matched.length, 2);
@@ -104,35 +104,35 @@ test('matches are ranked by how rare the tags they met are, times the condition\
 });
 
 test('a workflow in the chain of runs the choice is made inside is never chosen again, at any depth, and is named in within', async () => {
-  const door = doorOver([
+  const handed = handedIn([
     ownRow('plant-trees', { title: 'Plant trees', fires_when: JSON.stringify([condition('anything that should grow a tree', ['seed'])]) }),
     ownRow('split-notes', { title: 'Split notes', fires_when: JSON.stringify([condition('a note to split', ['seed', 'note'])]) }),
     ownRow('file-notes', { title: 'File notes', fires_when: JSON.stringify([condition('a note to file', ['note'])]) }),
   ]);
   const parts = [{ words: 'The whole seed again.', kinds: ['seed', 'note'] }];
-  const top = await chooseTheWorkflowsThatFire({ parts, ...door });
+  const top = await chooseTheWorkflowsThatFire({ parts, ...handed });
   assert.ok(top.chosen.some(item => item.workflow === 'workflow:plant-trees') && !top.within.length);
-  const nested = await chooseTheWorkflowsThatFire({ parts, within: ['workflow:plant-trees', 'workflow:split-notes'], ...door });
+  const nested = await chooseTheWorkflowsThatFire({ parts, within: ['workflow:plant-trees', 'workflow:split-notes'], ...handed });
   assert.deepEqual(nested.chosen.map(item => item.workflow).filter(id => id.startsWith('workflow:plant') || id.startsWith('workflow:split') || id.startsWith('workflow:file')), ['workflow:file-notes']);
   assert.deepEqual(nested.within, [
     { workflow: 'workflow:plant-trees', part: 0, condition: 'anything that should grow a tree' },
     { workflow: 'workflow:split-notes', part: 0, condition: 'a note to split' },
   ]);
   assert.equal(nested.chosen.find(item => item.workflow === 'workflow:file-notes').rank, 1, 'ranks count only what may start');
-  await assert.rejects(chooseTheWorkflowsThatFire({ parts, within: 'workflow:plant-trees', ...door }), /within must be a list/);
+  await assert.rejects(chooseTheWorkflowsThatFire({ parts, within: 'workflow:plant-trees', ...handed }), /within must be a list/);
 });
 
 test('the installed one tree, started inside its own run, is refused for a part that holds a whole seed', async () => {
   const parts = [{ words: 'A thought, a note and an email, all at once.', kinds: ['seed'] }];
-  const outside = await chooseTheWorkflowsThatFire({ parts, ...doorOver([]) });
+  const outside = await chooseTheWorkflowsThatFire({ parts, ...handedIn([]) });
   assert.ok(outside.chosen.some(item => item.workflow === 'workflow:grow-the-one-tree'), 'a seed arriving from outside starts the tree');
-  const inside = await chooseTheWorkflowsThatFire({ parts, within: ['workflow:grow-the-one-tree'], ...doorOver([]) });
+  const inside = await chooseTheWorkflowsThatFire({ parts, within: ['workflow:grow-the-one-tree'], ...handedIn([]) });
   assert.ok(!inside.chosen.some(item => item.workflow === 'workflow:grow-the-one-tree'));
   assert.ok(inside.within.some(item => item.workflow === 'workflow:grow-the-one-tree' && item.part === 0));
 });
 
 test('parts are required', async () => {
-  await assert.rejects(chooseTheWorkflowsThatFire({ parts: [], ...doorOver([]) }), /parts must be a list/);
+  await assert.rejects(chooseTheWorkflowsThatFire({ parts: [], ...handedIn([]) }), /parts must be a list/);
 });
 
 test('on a blank account a customer asking a price is not sent to price testing, a request for a name reaches the naming method first, and a person to be told something reaches outreach', async () => {
@@ -142,7 +142,7 @@ test('on a blank account a customer asking a price is not sent to price testing,
     { words: 'the side project needs a name, something short', kinds: ['naming-request', 'app-idea'] },
     { words: 'someone needs to know the Thursday clinic moved', kinds: ['notify-a-person'], people: ['a coach'] },
   ];
-  const answer = await chooseTheWorkflowsThatFire({ parts, ...doorOver([]) });
+  const answer = await chooseTheWorkflowsThatFire({ parts, ...handedIn([]) });
   const of = part => answer.chosen.filter(choice => choice.part === part);
   assert.ok(!of(0).some(choice => choice.workflow === 'workflow:test-prices-and-change-a-page-for-each-visitor'));
   assert.equal(of(1)[0]?.workflow, 'workflow:method-name-things-by-what-they-do');
@@ -151,7 +151,7 @@ test('on a blank account a customer asking a price is not sent to price testing,
 
 test('on a blank account a message that needs an answer starts the installed inbox workflow first, which reads and writes only record: row types', async () => {
   const parts = [{ words: 'can we swap Saturday 9am to Sunday afternoon if there is room?', kinds: ['thread-needs-answer'] }];
-  const answer = await chooseTheWorkflowsThatFire({ parts, ...doorOver([]) });
+  const answer = await chooseTheWorkflowsThatFire({ parts, ...handedIn([]) });
   assert.equal(answer.chosen.find(choice => choice.part === 0 && choice.rank === 1)?.workflow, 'workflow:handle-every-inbox-daily');
   const inbox = installed.find(recipe => recipe.id === 'workflow:handle-every-inbox-daily');
   const text = JSON.stringify(inbox.steps.map(step => step.do));
@@ -164,7 +164,7 @@ test('the shipped row, run as the engine runs it, reaches no database and choose
   assert.equal(row.invoke.records, undefined, 'no records door');
   assert.equal(row.invoke.local_doors, undefined, 'no database door');
   assert.equal(row.invoke.credential_mounts, undefined, 'no held connection');
-  const ran = await runRow(row, { parts: [{ words: 'A finding.', kinds: ['finding'] }], ...doorOver([ownRow('research-to-plan', { title: 'Research to plan', fires_when: JSON.stringify([condition('a research finding arrives', ['finding'])]) })]) });
+  const ran = await runRow(row, { parts: [{ words: 'A finding.', kinds: ['finding'] }], ...handedIn([ownRow('research-to-plan', { title: 'Research to plan', fires_when: JSON.stringify([condition('a research finding arrives', ['finding'])]) })]) });
   assert.equal(ran.code, 0, ran.stderr + ran.out);
   assert.equal(ran.last.result.own, 1);
   assert.ok(ran.last.result.chosen.some(item => item.workflow === 'workflow:research-to-plan' && item.from === 'own'));

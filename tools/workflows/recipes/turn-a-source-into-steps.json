@@ -104,7 +104,7 @@
             "id": "place-steps",
             "title": "Place steps",
             "when": "derive-steps returned candidate steps.",
-            "do": "Call records:list at @own-records with {type:\"record:check\",where:{kind:\"branch\"},limit:256}; follow every returned continuation cursor with the same filter. Match each step trigger to an existing branch and assign part_of and position. If no branch serves the trigger, include a proposed branch row in the same manifest; preserve existing unrelated rows.",
+            "do": "Read every row of type record:check whose kind is branch from the person's own store, in that store's own query language, all of them, not one page. Match each step trigger to an existing branch and assign part_of and position. If no branch serves the trigger, include a proposed branch row in the same manifest; preserve existing unrelated rows.",
             "submit": {
               "type": "object",
               "required": [
@@ -174,7 +174,7 @@
             "id": "write-and-read-back",
             "title": "Write and read back",
             "when": "judge-derivation returned a fully checked manifest.",
-            "do": "Call records:write at @own-records with {records: the checked source, piece, branch and step rows from steps.judge-derivation.manifest}; use batches of at most 256 and the existing row types. Retain each batch's exact input and request key before sending it. Then read every exact id with records:read, preserving the original source identity and adaptation relationship. Submit only the independently read-back manifest, with row ids and returned versions. Preserve existing fields when editing a row.",
+            "do": "Write the checked source, piece, branch and step rows from steps.judge-derivation.manifest in the person's own store, in that store's own language and with the existing row types, each with the value it expected (none for a new row) so a write whose row moved is refused. Retain each write's exact rows before sending it. Then read every exact id back from the store, preserving the original source identity and adaptation relationship. Submit only the independently read-back manifest, with row ids and the versions the store returned. Preserve existing fields when editing a row.",
             "submit": {
               "type": "object",
               "required": [

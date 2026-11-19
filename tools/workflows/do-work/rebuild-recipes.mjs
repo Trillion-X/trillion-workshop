@@ -81,7 +81,7 @@ function setViewIdentity(view) {
 }
 
 /**
- * Replace exact rows from the account's records:read results, then clear only pending recipe ids whose
+ * Replace exact rows from the rows read back from the account's own store, then clear only pending recipe ids whose
  * recipe and every currently projected step were included in that readback.
  */
 export function workflowViewsWithAccountReadback(workflows, steps, readback, syncScope) {

@@ -33,8 +33,8 @@ function needsOf(schema) {
 
 // `{cli}`: the name the person's AI app gave their own site's server (its command word); a shared kit names no site.
 const runCall = (tool, input) => ({ server: '{cli}', tool: 'do_one_thing_in_my_account', input: { method: 'tools:run', input: { tool, input } } });
-// What a tool reads and makes of the person's own things: the rights its run asks the door for, then the ones it is given
-// as values (its `stored` list, tools/records-door/read-data/values-door.mjs).
+// What a tool reads and makes of the person's own things: the rights a row not yet moved off the retired door still
+// declares (invoke.records.rights), then what the caller reads from the person's own store and hands in (its `stored` list).
 const rightsOf = tool => [...[tool.invoke?.records?.rights ?? []].flat(), ...[tool.stored ?? []].flat()].filter(object);
 
 // How the person (or their AI) runs a tool: through the door, or on their own computer from the commands its row gives.
