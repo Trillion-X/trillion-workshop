@@ -5,7 +5,7 @@
 //   an expiry, keep their output so far, and can be resumed from a cursor or cancelled by id by any client, so a
 //   closed laptop neither loses nor duplicates the work. tool:job runs it on the person's computer:
 //
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/keep-a-long-job-resumable/read-data/durable-job.mjs job
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/keep-a-long-job-resumable/read-data/durable-job.mjs job
 //
 //   with { input, folder } on standard input, `folder` being the folder the person granted (change-a-folder).
 //

@@ -8,7 +8,7 @@ Keeps a long job on the person's own computer (a meeting summary, a transcriptio
 |------|---------|
 | `read-data/durable-job.mjs` | `createJobs({ settings?, file?, now? })`: start, append, read, finish, cancel and list over one jobs file. `jobTools.job(input, { file })`: the old tool table's entry. `job({ input, folder })`: the export the row runs, keeping the jobs file in the granted folder. |
 | `read-data/durable-job.json` | The jobs file's name, how long a stream stays readable, how many jobs and pieces are kept, the stream address, the state words and every sentence said. |
-| `tool-rows.json` | `tool:job`, a `computer` row with `capabilities: ["change-a-folder"]`, run by `tools/records-door`'s `run-an-export.mjs`; standard input is `{ input, folder }`, `folder` filled from the grant. |
+| `tool-rows.json` | `tool:job`, a `computer` row with `capabilities: ["change-a-folder"]`, run by `tools/workflows`'s `do-work/run-a-function.mjs`; standard input is `{ input, folder }`, `folder` filled from the grant. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/durable-job.test.mjs` | Tests for this folder, run by `npm test` at the top of the repository. |
 
@@ -29,6 +29,6 @@ Keeps a long job on the person's own computer (a meeting summary, a transcriptio
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (`run-an-export.mjs`), `@noble/hashes` (BLAKE3) and Node's standard library.
+**Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`), `@noble/hashes` (BLAKE3) and Node's standard library.
 
 **Depended on by:** `tool-rows.json`. The engine runs the row on the person's computer (`computer` kind) after the person grants `change-a-folder`.
