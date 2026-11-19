@@ -1,0 +1,320 @@
+{
+  "about": "tools/workflows/recipes: letting a person into a pursuit's own database, and out again. The owner makes them a login that may read, add, change and remove rows (role recipe may-change-rows of tool:run-sql-in-my-database) from a verifier they made from a password only they keep, so no secret is ever sent; every change they make is told with their login as who made it (row_changes.changed_by); leaving is the drop. Nothing is copied: they work in the pursuit's own rows.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:join-a-pursuit-with-a-password-only-i-keep",
+        "label": "Join a pursuit with a password only I keep",
+        "job": "When someone lets me into their pursuit's database, make the password on my own computer, keep it in my own vault, and send them only the verifier made from it, so the login they make for me opens with a password nobody else ever saw.",
+        "produces": "A connection string kept in my vault under the name I chose, and the verifier and login name to send to the pursuit's owner.",
+        "source": {
+          "from": "tools/run-sql-in-my-database do-work/make-a-login-verifier.mjs and role recipe may-change-rows, read on trillion-workshop origin/main",
+          "note": "PostgreSQL keeps a SCRAM-SHA-256 verifier as a role's password unchanged (RFC 5803), so the password itself never has to travel."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "address",
+            "database",
+            "role",
+            "keep_as"
+          ],
+          "properties": {
+            "address": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The database's host and port, as the owner told me (host:port)"
+            },
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The database's name, as the owner told me"
+            },
+            "role": {
+              "type": "string",
+              "pattern": "^[a-z_][a-z0-9_]{0,62}$",
+              "description": "The login name I will connect as (lower case letters, digits and _)"
+            },
+            "keep_as": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The name I keep the connection under in my own vault"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "keep-my-password",
+            "title": "Make the password and keep the connection in my own vault",
+            "do": "On my own computer, make 32 random bytes written as base64url (43 characters) and put them, without printing them, into the connection string postgres://<role>:<password>@<address>/<database>?sslmode=verify-full. Hand that string on stdin to tool:keep-a-secret-by-name with the name keep_as and --hosts set to the host of address, so the vault sends it only there. The password is never printed, logged, put in an argument or written to a file. Submit {kept_as: keep_as, hosts: the hosts the vault answered}.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_as",
+                "hosts"
+              ],
+              "properties": {
+                "kept_as": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "hosts": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "make-the-verifier",
+            "title": "Make the verifier from the kept connection",
+            "do": "Read the connection kept under keep_as from my vault through a private pipe only and hand it on stdin to tools/run-sql-in-my-database/do-work/make-a-login-verifier.mjs. It prints {password_verifier} and nothing else. Submit {role, password_verifier}.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "role",
+                "password_verifier"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "password_verifier": {
+                  "type": "string",
+                  "pattern": "^SCRAM-SHA-256\\$[0-9]+:"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "send-it",
+            "title": "Send the owner the login name and the verifier",
+            "do": "Give the owner of the pursuit the role and the password_verifier, in whatever way we talk (a message, a mail or their AI). Neither is a secret: the verifier cannot sign in and cannot be turned back into the password. They run workflow:let-a-person-into-a-pursuit with them. Submit {sent_to: who I sent it to, said: \"Sent <role> and its verifier to <who>.\"}.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "sent_to",
+                "said"
+              ],
+              "properties": {
+                "sent_to": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "said": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:let-a-person-into-a-pursuit",
+        "label": "Let a person into a pursuit",
+        "job": "Let one person (or their AI) work in a pursuit's own database: make them a login that may read, add, change and remove rows of every table, now and later, but never change a table, make a login or reach another database, opened by a password only they keep. Every change they make is told with their login as who made it.",
+        "produces": "A login in the pursuit's database named role, and the address, database and role to tell them; nothing secret is answered.",
+        "source": {
+          "from": "role recipe may-change-rows and recipe.password_verifier of tools/run-sql-in-my-database, and row_changes.changed_by of tools/notice-when-something-shows-up mechanisms/row-changes.mjs, read on trillion-workshop origin/main",
+          "note": "Rights are the database's own: the login is the person, the grants are what they may do, and the drop is leaving. No copy, no second list of members."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "database",
+            "role",
+            "password_verifier"
+          ],
+          "properties": {
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The pursuit's database, as this computer names it"
+            },
+            "role": {
+              "type": "string",
+              "pattern": "^[a-z_][a-z0-9_]{0,62}$",
+              "description": "The login name the person chose"
+            },
+            "password_verifier": {
+              "type": "string",
+              "pattern": "^SCRAM-SHA-256\\$[0-9]+:",
+              "description": "The verifier the person made from their password (workflow:join-a-pursuit-with-a-password-only-i-keep)"
+            },
+            "until": {
+              "type": "string",
+              "description": "When their login stops working, as a time; they stay until they leave when none"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "let-them-in",
+            "title": "Make their login from the verifier they sent",
+            "do": "Run tool:run-sql-in-my-database with database = input.database and recipe {name: \"may-change-rows\", action: \"create\", role: input.role, password_verifier: input.password_verifier, valid_until: input.until (leave it out when none)}. The database keeps the verifier as their password; the answer is the role alone. When the role already exists, the database says so: answer that, and change nothing. Submit {role, valid_until} from the answer's row.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "role",
+                "valid_until"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "valid_until": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "where-they-connect",
+            "title": "Read where they connect",
+            "do": "Run the statement named where of this step's sql through tool:run-sql-in-my-database with database = input.database. Submit its row: {database, address, port}. When address is empty the database is reached through a socket or tunnel: put in the host name the computer's report gives for this database.",
+            "sql": [
+              {
+                "name": "where",
+                "params": [],
+                "text": "SELECT current_database() AS database, coalesce(host(inet_server_addr()), '') AS address, coalesce(inet_server_port(), current_setting('port')::int) AS port"
+              }
+            ],
+            "submit": {
+              "type": "object",
+              "required": [
+                "database",
+                "address",
+                "port"
+              ],
+              "properties": {
+                "database": {
+                  "type": "string"
+                },
+                "address": {
+                  "type": "string"
+                },
+                "port": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "tell-them",
+            "title": "Tell them where to connect",
+            "do": "Give the person, in whatever way you talk, the address and port, the database and their role, and say they connect with the connection they kept. Nothing you send is secret. Answer {role, database, address, port, said: \"<role> may now work in <database>. Every change they make is told as theirs; workflow:take-a-person-out-of-a-pursuit ends it.\"}.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "role",
+                "database",
+                "said"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string"
+                },
+                "database": {
+                  "type": "string"
+                },
+                "address": {
+                  "type": "string"
+                },
+                "port": {
+                  "type": "integer"
+                },
+                "said": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:take-a-person-out-of-a-pursuit",
+        "label": "Take a person out of a pursuit",
+        "job": "End one person's work in a pursuit's own database: take back every right their login was given and drop it. The rows they made stay, each still told as theirs.",
+        "produces": "Their login gone from the pursuit's database; their past changes kept.",
+        "source": {
+          "from": "role recipe may-change-rows (drop) of tools/run-sql-in-my-database, read on trillion-workshop origin/main",
+          "note": "Leaving is one drop; a login that owns nothing goes in one transaction."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "database",
+            "role"
+          ],
+          "properties": {
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The pursuit's database, as this computer names it"
+            },
+            "role": {
+              "type": "string",
+              "pattern": "^[a-z_][a-z0-9_]{0,62}$",
+              "description": "The login to end"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "take-them-out",
+            "title": "Take back their rights and drop their login",
+            "do": "Run tool:run-sql-in-my-database with database = input.database and recipe {name: \"may-change-rows\", action: \"drop\", role: input.role}. Then run the statement named gone of this step's sql with params [role]; it must return gone true. Answer {role, gone: true, said: \"<role> no longer works in <database>; their changes stay in its history.\"}.",
+            "sql": [
+              {
+                "name": "gone",
+                "params": [
+                  "role"
+                ],
+                "text": "SELECT NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = $1::text) AS gone"
+              }
+            ],
+            "submit": {
+              "type": "object",
+              "required": [
+                "role",
+                "gone",
+                "said"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string"
+                },
+                "gone": {
+                  "type": "boolean",
+                  "const": true
+                },
+                "said": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "start_here": "Say to your AI: \"Let <their name> into <my pursuit's database>.\" They say to theirs: \"Join <the pursuit> with a password only I keep.\"",
+  "lists": [],
+  "no_lists_because": "Who may work in a pursuit is the database's own logins and grants; these workflows keep no list of members.",
+  "workflows": [
+    "workflow:let-a-person-into-a-pursuit",
+    "workflow:take-a-person-out-of-a-pursuit"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database",
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Tell the person the database's address, its name and a login name for them.",
+    "2. They run workflow:join-a-pursuit-with-a-password-only-i-keep: their computer makes the password, keeps it in their own vault and sends you only the verifier.",
+    "3. You run workflow:let-a-person-into-a-pursuit with database, role and password_verifier (and until, if it should stop on a date).",
+    "4. Every change they make is told with their login as who made it.",
+    "5. To end it, run workflow:take-a-person-out-of-a-pursuit with database and role; their changes stay."
+  ],
+  "worked_examples": [
+    {
+      "title": "Let a coach into the club's database",
+      "ask": "Let Sam into the club database; Sam sent role sam_coach and a verifier.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:let-a-person-into-a-pursuit",
+              "database": "club",
+              "role": "sam_coach",
+              "password_verifier": "SCRAM-SHA-256$4096:<salt>$<stored key>:<server key>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:let-a-person-into-a-pursuit",
+      "step": "let-them-in",
+      "given": "The database has no login sam_coach.",
+      "hands_back": "role \"sam_coach\", valid_until \"infinity\"; then database \"club\", address \"203.0.113.7\", port 5432 and said \"sam_coach may now work in club. Every change they make is told as theirs; workflow:take-a-person-out-of-a-pursuit ends it.\""
+    }
+  ],
+  "drafted_from": "workflow:let-a-person-into-a-pursuit steps let-them-in, where-they-connect, tell-them"
+}

@@ -1,0 +1,43 @@
+{
+  "start_here": "Say to your AI: \"Take <their login> out of <my pursuit's database>.\"",
+  "lists": [],
+  "no_lists_because": "Who may work in a pursuit is the database's own logins; leaving is dropping one.",
+  "workflows": [
+    "workflow:take-a-person-out-of-a-pursuit"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database",
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Name the pursuit's database and the login to end.",
+    "2. Run workflow:take-a-person-out-of-a-pursuit.",
+    "3. Their rights are taken back and the login dropped; the changes they made stay, still told as theirs."
+  ],
+  "worked_examples": [
+    {
+      "title": "End a coach's access",
+      "ask": "Take sam_coach out of the club database.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:take-a-person-out-of-a-pursuit",
+              "database": "club",
+              "role": "sam_coach"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:take-a-person-out-of-a-pursuit",
+      "step": "take-them-out",
+      "given": "sam_coach was let in with workflow:let-a-person-into-a-pursuit.",
+      "hands_back": "role \"sam_coach\", gone true, said \"sam_coach no longer works in club; their changes stay in its history.\""
+    }
+  ],
+  "drafted_from": "workflow:take-a-person-out-of-a-pursuit step take-them-out"
+}
