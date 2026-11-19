@@ -136,7 +136,7 @@ export const aiIdOf = (id, rules = settings) => (String(id).startsWith(`${rules.
 
 // ── Command line ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const VALUE_FLAGS = new Set(['address', 'job', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'list', 'check-file', 'acceptance-file']);
+const VALUE_FLAGS = new Set(['address', 'job', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'list', 'check-file', 'acceptance-file', 'input']);
 
 /** The method `op` names first. A word that starts with @ is the address the old form put first, which a call no longer names. */
 function opMethod(word) {
@@ -1364,7 +1364,7 @@ const HELP = `{cli}: see your AIs and their work, and run your {site_name}'s too
 /** `schedule`: the wakes the person's tool rows declare (each row's `wakes` list), read and switched at the engine's wake
  *  owner (`engine.wake`: list, switch), and one admitted run cancelled (`engine.cancel`). A call names its method only; the
  *  engine finds the owner. A wake is made, changed or removed in its row's `wakes` list, never here. */
-export async function schedules(client, words, { requestKey, rules = settings } = {}) {
+export async function schedules(client, words, { requestKey, rules = settings, inputFile, readInput = file => readFileSync(file === '-' ? 0 : file, 'utf8') } = {}) {
   const [action = 'list', ...args] = words;
   const { wake } = rules.engine;
   if (action === 'list') {
@@ -1376,7 +1376,15 @@ export async function schedules(client, words, { requestKey, rules = settings } 
     need(tool, `Name the tool: ${cliName()} schedule ${action} TOOL WAKE_ID.`);
     need(id, `Name the wake id: ${cliName()} schedule ${action} TOOL WAKE_ID.`);
     if (extra.length) throw new CommandError(`Use ${cliName()} schedule ${action} TOOL WAKE_ID.`, { status: 2 });
-    return opWhole(client, null, wake.switch, { tool, id, on: action === 'on' }, { requestKey });
+    if (inputFile === undefined) return opWhole(client, null, wake.switch, { tool, id, on: action === 'on' }, { requestKey });
+    if (action === 'off') throw new CommandError(rules.words.schedule_input_off, { status: 2 });
+    const input = switchInput(inputFile, readInput, rules);
+    // An engine older than the input refuses the unknown field; that refusal is passed through with one line of help and
+    // the call is never sent again without the input, which would switch the wake on without it.
+    return opWhole(client, null, wake.switch, { tool, id, on: true, input }, { requestKey }).catch(error => {
+      if (error?.answer?.code === rules.engine.need_refusal.code) error.message = `${error.message}\n${rules.words.schedule_input_old_engine}`;
+      throw error;
+    });
   }
   if (action === 'cancel') {
     const [run, ...extra] = args;
@@ -1385,6 +1393,19 @@ export async function schedules(client, words, { requestKey, rules = settings } 
     return opWhole(client, null, rules.engine.cancel, { run }, { requestKey });
   }
   throw new CommandError(`Unknown schedule command ${action}. Run ${cliName()} help.`, { status: 2 });
+}
+
+/** The person's own input for a wake switch: one JSON object read from a file (- is standard input), within the engine's size
+ *  limit. Refused in words before any call; its values are never printed (an unreadable one names the file, not the text). */
+function switchInput(file, readInput, rules) {
+  if (file === true || file === '') throw new CommandError(fill(rules.words.schedule_input_object, { cli: cliName() }), { status: 2 });
+  let text, value;
+  try { text = readInput(file); } catch (error) { throw new CommandError(`Could not read --input ${file === '-' ? 'from standard input' : file}: ${error.code ?? 'unreadable'}.`, { status: 2 }); }
+  try { value = JSON.parse(text); } catch { throw new CommandError(fill(rules.words.schedule_input_object, { cli: cliName() }), { status: 2 }); }
+  if (!object(value)) throw new CommandError(fill(rules.words.schedule_input_object, { cli: cliName() }), { status: 2 });
+  const size = Buffer.byteLength(JSON.stringify(value));
+  if (size > rules.engine.wake.max_switch_input_bytes) throw new CommandError(fill(rules.words.schedule_input_size, { limit: rules.engine.wake.max_switch_input_bytes, size }), { status: 2 });
+  return value;
 }
 
 /** The door and client for this run; a run with no credential says to log in, and only then. */
@@ -1728,7 +1749,7 @@ export async function main(argv, seams = {}) {
   if (command === 'schedule') {
     const requestKey = flags['request-key'] ?? randomUUID();
     if (requestKey.length > 160) throw new CommandError('A schedule --request-key may be at most 160 characters so its per-step keys remain unique.', { status: 2 });
-    return print('schedule', await schedules(client, words, { requestKey, rules: settings }));
+    return print('schedule', await schedules(client, words, { requestKey, rules: settings, inputFile: flags.input }));
   }
   if (command === 'tools') return print('tools', { tools: await allPages(client, null, engine.tools_list, {}, 'tools') });
   if (command === 'connect') return JSON.stringify(await connectToolServer(client, words[0], { origin: context.state.site() }), null, 2);

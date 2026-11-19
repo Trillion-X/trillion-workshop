@@ -20,7 +20,7 @@ The `{command}` command reaches the person's account from any shell. Each comman
 - `{command} serve -- COMMAND ARGS`: stay ready and run COMMAND for each job taken (the job arrives on its standard input).
 - `{command} tools`: the person's Workshop tools. `{command} call TOOL '{"json": "input"}'` runs one by its id.
 - `{command} op METHOD '{"json": "input"}'`: any engine operation, for example `{command} op wake:list '{}'`.
-- `{command} schedule list`, `{command} schedule on|off TOOL WAKE_ID`, `{command} schedule cancel RUN_KEY`: the wakes the tool rows declare.
+- `{command} schedule list`, `{command} schedule on|off TOOL WAKE_ID` (`on` may add `--input FILE`, one JSON object of the person's own data, at most 64 KiB, `-` for standard input; every run the wake starts gets its fields the row does not declare; never printed back; needs an engine from commit 3bd6dc47a), `{command} schedule cancel RUN_KEY`: the wakes the tool rows declare.
 
 Add `--json` to any command for the exact answer. AI ids look like `ai:claude-code-on-mac` (the `ai:` may be left off) and job ids like `ai-job:KEY`. Your AI id is one per chat session when your app names it, so other sessions on this computer never take your jobs. Pass `--as AI` to act as another id.
 

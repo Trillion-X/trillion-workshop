@@ -65,6 +65,7 @@ const engine = () => {
   };
   return { client, wakes, live, calls };
 };
+const run2 = (fake, words, options) => schedules(fake.client, words, { requestKey: 'req-1', rules: settings, ...options });
 const run = (fake, ...words) => schedules(fake.client, words, { requestKey: 'req-1', rules: settings });
 
 test('schedule lists the declared wakes and switches one off and on at the wake owner, naming no address and no row', async () => {
@@ -94,4 +95,37 @@ test('schedule cancel asks the engine to cancel one exact admitted run under the
   fake.live['run-1'] = { tool: 'tool:x', wake: 'daily' };
   assert.deepEqual(await run(fake, 'cancel', 'run-1'), { cancelled: true });
   assert.deepEqual(fake.calls.map(call => [call.method, call.input, call.key]), [['tools:cancel', { run: 'run-1' }, 'req-1']]);
+});
+
+// A wake switch's own input: sent whole, refused in words before any call when it cannot be one, never resent without.
+test('schedule on --input sends the object with the switch and never prints its values', async () => {
+  const fake = engine();
+  const input = { vault: 'my-secret-name', rules: ['a', 'b'] };
+  assert.deepEqual(await run2(fake, ['on', 'tool:x', 'daily'], { inputFile: 'f.json', readInput: () => JSON.stringify(input) }), { on: true });
+  assert.deepEqual(fake.calls.map(call => [call.method, call.input]), [['wake:switch', { tool: 'tool:x', id: 'daily', on: true, input }]]);
+});
+
+test('schedule on --input refuses a non-object, an over-size object and off with input, before anything is sent', async () => {
+  const fake = engine();
+  for (const text of ['[1]', '"x"', '7', 'null', 'not json']) {
+    const error = await run2(fake, ['on', 'tool:x', 'daily'], { inputFile: 'f', readInput: () => text }).catch(refused => refused);
+    assert.match(error.message, /one saved object/);
+    assert.ok(!error.message.includes('not json'));
+  }
+  await assert.rejects(run2(fake, ['on', 'tool:x', 'daily'], { inputFile: 'f', readInput: () => JSON.stringify({ big: 'x'.repeat(65536) }) }), /at most 65536 bytes/);
+  await assert.rejects(run2(fake, ['off', 'tool:x', 'daily'], { inputFile: 'f', readInput: () => '{}' }), /only with schedule on/);
+  await assert.rejects(run2(fake, ['on', 'tool:x', 'daily'], { inputFile: 'f', readInput: () => { throw Object.assign(new Error('no'), { code: 'ENOENT' }); } }), /Could not read --input f: ENOENT/);
+  assert.equal(fake.calls.length, 0);
+});
+
+test('an engine older than the input refuses the field: the refusal passes through with one hint and is not resent', async () => {
+  const calls = [];
+  const refusal = settings.engine.need_refusal;
+  const client = { wait: async () => {}, op: async (address, method, input) => { calls.push(input); throw new CommandError(refusal.message, { answer: { code: refusal.code, message: refusal.message } }); } };
+  const error = await schedules(client, ['on', 'tool:x', 'daily'], { requestKey: 'req-1', rules: settings, inputFile: 'f', readInput: () => '{"a":1}' }).catch(refused => refused);
+  assert.equal(error.answer.code, refusal.code);
+  assert.ok(error.message.startsWith(refusal.message));
+  assert.match(error.message, /older than engine commit 3bd6dc47a/);
+  assert.equal(calls.length, 1, 'sent once, never without the input');
+  assert.ok(calls[0].input);
 });
