@@ -116,7 +116,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -195,11 +194,12 @@
         "read_only": true,
         "label": "List connections",
         "job": "List the services this account is connected to, with each connection's status and when it was last checked",
-        "description": "List the services this account is connected to, with each connection's status and when it was last checked. Returns connections: one row a connection in connection id order, { connection_id, service, vendor, account_label?, status?, can_send, connected_at?, grant_scopes_known, grant_scopes?, capabilityChoices?, last_checked?, connected_by? }, from the person's own connection records, which you hand in as connection_records (read them from the person's store: records of type connection, each { id, value }); a connection whose values the account holds and that has no record yet is listed from what its held names say (its id, service and vendor), its other facts left out as unknown. Reads only; it reads no store itself, keeps nothing and writes no row; it connects, checks and sends nothing, and shows no secret.",
+        "description": "List the services this account is connected to, with each connection's status and when it was last checked. Returns connections: one row a connection in connection id order, { connection_id, service, vendor, account_label?, status?, can_send, connected_at?, grant_scopes_known, grant_scopes?, capabilityChoices?, last_checked?, connected_by? }, from the person's own connection records, which you hand in as connection_records (read them from the person's store: records of type connection, each { id, value }), and from the connections the account's vault holds, which you hand in as held_connections (read from the vault's names, each { connection_id, fields }, never a value); a connection whose values the account holds and that has no record yet is listed from what its held names say (its id, service and vendor), its other facts left out as unknown. Reads only; it reads no store itself, keeps nothing and writes no row; it connects, checks and sends nothing, and shows no secret.",
         "input_schema": {
           "type": "object",
           "required": [
-            "connection_records"
+            "connection_records",
+            "held_connections"
           ],
           "additionalProperties": false,
           "properties": {
@@ -218,6 +218,28 @@
                   },
                   "value": {
                     "type": "object"
+                  }
+                }
+              }
+            },
+            "held_connections": {
+              "type": "array",
+              "description": "The connections the account's vault holds, as read from the vault's names: [{ connection_id, fields }], no value",
+              "items": {
+                "type": "object",
+                "required": [
+                  "connection_id",
+                  "fields"
+                ],
+                "properties": {
+                  "connection_id": {
+                    "type": "string"
+                  },
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -291,7 +313,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/connections/do-work/list-connections.mjs",
             "listConnections"
           ],
@@ -324,12 +346,11 @@
                 "at": "/opt/connect-a-service-and-seal-its-key"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -355,17 +376,6 @@
                 "at": "/opt/node_modules/@noble/hashes"
               }
             ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "files": "/",
-                "operations": [
-                  "held_connections"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -389,26 +399,21 @@
                     "grant_scopes_known": false
                   }
                 }
+              ],
+              "held_connections": [
+                {
+                  "connection_id": "service_connection:notion",
+                  "fields": [
+                    "api_key"
+                  ]
+                },
+                {
+                  "connection_id": "service_connection:stripe",
+                  "fields": [
+                    "secret_key"
+                  ]
+                }
               ]
-            },
-            "records": [],
-            "file_answers": {
-              "held_connections": {
-                "connections": [
-                  {
-                    "connection_id": "service_connection:notion",
-                    "fields": [
-                      "api_key"
-                    ]
-                  },
-                  {
-                    "connection_id": "service_connection:stripe",
-                    "fields": [
-                      "secret_key"
-                    ]
-                  }
-                ]
-              }
             },
             "output_selector": "$.result.connections.1.connection_id",
             "contains": "service_connection:stripe"

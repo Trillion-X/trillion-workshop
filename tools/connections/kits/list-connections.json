@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Connect at least one service first (for example Stripe through tool:connect-an-account-by-signing-in-to-the-service, or a key kept in the vault).",
-    "2. Say \"List my connections\"; your AI reads your connection records (type connection) from your store and runs tool:list-connections with {\"connection_records\": [{id, value}, ...]}.",
+    "2. Say \"List my connections\"; your AI reads your connection records (type connection) from your store, reads the names of the connections your vault holds, and runs tool:list-connections with {\"connection_records\": [{id, value}, ...], \"held_connections\": [{connection_id, fields}, ...]}.",
     "3. Read each row: connection_id, service, vendor, status, can_send and connected_at; a connection the vault holds with no record yet shows only its id, service and vendor.",
     "4. A row with can_send false or status disconnected needs connecting again before anything is sent through it."
   ],
@@ -38,12 +38,20 @@
                     "grant_scopes_known": false
                   }
                 }
+              ],
+              "held_connections": [
+                {
+                  "connection_id": "service_connection:stripe",
+                  "fields": [
+                    "secret_key"
+                  ]
+                }
               ]
             }
           }
         }
       },
-      "given": "From tools/connections/test/list-connections.test.mjs (first test): the input holds one connection record for service_connection:stripe, connected 2026-10-01T09:00:00.000Z, and the vault holds that connection's secret_key name. The answer below is the one that test asserts.",
+      "given": "From tools/connections/test/list-connections.test.mjs (first test): the input holds one connection record for service_connection:stripe, connected 2026-10-01T09:00:00.000Z, and held_connections names that connection's secret_key. The answer below is the one that test asserts.",
       "hands_back": "{\"connections\":[{\"connection_id\":\"service_connection:stripe\",\"service\":\"Stripe\",\"vendor\":\"stripe\",\"status\":\"connected\",\"connected_at\":\"2026-10-01T09:00:00.000Z\",\"can_send\":true,\"grant_scopes_known\":false}]}"
     }
   ]

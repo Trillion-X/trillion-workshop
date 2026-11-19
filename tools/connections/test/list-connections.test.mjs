@@ -6,8 +6,8 @@
 //   - a disconnected connection stays listed, with can_send false;
 //   - each connection is listed once (another account of the same service is its own row).
 // Today the connect operations that wrote those facts have no owner a Workshop run reaches, so the rows are made-up
-// `connection` records and the vault's held names (the account files door's held_connections), as the engine answers
-// them. And from old src/connection-summaries.mjs: rows come in connection id order, and until every connection has its
+// `connection` records and the vault's held names (the account files read's held_connections), both handed in as input.
+// And from old src/connection-summaries.mjs: rows come in connection id order, and until every connection has its
 // row the list answers from the facts (here: what the held names say), never leaving a connection out.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -21,30 +21,16 @@ const AT = '2026-10-01T09:00:00.000Z';
 const recordOf = value => ({ id: `connection:${encodeURIComponent(value.connection_id)}`, type: 'connection', value });
 const stripe = (extra = {}) => recordOf({ connection_id: 'service_connection:stripe', service: 'Stripe', vendor: 'stripe', status: 'connected', can_send: true, connected_at: AT, grant_scopes_known: false, ...extra });
 
-// A stand-in door that answers only the vault's held names: `held` the vault's held connections (an Error: the vault could
-// not be read). It has no records operation at all: the person's connection records come in the input.
-function door({ held = [] } = {}) {
-  const asked = [];
-  return {
-    asked,
-    async files(operation, input) {
-      asked.push([operation, input]);
-      if (held instanceof Error) throw held;
-      return { connections: held };
-    },
-  };
-}
-// Runs the tool the way the row does: the connection records in the input, the vault's names through the door.
-const listWith = ({ records = [], held = [] } = {}, standIn = door({ held })) => listConnections({ connection_records: records }, { door: standIn });
+// Runs the tool the way the row does: the connection records and the vault's held names both come in the input, the tool
+// reads no store and no door.
+const listWith = ({ records = [], held = [] } = {}) => listConnections({ connection_records: records, held_connections: held });
 const heldOf = (...ids) => ids.map(connection_id => ({ connection_id, fields: ['secret_key'] }));
 
 test('a connection is listed by its id with can_send, from the records handed in and the held names', async () => {
-  const asked = door({ held: heldOf('service_connection:stripe') });
-  const { connections } = await listWith({ records: [stripe()] }, asked);
+  const { connections } = await listWith({ records: [stripe()], held: heldOf('service_connection:stripe') });
   assert.equal(connections[0].connection_id, 'service_connection:stripe');
   assert.equal(connections[0].can_send, true);
   assert.deepEqual(connections, [{ connection_id: 'service_connection:stripe', service: 'Stripe', vendor: 'stripe', status: 'connected', connected_at: AT, can_send: true, grant_scopes_known: false }]);
-  assert.deepEqual(asked.asked, [['held_connections', {}]], 'the door is asked for the held names only, never for a record');
 });
 
 test('a connection an AI app made says which app made it, and one the person made says none; its account name is its own', async () => {
@@ -99,12 +85,14 @@ test('a record shows only the row\'s own fields, and one that names another conn
   assert.equal(connections[0].plain, undefined);
 });
 
-test('a vault that cannot be read fails the list, never answers it as having no connections', async () => {
-  await assert.rejects(listWith({ held: new Error('refused') }), /refused/);
-  const unreadable = { async files() { return {}; } };
-  await assert.rejects(listWith({}, unreadable), /could not be read/);
-  await assert.rejects(listConnections({ vendor: 'stripe' }, { door: door() }), /Send \{ connection_records/);
-  await assert.rejects(listConnections({}, { door: door() }), /Send \{ connection_records/);
+test('held names left out or not a list are refused, never answered as having no connections', async () => {
+  await assert.rejects(listConnections({ connection_records: [stripe()] }), /Send held_connections/);
+  await assert.rejects(listConnections({ connection_records: [stripe()], held_connections: 'none' }), /Send held_connections/);
+  await assert.rejects(listConnections({ connection_records: [stripe()], held_connections: { connections: heldOf('service_connection:stripe') } }), /Send held_connections/);
+  // An empty list handed in is an answer (no connection holds values); a left-out one is not.
+  assert.deepEqual((await listConnections({ connection_records: [], held_connections: [] })).connections, []);
+  await assert.rejects(listConnections({ held_connections: [] }), /Send \{ connection_records/);
+  await assert.rejects(listConnections({}), /Send \{ connection_records/);
 });
 
 test('the listing feeds the old summary readers: what needs the person and which vendors are connected', async () => {
@@ -122,9 +110,10 @@ test('the row runs the way the engine runs it, over its sample', async () => {
   assert.equal(run.result.connections[0].service, 'Notion');
 });
 
-test('the answer holds the whole result: the row has no records right, and the door it is given has no records operation', async () => {
-  const rights = ROW.invoke.records.rights;
-  assert.deepEqual(rights, [{ files: '/', operations: ['held_connections'] }]);
+test('the row runs the workflows runner over this module, with no records door and no records right', async () => {
+  assert.equal(ROW.invoke.records, undefined, 'the row declares no records door');
+  assert.equal(ROW.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.ok(!JSON.stringify(ROW).includes('records-door'), 'no records-door mount or use is left in the row');
   const { connections } = await listWith({ records: [stripe()], held: heldOf('service_connection:stripe') });
   assert.equal(connections.length, 1);
   assert.equal(connections[0].connection_id, 'service_connection:stripe');

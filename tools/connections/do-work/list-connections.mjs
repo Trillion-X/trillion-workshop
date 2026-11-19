@@ -12,20 +12,20 @@
 //       records tools/social-posts reads). This tool reads no record: the caller's AI reads them from the person's
 //       store and hands them in as `connection_records` ([{ id, value }]);
 //     - the facts a row was made from until then (old connectionFacts over workshop facts) are, for a connection that
-//       has no record, what only the engine's vault knows: that the connection holds values. The account files door's
-//       `held_connections` read answers that from the vault's names alone ({ connection_id, fields }), never a value.
-//       Such a row is made by the old connectionSummaryOf from what is known (its id, its vendor from the id, its
-//       service's name from that service's descriptor); a fact that is not known (its status, when it was connected,
-//       a check, who connected it) is left out, never guessed.
+//       has no record, what only the engine's vault knows: that the connection holds values. The caller reads the
+//       vault's names (the account files `held_connections` read, { connection_id, fields }, never a value) and hands
+//       them in as `held_connections`. Such a row is made by the old connectionSummaryOf from what is known (its id,
+//       its vendor from the id, its service's name from that service's descriptor); a fact that is not known (its
+//       status, when it was connected, a check, who connected it) is left out, never guessed.
 //   A store whose summary rows were not all made answered from the facts (`filled()`); here the rows are all made when
 //   every connection the vault holds has its record, and until then a connection with no record is made from what
 //   the vault's names say. A recorded connection whose values were removed (disconnected) stays listed, as its facts
-//   did. The vault's read failing fails the list: a list that cannot say which connections hold values is not
-//   answered as having none.
+//   did. Input left without `held_connections` is refused: a list that was not told which connections hold values is
+//   not answered as having none.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Read only: it reads the vault's names and the records it is handed, and writes, checks and sends nothing. It holds no
-//      records door and keeps nothing: the answer is the whole result.
+//   1. Read only: it reads the two lists it is handed, and writes, checks and sends nothing. It reads no store and
+//      keeps nothing: the answer is the whole result.
 //   2. No value ever leaves: a row is the summary's own fields, never a record spread whole (connection-records.mjs).
 //   3. Names no service: a service's name is its descriptor's (tools/connect-a-service-and-seal-its-key/records.json).
 //   4. One row a connection, in connection id order (old connection_summaries rows()).
@@ -84,21 +84,20 @@ export function connectionSources({ records, held, names = serviceNames() }) {
   return { summaries, facts, shown };
 }
 
-/** The vault's held connections, from the account files door's read of its names: [{ connection_id, fields }]. */
-async function heldOf(door) {
-  const answer = await door.files(SETTINGS.held_operation, {});
-  if (!Array.isArray(answer?.connections)) throw new Error('The connections this account holds could not be read.');
-  return answer.connections.filter(item => typeof item?.connection_id === 'string' && item.connection_id);
+/** The vault's held connections the caller handed in, as read from the vault's names: [{ connection_id, fields }]. */
+function heldOf(input) {
+  if (!Array.isArray(input.held_connections)) {
+    throw new Error('Send held_connections: the connections the account\'s vault holds, each { connection_id, fields }, read from the vault\'s names.');
+  }
+  return input.held_connections.filter(item => typeof item?.connection_id === 'string' && item.connection_id);
 }
 
-/** tool:list-connections: { connection_records } → { connections }, one row a connection in connection id order. */
-export async function listConnections(input, { door, names } = {}) {
-  const keys = input && typeof input === 'object' && !Array.isArray(input) ? Object.keys(input) : [];
-  if (keys.length !== 1 || keys[0] !== 'connection_records' || !Array.isArray(input.connection_records)) {
-    throw new Error('Send { connection_records: [...] }: the person\'s connection records, each { id, value }, read from their store.');
+/** tool:list-connections: { connection_records, held_connections } → { connections }, one row a connection in connection id order. */
+export async function listConnections(input, { names } = {}) {
+  if (!input || typeof input !== 'object' || Array.isArray(input) || !Array.isArray(input.connection_records)) {
+    throw new Error('Send { connection_records: [...], held_connections: [...] }: the person\'s connection records, each { id, value }, read from their store, and the vault\'s held connections.');
   }
-  const records = input.connection_records;
-  const { summaries, facts, shown } = connectionSources({ records, held: await heldOf(door), ...(names ? { names } : {}) });
+  const { summaries, facts, shown } = connectionSources({ records: input.connection_records, held: heldOf(input), ...(names ? { names } : {}) });
   // From the summary rows once they are all made (src/connection-summaries.mjs), from the facts until then.
   return { connections: summaries?.filled() ? summaries.rows() : facts.list().map(shown) };
 }
