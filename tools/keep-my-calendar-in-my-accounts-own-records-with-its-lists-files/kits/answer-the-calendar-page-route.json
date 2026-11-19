@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:answer-the-calendar-page-route row in tool-rows.json, src/calendar-route.mjs, src/native-calendar-owner.mjs and test/calendar-route.test.mjs; list:calendar-tasks read from the person's own store; the example answer was produced by running answerTheCalendarRoute against the test's in-memory rows",
-  "start_here": "Say to your AI: \"Show me my calendar tasks and the tasks waiting for my review.\" It calls the calendar page route twice, a GET to /calendar/tasks and a GET to /calendar/task-proposals, and reads them from your own records.",
+  "start_here": "Say to your AI: \"Show me my calendar tasks and the tasks waiting for my review.\" It reads the calendar rows from your own store, then calls the calendar page route twice, a GET to /calendar/tasks and a GET to /calendar/task-proposals, with those rows handed in as records.",
   "workflows": [
     "workflow:keep-my-calendar-tasks-and-proposals"
   ],
@@ -8,9 +8,9 @@
     "tool:answer-the-calendar-page-route"
   ],
   "instructions": [
-    "1. Say what you want to see on the calendar; your AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:answer-the-calendar-page-route and input {path, method, query, body}.",
-    "2. Use GET only: GET /calendar reads the sources, GET /calendar/tasks reads your tasks, GET /calendar/task-proposals reads the tasks waiting for review, and GET /calendar/connections reads the calendars you can choose.",
-    "3. Changing tasks, proposals, dates or calendar choices is not done through this route: it is workflow:keep-my-calendar-tasks-and-proposals, which keeps them in your own store."
+    "1. Say what you want to see on the calendar; read the calendar rows the read needs from your own store (the task list rows, the task rows and the rest the row's records input names), and call do_one_thing_in_my_account at @tools with method tools:run, tool tool:answer-the-calendar-page-route and input {path, method, query, body, records}.",
+    "2. Use GET only: GET /calendar reads the sources, GET /calendar/tasks reads your tasks, GET /calendar/task-proposals reads the tasks waiting for review, and GET /calendar/connections reads the calendars you can choose. A read may answer in keep the starting list definitions a first read finds missing; keep them where you keep your lists.",
+    "3. Changing tasks, proposals, dates or calendar choices is not done through this route (a POST answers 405): it is workflow:keep-my-calendar-tasks-and-proposals, which keeps them in your own store."
   ],
   "worked_examples": [
     {
@@ -28,13 +28,14 @@
               "method": "GET",
               "query": {},
               "body": {},
-              "browser": {}
+              "browser": {},
+              "records": []
             }
           }
         }
       },
-      "given": "The person's task list is kept in their own store.",
-      "hands_back": "status 200 and the tasks the store holds, read back with nothing kept.",
+      "given": "The rows handed in are none, so the task list reads as empty.",
+      "hands_back": "status 200 and the tasks the rows handed in hold (none here), with nothing kept except any starting list definition the read found missing.",
       "step": "read"
     }
   ],

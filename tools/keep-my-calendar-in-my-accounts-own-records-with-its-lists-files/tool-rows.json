@@ -117,7 +117,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -184,8 +183,8 @@
         "id": "tool:answer-the-calendar-page-route",
         "label": "Answer the calendar page routes",
         "status": "active",
-        "job": "Answer the page's calendar routes that read (GET /work/api/calendar, GET /calendar/tasks, GET /calendar/task-proposals, GET /calendar/connections) from my own records",
-        "description": "The page's calendar routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. Each is answered by old trillion's own calendar owner (src/native-calendar-owner.mjs calendar:request) over the person's calendar task lists, read through the records door. GET /calendar reads every source; the person's tasks are read here, and a source only another route or a connected calendar tool can read is said unread in the calendar's own words. Keeping tasks, proposals, dates and selections is not answered here: a POST to those routes answers 405 and that keeping is workflow:keep-my-calendar-tasks-and-proposals. /calendar/actions and /calendar/availability are not answered here (404).",
+        "job": "Answer the page's calendar routes (GET /work/api/calendar, GET and POST /work/api/calendar/tasks, and the task proposal and date-shift routes) from the calendar rows handed in",
+        "description": "The page's calendar routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body, browser, records } in, { status, body, keep } out. Each read is answered by old trillion's own calendar owner (src/native-calendar-owner.mjs calendar:request) over the calendar rows the caller hands in as `records` ([{id, type, value}]); this run reads no store of its own. A read may answer in `keep` the starting calendar list definitions it finds missing, rows for the caller to keep where the person keeps them, conditional on the rows it read. GET /calendar reads every source; the person's tasks are read here, and a source only another route or a connected calendar tool can read is said unread in the calendar's own words. A POST to the task, proposal or date-shift routes answers 405: keeping those is workflow:keep-my-calendar-tasks-and-proposals. /calendar/actions and /calendar/availability are not answered here (404).",
         "input_schema": {
           "type": "object",
           "required": [
@@ -211,9 +210,10 @@
             "browser": {
               "type": "object"
             },
-            "stored": {
-              "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of list (ids starting list:calendar-), list, record:calendar-task, record:calendar-task-list, record:calendar-day-hours, record:calendar-working-hours, entity-list (ids starting entity-list:calendar-), entity-row (ids starting entity-row:record:calendar-), entity-spelling, list-open-mark (ids starting list-open-mark:calendar-), list-open-mark (ids starting list-open-mark:ordering-calendar-), naming-fields-mark (the row naming-fields-mark:lists), list-key (ids starting list-key:calendar-), list-trash (ids starting list-trash:calendar-), list-tombstone (ids starting list-tombstone:calendar-), list-proposal (ids starting list-proposal:calendar-), list-heat (ids starting list-heat:calendar-), list-view (ids starting list-view:calendar-), list-filter (ids starting list-filter:calendar-), list-snapshot (ids starting list-snapshot:calendar-), workspace-preference (the row workspace-preference:calendar-selections), as this row's `stored` lists. What is not given is not there."
+            "records": {
+              "type": "array",
+              "maxItems": 5000,
+              "description": "The calendar rows this run reads, read by the caller from the person's own store and handed in: [{id, type, value}] of the kinds the lists keep for the calendar (list:calendar-tasks and its record:calendar-task rows, the calendar task lists and their day hours and working hours, the lists' entity, open-mark, trash, tombstone, proposal, heat, view, filter and snapshot rows named by their ids, and workspace-preference:calendar-selections). What is not given is not there."
             }
           }
         },
@@ -230,7 +230,7 @@
             "body": {},
             "keep": {
               "type": "array",
-              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+              "description": "Rows the run would write for the caller to keep where the person keeps them: {id, type, value} (value null removes). A read answers here only the starting list definitions it found missing."
             }
           }
         },
@@ -244,14 +244,6 @@
                   "read-data/calendar-connection-options.ts"
                 ],
                 "at": "/opt/connect-a-service-and-seal-its-key"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data/identity.mjs",
-                  "read-data/blake3.mjs"
-                ],
-                "at": "/opt/content-identity"
               },
               {
                 "package": "documents-as-list-rows",
@@ -303,7 +295,6 @@
                 "package": "keep-lists-of-rows",
                 "paths": [
                   "do-work/fractional-order.ts",
-                  "lists-over-the-records-door.mjs",
                   "lists.mjs",
                   "read-data/configuration-aspects.json",
                   "read-data/configuration-values.mjs",
@@ -390,18 +381,6 @@
                 "at": "/opt/record-voice-and-meetings"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work/run-an-export.mjs",
-                  "read-data/byte-pages.mjs",
-                  "read-data/records-door.mjs",
-                  "read-data/values-door.mjs",
-                  "read-data/settled-write.mjs",
-                  "read-data/write-batches.mjs"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
                 "package": "review-what-a-list-says",
                 "paths": [
                   "read-data/list-refusals.mjs",
@@ -427,6 +406,14 @@
                   "read-data/list-settlements.mjs"
                 ],
                 "at": "/opt/settle-amounts-and-reconcile"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/identity.mjs",
+                  "read-data/blake3.mjs"
+                ],
+                "at": "/opt/content-identity"
               },
               {
                 "package": "shared-code",
@@ -500,6 +487,13 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
               }
             ]
           },
@@ -508,7 +502,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/calendar-route.mjs",
             "answerTheCalendarRoute"
           ],
@@ -539,188 +533,11 @@
               "method": "GET",
               "query": {},
               "body": {},
-              "browser": {}
+              "browser": {},
+              "records": []
             },
-            "records": [],
             "output_selector": "$.status",
             "contains": "200"
-          }
-        ],
-        "stored": [
-          {
-            "kind": "list",
-            "prefix": "list:calendar-",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "list",
-            "operations": [
-              "records:list"
-            ]
-          },
-          {
-            "kind": "record:calendar-task",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "record:calendar-task-list",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "record:calendar-day-hours",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "record:calendar-working-hours",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "entity-list",
-            "prefix": "entity-list:calendar-",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "entity-row",
-            "prefix": "entity-row:record:calendar-",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "entity-spelling",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "list-open-mark",
-            "prefix": "list-open-mark:calendar-",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "list-open-mark",
-            "prefix": "list-open-mark:ordering-calendar-",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "naming-fields-mark",
-            "id": "naming-fields-mark:lists",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "list-key",
-            "prefix": "list-key:calendar-",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "list-trash",
-            "prefix": "list-trash:calendar-",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "list-tombstone",
-            "prefix": "list-tombstone:calendar-",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "list-proposal",
-            "prefix": "list-proposal:calendar-",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "list-heat",
-            "prefix": "list-heat:calendar-",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "list-view",
-            "prefix": "list-view:calendar-",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "list-filter",
-            "prefix": "list-filter:calendar-",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "list-snapshot",
-            "prefix": "list-snapshot:calendar-",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "workspace-preference",
-            "id": "workspace-preference:calendar-selections",
-            "operations": [
-              "records:read"
-            ]
           }
         ]
       }
