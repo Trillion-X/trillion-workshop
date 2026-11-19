@@ -1,0 +1,233 @@
+{
+  "about": "workflow:keep-how-much-each-way-of-matching-is-worth: how much each way of matching (a search lane, or one model space in one place) is worth to this person, learned from what they open or use after a search, kept in the person's own store. It replaces the store half of tools/learn-how-much-each-way-of-matching-is-worth (src/search-answers.mjs, whose whole job was keeping the asked searches, the files they showed and the lane weights in the person's SQL store, and reading them back). The rule that a search is credited once, to the newest unanswered search that showed the used file, is the store's own key and sort (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-how-much-each-way-of-matching-is-worth",
+        "label": "Keep how much each way of matching is worth",
+        "job": "Keep, in the person's own store, each search asked (its lanes that took part, the time, and the files it showed with each lane's rank for them), credit a lane with the reciprocal of the rank when a file that search showed is used within the window (each search credited at most once, to the newest unanswered one), and read each lane's weight: the prior, pulled toward its answers, with a lane retired only after enough answers with its weight under the floor.",
+  "produces": "The store's own search, file and lane-weight objects, proven on the example attempts in PostgreSQL (PGlite) and a folder of JSON files: every search kept, every use credited or not, and every weight, retirement check and forget equal to the answers of the old module, which ran in SQLite.",
+        "source": {
+          "from": "tools/learn-how-much-each-way-of-matching-is-worth/src/search-answers.mjs at trillion-workshop origin/main 14c80bcd6 (the older repository's copy of the same file)",
+          "note": "The constants are the person's search settings (fusion: followed_within_seconds, prior_answers, prior_reciprocal_rank, retire_after, retire_below); none is a default of this recipe. A search is kept with its time; asking a search again replaces it and makes it the newest. A search older than the window cannot be credited: each new search lets at most 8 of the expired searches go, with their files. A file used credits the newest unanswered search within the window that showed it, and only that one: every lane that took part gets 1 more answer and its reciprocal rank (0 when the lane did not rank the file). A weight is ((reciprocal + prior_answers x prior_reciprocal_rank) / (answers + prior_answers)) / prior_reciprocal_rank, and 1 for a lane with no answers. A lane in a prefix is retired only when there is at least one measured lane under the prefix, every one has at least retire_after answers, and each has a weight under retire_below. Forgetting a prefix deletes its lanes' weights, so the lane starts fresh when it is installed again. Nothing here names a lane, a model or a kind: lanes are the ids the search hands in."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "operations"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store these are kept, when they already are"
+                }
+              }
+            },
+            "fusion": {
+              "type": "object",
+              "description": "The person's search settings: followed_within_seconds, prior_answers, prior_reciprocal_rank, retire_after, retire_below"
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Each operation: asked (search, lanes, ranked as [{identity, ranks}], at), used (identity, at), weights (lanes), retired (prefix), forget (prefix)"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where these are already kept (kept_in, or null) and the names of the objects that already keep them, and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: a search object keyed by its search id (its time, the lanes that took part, and whether it has been answered), a file-in-search object keyed by the file identity and the search id (the ranks by lane), and a lane-weight object keyed by the lane (its answers and the sum of its reciprocal ranks). Keep the newest-first order of a search's rows by its time and then by the order it was kept in. Submit the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects and with the fusion settings {followed_within_seconds 600, prior_answers 2, prior_reciprocal_rank 0.5, retire_after 2, retire_below 0.2}, run these attempts in order, each at its time (seconds after 2026-11-18T12:00:00Z): [{\"at\": 0, \"op\": \"asked\", \"search\": \"s1\", \"lanes\": [\"lane-a\", \"lane-b\"], \"ranked\": [{\"identity\": \"1f:aaa\", \"ranks\": {\"lane-a\": 1, \"lane-b\": 3}}, {\"identity\": \"1f:bbb\", \"ranks\": {\"lane-a\": 2}}]}, {\"at\": 60, \"op\": \"used\", \"identity\": \"1f:aaa\"}, {\"at\": 70, \"op\": \"used\", \"identity\": \"1f:aaa\"}, {\"at\": 100, \"op\": \"asked\", \"search\": \"s2\", \"lanes\": [\"lane-a\"], \"ranked\": [{\"identity\": \"1f:ccc\", \"ranks\": {\"lane-a\": 1}}]}, {\"at\": 120, \"op\": \"used\", \"identity\": \"1f:bbb\"}, {\"at\": 130, \"op\": \"used\", \"identity\": \"1f:ccc\"}, {\"at\": 1000, \"op\": \"asked\", \"search\": \"s3\", \"lanes\": [\"lane-c\"], \"ranked\": [{\"identity\": \"1f:ddd\", \"ranks\": {\"lane-c\": 4}}]}, {\"at\": 1010, \"op\": \"used\", \"identity\": \"1f:ddd\"}, {\"at\": 1015, \"op\": \"weights\", \"lanes\": [\"lane-a\", \"lane-b\", \"lane-c\", \"lane-z\"]}, {\"at\": 1016, \"op\": \"retired\", \"prefix\": \"lane-\"}, {\"at\": 1020, \"op\": \"used\", \"identity\": \"1f:zzz\"}, {\"at\": 1030, \"op\": \"forget\", \"prefix\": \"lane-c\"}, {\"at\": 1031, \"op\": \"weights\", \"lanes\": [\"lane-c\"]}]. Submit outcomes (one per attempt: kept for asked, credited or not_credited for used, answered for weights and retired, forgotten for forget) and the answer: the weights at 1015, the retirement check at 1016, the used answer at 1020 and the weights at 1031.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is kept, credited, not credited, answered or forgotten as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "credited",
+                    "not_credited",
+                    "kept",
+                    "not_credited",
+                    "credited",
+                    "kept",
+                    "credited",
+                    "answered",
+                    "answered",
+                    "not_credited",
+                    "forgotten",
+                    "answered"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "weights_at_1015": {
+                      "lane-a": 1.5,
+                      "lane-b": 0.8888888888888888,
+                      "lane-c": 0.8333333333333334,
+                      "lane-z": 1
+                    },
+                    "retired_lane_prefix": false,
+                    "used_at_1020": false,
+                    "weights_at_1031_after_forget": {
+                      "lane-c": 1
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's operations",
+            "do": "Run each operation in order through the store's own objects: asked keeps the search (replacing one of the same id, which makes it the newest) and its files, then lets at most 8 expired searches and their files go; used credits the newest unanswered search within the window that showed the file, once, and marks it answered, or answers false; weights reads each lane's weight from the store and the prior; retired answers whether every measured lane under the prefix is retired; forget deletes the lanes under the prefix. Submit results (one per operation, the answer it gave) and kept_records (each search and file kept), and found_records (each search read back). With no operations, submit empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "results",
+                "kept_records",
+                "found_records"
+              ],
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "kept_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "found_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every search read back was kept",
+                "path": [
+                  "this",
+                  "found_records"
+                ],
+                "of": [
+                  "this",
+                  "kept_records"
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes the searches, files and lane weights it holds (all of them, or the ones under a prefix); nothing keeps a copy outside the store."
+      }
+    }
+  ]
+}
