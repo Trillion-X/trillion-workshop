@@ -3,20 +3,20 @@
 // The saved-configurations routes (/configurations and /configurations/...), answered by old trillion's own owner:
 // makeConfigurations and handleConfigurationsRequest (tools/query-and-change-list-rows/src/configurations.mjs, moved
 // byte for byte from src/configurations.mjs at tag old-trillion-before-worker-retire), over the person's own records
-// through the run's records door. The engine runs this as a @workshop-routes tool: input { path, method, query, body,
-// browser }, result { status, body }.
+// that the caller gives this run as stored values (the run reaches no store itself). The engine runs this as a
+// @workshop-routes tool: input { path, method, query, body, browser }, result { status, body }.
 //
 // A configuration was already an own record (type record:configuration, id record:configuration:<id>), so it is the
 // same record here. The owner reads and writes its store synchronously; this run reads every configuration record and
-// the Saved configurations list once through the door into `recordsInMemory`, lets the owner work on that, and writes
-// what it wrote back in one door write. A refused change writes nothing.
+// the Saved configurations list once from the given values into `recordsInMemory`, lets the owner work on that, and
+// hands back what it wrote in one keep write. A refused change writes nothing.
 //
 // What the old account gave the owner, and what it is here:
 //   - owner (the account's network relay and profile name): the old owner's own fallback { id: 'self', name: 'You' }:
 //     the local engine has no network relay, and a profile is no record this run is handed;
 //   - fieldsForTarget (a `list:` target's field ids): read from that list record (kind `list`);
 //   - shared (configurations shared with this account by link or offer, src/native-configurations.mjs over record
-//     sharing) and the time-bound context: not reachable from a records-door run, so those requests answer the old
+//     sharing) and the time-bound context: not reachable from a run given the person's rows, so those requests answer the old
 //     handler's own "temporarily unavailable" (503 configuration_unavailable), never a made-up answer.
 import { CONFIGURATION_TYPE, handleConfigurationsRequest, makeConfigurations } from '../../query-and-change-list-rows/src/configurations.mjs';
 

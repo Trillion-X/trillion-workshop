@@ -105,11 +105,12 @@ test('configurations shared with this account answer the old handler\'s unavaila
   assert.equal((await answerOf(row, route('/configurations/shared/some-code'))).result.status, 503);
 });
 
-test('the row lists and writes only configurations and reads only lists', () => {
+test('the row names the kinds of stored values it is given, and no store operation', () => {
   assert.deepEqual(rightsOf(row), [
-    { kind: 'record:configuration', operations: ['records:list', 'records:write'] },
-    { kind: 'list', id: 'list:saved-configurations', operations: ['records:read', 'records:write'] },
-    { kind: 'list', prefix: 'list:', operations: ['records:read'] },
+    { kind: 'record:configuration' },
+    { kind: 'list', id: 'list:saved-configurations' },
+    { kind: 'list', prefix: 'list:' },
   ]);
+  assert.ok(!/records:(read|write|list|search)\b/.test(JSON.stringify(row)));
   assert.equal(row.invoke.internet, false);
 });

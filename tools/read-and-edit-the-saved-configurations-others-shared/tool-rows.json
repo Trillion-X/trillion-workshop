@@ -1,7 +1,7 @@
 {
  "kind": "tool-rows",
  "record_set": "read-and-edit-the-saved-configurations-others-shared-tool-rows",
- "what_this_is": "The Workshop row for tools/read-and-edit-the-saved-configurations-others-shared: the saved-configurations routes, answered by the old configurations owner over the person's own record:configuration records through the run's records door.",
+ "what_this_is": "The Workshop row for tools/read-and-edit-the-saved-configurations-others-shared: the saved-configurations routes, answered by the old configurations owner over the person's own record:configuration records, which the caller gives the run as stored values and keeps from its answer (no store is reached by the run).",
  "records": [
   {
    "id": "package::read-and-edit-the-saved-configurations-others-shared::tool::answer-the-configurations-page",
@@ -195,7 +195,7 @@
     "listed_on": "2026-11-05T00:00:00Z",
     "label": "Answer the saved configurations routes",
     "job": "Answer the saved configurations routes: list, read, save, remove and copy my saved configurations",
-    "description": "The /configurations routes, as the old account owner answered them (tools/query-and-change-list-rows/src/configurations.mjs): GET /configurations?target=&limit=&before= lists this account's own configurations, newest id first, with next_before; GET /configurations/<id> reads one (404 configuration_not_found); POST /configurations saves one ({ label, target, settings, aspects, field_ids, format, open_path }); POST /configurations/<id> updates it at expected_revision (409 configuration_conflict when stale) or removes it with { remove: true, expected_revision }; POST /configurations/<id>/duplicate copies it. Each is one record:configuration record, and the Saved configurations list record is made with the first. Configurations shared with this account by link or offer, and the time-bound context, answer 503 configuration_unavailable: they are reached through record sharing, which no records-door run reaches. Answers { status, body }.",
+    "description": "The /configurations routes, as the old account owner answered them (tools/query-and-change-list-rows/src/configurations.mjs): GET /configurations?target=&limit=&before= lists this account's own configurations, newest id first, with next_before; GET /configurations/<id> reads one (404 configuration_not_found); POST /configurations saves one ({ label, target, settings, aspects, field_ids, format, open_path }); POST /configurations/<id> updates it at expected_revision (409 configuration_conflict when stale) or removes it with { remove: true, expected_revision }; POST /configurations/<id>/duplicate copies it. Each is one record:configuration record, and the Saved configurations list record is made with the first. Configurations shared with this account by link or offer, and the time-bound context, answer 503 configuration_unavailable: they are reached through record sharing, which a run given the person's rows does not reach. Answers { status, body }.",
     "needs": {
      "expected_seconds": 2,
      "network_egress": false
@@ -415,26 +415,15 @@
     "result_selector": "$.result",
     "stored": [
       {
-        "kind": "record:configuration",
-        "operations": [
-          "records:list",
-          "records:write"
-        ]
+        "kind": "record:configuration"
       },
       {
         "kind": "list",
-        "id": "list:saved-configurations",
-        "operations": [
-          "records:read",
-          "records:write"
-        ]
+        "id": "list:saved-configurations"
       },
       {
         "kind": "list",
-        "prefix": "list:",
-        "operations": [
-          "records:read"
-        ]
+        "prefix": "list:"
       }
     ]
    }
