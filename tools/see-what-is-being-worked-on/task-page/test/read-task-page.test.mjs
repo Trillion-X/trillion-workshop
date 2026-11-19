@@ -72,3 +72,15 @@ test('a read with no data object is an error, never an empty page', async () => 
   await assert.rejects(readTaskPage(async () => ({ rows: [] })), /no data object/);
   await assert.rejects(readTaskPage(null), TypeError);
 });
+
+test('facts and their kinds are read in the same SELECT and mapped, a count as a number', () => {
+  const sql = taskPageSql();
+  assert.ok(sql.includes('from task_facts)') && sql.includes('from task_fact_kinds)'), 'reads the fact tables');
+  const page = taskPageFrom([{ data: { tasks: [], statuses: [], changes: [],
+    facts: [{ task: 't', kind: 'numbers', said: 'usable clips', number: '0', of_number: null, at: 'a' }, { task: 't', kind: 'next', said: 'Retire it', number: null, of_number: null, at: 'b' }],
+    fact_kinds: [{ name: 'numbers', label: 'Numbers', place: '2', tone: null }] } }]);
+  assert.deepEqual(page.facts[0], { task: 't', kind: 'numbers', said: 'usable clips', number: 0, of_number: null, at: 'a' });
+  assert.equal(page.facts[1].number, null);
+  assert.deepEqual(page.fact_kinds[0], { name: 'numbers', label: 'Numbers', place: 2, tone: null });
+  assert.deepEqual(taskPageFrom([{ data: { tasks: [] } }]).facts, []);
+});

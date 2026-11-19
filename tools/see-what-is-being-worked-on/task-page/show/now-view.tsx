@@ -11,7 +11,7 @@
 // and Linear/Asana grouped lists on Mobbin), 21st.dev 29442 "Onboarding Checklist" (ring with k of n, rows that open in
 // place), and the visual-hierarchy pairs: summary not a list, one hue, every state drawn.
 import React, { useMemo, useState } from 'react';
-import { ago, goalComplete, muted, plain, showsOf, tally, when, type Data, type Standing, type Status, type Task, type Tree } from '../read-data/task-rows';
+import { ago, factsOf, goalComplete, muted, plain, showsOf, tally, when, type Data, type Standing, type Status, type Task, type Tree } from '../read-data/task-rows';
 import { Chevron, Detail, Mark, Ring } from './task-marks';
 import { OpenedShows } from './task-shows';
 
@@ -21,6 +21,7 @@ const ROW = 'tl-row min-h-9 py-1.5';
 export function NowView({ data, tree, now, seenBefore }: { data: Data; tree: Tree; now: Standing; seenBefore: string | null }) {
   const looks = useMemo(() => new Map(data.statuses.map(s => [s.name, s])), [data]);
   const shows = useMemo(() => showsOf(data), [data]);
+  const factGroups = useMemo(() => factsOf(data), [data]);
   const lookOf = (id: string) => looks.get(now.status.get(id) ?? '');
   const [open, setOpen] = useState<Set<string>>(new Set());
   const flip = (id: string) => setOpen(set => { const next = new Set(set); if (!next.delete(id)) next.add(id); return next; });
@@ -66,7 +67,7 @@ export function NowView({ data, tree, now, seenBefore }: { data: Data; tree: Tre
         {isOpen && (
           <div style={{ paddingLeft: 46 }}>
             {task.waiting_on && <p className="m-0 pb-1 text-[13px] leading-5"><span style={{ color: look?.tone ?? muted }}>Waiting on</span> {task.waiting_on}</p>}
-            <Detail id={`now-${task.id}`} detail={task.plain_detail} evidence={task.evidence} look={look} title={task.title} shows={shows.get(task.id) ?? []} />
+            <Detail id={`now-${task.id}`} detail={task.plain_detail} evidence={task.evidence} look={look} title={task.title} shows={shows.get(task.id) ?? []} facts={factGroups.get(task.id) ?? []} />
           </div>
         )}
       </li>

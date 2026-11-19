@@ -8,7 +8,10 @@ export type Change = { task: string; at: string; kind: string; status: string | 
 export type Status = { name: string; mark: StepMarkState; tone: string | null; counts_as_done: boolean; closed: boolean; place: number };
 /** A show: a thing a task produced, drawn inline when the task is opened. `made_at` says when it was made; History draws it only from then on. */
 export type Show = { task: string; ref: string; label: string; made_at: string };
-export type Data = { tasks: Task[]; changes: Change[]; statuses: Status[]; shows: Show[] };
+/** A fact: one part of a task's state (what happened, a count, what it is stuck on, the next step), of a kind that is a row. */
+export type Fact = { task: string; kind: string; said: string; number: number | null; of_number: number | null; at: string };
+export type FactKind = { name: string; label: string; place: number; tone: string | null };
+export type Data = { tasks: Task[]; changes: Change[]; statuses: Status[]; shows: Show[]; facts?: Fact[]; fact_kinds?: FactKind[] };
 export type Moment = { at: string; changes: Change[]; label: string; title: string };
 /** kids: each task's rows in the fixed order (null: the roots); items: the work items under each task, at any depth. */
 export type Tree = { kids: Map<string | null, Task[]>; items: Map<string, string[]>; allItems: string[]; byId: Map<string, Task> };
@@ -88,6 +91,18 @@ export function treeOf(data: Data, looks: Map<string, Status>): Tree {
 }
 
 /** Each task's shows, in the order they were made. */
+/** Each task's facts grouped by kind, kinds in their place order, facts in the order they were said. */
+export function factsOf(data: Data): Map<string, { kind: FactKind; facts: Fact[] }[]> {
+  const kinds = [...(data.fact_kinds ?? [])].sort((a, b) => a.place - b.place);
+  const byTask = new Map<string, Fact[]>();
+  for (const fact of data.facts ?? []) byTask.set(fact.task, [...(byTask.get(fact.task) ?? []), fact]);
+  const out = new Map<string, { kind: FactKind; facts: Fact[] }[]>();
+  for (const [task, facts] of byTask) {
+    out.set(task, kinds.map(kind => ({ kind, facts: facts.filter(f => f.kind === kind.name) })).filter(group => group.facts.length > 0));
+  }
+  return out;
+}
+
 export function showsOf(data: Data): Map<string, Show[]> {
   const out = new Map<string, Show[]>();
   for (const show of data.shows) out.set(show.task, [...(out.get(show.task) ?? []), show]);
