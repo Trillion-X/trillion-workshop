@@ -178,41 +178,86 @@
         "status": "active",
         "licence_class": "licence:maker-own",
         "maker": "maker:conversations",
-        "placements": ["placement:your-computer"],
+        "placements": [
+          "placement:your-computer"
+        ],
         "id": "tool:import-conversation-exports-from-my-files",
         "label": "Import conversation exports already in my files",
         "job": "Keep every message of an exported conversation already stored in my account files, including Markdown individual chats, without needing access to a computer folder",
         "description": "Reads only named account files through find_file/read_file, pins their immutable content identity, checks the complete BLAKE3 bytes, then reuses the canonical conversation importer and message source keys. JSON, zipped JSON and individual ChatGPT Markdown exports share one message owner. Repeated words in distinct occurrences stay distinct. Completed exports are rechecked without adding messages; interrupted writes safely resume by stable source refs. Local timestamps with no zone stay source text. No host folder grant is requested. Imports are private. Missing JSON attachment references are reported; Markdown file references remain in their source text. Each file is bounded to 32 MiB; use the streaming source importer for larger exports.",
-        "needs": {"expected_seconds": 60, "network_egress": false},
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": false
+        },
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["files"],
+          "required": [
+            "files"
+          ],
           "properties": {
-            "files": {"type": "array", "minItems": 1, "maxItems": 100, "items": {"type": "string", "minLength": 1}},
-            "app": {"type": "string", "minLength": 1},
-            "time_box_seconds": {"type": "integer", "minimum": 1, "maximum": 3000},
+            "files": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 100,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "app": {
+              "type": "string",
+              "minLength": 1
+            },
+            "time_box_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3000
+            },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of message, message-source-key, message-resend-key, message-content-key, setting (the row setting:hybrid-clock-state), list (the row list:ai-conversations), record:ai-conversation, conversation-import-cursor, conversation-import-source; files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and handed in: records: [{id, type, value}] of message, message-source-key, message-resend-key, message-content-key, setting (the row setting:hybrid-clock-state), list (the row list:ai-conversations), record:ai-conversation, conversation-import-cursor, conversation-import-source; files: {name: text or {base64}} under /, as this row's `stored` lists. Anything the run needs and is not given is answered as needs (records, lists, files) and nothing is written: the caller reads those from its store and runs again until needs is empty. The answer carries keep: the records and files this run wrote, to be written where the person keeps them."
             }
           }
         },
         "output_schema": {
-        "type": "object",
-        "required": ["files", "done", "more"],
-        "properties": {
-          "files": {"type": "array"},
-          "done": {"type": "boolean"},
-          "more": {"type": "boolean"},
-          "messages_added": {"type": "integer"},
-          "messages_already_kept": {"type": "integer"},
-          "conversations_kept": {"type": "integer"},
-          "keep": {
-            "type": "array",
-            "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+          "type": "object",
+          "required": [
+            "files",
+            "done",
+            "more"
+          ],
+          "properties": {
+            "files": {
+              "type": "array"
+            },
+            "done": {
+              "type": "boolean"
+            },
+            "more": {
+              "type": "boolean"
+            },
+            "messages_added": {
+              "type": "integer"
+            },
+            "messages_already_kept": {
+              "type": "integer"
+            },
+            "conversations_kept": {
+              "type": "integer"
+            },
+            "keep": {
+              "type": "array",
+              "description": "Records ({id, type, value}, value null removes) and files ({file, base64}) the run wrote, for the caller to write where the person keeps them."
+            },
+            "needs": {
+              "type": "object",
+              "description": "Set when the run was not given what it needs: records [{id, type}], lists [query], files [name or identity]. Nothing was written; hand the answers in and run again."
+            },
+            "complete": {
+              "type": "boolean"
+            }
           }
-        }
         },
         "invoke": {
           "kind": "computer",
@@ -220,96 +265,168 @@
           "workdir": "/opt/conversations",
           "internet": false,
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/conversations/read-data/chat-import.mjs", "importNamespaceExports"],
-          "stdin": {"input": {"fill": {"from": "input"}}},
-          "files": {"package_files": [
-            {"package": "conversations", "paths": ["read-data"], "at": "/opt/conversations"},
-            {"package": "keep-and-wake-ai-sessions-on-this-computer", "paths": ["src/messages.mjs", "src/responses.mjs", "src/reactions.json", "src/harnesses.mjs", "src/claimed-time.mjs", "src/claimed-time.json", "src/hybrid-clock.mjs", "src/voice-sessions.mjs", "src/waiting-on-you.json", "harness/record-every-message.mjs", "harness/record-every-message.json", "harness/hook-run-receipt.mjs", "harness/setup.json", "harness/source-return-pending.mjs", "harness/account-key.mjs", "harness/account-key.json"], "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"},
-            {"package": "decide-with-a-method", "paths": ["read-data/decision-records.mjs", "read-data/decide-with-a-method.json"], "at": "/opt/decide-with-a-method"},
-            {"package": "set-up-my-account", "paths": ["read-data/harnesses.json"], "at": "/opt/set-up-my-account"},
-            {"package": "take-pictures-out-of-a-zip-archive", "paths": ["src/archive-entries.mjs", "src/archive-entries.json"], "at": "/opt/take-pictures-out-of-a-zip-archive"},
-            {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"},
-            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-            {"packages": ["node_modules/@noble/hashes"], "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"},
-            {"packages": ["node_modules/fflate"], "paths": ["LICENSE", "package.json", "esm", "lib"], "at": "/opt/node_modules/fflate"}
-          ]}
+          "argv": [
+            "node",
+            "/opt/conversations/do-work/run-held.mjs",
+            "/opt/conversations/read-data/chat-import.mjs",
+            "importNamespaceExports"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "conversations",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/conversations"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/messages.mjs",
+                  "src/responses.mjs",
+                  "src/reactions.json",
+                  "src/harnesses.mjs",
+                  "src/claimed-time.mjs",
+                  "src/claimed-time.json",
+                  "src/hybrid-clock.mjs",
+                  "src/voice-sessions.mjs",
+                  "src/waiting-on-you.json",
+                  "harness/record-every-message.mjs",
+                  "harness/record-every-message.json",
+                  "harness/hook-run-receipt.mjs",
+                  "harness/setup.json",
+                  "harness/source-return-pending.mjs",
+                  "harness/account-key.mjs",
+                  "harness/account-key.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data/decision-records.mjs",
+                  "read-data/decide-with-a-method.json"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data/harnesses.json"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "take-pictures-out-of-a-zip-archive",
+                "paths": [
+                  "src/archive-entries.mjs",
+                  "src/archive-entries.json"
+                ],
+                "at": "/opt/take-pictures-out-of-a-zip-archive"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "packages": [
+                  "node_modules/fflate"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "esm",
+                  "lib"
+                ],
+                "at": "/opt/node_modules/fflate"
+              }
+            ]
+          }
         },
         "result_selector": "$.result",
-        "verify": [{"kind": "sample-run", "input": {"files": ["/exports/bread.json"]}, "door_files": {"/exports/bread.json": "{\"conversation_id\":\"bread-sample\",\"title\":\"Bread\",\"messages\":[{\"id\":\"one\",\"speaker\":\"person\",\"text\":\"More rye.\"},{\"id\":\"two\",\"speaker\":\"ai\",\"text\":\"Use fresh flour.\"}]}"}, "output_selector": "$", "contains": "bread-sample"}],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "files": [
+                "/exports/bread.json"
+              ]
+            },
+            "door_files": {
+              "/exports/bread.json": "{\"conversation_id\":\"bread-sample\",\"title\":\"Bread\",\"messages\":[{\"id\":\"one\",\"speaker\":\"person\",\"text\":\"More rye.\"},{\"id\":\"two\",\"speaker\":\"ai\",\"text\":\"Use fresh flour.\"}]}"
+            },
+            "output_selector": "$",
+            "contains": "bread-sample"
+          }
+        ],
         "stored": [
           {
-            "files": "/",
-            "operations": [
-              "find_file",
-              "read_file"
-            ]
+            "files": "/"
           },
           {
-            "kind": "message",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
+            "kind": "message"
           },
           {
-            "kind": "message-source-key",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "message-source-key"
           },
           {
-            "kind": "message-resend-key",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "message-resend-key"
           },
           {
-            "kind": "message-content-key",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "message-content-key"
           },
           {
             "kind": "setting",
-            "id": "setting:hybrid-clock-state",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "id": "setting:hybrid-clock-state"
           },
           {
             "kind": "list",
-            "id": "list:ai-conversations",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "id": "list:ai-conversations"
           },
           {
-            "kind": "record:ai-conversation",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
+            "kind": "record:ai-conversation"
           },
           {
-            "kind": "conversation-import-cursor",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "conversation-import-cursor"
           },
           {
-            "kind": "conversation-import-source",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "conversation-import-source"
           }
         ]
       }
@@ -493,80 +610,197 @@
         "licence_class": "licence:maker-own",
         "maker": "maker:conversations",
         "id": "tool:read-an-export-of-my-conversations",
-        "placements": ["placement:your-computer"],
-        "needs": { "expected_seconds": 30, "network_egress": false },
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": false
+        },
         "label": "Read an export of my conversations",
         "job": "Read an export of the person's conversations (a chat app's saved messages, a mailbox page or email file, the Messages database, an AI assistant's logs or a captured web chat) from a folder they chose, and give each conversation's messages in order, ready to be kept as the person's messages",
         "description": "Runs on the person's computer over the folder they granted it to read, and reads only inside it. Give file (a path inside the folder). source names the kind of export (tool:list-the-kinds-of-conversation-export-i-can-read gives them); left out, the file is matched to a kind by what it looks like and a file two kinds could read is refused with their names. sources_file is a file in the folder holding the person's own kinds ({ sources: [row] }): a kind is a row of field names, so a new export is a new row, not new code. descriptor holds the run's own choices: mailbox_address (which address is the person's, for mail), expected_provider (for a captured web chat), source_ref (what to call this source), app (the name the conversations are kept under). mode all (the default) returns the whole export a page of atoms at a time (limit, cursor); threads returns the list of threads, newest first; page returns one thread's newest messages first from before_cursor, for a very large single log (session_id, limit). Returns threads and atoms (the canonical contract: each atom has a stable atom_ref that does not change when its words are edited), conversations ({ conversation_id, title, app, messages: [{ id, speaker, text, at }] }, speaker person, ai or the name the source showed, only what was said, a time only where the source gave one) in the shape the owner that keeps messages takes a chat read off its page, rejections (one structured entry for each thing the export could not give), next_cursor where there is more. Keeps nothing: hand conversations to the owner that keeps messages.",
         "input_schema": {
           "type": "object",
-          "required": ["file"],
+          "required": [
+            "file"
+          ],
           "additionalProperties": false,
           "properties": {
-            "file": { "type": "string", "minLength": 1, "description": "The export, a path inside the granted folder" },
-            "source": { "type": "string", "description": "The kind of export (an id from the list of kinds); left out, matched by what the file looks like" },
-            "sources_file": { "type": "string", "description": "A file in the folder holding the person's own kinds: { sources: [row] }" },
+            "file": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The export, a path inside the granted folder"
+            },
+            "source": {
+              "type": "string",
+              "description": "The kind of export (an id from the list of kinds); left out, matched by what the file looks like"
+            },
+            "sources_file": {
+              "type": "string",
+              "description": "A file in the folder holding the person's own kinds: { sources: [row] }"
+            },
             "descriptor": {
               "type": "object",
               "description": "The run's own choices",
               "properties": {
-                "mailbox_address": { "type": "string", "description": "The person's own address, for mail: which words are theirs" },
-                "expected_provider": { "type": "string", "description": "For a captured web chat: the provider the capture must be from" },
-                "source_ref": { "type": "string", "description": "What to call this source" },
-                "app": { "type": "string", "description": "The name the conversations are kept under" }
+                "mailbox_address": {
+                  "type": "string",
+                  "description": "The person's own address, for mail: which words are theirs"
+                },
+                "expected_provider": {
+                  "type": "string",
+                  "description": "For a captured web chat: the provider the capture must be from"
+                },
+                "source_ref": {
+                  "type": "string",
+                  "description": "What to call this source"
+                },
+                "app": {
+                  "type": "string",
+                  "description": "The name the conversations are kept under"
+                }
               }
             },
-            "mode": { "type": "string", "enum": ["all", "threads", "page"] },
-            "cursor": { "type": ["integer", "string"], "description": "Where the next page starts: the next_cursor of the answer before" },
-            "limit": { "type": "integer", "minimum": 1, "maximum": 2000 },
-            "session_id": { "type": "string", "description": "mode page: which thread of the file" },
-            "before_cursor": { "type": ["integer", "string"], "description": "mode page: the next_cursor of the page after this one" }
+            "mode": {
+              "type": "string",
+              "enum": [
+                "all",
+                "threads",
+                "page"
+              ]
+            },
+            "cursor": {
+              "type": [
+                "integer",
+                "string"
+              ],
+              "description": "Where the next page starts: the next_cursor of the answer before"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2000
+            },
+            "session_id": {
+              "type": "string",
+              "description": "mode page: which thread of the file"
+            },
+            "before_cursor": {
+              "type": [
+                "integer",
+                "string"
+              ],
+              "description": "mode page: the next_cursor of the page after this one"
+            }
           }
         },
         "output_schema": {
           "type": "object",
-          "required": ["source", "mode", "rejections"],
+          "required": [
+            "source",
+            "mode",
+            "rejections"
+          ],
           "properties": {
-            "source": { "type": "string" },
-            "source_ref": { "type": "string" },
-            "mode": { "type": "string" },
-            "threads": { "type": "array" },
-            "atoms": { "type": "array" },
-            "total_atoms": { "type": "integer" },
-            "total_threads": { "type": "integer" },
+            "source": {
+              "type": "string"
+            },
+            "source_ref": {
+              "type": "string"
+            },
+            "mode": {
+              "type": "string"
+            },
+            "threads": {
+              "type": "array"
+            },
+            "atoms": {
+              "type": "array"
+            },
+            "total_atoms": {
+              "type": "integer"
+            },
+            "total_threads": {
+              "type": "integer"
+            },
             "conversations": {
               "type": "array",
               "items": {
                 "type": "object",
-                "required": ["conversation_id", "app", "messages"],
+                "required": [
+                  "conversation_id",
+                  "app",
+                  "messages"
+                ],
                 "properties": {
-                  "conversation_id": { "type": "string" },
-                  "title": { "type": ["string", "null"] },
-                  "app": { "type": "string" },
+                  "conversation_id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "app": {
+                    "type": "string"
+                  },
                   "messages": {
                     "type": "array",
-                    "items": { "type": "object", "required": ["id", "speaker", "text"] }
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "speaker",
+                        "text"
+                      ]
+                    }
                   }
                 }
               }
             },
-            "rejections": { "type": "array" },
-            "next_cursor": { "type": ["integer", "string", "null"] },
-            "source_next_cursor": { "type": ["string", "null"] }
+            "rejections": {
+              "type": "array"
+            },
+            "next_cursor": {
+              "type": [
+                "integer",
+                "string",
+                "null"
+              ]
+            },
+            "source_next_cursor": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
           }
         },
         "invoke": {
           "kind": "computer",
-          "capabilities": ["read-a-folder"],
+          "capabilities": [
+            "read-a-folder"
+          ],
           "workdir": "/opt/conversations",
           "internet": false,
           "stdout": "json",
           "argv": [
             "python3",
             "/opt/conversations/read-data/decode_source.py",
-            { "fill": { "from": "task", "field": "grants.read-a-folder.folder" } }
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
           ],
-          "stdin": { "fill": { "from": "input" } },
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
           "files": {
             "package_files": [
               {
@@ -1207,7 +1441,21 @@
           ],
           "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
         },
-        "verify": [{"kind": "sample-run", "input": {"file": "saved/orders.json"}, "files": [{"grant": "read-a-folder", "path": "saved/orders.json", "text": "{\"self_id\":\"U1\",\"channels\":[{\"id\":\"C1\",\"name\":\"bakery-orders\",\"messages\":[{\"ts\":\"1700000000.000100\",\"user\":\"U1\",\"text\":\"Fresh rye is up\"},{\"ts\":\"1700000060.000200\",\"user\":\"U2\",\"user_profile\":{\"real_name\":\"Rosa\"},\"text\":\"Two loaves please\"}]}]}"}]}]
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "file": "saved/orders.json"
+            },
+            "files": [
+              {
+                "grant": "read-a-folder",
+                "path": "saved/orders.json",
+                "text": "{\"self_id\":\"U1\",\"channels\":[{\"id\":\"C1\",\"name\":\"bakery-orders\",\"messages\":[{\"ts\":\"1700000000.000100\",\"user\":\"U1\",\"text\":\"Fresh rye is up\"},{\"ts\":\"1700000060.000200\",\"user\":\"U2\",\"user_profile\":{\"real_name\":\"Rosa\"},\"text\":\"Two loaves please\"}]}]}"
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -1389,20 +1637,42 @@
         "licence_class": "licence:maker-own",
         "maker": "maker:conversations",
         "id": "tool:list-the-kinds-of-conversation-export-i-can-read",
-        "placements": ["placement:small-container"],
-        "needs": { "expected_seconds": 1, "network_egress": false },
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
         "label": "Kinds of conversation export I can read",
         "job": "List the kinds of conversation export that can be read (chat apps, email, the Messages database, AI assistant logs, captured web chats), what each one's files look like and what the run must say for it",
         "description": "Returns said (the count and the ids, in a line) and sources: each { id, label, format, reader, needs, app, files_look_like }. id is what source takes in tool:read-an-export-of-my-conversations; needs lists the choices the run must make for that kind (mailbox_address for mail, expected_provider for a captured web chat); app is the name its conversations are kept under; files_look_like is what a file of that kind holds, which is how a file is matched to its kind when none is named. A kind not listed is a new row in a file of the person's own.",
-        "input_schema": { "type": "object", "additionalProperties": false, "properties": {} },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
         "output_schema": {
           "type": "object",
-          "required": ["said", "sources"],
+          "required": [
+            "said",
+            "sources"
+          ],
           "properties": {
-            "said": { "type": "string" },
+            "said": {
+              "type": "string"
+            },
             "sources": {
               "type": "array",
-              "items": { "type": "object", "required": ["id", "label", "reader", "needs"] }
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "label",
+                  "reader",
+                  "needs"
+                ]
+              }
             }
           }
         },
@@ -1411,7 +1681,11 @@
           "workdir": "/opt/conversations",
           "internet": false,
           "stdout": "json",
-          "argv": ["python3", "/opt/conversations/read-data/decode_source.py", "--list"],
+          "argv": [
+            "python3",
+            "/opt/conversations/read-data/decode_source.py",
+            "--list"
+          ],
           "files": {
             "package_files": [
               {
@@ -1501,7 +1775,12 @@
           }
         },
         "verify": [
-          { "kind": "sample-run", "input": {}, "output_selector": "$.said", "contains": "slack-messages" }
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.said",
+            "contains": "slack-messages"
+          }
         ],
         "result_selector": "$.result"
       }
@@ -1772,6 +2051,17 @@
                   }
                 }
               }
+            },
+            "keep": {
+              "type": "array",
+              "description": "Records ({id, type, value}, value null removes) and files ({file, base64}) the run wrote, for the caller to write where the person keeps them."
+            },
+            "needs": {
+              "type": "object",
+              "description": "Set when the run was not given what it needs: records [{id, type}], lists [query], files [name or identity]. Nothing was written; hand the answers in and run again."
+            },
+            "complete": {
+              "type": "boolean"
             }
           }
         },
@@ -1785,7 +2075,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/conversations/do-work/run-held.mjs",
             "/opt/conversations/read-data/chat-import.mjs",
             "listConversationSourcesHere"
           ],
@@ -1807,7 +2097,8 @@
               {
                 "package": "conversations",
                 "paths": [
-                  "read-data"
+                  "read-data",
+                  "do-work"
                 ],
                 "at": "/opt/conversations"
               },
@@ -1872,7 +2163,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1886,7 +2179,9 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "packages": ["node_modules/fflate"],
+                "packages": [
+                  "node_modules/fflate"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2114,7 +2409,7 @@
         },
         "label": "Import my conversations from one source",
         "job": "Bring every conversation of one app (an AI chat export, Google Takeout activity, or a local AI app's sessions) from this computer into my records completely, one row per conversation and every message, continuing where an earlier run stopped",
-        "description": "Runs on the person's computer over the folder they granted (their home folder). source is one id tool:list-the-conversation-sources-on-this-computer gives; files, when given, names the files (paths in the folder) instead of looking for them. Each conversation is kept as the person's messages (record message, with its source key, so bringing it in again adds nothing twice) and one row of their AI conversations list (record:ai-conversation: title, app, conversation, started, last, messages, models, original_file; labels, people, pursuits and follow-ups they set are never touched). Writes go through the records door in batches; a busy (503) or slow door is asked again after a growing wait with the same request key. Each file has a cursor row (conversation-import-cursor) that moves only past what was kept, so a run that stops, or reaches time_box_seconds, answers more: true and the next run goes on from there; a file already done and unchanged is skipped. Files the messages carried are copied into the person's files through the files door under /messages: an export's file (ChatGPT's file-XXXX, Grok's asset) found beside the export as /messages/<app>/<name>, an image pasted into a session as /messages/<conversation>/<message>-<n>; a file already there with the same bytes is not written again, and a file not found beside the export is counted (attachments_not_kept), never an error.",
+        "description": "Runs on the person's computer over the folder they granted (their home folder). source is one id tool:list-the-conversation-sources-on-this-computer gives; files, when given, names the files (paths in the folder) instead of looking for them. Each conversation is kept as the person's messages (record message, with its source key, so bringing it in again adds nothing twice) and one row of their AI conversations list (record:ai-conversation: title, app, conversation, started, last, messages, models, original_file; labels, people, pursuits and follow-ups they set are never touched). Writes are handed back as keep, in batches, for the caller to write where the person keeps them. Each file has a cursor row (conversation-import-cursor) that moves only past what was kept, so a run that stops, or reaches time_box_seconds, answers more: true and the next run goes on from there; a file already done and unchanged is skipped. Files the messages carried are handed back as keep (file and base64) for the caller to write into the person's files under /messages: an export's file (ChatGPT's file-XXXX, Grok's asset) found beside the export as /messages/<app>/<name>, an image pasted into a session as /messages/<conversation>/<message>-<n>; a file the caller already holds with the same bytes is not written again, and a file not found beside the export is counted (attachments_not_kept), never an error.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -2170,7 +2465,10 @@
             },
             "attachments": {
               "type": "object",
-              "additionalProperties": { "type": "string", "minLength": 1 },
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 1
+              },
               "description": "Where a message's file is when it is not beside the export: { attachment id (file-XXXX): a path in the granted folder }"
             },
             "home": {
@@ -2191,7 +2489,7 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of message, message-source-key, message-resend-key, message-content-key, setting (the row setting:hybrid-clock-state), list (the row list:ai-conversations), record:ai-conversation, conversation-import-cursor; files: {name: text or {base64}} under /messages, as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and handed in: records: [{id, type, value}] of message, message-source-key, message-resend-key, message-content-key, setting (the row setting:hybrid-clock-state), list (the row list:ai-conversations), record:ai-conversation, conversation-import-cursor; files: {name: text or {base64}} under /messages, as this row's `stored` lists. Anything the run needs and is not given is answered as needs (records, lists, files) and nothing is written: the caller reads those from its store and runs again until needs is empty. The answer carries keep: the records and files this run wrote, to be written where the person keeps them."
             }
           }
         },
@@ -2259,7 +2557,14 @@
             },
             "keep": {
               "type": "array",
-              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+              "description": "Records ({id, type, value}, value null removes) and files ({file, base64}) the run wrote, for the caller to write where the person keeps them."
+            },
+            "needs": {
+              "type": "object",
+              "description": "Set when the run was not given what it needs: records [{id, type}], lists [query], files [name or identity]. Nothing was written; hand the answers in and run again."
+            },
+            "complete": {
+              "type": "boolean"
             }
           }
         },
@@ -2273,7 +2578,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/conversations/do-work/run-held.mjs",
             "/opt/conversations/read-data/chat-import.mjs",
             "importConversationsFrom"
           ],
@@ -2295,7 +2600,8 @@
               {
                 "package": "conversations",
                 "paths": [
-                  "read-data"
+                  "read-data",
+                  "do-work"
                 ],
                 "at": "/opt/conversations"
               },
@@ -2360,7 +2666,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2374,7 +2682,9 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "packages": ["node_modules/fflate"],
+                "packages": [
+                  "node_modules/fflate"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2418,74 +2728,33 @@
         ],
         "stored": [
           {
-            "files": "/messages",
-            "operations": [
-              "find_file",
-              "write_file_start",
-              "write_file_piece",
-              "write_file_finish"
-            ]
+            "files": "/messages"
           },
           {
-            "kind": "message",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
+            "kind": "message"
           },
           {
-            "kind": "message-source-key",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "message-source-key"
           },
           {
-            "kind": "message-resend-key",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "message-resend-key"
           },
           {
-            "kind": "message-content-key",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "message-content-key"
           },
           {
             "kind": "setting",
-            "id": "setting:hybrid-clock-state",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "id": "setting:hybrid-clock-state"
           },
           {
             "kind": "list",
-            "id": "list:ai-conversations",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "id": "list:ai-conversations"
           },
           {
-            "kind": "record:ai-conversation",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
+            "kind": "record:ai-conversation"
           },
           {
-            "kind": "conversation-import-cursor",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
+            "kind": "conversation-import-cursor"
           }
         ]
       }
@@ -2678,7 +2947,7 @@
         },
         "label": "Resume importing all my conversations",
         "job": "Bring in every conversation from every app found on this computer, continuing each source from where its last run stopped, until all of them are in my records",
-        "description": "Runs on the person's computer over the folder they granted (their home folder). Every source tool:list-the-conversation-sources-on-this-computer finds here (or the ones sources names) is imported in turn the way tool:import-my-conversations-from-a-source imports one, each file from its cursor row. A run stops at time_box_seconds, or when the records door stays busy past its retries, and answers more: true; run it again until more is false.",
+        "description": "Runs on the person's computer over the folder they granted (their home folder). Every source tool:list-the-conversation-sources-on-this-computer finds here (or the ones sources names) is imported in turn the way tool:import-my-conversations-from-a-source imports one, each file from its cursor row. A run stops at time_box_seconds and answers more: true; run it again until more is false.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -2742,7 +3011,7 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of message, message-source-key, message-resend-key, message-content-key, setting (the row setting:hybrid-clock-state), list (the row list:ai-conversations), record:ai-conversation, conversation-import-cursor; files: {name: text or {base64}} under /messages, as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and handed in: records: [{id, type, value}] of message, message-source-key, message-resend-key, message-content-key, setting (the row setting:hybrid-clock-state), list (the row list:ai-conversations), record:ai-conversation, conversation-import-cursor; files: {name: text or {base64}} under /messages, as this row's `stored` lists. Anything the run needs and is not given is answered as needs (records, lists, files) and nothing is written: the caller reads those from its store and runs again until needs is empty. The answer carries keep: the records and files this run wrote, to be written where the person keeps them."
             }
           }
         },
@@ -2812,7 +3081,14 @@
             },
             "keep": {
               "type": "array",
-              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+              "description": "Records ({id, type, value}, value null removes) and files ({file, base64}) the run wrote, for the caller to write where the person keeps them."
+            },
+            "needs": {
+              "type": "object",
+              "description": "Set when the run was not given what it needs: records [{id, type}], lists [query], files [name or identity]. Nothing was written; hand the answers in and run again."
+            },
+            "complete": {
+              "type": "boolean"
             }
           }
         },
@@ -2826,7 +3102,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/conversations/do-work/run-held.mjs",
             "/opt/conversations/read-data/chat-import.mjs",
             "resumeConversationImports"
           ],
@@ -2848,7 +3124,8 @@
               {
                 "package": "conversations",
                 "paths": [
-                  "read-data"
+                  "read-data",
+                  "do-work"
                 ],
                 "at": "/opt/conversations"
               },
@@ -2913,7 +3190,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2927,7 +3206,9 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "packages": ["node_modules/fflate"],
+                "packages": [
+                  "node_modules/fflate"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2970,74 +3251,33 @@
         ],
         "stored": [
           {
-            "files": "/messages",
-            "operations": [
-              "find_file",
-              "write_file_start",
-              "write_file_piece",
-              "write_file_finish"
-            ]
+            "files": "/messages"
           },
           {
-            "kind": "message",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
+            "kind": "message"
           },
           {
-            "kind": "message-source-key",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "message-source-key"
           },
           {
-            "kind": "message-resend-key",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "message-resend-key"
           },
           {
-            "kind": "message-content-key",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "message-content-key"
           },
           {
             "kind": "setting",
-            "id": "setting:hybrid-clock-state",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "id": "setting:hybrid-clock-state"
           },
           {
             "kind": "list",
-            "id": "list:ai-conversations",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "id": "list:ai-conversations"
           },
           {
-            "kind": "record:ai-conversation",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
+            "kind": "record:ai-conversation"
           },
           {
-            "kind": "conversation-import-cursor",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
+            "kind": "conversation-import-cursor"
           }
         ]
       }
@@ -3230,11 +3470,16 @@
         },
         "label": "Show how far my conversation import is",
         "job": "Show how far bringing in my conversations has got: for each source, files done, conversations and messages kept, and whether it stopped",
-        "description": "Reads the import's cursor rows (conversation-import-cursor) through the records door and answers, per source, the files seen and done, conversations kept, messages added and already kept, files the messages carried that were not copied, its state (done, more, stopped) and when it last moved. Reads nothing else.",
+        "description": "Reads the import's cursor rows (conversation-import-cursor) from the cursor rows handed in and answers, per source, the files seen and done, conversations kept, messages added and already kept, files the messages carried that were not copied, its state (done or more) and when it last moved. Reads nothing else.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
-          "properties": { "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of conversation-import-cursor, as this row's `stored` lists. What is not given is not there." } }
+          "properties": {
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and handed in: records: [{id, type, value}] of conversation-import-cursor, as this row's `stored` lists. Anything the run needs and is not given is answered as needs (records, lists, files) and nothing is written: the caller reads those from its store and runs again until needs is empty. The answer carries keep: the records and files this run wrote, to be written where the person keeps them."
+            }
+          }
         },
         "output_schema": {
           "type": "object",
@@ -3282,6 +3527,17 @@
                   }
                 }
               }
+            },
+            "keep": {
+              "type": "array",
+              "description": "Records ({id, type, value}, value null removes) and files ({file, base64}) the run wrote, for the caller to write where the person keeps them."
+            },
+            "needs": {
+              "type": "object",
+              "description": "Set when the run was not given what it needs: records [{id, type}], lists [query], files [name or identity]. Nothing was written; hand the answers in and run again."
+            },
+            "complete": {
+              "type": "boolean"
             }
           }
         },
@@ -3293,7 +3549,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/conversations/do-work/run-held.mjs",
             "/opt/conversations/read-data/chat-import.mjs",
             "conversationImportProgress"
           ],
@@ -3309,7 +3565,8 @@
               {
                 "package": "conversations",
                 "paths": [
-                  "read-data"
+                  "read-data",
+                  "do-work"
                 ],
                 "at": "/opt/conversations"
               },
@@ -3374,7 +3631,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -3388,7 +3647,9 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "packages": ["node_modules/fflate"],
+                "packages": [
+                  "node_modules/fflate"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -3428,10 +3689,7 @@
         ],
         "stored": [
           {
-            "kind": "conversation-import-cursor",
-            "operations": [
-              "records:list"
-            ]
+            "kind": "conversation-import-cursor"
           }
         ]
       }
@@ -3624,11 +3882,16 @@
         },
         "label": "Count my AI conversations per app",
         "job": "Count the AI conversations in my records per app, and how many messages each app's conversations hold",
-        "description": "Reads the rows of the person's AI conversations list (record:ai-conversation) through the records door, only their app and messages fields, and answers the number of conversations and messages per app, most first. Reads nothing else.",
+        "description": "Reads the rows of the person's AI conversations list (record:ai-conversation) from the rows handed in, only their app and messages fields, and answers the number of conversations and messages per app, most first. Reads nothing else.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
-          "properties": { "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:ai-conversation, as this row's `stored` lists. What is not given is not there." } }
+          "properties": {
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and handed in: records: [{id, type, value}] of record:ai-conversation, as this row's `stored` lists. Anything the run needs and is not given is answered as needs (records, lists, files) and nothing is written: the caller reads those from its store and runs again until needs is empty. The answer carries keep: the records and files this run wrote, to be written where the person keeps them."
+            }
+          }
         },
         "output_schema": {
           "type": "object",
@@ -3661,6 +3924,17 @@
                   }
                 }
               }
+            },
+            "keep": {
+              "type": "array",
+              "description": "Records ({id, type, value}, value null removes) and files ({file, base64}) the run wrote, for the caller to write where the person keeps them."
+            },
+            "needs": {
+              "type": "object",
+              "description": "Set when the run was not given what it needs: records [{id, type}], lists [query], files [name or identity]. Nothing was written; hand the answers in and run again."
+            },
+            "complete": {
+              "type": "boolean"
             }
           }
         },
@@ -3672,7 +3946,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/conversations/do-work/run-held.mjs",
             "/opt/conversations/read-data/chat-import.mjs",
             "countConversationsPerApp"
           ],
@@ -3688,7 +3962,8 @@
               {
                 "package": "conversations",
                 "paths": [
-                  "read-data"
+                  "read-data",
+                  "do-work"
                 ],
                 "at": "/opt/conversations"
               },
@@ -3753,7 +4028,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -3767,7 +4044,9 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "packages": ["node_modules/fflate"],
+                "packages": [
+                  "node_modules/fflate"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -3854,10 +4133,7 @@
         ],
         "stored": [
           {
-            "kind": "record:ai-conversation",
-            "operations": [
-              "records:list"
-            ]
+            "kind": "record:ai-conversation"
           }
         ]
       }
@@ -4113,7 +4389,7 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of message, message-source-key, message-resend-key, message-content-key, setting (the row setting:hybrid-clock-state), list (the row list:ai-conversations), record:ai-conversation, as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and handed in: records: [{id, type, value}] of message, message-source-key, message-resend-key, message-content-key, setting (the row setting:hybrid-clock-state), list (the row list:ai-conversations), record:ai-conversation, as this row's `stored` lists. Anything the run needs and is not given is answered as needs (records, lists, files) and nothing is written: the caller reads those from its store and runs again until needs is empty. The answer carries keep: the records and files this run wrote, to be written where the person keeps them."
             }
           }
         },
@@ -4140,7 +4416,14 @@
             },
             "keep": {
               "type": "array",
-              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+              "description": "Records ({id, type, value}, value null removes) and files ({file, base64}) the run wrote, for the caller to write where the person keeps them."
+            },
+            "needs": {
+              "type": "object",
+              "description": "Set when the run was not given what it needs: records [{id, type}], lists [query], files [name or identity]. Nothing was written; hand the answers in and run again."
+            },
+            "complete": {
+              "type": "boolean"
             }
           }
         },
@@ -4152,7 +4435,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/conversations/do-work/run-held.mjs",
             "/opt/conversations/read-data/chat-import.mjs",
             "keepWhatISaidToAnAi"
           ],
@@ -4168,7 +4451,8 @@
               {
                 "package": "conversations",
                 "paths": [
-                  "read-data"
+                  "read-data",
+                  "do-work"
                 ],
                 "at": "/opt/conversations"
               },
@@ -4233,7 +4517,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -4247,7 +4533,9 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "packages": ["node_modules/fflate"],
+                "packages": [
+                  "node_modules/fflate"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -4304,57 +4592,27 @@
         ],
         "stored": [
           {
-            "kind": "message",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
+            "kind": "message"
           },
           {
-            "kind": "message-source-key",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "message-source-key"
           },
           {
-            "kind": "message-resend-key",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "message-resend-key"
           },
           {
-            "kind": "message-content-key",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "kind": "message-content-key"
           },
           {
             "kind": "setting",
-            "id": "setting:hybrid-clock-state",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "id": "setting:hybrid-clock-state"
           },
           {
             "kind": "list",
-            "id": "list:ai-conversations",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "id": "list:ai-conversations"
           },
           {
-            "kind": "record:ai-conversation",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
+            "kind": "record:ai-conversation"
           }
         ]
       }

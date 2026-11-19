@@ -16,11 +16,22 @@ calls.
 | `tool:read-an-export-of-my-conversations` | Reads an export from a chosen folder: all of it a page of atoms at a time, the list of threads, or one thread's newest messages first | on the person's computer, read-a-folder |
 | `tool:list-the-kinds-of-conversation-export-i-can-read` | Lists the kinds of export that can be read, what each one's files look like and what the run must say for it | in a container |
 | `tool:list-the-conversation-sources-on-this-computer` | Finds every app's conversations in the granted home folder: ChatGPT, Claude.ai and Grok exports, Google Takeout activity (Gemini Apps, Assistant, AI Mode), and the sessions of Claude Code, Codex, Gemini CLI and Hermes | on the person's computer, read-a-folder |
-| `tool:import-my-conversations-from-a-source` | Keeps one source's conversations as the person's records through the records door, from each file's cursor row | on the person's computer, read-a-folder, records door |
-| `tool:import-conversation-exports-from-my-files` | Keeps exports already in the account's files through the same canonical message owner, with immutable identity checks, exact message readback and paged source provenance | records and files door; no host-folder grant |
-| `tool:resume-importing-my-conversations` | The same for every source found, each from where it stopped, until `more` is false | on the person's computer, read-a-folder, records door |
-| `tool:show-how-far-my-conversation-import-is` | Per source: files seen and done, conversations and messages kept, its state | on the person's computer, records door (cursor rows only) |
-| `tool:count-my-ai-conversations-per-app` | The AI conversations list read back: conversations and messages per app | on the person's computer, records door (list rows only) |
+| `tool:import-my-conversations-from-a-source` | Keeps one source's conversations as the person's records (handed back to keep), from each file's cursor row | on the person's computer, read-a-folder, values in and keep out |
+| `tool:import-conversation-exports-from-my-files` | Keeps exports already in the account's files through the same canonical message owner, with immutable identity checks, exact message readback and paged source provenance | values in (the export's file, its rows), keep out; no host-folder grant |
+| `tool:resume-importing-my-conversations` | The same for every source found, each from where it stopped, until `more` is false | on the person's computer, read-a-folder, values in and keep out |
+| `tool:show-how-far-my-conversation-import-is` | Per source: files seen and done, conversations and messages kept, its state | values in (cursor rows only) |
+| `tool:count-my-ai-conversations-per-app` | The AI conversations list read back: conversations and messages per app | values in (list rows only) |
+
+## How a run reaches the person's records
+
+A run holds no store. Its door (`read-data/held-door.mjs`) answers the records, lists and files it reads from the values the
+caller hands in (`stored`: `records`, `queries`, `files`), and returns what it writes as `keep`, for the caller to write
+where the person keeps them. A run that is not handed something it needs writes nothing and answers `needs` (`complete: false`):
+the record ids it reads (`records`), the lists it asks for as `records:list`-style queries (`lists`), and the files it looks
+for by name or identity (`files`). The caller reads those from its own store, hands them in and runs again until `needs` is
+empty. A list answer is the caller's answer for that query (greatest id first unless `reverse` is false) plus the run's own
+writes of that kind, so a write is seen by the run's later reads. `do-work/run-held.mjs` is the one command the rows run:
+`node /opt/conversations/do-work/run-held.mjs <module> <export>` with the input, the granted folder and `stored` on standard input.
 
 ## Bringing every conversation in
 
@@ -30,9 +41,9 @@ source and both identities; `ports/` holds the contracts). What is kept is what 
 - **Messages**: each message through the moved message owner (`tools/keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs`
   `record()`, unchanged), so each is a `message` record with its `message-source-key`, its original time and
   `captured_road: chat_import`; bringing the same export in again adds nothing twice. The owner reads and writes
-  synchronously, so it runs over `stagedRecords(door)`: a step is run, what it asked for is read from the door, it is
-  run again until it asks for nothing new, then its writes go to the door in batches that each fit one message
-  (`write_rows`, `write_bytes`), a message always before its source key.
+  synchronously, so it runs over `stagedRecords(door)`: a step is run, what it asked for is answered from the values
+  given (or asked for, see above), it is run again until it asks for nothing new, then its writes are kept in batches that
+  each fit one message (`write_rows`, `write_bytes`), a message always before its source key.
 - **One row per conversation** in the list `ai-conversations` (`record:ai-conversation`, `read-data/ai-conversations-list.json`):
   title, app, conversation_id, started, last, messages, models, original_file. Labels, people, pursuits and follow-ups
   are never written, so what the person set stays.
@@ -44,9 +55,9 @@ source and both identities; `ports/` holds the contracts). What is kept is what 
   (`record-every-message.mjs --sweep`, `sweep.every_seconds` and `sweep.changed_within_days`): each new turn is kept
   within minutes with no hook, and a turn a hook missed heals on the next run. The clock is an engine wake the person
   declares as a `wake-declaration` record and switches on; without a window every file is read, as before.
-- **A busy or slow door**: every call is sent again after a growing wait (`first_wait_ms` doubling to `most_wait_ms`,
-  `retries` times) on 503, a timeout (`call_timeout_ms`) or an unknown outcome, with the same request key, so a write
-  that landed answers its first receipt. Past that the run stops with `stopped` and `more: true`; the next run resumes.
+- **A run stops at its time box**: `time_box_seconds` ends a run, which answers `more: true` with what it kept and its cursor
+  rows where they are; the next run resumes from them. A run that needs a record, list or file it was not handed keeps
+  nothing and answers `needs` (see above), so a stop never leaves a message without its source key.
 - **Where each source is** is DATA: `read-data/conversation-sources-on-this-computer.json` (export file names, the
   Takeout folder a file sits in, words its head holds; the local apps' session folders are their rows'
   `transcript_roots` in the harness rules). The granted folder is read as the person's home.
@@ -56,9 +67,10 @@ source and both identities; `ports/` holds the contracts). What is kept is what 
   (`harness/record-every-message.mjs` `rowsFrom` and `messagesOf`, its bounded older-transcript reader), so only the
   rows those rules call the person's, the AI's, a peer's or generated context are kept, under `<app id>:<session id>`.
 - **A ChatGPT individual-chat Markdown export** is also read by `read-data/markdown-chat-export.mjs`: its title, `/c/<UUID>` identity, and each `## Prompt:` / `## Response:` occurrence are retained in order. Adjacent same-speaker messages remain separate, fenced code is not parsed as headings, and unzoned date/model text is preserved as `source_at` with no invented UTC time.
-- **Long messages** are kept in ordered parts of at most `most_text` characters, so one part fits one door write.
-- **Files a message carried** are copied into the person's files through the files door (`find_file`, then
-  `write_file_start` / `_piece` / `_finish` by records-door `writeWholeFile`, each piece fitting one door message), and
+- **Long messages** are kept in ordered parts of at most `most_text` characters, so one part fits one write.
+- **Files a message carried** are handed back as `keep` entries (`{ file, base64 }`) for the caller to write into the
+  person's files; the run finds an existing file by the files it is handed (`find_file`, `read_file`), and each piece of a
+  written file fits one message (`writeWholeFile`), and
   the message names each by its identity (`attachments`, `about`), the way old Trillion linked them:
   - an export's file is looked for beside the export (`attachment_depth` folders down): ChatGPT's `file-XXXX-photo.png`
     by the id its name starts with (never as the start of a longer id), Grok's `prod-mc-asset-server/<id>/content` by
@@ -100,19 +112,21 @@ source and both identities; `ports/` holds the contracts). What is kept is what 
 | `read-data/chat-archives.mjs` | Moved from trillion `src/chat-archives.mjs`: a ChatGPT export's conversation tree, or a conversation read off its page, as messages; a long message in ordered parts (`most_text`). |
 | `read-data/markdown-chat-export.mjs` | Reads a single ChatGPT Markdown chat export; no earlier parser owner (`ports/markdown-chat-export.json`). |
 | `read-data/json-array-stream.mjs` | The elements of a file's top-level JSON array, read a piece at a time, each with the byte offset just past it (`jsonArrayElements`, `firstByteOf`). No prior owner (`ports/json-array-stream.json`). |
-| `read-data/chat-import.mjs` | Moved from trillion `src/chat-import.mjs`: `importConversation` and `keepConversationRow` over the records door; `stagedRecords`, `patientDoor`; the five import tools' functions. |
+| `read-data/chat-import.mjs` | Moved from trillion `src/chat-import.mjs`: `importConversation` and `keepConversationRow`; `stagedRecords`; the import tools' functions. |
+| `read-data/held-door.mjs` | The run's door: records, lists and files answered from the values handed in, writes and files returned as `keep`, anything not handed in answered as `needs`. |
+| `do-work/run-held.mjs` | The one command the rows run: calls the export with the input and the door, and prints `{ result }` (with `keep`, or `needs` and `complete: false`). |
 | `read-data/ai-conversations-list.json` | Moved from trillion `src/ai-conversations-list.json`: the list every imported AI conversation gets one row in. |
-| `read-data/conversation-sources-on-this-computer.json` | Where each app's conversations are, and the import's pacing. |
+| `read-data/conversation-sources-on-this-computer.json` | Where each app's conversations are, and the import's pacing (`write_rows`, `write_bytes`, `most_text`, `time_box_seconds`). |
 | `read-data/acquire-and-import-ai-chat-history.json` | Moved from trillion `docs/notes/chat-history-marketplace-workflow.json`: the workflow `workflow:acquire-and-import-ai-chat-history` these tools serve (inventory, acquire, reconcile). |
 | `moved-from.json`, `ports/` | Each moved file's source and identities; the port contracts of `chat-archives.mjs` and `chat-import.mjs`. |
-| `tool-rows.json` | The seven rows. |
+| `tool-rows.json` | The nine rows. |
 | `test/python/` | The Python tests, with made-up exports (a bakery's orders); `test/python.test.mjs` runs each as a node test. |
 | `test/rows.test.mjs` | Each row's command run the way the engine runs it. |
-| `test/import-conversations.test.mjs` | The import over the fake records door, with a synthetic export or session folder for each source: what each keeps, a second run adding nothing, a grown session read on, a 503 spell midway then a resume with nothing kept twice, a short spell waited out, a write that timed out sent again with its key. |
-| `test/import-rows.test.mjs` | The import rows run the way the engine runs them (argv, `{ input, folder }`, the door with exactly their rights). |
-| `test/import-attachments.test.mjs` | The files messages carried, copied through the files door: where each source's file is found and kept, a rerun writing no file again, a 503 in the middle of a file's pieces then a resume keeping each file once and whole. |
+| `test/import-conversations.test.mjs` | The import over the held store (`test/support/held-store.mjs`), with a synthetic export or session folder for each source: what each keeps, a second run adding nothing, a grown session read on, a run not handed what it needs writing nothing and answering `needs`. |
+| `test/import-rows.test.mjs` | The import rows run as the engine runs them (argv, stdin with `{ input, folder, stored }`), each answered from the held store. |
+| `test/import-attachments.test.mjs` | The files messages carried, handed back as keep: where each source's file is found and kept, a rerun writing no file again, a run not handed a file it looks for asking for it. |
 | `test/large-and-zipped-exports.test.mjs` | The JSON array reader at every piece size and resumed at an end; a ChatGPT export kept a conversation at a time, a 503 spell midway then a resume from the cursor's byte with nothing kept twice; a zipped export's files copied from inside it; a Grok image sent without words kept with its file. |
-| `test/chat-archive-parts.test.mjs`, `chat-export-zip.test.mjs`, `chat-history-identity.test.mjs`, `chat-source-time.test.mjs` | Moved from trillion `test/`, over the fake door where they used the Worker's store. |
+| `test/chat-archive-parts.test.mjs`, `chat-export-zip.test.mjs`, `chat-history-identity.test.mjs`, `chat-source-time.test.mjs` | Moved from trillion `test/`, over the held store where they used the Worker's store. |
 | `test/chat-attachments.test.mjs`, `native-chat-import.test.mjs` | Moved from trillion `test/`: the same made-up chat and assertions, over the namespace finder and the on-computer import instead of the Worker's PersonStore and Namespace routes. The two space tests of `chat-attachments` (a file item members of a space read from the importer's store) stay behind with the Worker's space owner. |
 
 ## Key Types
@@ -139,7 +153,8 @@ The same-behaviour test is `test/python/test_same_as_old.py`; its fixtures (`tes
 
 ## Dependencies
 
-**Depends on:** for the read rows, nothing in this repository. The import rows pack `tools/records-door`,
+**Depends on:** for the read rows, nothing in this repository. The import rows pack `tools/records-door` for its list,
+file-write and batch helpers (`read-data/lists-door.mjs`, `whole-file.mjs`, `write-batches.mjs`) but reach no door of its own,
 `tools/content-identity`, the message owner and harness rules of `tools/keep-and-wake-ai-sessions-on-this-computer`
 (`src/messages.mjs` and what it imports, `harness/record-every-message.mjs`), `tools/decide-with-a-method`
 (`decision-records.mjs`, for `canonical`), `tools/set-up-my-account` (`harnesses.json`) and

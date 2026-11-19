@@ -2,14 +2,14 @@
 //
 // A whole chat export brought into Trillion: read here on the person's own computer, inside the folder they granted,
 // then kept one conversation at a time through the same road one chat's archive takes, into the private Trillion or
-// into the one space the person names. The person's records are reached through the records door the run was handed
-// (tools/records-door): the message owner that keeps them (src/messages.mjs, moved to
+// into the one space the person names. The person's records are the values the run is handed (read-data/held-door.mjs; the caller
+// reads them from the person's own store): the message owner that keeps them (src/messages.mjs, moved to
 // tools/keep-and-wake-ai-sessions-on-this-computer) runs unchanged over a staged view of the door (stagedRecords).
 //
 // The export is a file on the person's computer. It is read a page of conversations at a time, so an export of
 // thousands of chats goes in over several runs and a repeat adds nothing twice: each file has a cursor row
-// (record conversation-import-cursor) that moves only past conversations the door kept, so a run that stops (a busy
-// door, a timeout, the run's time box) continues where it stopped. Every app's conversations come in this way: the
+// (record conversation-import-cursor) that moves only past conversations the door kept, so a run that stops (the run's time box, or a
+// record the run was not handed yet) continues where it stopped. Every app's conversations come in this way: the
 // account exports, and the sessions local AI apps keep (read by the harness rules old Trillion recorded them by).
 // Where each one is, is DATA (read-data/conversation-sources-on-this-computer.json).
 //
@@ -18,7 +18,7 @@
 // it. attachmentFinder finds each one among the person's own files: by the name or identity the person gave for that
 // id, or by that id at the start of a file's name in the export's folder (or the folder the person names) and the
 // folders under it. Bytes are never copied: a private message links the file, a space gets a file item whose bytes
-// stay in the importer's store. A file that cannot be found is reported, never an error. Over the records door (the run
+// stay in the importer's store. A file that cannot be found is reported, never an error. Handed as values (the run
 // on the person's computer below), the export's files are on the computer beside it: each one a message names is found
 // there and copied into the person's files through the files door (fileKeeper, exportFilesBeside), and an image pasted
 // into a local AI app's session is copied the way old Trillion's recorder kept it (/messages/<conversation>/<message>-<n>).
@@ -31,7 +31,6 @@ import { isMarkdownChatExport, markdownChatExport } from './markdown-chat-export
 import { messages, sourceKeyOfMessage } from '../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
 import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
-import { RecordsDoorError } from '../../records-door/read-data/records-door.mjs';
 import { readWholeFile, writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import conversationList from './ai-conversations-list.json' with { type: 'json' };
@@ -99,7 +98,7 @@ export async function keepConversationRow(lists, chat, conversationId, { totals 
  * account's records: eeaf is its records, namespace its files (attachmentFinder), addSpaceItems the space owner's write and
  * relay() the account's network relay. A repeat adds nothing twice; files not found are listed, never an error.
  * A private import's writes are synchronous, so `commit` keeps them with their answer in one step (CHAT_RECEIPTED_WRITES):
- * a lost import is answered from that receipt, never imported again. Over the records door, eeaf is stagedRecords(door)
+ * a lost import is answered from that receipt, never imported again. Handed as values, eeaf is stagedRecords(door)
  * .eeaf and commit its commit, which runs the step again until everything it reads has been read from the door, then
  * sends its writes; `now` is the one time the step runs at, so each run of it makes the same records. lists keeps the
  * conversation's row (keep_row false leaves that to the caller, which knows the whole conversation's facts).
@@ -110,7 +109,7 @@ export async function importConversation({ conversation, space_id: spaceId = nul
   const label = chat.title ?? chat.conversation_id;
   if (!spaceId && !reach.private) throw new Error('This sign-in reaches shared pursuits only, so it cannot keep messages in the private Trillion.');
   // Finding a file reads the private files, so a sign-in held to shared spaces finds none.
-  // Over the records door the run hands its own finder (the export's files on this computer, copied through the door).
+  // Handed as values, the run hands its own finder (the export's files on this computer, copied through the door).
   const find = findFile ?? (reach.private && namespace ? attachmentFinder(namespace, { attachments, folder }) : () => null);
   const files = new Map();
   const missing = [];
@@ -200,59 +199,11 @@ export function exportedConversations(bytes) {
 // importConversationsFrom reads the export where it is on this computer and keeps its place in a cursor row.)
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Over the records door
+// Handed as values
 // ---------------------------------------------------------------------------------------------------------------------
 
 const settings = places.settings;
 const CURSOR_TYPE = 'conversation-import-cursor';
-const BUSY = new Set(['selected_owner_unavailable', 'original_workspace_source_unavailable', 'transport_unavailable', 'call_timed_out', 'http_502', 'http_503', 'http_504']);
-
-/** A run ended before its source was done: the door stayed busy or slow past its retries. Its cursor rows say where it
- *  stopped, so the next run (resume) starts there. */
-export class ImportStopped extends Error {
-  constructor(reason, cause) { super(reason); this.reason = reason; this.cause = cause; }
-}
-
-const waitFor = ms => new Promise(done => setTimeout(done, ms));
-const isTransport = error => error instanceof TypeError || error?.name === 'AbortError' || error?.name === 'TimeoutError';
-
-/**
- * The door the run was handed, patient: a call the door answers busy (503, selected_owner_unavailable), with an unknown
- * outcome, or not within call_timeout_ms is sent again after a growing wait (first_wait_ms doubling to most_wait_ms),
- * up to `retries` times. A write is sent again with its own request key, so a write that did land answers its first
- * receipt and nothing is written twice. Past the retries the run stops (ImportStopped) and keeps its cursor.
- */
-export function patientDoor(door, { rules = settings, wait = waitFor } = {}) {
-  async function patiently(what, call) {
-    for (let attempt = 0; ; attempt += 1) {
-      let timer;
-      try {
-        return await Promise.race([call(), new Promise((_, fail) => { timer = setTimeout(() => fail(new RecordsDoorError('call_timed_out', `The records door did not answer within ${rules.call_timeout_ms} ms.`, 'unknown')), rules.call_timeout_ms); })]);
-      } catch (error) {
-        const again = error instanceof RecordsDoorError ? BUSY.has(error.code) || error.outcome === 'unknown' : isTransport(error);
-        if (!again) throw error;
-        if (attempt >= rules.retries) throw new ImportStopped(`The records door stayed busy or slow through ${rules.retries + 1} tries of a ${what} (${error.code ?? error.message}); run the import again to go on from here.`, error);
-        await wait(Math.min(rules.first_wait_ms * 2 ** attempt, rules.most_wait_ms));
-      } finally { clearTimeout(timer); }
-    }
-  }
-  return {
-    read: (type, id) => patiently('read', () => door.read(type, id)),
-    write: (records, options) => patiently('write', () => door.write(records, options)),
-    // The person's files (find_file, write_file_start, write_file_piece, write_file_finish): a piece sent again lands at
-    // its own offset, so a retried piece is the same piece.
-    files: (method, input) => patiently(method, () => door.files(method, input)),
-    // A list is read again from its start when a page fails, up to `most` records; the caller sees each once.
-    async *list(query, { most = Infinity } = {}) {
-      const seen = [];
-      await patiently('list', async () => {
-        seen.length = 0;
-        for await (const record of door.list(query)) { seen.push(record); if (seen.length >= most) break; }
-      });
-      yield* seen;
-    },
-  };
-}
 
 const typeOfId = id => (id.startsWith('setting:') ? 'setting' : id.slice(0, id.indexOf(':')));
 const keyOfWrite = records => `conversations-import:${makeHashCodeHexFromBytes(new TextEncoder().encode(JSON.stringify(records))).slice(3, 51)}`;
@@ -359,7 +310,7 @@ export function fileKeeper(door) {
     const identity = makeHashCodeHexFromBytes(bytes);
     let there = null;
     try { there = await door.files('find_file', { name_or_identity: name }); }
-    catch (error) { if (error instanceof ImportStopped) throw error; }
+    catch { there = null; }
     const thereIdentity = there?.identity ?? there?.names?.[0]?.identity ?? null;
     if (thereIdentity === identity) return { identity, name, byte_length: bytes.length, media_type: mediaType, already: true };
     const uploadId = `conversations-${makeHashCodeHexFromBytes(new TextEncoder().encode(`${name}\n${identity}`)).slice(3, 35)}`;
@@ -466,7 +417,6 @@ function exportAttachmentFinder(home, exportPath, keepFile, app, count, rules = 
         const name = extname(hit.name) ? hit.name : `${ref.id}${extensionOf(media, rules)}`;
         try { file = await keepFile({ name: `${rules.attachments_folder}/${safePart(app)}/${safePart(name)}`, bytes, media_type: media }); }
         catch (error) {
-          if (error instanceof ImportStopped) throw error;
           count.attachments_refused.push({ id: ref.id, reason: String(error.message).slice(0, 200) });
         }
       }
@@ -488,7 +438,6 @@ async function keepPastedFiles(message, conversationId, keepFile, count, rules =
       const file = await keepFile({ name, bytes, media_type: source.media_type });
       refs.push({ id: file.identity, name: source.name ?? basename(name), mime_type: source.media_type, file });
     } catch (error) {
-      if (error instanceof ImportStopped) throw error;
       count.attachments_refused.push({ id: name, reason: String(error.message).slice(0, 200) });
     }
   }
@@ -648,7 +597,6 @@ async function readArchiveFile({ home, path, file, source, cursor, keep, keepFil
   const keepOne = async (conversation, at) => {
     try { tally(count, await keep({ conversation, app: source.app, original_file: file }, find)); }
     catch (error) {
-      if (error instanceof ImportStopped) throw error;
       count.conversations_refused.push({ at, reason: String(error.message).slice(0, 200) });
     }
   };
@@ -721,7 +669,6 @@ async function readDecodedFile({ home, path, file, source, cursor, keep, keepFil
     for (const conversation of ready) {
       try { tally(count, await keep({ conversation, app: source.app, original_file: file }, find)); }
       catch (error) {
-        if (error instanceof ImportStopped) throw error;
         count.conversations_refused.push({ at: conversation.conversation_id, reason: String(error.message).slice(0, 200) });
       }
     }
@@ -800,15 +747,13 @@ async function cursorsOf(door, source) {
  * a file that grew (a session still being written, a new export in the same place) is read on from where it was.
  */
 async function importOneSource(home, door, { source, files }, { deadline, now, given = {} }) {
-  const patient = door;
-  const staged = stagedRecords(patient);
-  const lists = listsOverDoor(patient);
-  const cursors = await cursorsOf(patient, source.id);
+  const staged = stagedRecords(door);
+  const lists = listsOverDoor(door);
+  const cursors = await cursorsOf(door, source.id);
   const keep = (input, find) => importConversation({ ...input, reach: { private: true }, most_text: settings.most_text },
     { eeaf: staged.eeaf, commit: step => staged.commit(step), lists, now, find });
-  const keepFile = fileKeeper(patient);
+  const keepFile = fileKeeper(door);
   const result = { source: source.id, app: source.app, files_found: files.length, files_done: 0, files_skipped: 0, ...freshCount(), files: [] };
-  let stopped = null;
   for (const found of files) {
     const id = cursorId(source.id, found.file);
     const before = cursors.get(id) ?? null;
@@ -822,31 +767,27 @@ async function importOneSource(home, door, { source, files }, { deadline, now, g
       ...Object.fromEntries(COUNTED.map(field => [field, (before?.[field] ?? 0) + count[field]])),
       conversations_refused: [...(before?.conversations_refused ?? []), ...count.conversations_refused].slice(-20),
       attachments_refused: [...(before?.attachments_refused ?? []), ...count.attachments_refused].slice(-20), updated_at: now().toISOString() });
-    const save = async ({ next, done }) => { await patient.write([{ id, type: CURSOR_TYPE, value: { ...row(done), next } }], { key: keyOfWrite([id, next, done, count]) }); };
+    const save = async ({ next, done }) => { await door.write([{ id, type: CURSOR_TYPE, value: { ...row(done), next } }], { key: keyOfWrite([id, next, done, count]) }); };
     let outcome;
     try {
       outcome = await READERS[source.reader]({ home, path: join(home, found.file), file: found.file, source, cursor, keep, keepFile, save, deadline, count, lists, given });
     } catch (error) {
-      if (!(error instanceof ImportStopped)) { count.conversations_refused.push({ at: 'file', reason: String(error.message).slice(0, 200) }); outcome = { done: true, next: cursor.next, note: error.message }; }
-      else { stopped = error.reason; outcome = null; }
+      count.conversations_refused.push({ at: 'file', reason: String(error.message).slice(0, 200) }); outcome = { done: true, next: cursor.next, note: error.message };
     }
     for (const field of [...COUNTED, 'rows_let_go']) result[field] += count[field];
     result.conversations_refused.push(...count.conversations_refused.map(item => ({ file: found.file, ...item })));
     result.attachments_refused.push(...count.attachments_refused.map(item => ({ file: found.file, ...item })));
-    if (!outcome) break;
-    try { await save({ next: outcome.next, done: outcome.done }); }
-    catch (error) { if (error instanceof ImportStopped) { stopped = error.reason; break; } throw error; }
+    await save({ next: outcome.next, done: outcome.done });
     result.files.push({ file: found.file, done: outcome.done, ...(outcome.note ? { note: outcome.note } : {}) });
     if (outcome.done) result.files_done += 1;
     if (!outcome.done) break;
   }
   result.conversations_refused = result.conversations_refused.slice(0, 50);
   result.attachments_refused = result.attachments_refused.slice(0, 50);
-  const done = !stopped && result.files_done === result.files_found;
-  const summary = { source: source.id, app: source.app, files_found: result.files_found, files_done: result.files_done, state: done ? 'done' : stopped ? 'stopped' : 'more', ...(stopped ? { stopped: stopped } : {}), updated_at: now().toISOString() };
-  try { await patient.write([{ id: cursorId(source.id), type: CURSOR_TYPE, value: summary }], { key: keyOfWrite([summary]) }); }
-  catch (error) { if (!(error instanceof ImportStopped)) throw error; stopped ??= error.reason; }
-  return { ...result, done, ...(stopped ? { stopped } : {}) };
+  const done = result.files_done === result.files_found;
+  const summary = { source: source.id, app: source.app, files_found: result.files_found, files_done: result.files_done, state: done ? 'done' : 'more', updated_at: now().toISOString() };
+  await door.write([{ id: cursorId(source.id), type: CURSOR_TYPE, value: summary }], { key: keyOfWrite([summary]) });
+  return { ...result, done };
 }
 
 const requestOf = request => ({ input: request?.input ?? (request?.folder === undefined ? request ?? {} : {}), folder: request?.folder });
@@ -887,7 +828,7 @@ export async function importConversationsFrom(request, context = {}) {
       return { file: relative(home, real), bytes: stat.size, changed_ms: Math.floor(stat.mtimeMs) };
     });
   }
-  const door = patientDoor(context.door, { wait: context.wait, rules: rulesOf(context) });
+  const door = context.door;
   const given = input.attachments && typeof input.attachments === 'object' && !Array.isArray(input.attachments) ? input.attachments : {};
   const result = await importOneSource(home, door, { source, files }, { ...runOptions(input, context), given });
   return { ...result, more: !result.done };
@@ -898,7 +839,7 @@ export async function resumeConversationImports(request, context = {}) {
   const { input, folder } = requestOf(request);
   const home = homeOf(folder, input.home);
   const only = Array.isArray(input.sources) && input.sources.length ? input.sources.map(id => knownSource(id).id) : undefined;
-  const door = patientDoor(context.door, { wait: context.wait, rules: rulesOf(context) });
+  const door = context.door;
   const options = runOptions(input, context);
   const sources = [];
   for (const found of sourcesFoundIn(home, { only, more_places: input.more_places ?? [], changed_since_ms: changedSinceOf(input, context) })) {
@@ -907,19 +848,18 @@ export async function resumeConversationImports(request, context = {}) {
     const result = await importOneSource(home, door, found, options);
     const { files: _files, ...shown } = result;
     sources.push(shown);
-    if (result.stopped) break;
   }
   return { sources, more: sources.some(source => !source.done) };
 }
 
 /** tool:show-how-far-my-conversation-import-is */
 export async function conversationImportProgress(request, context = {}) {
-  const door = patientDoor(context.door, { wait: context.wait, rules: rulesOf(context) });
+  const door = context.door;
   const cursors = await cursorsOf(door);
   const bySource = new Map();
   for (const [id, value] of cursors) {
     const entry = bySource.get(value.source) ?? { source: value.source, app: value.app, files_seen: 0, files_done: 0, ...Object.fromEntries(COUNTED.map(field => [field, 0])), state: null, updated_at: null };
-    if (id === cursorId(value.source)) Object.assign(entry, { state: value.state, files_found: value.files_found, ...(value.stopped ? { stopped: value.stopped } : {}) });
+    if (id === cursorId(value.source)) Object.assign(entry, { state: value.state, files_found: value.files_found });
     else {
       entry.files_seen += 1;
       if (value.done) entry.files_done += 1;
@@ -933,7 +873,7 @@ export async function conversationImportProgress(request, context = {}) {
 
 /** tool:count-my-ai-conversations-per-app: the rows of the AI conversations list, read back, per app. */
 export async function countConversationsPerApp(request, context = {}) {
-  const door = patientDoor(context.door, { wait: context.wait, rules: rulesOf(context) });
+  const door = context.door;
   const type = `record:${conversationList.row_type}`;
   const apps = new Map();
   let total = 0;
@@ -959,7 +899,7 @@ const namespaceCursorId = name => `conversation-import-cursor:namespace:${makeHa
 export async function importNamespaceExports({ input = {} } = {}, context = {}) {
   if (!Array.isArray(input.files) || !input.files.length || input.files.length > 100
     || input.files.some(name => typeof name !== 'string' || !name.trim())) throw new Error('Name 1 to 100 exports in your account files.');
-  const door = patientDoor(context.door, { wait: context.wait, rules: { ...settings, ...(context.rules ?? {}) } });
+  const door = context.door;
   const staged = stagedRecords(door);
   const lists = listsOverDoor(door);
   const instant = (context.now ?? (() => new Date()))();
@@ -1029,7 +969,7 @@ export async function importNamespaceExports({ input = {} } = {}, context = {}) 
 export async function keepWhatISaidToAnAi(request, context = {}) {
   const { input } = requestOf(request);
   if (typeof input.app !== 'string' || !input.app.trim()) throw new Error('app is required: the AI app the messages were said in, as it calls itself (Muse, Grok).');
-  const door = patientDoor(context.door, { wait: context.wait, rules: rulesOf(context) });
+  const door = context.door;
   const staged = stagedRecords(door);
   const answer = await importConversation({ conversation: { conversation_id: input.conversation_id, title: input.title ?? null, messages: input.messages ?? [] }, app: input.app.trim(), reach: { private: true }, most_text: settings.most_text },
     { eeaf: staged.eeaf, commit: step => staged.commit(step), lists: listsOverDoor(door), now: context.now ?? (() => new Date()) });

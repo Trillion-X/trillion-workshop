@@ -35,7 +35,7 @@
 //      joined are its words exactly, each part's node is the message's node with ":part-<n>" after it (so bringing it
 //      in again adds nothing twice), each later part's time is one millisecond after the one before (so the parts read
 //      in order), and its files go with its first part. A part ends at a line break where one falls in its last tenth.
-//      Where one kept message must fit one write of the records door (64 KiB), the importer names a smaller bound
+//      Where one kept message must fit one write (64 KiB), the importer names a smaller bound
 //      (`most_text`); the parts are made the same way under it.
 //
 import { MAX_TEXT } from '../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';

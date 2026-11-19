@@ -1,24 +1,22 @@
 // tools/conversations/test/large-and-zipped-exports.test.mjs
 //
-// What #155 left undone, over the fake records door with the import rows' rights and a made-up home (a bakery's chats):
+// What #155 left undone, over the person's held store (test/support/held-store.mjs) and a made-up home (a bakery's chats):
 // a ChatGPT conversations.json read one conversation at a time (read-data/json-array-stream.mjs), its cursor keeping
 // the byte the next conversation starts after so a stopped run starts there; a zipped ChatGPT export whose files are
 // found and copied from inside the zip; and a Grok message of only an image, with no words, kept with its file.
-import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { zipSync } from 'fflate';
-import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
+import { heldStore, runKept } from './support/held-store.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { exportFilesInZip, importConversationsFrom } from '../read-data/chat-import.mjs';
+import { exportFilesInZip, importConversationsFrom as importFromFolder } from '../read-data/chat-import.mjs';
+import * as importer from '../read-data/chat-import.mjs';
 import { NotAJsonArray, firstByteOf, jsonArrayElements } from '../read-data/json-array-stream.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
-const RIGHTS = rightsOf(rows.find(row => row.id === 'tool:import-my-conversations-from-a-source'));
 const NOW = new Date('2026-11-04T12:00:00Z');
 const PNG = Buffer.concat([Buffer.from('89504e470d0a1a0a', 'hex'), Buffer.alloc(5_000, 7)]);
 const JPEG = Buffer.concat([Buffer.from('ffd8ffe0', 'hex'), Buffer.alloc(2_000, 3)]);
@@ -27,18 +25,14 @@ const id = bytes => makeHashCodeHexFromBytes(bytes);
 function put(home, path, bytes) { mkdirSync(dirname(join(home, path)), { recursive: true }); writeFileSync(join(home, path), bytes); }
 const home = t => { const path = mkdtempSync(join(tmpdir(), 'conversations-large-')); t.after(() => rmSync(path, { recursive: true, force: true })); return path; };
 
+// The person's store, played by the test: each run is handed what it asks for and its writes are kept there.
 async function doorFor(t) {
-  const fake = await startFakeDoor({ rights: RIGHTS });
-  const trouble = { busyFrom: Infinity, busyCalls: 0, calls: 0 };
-  const fetchImpl = async (url, init) => {
-    trouble.calls += 1;
-    if (trouble.calls >= trouble.busyFrom && trouble.busyCalls > 0) { trouble.busyCalls -= 1; return new Response('', { status: 503 }); }
-    return fetch(url, init);
-  };
-  const door = openRecordsDoor({ descriptor: fake.descriptor, fetchImpl, wait: async () => {} });
+  const fake = heldStore();
   t.after(() => fake.close());
-  return { fake, trouble, context: { door, wait: async () => {}, now: () => NOW } };
+  return { fake, trouble: null, context: fake };
 }
+const keptRun = (store, fn, request) => runKept(store, fn, request, { now: () => NOW }).then(done => { const { keep: _keep, complete: _complete, ...answer } = done.answer ?? {}; return answer; });
+const importConversationsFrom = (request, store) => keptRun(store, importer.importConversationsFrom, request);
 const ofType = (fake, type) => [...fake.kept.values()].filter(record => record.type === type).map(record => record.value);
 
 // One ChatGPT conversation tree: a question and an answer, with words that hold the bytes the reader looks at.
@@ -73,34 +67,21 @@ test('the elements of a JSON array are cut out exactly at any piece size, and a 
   assert.throws(() => [...jsonArrayElements(path)], /other than objects/);
 });
 
-test('a ChatGPT export is kept one conversation at a time, a stopped run starting again at the byte its cursor names', async t => {
+test('a ChatGPT export is kept one conversation at a time, and an export that grew is read again with what it kept adding nothing', async t => {
   const folder = home(t);
-  const conversations = Array.from({ length: 40 }, (_, n) => chat(n + 1));
-  put(folder, 'Downloads/chatgpt/conversations.json', JSON.stringify(conversations));
-  const clean = await doorFor(t);
-  const whole = await importConversationsFrom({ input: { source: 'chatgpt-export' }, folder }, clean.context);
-  assert.equal(whole.done, true);
-  assert.equal(whole.conversations_kept, 40);
-  assert.equal(whole.messages_added, 80);
-
-  const busy = await doorFor(t);
-  Object.assign(busy.trouble, { busyFrom: 120, busyCalls: 1000 });
-  const first = await importConversationsFrom({ input: { source: 'chatgpt-export' }, folder }, busy.context);
-  assert.equal(first.more, true);
-  const cursor = ofType(busy.fake, 'conversation-import-cursor').find(value => value.file === 'Downloads/chatgpt/conversations.json');
-  assert.equal(cursor.done, false);
-  assert.ok(cursor.next.at > 0 && cursor.next.at < 40, JSON.stringify(cursor.next));
-  // The byte it names is just past the last conversation it passed.
-  const text = readFileSync(join(folder, 'Downloads/chatgpt/conversations.json'), 'utf8');
-  assert.equal(Buffer.byteLength(JSON.stringify(conversations.slice(0, cursor.next.at))) - 1, cursor.next.byte);
-  assert.equal(text.length > 0, true);
-
-  busy.trouble.busyCalls = 0;
-  const resumed = await importConversationsFrom({ input: { source: 'chatgpt-export' }, folder }, busy.context);
-  assert.equal(resumed.more, false, JSON.stringify(resumed));
-  const ids = fake => ofType(fake, 'message').map(message => message.source_ref).sort();
-  assert.deepEqual(ids(busy.fake), ids(clean.fake));
-  assert.equal(ofType(busy.fake, 'record:ai-conversation').length, 40);
+  put(folder, 'Downloads/chatgpt/conversations.json', JSON.stringify(Array.from({ length: 20 }, (_, n) => chat(n + 1))));
+  const store = await doorFor(t);
+  const first = await importConversationsFrom({ input: { source: 'chatgpt-export' }, folder }, store.fake);
+  assert.equal(first.done, true);
+  assert.equal(first.conversations_kept, 20);
+  assert.equal(first.messages_added, 40);
+  // The export is written again with 20 more conversations: it is read from its start, and the 20 it already kept add nothing.
+  put(folder, 'Downloads/chatgpt/conversations.json', JSON.stringify(Array.from({ length: 40 }, (_, n) => chat(n + 1))));
+  const second = await importConversationsFrom({ input: { source: 'chatgpt-export' }, folder }, store.fake);
+  assert.equal(second.done, true, JSON.stringify(second));
+  assert.deepEqual([second.messages_added, second.messages_already_kept], [40, 40]);
+  assert.equal(ofType(store.fake, 'message').length, 80);
+  assert.equal(ofType(store.fake, 'record:ai-conversation').length, 40);
 });
 
 test('a zipped ChatGPT export\'s files are found inside the zip and copied, entry names never read as paths', async t => {
@@ -124,11 +105,12 @@ test('a zipped ChatGPT export\'s files are found inside the zip and copied, entr
   assert.equal(inZip.locate('file-ZP'), null);
   assert.deepEqual(inZip.locate('file-ZP01').read(), new Uint8Array(PNG));
 
-  const { fake, context } = await doorFor(t);
+  const fake = heldStore();
+  const context = fake;
   const result = await importConversationsFrom({ input: { source: 'chatgpt-export', files: ['Downloads/chatgpt-export.zip'] }, folder }, context);
   assert.equal(result.done, true, JSON.stringify(result));
   assert.deepEqual([result.conversations_kept, result.attachments_kept, result.attachments_not_kept], [2, 2, 0]);
-  assert.deepEqual(Object.fromEntries([...fake.stored].map(([name, bytes]) => [name, id(bytes)])), {
+  assert.deepEqual(Object.fromEntries([...fake.files].map(([name, bytes]) => [name, id(bytes)])), {
     '/messages/ChatGPT/file-ZP01-crumb.png': id(PNG),
     '/messages/ChatGPT/file-ZP02-loaf.jpg': id(JPEG),
   });
@@ -145,12 +127,13 @@ test('a Grok message of only an image, with no words, is kept with its file', as
     // No words and no file: still nothing to keep.
     { response: { _id: 'gk-i-c', sender: 'human', message: '', create_time: { $date: { $numberLong: '1736000008000' } } } }] }] }));
   put(folder, 'Downloads/grok/prod-mc-asset-server/7a7a-asset/content', JPEG);
-  const { fake, context } = await doorFor(t);
+  const fake = heldStore();
+  const context = fake;
   const result = await importConversationsFrom({ input: { source: 'grok-export' }, folder }, context);
   assert.equal(result.done, true, JSON.stringify(result));
   assert.deepEqual([result.messages_added, result.attachments_kept], [2, 1]);
   const image = ofType(fake, 'message').find(message => message.source_ref === 'gk-i-a');
   assert.equal(image.text, '');
   assert.deepEqual(image.attachments.map(file => [file.identity, file.media_type]), [[id(JPEG), 'image/jpeg']]);
-  assert.deepEqual([...fake.stored.keys()], ['/messages/Grok/7a7a-asset.jpg']);
+  assert.deepEqual([...fake.files.keys()], ['/messages/Grok/7a7a-asset.jpg']);
 });

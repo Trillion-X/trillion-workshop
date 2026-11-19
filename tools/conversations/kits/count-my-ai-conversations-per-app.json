@@ -2,7 +2,7 @@
   "drafted_from": "tool:count-my-ai-conversations-per-app's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Count the AI conversations in my records per app, and how many messages each app's conversations hold\", with {}. It runs tool:count-my-ai-conversations-per-app and answers {\"conversations\":0,\"apps\":[]}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:ai-conversation) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:ai-conversation), which you hand in from your store.",
   "workflows": [],
   "tools": [
     "tool:count-my-ai-conversations-per-app"
@@ -10,8 +10,8 @@
   "instructions": [
     "1. Say to your AI: \"Count the AI conversations in my records per app, and how many messages each app's conversations hold\", and give it nothing more: every input is optional.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:count-my-ai-conversations-per-app and its input (the worked example shows one).",
-    "3. Read what comes back: Reads the rows of the person's AI conversations list (record:ai-conversation) through the records door, only their app and messages fields, and answers the number of conversations and messages per app, most first.",
-    "4. It reads and writes only its own rows through the records door: record:ai-conversation (records:list)."
+    "3. Read what comes back: Reads the rows of the person's AI conversations list (record:ai-conversation) that you hand in, only their app and messages fields, and answers the number of conversations and messages per app, most first.",
+    "4. It reads only its own rows, which you hand in from your store: record:ai-conversation."
   ],
   "worked_examples": [
     {

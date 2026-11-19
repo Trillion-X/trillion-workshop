@@ -1,39 +1,34 @@
 // tools/conversations/test/chat-history-identity.test.mjs (moved from Trillion-X/trillion test/chat-history-identity.test.mjs)
 //
-// Run the actual archive method with its storage dependencies: the person's records are the fake records door with the
-// import rows' rights, reached the way the import reaches them (stagedRecords, listsOverDoor), instead of the Worker's store.
-import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
+// Run the actual archive method with its storage dependencies: the person's records are the held values the run is
+// handed (test/support/held-store.mjs plays the person's store), reached the way the import reaches them (stagedRecords,
+// listsOverDoor), instead of the Worker's store.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { readFileSync } from 'node:fs';
-import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
 import { importConversation, stagedRecords } from '../read-data/chat-import.mjs';
-
-const RIGHTS = rightsOf(JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload)
-  .find(row => row.id === 'tool:import-my-conversations-from-a-source'));
+import { heldStore, runKept } from './support/held-store.mjs';
 
 // The account's importer as the import wires it (read-data/chat-import.mjs importOneSource).
-async function world(t) {
-  const fake = await startFakeDoor({ rights: RIGHTS });
-  t.after(() => fake.close());
-  const door = openRecordsDoor({ descriptor: fake.descriptor, wait: async () => {} });
-  const staged = stagedRecords(door);
-  const lists = listsOverDoor(door);
+function world() {
+  const fake = heldStore();
   const namespace = { locate: id => id === '1f:' + 'a'.repeat(64) ? { identity: id, byte_length: 25, names: ['/history/original.png'], media_type: 'image/png' } : null };
-  const importConversations = input => importConversation(input, { eeaf: staged.eeaf, commit: step => staged.commit(step), lists, namespace, now: () => new Date('2026-10-12T00:00:00Z'),
-    addSpaceItems: () => assert.fail('history without a space adds no space items'), relay: () => assert.fail('history without a space needs no relay') });
+  const importConversations = input => runKept(fake, (_request, context) => {
+    const staged = stagedRecords(context.door);
+    const lists = listsOverDoor(context.door);
+    return importConversation(input, { eeaf: staged.eeaf, commit: step => staged.commit(step), lists, namespace, now: () => new Date('2026-10-12T00:00:00Z'),
+      addSpaceItems: () => assert.fail('history without a space adds no space items'), relay: () => assert.fail('history without a space needs no relay') });
+  }, {}).then(done => done.answer);
   const kept = conversationId => [...fake.kept.values()].filter(record => record.type === 'message' && record.value.conversation_id === conversationId).map(record => record.value);
   const rows = () => [...fake.kept.values()].filter(record => record.type === 'record:ai-conversation');
-  return { fake, lists, importConversations, kept, rows };
+  return { fake, importConversations, kept, rows };
 }
 const FULL = { private: true, spaces: 'all' };
 const keepFile = () => '1f:' + 'a'.repeat(64);
 
 
-test('trusted history preserves its complete conversation identity, files and timestamps without opening work', async t => {
-  const store = await world(t);
+test('trusted history preserves its complete conversation identity, files and timestamps without opening work', async () => {
+  const store = world();
   const file = keepFile(store, '/history/original.png', 'original attachment bytes');
   const conversation = { conversation_id: 'native-transcript:original-session', messages: [
     { id: 'person-native-id', speaker: 'person', text: 'An old request, preserved only as history.', at: '2026-06-01T10:00:00Z' },
@@ -51,7 +46,9 @@ test('trusted history preserves its complete conversation identity, files and ti
   assert.equal(kept.find(message => message.source_ref === 'ai-native-id').attachments[0].identity, file);
   const row = () => store.rows().find(item => item.value.conversation_id === conversation.conversation_id);
   assert.deepEqual([row().value.messages, row().value.started, row().value.last], [3, '2026-06-01T10:00:00.000Z', '2026-06-01T10:02:00.000Z']);
-  await store.lists.putRows('ai-conversations', { rows: [{ id: row().id.slice('record:ai-conversation:'.length), values: { pursuits: ['A pursuit the person chose'] } }] });
+  // The person sets a pursuit on the row; a re-import keeps it.
+  const personal = row();
+  store.fake.kept.set(personal.id, { ...personal, value: { ...personal.value, pursuits: ['A pursuit the person chose'] } });
   const again = await store.importConversations(input);
   assert.deepEqual([again.added, again.already_there], [0, 3]);
   assert.equal(store.rows().length, 1);

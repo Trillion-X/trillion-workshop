@@ -43,7 +43,7 @@ test('a long message read off its page is kept in parts too', () => {
   assert.equal(chat.messages[0].node, 'm1:part-1');
 });
 
-test('an importer that names a smaller bound (one records door write) gets parts under it, made the same way', () => {
+test('an importer that names a smaller bound (one write) gets parts under it, made the same way', () => {
   const chat = conversationFrom(archive, 'ChatGPT', { most_text: 16000 });
   const parts = chat.messages.filter(message => message.node.startsWith('n1'));
   assert.equal(parts.map(message => message.text).join(''), long);

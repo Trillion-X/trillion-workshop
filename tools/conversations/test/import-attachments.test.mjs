@@ -1,25 +1,24 @@
 // tools/conversations/test/import-attachments.test.mjs
 //
 // The files messages carried, copied into the person's files through the files door (read-data/chat-import.mjs
-// fileKeeper, exportFilesBeside), against the fake records door with exactly the import rows' rights, over a made-up
+// fileKeeper, exportFilesBeside), with the person's files held by the test (test/support/held-store.mjs), over a made-up
 // home: a ChatGPT export with its file-XXXX files beside it (one in a folder under it, one never there, a decoy whose id
 // only starts the same), a Grok export with its assets at prod-mc-asset-server/<id>/content, and a Claude Code session
 // with an image pasted into it. It checks where each file is kept and under which name, that a message names its files
 // by identity, that a message of only files is kept once its file is, that a rerun copies nothing again, and that a
-// door that answers 503 in the middle of a file's pieces stops the run and a resume keeps each file once, whole.
-import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
+// run not handed a file it looks for asks for it and writes nothing.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
+import { heldStore, runKept } from './support/held-store.mjs';
+import { runHeld } from '../do-work/run-held.mjs';
+import * as chat from '../read-data/chat-import.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { exportFilesBeside, importConversationsFrom, mediaTypeOf, resumeConversationImports } from '../read-data/chat-import.mjs';
+import { exportFilesBeside, mediaTypeOf } from '../read-data/chat-import.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
-const RIGHTS = rightsOf(rows.find(row => row.id === 'tool:import-my-conversations-from-a-source'));
 const NOW = new Date('2026-11-04T12:00:00Z');
 
 // Bytes that start the way their kind does, and are long enough to take several door pieces (40 KiB each).
@@ -60,20 +59,10 @@ function makeHome() {
   return { home, session };
 }
 
-async function doorFor() {
-  const fake = await startFakeDoor({ rights: RIGHTS });
-  // piecesBeforeBusy: that many file pieces land, then every piece is answered 503 while busy is true.
-  const trouble = { piecesBeforeBusy: Infinity, pieces: 0, busy: false };
-  const fetchImpl = async (url, init) => {
-    if (String(init.body).includes('"write_file_piece"')) {
-      trouble.pieces += 1;
-      if (trouble.busy && trouble.pieces > trouble.piecesBeforeBusy) return new Response('', { status: 503 });
-    }
-    return fetch(url, init);
-  };
-  const door = openRecordsDoor({ descriptor: fake.descriptor, fetchImpl, wait: async () => {} });
-  return { fake, trouble, context: { door, wait: async () => {}, now: () => NOW } };
-}
+// The person's store, played by the test: each run is handed what it asks for and its writes are kept there.
+const keptRun = (store, fn, request) => runKept(store, fn, request, { now: () => NOW }).then(done => { const { keep: _keep, complete: _complete, ...answer } = done.answer ?? {}; return answer; });
+const importConversationsFrom = (request, store) => keptRun(store, chat.importConversationsFrom, request);
+const resumeConversationImports = (request, store) => keptRun(store, chat.resumeConversationImports, request);
 const ofType = (fake, type) => [...fake.kept.values()].filter(record => record.type === type).map(record => record.value);
 const request = (home, input) => ({ input, folder: home });
 const id = bytes => makeHashCodeHexFromBytes(bytes);
@@ -81,14 +70,14 @@ const SOURCES = ['chatgpt-export', 'grok-export', 'claude-code-sessions'];
 
 test('the files each source\'s messages carried are copied through the files door, named the way old Trillion named them', async t => {
   const { home, session } = makeHome();
-  const { fake, context } = await doorFor();
-  t.after(async () => { rmSync(home, { recursive: true, force: true }); await fake.close(); });
+  const fake = heldStore();
+  t.after(() => rmSync(home, { recursive: true, force: true }));
   const results = {};
-  for (const source of SOURCES) results[source] = await importConversationsFrom(request(home, { source }), context);
+  for (const source of SOURCES) results[source] = await importConversationsFrom(request(home, { source }), fake);
   assert.deepEqual(Object.fromEntries(Object.entries(results).map(([source, result]) => [source, [result.done, result.attachments_kept, result.attachments_not_kept, result.messages_added]])), {
     'chatgpt-export': [true, 2, 1, 4], 'grok-export': [true, 1, 0, 2], 'claude-code-sessions': [true, 1, 0, 2],
   });
-  const kept = Object.fromEntries([...fake.stored].map(([name, bytes]) => [name, id(bytes)]));
+  const kept = Object.fromEntries([...fake.files].map(([name, bytes]) => [name, id(bytes)]));
   assert.deepEqual(kept, {
     '/messages/ChatGPT/file-AB12-crumb.png': id(PNG),
     '/messages/ChatGPT/file-CD34-prices.pdf': id(PDF),
@@ -96,7 +85,7 @@ test('the files each source\'s messages carried are copied through the files doo
     [`/messages/claude-code_${session}/cc-img-1.png`]: id(PNG),
   });
   // The decoy that only starts with the same id is never taken; the file never exported is reported where it was asked.
-  assert.ok(![...fake.stored.keys()].some(name => name.includes('AB123')));
+  assert.ok(![...fake.files.keys()].some(name => name.includes('AB123')));
   const messages = ofType(fake, 'message');
   const crumb = messages.find(message => message.source_ref === 'f-1');
   assert.deepEqual(crumb.attachments, [{ identity: id(PNG), name: 'crumb.png', media_type: 'image/png' }]);
@@ -114,33 +103,29 @@ test('the files each source\'s messages carried are copied through the files doo
   assert.deepEqual([cursor.attachments_kept, cursor.attachments_not_kept], [2, 1]);
 
   // A rerun of every source (each file changed, so read again) writes no file again and keeps no message twice.
-  const writesBefore = fake.calls.filter(call => call.method === 'write_file_start').length;
+  const filesBefore = new Map(fake.files);
   for (const source of SOURCES) for (const file of results[source].files) put(home, file.file, readFileSync(join(home, file.file)));
-  const again = await resumeConversationImports(request(home, { sources: SOURCES }), context);
+  const again = await resumeConversationImports(request(home, { sources: SOURCES }), fake);
   assert.equal(again.more, false);
-  assert.equal(fake.calls.filter(call => call.method === 'write_file_start').length, writesBefore);
+  assert.deepEqual([...fake.files.keys()].sort(), [...filesBefore.keys()].sort(), 'no file is copied again');
+  for (const [name, bytes] of filesBefore) assert.ok(bytes.equals(fake.files.get(name)));
   assert.equal(ofType(fake, 'message').length, messages.length);
 });
 
-test('a door that answers 503 in the middle of a file\'s pieces stops the run, and a resume keeps every file once and whole', async t => {
+// A run is not handed the file it looks for: it asks for it by name, writes nothing, and the same run with the file
+// given keeps the file and its messages once.
+test('a run that is not handed a file it looks for asks for it, writes nothing, and keeps each file once when given', async t => {
   const { home } = makeHome();
-  const { fake, context, trouble } = await doorFor();
-  t.after(async () => { rmSync(home, { recursive: true, force: true }); await fake.close(); });
-  // The first piece of the first file lands; every piece after it is answered 503 past the run's retries.
-  Object.assign(trouble, { piecesBeforeBusy: 1, busy: true });
-  const first = await resumeConversationImports(request(home, { sources: SOURCES }), context);
-  assert.equal(first.more, true);
-  assert.match(first.sources.find(source => source.stopped).stopped, /stayed busy or slow/);
-  assert.equal(ofType(fake, 'message').length, 0, 'nothing is kept before its files are');
-  assert.equal(fake.calls.filter(call => call.method === 'write_file_piece').length, 1, 'one piece landed before the door went busy');
-  assert.equal([...fake.stored.keys()].length, 0, 'a file is not kept until its last piece is');
-
-  trouble.busy = false;
-  const resumed = await resumeConversationImports(request(home, { sources: SOURCES }), context);
-  assert.equal(resumed.more, false, JSON.stringify(resumed));
-  assert.equal([...fake.stored.keys()].length, 4);
-  assert.ok([...fake.stored.values()].every(bytes => [id(PNG), id(JPEG), id(PDF)].includes(id(bytes))));
-  assert.equal(ofType(fake, 'message').length, 8);
+  t.after(() => rmSync(home, { recursive: true, force: true }));
+  const asked = await runHeld((input, context) => chat.importConversationsFrom(input, { ...context, now: () => NOW }), { ...request(home, { source: 'chatgpt-export' }), stored: {} });
+  assert.equal(asked.complete, false);
+  assert.deepEqual(asked.keep, []);
+  assert.ok(asked.needs.files.includes('/messages/ChatGPT/file-AB12-crumb.png'), JSON.stringify(asked.needs.files));
+  const fake = heldStore();
+  const done = await runKept(fake, (input, context) => chat.importConversationsFrom(input, { ...context, now: () => NOW }), request(home, { source: 'chatgpt-export' }));
+  assert.ok(done.rounds >= 2);
+  assert.equal(done.answer.attachments_kept, 2);
+  assert.equal([...fake.files.keys()].filter(name => name.startsWith('/messages/ChatGPT/')).length, 2);
 });
 
 test('an export\'s files are found by the id their name starts with or the folder they sit in, never past the granted folder', t => {

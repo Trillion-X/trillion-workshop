@@ -1,16 +1,15 @@
 // tools/conversations/test/chat-attachments.test.mjs (moved from Trillion-X/trillion test/chat-attachments.test.mjs)
 //
 // Chat imports carry their files (read-data/chat-archives.mjs attachmentsOf, read-data/chat-import.mjs attachmentFinder
-// and the import over the records door). The old test ran the Worker's PersonStore and Network on SQLite; here the same
+// and the import run as the engine runs it). The old test ran the Worker's PersonStore and Network on SQLite; here the same
 // made-up chat goes through the Workshop tool: the namespace finder over an in-memory namespace with the same files, and
-// the on-computer import over the fake records door, where a file beside the export is copied through the files door.
+// the on-computer import over the held store, where a file beside the export is handed back to keep.
 // Its assertions are the old ones: a file is found by the id it starts with (never as the start of a longer id), under
 // a folder below the export's, or at the name the person gave; a message of only files waits for its file; a file not
 // found is reported, never an error; bringing the chat in again adds nothing twice but links a file added since; a
 // message kept again gains only the links it did not have. The two space tests (a file item members read from the
 // importer's store until withdrawn or the importer leaves) stay behind: the Worker's space owner did not move here.
 // Every person, file and chat here is made up.
-import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
@@ -20,11 +19,8 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 import { attachmentsOf, conversationFrom } from '../read-data/chat-archives.mjs';
 import { attachmentFinder, importConversationsFrom, stagedRecords } from '../read-data/chat-import.mjs';
 import { messages } from '../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
-import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
+import { heldStore, runKept } from './support/held-store.mjs';
 
-const RIGHTS = rightsOf(JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload)
-  .find(row => row.id === 'tool:import-my-conversations-from-a-source'));
 const NOW = new Date('2026-11-04T12:00:00Z');
 const identityOf = text => makeHashCodeHexFromBytes(new TextEncoder().encode(text));
 
@@ -90,19 +86,17 @@ function homeWith(files) {
   for (const [path, text] of Object.entries(files)) put(path, text);
   return { home, put, touch: () => { const later = new Date(Date.now() + 60_000); utimesSync(join(home, 'Downloads/kiln/conversations.json'), later, later); } };
 }
-async function doorFor(t) {
-  const fake = await startFakeDoor({ rights: RIGHTS });
-  t.after(() => fake.close());
-  return { fake, context: { door: openRecordsDoor({ descriptor: fake.descriptor, wait: async () => {} }), wait: async () => {}, now: () => NOW } };
-}
+// The person's store, played by the test: each run is handed what it asks for and its writes are kept there.
+const keptRun = (store, fn, request) => runKept(store, fn, request, { now: () => NOW }).then(done => { const { keep: _keep, complete: _complete, ...answer } = done.answer ?? {}; return answer; });
+const importFrom = (request, store) => keptRun(store, importConversationsFrom, request);
 const keptMessages = fake => [...fake.kept.values()].filter(record => record.type === 'message').map(record => record.value);
 
 test('a private import links each found file in its message, reports the rest, and a second import links what was added since', async t => {
   const { home, put, touch } = homeWith({ 'Downloads/kiln/file-Tile01-tile.jpg': 'tile bytes', 'Downloads/kiln/file_00000000bb22-coat.webp': 'drawn bytes' });
   t.after(() => rmSync(home, { recursive: true, force: true }));
-  const { fake, context } = await doorFor(t);
+  const fake = heldStore();
   const [tile, drawn] = ['tile bytes', 'drawn bytes'].map(identityOf);
-  const run = () => importConversationsFrom({ input: { source: 'chatgpt-export' }, folder: home }, context);
+  const run = () => importFrom({ input: { source: 'chatgpt-export' }, folder: home }, fake);
   const first = await run();
   assert.equal(first.messages_added, 3, 'the photo sent alone waits for its file');
   assert.equal(first.attachments_kept, 2);
@@ -114,7 +108,7 @@ test('a private import links each found file in its message, reports the rest, a
   assert.deepEqual(kept.find(message => message.text === 'Here is a thinner coat.').attachments, [{ identity: drawn, name: 'file_00000000bb22-coat.webp', media_type: 'image/webp' }]);
   assert.equal(kept.find(message => message.text === 'Too thick over dust.').about, undefined);
   // The bytes are the person's own file now, at the name the export gave it.
-  assert.equal(makeHashCodeHexFromBytes(fake.stored.get('/messages/ChatGPT/file-Tile01-tile.jpg')), tile);
+  assert.equal(makeHashCodeHexFromBytes(fake.files.get('/messages/ChatGPT/file-Tile01-tile.jpg')), tile);
 
   touch();
   const again = await run();
@@ -133,15 +127,17 @@ test('a private import links each found file in its message, reports the rest, a
 });
 
 // The message owner over the fake door, the way the import runs it.
-async function ownerOver(t) {
-  const { fake, context } = await doorFor(t);
-  const staged = stagedRecords(context.door, { rules: { write_rows: 100, write_bytes: 400000 } });
-  const store = messages(staged.eeaf, { now: () => NOW });
-  return { record: input => staged.commit(() => store.record(input)), kept: () => keptMessages(fake) };
+function ownerOver() {
+  const fake = heldStore();
+  const record = input => runKept(fake, (_request, context) => {
+    const staged = stagedRecords(context.door, { rules: { write_rows: 100, write_bytes: 400000 } });
+    return staged.commit(() => messages(staged.eeaf, { now: () => NOW }).record(input));
+  }, {}).then(done => done.answer);
+  return { record, kept: () => keptMessages(fake) };
 }
 
 test('a message kept again gains only links it did not have; its words and id never change', async t => {
-  const kept = await ownerOver(t);
+  const kept = ownerOver();
   const message = { conversation_id: 'c', app: 'ChatGPT', speaker: 'person', at: '2026-09-27T10:00:00Z', text: 'see this' };
   const [id] = (await kept.record({ messages: [message] })).ids;
   const again = await kept.record({ messages: [{ ...message, about: [{ kind: 'file', id: '1f:aa' }] }] });
@@ -152,7 +148,7 @@ test('a message kept again gains only links it did not have; its words and id ne
 });
 
 test('message attachments are kept as actual files, merge on replay, and remain part of the original message id', async t => {
-  const kept = await ownerOver(t);
+  const kept = ownerOver();
   const message = { conversation_id: 'claude-code:session', app: 'Claude Code', speaker: 'person', at: '2026-09-27T10:00:00Z', text: 'What is this?', source_ref: 'row-image' };
   const identity = `1f:${'b'.repeat(64)}`;
   const [id] = (await kept.record({ messages: [message] })).ids;

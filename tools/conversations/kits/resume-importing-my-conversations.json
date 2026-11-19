@@ -177,7 +177,7 @@
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Keep list:ai-conversations, or pour the two example rows into your own chat list (see pour); grant the door your home folder.",
+    "1. Keep list:ai-conversations, or pour the two example rows into your own chat list (see pour); grant the run your home folder.",
     "2. Run tool:resume-importing-my-conversations with {} (every source found here) or with sources and time_box_seconds to limit it.",
     "3. If the answer has more: true, run it again with the same input: each file continues from its cursor row and finished, unchanged files are skipped. Stop when more is false.",
     "4. Run tool:show-how-far-my-conversation-import-is to see each source's files and messages, and read list:ai-conversations for the conversations."

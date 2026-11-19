@@ -177,9 +177,9 @@
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Save your chat app's export in a folder you grant the door (for example Downloads/claude-data/conversations.json), and keep list:ai-conversations (or pour the two example rows into your own chat list, see pour).",
+    "1. Save your chat app's export in a folder you grant the run (for example Downloads/claude-data/conversations.json), and keep list:ai-conversations (or pour the two example rows into your own chat list, see pour).",
     "2. Ask tool:list-the-conversation-sources-on-this-computer which source id fits the export, then run tool:import-my-conversations-from-a-source with that source (claude-ai-export here); add time_box_seconds for a very large export.",
-    "3. Read the answer: conversations_kept and messages_added say what is new; more: true means it stopped at its time box or a busy door, so run it again and it continues from its cursor rows; running it again over a finished file adds nothing.",
+    "3. Read the answer: conversations_kept and messages_added say what is new; more: true means it stopped at its time box so run it again and it continues from its cursor rows; running it again over a finished file adds nothing.",
     "4. Open list:ai-conversations: each conversation has a row; your labels, people, pursuits and follow-ups stay when you import again."
   ],
   "worked_examples": [
