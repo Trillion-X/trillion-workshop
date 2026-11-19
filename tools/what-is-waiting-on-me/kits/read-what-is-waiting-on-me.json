@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:read-what-is-waiting-on-me's own row, read-data/waiting-sources.json and test/waiting-records.test.mjs",
-  "start_here": "Say to your AI: \"Read what is waiting on me from every source I keep.\" It runs tool:read-what-is-waiting-on-me with {} and answers the cards in sections, with each source that could not be read named.",
+  "start_here": "Say to your AI: \"Read what is waiting on me from every source I keep.\" It reads the person's own stores for the records each source names, runs each reader tool a source names, hands both to tool:read-what-is-waiting-on-me, and answers the cards in sections, with each source that could not be read named.",
   "lists": [],
-  "no_lists_because": "It keeps no list of yours: it reads your record:waiting-sources rows over the shipped source DATA and gathers cards without writing.",
+  "no_lists_because": "It keeps no list of yours: it reads your record:waiting-sources rows over the shipped source DATA and gathers cards without writing. The records it needs are read by your AI from your own stores and handed in.",
   "workflows": [],
   "tools": [
     "tool:read-what-is-waiting-on-me",
@@ -10,10 +10,11 @@
     "tool:see-my-decisions"
   ],
   "instructions": [
-    "1. Optionally add record:waiting-sources rows to extend or override read-data/waiting-sources.json.",
-    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-what-is-waiting-on-me and {}.",
-    "3. Read cards, sections, count and said; a source with unread true was not read, so the answer is incomplete for it.",
-    "4. Finish one card with tool:finish-what-is-waiting-on-me when its source declares a same-record completion."
+    "1. Optionally add record:waiting-sources rows to extend or override read-data/waiting-sources.json. Read them and every record kind the sources read (record:waiting-on-you, post, ai-job and the rest) from the person's own store, as stored: [{ id, type, value }].",
+    "2. Run each reader tool a source names (tool:my-notification-devices, tool:see-my-decisions) with its declared input, follow its cursor until none is left, and keep each result in order as pages: { [tool id]: [result, ...] }.",
+    "3. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-what-is-waiting-on-me and { stored, pages }.",
+    "4. Read cards, sections, count and said; a source with unread true was not read, so the answer is incomplete for it.",
+    "5. Finish one card with tool:finish-what-is-waiting-on-me when its source declares a same-record completion."
   ],
   "worked_examples": [
     {
@@ -26,7 +27,10 @@
           "method": "tools:run",
           "input": {
             "tool": "tool:read-what-is-waiting-on-me",
-            "input": {}
+            "input": {
+              "stored": "the records read in steps 1 and 2",
+              "pages": "the reader results from step 2"
+            }
           }
         }
       },

@@ -5,37 +5,12 @@ import DATA from '../read-data/waiting-sources.json' with { type: 'json' };
 import ROWS from '../tool-rows.json' with { type: 'json' };
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 
-const doorOf = (records = [], runs = {}) => ({
-  list: async function* ({ type }) { for (const record of records) if (record.type === type) yield record; },
-  run: async (tool, input) => { if (!runs[tool]) throw new Error('No reader is installed.'); return runs[tool](input); },
-});
 const own = (id, value) => ({ id, type: DATA.registry_type, value });
 
-test('current record and reader-tool sources compose once, while unported owners remain unread', async () => {
-  const record = { id: 'record:waiting-on-you:sample', type: 'record:waiting-on-you', value: { what: 'Sign the sample form', do_it_in: '/sample/form', status: 'Open', round_step: 'Run a sample tasting', rounds_done: 1, progress: 'One sample tasting recorded' } };
-  let decisionReads = 0;
-  const post = { id: 'post:sample', type: 'post', value: { post_id: 'post:sample', caption: 'A sample post', status: 'draft', media: { identity: 'sample-file' } } };
-  const answer = await readWaitingOnMe({}, { door: doorOf([record, post], {
-    'tool:my-notification-devices': () => ({ devices: [{ device_id: 'sample-device', label: 'Sample phone', can_show: 'denied', turn_on: '/sample/settings' }] }),
-    'tool:see-my-decisions': () => { decisionReads++; return { summaries: [{ case_id: 'source:sample', goal: 'A sample decision', status: 'needs_decision' }], next_before: null }; },
-  }) });
-  assert.equal(answer.complete, false);
-  const ask = answer.sections.find(section => section.id === 'asks').cards[0];
-  assert.equal(ask.id, record.id);
-  assert.equal(ask.round_step, record.value.round_step);
-  assert.equal(ask.rounds_done, 1);
-  assert.equal(ask.progress, record.value.progress);
-  assert.equal(answer.sections.find(section => section.id === 'decide').cards[0].id, 'source:sample');
-  assert.equal(answer.sections.find(section => section.id === 'turn-on-notices').cards[0].address, '/sample/settings');
-  assert.equal(decisionReads, 1, 'decision and outcome sections share the same source read');
-  assert.equal(answer.sections.find(section => section.id === 'approve').cards[0].artifact_identity, 'sample-file');
-  assert.equal(answer.sections.find(section => section.id === 'approve').cards[0].address, '/use/check-a-post/post:sample');
-  assert.equal(answer.sources.find(source => source.id === 'given').unread, true);
-  assert.match(answer.said, /not read|unread|could not/i);
-});
-
-const waiting = (id, value) => ({ id, type: 'record:waiting-on-you', value });
 const apply = (held, write) => held.map(record => write.find(item => item.id === record.id) ?? record).map(({ expected: _expected, ...record }) => record);
+const waiting = (id, value) => ({ id, type: 'record:waiting-on-you', value });
+
+
 
 test('Done answers the completion as a write for the same ask record, a retry is safe, and another source cannot be guessed done', () => {
   const id = 'record:waiting-on-you:sample';
@@ -77,11 +52,73 @@ test('a round completion counts only one round on retry and closes only the fina
   assert.equal(finishWaitingOnMe({ ids: [id], request_key: 'sample-already-finished', records: finished }, context).write[0].value.rounds_done, 2, 'a finished plan never counts another round');
 });
 
+
+test('current record and reader-tool sources compose, the pages are handed in, and an unhanded page stays unread', () => {
+  const record = { id: 'record:waiting-on-you:sample', type: 'record:waiting-on-you', value: { what: 'Sign the sample form', do_it_in: '/sample/form', status: 'Open', round_step: 'Run a sample tasting', rounds_done: 1, progress: 'One sample tasting recorded' } };
+  const post = { id: 'post:sample', type: 'post', value: { post_id: 'post:sample', caption: 'A sample post', status: 'draft', media: { identity: 'sample-file' } } };
+  const pages = {
+    'tool:my-notification-devices': [{ devices: [{ device_id: 'sample-device', label: 'Sample phone', can_show: 'denied', turn_on: '/sample/settings' }] }],
+    'tool:see-my-decisions': [{ summaries: [{ case_id: 'source:sample', goal: 'A sample decision', status: 'needs_decision' }], next_before: null }],
+  };
+  const answer = readWaitingOnMe({ stored: [record, post], pages });
+  assert.equal(answer.complete, false);
+  const ask = answer.sections.find(section => section.id === 'asks').cards[0];
+  assert.equal(ask.id, record.id);
+  assert.equal(ask.round_step, record.value.round_step);
+  assert.equal(ask.rounds_done, 1);
+  assert.equal(ask.progress, record.value.progress);
+  assert.equal(answer.sections.find(section => section.id === 'decide').cards[0].id, 'source:sample');
+  assert.equal(answer.sections.find(section => section.id === 'turn-on-notices').cards[0].address, '/sample/settings');
+  assert.equal(answer.sections.find(section => section.id === 'approve').cards[0].artifact_identity, 'sample-file');
+  assert.equal(answer.sections.find(section => section.id === 'approve').cards[0].address, '/use/check-a-post/post:sample');
+  assert.equal(answer.sources.find(source => source.id === 'given').unread, true);
+  assert.match(answer.said, /not read|unread|could not/i);
+  const unhanded = readWaitingOnMe({ stored: [record, post] });
+  assert.equal(unhanded.sources.find(source => source.id === 'decide').unread, true, 'a reader whose pages were not handed in is unread, never nothing waiting');
+  assert.equal(unhanded.complete, false);
+});
+
+test('the records are the ones handed in: a store query the handed-in records cannot answer is unread', () => {
+  const stored = DATA.sources.map(source => own('source:' + source.id, { id: source.id, title: '{title}', where: [], read: { type: 'record:sample-waits', where: [{ field: 'x', equals: 1 }] } }));
+  stored.push({ id: 'record:sample-waits:one', type: 'record:sample-waits', value: { title: 'A sample request' } });
+  const answer = readWaitingOnMe({ stored });
+  assert.equal(answer.complete, false);
+  assert.ok(answer.sources.every(source => source.unread));
+  assert.match(answer.waiting_sources.problems[0].error, /store query/);
+});
+
+test('complete requires every declared source to be read whole', () => {
+  const stored = DATA.sources.map(source => own('source:' + source.id, { id: source.id, title: '{title}', where: [], read: { type: 'record:sample-waits' } }));
+  stored.push({ id: 'record:sample-waits:one', type: 'record:sample-waits', value: { title: 'A sample request' } });
+  const full = readWaitingOnMe({ stored });
+  assert.equal(full.complete, true);
+  assert.equal(full.sections.length, DATA.sources.length);
+  assert.equal(readWaitingOnMe({ stored: [] }).sources.find(source => source.id === 'given').unread, true, 'a source with no reader is unread');
+  assert.equal(readWaitingOnMe({ stored: stored.filter(record => record.type !== 'record:sample-waits') }).sources.find(source => source.id === 'voices').waiting, 0, 'a configured type with no records is an empty read, not an unread one');
+  assert.throws(() => readWaitingOnMe({}), /stored is the person/);
+});
+
+test('source tool pages advance to the end and an uncontinued partial answer is never complete', () => {
+  const stored = DATA.sources.map(source => own('source:' + source.id, { id: source.id, applicable: false, because: 'Outside this synthetic source scope.' }));
+  stored.push(own('source:sample-paged', { id: 'sample-paged', title: '{title}', read: { tool: 'tool:sample', records: 'rows', cursor: 'after', next: 'next', more: 'more' } }));
+  const full = readWaitingOnMe({ stored, pages: { 'tool:sample': [{ rows: [{ id: 'sample:1', title: 'First sample' }], next: 'second' }, { rows: [{ id: 'sample:2', title: 'Second sample' }], next: null }] } });
+  assert.equal(full.complete, true);
+  assert.equal(full.sections.find(section => section.id === 'sample-paged').total, 2);
+  const stopped = readWaitingOnMe({ stored, pages: { 'tool:sample': [{ rows: [{ id: 'sample:1', title: 'First sample' }], next: 'second' }] } });
+  assert.equal(stopped.sources.find(source => source.id === 'sample-paged').unread, true);
+  const broken = readWaitingOnMe({ stored, pages: { 'tool:sample': [{ rows: [], more: true }] } });
+  assert.equal(broken.complete, false);
+  assert.equal(broken.sources.find(source => source.id === 'sample-paged').unread, true);
+});
+
 const ask = waiting('record:waiting-on-you:sample', { what: 'Sign the sample paper form', status: 'Waiting', needs: 'sign by hand', only_you_because: 'Their own signature', response: { kind: 'press', label: 'I signed the paper' } });
 
-test('the packaged read tool uses its record rights', async () => {
-  const registry = DATA.sources.map(source => own(`source:${source.id}`, { id: source.id, title: '{what}', where: [], read: { type: 'record:waiting-on-you' } }));
-  const read = await answerOf(rowOf(ROWS, 'tool:read-what-is-waiting-on-me'), {}, { records: [...registry, ask] });
+test('the packaged read tool is pure: the records it reads are handed in, and it holds no records right', async () => {
+  const registry = DATA.sources.map(source => own('source:' + source.id, { id: source.id, title: '{what}', where: [], read: { type: 'record:waiting-on-you' } }));
+  const row = rowOf(ROWS, 'tool:read-what-is-waiting-on-me');
+  assert.equal(row.invoke.records, undefined, 'the read tool holds no records door or tool run');
+  assert.equal(row.invoke.files.package_files.some(file => file.package === 'records-door'), false);
+  const read = await answerOf(row, { stored: [...registry, ask] });
   assert.equal(read.status, 0, read.error);
   assert.equal(read.result.complete, true);
   assert.equal(read.result.sections.find(section => section.id === 'asks').cards[0].id, ask.id);
@@ -89,7 +126,10 @@ test('the packaged read tool uses its record rights', async () => {
 
 test('the finish and verify tools hold no records door at all, and their answers hold the result', async () => {
   const id = ask.id;
-  for (const tool of ['tool:finish-what-is-waiting-on-me', 'tool:verify-waiting-on-me-completion']) assert.equal(rowOf(ROWS, tool).invoke.records, undefined, `${tool} is handed no records door`);
+  for (const tool of ['tool:finish-what-is-waiting-on-me', 'tool:verify-waiting-on-me-completion']) {
+    assert.equal(rowOf(ROWS, tool).invoke.records, undefined, tool + ' is handed no records door');
+    assert.equal(rowOf(ROWS, tool).invoke.files.package_files.some(file => file.package === 'records-door'), false);
+  }
   const finish = await answerOf(rowOf(ROWS, 'tool:finish-what-is-waiting-on-me'), { ids: [id], request_key: 'sample-container-done', records: [ask] });
   assert.equal(finish.status, 0, finish.error);
   assert.deepEqual(finish.result.completed, [id]);
@@ -99,34 +139,4 @@ test('the finish and verify tools hold no records door at all, and their answers
   assert.equal(verify.status, 0, verify.error);
   assert.deepEqual(verify.result.completed, [id]);
   assert.deepEqual(verify.calls, []);
-});
-
-test('complete requires every declared source; one denied or failed configured read stays unread', async () => {
-  const records = DATA.sources.map(source => own(`source:${source.id}`, { id: source.id, title: '{title}', where: [], read: { type: 'record:sample-waits' } }));
-  records.push({ id: 'record:sample-waits:one', type: 'record:sample-waits', value: { title: 'A sample request' } });
-  const full = await readWaitingOnMe({}, { door: doorOf(records) });
-  assert.equal(full.complete, true);
-  assert.equal(full.sections.length, DATA.sources.length);
-  const plain = doorOf(records);
-  const refused = await readWaitingOnMe({}, { door: { ...plain, list: async function* (query) {
-    if (query.type === 'record:sample-waits') throw new Error('record rights refused');
-    yield* plain.list(query);
-  } } });
-  assert.equal(refused.complete, false);
-  assert.ok(refused.sources.every(source => source.unread));
-});
-
-test('source tool pages advance to the end and an uncontinued partial answer is never complete', async () => {
-  const configured = DATA.sources.map(source => own(`source:${source.id}`, { id: source.id, applicable: false, because: 'Outside this synthetic source scope.' }));
-  configured.push(own('source:sample-paged', { id: 'sample-paged', title: '{title}', read: { tool: 'tool:sample', records: 'rows', cursor: 'after', next: 'next', more: 'more' } }));
-  const pages = [];
-  const full = await readWaitingOnMe({}, { door: doorOf(configured, { 'tool:sample': input => {
-    pages.push(input.after ?? null);
-    return input.after ? { rows: [{ id: 'sample:2', title: 'Second sample' }], next: null } : { rows: [{ id: 'sample:1', title: 'First sample' }], next: 'second' };
-  } }) });
-  assert.equal(full.complete, true);
-  assert.deepEqual(pages, [null, 'second']);
-  const broken = await readWaitingOnMe({}, { door: doorOf(configured, { 'tool:sample': () => ({ rows: [], more: true }) }) });
-  assert.equal(broken.complete, false);
-  assert.equal(broken.sources.find(source => source.id === 'sample-paged').unread, true);
 });
