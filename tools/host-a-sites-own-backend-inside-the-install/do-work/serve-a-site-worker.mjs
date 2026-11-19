@@ -11,8 +11,8 @@
 // The visitor's address comes from the X-Forwarded-For the computer's own web server sets, as cf-connecting-ip.
 //
 // Settings (environment): SITE_BUNDLE (the bundle's index.js), SITE_FILES (the built folder), SOCKET or PORT, SITE_SETTINGS (a JSON file:
-// { vars, run_worker_first, email_account, kv_table }). Held values come from the unit's credentials folder
-// ($CREDENTIALS_DIRECTORY): site-database (the Postgres connection) and email-sending-token (optional); every other file there is
+// { vars, run_worker_first, email_provider, kv_table }, email_provider being an email provider file's content). Held values come from the unit's credentials folder
+// ($CREDENTIALS_DIRECTORY): site-database (the Postgres connection) and email-key (the email provider's key; optional); every other file there is
 // one of the Worker's secrets, named in the env the way its file is named in capitals (mail-link-key is env.MAIL_LINK_KEY).
 // GET /readyz answers 200 once the Worker is loaded and the database answers, 503 while this process drains (SIGTERM).
 import { createServer } from 'node:http';
@@ -20,7 +20,7 @@ import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from '
 import { extname, join, normalize, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import pg from 'pg';
-import { HTMLRewriter, WorkerEntrypoint, cachesDefault, d1, emailSending, kv, workerSecrets } from '../read-data/workers-stand-ins.mjs';
+import { HTMLRewriter, WorkerEntrypoint, cachesDefault, d1, emailBy, kv, workerSecrets } from '../read-data/workers-stand-ins.mjs';
 
 const settings = JSON.parse(readFileSync(process.env.SITE_SETTINGS, 'utf8'));
 const files = resolve(process.env.SITE_FILES);
@@ -96,7 +96,7 @@ const env = {
   ...workerSecrets(process.env.CREDENTIALS_DIRECTORY, { readdirSync, readFileSync }),
   DB: d1(pool),
   SHARED_LISTS: kv(pool, settings.kv_table ?? 'site_shared_lists'),
-  EMAIL: emailSending({ account: settings.email_account, token: held('email-sending-token') }),
+  EMAIL: emailBy({ provider: settings.email_provider, key: held('email-key') }),
   ASSETS: { fetch: async request => { const url = new URL(typeof request === 'string' ? request : request.url); const found = asset(url); return found ? assetResponse(found, url, request.method ?? 'GET') : new Response('Not found', { status: 404 }); } },
 };
 const workerFirst = new Set(settings.run_worker_first ?? []);

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { HTMLRewriter, cachesDefault, d1, emailSending, kv, numbered, workerSecrets } from '../read-data/workers-stand-ins.mjs';
+import { HTMLRewriter, cachesDefault, d1, emailBy, kv, numbered, workerSecrets } from '../read-data/workers-stand-ins.mjs';
 
 const fakePool = answer => { const asked = []; return { asked, query: async (sql, values) => { asked.push([sql, values]); return answer(sql, values); } }; };
 
@@ -39,15 +39,20 @@ test('env.SHARED_LISTS keeps a value with its metadata and answers json when ask
   assert.throws(() => kv(pool, 'drop table x'), /lowercase/);
 });
 
-test('env.EMAIL sends through Email Sending, and says plainly when no token is held', async () => {
+test('env.EMAIL sends the request its provider file describes, with the key in the named header, and says plainly what is missing', async () => {
+  const provider = { name: 'Resend', request: { url: 'https://api.resend.com/emails', method: 'POST', headers: { 'content-type': 'application/json' },
+    auth: { header: 'authorization', prefix: 'Bearer ' }, body: { from: '{from}', to: ['{to}'], subject: '{subject}', text: '{text}', html: '{html}', headers: '{headers}' } },
+    message_id_at: 'id', error_at: 'message' };
   const sent = [];
-  const mail = emailSending({ account: 'acct', token: 't', fetchImpl: async (url, init) => { sent.push([url, JSON.parse(init.body), init.headers.authorization]); return new Response(JSON.stringify({ success: true, result: { id: 'm1' } })); } });
-  assert.deepEqual(await mail.send({ from: 'a@b.c', to: 'd@e.f', subject: 's', text: 't' }), { id: 'm1' });
-  assert.equal(sent[0][0], 'https://api.cloudflare.com/client/v4/accounts/acct/email/sending/send');
-  assert.equal(sent[0][2], 'Bearer t');
-  await assert.rejects(emailSending({ account: 'acct', token: null }).send({}), { code: 'email_sending_not_set_up' });
-  const refused = emailSending({ account: 'acct', token: 't', fetchImpl: async () => new Response('{"success":false}', { status: 403 }) });
-  await assert.rejects(refused.send({}), { code: 'email_sending_refused', status: 403 });
+  const mail = emailBy({ provider, key: 'k1', fetchImpl: async (url, init) => { sent.push([url, JSON.parse(init.body), init.headers.authorization]); return new Response(JSON.stringify({ id: 'm1' })); } });
+  assert.deepEqual(await mail.send({ from: 'a@b.c', to: 'd@e.f', subject: 's', text: 't', headers: { 'List-Id': 'x' } }), { messageId: 'm1' });
+  assert.equal(sent[0][0], 'https://api.resend.com/emails');
+  assert.equal(sent[0][2], 'Bearer k1');
+  assert.deepEqual(sent[0][1], { from: 'a@b.c', to: ['d@e.f'], subject: 's', text: 't', headers: { 'List-Id': 'x' } }, 'a field the message leaves out (html) is left out');
+  await assert.rejects(emailBy({ provider, key: null }).send({}), { code: 'email_not_set_up', message: /no Resend key/ });
+  await assert.rejects(emailBy({ provider: null, key: 'k' }).send({}), { code: 'email_not_set_up' });
+  const refused = emailBy({ provider, key: 'k', fetchImpl: async () => new Response('{"message":"domain not verified"}', { status: 403 }) });
+  await assert.rejects(refused.send({}), { code: 'email_refused', status: 403, message: /domain not verified/ });
 });
 
 test('HTMLRewriter rewrites a streamed page the way the site head does', async () => {
@@ -72,7 +77,7 @@ test('caches.default keeps an answer only for its own max-age', async () => {
 
 test('each credential file but the two the host reads is a Worker secret named in capitals', () => {
   const folder = mkdtempSync(join(tmpdir(), 'held-'));
-  for (const [name, value] of [['site-database', 'postgres://x'], ['email-sending-token', 't'], ['mail-link-key', 'k'.repeat(40) + '\n'], ['job-run-key', 'j']]) writeFileSync(join(folder, name), value);
+  for (const [name, value] of [['site-database', 'postgres://x'], ['email-key', 't'], ['mail-link-key', 'k'.repeat(40) + '\n'], ['job-run-key', 'j']]) writeFileSync(join(folder, name), value);
   assert.deepEqual(workerSecrets(folder, { readdirSync, readFileSync }), { JOB_RUN_KEY: 'j', MAIL_LINK_KEY: 'k'.repeat(40) });
   assert.deepEqual(workerSecrets(undefined, { readdirSync, readFileSync }), {});
   writeFileSync(join(folder, 'Bad_Name'), 'x');

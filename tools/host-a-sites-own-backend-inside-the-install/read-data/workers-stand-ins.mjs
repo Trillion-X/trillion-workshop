@@ -8,13 +8,14 @@
 //                     on the site's Postgres database. A `?` outside a quoted string becomes $1, $2, ... in order.
 //   kv(pool, table)   env.SHARED_LISTS: get(key, type?), getWithMetadata(key, type?), put(key, value, { metadata, expirationTtl }),
 //                     delete(key), kept as rows of `table` in the same database.
-//   emailSending(...) env.EMAIL: send({ from, to, subject, html, text, headers }) through Cloudflare Email Sending's HTTP
-//                     endpoint (POST /accounts/{account}/email/sending/send), the sender the site's own DKIM record names.
+//   emailBy(...)      env.EMAIL: send({ from, to, subject, html, text, headers }) as the request an email provider file
+//                     describes (the shape of tools/better-auth-official/email-providers/*.json: request {url, method, headers,
+//                     auth {header, prefix}, body}, message_id_at, error_at), with the provider's key held for this site.
 //   cachesDefault     caches.default: match(request) and put(request, response), held in this process's memory for the
 //                     answer's own max-age (s-maxage first), never longer.
 //   WorkerEntrypoint  the base class `cloudflare:workers` exports: { ctx, env }.
 //   workerSecrets     the Worker's secrets from the unit's credentials folder: each file but the two this host reads itself
-//                     (site-database, email-sending-token) is env[NAME], its name in capitals with - as _.
+//                     (site-database, email-key) is env[NAME], its name in capitals with - as _.
 import { HTMLRewriter as Lol } from 'html-rewriter-wasm';
 
 // Postgres numbers its placeholders; D1 takes `?`. Quoted strings and identifiers are copied as they are.
@@ -76,16 +77,39 @@ export function kv(pool, table) {
   };
 }
 
-export function emailSending({ account, token, fetchImpl = fetch }) {
+// A body template's text "{name}" is the message's value as it is (text, list or object); "{name}" inside longer text is
+// that value as text; a field the message leaves out is left out. Arrays and objects are filled item by item.
+export function fillTemplate(template, message) {
+  if (typeof template === 'string') {
+    const whole = /^\{([a-z_]+)\}$/.exec(template);
+    if (whole) return message[whole[1]];
+    return template.replace(/\{([a-z_]+)\}/g, (_, name) => String(message[name] ?? ''));
+  }
+  if (Array.isArray(template)) return template.map(item => fillTemplate(item, message)).filter(item => item !== undefined);
+  if (template && typeof template === 'object') {
+    const out = {};
+    for (const [key, value] of Object.entries(template)) { const filled = fillTemplate(value, message); if (filled !== undefined) out[key] = filled; }
+    return out;
+  }
+  return template;
+}
+
+const at = (value, path) => String(path ?? '').split('.').filter(Boolean).reduce((found, step) => found?.[step], value);
+
+export function emailBy({ provider, key, fetchImpl = fetch }) {
   return {
     async send(message) {
-      if (!token) throw Object.assign(new Error('This computer holds no Email Sending token, so no mail can be sent.'), { code: 'email_sending_not_set_up' });
-      const answer = await fetchImpl(`https://api.cloudflare.com/client/v4/accounts/${account}/email/sending/send`, {
-        method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify(message),
-      });
-      const body = await answer.json().catch(() => ({}));
-      if (!answer.ok || body.success === false) throw Object.assign(new Error(`Email Sending refused the message (${answer.status}).`), { code: 'email_sending_refused', status: answer.status });
-      return body.result ?? {};
+      if (!provider?.request?.url) throw Object.assign(new Error('This site names no email provider, so no mail can be sent.'), { code: 'email_not_set_up' });
+      if (!key) throw Object.assign(new Error(`This computer holds no ${provider.name ?? 'email provider'} key for the site, so no mail can be sent.`), { code: 'email_not_set_up' });
+      const { url, method = 'POST', headers = {}, auth, body, timeout_ms: timeout = 15000 } = provider.request;
+      const sent = { ...headers, ...(auth ? { [auth.header]: `${auth.prefix ?? ''}${key}` } : {}) };
+      const answer = await fetchImpl(url, { method, headers: sent, body: JSON.stringify(fillTemplate(body, message)), signal: AbortSignal.timeout(timeout) });
+      const reply = await answer.json().catch(() => ({}));
+      if (!answer.ok) {
+        const said = at(reply, provider.error_at);
+        throw Object.assign(new Error(`${provider.name ?? 'The email provider'} refused the message (${answer.status})${said ? `: ${said}` : ''}.`), { code: 'email_refused', status: answer.status });
+      }
+      return { messageId: at(reply, provider.message_id_at) ?? null };
     },
   };
 }
@@ -110,8 +134,8 @@ export function cachesDefault(now = () => Date.now()) {
   };
 }
 
-// The files the host reads for itself are not the Worker's: the database connection and the Email Sending token.
-const HOST_HELD = new Set(['site-database', 'email-sending-token']);
+// The files the host reads for itself are not the Worker's: the database connection and the email provider's key.
+const HOST_HELD = new Set(['site-database', 'email-key']);
 export function workerSecrets(folder, { readdirSync, readFileSync }) {
   if (!folder) return {};
   const secrets = {};
