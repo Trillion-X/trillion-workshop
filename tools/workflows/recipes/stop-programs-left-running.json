@@ -1,5 +1,5 @@
 {
-  "_what": "Stops the programs a session that ended left running, judged only by the person's own rule rows, every ten minutes. Made for the case of Nov 19 2026: eight shells a closed session left behind ran a test loop at full speed for two days, the computer's load stayed far above what it could take, and every check before a push timed out. The workflow names no program: what counts as left behind and what is never stopped are rows of the person's own store (types program-left-behind-rule and program-never-stop-rule), read at every sweep; a store with no never-stop row refuses the sweep.",
+  "_what": "Stops the programs a session that ended left running, judged only by the person's own rule rows, every ten minutes. Made for the case of Nov 19 2026: eight shells a closed session left behind ran a test loop at full speed for two days, the computer's load stayed far above what it could take, and every check before a push timed out. The workflow names no program: what counts as left behind and what is never stopped are rows of the person's own store (table program_rules, kind left-behind or never-stop), read at every sweep; a store with no never-stop row refuses the sweep. The first two steps make the two tables it keeps (program_rules, program_stops) with create table if not exists in the store's own language (PostgreSQL), so a store that has neither works from its first sweep. Their names are fixed in the SQL, not taken from input: a table name cannot be a statement parameter, and building it into the text from input would let the input change the statement.",
   "records": [
     {
       "payload": {
@@ -7,7 +7,7 @@
         "id": "workflow:stop-programs-left-running",
         "label": "Stop programs left running",
         "job": "Every ten minutes, find the programs a session that ended left running on this computer, by the person's own left-behind rows and never-stop rows, ask each to end, keep one row per stop and tell the person once per sweep that stopped anything.",
-        "produces": "One program-stopped row per program asked to end (what, which row and why, when it was asked, when it ended, and its outcome), and at most one notice per sweep, only when a program ended.",
+        "produces": "One program_stops row per program asked to end (what, which row and why, when it was asked, when it ended, and its outcome), and at most one notice per sweep, only when a program ended.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -51,7 +51,7 @@
               "wall_ms": 300000
             },
             "input": {
-              "start_at": "list",
+              "start_at": "make-rules-table",
               "store": {
                 "where": "the person's own database",
                 "language": "SQL (PostgreSQL)",
@@ -67,6 +67,46 @@
           "is_active": true,
           "version": 1,
           "steps": [
+            {
+              "id": "make-rules-table",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "create table if not exists program_rules (id text primary key, kind text not null check (kind in ('left-behind', 'never-stop')), rule jsonb not null)"
+                },
+                "context": {
+                  "step_id": "make-rules-table"
+                }
+              }
+            },
+            {
+              "id": "make-stops-table",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "create table if not exists program_stops (address text primary key, stop jsonb not null, kept_at timestamptz not null default now())"
+                },
+                "context": {
+                  "step_id": "make-stops-table"
+                }
+              }
+            },
             {
               "id": "list",
               "kind": "ask",
@@ -94,9 +134,9 @@
                       "path": "store.credential_name"
                     }
                   },
-                  "sql": "select jsonb_agg(value order by address) as rules from objects where type = $1",
+                  "sql": "select jsonb_agg(rule order by id) as rules from program_rules where kind = $1",
                   "params": [
-                    "program-left-behind-rule"
+                    "left-behind"
                   ]
                 },
                 "context": {
@@ -117,9 +157,9 @@
                       "path": "store.credential_name"
                     }
                   },
-                  "sql": "select jsonb_agg(value order by address) as rules from objects where type = $1",
+                  "sql": "select jsonb_agg(rule order by id) as rules from program_rules where kind = $1",
                   "params": [
-                    "program-never-stop-rule"
+                    "never-stop"
                   ]
                 },
                 "context": {
@@ -228,6 +268,16 @@
           ],
           "edges": [
             {
+              "from": "make-rules-table",
+              "to": "make-stops-table",
+              "kind": "always"
+            },
+            {
+              "from": "make-stops-table",
+              "to": "list",
+              "kind": "always"
+            },
+            {
               "from": "list",
               "to": "read-left-behind",
               "kind": "always"
@@ -279,7 +329,7 @@
                           "path": "store.credential_name"
                         }
                       },
-                      "sql": "insert into objects (address, type, value, version) values ($1, 'program-stopped', $2::jsonb, 1) on conflict (address) do nothing",
+                      "sql": "insert into program_stops (address, stop) values ($1, $2::jsonb) on conflict (address) do nothing",
                       "params": [
                         {
                           "$kind": "binding",

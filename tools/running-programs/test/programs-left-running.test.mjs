@@ -1,10 +1,11 @@
 // workflow:stop-programs-left-running (tools/workflows/recipes/stop-programs-left-running.json) run on the workflow engine
-// with made-up programs: the list, the rule rows and the store are pretend, and the choosing and stopping are the real
-// tool:choose-programs-left-running and tool:stop-programs-left-running with a pretend signal, so no real program is
-// touched. Then each tool's own refusals.
+// with made-up programs and a pretend signal, so no real program is touched. The store is an empty PostgreSQL database
+// (PGlite) that the recipe's own SQL runs on, as tool:run-sql-in-my-database would run it; the choosing and stopping are the
+// real tool:choose-programs-left-running and tool:stop-programs-left-running. Then each tool's own refusals.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { PGlite } from '@electric-sql/pglite';
 import { runWorkflow } from '../../write-a-job-done-in-several-steps-have/read-data/run-a-workflow.mjs';
 import { chooseProgramsLeftRunning, stopProgramsLeftRunning } from '../do-work/programs-left-running.mjs';
 
@@ -20,11 +21,21 @@ const LEFT_BEHIND = [{ id: 'busy-shell-left-behind', why: 'A shell a closed sess
   session_owner_gone: true, older_than_minutes: 60, cpu_share_at_least: 0.5, command_pattern: '^/bin/sh -c ' }];
 const NEVER_STOP = [{ id: 'the-model-proxy', why: 'Every AI session talks through it', command_pattern: 'model-proxy' }];
 
-/** One sweep on the engine: every tool the recipe asks answered by a pretend door; returns the run, the signals sent and
- *  each tool call. `rules` is what the store holds for each rule type (null: no row of that type). */
-async function sweep(programs, { rules = { 'program-left-behind-rule': LEFT_BEHIND, 'program-never-stop-rule': NEVER_STOP }, complete = true } = {}) {
+const stepSql = id => recipe.definition.steps.find(step => step.id === id).config.input.sql;
+/** The person's rules kept as program_rules rows: { <kind>: [rule] }. The tables are made by the recipe's own first steps. */
+async function keepRules(db, rules) {
+  for (const id of ['make-rules-table', 'make-stops-table']) await db.query(stepSql(id));
+  for (const [kind, list] of Object.entries(rules)) {
+    for (const rule of list) await db.query('insert into program_rules (id, kind, rule) values ($1, $2, $3)', [`${kind}:${rule.id}`, kind, JSON.stringify(rule)]);
+  }
+}
+
+/** One sweep on the engine: every tool the recipe asks answered by a pretend door, the store's SQL run on `db` (a new
+ *  database holding `rules` when none is given); returns the run, the signals sent, each tool call and the kept stops. */
+async function sweep(programs, { rules = { 'left-behind': LEFT_BEHIND, 'never-stop': NEVER_STOP }, complete = true, db = null } = {}) {
+  if (!db) { db = new PGlite(); await keepRules(db, rules); }
   const running = new Map(programs.map(one => [one.pid, one]));
-  const signals = [], calls = [], kept = [];
+  const signals = [], calls = [];
   const stopDeps = {
     read: async () => [...running.values()],
     signal: (pid, name) => { signals.push([pid, name]); running.delete(pid); },
@@ -32,9 +43,11 @@ async function sweep(programs, { rules = { 'program-left-behind-rule': LEFT_BEHI
   };
   const tools = {
     'tool:list-running-programs': () => ({ total: running.size, programs: [...running.values()], complete }),
-    'tool:run-sql-in-my-database': input => {
-      if (input.sql.startsWith('insert')) { kept.push(input.params); return { columns: [], rows: [], row_count: 1 }; }
-      return { columns: ['rules'], rows: [{ rules: rules[input.params[0]] ?? null }], row_count: 1 };
+    // As node-postgres sends them: an object is sent as its JSON text.
+    'tool:run-sql-in-my-database': async input => {
+      const params = (input.params ?? []).map(value => (value && typeof value === 'object' && !Array.isArray(value) ? JSON.stringify(value) : value));
+      const result = await db.query(input.sql, params);
+      return { columns: result.fields.map(field => field.name), rows: result.rows, row_count: result.affectedRows ?? result.rows.length };
     },
     'tool:choose-programs-left-running': input => chooseProgramsLeftRunning(input, {}, { now: () => NOW, self: [] }),
     'tool:stop-programs-left-running': input => stopProgramsLeftRunning(input, {}, stopDeps),
@@ -43,11 +56,12 @@ async function sweep(programs, { rules = { 'program-left-behind-rule': LEFT_BEHI
   const door = {
     async run(name, input) {
       calls.push(name);
-      // A tool that ran and failed fails the run, as the person's door answers it.
+      // A tool that ran and failed fails the run, as the run's host actions answer it (tool_run_failed, committed).
       try { return await tools[name](input); } catch (error) { throw Object.assign(error, { outcome: 'committed' }); }
     },
   };
-  const run = await runWorkflow({ recipe, input: wake.input }, { door });
+  const run = await runWorkflow({ recipe, input: wake.input }, door);
+  const kept = (await db.query('select address, stop from program_stops order by address')).rows.map(row => [row.address, row.stop]);
   return { run, signals, calls, kept, told: calls.filter(name => name === 'tool:tell-the-person').length };
 }
 
@@ -57,13 +71,13 @@ test('the recipe wakes every ten minutes at its first step, names no program, an
   assert.deepEqual(recipe.records.runs, ['tool:choose-programs-left-running', 'tool:list-running-programs', 'tool:run-sql-in-my-database', 'tool:stop-programs-left-running', 'tool:tell-the-person']);
   const definition = JSON.stringify(recipe.definition);
   assert.doesNotMatch(definition, /_pattern|parent_pid|older_than/, 'every judgment is a row the person keeps, read at every sweep');
-  assert.match(definition, /program-left-behind-rule/);
-  assert.match(definition, /program-never-stop-rule/);
+  assert.match(definition, /create table if not exists program_rules/);
+  assert.match(definition, /create table if not exists program_stops/);
 });
 
 test('a program the left-behind rows describe is asked to end, kept as one row and told once', async () => {
   const { run, signals, kept, told } = await sweep([program(4242)]);
-  assert.equal(run.status, 'completed', run.error_message);
+  assert.equal(run.status, 'completed', run.error_message ?? JSON.stringify(run.waiting));
   assert.deepEqual(signals, [[4242, 'SIGTERM']]);
   assert.equal(kept.length, 1);
   const [address, row] = kept[0];
@@ -74,7 +88,7 @@ test('a program the left-behind rows describe is asked to end, kept as one row a
 
 test('a program a never-stop row names is kept, and nothing is told', async () => {
   const { run, signals, kept, told } = await sweep([program(4243, { command: '/bin/sh -c exec model-proxy --port 1' })]);
-  assert.equal(run.status, 'completed', run.error_message);
+  assert.equal(run.status, 'completed', run.error_message ?? JSON.stringify(run.waiting));
   assert.deepEqual([signals, kept, told], [[], [], 0]);
 });
 
@@ -83,7 +97,7 @@ test('a program with a live parent, or whose session still has an owner, is kept
   assert.equal(withParent.run.status, 'completed', withParent.run.error_message);
   assert.deepEqual(withParent.signals, [], 'its parent is alive');
   const { parent_pid: _anyParent, ...bySession } = LEFT_BEHIND[0];
-  const rules = { 'program-left-behind-rule': [{ ...bySession, id: 'busy-shell-whose-session-ended' }], 'program-never-stop-rule': NEVER_STOP };
+  const rules = { 'left-behind': [{ ...bySession, id: 'busy-shell-whose-session-ended' }], 'never-stop': NEVER_STOP };
   const owner = program(500, { parent_pid: 77, name: 'terminal', command: 'terminal' });
   const child = program(4244, { session_id: 500 });
   assert.deepEqual((await sweep([owner, child], { rules })).signals, [], 'its session leader still has a live parent');
@@ -92,18 +106,36 @@ test('a program with a live parent, or whose session still has an owner, is kept
 });
 
 test('a store with no never-stop row refuses the sweep before anything is stopped', async () => {
-  const { run, signals, calls } = await sweep([program(4245)], { rules: { 'program-left-behind-rule': LEFT_BEHIND } });
+  const { run, signals, calls } = await sweep([program(4245)], { rules: { 'left-behind': LEFT_BEHIND } });
   assert.equal(run.status, 'failed');
   assert.match(run.error_message, /never-stop list was not given/);
   assert.deepEqual(signals, []);
   assert.ok(!calls.includes('tool:stop-programs-left-running'));
 });
 
+test('from an empty database the first sweep makes its tables and refuses with no never-stop row, then works once rows are kept', async () => {
+  const db = new PGlite();
+  const first = await sweep([program(4251)], { db });
+  assert.equal(first.run.status, 'failed');
+  assert.match(first.run.error_message, /never-stop list was not given/);
+  assert.deepEqual(first.signals, []);
+  const tables = (await db.query("select table_name from information_schema.tables where table_name like 'program_%' order by table_name")).rows.map(row => row.table_name);
+  assert.deepEqual(tables, ['program_rules', 'program_stops']);
+  await keepRules(db, { 'left-behind': LEFT_BEHIND, 'never-stop': NEVER_STOP });
+  const second = await sweep([program(4251)], { db });
+  assert.equal(second.run.status, 'completed', second.run.error_message);
+  assert.deepEqual(second.signals, [[4251, 'SIGTERM']]);
+  assert.equal(second.kept.length, 1);
+  const again = await sweep([], { db });
+  assert.equal(again.run.status, 'completed', 'making the tables again changes nothing');
+  assert.equal(again.kept.length, 1);
+});
+
 test('a young program and an idle one are kept', async () => {
   const young = program(4246, { started_at_ms: NOW - 10 * 60_000, cpu_ms: 10 * 60_000 });
   const idle = program(4247, { cpu_ms: 60_000 });
   const { run, signals, told } = await sweep([young, idle]);
-  assert.equal(run.status, 'completed', run.error_message);
+  assert.equal(run.status, 'completed', run.error_message ?? JSON.stringify(run.waiting));
   assert.deepEqual([signals, told], [[], 0]);
 });
 
