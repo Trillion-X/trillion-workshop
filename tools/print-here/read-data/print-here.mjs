@@ -2,8 +2,8 @@
 //
 // PURPOSE
 //   Prints a file from the person's files on a printer their Mac already has (`print`), and says which printers it
-//   has (`printers`). Runs on the person's own Mac as a `computer` row holding the print-system capability; `print`
-//   also reads the file through the local door with the run's own capability (tools/records-door `door.files`).
+//   has (`printers`). Runs on the person's own Mac as a `computer` row holding the print-system capability. `print` is
+//   given the file's bytes in `stored.files` (the caller reads them from the person's own files); it reads nothing itself.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Blind: the print commands, options and words are DATA (read-data/print-here.json); nothing here names a printer,
@@ -21,7 +21,7 @@
 //   The print command is run with an argument list, never through a shell, so no file name or title can run anything.
 //
 // USAGE
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/print-here/read-data/print-here.mjs printers|print
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/print-here/read-data/print-here.mjs printers|print
 //
 import { execFile, spawn } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -51,25 +51,17 @@ export function printArguments(settings, { printer, copies = 1, title, ...rest }
   return { command, args };
 }
 
-/** Every byte of one file of the person's files, read through the door in `read_bytes` steps. */
-export async function readWhole(call, settings, file) {
-  const { find, read } = settings.files;
-  const found = await call(find, { name_or_identity: file });
-  const title = String(found.names?.[0] ?? found.name ?? file).split('/').pop();
-  const parts = [];
-  let offset = 0;
-  for (;;) {
-    const piece = await call(read, { name_or_identity: file, offset, length: settings.read_bytes });
-    if (piece.byte_length > settings.most_bytes) return { title, size: piece.byte_length, bytes: null };
-    parts.push(Buffer.from(piece.content ?? '', piece.encoding === 'base64' ? 'base64' : 'utf8'));
-    offset += piece.bytes_returned;
-    if (!piece.bytes_returned || offset >= piece.byte_length) return { title, size: offset, bytes: Buffer.concat(parts) };
-  }
+/** The file `file` names, from the bytes the caller handed in `stored.files` (text or { base64 }); none handed in is null. */
+export function fileGiven({ file, stored }, settings) {
+  const held = stored?.files?.[file];
+  if (held === undefined) return null;
+  const bytes = typeof held === 'string' ? Buffer.from(held, 'utf8') : Buffer.from(held.base64 ?? '', 'base64');
+  return { title: String(file).split('/').pop(), size: bytes.length, bytes: bytes.length > settings.most_bytes ? null : bytes };
 }
 
 /**
  * deps { settings?, list?: () → lpstat text, send?: ({ command, args, bytes }) → { job } }
- * print(input, read: (file) → { bytes, title, size }, effects?: { handoff_id?, recordEffect? })
+ * print(input, effects?: { handoff_id?, recordEffect? }) — the file is input.stored.files[input.file]
  */
 export function makePrintTools(deps = {}) {
   const settings = deps.settings ?? printSettings();
@@ -86,15 +78,15 @@ export function makePrintTools(deps = {}) {
   const w = settings.words;
   return {
     async printers() { return printersFrom(await list()); },
-    async print(input, read, effects = {}) {
+    async print(input, effects = {}) {
       if (!input?.file) return { printed: false, said: w.no_file };
       const { printers, default: fallback } = printersFrom(await list());
       if (!printers.length) return { printed: false, said: w.no_printer };
       const printer = input.printer ?? fallback ?? (printers.length === 1 ? printers[0].name : null);
       if (!printer) return { printed: false, said: fill(w.which_printer, { printers: printers.map(row => row.name).join(', ') }) };
       if (!printers.some(row => row.name === printer)) return { printed: false, said: fill(w.unknown_printer, { printer, printers: printers.map(row => row.name).join(', ') }) };
-      let file;
-      try { file = await read(input.file); } catch (error) { return { printed: false, said: fill(w.not_read, { file: input.file, error: error.message }) }; }
+      const file = fileGiven(input, settings);
+      if (!file) return { printed: false, said: fill(w.not_read, { file: input.file, error: w.not_handed_in }) };
       const title = input.title ?? file.title;
       if (!file.bytes) return { printed: false, said: fill(w.too_big, { title, mb: Math.round(file.size / 1e6), most: Math.round(settings.most_bytes / 1e6) }) };
       const copies = Math.max(1, Math.min(Number(input.copies) || 1, 100));
@@ -121,10 +113,7 @@ export async function printers() {
   return makePrintTools().printers();
 }
 
-/** `tool:print`: one file of the person's files on one printer, read through the run's door. */
-export async function print(input, { door, handoff_id, recordEffect } = {}) {
-  const settings = printSettings();
-  // Reads change nothing, so each door call keeps the client's own request key.
-  const call = (method, request) => door.files(method, request);
-  return makePrintTools({ settings }).print(input, file => readWhole(call, settings, file), { handoff_id, recordEffect });
+/** `tool:print`: one file the caller handed in (`stored.files`) on one printer. */
+export async function print(input, { handoff_id, recordEffect } = {}) {
+  return makePrintTools().print(input, { handoff_id, recordEffect });
 }

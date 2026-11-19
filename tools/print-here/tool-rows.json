@@ -112,7 +112,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -221,7 +220,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/print-here/read-data/print-here.mjs",
             "printers"
           ],
@@ -240,53 +239,31 @@
                 "at": "/opt/print-here"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "at": "/opt/workflows"
               }
             ]
           }
         },
         "result_selector": "$.result",
-        "verify": [{"kind": "sample-run", "input": {}, "laid_files": [{"path": "/opt/print-here/read-data/print-here.json", "text": "{\"_what\":\"Printing on the person's own printers from their Mac (read-data/print-here.mjs: `printers` and `print`). A file is read from the person's files by its name or identity, through the local door with the run's own capability, and handed to the Mac's print system on standard input, so nothing is written to a folder first. `commands` are the Mac's own print commands with their arguments: `list` reads the printers and the default, `print` sends one job, where {printer}, {copies} and {title} are filled from the input. `options` maps each input field a person may give to the print system's own option name (paper size, fit to page, two-sided, colour); an option whose value was not given is left out. `files` is the door address of the person's files and the operations a read uses; `read_bytes` is how much one read asks for. `most_bytes` is the largest file sent. A host that hands runs over by id journals each job before it is sent (`may_have_started` is said when one may already be at the printer). A new option is a row.\",\"commands\":{\"list\":[\"lpstat\",\"-p\",\"-d\"],\"print\":[\"lp\",\"-d\",\"{printer}\",\"-n\",\"{copies}\",\"-t\",\"{title}\"]},\"options\":{\"paper\":\"media\",\"fit\":\"fit-to-page\",\"sides\":\"sides\",\"color\":\"print-color-mode\",\"orientation\":\"orientation-requested\"},\"files\":{\"find\":\"read_file\",\"read\":\"read_file\"},\"read_bytes\":262144,\"most_bytes\":100000000,\"default_title\":\"Print job\",\"words\":{\"printed\":\"Sent {title} to {printer} ({copies} copy).\",\"no_printer\":\"This Mac has no printer set up. Add one in System Settings > Printers & Scanners, or use a print shop.\",\"unknown_printer\":\"This Mac has no printer named {printer}. Its printers: {printers}.\",\"no_file\":\"Say which file to print: its name in your files or its identity.\",\"which_printer\":\"Say which printer to use: this Mac has no default printer. Its printers: {printers}.\",\"too_big\":\"{title} is {mb} MB, larger than this Mac sends to a printer ({most} MB). Use a print shop.\",\"not_read\":\"Could not read {file} from your files: {error}\",\"may_have_started\":\"This print job may already have started. Check the printer before trying again.\"}}"}], "stand_in_programs": {"lpstat": "printf 'printer sample-printer is idle.  enabled since Mon 01 Jan 2026 00:00:00 UTC\\n'\nprintf 'system default destination: sample-printer\\n'"}}]
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "laid_files": [
+              {
+                "path": "/opt/print-here/read-data/print-here.json",
+                "text": "{\"_what\":\"Printing on the person's own printers from their Mac (read-data/print-here.mjs: `printers` and `print`). `print` sends the bytes of one file the caller handed in (`stored.files`, read by the caller from the person's own files) to the Mac's print system on standard input, so nothing is written to a folder first. `commands` are the Mac's own print commands with their arguments: `list` reads the printers and the default, `print` sends one job, where {printer}, {copies} and {title} are filled from the input. `options` maps each input field a person may give to the print system's own option name (paper size, fit to page, two-sided, colour); an option whose value was not given is left out. `most_bytes` is the largest file sent. A host that hands runs over by id journals each job before it is sent (`may_have_started` is said when one may already be at the printer). A new option is a row.\",\"commands\":{\"list\":[\"/usr/bin/lpstat\",\"-p\",\"-d\"],\"print\":[\"/usr/bin/lp\",\"-d\",\"{printer}\",\"-n\",\"{copies}\",\"-t\",\"{title}\"]},\"options\":{\"paper\":\"media\",\"fit\":\"fit-to-page\",\"sides\":\"sides\",\"color\":\"print-color-mode\",\"orientation\":\"orientation-requested\"},\"most_bytes\":100000000,\"default_title\":\"Print job\",\"words\":{\"printed\":\"Sent {title} to {printer} ({copies} copy).\",\"no_printer\":\"This Mac has no printer set up. Add one in System Settings > Printers & Scanners, or use a print shop.\",\"unknown_printer\":\"This Mac has no printer named {printer}. Its printers: {printers}.\",\"no_file\":\"Say which file to print: its name in your files or its identity.\",\"which_printer\":\"Say which printer to use: this Mac has no default printer. Its printers: {printers}.\",\"too_big\":\"{title} is {mb} MB, larger than this Mac sends to a printer ({most} MB). Use a print shop.\",\"not_read\":\"Could not read {file} from your files: {error}\",\"not_handed_in\":\"the file's bytes were not handed in with this run\",\"may_have_started\":\"This print job may already have started. Check the printer before trying again.\"}}"
+              }
+            ],
+            "stand_in_programs": {
+              "lpstat": "printf 'printer sample-printer is idle.  enabled since Mon 01 Jan 2026 00:00:00 UTC\\n'\nprintf 'system default destination: sample-printer\\n'"
+            }
+          }
+        ]
       }
     },
     {
@@ -401,7 +378,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -519,7 +495,7 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
+              "description": "The bytes of the file named by `file`, read by the caller from where the person keeps their files (the engine keeps none): files: {name: text or {base64}} under /. What is not given is not there."
             }
           }
         },
@@ -553,7 +529,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/print-here/read-data/print-here.mjs",
             "print"
           ],
@@ -572,60 +548,37 @@
                 "at": "/opt/print-here"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "at": "/opt/workflows"
               }
             ]
           }
         },
         "result_selector": "$.result",
-        "verify": [{"kind": "sample-run", "input": {"file": "/sample.txt"}, "door_files": {"/sample.txt": "A made-up page.\n"}, "laid_files": [{"path": "/opt/print-here/read-data/print-here.json", "text": "{\"_what\":\"Printing on the person's own printers from their Mac (read-data/print-here.mjs: `printers` and `print`). A file is read from the person's files by its name or identity, through the local door with the run's own capability, and handed to the Mac's print system on standard input, so nothing is written to a folder first. `commands` are the Mac's own print commands with their arguments: `list` reads the printers and the default, `print` sends one job, where {printer}, {copies} and {title} are filled from the input. `options` maps each input field a person may give to the print system's own option name (paper size, fit to page, two-sided, colour); an option whose value was not given is left out. `files` is the door address of the person's files and the operations a read uses; `read_bytes` is how much one read asks for. `most_bytes` is the largest file sent. A host that hands runs over by id journals each job before it is sent (`may_have_started` is said when one may already be at the printer). A new option is a row.\",\"commands\":{\"list\":[\"lpstat\",\"-p\",\"-d\"],\"print\":[\"lp\",\"-d\",\"{printer}\",\"-n\",\"{copies}\",\"-t\",\"{title}\"]},\"options\":{\"paper\":\"media\",\"fit\":\"fit-to-page\",\"sides\":\"sides\",\"color\":\"print-color-mode\",\"orientation\":\"orientation-requested\"},\"files\":{\"find\":\"read_file\",\"read\":\"read_file\"},\"read_bytes\":262144,\"most_bytes\":100000000,\"default_title\":\"Print job\",\"words\":{\"printed\":\"Sent {title} to {printer} ({copies} copy).\",\"no_printer\":\"This Mac has no printer set up. Add one in System Settings > Printers & Scanners, or use a print shop.\",\"unknown_printer\":\"This Mac has no printer named {printer}. Its printers: {printers}.\",\"no_file\":\"Say which file to print: its name in your files or its identity.\",\"which_printer\":\"Say which printer to use: this Mac has no default printer. Its printers: {printers}.\",\"too_big\":\"{title} is {mb} MB, larger than this Mac sends to a printer ({most} MB). Use a print shop.\",\"not_read\":\"Could not read {file} from your files: {error}\",\"may_have_started\":\"This print job may already have started. Check the printer before trying again.\"}}"}], "stand_in_programs": {"lpstat": "printf 'printer sample-printer is idle.  enabled since Mon 01 Jan 2026 00:00:00 UTC\\n'\nprintf 'system default destination: sample-printer\\n'", "lp": "cat > /dev/null\necho \"request id is sample-printer-1 (1 file(s))\""}}],
-        "stored": [
+        "verify": [
           {
-            "files": "/",
-            "operations": [
-              "find_file",
-              "read_file"
-            ]
+            "kind": "sample-run",
+            "input": {
+              "file": "/sample.txt",
+              "stored": {
+                "files": {
+                  "/sample.txt": "A made-up page.\n"
+                }
+              }
+            },
+            "laid_files": [
+              {
+                "path": "/opt/print-here/read-data/print-here.json",
+                "text": "{\"_what\":\"Printing on the person's own printers from their Mac (read-data/print-here.mjs: `printers` and `print`). `print` sends the bytes of one file the caller handed in (`stored.files`, read by the caller from the person's own files) to the Mac's print system on standard input, so nothing is written to a folder first. `commands` are the Mac's own print commands with their arguments: `list` reads the printers and the default, `print` sends one job, where {printer}, {copies} and {title} are filled from the input. `options` maps each input field a person may give to the print system's own option name (paper size, fit to page, two-sided, colour); an option whose value was not given is left out. `most_bytes` is the largest file sent. A host that hands runs over by id journals each job before it is sent (`may_have_started` is said when one may already be at the printer). A new option is a row.\",\"commands\":{\"list\":[\"/usr/bin/lpstat\",\"-p\",\"-d\"],\"print\":[\"/usr/bin/lp\",\"-d\",\"{printer}\",\"-n\",\"{copies}\",\"-t\",\"{title}\"]},\"options\":{\"paper\":\"media\",\"fit\":\"fit-to-page\",\"sides\":\"sides\",\"color\":\"print-color-mode\",\"orientation\":\"orientation-requested\"},\"most_bytes\":100000000,\"default_title\":\"Print job\",\"words\":{\"printed\":\"Sent {title} to {printer} ({copies} copy).\",\"no_printer\":\"This Mac has no printer set up. Add one in System Settings > Printers & Scanners, or use a print shop.\",\"unknown_printer\":\"This Mac has no printer named {printer}. Its printers: {printers}.\",\"no_file\":\"Say which file to print: its name in your files or its identity.\",\"which_printer\":\"Say which printer to use: this Mac has no default printer. Its printers: {printers}.\",\"too_big\":\"{title} is {mb} MB, larger than this Mac sends to a printer ({most} MB). Use a print shop.\",\"not_read\":\"Could not read {file} from your files: {error}\",\"not_handed_in\":\"the file's bytes were not handed in with this run\",\"may_have_started\":\"This print job may already have started. Check the printer before trying again.\"}}"
+              }
+            ],
+            "stand_in_programs": {
+              "lpstat": "printf 'printer sample-printer is idle.  enabled since Mon 01 Jan 2026 00:00:00 UTC\\n'\nprintf 'system default destination: sample-printer\\n'",
+              "lp": "cat > /dev/null\necho \"request id is sample-printer-1 (1 file(s))\""
+            }
           }
         ]
       }
