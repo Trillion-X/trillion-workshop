@@ -105,18 +105,18 @@ test('a run whose host may run the picture encoder asks it once per question and
   fx.files['/sets/pictures.npy'] = npy([vector]);
   fx.descriptors.push({ ...picture, index_id: 'pictures-second' });
   let encoded = 0;
-  const host = { door: { run: async (tool, input) => {
+  const host = { run: async (tool, input) => {
     encoded++;
     assert.equal(tool, encoder.tool);
     assert.deepEqual(input, { texts: ['Quartzbeacon'] });
     return { result: { model: { name: encoder.name, pretrained: encoder.pretrained }, dims: encoder.dims, vectors: [vector] } };
-  } } };
+  } };
   const answer = await searchEverything({ question: 'Quartzbeacon', places: ['seen'], ...given(fx) }, host);
   assert.equal(encoded, 1);
   assert.deepEqual(answer.unavailable, []);
   assert.equal(answer.results[0].moments[0].evidence.length, 2);
 
-  const other = { door: { run: async () => ({ model: { name: encoder.name, pretrained: 'different-weights' }, dims: encoder.dims, vectors: [vector] }) } };
+  const other = { run: async () => ({ model: { name: encoder.name, pretrained: 'different-weights' }, dims: encoder.dims, vectors: [vector] }) };
   const refused = await searchEverything({ question: 'Quartzbeacon', places: ['seen'], ...given(fx) }, other);
   assert.deepEqual(refused.results, []);
   assert.ok(refused.unavailable.length === 2 && refused.unavailable.every(item => item.reason === 'query_model_mismatch'));

@@ -344,13 +344,15 @@
                 "at": "/opt/search-everything-with-one-question"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
+ "package": "workflows",
+ "paths": [
+   "do-work/run-a-function.mjs",
+   "read-data/host-actions.mjs",
+   "read-data/whole-file.mjs",
+   "read-data/large-file.json"
+ ],
+ "at": "/opt/workflows"
+},
               {
                 "package": "content-identity",
                 "paths": [
@@ -395,7 +397,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/search-everything-with-one-question/do-work/search-everything.mjs",
             "searchEverything"
           ],
@@ -1519,13 +1521,15 @@
                 "at": "/opt/search-everything-with-one-question"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
+ "package": "workflows",
+ "paths": [
+   "do-work/run-a-function.mjs",
+   "read-data/host-actions.mjs",
+   "read-data/whole-file.mjs",
+   "read-data/large-file.json"
+ ],
+ "at": "/opt/workflows"
+},
               {
                 "package": "content-identity",
                 "paths": [
@@ -1570,7 +1574,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/search-everything-with-one-question/do-work/search-everything.mjs",
             "answerTheSearchRoute"
           ],

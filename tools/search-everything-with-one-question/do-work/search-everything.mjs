@@ -19,7 +19,7 @@
 //   is its own canonical identity and every weight is 1.
 // - A lane that was not handed its input (no `records` or no `files`) is named `unavailable`, never guessed. The run reaches
 //   no store. A picture index's query vector is handed in (`query_vectors`), made by the encoder read-data/settings.json
-//   names for that model; without it, a run whose host lets it run another tool (`door.run`, an ability of the host, not
+//   names for that model; without it, a run whose host lets it run another tool (`host.run`, an ability of the host, not
 //   a records operation) asks that encoder, and a run that cannot names the encoder in `unavailable`.
 // - A result is its owner's hit (with its address) plus found_in, places, moments, said and the fused score.
 import settings from '../read-data/settings.json' with { type: 'json' };
@@ -41,7 +41,7 @@ const planned = (type, { places = null, sources = null, matches = null } = {}) =
 // The person's records and files as this run was handed them: the values the caller read from its own store. `recordsOf`
 // lists the records of one kind (all kinds when none is named); `readSpan` reads a bounded span of one of the given files.
 // `run` is another Workshop tool's run, when the host gives the run that ability.
-function givenOf(fields, door) {
+function givenOf(fields, host) {
   const records = Array.isArray(fields.records) ? fields.records.filter(record => record && typeof record === 'object') : [];
   const bytesOf = held => Buffer.from(typeof held === 'string' ? held : held?.base64 ?? '', typeof held === 'string' ? 'utf8' : 'base64');
   const files = new Map(Object.entries(fields.files && typeof fields.files === 'object' ? fields.files : {}).map(([name, held]) => [name, bytesOf(held)]));
@@ -54,7 +54,7 @@ function givenOf(fields, door) {
       const part = bytes.subarray(offset, offset + Math.max(0, length));
       return { byte_length: bytes.length, offset, bytes_returned: part.length, encoding: 'base64', content: part.toString('base64') };
     },
-    run: typeof door?.run === 'function' ? (tool, asked) => door.run(tool, asked) : undefined,
+    run: typeof host?.run === 'function' ? (tool, asked) => host.run(tool, asked) : undefined,
   };
 }
 
@@ -100,11 +100,11 @@ function searchFileNames(given, { question, limit }) {
 // `records` are the person's records the caller read from its own store ({ id, type, value }); `files` maps each of the
 // person's file names to its text or { base64 }. This run reads no store: what is not handed in is not there, and a lane
 // that was not handed its input is named `unavailable`. `query_vectors` are the picture queries the caller made with the
-// encoders read-data/settings.json names ({ model_id, model_version, vector_base64 }). The host's `door`, when there is
+// encoders read-data/settings.json names ({ model_id, model_version, vector_base64 }). The host's `run`, when there is
 // one, is used for one thing only: another Workshop tool's run, to make a picture query no vector was handed in for.
-export async function searchEverything(input, { door } = {}) {
+export async function searchEverything(input, host = {}) {
   const fields = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
-  const given = givenOf(fields, door);
+  const given = givenOf(fields, host);
   const indexes = searchIndexPlaces(given, config, fields);
   const mechanisms = {
     indexes: (lane, context) => indexes(lane, context, Number.isInteger(fields.limit) ? fields.limit : config.limit),
@@ -216,7 +216,7 @@ export async function searchEverything(input, { door } = {}) {
 // { path, method, query } in, its { status, body } out. searchOptions is old src/search.mjs:2221: places, sources and
 // matches as comma lists, limit a whole number above 0, at most 200. The records, files and query_vectors are handed in
 // beside the request, as searchEverything takes them, with the same host. Any other request is no route of this one.
-export async function answerTheSearchRoute(input, { door } = {}) {
+export async function answerTheSearchRoute(input, host = {}) {
   const { path, method, query, records, files, query_vectors: queryVectors } = input && typeof input === 'object' ? input : {};
   if (method !== 'GET' || path !== '/search') return { status: 404, body: { error: 'Not found' } };
   const asked = query && typeof query === 'object' ? query : {};
@@ -224,7 +224,7 @@ export async function answerTheSearchRoute(input, { door } = {}) {
   const limit = Number(asked.limit);
   try {
     return { status: 200, body: await searchEverything({ question: typeof asked.q === 'string' ? asked.q : '', places: list('places'), sources: list('sources'), matches: list('matches'),
-      ...(Number.isInteger(limit) && limit > 0 ? { limit: Math.min(limit, 200) } : {}), records, files, ...(queryVectors === undefined ? {} : { query_vectors: queryVectors }) }, { door }) };
+      ...(Number.isInteger(limit) && limit > 0 ? { limit: Math.min(limit, 200) } : {}), records, files, ...(queryVectors === undefined ? {} : { query_vectors: queryVectors }) }, host) };
   } catch (error) {
     return { status: 500, body: { error: error.message } };
   }
