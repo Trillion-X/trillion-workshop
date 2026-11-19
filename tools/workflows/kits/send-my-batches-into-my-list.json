@@ -1,0 +1,70 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:send-my-batches-into-my-list with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and the batches in payloads.\"",
+  "lists": [],
+  "no_lists_because": "It names no list of its own: the batches an export wrote carry their own list ids, and the rows go into the person's own store, in whatever form that store keeps them.",
+  "workflows": [
+    "workflow:send-my-batches-into-my-list"
+  ],
+  "tools": [
+    "tool:export-records-as-list-rows"
+  ],
+  "instructions": [
+    "1. Run tool:export-records-as-list-rows first so a payloads folder holds manifest.json and its batch files such as orders-000.json.",
+    "2. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "3. Read manifest.json and each batch file in the manifest's order, and say \"Run workflow:send-my-batches-into-my-list\" with store and batches as read. Add done (the batches an earlier run already sent) and limits when you have them.",
+    "4. The first run proves the send on the example attempts in a throwaway place. Every answer must be the one the intent says, or the run stops and says which.",
+    "5. Read what came back: state, batches_done and, if it stopped, the batch that was refused and why. Run it again with the batches_done it gave as done: sent batches are skipped, so a re-run only sends what is left."
+  ],
+  "worked_examples": [
+    {
+      "title": "One batch of two rows is sent into the orders list",
+      "ask": "Send my prepared bakery orders into my orders list.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:send-my-batches-into-my-list",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "batches": [
+                {
+                  "file": "orders-000.json",
+                  "list_id": "orders",
+                  "rows": [
+                    {
+                      "id": "O-1",
+                      "value": {
+                        "qty": 1
+                      }
+                    },
+                    {
+                      "id": "O-2",
+                      "value": {
+                        "qty": 2
+                      }
+                    }
+                  ]
+                }
+              ],
+              "limits": {
+                "max_rows_per_write": 2
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:send-my-batches-into-my-list",
+      "step": "send",
+      "given": "The prove step gave the answers the intent says on the example attempts (a PGlite database and a JSON folder gave the same answers), and the store holds no orders yet.",
+      "hands_back": "state all_batches_sent, batches_done {\"orders-000.json\": 2}. Run it again with that batches_done as done: it sends nothing."
+    }
+  ],
+  "drafted_from": "tool:send-list-row-batches's own row (tools/export-records-as-list-rows/tool-rows.json, retired in this commit), do-work/send_list_rows.py, read-data/send_batches.py and kits/send-list-row-batches.json; the answers are the ones a scratch run of the recipe's prove attempts gave on PGlite and on a JSON folder, the same on both"
+}

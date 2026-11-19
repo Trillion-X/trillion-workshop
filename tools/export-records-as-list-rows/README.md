@@ -1,6 +1,6 @@
 # tools/export-records-as-list-rows/
 
-Turns a person's records on disk into the payloads that put rows into their lists (as list rows, or as the write commands their store takes), and plans or sends the batches. Nothing here reaches a store: the person's AI reads and writes their own store directly, in that store's own language. Records can be JSON, tab-separated files (a spreadsheet saved as text) or markdown tables. **The code knows no record kinds, columns or lists**: everything about them is in a mapping file the person writes, so the same script serves any library. It sends nothing; it writes `make_lists.json`, the rows in batches (`<source>-000.json`, ...) and `manifest.json` into a folder.
+Turns a person's records on disk into the payloads that put rows into their lists (as list rows, or as the write commands their store takes), and plans the batches. Nothing here reaches a store: the person's AI reads and writes their own store directly, in that store's own language. Records can be JSON, tab-separated files (a spreadsheet saved as text) or markdown tables. **The code knows no record kinds, columns or lists**: everything about them is in a mapping file the person writes, so the same script serves any library. It sends nothing; it writes `make_lists.json`, the rows in batches (`<source>-000.json`, ...) and `manifest.json` into a folder.
 
 ```
 python3 -I do-work/export_records_as_list_rows.py --mapping FILE --root DIR --out DIR [--batch 100] [--only SOURCE] [--skip-ids FILE]
@@ -121,15 +121,9 @@ To add fields to rows the store already holds, keyed by row id, give a payload w
 
 The planner does not read the store, so it cannot check the store's own rules: the caller checks the `expected` values when it writes, and a write the store cannot make atomic is the caller's to refuse.
 
-## Sending the batches
+## Putting the batches into the store
 
-`do-work/send_list_rows.py` sends the batches of an export one at a time through a command the person's config names, with a status file so a re-run skips what was sent.
-
-```
-python3 -I do-work/send_list_rows.py --config FILE [--key KEY] --batches DIR --status FILE [--only FAMILY ...]
-```
-
-The config says what to run (`send`, optionally `warm` before every send), how to count what was kept, which errors mean "retry after a wait" and which mean "send the halves", the waits and the order of the batch families (see `read-data/send_batches.py`). A batch is done only when every row was kept; a refusal stops the run and the status file says which batch and why. Exit 0 all sent, 1 refused, 2 unreadable config.
+The export writes its batches and a manifest into the folder the person names. Nothing here sends them: the recipe `workflow:send-my-batches-into-my-list` (in `tools/workflows`) has the person's AI write each batch into the person's own store, one batch at a time, and keep what was sent. A batch counts only when the store holds every one of its rows, and a refusal stops the run and names the batch and why.
 
 ## Noting what shipped
 
@@ -166,14 +160,12 @@ Prints `{ ok, bundle_id, file, written, reference_issues, tier_issues }`. The fi
 | File | Purpose |
 |---|---|
 | `do-work/build_record_write.py` | The write builder's command line. |
-| `do-work/send_list_rows.py` | The batch sender's command line. |
 | `read-data/records_write.py` | The mapping, sources, staged-file readers, bases, checks and payload. |
 | `read-data/expressions.py` | The expressions a mapping uses (paths, templates, conditions, lookups, lists, slugs, file text, requirements). |
-| `read-data/send_batches.py` | Sending with warm-up, retry, halving and a status file. |
 | `do-work/plan_record_write.py` | The write planner's command line (plan and readback), on standard input; it reaches no store. |
 | `do-work/plan_built_record_write.mjs` | The managed planner: hands the builder's result and the held records to the planner and returns its answer; writes nothing. |
 | `read-data/record_write_plan.py` | Which records a store lacks, the bounded keyed commands, the baseline refresh with its conflicts and expected values, and the readback; pure, no store. |
-| `test/test_record_write.py`, `test/test_send_batches.py` | Both on made-up fixtures: `test/fixtures/pantry/` (a pantry's goods and stores) and `test/fixtures/fake_list_service.py`. |
+| `test/test_record_write.py` | On made-up fixtures: `test/fixtures/pantry/` (a pantry's goods and stores). |
 | `test/test_record_write_sources.py` | The tab-separated, markdown-lines, text and mapping-kept sources, `again` and `skip_if`, `lists_read`/`lists_add`, a basis's own confidence, the list, text, number and file expressions, and a mapping kept as setting rows (one, or in parts) read back to the same payload, on a made-up orchard almanac. |
 | `test/test_record_write_plan.py` | Byte-bounded commands, merged duplicates, the stable basis time, the plan and readback on the made-up pantry, the baseline refresh with conflicts, and the planner's command line. |
 | `do-work/publish_view_file.py` | The view publisher's command line. |

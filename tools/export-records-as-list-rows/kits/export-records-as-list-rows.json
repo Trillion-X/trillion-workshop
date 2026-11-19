@@ -3,16 +3,17 @@
   "start_here": "Say to your AI: \"Turn my bakery orders in data/orders.json into rows for my orders list with the mapping I wrote, and tell me how many rows came out.\"",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: every list and column comes from the mapping, and it only writes payload files into a folder and sends nothing.",
-  "workflows": [],
+  "workflows": [
+    "workflow:send-my-batches-into-my-list"
+  ],
   "tools": [
-    "tool:export-records-as-list-rows",
-    "tool:send-list-row-batches"
+    "tool:export-records-as-list-rows"
   ],
   "instructions": [
     "1. Put your records in a folder (here data/orders.json holding {\"orders\":[{\"id\":\"O-1\",\"customer\":\"Sam\",\"item\":\"sourdough loaf\",\"qty\":\"2\",\"status\":\"paid\"}, ...]}) and write mapping.json: new_lists names the list and its fields, and each source names the file, the path to the records, the row id template and a map saying how each field is made (from, number, choice with a table, const).",
     "2. Say \"Turn my records into rows\"; your AI reads the row with tools:list {tool: \"tool:export-records-as-list-rows\"} and runs its command with {mapping}, {root} and {out} filled in.",
     "3. Read the counts it prints and open manifest.json and the orders-000.json batch in the out folder; a refusal on stderr (exit 2) says what to change, for example two records making one row id.",
-    "4. Nothing has been sent yet: when you agree, put the batches into your list with tool:send-list-row-batches."
+    "4. Nothing has been sent yet: when you agree, put the batches into your store with workflow:send-my-batches-into-my-list."
   ],
   "worked_examples": [
     {

@@ -1,0 +1,221 @@
+{
+  "about": "workflow:send-my-batches-into-my-list: puts the batches an export wrote into the person's own store, one batch at a time, with the same rules the retired tool:send-list-row-batches kept (rule a-tool-is-only-what-the-store-cannot-do). It replaces tool:send-list-row-batches in tools/export-records-as-list-rows, whose whole job was sending rows into a list through a command the person configured.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:send-my-batches-into-my-list",
+        "label": "Send my prepared batches into my list",
+        "job": "Put the batches an export wrote into the person's own store, one batch at a time: a batch counts only when the store holds every one of its rows, a batch already sent is skipped on a re-run, and a refused batch stops the run and names the batch and why.",
+        "produces": "The batches' rows as records in the person's own store, each batch written whole or refused, with a kept count per batch that the run answers. The procedure is proven on the example attempts in a throwaway place before any real batch is sent.",
+        "source": {
+          "from": "tools/export-records-as-list-rows do-work/send_list_rows.py and read-data/send_batches.py, and tool:send-list-row-batches (its row, kit and tests, retired in this commit), read on trillion-workshop origin/main.",
+          "note": "Only the keeping is the store's job. The command the old sender ran is replaced by the person's AI writing into its own store in that store's own language. The wait, retry, halving and status rules stay as values this recipe carries. The records door and its runner are not used."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "batches"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these lists: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "batches": {
+              "type": "array",
+              "maxItems": 1024,
+              "items": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "list_id",
+                  "rows"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "The batch file name the export wrote, such as orders-000.json"
+                  },
+                  "list_id": {
+                    "type": "string",
+                    "description": "The list the rows go into"
+                  },
+                  "rows": {
+                    "type": "array",
+                    "description": "The rows as the export wrote them: { id, value }"
+                  }
+                }
+              },
+              "description": "The batches in send order (the export's manifest order), each as the export wrote it."
+            },
+            "done": {
+              "type": "object",
+              "description": "The batches already sent by an earlier run, as { file: kept }. They are skipped."
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "max_rows_per_write": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "The most rows the store takes in one write. A bigger batch is sent as halves, in order."
+                },
+                "waits": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "description": "Seconds to wait before each retry when the store is busy (default [3, 3, 5, 5, 10]). After the last wait the batch is refused."
+                }
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of the lists it holds. Submit the names of the lists that already exist and whether the store keeps rows by list and id.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "lists",
+                "keeps_rows_by_id"
+              ],
+              "properties": {
+                "lists": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "keeps_rows_by_id": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the send on the example attempts",
+            "do": "In a throwaway place with the same kind of store, run these attempts in order, with limits max_rows_per_write 2 and waits [0, 0, 0, 0, 0]. The batches are: orders-000.json for list orders with rows O-1 and O-2; orders-001.json for list orders with rows O-3, O-4 and O-5; orders-002.json for list orders with rows O-6 and O-2, where O-2 now carries qty 5 instead of 2. Attempt 1: send orders-000.json with done {}. Attempt 2: send orders-000.json and orders-001.json with done {orders-000.json: 2}. Attempt 3: send the same two batches with done {orders-000.json: 2, orders-001.json: 3}. Attempt 4: send orders-002.json with done {orders-000.json: 2, orders-001.json: 3}. Attempt 5: read the ids of list orders. Sending a batch: write its rows in one transaction, where a row the store does not hold is written, a row it holds with the same value counts as kept, and a row it holds with another value refuses the batch (nothing of that batch is written). A batch over max_rows_per_write is sent as halves, the first then the second. kept is the number of the batch's rows the store holds with their values after the send; a batch counts only when kept equals its rows. Stop at the first batch not kept whole. Answer each send attempt as { state, batches_done, last_refusal? } where state is all_batches_sent or stopped_on_refusal, and answer the read as the sorted ids. Then remove the throwaway place. Submit answers: one per attempt, in order, exactly as the answers above.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt gives the answer the procedure says: the first batch is kept whole; a re-run skips the batches already done and sends only the new one, halved because it is over the write limit; a second re-run sends nothing; a batch whose row holds another value is refused with nothing of it written, so the list holds no O-6.",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    {
+                      "state": "all_batches_sent",
+                      "batches_done": {
+                        "orders-000.json": 2
+                      }
+                    },
+                    {
+                      "state": "all_batches_sent",
+                      "batches_done": {
+                        "orders-000.json": 2,
+                        "orders-001.json": 3
+                      }
+                    },
+                    {
+                      "state": "all_batches_sent",
+                      "batches_done": {
+                        "orders-000.json": 2,
+                        "orders-001.json": 3
+                      }
+                    },
+                    {
+                      "state": "stopped_on_refusal",
+                      "batches_done": {
+                        "orders-000.json": 2,
+                        "orders-001.json": 3
+                      },
+                      "last_refusal": {
+                        "batch": "orders-002.json",
+                        "sent": 2,
+                        "kept": 0,
+                        "error": "row O-2 already holds another value"
+                      }
+                    },
+                    [
+                      "O-1",
+                      "O-2",
+                      "O-3",
+                      "O-4",
+                      "O-5"
+                    ]
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "send",
+            "title": "Send the batches in order",
+            "do": "Only after the prove step answered every attempt as the intent says. For each batch in input.batches, in order: skip it when input.done already names its file; otherwise send it as the prove step does, with the store's own write. When the store says it is busy, wait the next seconds in limits.waits and try the same write again; when the store says the batch is too big, send its halves. A batch that the store does not keep whole stops the run. Submit { state, batches_done, last_refusal? }: batches_done is input.done plus each batch kept now, state is all_batches_sent or stopped_on_refusal, and last_refusal names the batch file, rows sent, rows kept and the store's words.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "state",
+                "batches_done"
+              ],
+              "properties": {
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "all_batches_sent",
+                    "stopped_on_refusal"
+                  ]
+                },
+                "batches_done": {
+                  "type": "object"
+                },
+                "last_refusal": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes a row of a list. A batch already sent is not sent again on a re-run unless the person takes its file out of done, and a row a live edit changed is refused, not overwritten."
+      }
+    }
+  ]
+}
