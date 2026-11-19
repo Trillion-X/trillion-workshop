@@ -1,9 +1,8 @@
 // tools/learn-from-everyones-results/read-data/pooled-results.mjs
 //
 // Results learned from everyone, and the only answer anyone gets from them. The math is ./pooled-learning.mjs
-// (unchanged from the old app). The answering functions here take their rows in the request and answer what they made;
-// they keep nothing. addPooledResult and withdrawPooledResults still go through the records door the run was handed
-// (tools/records-door).
+// (unchanged from the old app). The functions here take their rows in the request and answer what they made; they keep
+// nothing and reach no store. Writing and withdrawing a person's pooled results is workflow:keep-pooled-results (recipes/).
 //
 // What a person's own store does: `randomizeAResult` turns "did it work?" into the one bit that may leave the store
 // (randomized response at the rules' epsilon, drawn from the platform's cryptographic random source). The store keeps
@@ -13,10 +12,8 @@
 //   addPooledSituation      one shared situation: { entry, embedding, day }, the entry's words checked again by the
 //                           plain privacy pass (./plain-privacy-pass.mjs) with no private terms; a new random id; the
 //                           row to keep is answered, nothing is kept here.
-//   addPooledResult         one row: { contributor, situation, worked, embedding, day }. The embedding is the
-//                           situation row's, read here, never one the sender gives, so a sender cannot aim a result at
-//                           a situation that is not shared, and the row is not linked to any shared text.
-//   withdrawPooledResults   every row of one contributor removed.
+//   (addPooledResult and withdrawPooledResults are the recipe workflow:keep-pooled-results: the embedding is read from the
+//    shared situation row in the store, never taken from the sender, and withdrawal removes every row of one contributor.)
 //   howSimilarResultsTurnedOut   the one read, over the result rows handed in: rows whose situation is close in meaning to the asked one, then
 //                           aggregateOnRead (one vote per contributor, the minimum number of people, the median of
 //                           contributor shards, fixed noise, buckets). No call returns a row.
@@ -33,7 +30,6 @@ import { findings } from './plain-privacy-pass.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('./pooled-results.json', import.meta.url), 'utf8'));
 const RULES = ['epsilon', 'min_people', 'shards', 'query_epsilon', 'people_bucket', 'share_step', 'min_similarity'];
-const CONTRIBUTOR = /^[0-9a-f]{64}$/;
 
 const refuse = message => { throw Object.assign(new Error(message), { code: 'refused' }); };
 const rowId = (rows, id) => `record:${rows.row_type}:${id}`;
@@ -91,32 +87,6 @@ export function addPooledSituation({ entry, embedding } = {}) {
   const id = crypto.randomUUID();
   const value = { entry: words, embedding: meaning, day: new Date().toISOString().slice(0, 10) };
   return { situation: id, record: { id: rowId(settings.situations, id), type: rowType(settings.situations), value } };
-}
-
-/** In the pool account: one result row under a contributor, placed at a shared situation's meaning. */
-export async function addPooledResult({ contributor, situation, worked } = {}, { door }) {
-  if (typeof contributor !== 'string' || !CONTRIBUTOR.test(contributor)) refuse(settings.words.bad_contributor);
-  if (typeof worked !== 'boolean') refuse(settings.words.worked_not_boolean);
-  if (typeof situation !== 'string' || !situation || situation.includes('/')) refuse(settings.words.no_situation);
-  const shared = await door.read(rowType(settings.situations), rowId(settings.situations, situation));
-  if (!shared) refuse(settings.words.no_situation);
-  const embedding = embeddingOf(shared.embedding);
-  const id = `${contributor}:${crypto.randomUUID()}`;
-  const value = { contributor, situation, worked: worked ? 1 : 0, embedding, day: new Date().toISOString().slice(0, 10) };
-  await door.write([{ id: rowId(settings.results, id), type: rowType(settings.results), value }], { key: `pooled-result:${id}` });
-  return { added: true };
-}
-
-/** In the pool account: every row one contributor sent, removed. */
-export async function withdrawPooledResults({ contributor } = {}, { door }) {
-  if (typeof contributor !== 'string' || !CONTRIBUTOR.test(contributor)) refuse(settings.words.bad_contributor);
-  const ids = [];
-  for await (const row of door.list({ type: rowType(settings.results), prefix: rowId(settings.results, `${contributor}:`), fields: [] })) ids.push(row.id);
-  for (let at = 0; at < ids.length; at += settings.limits.writes) {
-    const batch = ids.slice(at, at + settings.limits.writes);
-    await door.write(batch.map(id => ({ id, type: rowType(settings.results), value: null })), { key: `withdraw:${contributor}:${batch[0]}:${batch.length}` });
-  }
-  return { removed: ids.length };
 }
 
 /** How results at situations like this one turned out, under every rule, and nothing more. The pool's result rows come in

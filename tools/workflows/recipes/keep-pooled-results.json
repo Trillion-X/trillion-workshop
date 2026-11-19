@@ -1,0 +1,219 @@
+{
+  "about": "workflow:keep-pooled-results: keeps the pool's results (one randomized yes or no per contributor and shared situation, each row at the situation's own meaning) and withdraws every row one contributor sent, in the pool's own store, each row written once. It replaces tool:add-a-pooled-result and tool:withdraw-pooled-results in tools/learn-from-everyones-results, whose whole job was those writes through the records door (rule a-tool-is-only-what-the-store-cannot-do). The answer (tool:how-similar-results-turned-out) and the shared situation (tool:add-a-shared-situation) stay tools: they compute, and the rows come in or go out as data.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-pooled-results",
+        "label": "Keep pooled results",
+        "job": "Keep one person's randomized yes or no about a shared situation in the pool everyone learns from, under their random contributor id, and take every result one contributor sent out of the pool when they stop sharing, in the pool's own store.",
+        "produces": "The pool's own objects for pooled-result records, proven on the example attempts: a result written only when its shared situation is still there at the version read and its address is new, a withdrawal of one contributor's rows in batches of the engine's cap, and the rules kept as values the store is asked for.",
+        "source": {
+          "from": "tools/learn-from-everyones-results read-data/pooled-results.mjs (addPooledResult and withdrawPooledResults, the two writes this recipe replaces; the limits are in read-data/pooled-results.json) and tool:add-a-pooled-result and tool:withdraw-pooled-results (their rows, retired in this commit), read on trillion-workshop origin/main fca623dfb.",
+          "note": "Only the keeping is the store's job: a record, its version, and a write made only when the record is absent or still at the version read, with preconditions in the same transaction. The embedding is copied by the store from the shared situation's own row, in the same transaction as the write, so a sender cannot aim a result at a situation that is not shared. The rules that decide what a result is (the contributor's form, the bit, the refusals) are values the owner AI works out and gives the store. The records door and its runner are not used."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the pool is kept: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "results": {
+              "type": "array",
+              "maxItems": 256,
+              "description": "Results to keep, one per item: {contributor (64 lowercase hex), situation (the shared situation's id in pooled-situations), worked (true or false, the randomized bit as the person's store drew it)}. The rules in the keep step apply to each."
+            },
+            "withdraw": {
+              "type": "array",
+              "maxItems": 256,
+              "items": {
+                "type": "string"
+              },
+              "description": "Contributors whose every result is removed from the pool (each 64 lowercase hex)."
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Operations to run this time instead, in the store's terms: write {address, value (null removes), expected_version (null when the record must not exist)}, batch {writes, preconditions}, read {address}, list {prefix}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the pool's results and shared situations are kept (kept_in, or null) and the names of the objects that already keep them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: pooled-result records (address `record:pooled-result:<contributor>:<uuid>`, value as a JSON object, version) and reads of pooled-situation records (address `record:pooled-situation:<id>`), where a version rises by one with each write and starts at 1. A write is made in one transaction only when the record's current version is the expected one (null: the record does not exist yet); otherwise it is a conflict and nothing changes. A batch makes all its writes, and checks all its preconditions, in one transaction; if any precondition or write conflicts, the whole batch is a conflict and nothing changes. A value that is not a JSON object is refused. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, run these operations in order, each through the store's own objects: [{\"op\":\"write\",\"address\":\"record:pooled-situation:sample-situation-1\",\"value\":{\"entry\":{\"what\":\"A made-up shared situation\"},\"embedding\":[1,0,0],\"day\":\"2026-11-01\"},\"expected_version\":null},{\"op\":\"read\",\"address\":\"record:pooled-situation:sample-situation-1\"},{\"op\":\"batch\",\"writes\":[{\"address\":\"record:pooled-result:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:00000000-0000-4000-8000-000000000001\",\"value\":{\"contributor\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"situation\":\"sample-situation-1\",\"worked\":1,\"embedding\":[1,0,0],\"day\":\"2026-11-01\"},\"expected_version\":null}],\"preconditions\":[{\"address\":\"record:pooled-situation:sample-situation-1\",\"expected_version\":1}]},{\"op\":\"write\",\"address\":\"record:pooled-result:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:00000000-0000-4000-8000-000000000001\",\"value\":{\"contributor\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"situation\":\"sample-situation-1\",\"worked\":1,\"embedding\":[1,0,0],\"day\":\"2026-11-01\"},\"expected_version\":null},{\"op\":\"batch\",\"writes\":[{\"address\":\"record:pooled-result:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:00000000-0000-4000-8000-000000000002\",\"value\":{\"contributor\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"situation\":\"sample-situation-1\",\"worked\":0,\"embedding\":[1,0,0],\"day\":\"2026-11-01\"},\"expected_version\":null}],\"preconditions\":[{\"address\":\"record:pooled-situation:sample-situation-1\",\"expected_version\":99}]},{\"op\":\"read\",\"address\":\"record:pooled-result:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:00000000-0000-4000-8000-000000000002\"},{\"op\":\"batch\",\"writes\":[{\"address\":\"record:pooled-result:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:00000000-0000-4000-8000-000000000002\",\"value\":{\"contributor\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"situation\":\"sample-situation-1\",\"worked\":0,\"embedding\":[1,0,0],\"day\":\"2026-11-01\"},\"expected_version\":null}],\"preconditions\":[{\"address\":\"record:pooled-situation:nope\",\"expected_version\":1}]},{\"op\":\"batch\",\"writes\":[{\"address\":\"record:pooled-result:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:00000000-0000-4000-8000-000000000002\",\"value\":{\"contributor\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"situation\":\"sample-situation-1\",\"worked\":0,\"embedding\":[1,0,0],\"day\":\"2026-11-01\"},\"expected_version\":null}],\"preconditions\":[{\"address\":\"record:pooled-situation:sample-situation-1\",\"expected_version\":1}]},{\"op\":\"list\",\"prefix\":\"record:pooled-result:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:\"},{\"op\":\"batch\",\"writes\":[{\"address\":\"record:pooled-result:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:00000000-0000-4000-8000-000000000001\",\"value\":null,\"expected_version\":1}],\"preconditions\":[]},{\"op\":\"list\",\"prefix\":\"record:pooled-result:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:\"},{\"op\":\"read\",\"address\":\"record:pooled-result:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:00000000-0000-4000-8000-000000000002\"}]. Answers: a write gives written or conflict; a batch gives written or conflict (a batch whose precondition fails writes nothing); a read gives {value, version} of the record, or null when there is none; a list gives [{address, version}] of the records whose address starts with the prefix. Then remove the throwaway place. Submit the answers in order.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt gives the answer the intent says: a shared situation is written and read back; a result is written once at the situation's version, and the same address written again conflicts; a batch whose precondition is a stale version of the situation writes nothing; a result for a situation that is not there conflicts; a result at a shared situation is written; a contributor's rows are listed, removed by a batch, and gone; the other contributor's row is kept",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    "written",
+                    {
+                      "value": {
+                        "entry": {
+                          "what": "A made-up shared situation"
+                        },
+                        "embedding": [
+                          1,
+                          0,
+                          0
+                        ],
+                        "day": "2026-11-01"
+                      },
+                      "version": 1
+                    },
+                    "written",
+                    "conflict",
+                    "conflict",
+                    null,
+                    "conflict",
+                    "written",
+                    [
+                      {
+                        "address": "record:pooled-result:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:00000000-0000-4000-8000-000000000001",
+                        "version": 1
+                      }
+                    ],
+                    "written",
+                    [],
+                    {
+                      "value": {
+                        "contributor": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                        "situation": "sample-situation-1",
+                        "worked": 0,
+                        "embedding": [
+                          1,
+                          0,
+                          0
+                        ],
+                        "day": "2026-11-01"
+                      },
+                      "version": 1
+                    }
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's results and withdrawals",
+            "do": "Work out each result and withdrawal from the results and withdraw given, with these rules, and run each through the store's own objects in order: (1) a result needs a contributor of 64 lowercase hex characters (else refused: \"A contributor is 64 lowercase hex characters.\"), a situation id with no \"/\", and worked true or false (else refused: \"worked is true or false.\"), stored as 1 or 0; (2) the situation must exist: read its record at `record:pooled-situation:<situation>` (else refused: \"No shared situation has that id.\"), and take its embedding and its version; (3) write the result at `record:pooled-result:<contributor>:<new random UUID>` with expected_version null, value { contributor, situation, worked, embedding (copied from the situation's record, never from the input), day (today's UTC date as YYYY-MM-DD) }, as one batch whose precondition is the situation at the version read; a batch that conflicts writes nothing and is refused for that item; (4) a withdrawal: list the records whose address starts with `record:pooled-result:<contributor>:`, then remove them in batches of at most 256 writes, each write value null with the expected_version the list gave; count the removed; the next answer is worked out from what is left. Nothing is answered back but counts, refusals and the lists of what was written. Submit the answers and the counts.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers",
+                "added",
+                "removed",
+                "refused"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                },
+                "added": {
+                  "type": "integer"
+                },
+                "removed": {
+                  "type": "integer"
+                },
+                "refused": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes that contributor's pooled-result records (the withdrawal in the keep step), in the same batches of at most 256."
+      }
+    }
+  ]
+}

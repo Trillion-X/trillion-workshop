@@ -1,0 +1,53 @@
+{
+  "drafted_from": "tool:add-a-pooled-result's and tool:withdraw-pooled-results' own rows (their words, input schemas and steps, retired in this commit) and tools/learn-from-everyones-results read-data/pooled-results.mjs; the proof is the recipe's prove step, run on PGlite and a JSON folder.",
+  "start_here": "Say to your AI: \"Run workflow:keep-pooled-results with store {\\\"where\\\":\\\"postgresql database example_pool on my own computer\\\",\\\"language\\\":\\\"SQL (PostgreSQL)\\\",\\\"credential_name\\\":\\\"example-pool-postgres-connection\\\"} and results [{\\\"contributor\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"situation\\\":\\\"sample-situation-1\\\",\\\"worked\\\":true}].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the pool results and shared situations are kept in the pool's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-pooled-results"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the pool's login in your vault under a name you choose, and say where the pool is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-pooled-results\" with store, and results (each one person's randomized yes or no at a shared situation, with their random contributor id) and withdraw (contributors whose every result is removed) as you want them kept.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts: every answer must be the one the intent says, or the run stops and says which.",
+    "4. Read what came back: added, removed, and each refused item with its position and why. Nothing is changed for a refused item."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep one randomized result at a shared situation on its sample",
+      "ask": "Keep one person's noisy yes or no about a shared situation in the pool everyone learns from, under their random contributor id",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-pooled-results",
+              "store": {
+                "where": "postgresql database example_pool on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-pool-postgres-connection"
+              },
+              "results": [
+                {
+                  "contributor": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "situation": "sample-situation-1",
+                  "worked": true
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-pooled-results",
+      "step": "keep",
+      "given": "The shared situation sample-situation-1 is kept in the pool at version 1, with no result from this contributor yet.",
+      "hands_back": "added 1, removed 0, refused [], and a pooled-result record kept under the contributor's id at version 1."
+    }
+  ]
+}
