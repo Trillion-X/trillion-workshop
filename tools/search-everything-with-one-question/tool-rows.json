@@ -423,7 +423,7 @@
         "maker": "maker:trillion",
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion src/file-tools.mjs:125 `search` and src/search.mjs:1750 `finish`, through trillion-rust records:search (a run's read-only right over every kind: account_rights/run_capability.rs, records-door.json run_operations every_kind) and the files' name search"
+          "source": "Trillion-X/trillion src/file-tools.mjs:125 `search` and src/search.mjs:1750 `finish`, through trillion-rust's record search over every kind (its read right was retired with the records door) and the files' name search"
         },
         "verify": [
           {
@@ -825,7 +825,7 @@
         "maker": "maker:trillion",
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion src/file-tools.mjs:125 `search` and src/search.mjs:1750 `finish`, through trillion-rust records:search (a run's read-only right over every kind: account_rights/run_capability.rs, records-door.json run_operations every_kind) and the files' name search"
+          "source": "Trillion-X/trillion src/file-tools.mjs:125 `search` and src/search.mjs:1750 `finish`, through trillion-rust's record search over every kind (its read right was retired with the records door) and the files' name search"
         },
         "verify": [
           {
@@ -1229,7 +1229,7 @@
         "maker": "maker:trillion",
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion src/search.mjs:1750 `finish` (its words-in-records lane), through trillion-rust records:search"
+          "source": "Trillion-X/trillion src/search.mjs:1750 `finish` (its words-in-records lane), through trillion-rust's record search (retired with the records door)"
         },
         "verify": [
           {

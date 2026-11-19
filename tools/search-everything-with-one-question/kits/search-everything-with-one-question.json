@@ -13,7 +13,7 @@
     "0. Hand in the records and files the search covers: read them from your own store and give them as records (each {id, type, value}) and files (each file name to its text or {base64}). The run reads no store.",
     "1. Say what you want to find: question (at most 500 characters), and optionally type to keep only one kind of record, limit 1 to 200, places (said, seen, name, written), sources (trillion, files) or index_ids.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:search-everything-with-one-question and that input; picture indexes are asked through tool:words-as-picture-vector when the question needs a picture model.",
-    "3. Read result {question, terms, results, unavailable, pending}: answer from each result's said and cite it by its address (records:read for a record, find_file for a file).",
+    "3. Read result {question, terms, results, unavailable, pending}: answer from each result's said and cite it by its address (the record by its id and type from the person's own store, find_file for a file).",
     "4. unavailable names a place that could not answer and why, pending one still working: ask again in a few seconds."
   ],
   "worked_examples": [

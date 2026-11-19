@@ -4,6 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { readdirSync, readFileSync } from 'node:fs';
 import { searchEverything } from '../do-work/search-everything.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
@@ -74,6 +75,14 @@ test('the rows declare the records and files they are handed, no store right, an
   const sample = rowOf('tool:search-everything-with-one-question').verify.find(check => check.kind === 'sample-run');
   assert.deepEqual(sample.input.records.map(record => record.id), ['c1', 'i1', 'p1', 'p2']);
   assert.deepEqual(Object.keys(sample.input.files), ['/Notes/merlinfalcon care.txt', '/Notes/other.txt']);
+});
+
+test('no row, kit, port, doc or code of this folder names a records door operation', () => {
+  const folder = new URL('..', import.meta.url);
+  const operation = /records:(read|write|list|search)\b/;
+  const named = readdirSync(folder, { recursive: true }).filter(name => /\.(json|md|mjs)$/.test(name) && !name.startsWith('test'))
+    .filter(name => operation.test(readFileSync(new URL(name, folder), 'utf8')));
+  assert.deepEqual(named, []);
 });
 
 test('the runner runs the row\'s function with the records and files in its input and answers the same hits', () => {

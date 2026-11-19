@@ -54,7 +54,7 @@
   "the word gate: a words-in-index lane whose best hit holds under word_confidence_floor of the asked words sits the question out"
  ],
  "allowed_deltas": [
-  "finish is a function inside searchEverything(input, { door }), and its lanes are the engine's two storage reads (read-data/settings.json lanes): records:search, whose every record kind is its own lane, and the files' name search, asked only when no type narrows the question",
+  "finish is a function inside searchEverything(input, { door }), and its lanes are the engine's two storage reads (read-data/settings.json lanes): the record search, whose every record kind is its own lane, and the files' name search, asked only when no type narrows the question",
   "a hit keeps the lane its owner gave it ({ lane, ...hit }), so record kinds are ranked apart as the engine ranked them",
   "hiddenAmong (a SQL read of set-aside files) is dropped: the files' search answers only named files; a file is its own canonical identity",
   "a refusal of the records' search is the answer's refusal (thrown), as the engine kept it",
