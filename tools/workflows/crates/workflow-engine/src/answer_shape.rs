@@ -127,15 +127,23 @@ fn check(shape: &Value, value: &Value, at: &str, found: &mut Vec<String>) {
         for inner in all { check(inner, value, at, found); }
     }
     if let Some(Value::Array(any)) = rules.get("anyOf") {
-        if !any.iter().any(|inner| misses_at(inner, value, at).is_empty()) { found.push(format!("{at}: fits none of the {} shapes allowed", any.len())); }
+        let each: Vec<Vec<String>> = any.iter().map(|inner| misses_at(inner, value, at)).collect();
+        if !each.iter().any(Vec::is_empty) { found.push(format!("{at}: fits none of the {} shapes allowed{}", any.len(), nearest(&each))); }
     }
     if let Some(Value::Array(one)) = rules.get("oneOf") {
-        let fits = one.iter().filter(|inner| misses_at(inner, value, at).is_empty()).count();
-        if fits != 1 { found.push(format!("{at}: fits {fits} of the {} shapes, but must fit exactly one", one.len())); }
+        let each: Vec<Vec<String>> = one.iter().map(|inner| misses_at(inner, value, at)).collect();
+        let fits = each.iter().filter(|misses| misses.is_empty()).count();
+        if fits != 1 { found.push(format!("{at}: fits {fits} of the {} shapes, but must fit exactly one{}", one.len(), if fits == 0 { nearest(&each) } else { String::new() })); }
     }
     if let Some(never) = rules.get("not") {
         if misses_at(never, value, at).is_empty() { found.push(format!("{at}: fits a shape it must not fit")); }
     }
+}
+
+/// The misses of the shape the answer came nearest to (fewest misses), so the answerer knows what to change.
+fn nearest(each: &[Vec<String>]) -> String {
+    each.iter().enumerate().min_by_key(|(_, misses)| misses.len())
+        .map(|(at, misses)| format!("; nearest is shape {} of them, which it misses by: {}", at + 1, misses.join("; "))).unwrap_or_default()
 }
 
 fn misses_at(shape: &Value, value: &Value, at: &str) -> Vec<String> {
@@ -205,5 +213,7 @@ mod tests {
         let one = json!({ "oneOf": [{ "type": "number" }, { "type": "integer" }] });
         assert!(!misses(&one, &json!(1)).is_empty(), "1 fits both, so oneOf refuses it");
         assert!(!misses(&json!({ "not": { "const": "ai" } }), &json!("ai")).is_empty());
+        let near = misses(&json!({ "oneOf": [{ "type": "object", "required": ["a"] }, { "type": "object", "required": ["b", "c"] }] }), &json!({ "c": 1 }));
+        assert!(near[0].contains("nearest is shape 1 of them, which it misses by: answer.a: is missing"), "{near:?}");
     }
 }
