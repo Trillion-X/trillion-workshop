@@ -4,21 +4,19 @@ The source-first link-page library preserves page edits, one opaque public code,
 opens, publication filtering, attribution tags, private totals and recent counts, and the original name-claim lifecycle.
 Its content and settings are supplied from the person's installed rows, rather than a new content file.
 
-`makeLinkPage` keeps the original host interfaces: `sql.exec(query, ...binds).toArray()`, synchronous `eeaf.read(id)`,
-awaitable `eeaf.write(rows)`, `posts()`, the public-code `kv.put/delete`, `storeId`, `origin()`, and optional unique-name
-authority `names.claim/point/release`. Supply `namesWords` from the name owner's words. `createLinkPageTable(sql)` is
-called once when that host opens the count tables. Changes await `commit(change, { operation })` and record writes;
-the pending code is durable before a public pointer is made.
+The page is values (W3.2a). The page record and its visit and open rows are the person's own rows in their own store:
+workflow:keep-a-link-in-bio-page keeps and counts them. `makeLinkPage({ page, counts, posts, settings, origin, names, namesWords,
+now, random })` takes the stored page and its count rows as values, and returns `read()`, `visit(place)` and `open(item, place)`,
+which answer the page, the tagged address and the count row to keep, and `change(input)`, which answers `{ page, steps }`.
+The host runs `steps` in order: a `keep` step writes the page value; a `kv_put` step makes the public code point at the
+store, after the `keep` that holds the pending code; a `kv_delete` step follows the `keep` that turns the page off.
 
-`linkPageOverDoor({ door, ...host })` replaces the record interface with the existing selected-account records door.
-It reads exactly the configured record and makes conditional writes; a stale snapshot refuses instead of overwriting
-another request. Construct a fresh owner per serialized request so public reads see the current on/off state.
+The unique-name authority (`names.claim/point/release`) is an injected host facility, called from `change`. `countsOf`,
+`shownPosts`, `pageAddresses`, `placeOf`, `isLinkPageCode` and `taggedAddress` are pure. `handleLinkPageRequest(owner,
+request, { failureOf })` takes the shared failure classifier from the host; retryable failures escape unchanged.
 
-`handleLinkPageRequest(owner, request, { failureOf })` takes the shared failure classifier from the host. Retryable
-failures escape unchanged. The public visitor answer excludes counts and destinations; opens resolve listed ids only.
-
-The count SQL, public lookup and cross-account name authority remain explicit host seams. This library neither supplies
-those engines nor installs public routes. Their production wiring is unverified; the tests exercise real SQLite plus
-in-memory account/index/name hosts and the conditional records-door contract.
+Removed in W3.2a: `createLinkPageTable` (the count tables are the recipe's rows), `linkPageOverDoor` (the records door is the
+host's own, and the page is now values), and the `sql` and `eeaf` facilities. The port contract ports/link-page.json still
+records the earlier door adaptation; its owner must update it.
 
 Run `node --test tools/keep-a-link-in-bio-page/test/link-page.test.mjs`.
