@@ -30,6 +30,23 @@
       }
     },
     {
+      "id": "forum",
+      "label": "Forum",
+      "icon": "MessageSquareText",
+      "design": "thread",
+      "needs": [
+        "title",
+        "body"
+      ],
+      "options": {
+        "style": "discussion",
+        "box": "top",
+        "order": "newest-first",
+        "reply": "Reply",
+        "empty": "No topics yet. Start the first one above."
+      }
+    },
+    {
       "id": "inbox",
       "label": "Inbox",
       "icon": "Inbox",
