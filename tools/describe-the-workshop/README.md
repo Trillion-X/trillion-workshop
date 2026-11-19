@@ -7,6 +7,7 @@ The source lifecycle belongs to [ai-tool-catalog](../ai-tool-catalog/README.md),
 - **Moved, not rewritten.** `do-work/describe.mjs` carries trillion `src/workshop.mjs` `describeTool` (lines 1625-1655) as it was, and `read-data/workshop-sample-rules.mjs` is trillion `src/workshop-sample-rules.mjs` byte for byte. The trillion-rust engine's copy (`src/workshop_describe.rs` and the `GET /work/api/workshop/describe/<id>` route) was deleted in the same change.
 - **The saved row wins.** The person's own saved row (record type `tool`, id `tool:<tool id>`, given by the caller as `saved`, read by their AI from their store; the tool reads no store), when not deleted, replaces the shared row of the same id, even when it cannot be described (paused, or a screen that is not `parts`). A saved row with no `listed_on` takes its `saved_at`.
 - **Where it runs decides its samples.** The rule is DATA by the placement's executor (`read-data/workshop-sample-rules.json`); a former placement id is read as its current one (`read-data/renamed-tools.json` `placements`). The placement is the first of the tool's placements its licence class allows (every one it names when the caller gave no licence classes).
+- **Source changes hold no store.** `tool:manage-my-api-descriptions` takes the account's own tool-source rows as `own` (each with the identity the store holds) and the earlier run's receipt as `receipt`, validates the add, edit or remove, and answers the rows to write as `keep`, with the version each must still be at. The caller writes them in one atomic write; the tool reads and writes nothing.
 - **What it does not read.** The shared rows are the caller's (`shared`, the Workshop's `tools:list` answer). A tool's file bytes are not read (they are in its Workshop folder). The states of a saved tool's samples are kept where they ran, so each declared sample-run check is answered with `state: null`.
 
 ## Files
@@ -14,6 +15,7 @@ The source lifecycle belongs to [ai-tool-catalog](../ai-tool-catalog/README.md),
 | File | Purpose |
 |------|---------|
 | `do-work/describe.mjs` | `describeATool(input)`, run by `tools/records-door/do-work/run-an-export.mjs` |
+| `do-work/sources.mjs` | `accountToolSourcesFromTask(envelope)`, run by `tools/records-door/do-work/run-an-export.mjs` for `tool:manage-my-api-descriptions`: validates and shapes one source change; the caller's rows come in as `own` and the change goes back as `keep` |
 | `read-data/workshop-sample-rules.mjs` | `sampleRuleOf`, `unsafeSample` |
 | `read-data/workshop-sample-rules.json` | The sample rule of each executor (moved from trillion-rust `product/workshop-sample-rules.json`) |
 | `read-data/renamed-tools.json` | Former tool, agent, configuration and placement ids and their current ids (moved from trillion-rust `product/renamed-tools.json`) |

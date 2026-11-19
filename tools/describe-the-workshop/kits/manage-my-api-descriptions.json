@@ -2,7 +2,7 @@
   "drafted_from": "tool:manage-my-api-descriptions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List the API descriptions my tools come from, add an API description for my account, edit it or remove it\", with {}. It runs tool:manage-my-api-descriptions and answers {\"every_account\":[],\"yours\":[],\"kinds\":[]}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (tool-source, tool-source-change) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and gives back the change it makes, to keep in your own store (tool-source, tool-source-change rows). It keeps no row.",
   "workflows": [],
   "tools": [
     "tool:manage-my-api-descriptions"
@@ -11,7 +11,8 @@
     "1. Say to your AI: \"List the API descriptions my tools come from, add an API description for my account, edit it or remove it\", and give it nothing more: every input is optional.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:manage-my-api-descriptions and its input (the worked example shows one).",
     "3. Read what comes back: An empty request lists current default sources and this account's own sources.",
-    "4. It reads and writes only its own rows through the records door: tool-source (records:read, records:list, records:write); tool-source-change (records:read, records:write)."
+    "4. Before a change, read your own tool-source rows from your store and give them as own: each {id: \"tool-source:<source id>\", value, identity}. Give receipt too: the tool-source-change row your store holds for this request_key, or null. The answer's keep lists what to write, in one atomic write that checks each expected identity.",
+    "5. Read what comes back: the sources, and keep (rows to write as they are, with their expected versions)."
   ],
   "worked_examples": [
     {

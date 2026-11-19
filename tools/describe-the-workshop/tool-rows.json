@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "describe-the-workshop-tool-rows",
-  "what_this_is": "Describe a tool and manage this account's live tool-source definitions. Source defaults arrive only from the native task's current source snapshot; source definitions stay in their original-preserving account records.",
+  "what_this_is": "Describe a tool and manage this account's live tool-source definitions. Source defaults arrive only from the native task's current source snapshot; source definitions stay in the person's own store, which the caller reads and writes; this tool gives the changes back.",
   "records": [
     {
       "id": "package::describe-the-workshop::tool::describe-a-tool",
@@ -572,9 +572,16 @@
               "minLength": 1,
               "description": "Keep this key unchanged when retrying the same change"
             },
-            "stored": {
-              "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of tool-source (ids starting tool-source:), tool-source-change (ids starting tool-source-change:), as this row's `stored` lists. What is not given is not there."
+            "own": {
+              "type": "array",
+              "description": "The tool-source rows the caller read from the person's own store, as they stand: each {id, value, identity} (id tool-source:<source id>, value the row, identity the store's version of it, read with it). Needed to change or list this account's sources; what is not given is not there."
+            },
+            "receipt": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "The tool-source-change row the store holds for this request_key (id from the answer's receipt_id, value {command_identity}), or null when there is none. Give it when retrying the same change, so the change is not made twice."
             }
           }
         },
@@ -597,7 +604,7 @@
             },
             "keep": {
               "type": "array",
-              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+              "description": "What the run made, for the caller to write where the person keeps it, in one atomic write: rows {id, type, value, expected} (value null removes; expected null means the row must not exist yet, else {identity} is the version it was read at), and the request's tool-source-change receipt {id, type, value, expected: null}. The run itself writes nothing."
             }
           }
         },
@@ -683,7 +690,7 @@
           "source": "ports/source-lifecycle.json retains the original source slices and adaptation boundaries"
         },
         "record_model": {
-          "_what": "The original-preserving source definitions and narrow semantic retry receipt this tool writes through the current account records owner. No secret value is a source field.",
+          "_what": "The original-preserving source definitions and narrow semantic retry receipt. The caller keeps them in the person's own store and gives them back as own and receipt; this tool writes nothing. No secret value is a source field.",
           "kinds": [
             {
               "type": "tool-source",
@@ -739,25 +746,6 @@
               }
             },
             "output_selector": "$.yours"
-          }
-        ],
-        "stored": [
-          {
-            "kind": "tool-source",
-            "prefix": "tool-source:",
-            "operations": [
-              "records:read",
-              "records:list",
-              "records:write"
-            ]
-          },
-          {
-            "kind": "tool-source-change",
-            "prefix": "tool-source-change:",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
           }
         ]
       }

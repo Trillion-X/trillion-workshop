@@ -1,9 +1,11 @@
 // Source lifecycle port; exact source slices are retained in ports/source-baselines before adaptation.
-// `sourced` is a trusted selected-account owner, never input. config/own/reads/put retain the original facade.
-// Mutations need mutationResult and compareAndPut from that owner: atomic current account/right/config checks,
-// expected-row comparison, original fact storage and request-key/command-identity receipt. `put` alone is insufficient.
-// The records-door adapter below uses the original-preserving copy DATA for source definitions. It never starts
-// the old runtime, guesses defaults, fetches external sources or reads credentials.
+// `sourced` is a trusted selected-account owner, never input. config/own/reads and the mutation pair keep the original
+// facade. Mutations need mutationResult and compareAndPut from that owner. `put` alone is insufficient.
+// This tool reads and writes no store. The caller reads its own tool-source rows and the receipt of an earlier run
+// with the same request_key from the person's store, gives them as `own` (each {id, value, identity}) and `receipt`,
+// and writes what comes back as `keep`: the source row with the identity it was read at (its expected version), and
+// the request receipt. The caller's store applies both in one atomic write that checks those versions.
+// It never starts the old runtime, guesses defaults, fetches external sources or reads credentials.
 import data from '../read-data/source-records.json' with { type: 'json' };
 import { liveSourceProblems } from '../read-data/live-source-problems.mjs';
 import { canonicalJson, makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
@@ -13,6 +15,7 @@ const same = (a, b) => canonicalJson(a) === canonicalJson(b);
 const fail = (message, code = 'source_input_refused') => Object.assign(new Error(message), { code });
 const secretHeader = new RegExp(data.credential_header, 'i');
 const secretQuery = new RegExp(data.credential_query, 'i');
+const receiptIdOf = request => `${data.change_prefix}${makeHashCodeHexFromJson(request.request_key).slice(3)}`;
 
 function addressProblem(value) {
   try {
@@ -66,7 +69,7 @@ async function own(sourced) {
   return structuredClone(rows);
 }
 
-/** Source-qualified owner. A records door alone does not expose the original fact/configuration owners. */
+/** Source-qualified owner. The caller supplies `sourced`; nothing here reads or writes a store. */
 export async function accountToolSources(input = {}, { sourced, now = () => new Date() } = {}) {
   if (!sourced || !['config', 'own', 'reads'].every(key => typeof sourced[key] === 'function'))
     throw fail('The current account tool-source owner is unavailable. No sources were changed.', 'source_owner_unavailable');
@@ -125,99 +128,46 @@ export async function accountToolSources(input = {}, { sourced, now = () => new 
   };
 }
 
-/** Bind lifecycle to the admitted records door and the native owner's current source-configuration supplier.
- * Source definitions retain their original full ids and payload. The extra receipt is only a semantic identity,
- * written atomically with the source; it cannot grant a credential, tool, host, source or account right.
- * `sourceConfig` is supplied by the native owner, never an input field or a customer-editable setting fallback.
- */
-export async function accountToolSourcesFromDoor(input = {}, { door, sourceConfig, now } = {}) {
-  if (!door || !['readRecord', 'list', 'write'].every(key => typeof door[key] === 'function')
-    || !sourceConfig || !['config', 'reads'].every(key => typeof sourceConfig[key] === 'function'))
-    throw fail('The current account tool-source owner is unavailable. No sources were changed.', 'source_owner_unavailable');
-  const receiptId = request => `${data.change_prefix}${makeHashCodeHexFromJson(request.request_key).slice(3)}`;
-  const mutationResult = async request => {
-    const receipt = await door.readRecord(data.change_type, receiptId(request));
-    if (receipt === null) return { found: false };
-    if (receipt.value?.command_identity !== request.command_identity)
-      throw fail('This request_key already belongs to a different source change.', 'source_request_conflict');
-    return { found: true };
-  };
-  let ownIdentities = new Map();
-  const sourced = {
-    config: () => sourceConfig.config(),
-    async reads(mine) {
-      // Pin native root stamps, not content hashes: an edit followed by restoring the same value is still a change.
-      // A caller/stand-in that supplies no root stamp cannot establish this disclosure boundary.
-      const pins = [];
-      for (const row of mine) {
-        const id = `${data.fact_prefix}${row.id}`, held = await door.readRecord(data.record_type, id);
-        if (!held || !same(held.value, row) || typeof held.identity !== 'string' || !held.identity)
-          throw fail('The current source record has no checked root stamp.', 'source_definitions_changed');
-        pins.push({ id, identity: held.identity });
-      }
-      const reads = await sourceConfig.reads(mine);
-      for (const pin of pins) {
-        const held = await door.readRecord(data.record_type, pin.id);
-        if (held?.identity !== pin.identity)
-          throw fail('The account sources changed while their tools were read. Read them again.', 'source_definitions_changed');
-      }
-      return reads;
-    },
-    async own() {
-      const rows = [];
-      const identities = new Map();
-      for await (const record of door.list({ type: data.record_type, prefix: data.fact_prefix })) {
-        if (!object(record.value) || record.id !== `${data.fact_prefix}${record.value.id}`)
-          throw fail('An original source record has a different id from its payload.', 'source_owner_unavailable');
-        const held = await door.readRecord(data.record_type, record.id);
-        if (!held || !same(held.value, record.value) || typeof held.identity !== 'string' || !held.identity)
-          throw fail('The current source record has no checked root stamp.', 'source_definitions_changed');
-        identities.set(record.id, held.identity);
-        rows.push(record.value);
-      }
-      ownIdentities = identities;
-      return rows;
-    },
-    mutationResult,
-    async compareAndPut(change) {
-      const request = { request_key: change.request_key, command_identity: change.command_identity };
-      const before = change.expected === null ? null : { type: data.record_type, value: change.expected, identity: ownIdentities.get(change.entity) };
-      if (before && !before.identity) throw fail('The original source has no current root stamp.', 'source_definitions_changed');
-      await current(sourced, change.configuration);
-      try {
-        await door.write([
-          { id: change.entity, type: data.record_type, value: change.row, expected: before },
-          { id: receiptId(request), type: data.change_type, value: { command_identity: request.command_identity }, expected: null },
-        ], { key: request.request_key });
-      } catch (error) {
-        // A conflict or a lost reply can follow the exact atomic source/receipt commit. Read its receipt once;
-        // never resend a write, change its key, or turn an unavailable readback into a not-started result.
-        if (error?.code !== 'original_command_conflict' && error?.outcome !== 'unknown') throw error;
-        let recovered;
-        try { recovered = await mutationResult(request); }
-        catch { throw error; }
-        if (!recovered.found) throw error;
-      }
-      await current(sourced, change.configuration);
-    },
-  };
-  return accountToolSources(input, { sourced, ...(now ? { now } : {}) });
+/** The caller's own rows as values: each {id, value, identity}, the id being the record id of its source. */
+function ownRowsOf(given) {
+  if (!Array.isArray(given) || given.length > 4096) throw fail('own is the list of the tool-source rows the caller read: {id, value, identity}.', 'source_owner_unavailable');
+  const seen = new Set();
+  return given.map(row => {
+    if (!object(row) || typeof row.id !== 'string' || !object(row.value) || row.id !== `${data.fact_prefix}${row.value.id}`
+      || typeof row.identity !== 'string' || !row.identity)
+      throw fail(`Each own row is {id, value, identity} with the id ${data.fact_prefix}<source id> and the identity it was read at.`, 'source_owner_unavailable');
+    if (seen.has(row.id)) throw fail(`${row.id} is given more than once.`, 'source_owner_unavailable');
+    seen.add(row.id);
+    return structuredClone(row);
+  });
 }
 
 /** Static-row entry. `source_data` is filled from the native task, separately from request input. The native owner
  * fences this snapshot's selected account, current rights and exact default-section witnesses at the physical
  * records commit and final disclosure. This function cannot mint or attest those native witnesses itself.
+ * The caller's `own` rows and `receipt` (the earlier run's tool-source-change row for this request_key, or null)
+ * come in as input fields; the change comes back as `keep` for the caller to write.
  */
-export async function accountToolSourcesFromTask(envelope, { door } = {}) {
+export async function accountToolSourcesFromTask(envelope, { now } = {}) {
   if (!object(envelope) || Object.keys(envelope).some(key => !['input', 'source_data'].includes(key))
     || !object(envelope.source_data) || !object(envelope.source_data.config) || !Array.isArray(envelope.source_data.reads)
     || envelope.source_data.reads.some(read => !object(read) || typeof read.source_id !== 'string')
     || envelope.source_data.own !== undefined && (!Array.isArray(envelope.source_data.own)
       || envelope.source_data.own.some(row => !object(row) || typeof row.id !== 'string')))
     throw fail('The native task has no current tool-source snapshot. No sources were changed.', 'source_owner_unavailable');
+  const { own: given = [], receipt = null, ...operation } = object(envelope.input) ? envelope.input : {};
   const snapshot = structuredClone(envelope.source_data);
+  const start = ownRowsOf(given);
+  const identities = new Map(start.map(row => [row.id, row.identity]));
+  const keep = [];
+  let changed = null;
+  const ownNow = () => {
+    const values = start.map(row => row.value);
+    if (!changed) return structuredClone(values);
+    return structuredClone([...values.filter(value => value.id !== changed.id), changed]);
+  };
   const pending = (source, scope) => ({ source_id: source.id, scope, state: 'pending', version: null, read_at: null, checked_at: null, tools: [], held: [] });
-  const sourceConfig = {
+  const sourced = {
     config: async () => structuredClone(snapshot.config),
     async reads(own) {
       const ownIds = new Set(own.map(source => source.id));
@@ -235,6 +185,23 @@ export async function accountToolSourcesFromTask(envelope, { door } = {}) {
         return read ? structuredClone(read) : pending(source, scope);
       });
     },
+    own: async () => ownNow(),
+    async mutationResult(request) {
+      if (receipt === null) return { found: false };
+      if (!object(receipt) || receipt.id !== receiptIdOf(request))
+        throw fail('The receipt given is not the one for this request_key.', 'source_request_conflict');
+      if (receipt.value?.command_identity !== request.command_identity)
+        throw fail('This request_key already belongs to a different source change.', 'source_request_conflict');
+      return { found: true };
+    },
+    async compareAndPut(change) {
+      const identity = change.expected === null ? null : identities.get(change.entity);
+      if (change.expected !== null && !identity) throw fail('The original source has no identity. Give its identity as the store holds it.', 'source_definitions_changed');
+      keep.push({ id: change.entity, type: data.record_type, value: change.row, expected: change.expected === null ? null : { identity } });
+      keep.push({ id: receiptIdOf({ request_key: change.request_key }), type: data.change_type, value: { command_identity: change.command_identity }, expected: null });
+      changed = change.row;
+    },
   };
-  return accountToolSourcesFromDoor(envelope.input ?? {}, { door, sourceConfig });
+  const answer = await accountToolSources(operation, { sourced, ...(now ? { now } : {}) });
+  return keep.length ? { ...answer, keep } : answer;
 }
