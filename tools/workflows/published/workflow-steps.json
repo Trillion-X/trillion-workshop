@@ -11319,7 +11319,7 @@
     "part_of": [
      "workflow:make-short-videos-from-footage"
     ],
-    "position": 4,
+    "position": 5,
     "recipe": [
      "make-short-videos-from-footage"
     ],
@@ -11338,7 +11338,7 @@
      "L082",
      "tool:cut-and-caption input_schema"
     ],
-    "do": "Call tool:cut-and-caption with input {\"files\": [{\"name\": \"source.mp4\", \"identity\": \"<the recording identity>\", \"bytes\": \"<its byte_length from list-footage>\"}], \"from\": \"<from>\", \"to\": \"<to>\", \"style\": \"subtitles\", \"transcript\": \"<the timed words of the recording>\"}. style is one of subtitles, emphasis, spoken-words, serif-spoken-words, white-words-light-up. Use subtitles unless the person names another. Keep the edit identity and the edit list the tool returns.",
+    "do": "Call tool:cut-and-caption with input {\"files\": [{\"name\": \"source.mp4\", \"identity\": \"<the recording identity>\", \"bytes\": \"<its byte_length from list-footage>\"}], \"from\": \"<from>\", \"to\": \"<to>\", \"style\": \"<the caption look the chosen style and techniques call for>\", \"transcript\": \"<the timed words of the recording>\"}. style is one of subtitles, emphasis, spoken-words, serif-spoken-words, white-words-light-up: take the one the chosen style row's steps and techniques name (choose-the-style); a look none of them names is never picked by default. Keep the edit identity and the edit list the tool returns. Apply every chosen technique this tool can carry, and list the ones it cannot as applied_elsewhere for render-the-edit. Each technique takes the parameters choose-the-style gave for it.",
     "done_when": "edit_identity names the cut clip and edl holds its edit list.",
     "flags": [
      "public"
@@ -11348,13 +11348,13 @@
     "part_of": [
      "workflow:make-short-videos-from-footage"
     ],
-    "position": 5,
+    "position": 6,
     "recipe": [
      "make-short-videos-from-footage"
     ],
     "run_tool": "{\"tool_id\": \"tool:cut-and-caption\", \"input\": {\"files\": [{\"name\": \"source.mp4\", \"identity\": \"<the recording identity>\", \"bytes\": \"<its byte_length from list-footage>\"}], \"from\": \"<from>\", \"to\": \"<to>\", \"style\": \"subtitles\", \"transcript\": \"<the timed words of the recording>\"}}",
     "step": "cut-and-caption",
-    "submit": "{\"type\": \"object\", \"required\": [\"edit_identity\", \"edl\"], \"properties\": {\"edit_identity\": {\"type\": \"string\"}, \"edl\": {\"type\": \"object\"}}}",
+    "submit": "{\"type\": \"object\", \"required\": [\"edit_identity\", \"edl\"], \"properties\": {\"edit_identity\": {\"type\": \"string\"}, \"edl\": {\"type\": \"object\"}, \"applied\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"applied_elsewhere\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}}",
     "title": "Cut the clip and burn in captions",
     "when": "choose-the-clip returned from and to.",
     "why": "Captions and the cut are one pass so the words stay in step with the picture."
@@ -11378,7 +11378,7 @@
     "part_of": [
      "workflow:make-short-videos-from-footage"
     ],
-    "position": 6,
+    "position": 7,
     "recipe": [
      "make-short-videos-from-footage"
     ],
@@ -11398,7 +11398,7 @@
      "L082",
      "tool:render-an-edit input_schema"
     ],
-    "do": "Call tool:render-an-edit with input {\"files\": [{\"name\": \"source.mp4\", \"identity\": \"<identity from reframe-vertical>\", \"bytes\": \"<its byte length>\"}], \"edl\": \"<the edl from cut-and-caption>\"}. The render writes a new file; the source recording is not changed.",
+    "do": "Call tool:render-an-edit with input {\"files\": [{\"name\": \"source.mp4\", \"identity\": \"<identity from reframe-vertical>\", \"bytes\": \"<its byte length>\"}], \"edl\": \"<the edl from cut-and-caption>\"}. The render writes a new file; the source recording is not changed. Apply each technique cut-and-caption listed as applied_elsewhere, as its row's steps and parameters say; a technique no tool here can make is named, never faked with a simpler look. Each technique takes the parameters choose-the-style gave for it.",
     "done_when": "rendered_identity names the finished file.",
     "flags": [
      "public"
@@ -11408,13 +11408,13 @@
     "part_of": [
      "workflow:make-short-videos-from-footage"
     ],
-    "position": 7,
+    "position": 8,
     "recipe": [
      "make-short-videos-from-footage"
     ],
     "run_tool": "{\"tool_id\": \"tool:render-an-edit\", \"input\": {\"files\": [{\"name\": \"source.mp4\", \"identity\": \"<identity from reframe-vertical>\", \"bytes\": \"<its byte length>\"}], \"edl\": \"<the edl from cut-and-caption>\"}}",
     "step": "render-the-edit",
-    "submit": "{\"type\": \"object\", \"required\": [\"rendered_identity\"], \"properties\": {\"rendered_identity\": {\"type\": \"string\"}}}",
+    "submit": "{\"type\": \"object\", \"required\": [\"rendered_identity\"], \"properties\": {\"rendered_identity\": {\"type\": \"string\"}, \"applied\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"not_applied\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}}",
     "title": "Render the edit to one file",
     "when": "reframe-vertical returned identity.",
     "why": "A rendered file is the one thing that gets posted; this step makes the file that the post steps name."
@@ -11438,7 +11438,7 @@
     "part_of": [
      "workflow:make-short-videos-from-footage"
     ],
-    "position": 8,
+    "position": 9,
     "recipe": [
      "make-short-videos-from-footage"
     ],
@@ -11458,7 +11458,7 @@
      "L082",
      "workflow:set-up-your-checks"
     ],
-    "do": "Call tool:check-against-a-persons-rules-and-verdicts with input {\"units\": [{\"text\": \"<each caption line of the edit>\", \"kind\": \"copy\"}], \"stage\": \"final\"}. Read the rules first. With tool:run-sql-in-my-database on credential input.business.credential_name, run CREATE TABLE IF NOT EXISTS word_checks (id text PRIMARY KEY, says text NOT NULL DEFAULT '', words text[] NOT NULL DEFAULT '{}', exact text[] NOT NULL DEFAULT '{}', pattern text, \"check\" text, kinds text[] NOT NULL DEFAULT '{}', because text[] NOT NULL DEFAULT '{}', \"on\" text NOT NULL DEFAULT 'On', why_off text, switched_by text, switched_at timestamptz, kept_at timestamptz NOT NULL DEFAULT now()) with params [], then SELECT id, says, words, exact, pattern, \"check\", kinds, because, \"on\", why_off FROM word_checks WHERE \"on\" <> 'Off' ORDER BY id with params []. Those rows are the rules, as in the check-the-batch-words step of workflow:post-on-social-channels-on-a-schedule.",
+    "do": "Call tool:check-against-a-persons-rules-and-verdicts with input {\"units\": [{\"text\": \"<each caption line of the edit>\", \"kind\": \"copy\"}], \"stage\": \"final\"}. Read the rules first. With tool:run-sql-in-my-database on credential input.business.credential_name, run CREATE TABLE IF NOT EXISTS word_checks (id text PRIMARY KEY, says text NOT NULL DEFAULT '', words text[] NOT NULL DEFAULT '{}', exact text[] NOT NULL DEFAULT '{}', pattern text, \"check\" text, kinds text[] NOT NULL DEFAULT '{}', because text[] NOT NULL DEFAULT '{}', \"on\" text NOT NULL DEFAULT 'On', why_off text, switched_by text, switched_at timestamptz, kept_at timestamptz NOT NULL DEFAULT now()) with params [], then SELECT id, says, words, exact, pattern, \"check\", kinds, because, \"on\", why_off FROM word_checks WHERE \"on\" <> 'Off' ORDER BY id with params []. Those rows are the rules, as in the check-the-batch-words step of workflow:post-on-social-channels-on-a-schedule. Also check the clip against the chosen style: every technique id from choose-the-style is in the applied lists of cut-and-caption or render-the-edit, or named in not_applied with its reason; any other is failing.",
     "done_when": "failing is empty, or the failing line is rewritten and the edit is re-rendered.",
     "flags": [
      "public"
@@ -11468,7 +11468,7 @@
     "part_of": [
      "workflow:make-short-videos-from-footage"
     ],
-    "position": 9,
+    "position": 10,
     "recipe": [
      "make-short-videos-from-footage"
     ],
@@ -11497,7 +11497,7 @@
     "part_of": [
      "workflow:make-short-videos-from-footage"
     ],
-    "position": 10,
+    "position": 11,
     "recipe": [
      "make-short-videos-from-footage"
     ],
@@ -11516,7 +11516,7 @@
      "record:check:every-step-is-banana-explicit",
      "L082"
     ],
-    "do": "Run these statements in order with tool:run-sql-in-my-database on credential input.business.credential_name. (1) ALTER TABLE setup_stages ADD COLUMN IF NOT EXISTS steps_status jsonb, ADD COLUMN IF NOT EXISTS gaps text[], params []. (2) INSERT INTO setup_stages (stage, label, status, steps_status, gaps, kept_at) VALUES ($1, $2, $3, $4::jsonb, $5::text[], now()) ON CONFLICT (stage) DO UPDATE SET label = EXCLUDED.label, status = EXCLUDED.status, steps_status = EXCLUDED.steps_status, gaps = EXCLUDED.gaps, kept_at = now(), with params [\"short-videos\", \"Short videos from footage\", \"<Done | Not done | Gap | Blocked | Not applicable>\", \"<JSON text: one entry per step id of this workflow, in this order: read-facts, list-footage, find-silences, suggest-cuts, choose-the-clip, cut-and-caption, reframe-vertical, render-the-edit, pick-cover, check-the-style, hand-the-clip-to-the-post-stage; each value is Done, Not done, Gap or Not applicable>\", \"<each gap id written in (3)>\"]. (3) For every gap found in this run (a step that used its if_missing branch, a tool that is not live, or a choice the step did not decide), run ALTER TABLE setup_gaps ADD COLUMN IF NOT EXISTS evidence text, params [], then INSERT INTO setup_gaps (id, stage, step, undecided, chosen, evidence, status, kept_at) VALUES ($1, $2, $3, $4, $5, $6, 'open', now()) ON CONFLICT (id) DO UPDATE SET undecided = EXCLUDED.undecided, chosen = EXCLUDED.chosen, evidence = EXCLUDED.evidence, kept_at = now(), with params [\"short-videos:<step id>-<n>\", \"short-videos\", \"<step id>\", \"<what the step did not decide>\", \"<what this run did>\", \"<the tool answer or the missing field>\"]. The gap status is never changed here, so a closed gap stays closed. (4) Read back: SELECT stage, status, steps_status, gaps FROM setup_stages WHERE stage = $1 with params [\"short-videos\"], and SELECT id, status FROM setup_gaps WHERE id = ANY($1::text[]) with the gap ids. Status is Done only when every step is Done or Not applicable and no gap is open. Status is Blocked when a step lacks an input it cannot get. Status is Gap when a step lacks a live tool or a decided choice. Confirm the status and every gap id read back.",
+    "do": "Run these statements in order with tool:run-sql-in-my-database on credential input.business.credential_name. (1) ALTER TABLE setup_stages ADD COLUMN IF NOT EXISTS steps_status jsonb, ADD COLUMN IF NOT EXISTS gaps text[], params []. (2) INSERT INTO setup_stages (stage, label, status, steps_status, gaps, kept_at) VALUES ($1, $2, $3, $4::jsonb, $5::text[], now()) ON CONFLICT (stage) DO UPDATE SET label = EXCLUDED.label, status = EXCLUDED.status, steps_status = EXCLUDED.steps_status, gaps = EXCLUDED.gaps, kept_at = now(), with params [\"short-videos\", \"Short videos from footage\", \"<Done | Not done | Gap | Blocked | Not applicable>\", \"<JSON text: one entry per step id of this workflow, in this order: read-facts, list-footage, find-silences, suggest-cuts, choose-the-style, choose-the-clip, cut-and-caption, reframe-vertical, render-the-edit, pick-cover, check-the-style, hand-the-clip-to-the-post-stage; each value is Done, Not done, Gap or Not applicable>\", \"<each gap id written in (3)>\"]. (3) For every gap found in this run (a step that used its if_missing branch, a tool that is not live, or a choice the step did not decide), run ALTER TABLE setup_gaps ADD COLUMN IF NOT EXISTS evidence text, params [], then INSERT INTO setup_gaps (id, stage, step, undecided, chosen, evidence, status, kept_at) VALUES ($1, $2, $3, $4, $5, $6, 'open', now()) ON CONFLICT (id) DO UPDATE SET undecided = EXCLUDED.undecided, chosen = EXCLUDED.chosen, evidence = EXCLUDED.evidence, kept_at = now(), with params [\"short-videos:<step id>-<n>\", \"short-videos\", \"<step id>\", \"<what the step did not decide>\", \"<what this run did>\", \"<the tool answer or the missing field>\"]. The gap status is never changed here, so a closed gap stays closed. (4) Read back: SELECT stage, status, steps_status, gaps FROM setup_stages WHERE stage = $1 with params [\"short-videos\"], and SELECT id, status FROM setup_gaps WHERE id = ANY($1::text[]) with the gap ids. Status is Done only when every step is Done or Not applicable and no gap is open. Status is Blocked when a step lacks an input it cannot get. Status is Gap when a step lacks a live tool or a decided choice. Confirm the status and every gap id read back.",
     "done_when": "setup_stages holds the stage row with the status and steps_status written here, and every gap row reads back with status open.",
     "flags": [
      "public"
@@ -11526,7 +11526,7 @@
     "part_of": [
      "workflow:make-short-videos-from-footage"
     ],
-    "position": 11,
+    "position": 12,
     "recipe": [
      "make-short-videos-from-footage"
     ],
@@ -70216,6 +70216,34 @@
     "part_of": [
      "workflow:set-up-a-first-online-shop-from-an-idea-to-launch-day"
     ]
+   }
+  },
+  {
+   "id": "make-short-videos-from-footage--choose-the-style",
+   "values": {
+    "came_from": [
+     "a real case 2026-11-19 3:25 PM CST: sample clips made with one fixed caption look ignored the person's style rows"
+    ],
+    "flags": [
+     "public"
+    ],
+    "part_of": [
+     "workflow:make-short-videos-from-footage"
+    ],
+    "recipe": [
+     "make-short-videos-from-footage"
+    ],
+    "title": "Choose the style from the person's own style rows",
+    "step": "choose-the-style",
+    "position": 4,
+    "do": "Read the person's own style rows, then choose one style for this clip and the techniques that make it, and say which and why so the person sees the choice. With tool:run-sql-in-my-database on credential input.style.credential_name (the database the person keeps their styles in; schema input.style.schema, public when none), run one statement each, params []: (1) SELECT id, name, description, steps, input_schema FROM <schema>.content_style_definitions WHERE coalesce(is_active, 'true') <> 'false' ORDER BY name; (2) SELECT * FROM <schema>.video_edit_techniques ORDER BY id; (3) SELECT id, format, definition, length, checks FROM <schema>.content_formats ORDER BY id; (4) SELECT id, device, what_it_does, how_built, fits FROM <schema>.content_devices ORDER BY id. A table the person does not keep answers its own error; say it is absent and go on with the rest. Choose the style whose name and description fit the clip's moment (its words, its sport or subject, its length), then the techniques that style's steps and the format name, and any devices that fit. A technique row with the person's own verdict on it (a column whose name says verdict) is read first, and that verdict is binding (a technique they called lazy or wrong is never used as it was; one they asked for is used as they described). Never fall back to a fixed caption look: when no style row fits, submit style_id null with why, and the later steps ask the person. Submit {style_id, technique_ids, parameters (per technique id, the values its row's parameters call for in this clip), format_id, device_ids, why}.",
+    "submit": "{\"type\": \"object\", \"required\": [\"style_id\", \"technique_ids\", \"parameters\", \"why\"], \"properties\": {\"style_id\": {\"type\": [\"string\", \"null\"]}, \"technique_ids\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"format_id\": {\"type\": [\"string\", \"null\"]}, \"device_ids\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"why\": {\"type\": \"string\", \"minLength\": 1}, \"parameters\": {\"type\": \"object\"}}}",
+    "checks": "[]",
+    "when": "Before the clip is chosen, every time this workflow runs.",
+    "done_when": "style_id and technique_ids name rows the person keeps (or style_id is null with why), and why says what in the clip led to the choice.",
+    "if_missing": "When the person keeps no style rows, submit style_id null and technique_ids [] with why naming the absent tables; never invent a style.",
+    "why": "The person spent many hours building these rows; a clip made without them ignores their style (Nov 19 2026: every sample clip used one fixed caption look).",
+    "good_answer": "Passes: style_id is a row id read in (1), each technique id was read in (2), and why names the clip's moment and the row's own words. Fails: a style or technique id not read here, a technique the person's verdict rejects, or a fixed look chosen without a row."
    }
   }
  ]
