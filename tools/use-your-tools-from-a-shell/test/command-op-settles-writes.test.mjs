@@ -1,9 +1,9 @@
 // tools/use-your-tools-from-a-shell/test/command-op-settles-writes.test.mjs
 //
-// `example op` reads a write the engine keeps to its outcome, as the records client does: a write answered accepted and
+// `example op` reads a write the engine keeps to its outcome: a write answered accepted and
 // pending is asked again under its own request key until the writer settles it. A commit prints; a refusal is thrown (the
 // command exits non-zero and says why); a write still pending past the settle window is thrown as write_pending. The wait
-// is the one settled-write.mjs owns, and its copy packed here is the owner's own bytes.
+// is the one settled-write.mjs owns.
 import assert from 'node:assert/strict';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -18,9 +18,9 @@ const ORIGIN = 'http://127.0.0.1:8788';
 const KEY = `nm_${'ab'.repeat(16)}`;
 const home = () => mkdtempSync(join(tmpdir(), 'example-op-settle-'));
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
-const WRITE = ['op', 'records:write', '{"records":[{"id":"note:one","type":"note","value":{"words":"kept"}}]}'];
+const WRITE = ['op', 'wake:switch', '{"tool":"tool:x","id":"daily","on":true}'];
 
-/** A fake door: each records:write answer is the next of `answers`; every call is kept in `seen` with its request key. */
+/** A fake door: each write answer is the next of `answers`; every call is kept in `seen` with its request key. */
 function fakeDoor(answers) {
   const seen = [];
   const fetchImpl = async (url, init) => {

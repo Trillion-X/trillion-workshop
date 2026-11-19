@@ -116,7 +116,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -184,7 +183,7 @@
         "id": "tool:use-your-tools-from-a-shell",
         "label": "Use your tools from any AI's shell: the site's own command (runs on your computer)",
         "job": "Let an AI that can run shell commands see my AIs and their jobs, hand and take work, and run my Workshop tools, with no MCP connection of its own",
-        "description": "The `{cli}` command. Every command is ONE call of the engine's one MCP tool (do_one_thing_in_my_account) at the account's door: the brand's Mac app's local door when this computer has one, else the public origin. setup signs in once, puts `{cli}` on the PATH and writes the skill for each AI app here; whoami, who, publish, send, work, take, finish, fail, stuck, release, withdraw, remove and serve move AI jobs through tools/hand-work-to-ais; tools and call list and run Workshop tools; op runs any engine operation; records replay-from-transcripts brings back the rows this computer's AIs wrote, from their own transcripts (a dry run lists them, --write writes them back in batches and reads a sample back). The credential is the account's existing key or the sign-in login kept, read into memory only, never printed or put on a command line. Every call carries one request key reused on every retry. A copy an owner installed (its install-owner.json marker beside it) is never rewritten by a bare copy, and `{cli} update` names who updates it: the command never updates itself.",
+        "description": "The `{cli}` command. Every command is ONE call of the engine's one MCP tool (do_one_thing_in_my_account) at the account's door: the brand's Mac app's local door when this computer has one, else the public origin. setup signs in once, puts `{cli}` on the PATH and writes the skill for each AI app here; whoami, who, send, work, take, finish, fail, stuck, release, withdraw, remove and serve move AI jobs through tools/hand-work-to-ais; publish answers this AI's own record as a keep row for the person's own store; tools and call list and run Workshop tools; op runs any engine operation; schedule lists and switches the wakes tool rows declare; records replay-from-transcripts lists the rows this computer's AIs wrote, from their own transcripts, for the person's own store (it writes nothing back). Nothing here reads or writes a row. The credential is the account's existing key or the sign-in login kept, read into memory only, never printed or put on a command line. Every call carries one request key reused on every retry. A copy an owner installed (its install-owner.json marker beside it) is never rewritten by a bare copy, and `{cli} update` names who updates it: the command never updates itself.",
         "status": "active",
         "input_schema": {
           "type": "object",

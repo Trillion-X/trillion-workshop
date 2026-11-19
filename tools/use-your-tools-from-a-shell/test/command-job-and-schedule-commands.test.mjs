@@ -45,52 +45,53 @@ test('a check receipt is valid only with an outcome, an offset time, evidence an
   assert.equal(validateAcceptance(acceptance), acceptance);
 });
 
-// A fake engine for the schedule commands: records, the wake book and the answers the door gives for each.
+// A fake engine for the schedule commands: the wakes the tool rows declare, the live causes, and every call sent.
 const engine = () => {
-  const records = new Map(), wakes = [], live = {}, calls = [];
+  const wakes = [{ tool: 'tool:x', id: 'daily', on: { time: { every_ms: 86400000 } }, switched_on: true }], live = {}, calls = [];
   const client = {
     wait: async () => {},
-    op: async (address, method, input) => {
-      calls.push(method);
-      if (method === 'records:read') return records.get(input.id) ?? { id: input.id, type: null, value: null };
-      if (method === 'records:list') return { records: [...records.values()].filter(row => row.type === input.type), next: null };
-      if (method === 'records:write') {
-        for (const row of input.records) {
-          if (row.value === null) { records.delete(row.id); continue; }
-          records.set(row.id, { id: row.id, type: row.type, value: row.value, identity: `v${records.size}` });
-          if (!wakes.some(wake => wake.id === row.value.id)) wakes.push({ origin: 'person', tool: row.value.tool, id: row.value.id, switched_on: false });
-        }
-        return { written: input.records.length };
+    op: async (address, method, input, options = {}) => {
+      calls.push({ address, method, input, key: options.requestKey ?? null });
+      if (method === 'wake:list') return { wakes };
+      if (method === 'wake:switch') {
+        const wake = wakes.find(row => row.tool === input.tool && row.id === input.id);
+        if (!wake) throw new CommandError(`No wake ${input.id} of ${input.tool}.`, { status: 4 });
+        wake.switched_on = input.on;
+        return { on: input.on };
       }
-      if (method === 'wake:causes') return { wakes, book: { live }, next: null };
-      if (method === 'wake:switch') { wakes.find(wake => wake.id === input.id).switched_on = input.on; return { on: input.on }; }
-      if (method === 'tools:cancel') { delete live[input.run]; return { cancelled: true }; }
+      if (method === 'tools:cancel') { const was = Object.hasOwn(live, input.run); delete live[input.run]; return { cancelled: was }; }
       throw new Error(`unexpected ${method}`);
     },
   };
-  return { client, records, wakes, live, calls };
+  return { client, wakes, live, calls };
 };
-const run = (fake, ...words) => schedules(fake.client, words, { requestKey: 'req-1', flags: {}, rules: settings });
+const run = (fake, ...words) => schedules(fake.client, words, { requestKey: 'req-1', rules: settings });
 
-test('schedule at creates a wake declaration and switches it on, and off, edit and delete read the result back', async () => {
+test('schedule lists the declared wakes and switches one off and on at the wake owner, naming no address and no row', async () => {
   const fake = engine();
-  const made = await run(fake, 'at', 'schedule:1', 'tool:x', 'wake-1', '1790000000000', '{"steps":2}', '{"start_at":"a"}');
-  assert.deepEqual([made.complete, made.on, made.scheduled, made.value.on], [true, true, true, { time: { at_ms: 1790000000000 } }]);
-  assert.equal((await run(fake, 'list')).schedules[0].state, 'on');
-  assert.equal((await run(fake, 'off', 'schedule:1')).future_admissions, 'stopped');
-  const edited = await run(fake, 'edit', 'schedule:1', '{"budget":{"steps":9}}');
-  assert.deepEqual([edited.value.budget, edited.on], [{ steps: 9 }, false]);
-  await assert.rejects(run(fake, 'edit', 'schedule:1', '{"tool":"tool:y"}'), /keeps its tool and wake id/);
-  await assert.rejects(run(fake, 'at', 'schedule:1', 'tool:x', 'wake-1', '1790000000000', '{}', '{}'), /already exists/);
-  const gone = await run(fake, 'delete', 'schedule:1');
-  assert.deepEqual([gone.deleted, fake.records.size], [true, 0]);
-  await assert.rejects(run(fake, 'read', 'schedule:1'), /No wake declaration/);
+  assert.deepEqual((await run(fake, 'list')).wakes.map(wake => [wake.tool, wake.id, wake.switched_on]), [['tool:x', 'daily', true]]);
+  assert.deepEqual((await run(fake)).wakes.length, 1, 'no words lists them');
+  assert.deepEqual(await run(fake, 'off', 'tool:x', 'daily'), { on: false });
+  assert.equal(fake.wakes[0].switched_on, false);
+  assert.deepEqual(await run(fake, 'on', 'tool:x', 'daily'), { on: true });
+  assert.deepEqual(fake.calls.map(call => [call.address, call.method]), [[null, 'wake:list'], [null, 'wake:list'], [null, 'wake:switch'], [null, 'wake:switch']]);
+  assert.deepEqual(fake.calls.filter(call => call.method === 'wake:switch').map(call => call.key), ['req-1', 'req-1']);
+  await assert.rejects(run(fake, 'off', 'tool:x', 'weekly'), /No wake weekly/);
 });
 
-test('schedule cancel retires one exact admitted run and refuses one that is not admitted', async () => {
+test('schedule refuses words it does not take, before anything is sent', async () => {
   const fake = engine();
-  fake.live['run-1'] = { tool: 'tool:x', wake: 'wake-1' };
-  const done = await run(fake, 'cancel', 'run-1');
-  assert.deepEqual([done.cancellation_state, done.read_back], ['retired', { live: false }]);
-  await assert.rejects(run(fake, 'cancel', 'run-9'), /nothing was cancelled/);
+  await assert.rejects(run(fake, 'on', 'tool:x'), /Name the wake id/);
+  await assert.rejects(run(fake, 'off'), /Name the tool/);
+  await assert.rejects(run(fake, 'list', 'extra'), /schedule list/);
+  await assert.rejects(run(fake, 'cancel'), /admitted run key/);
+  for (const gone of ['at', 'repeat', 'edit', 'delete', 'read']) await assert.rejects(run(fake, gone, 'schedule:1'), /Unknown schedule command/);
+  assert.equal(fake.calls.length, 0);
+});
+
+test('schedule cancel asks the engine to cancel one exact admitted run under the request key', async () => {
+  const fake = engine();
+  fake.live['run-1'] = { tool: 'tool:x', wake: 'daily' };
+  assert.deepEqual(await run(fake, 'cancel', 'run-1'), { cancelled: true });
+  assert.deepEqual(fake.calls.map(call => [call.method, call.input, call.key]), [['tools:cancel', { run: 'run-1' }, 'req-1']]);
 });

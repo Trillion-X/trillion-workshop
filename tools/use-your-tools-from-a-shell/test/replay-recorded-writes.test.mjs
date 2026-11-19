@@ -6,7 +6,7 @@ import test from 'node:test';
 import cli from '../do-work/command.json' with { type: 'json' };
 import { expand, main, parseArgs, speakFor } from '../do-work/command.mjs';
 import {
-  batchesOf, credentialLike, dryRun, inventoryOf, shellCommands, shellWrites, writeInventory,
+  credentialLike, dryRun, inventoryOf, shellCommands, shellWrites,
 } from '../do-work/replay-recorded-writes.mjs';
 
 // These tests speak for one site, as an install from that site's site makes the command do.
@@ -159,7 +159,7 @@ test('a call carried again by a resumed session is read once', async () => {
   assert.equal(found.counts.repeated_calls, 1);
 });
 
-test('the dry run writes the inventory folder and nothing else; writing it back batches, keys, resumes and reads back', async () => {
+test('the replay writes the inventory folder and nothing else', async () => {
   const home = folder(), out = join(home, 'inventory');
   // One app's folder is named by its home variable, the other is its folder under the home directory (its skills row).
   const [named, under] = ['claude-code', 'codex'].map(id => cli.skills.find(row => row.id === id));
@@ -176,37 +176,13 @@ test('the dry run writes the inventory folder and nothing else; writing it back 
   assert.equal(summary.records.kept, 300);
   assert.equal(summary.records.removals, 1);
   assert.equal(readFileSync(join(out, 'records.jsonl'), 'utf8').trim().split('\n').length, 301);
-
-  const sent = [], store = new Map();
-  let refuseOnce = true;
-  const client = { op: async (address, method, input, options = {}) => {
-    sent.push({ method, size: input.records?.length ?? 0, key: options.requestKey ?? null });
-    if (method === 'records:write') {
-      if (input.records.some(record => record.id === 'note:299') && refuseOnce) { refuseOnce = false; throw Object.assign(new Error('busy'), { code: 'busy' }); }
-      for (const record of input.records) record.value === null ? store.delete(record.id) : store.set(record.id, record.value);
-      return { changed: true, write_count: input.records.length };
-    }
-    return { value: store.get(input.id) ?? null };
-  } };
-  const first = await writeInventory(client, out);
-  assert.deepEqual(sent.filter(row => row.method === 'records:write').map(row => [row.size, row.key]), [[256, 'replay-from-transcripts-inventory-1'], [45, 'replay-from-transcripts-inventory-2']]);
-  assert.equal(first.failed.length, 1);
-  sent.length = 0;
-  const again = await writeInventory(client, out);
-  assert.deepEqual(sent.filter(row => row.method === 'records:write').map(row => row.key), ['replay-from-transcripts-inventory-2']);
-  assert.equal(again.written, 301);
-  assert.deepEqual(again.failed, []);
-  assert.equal(again.readback.read, 4);
-  assert.equal(again.readback.same, 4);
-  assert.deepEqual(batchesOf(records, { max_records: 256, max_bytes: 200 }).map(batch => batch.length).slice(0, 2), [3, 3]);
 });
 
-test('the command asks for the earliest call time and for a dry run\'s folder before it reads or sends anything', async () => {
+test('the command asks for the earliest call time before it reads anything, and writes nothing back', async () => {
   const seams = { env: {}, localDoor: () => null, computerName: 'Mac', model: null, store: { read: () => null }, grants: { read: () => null } };
   await assert.rejects(main(['records', 'replay-from-transcripts'], seams), /--since TIME/);
   await assert.rejects(main(['records', 'replay-from-transcripts', '--since', 'soon'], seams), /--since TIME/);
-  await assert.rejects(main(['records', 'replay-from-transcripts', '--write'], seams), /--inventory FOLDER/);
-  await assert.rejects(main(['records', 'replay-from-transcripts', '--write', '--inventory', folder()], seams), /holds no records\.jsonl/);
+  await assert.rejects(main(['records', 'replay-from-transcripts', '--write', '--inventory', folder()], seams), /Nothing is written from here/);
   await assert.rejects(main(['records', 'list'], seams), /replay-from-transcripts/);
 });
 

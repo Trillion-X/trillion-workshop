@@ -8,16 +8,15 @@
 //   transcript itself wrote or that is unchanged on disk since the call answered. The newest write of each record id
 //   wins (the transcript's time of the call); a null value is a removal.
 //
-//     records replay-from-transcripts --since TIME       dry run: writes the inventory folder, never the account
-//     records replay-from-transcripts --write --inventory FOLDER
-//                                                        writes that folder's rows through records:write in batches,
-//                                                        then reads a sample of each type back
+//     records replay-from-transcripts --since TIME       writes the inventory folder, never the account
+//
+//   The inventory's rows are kept in the person's own store, in that store's own language, by whoever restores them.
 //
 //   The command program passes `host`: its own argument parser, home-path expansion, settings and the names it runs
 //   under, so a shell line is read exactly as that program reads it.
 //
 // Non-negotiable invariants
-//   1. Rows reach the account only through its door (records:write at @own-records); nothing here opens a store file.
+//   1. Nothing here reads or writes a store: it reads transcripts and writes only the inventory folder.
 //   2. A call is kept only on positive proof in its own result; a refused call is skipped and an unknown result listed.
 //   3. A value is taken word for word from the transcript, or from a file unchanged since its call answered. An input
 //      built at run time (a jq or python program, a variable) is listed as unresolved, never guessed.
@@ -25,10 +24,8 @@
 //      its id is listed.
 //   5. Where each AI keeps its transcripts, which rows are calls, results and file writes, what proves success and every
 //      limit are DATA in replay-recorded-writes.json; the earliest call time is the person's input, never a default.
-//   6. A batch carries one request key made from the inventory folder and the batch number, so a rerun of --write is
-//      answered as the first run was and batches already written are not sent again.
 //
-import { appendFileSync, createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { createReadStream, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { createInterface } from 'node:readline';
@@ -593,67 +590,4 @@ export async function dryRun({ host, since, rules = settings, home = homedir(), 
   };
   put('summary.json', `${JSON.stringify(summary, null, 2)}\n`);
   return summary;
-}
-
-// ── Writing an inventory back ────────────────────────────────────────────────────────────────────────────────────
-
-/** Records in batches of at most `max_records` whose JSON stays within `max_bytes`; a record larger than that goes
- *  alone (the door answers for it). */
-export function batchesOf(records, { max_records: most, max_bytes: bytes } = settings.batch) {
-  const batches = [];
-  let batch = [], size = 0;
-  for (const record of records) {
-    const length = Buffer.byteLength(JSON.stringify(record)) + 1;
-    if (batch.length && (batch.length >= most || size + length > bytes)) { batches.push(batch); batch = []; size = 0; }
-    batch.push(record);
-    size += length;
-  }
-  if (batch.length) batches.push(batch);
-  return batches;
-}
-
-const rowsOf = path => readFileSync(path, 'utf8').split('\n').filter(Boolean).map(line => JSON.parse(line));
-
-/** Writes one inventory's records through records:write (`client.op`), batch by batch, each with its own request key
- *  (`<prefix>-<folder name>-<n>`); batches written.jsonl says were answered are not sent again. Then reads back up to
- *  `readback.per_type` records of each type (the first, middle and last by id) and compares each value with what was
- *  written; a removal reads back as no value. Answers and keeps (readback.json) { batches, written, failed, readback }. */
-export async function writeInventory(client, folder, { rules = settings, now = () => new Date() } = {}) {
-  const records = rowsOf(join(folder, 'records.jsonl'));
-  const log = join(folder, 'written.jsonl');
-  const done = new Set(existsSync(log) ? rowsOf(log).filter(row => row.answer).map(row => row.batch) : []);
-  const batches = batchesOf(records, rules.batch);
-  let written = 0;
-  const failed = [];
-  for (const [index, batch] of batches.entries()) {
-    const number = index + 1;
-    if (done.has(number)) { written += batch.length; continue; }
-    const requestKey = `${rules.batch.request_key_prefix}-${basename(folder)}-${number}`;
-    const row = { batch: number, records: batch.length, first: batch[0].id, last: batch.at(-1).id };
-    try {
-      const answer = await client.op(rules.write.address, rules.write.method, { records: batch }, { idempotent: true, requestKey });
-      written += batch.length;
-      appendFileSync(log, `${JSON.stringify({ ...row, answer: { changed: answer?.changed ?? null, write_count: answer?.write_count ?? null }, at: now().toISOString() })}\n`);
-    } catch (error) {
-      failed.push({ ...row, code: error.code ?? null, why: error.message });
-      appendFileSync(log, `${JSON.stringify({ ...row, failed: error.message, code: error.code ?? null, at: now().toISOString() })}\n`);
-    }
-  }
-  const byType = new Map();
-  for (const record of records) byType.set(record.type ?? null, [...(byType.get(record.type ?? null) ?? []), record]);
-  const readback = [];
-  for (const [type, rows] of byType) {
-    const sorted = [...rows].sort((a, b) => a.id.localeCompare(b.id));
-    const picks = [...new Set([0, Math.floor((sorted.length - 1) / 2), sorted.length - 1])].slice(0, rules.readback.per_type).map(place => sorted[place]);
-    for (const record of picks) {
-      let value = null, why = null;
-      try { value = (await client.op(rules.write.address, rules.readback.method, { id: record.id, ...(type ? { type } : {}) }, { idempotent: true }))?.value ?? null; }
-      catch (error) { why = error.code ?? error.message; }
-      readback.push({ id: record.id, type, same: canonical(value) === canonical(record.value), ...(why && record.value !== null ? { why } : {}) });
-    }
-  }
-  const result = { inventory: folder, batches: batches.length, written, failed,
-    readback: { read: readback.length, same: readback.filter(row => row.same).length, different: readback.filter(row => !row.same) } };
-  writeFileSync(join(folder, 'readback.json'), `${JSON.stringify(result, null, 2)}\n`, { mode: 0o600 });
-  return result;
 }

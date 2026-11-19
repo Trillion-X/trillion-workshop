@@ -1,5 +1,5 @@
 {
-  "about": "DATA for replay-recorded-writes.mjs (the `records replay-from-transcripts` command): where in each AI app's own folder its transcripts are, which transcript rows hold a records:write call and its result, what proves a call succeeded, which values look like a credential, where the inventory is written, and how kept rows are written back and read back. An app's own folder is the command's `skills` row for it (its home variable when set, else its folder under the home directory). The earliest call time is the person's input (--since), never a default.",
+  "about": "DATA for replay-recorded-writes.mjs (the `records replay-from-transcripts` command): where in each AI app's own folder its transcripts are, which transcript rows hold a records:write call and its result, what proves a call succeeded, which values look like a credential, and where the inventory is written. Nothing is written back from here: the inventory's rows are kept in the person's own store by whoever restores them. An app's own folder is the command's `skills` row for it (its home variable when set, else its folder under the home directory). The earliest call time is the person's input (--since), never a default.",
   "transcript_roots": [
     { "app": "claude-code", "subfolder": "projects" },
     { "app": "codex", "subfolder": "sessions" }
@@ -55,7 +55,5 @@
     "key_names": "(^|[_.\\- ])(secret|password|passwd|api[_\\-]?key|access[_\\-]?token|refresh[_\\-]?token|private[_\\-]?key|client[_\\-]?secret|bearer)($|[_.\\- ])",
     "key_value_min_length": 16
   },
-  "inventory_beside_state": "replay-inventory",
-  "batch": { "max_records": 256, "max_bytes": 60000, "request_key_prefix": "replay-from-transcripts" },
-  "readback": { "method": "records:read", "per_type": 3 }
+  "inventory_beside_state": "replay-inventory"
 }

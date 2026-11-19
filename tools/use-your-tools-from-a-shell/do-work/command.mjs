@@ -13,16 +13,17 @@
 //
 //     {cli} setup                      sign in once, put the command on PATH, write the skill for each AI app here
 //     {cli} whoami                     who is signed in, this AI's id and facts (--verbose: the account id and the address that answered)
-//     {cli} who [--all]                the person's AIs, named by the list:ais name formula, grouped by owner
-//     {cli} publish                    write this AI's own `ai` record (its facts and when it was seen)
+//     {cli} who [--all] [--list FILE]  the person's AIs, grouped by owner, named by the list:ais name formula when that list is given
+//     {cli} publish [HELD]             this AI's own `ai` record as a `keep` row for the person's own store (writes nothing)
 //     {cli} send|work|take|finish|fail|stuck|release|withdraw|remove|serve
 //                                         AI jobs, each through the Workshop tool its command.json `work` row names
-//     {cli} events ID                  one job's versions, newest first
 //     {cli} tools | call TOOL JSON     the Workshop tools, and run one
 //     {cli} op ADDRESS METHOD JSON     any engine operation
-//     records replay-from-transcripts --since TIME | --write --inventory FOLDER
-//                                         the rows this computer's AIs wrote, from their transcripts
-//                                         (replay-recorded-writes.mjs)
+//     {cli} schedule list | on|off TOOL WAKE_ID | cancel RUN_KEY
+//                                         the wakes the tool rows declare, read and switched at the engine's wake owner
+//     records replay-from-transcripts --since TIME
+//                                         the rows this computer's AIs wrote, from their transcripts, as an inventory
+//                                         to keep in the person's own store (replay-recorded-writes.mjs; writes nothing)
 //
 // Non-negotiable invariants
 //   1. One road: do_one_thing_in_my_account over MCP JSON-RPC at the door. The only other addresses are the public origin's
@@ -34,8 +35,10 @@
 //   3. Every call carries one request_key, reused on every retry, so a retry is answered as the first call was.
 //   4. A refusal says which door refused and why. "{cli} login" is said only when there is no credential at all.
 //   5. A claim is the work tool's conditioned write: a job another AI moved first is reported, never retried blindly.
-//   6. An AI's name is never stored or built here: `who` evaluates the name formula of the `ai_list` list over the rows.
-//   7. Settings, the skill text, the work table and every place written are DATA in command.json and command-skill.md;
+//   6. An AI's name is never stored or built here: `who` evaluates the name formula of the `ai_list` list it is given.
+//   7. No row is read or written here: rows live in the person's own store, reached there in its own language. A command
+//      that makes a row (publish) prints it as `keep` with `expected`, for the caller to keep where the person keeps rows.
+//   8. Settings, the skill text, the work table and every place written are DATA in command.json and command-skill.md;
 //      a new AI app is one `skills` row and one `agents` row.
 //
 import { spawn, spawnSync } from 'node:child_process';
@@ -49,7 +52,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runOnAgUi } from './ag-ui-agent.mjs';
 import { makeHashCodeHexFromBytes, requestKeyForEngine } from './packs/read-data/identity.mjs';
 import { blake3 } from './packs/read-data/blake3.mjs';
-import { settledWrite } from './packs/read-data/settled-write.mjs';
+import { settledWrite } from './settled-write.mjs';
 import { KeepRefused, keepResult, readResult } from './keep-result.mjs';
 import { localDoorAddress } from './local-door.mjs';
 import { keptFetch, startKeeper } from './keep-the-connection.mjs';
@@ -133,7 +136,7 @@ export const aiIdOf = (id, rules = settings) => (String(id).startsWith(`${rules.
 
 // ── Command line ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const VALUE_FLAGS = new Set(['address', 'job', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'inventory', 'check-file', 'acceptance-file']);
+const VALUE_FLAGS = new Set(['address', 'job', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'list', 'check-file', 'acceptance-file']);
 
 /** The method `op` names first. A word that starts with @ is the address the old form put first, which a call no longer names. */
 function opMethod(word) {
@@ -315,7 +318,7 @@ export function argumentsFor(command, { words, flags }, { me, held = {}, request
   }
 }
 
-/** This AI's `ai` record as `publish` writes it: the record it already has (its other cells kept as they are; a new
+/** This AI's `ai` record as `publish` answers it: the record it already has (its other cells kept as they are; a new
  *  record starts from `ai_record.new`) with its fact cells set: `owner` (the account the door answered for, never typed
  *  by the AI), `agent_id`, `app`, `model`, `provider`, `computer`, `harness`, `where` (repository and branch, never a
  *  path), `working_on` (the job it holds, or null) and `live.seen_at` now. No name is written. `facts` is
@@ -893,7 +896,7 @@ export async function opWhole(client, address, method, input, { requestKey = ran
 
 async function opWholeOnce(client, address, method, input, { requestKey, rules, route }) {
   // A write the engine keeps answers accepted and pending until its writer settles it: the same key then answers the outcome, or the
-  // writer's refusal, which the call throws. The wait is the records client's (settled-write.mjs), so no write is reported as kept while pending.
+  // writer's refusal, which the call throws. The wait is settled-write.mjs, so no write is reported as kept while pending.
   const first = await settledWrite(answerKey => client.op(address, method, input, { requestKey: answerKey, route }), requestKey, {
     sleep: client.wait,
     pending: answer => answer?.accepted === true && answer?.pending === true,
@@ -1128,14 +1131,13 @@ const quiet = value => (object(value) ? Object.fromEntries(Object.entries(value)
 const short = (value, size = 100) => { const text = typeof value === 'string' ? value : JSON.stringify(value); return text && text.length > size ? `${text.slice(0, size - 1)}…` : text ?? ''; };
 
 /** The AIs' names: the name field of the person's `ai_list` list (its formula, a formula-engine binding), evaluated by
- *  tool:evaluate-a-formula over every row's stored value in one call. A missing list, or one with no formula name field,
- *  is said by name; there is no other way to name an AI. */
-export async function namesOf(client, values, rules = settings) {
-  const list = await client.op(rules.engine.records, rules.engine.read, { id: rules.who.ai_list }, { idempotent: true });
-  const fields = Array.isArray(list?.value?.fields) ? list.value.fields : null;
-  const field = fields?.find(row => row.id === list.value.title_field);
+ *  tool:evaluate-a-formula over every row's stored value in one call. The list is handed in (`list`: its value as the
+ *  person's store holds it); a list with no formula name field is said by name; there is no other way to name an AI. */
+export async function namesOf(client, values, list, rules = settings) {
+  const fields = Array.isArray(list?.fields) ? list.fields : null;
+  const field = fields?.find(row => row.id === list.title_field);
   const binding = field?.kind === rules.who.formula_kind ? field.derive?.request?.binding : null;
-  if (!binding) throw new CommandError(fill(rules.who.no_list, { list: rules.who.ai_list }), { status: 4 });
+  if (!binding) throw new CommandError(fill(rules.who.no_list, { list: rules.who.ai_list }), { status: 2 });
   if (!values.length) return [];
   const answer = await client.op(null, rules.engine.tools_run, { tool: rules.who.formula_tool, input: { binding, rows: values } }, { idempotent: true });
   const named = answer?.result?.values ?? answer?.values;
@@ -1143,7 +1145,7 @@ export async function namesOf(client, values, rules = settings) {
   return named.map(name => (typeof name === 'string' && name.trim() ? name : null));
 }
 
-/** One AI as `who` reads it, from tool:see-my-ais ({ id, value, live, seen_at, busy }) and its evaluated `name`. Its
+/** One AI as `who` reads it, from tool:see-my-ais ({ id, value, live, seen_at, busy }) and a `name` when one is given. Its
  *  owner is the row's `owner` cell, else the account the door answered for; the AI never types it. Liveness is the
  *  tool's, computed when read; `recent` is within `who.seen_within_days`. */
 export function aiOf(row, { name = null, now = Date.now(), owner = null, rules = settings } = {}) {
@@ -1203,14 +1205,12 @@ export function render(command, answer, rules = settings) {
     return [...value.groups.flatMap(group => ownerLines(group, { all: value.all, rules })), ...hidden].join('\n');
   }
   if (command === 'work' && Array.isArray(value.jobs)) return value.jobs.length ? [...value.jobs.flatMap(jobLines), ...(value.more ? [rules.words.more_jobs] : [])].join('\n') : rules.words.no_jobs;
-  if (command === 'events' && Array.isArray(value.versions)) return value.versions.map(row => `${row.version}  ${row.at}  ${row.deleted ? 'removed' : row.value?.status ?? ''}`).join('\n') || 'No versions.';
   if (command === 'tools' && Array.isArray(value.tools)) return value.tools.map(row => `${row.id}  ${short(row.job ?? row.label ?? '', 110)}`).join('\n');
   if (command === 'send' && object(value.job)) return [fill(value.status === 'already-there' ? rules.words.sent_before : rules.words.sent, { id: value.job_id }), ...jobLines(value.job), ...(value.note ? [value.note] : [])].join('\n');
   if (command === 'take') return object(value.taken) ? [fill(rules.words.took, { id: value.taken.id }), ...jobLines(value.taken)].join('\n')
     : [value.reason === 'changed' ? fill(rules.words.take_lost, { id: value.job_id, taker: value.job?.taker ?? rules.words.another_ai }) : value.reason === 'gone' ? fill(rules.words.take_gone, { id: value.job_id }) : rules.words.nothing_to_take, ...(object(value.job) ? jobLines(value.job) : [])].join('\n');
   if (Object.hasOwn(rules.work.actions, command) && typeof value.moved === 'boolean') return [value.moved ? fill(rules.words.moved, { id: value.job_id, from: value.from, to: value.to })
     : fill(rules.words.not_moved, { id: value.job_id, reason: value.reason ?? 'refused' }), ...(object(value.job) ? jobLines(value.job) : [])].join('\n');
-  if (command === 'publish' && object(value.record)) return fill(rules.words.published, { id: value.record.id });
   if (typeof value.text === 'string' && Object.keys(value).length === 1) return value.text;
   return JSON.stringify(value, null, 2);
 }
@@ -1322,22 +1322,18 @@ const HELP = `{cli}: see your AIs and their work, and run your {site_name}'s too
   {cli} setup [--harness claude-code,codex,cursor]   sign in once, put {cli} on PATH, write each app's skill
   {cli} login [--origin ADDRESS] | logout | whoami    sign in to {site_name} (to another one with its address), sign out, or say who is signed in
   {cli} connection [--write]                          the address and key source local bridges read, with a command per app
-  {cli} who [--all]                                   your AIs seen lately (--all: every one): ready or away
-  {cli} publish [--dry-run]                           write this AI's own record: its facts and that it was seen now
+  {cli} who [--all] [--list FILE]                     your AIs seen lately (--all: every one): ready or away; --list names them by your list:ais as your store holds it
+  {cli} publish [HELD_JSON|-]                         this AI's own record as a keep row (its facts, seen now) for your own store; HELD_JSON is the value your store holds now
   {cli} tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
   {cli} connect ADDRESS                               sign in to a remote tool server (an MCP server's https address); then any AI calls its tools by that address
   {cli} op METHOD JSON|-                              any engine operation by its method (do_one_thing_in_my_account); op --dry-run shows the request and sends nothing
   --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer is asked again, up to ${settings.retry.count} more times, under the same request key
-  {cli} schedule list | read ID                       list wake schedules or read one with its admitted runs
-  {cli} schedule at ID TOOL WAKE_ID TIME BUDGET_JSON INPUT_JSON | repeat ID TOOL WAKE_ID EVERY_MS BUDGET_JSON INPUT_JSON [--from TIME]   create one
-  {cli} schedule edit ID JSON | on ID | off ID | delete ID | cancel RUN_KEY   change, switch, remove, or cancel one admitted run
+  {cli} schedule list | on TOOL WAKE_ID | off TOOL WAKE_ID | cancel RUN_KEY   the wakes your tool rows declare: list, switch, or cancel one admitted run (a wake is made, changed or removed in its row's wakes list)
   {cli} update                                        who updates this command (it never updates itself)
-  ${basename(settings.install.link)} records replay-from-transcripts --since TIME            list the rows this computer's AIs wrote (writes nothing)
-  ${basename(settings.install.link)} records replay-from-transcripts --write --inventory DIR write that list's rows back, then read some back
+  ${basename(settings.install.link)} records replay-from-transcripts --since TIME            list the rows this computer's AIs wrote, to keep in your own store (writes nothing)
 
   AI jobs (each runs the Workshop work tool this command's settings name for it):
   {cli} work [ID] [--status S --to AI --from AI --taker AI --limit N]   the newest jobs, or one with its result
-  {cli} events ID                                     one job's versions, newest first
   {cli} send any "JOB" | send AI "JOB"                hand off a job (--wait SECONDS, --priority 0-9, --outcome "DONE WHEN", --label, --acceptance-file, --source-file, --obligations-file)
   {cli} take [ID] [--mine]                            take the oldest waiting job you may take (or that one)
   {cli} finish ID "RESULT" [--check-file JSON] | fail ID "WHY"            record what came of a job you took (no words: the result is read from standard input, any size; one too long for the job row is kept as a file of your files and the row names it)
@@ -1354,304 +1350,28 @@ const HELP = `{cli}: see your AIs and their work, and run your {site_name}'s too
   AI ids are ai:NAME (the ai: may be left off); job ids are ai-job:KEY. --as AI acts as another AI id (default: from
   {CLI}_AGENT or the AI running this). --json prints the answer. --verbose adds the technical details of a refusal.`;
 
-/** Wake declarations use the caller's records and wake rights. Writes use the root identity when present, else its
- * exact prior type/value, and each step gets a stable child key derived from this invocation's request key. */
-const scheduleChildKey = (base, step) => `${base}:schedule:${step}`;
-const canonicalJson = value => Array.isArray(value) ? value.map(canonicalJson) : object(value)
-  ? Object.fromEntries(Object.keys(value).sort().map(key => [key, canonicalJson(value[key])])) : value;
-const exactJson = (a, b) => JSON.stringify(canonicalJson(a)) === JSON.stringify(canonicalJson(b));
-const scheduleTime = (text, label) => {
-  const value = String(text);
-  if (/^\d+$/.test(value)) {
-    const ms = Number(value);
-    if (Number.isSafeInteger(ms)) return ms;
-  }
-  if (validTime(value)) {
-    const ms = Date.parse(value);
-    if (Number.isSafeInteger(ms)) return ms;
-  }
-  throw new CommandError(`${label} is an ISO time with an explicit offset or whole milliseconds since 1970.`, { status: 2 });
-};
-const scheduleObject = async (text, label, example) => {
-  const value = await readJson(text, example);
-  if (!object(value)) throw new CommandError(`${label} is one JSON object.`, { status: 2 });
-  return value;
-};
-async function scheduleRecord(client, id, rules = settings) {
-  const record = await client.op(rules.engine.records, rules.engine.read, { id }, { idempotent: true });
-  if (!object(record) || record.value == null) return { id, type: record?.type ?? null, value: null, identity: null };
-  return record;
-}
-async function scheduleRecords(client, rules = settings) {
-  return allPages(client, rules.engine.records, rules.engine.list, { type: rules.engine.wake.declaration_kind }, 'records', rules);
-}
-async function scheduleCauses(client, rules = settings) {
-  const pages = [];
-  let after = null;
-  const seen = new Set();
-  for (let page = 0; page < rules.engine.most_pages; page += 1) {
-    const answer = await client.op(rules.engine.records, rules.engine.wake.causes, after === null ? {} : { after }, { idempotent: true });
-    pages.push(answer);
-    const next = answer?.next ?? null;
-    if (next === null) return pages;
-    if (seen.has(next) || next === after) throw new CommandError(rules.words.pager_stuck, { status: 4, detail: fill(rules.words.details.pager_stuck, { method: rules.engine.wake.causes, next: short(next, 80) }) });
-    seen.add(next);
-    after = next;
-  }
-  throw new CommandError(rules.words.too_many_pages, { status: 4, detail: fill(rules.words.details.too_many_pages, { method: rules.engine.wake.causes, pages: rules.engine.most_pages }) });
-}
-const scheduleWake = (pages, declaration) => pages.flatMap(page => Array.isArray(page?.wakes) ? page.wakes : [])
-  .find(wake => wake?.origin === 'person' && wake.tool === declaration?.tool && wake.id === declaration?.id) ?? null;
-const scheduleState = (record, pages, wakeOverride = null) => {
-  const wake = wakeOverride ?? scheduleWake(pages, record?.value);
-  const live = Object.assign({}, ...pages.map(page => object(page?.book?.live) ? page.book.live : {}));
-  const admitted_causes = Object.entries(live).filter(([, cause]) => cause?.tool === record?.value?.tool && cause?.wake === record?.value?.id)
-    .map(([run, cause]) => ({ run, ...cause }));
-  return { id: record.id, type: record.type, value: record.value, on: wake?.switched_on ?? false,
-    wake_found: Boolean(wake), state: wake ? (wake.switched_on ? 'on' : 'off') : 'unavailable', admitted_causes };
-};
-async function scheduleWrite(client, { id, before, value, requestKey, step, rules = settings }) {
-  const expected = before?.value == null ? null : (before.identity
-    ? { type: before.type, identity: before.identity }
-    : { type: before.type, value: before.value });
-  const record = { id, type: rules.engine.wake.declaration_kind, value, expected };
-  let answer;
-  try {
-    answer = await opWhole(client, rules.engine.records, rules.engine.write, { records: [record] }, { requestKey: scheduleChildKey(requestKey, step) });
-  } catch (error) {
-    if (error.status !== 4) throw error;
-    let after;
-    try { after = await scheduleRecord(client, id, rules); }
-    catch (readError) {
-      return { outcome: 'unknown', read_back: false, verification_error: readError.message,
-        request_key: scheduleChildKey(requestKey, step), record: null };
-    }
-    const desired = value == null ? after.value == null : after.type === rules.engine.wake.declaration_kind && exactJson(after.value, value);
-    if (!desired) {
-      error.message += ` Read-back shows schedule ${id} has not reached the requested state; no dependent step was started.`;
-      throw error;
-    }
-    return { outcome: 'unknown', read_back: true, request_key: scheduleChildKey(requestKey, step), record: after };
-  }
-  let after;
-  try { after = await scheduleRecord(client, id, rules); }
-  catch (error) {
-    return { ...answer, outcome: 'answered', read_back: false, verification_error: error.message,
-      request_key: scheduleChildKey(requestKey, step), record: null };
-  }
-  const matches = value == null ? after.value == null : after.type === rules.engine.wake.declaration_kind && exactJson(after.value, value);
-  if (!matches) throw Object.assign(new CommandError(`The write answered, but read-back does not show the requested state for schedule ${id}; no dependent step was started.`, { status: 4, answer }), { requestKey: scheduleChildKey(requestKey, step) });
-  return { ...answer, read_back: true, record: after };
-}
-async function scheduleSwitch(client, declaration, on, requestKey, step, rules = settings, { force = false } = {}) {
-  let pages = await scheduleCauses(client, rules);
-  let current = scheduleWake(pages, declaration);
-  if (!current) throw new CommandError(`Schedule ${declaration.record_id ?? declaration.id} is not a current person-authored wake; it was not switched.`, { status: 4 });
-  if (current.switched_on === on && !force) return { on, unchanged: true, complete: true, read_back: true, wake: current };
-  try {
-    await opWhole(client, rules.engine.records, rules.engine.wake.switch, { tool: declaration.tool, id: declaration.id, on },
-      { requestKey: scheduleChildKey(requestKey, step) });
-  } catch (error) {
-    if (error.status !== 4) throw error;
-    try { pages = await scheduleCauses(client, rules); }
-    catch (readError) {
-      return { on: null, requested_on: on, state: 'unverified', complete: false, outcome: 'unknown', read_back: false, verification_error: readError.message,
-        request_key: scheduleChildKey(requestKey, step), wake: current };
-    }
-    current = scheduleWake(pages, declaration);
-    if (current?.switched_on !== on) {
-      error.message += ` Read-back does not show the requested ${on ? 'on' : 'off'} state; no dependent step was started.`;
-      throw error;
-    }
-    return { on, complete: true, outcome: 'unknown', read_back: true, request_key: scheduleChildKey(requestKey, step), wake: current };
-  }
-  try { pages = await scheduleCauses(client, rules); }
-  catch (error) {
-    return { on: null, requested_on: on, state: 'unverified', complete: false, outcome: 'answered', read_back: false, verification_error: error.message,
-      request_key: scheduleChildKey(requestKey, step), wake: current };
-  }
-  current = scheduleWake(pages, declaration);
-  if (current?.switched_on !== on) throw new CommandError(`The switch answered, but read-back does not show schedule ${declaration.record_id ?? declaration.id} ${on ? 'on' : 'off'}.`, { status: 4 });
-  return { on, complete: true, read_back: true, wake: current };
-}
-export async function schedules(client, words, { requestKey, flags = {}, rules = settings } = {}) {
-  const [action, id, ...args] = words;
-  const needId = () => need(id, `Name a schedule record id: ${cliName()} schedule read ID.`);
-  const records = async () => scheduleRecords(client, rules);
-  const show = async row => scheduleState(row, await scheduleCauses(client, rules));
-  if (!action || action === 'list') {
-    if (id || args.length) throw new CommandError(`Use ${cliName()} schedule list with no record id.`, { status: 2 });
-    const [rows, causes] = await Promise.all([records(), scheduleCauses(client, rules)]);
-    return { schedules: rows.map(row => scheduleState(row, causes)), refused: causes[0]?.refused ?? [] };
-  }
-  if (action === 'read') {
-    needId();
-    if (args.length) throw new CommandError(`Use ${cliName()} schedule read ID.`, { status: 2 });
-    const row = await scheduleRecord(client, id, rules);
-    if (row.value == null || row.type !== rules.engine.wake.declaration_kind) throw new CommandError(`No wake declaration is saved as ${id}.`, { status: 4 });
-    return show(row);
-  }
-  if (action === 'at' || action === 'repeat') {
-    needId();
-    const [tool, wakeId, timeOrPeriod, budgetText, inputText, ...extra] = args;
-    need(tool, `Name the tool: ${cliName()} schedule ${action} RECORD_ID TOOL WAKE_ID ${action === 'at' ? 'TIME' : 'EVERY_MS'} BUDGET_JSON INPUT_JSON.`);
-    need(wakeId, `Name the wake id: ${cliName()} schedule ${action} RECORD_ID TOOL WAKE_ID ...`);
-    need(timeOrPeriod, `Name the ${action === 'at' ? 'time' : 'repeat interval'}: ${cliName()} schedule ${action} RECORD_ID TOOL WAKE_ID ...`);
-    need(budgetText, `Name the budget JSON object: ${cliName()} schedule ${action} ID TOOL WAKE_ID ... BUDGET_JSON INPUT_JSON.`);
-    need(inputText, `Name the input JSON object: ${cliName()} schedule ${action} ID TOOL WAKE_ID ... BUDGET_JSON INPUT_JSON.`);
-    if (extra.length) throw new CommandError(`Use one BUDGET_JSON object and one INPUT_JSON object.`, { status: 2 });
-    const budget = await scheduleObject(budgetText, 'budget', '{"steps":4,"wall_ms":600000}');
-    const input = await scheduleObject(inputText, 'input', '{"start_at":"step-id"}');
-    const on = action === 'at' ? { time: { at_ms: scheduleTime(timeOrPeriod, 'TIME') } } : { time: { every_ms: Number(timeOrPeriod) } };
-    if (action === 'repeat') {
-      const every = Number(timeOrPeriod);
-      if (!Number.isSafeInteger(every) || every < 1) throw new CommandError('EVERY_MS is a positive whole number of milliseconds.', { status: 2 });
-      on.time.every_ms = every;
-      if (flags.from !== undefined) on.time.from_ms = scheduleTime(flags.from, '--from');
-    }
-    if (action === 'at' && flags.from !== undefined) throw new CommandError('--from is only for schedule repeat.', { status: 2 });
-    const value = { tool, id: wakeId, on, budget, input, kind: rules.engine.wake.declaration_kind };
-    const before = await scheduleRecord(client, id, rules);
-    if (before.value != null) throw new CommandError(`Schedule record ${id} already exists; read it and use schedule edit to change it.`, { status: 4 });
-    const write = await scheduleWrite(client, { id, before, value, requestKey, step: 'create', rules });
-    if (!write.read_back) return { id, type: rules.engine.wake.declaration_kind, value: null, on: null, wake_found: null,
-      state: 'unverified', scheduled: 'unknown', complete: false, write_applied: write.outcome === 'answered' ? true : null, write };
-    let pages;
-    try { pages = await scheduleCauses(client, rules); }
-    catch (error) { return { id, type: write.record.type, value: write.record.value, on: null, wake_found: null,
-      state: 'unverified', scheduled: 'unknown', complete: false, write_applied: true, verification_error: error.message, write }; }
-    const initialState = scheduleState(write.record, pages);
-    let enabled;
-    try {
-      enabled = await scheduleSwitch(client, { ...write.record.value, record_id: id }, true, requestKey, 'create-on', rules);
-    } catch (error) {
-      return { ...initialState, scheduled: false, complete: false, switch_error: error.message,
-        request_key: scheduleChildKey(requestKey, 'create-on'), write };
-    }
-    if (!enabled.complete) return { ...initialState, on: null, wake_found: null, state: 'unverified', scheduled: 'unknown',
-      complete: false, enabled, write };
-    const state = scheduleState(write.record, pages, enabled.wake);
-    return { ...state, scheduled: state.on, complete: state.on, enabled, write };
-  }
-  if (action === 'edit') {
-    needId();
-    if (args.length !== 1) throw new CommandError(`Use ${cliName()} schedule edit ID JSON_OBJECT.`, { status: 2 });
-    const patch = await scheduleObject(args[0], 'schedule changes', '{"budget":{"steps":4,"wall_ms":600000}}');
-    if (!Object.keys(patch).length) throw new CommandError('Name at least one schedule field to change in the JSON object.', { status: 2 });
-    const before = await scheduleRecord(client, id, rules);
-    if (before.value == null || before.type !== rules.engine.wake.declaration_kind) throw new CommandError(`No wake declaration is saved as ${id}.`, { status: 4 });
-    if ((patch.tool !== undefined && patch.tool !== before.value.tool) || (patch.id !== undefined && patch.id !== before.value.id))
-      throw new CommandError('A schedule keeps its tool and wake id; create a new schedule and delete the old one to replace either.', { status: 2 });
-    const value = { ...before.value, ...patch, kind: rules.engine.wake.declaration_kind };
-    if (!object(value.on) || !object(value.budget) || !object(value.input) || typeof value.tool !== 'string' || typeof value.id !== 'string')
-      throw new CommandError('A schedule keeps tool, id, on, budget and input as JSON objects; use schedule edit with their complete values.', { status: 2 });
-    const originalPages = await scheduleCauses(client, rules);
-    const originalWake = scheduleWake(originalPages, before.value);
-    if (!originalWake) throw new CommandError(`Schedule ${id} has no current person-authored wake; it was not edited.`, { status: 4 });
-    const stopped = await scheduleSwitch(client, { ...before.value, record_id: id }, false, requestKey, 'edit-off', rules, { force: true });
-    if (!stopped.complete) return { id, type: before.type, value: before.value, on: null, wake_found: null,
-      state: 'unverified', edited: false, complete: false, scheduled: 'unknown', stopped, request_key: stopped.request_key };
-    let fresh;
-    try { fresh = await scheduleRecord(client, id, rules); }
-    catch (error) { return { id, type: before.type, value: before.value, on: false, state: 'off', edited: false,
-      complete: false, scheduled: false, future_admissions: 'stopped', stopped, verification_error: error.message }; }
-    if (fresh.value == null || fresh.type !== before.type || !exactJson(fresh.value, before.value))
-      throw new CommandError(`Schedule ${id} changed while it was being edited; this edit left the current record unchanged.`, { status: 4 });
-    const write = await scheduleWrite(client, { id, before: fresh, value, requestKey, step: 'edit', rules });
-    if (!write.read_back) return { id, type: before.type, value: null, on: false, state: 'off', edited: null,
-      write_applied: write.outcome === 'answered' ? true : null, complete: false, scheduled: false,
-      future_admissions: 'stopped', stopped, write };
-    let enabled;
-    if (originalWake.switched_on) {
-      try { enabled = await scheduleSwitch(client, { ...write.record.value, record_id: id }, true, requestKey, 'edit-on', rules); }
-      catch (error) {
-        let pages;
-        try { pages = await scheduleCauses(client, rules); }
-        catch (readError) { return { id, type: write.record.type, value: write.record.value, on: null, wake_found: null,
-          state: 'unverified', write_applied: true, complete: false, scheduled: 'unknown', future_admissions: 'unknown',
-          reenable_error: error.message, verification_error: readError.message,
-          request_key: scheduleChildKey(requestKey, 'edit-on'), write }; }
-        const state = scheduleState(write.record, pages);
-        return { ...state, write_applied: true, complete: false, scheduled: state.on,
-          future_admissions: state.on ? 'enabled' : 'stopped', reenable_error: error.message,
-          request_key: scheduleChildKey(requestKey, 'edit-on'), write };
-      }
-      if (!enabled.complete) return { id, type: write.record.type, value: write.record.value, on: null, wake_found: null,
-        state: 'unverified', write_applied: true, complete: false, scheduled: 'unknown', future_admissions: 'unknown',
-        reenable_error: enabled.verification_error, enabled, write };
-    }
-    const state = scheduleState(write.record, originalPages, enabled?.wake ?? stopped.wake);
-    return { ...state, ...(enabled ? { enabled } : {}), write };
+/** `schedule`: the wakes the person's tool rows declare (each row's `wakes` list), read and switched at the engine's wake
+ *  owner (`engine.wake`: list, switch), and one admitted run cancelled (`engine.cancel`). A call names its method only; the
+ *  engine finds the owner. A wake is made, changed or removed in its row's `wakes` list, never here. */
+export async function schedules(client, words, { requestKey, rules = settings } = {}) {
+  const [action = 'list', ...args] = words;
+  const { wake } = rules.engine;
+  if (action === 'list') {
+    if (args.length) throw new CommandError(`Use ${cliName()} schedule list.`, { status: 2 });
+    return client.op(null, wake.list, {}, { idempotent: true });
   }
   if (action === 'on' || action === 'off') {
-    needId();
-    if (args.length) throw new CommandError(`Use ${cliName()} schedule ${action} ID.`, { status: 2 });
-    const row = await scheduleRecord(client, id, rules);
-    if (row.value == null || row.type !== rules.engine.wake.declaration_kind) throw new CommandError(`No wake declaration is saved as ${id}.`, { status: 4 });
-    const switched = await scheduleSwitch(client, { ...row.value, record_id: id }, action === 'on', requestKey, action, rules);
-    return { id, ...switched, future_admissions: switched.complete ? (action === 'on' ? 'enabled' : 'stopped') : 'unverified',
-      already_admitted_causes: 'unchanged' };
-  }
-  if (action === 'delete') {
-    needId();
-    if (args.length) throw new CommandError(`Use ${cliName()} schedule delete ID.`, { status: 2 });
-    const before = await scheduleRecord(client, id, rules);
-    if (before.value == null || before.type !== rules.engine.wake.declaration_kind) throw new CommandError(`No wake declaration is saved as ${id}.`, { status: 4 });
-    let stopped = { on: false, unchanged: true, complete: true };
-    const current = await scheduleWake(await scheduleCauses(client, rules), before.value);
-    if (!current) throw new CommandError(`Schedule ${id} has no current person-authored wake; it was not deleted.`, { status: 4 });
-    if (current.switched_on) stopped = await scheduleSwitch(client, { ...before.value, record_id: id }, false, requestKey, 'delete-off', rules);
-    if (!stopped.complete) return { id, deleted: false, complete: false, scheduled: 'unknown', stopped,
-      request_key: stopped.request_key };
-    let fresh;
-    try { fresh = await scheduleRecord(client, id, rules); }
-    catch (error) { return { id, deleted: false, complete: false, stopped, future_admissions: 'stopped',
-      verification_error: error.message }; }
-    if (fresh.value == null) return { id, deleted: true, stopped };
-    if (fresh.type !== before.type || (before.identity
-      ? fresh.identity !== before.identity
-      : !exactJson(fresh.value, before.value)))
-      throw new CommandError(`Schedule ${id} changed while it was being deleted; the changed record was kept.`, { status: 4 });
-    const write = await scheduleWrite(client, { id, before: fresh, value: null, requestKey, step: 'delete', rules });
-    if (!write.read_back) return { id, deleted: 'unknown', complete: false, write_applied: write.outcome === 'answered' ? true : null,
-      stopped, future_admissions: 'stopped', write };
-    return { id, deleted: true, stopped, write, future_admissions: 'removed', already_admitted_causes: 'unchanged' };
+    const [tool, id, ...extra] = args;
+    need(tool, `Name the tool: ${cliName()} schedule ${action} TOOL WAKE_ID.`);
+    need(id, `Name the wake id: ${cliName()} schedule ${action} TOOL WAKE_ID.`);
+    if (extra.length) throw new CommandError(`Use ${cliName()} schedule ${action} TOOL WAKE_ID.`, { status: 2 });
+    return opWhole(client, null, wake.switch, { tool, id, on: action === 'on' }, { requestKey });
   }
   if (action === 'cancel') {
-    const run = need(id, `Name the exact admitted run key: ${cliName()} schedule cancel RUN_KEY.`);
-    if (args.length) throw new CommandError(`Use ${cliName()} schedule cancel RUN_KEY.`, { status: 2 });
-    const live = pages => Object.assign({}, ...pages.map(page => object(page?.book?.live) ? page.book.live : {}));
-    const before = live(await scheduleCauses(client, rules));
-    if (!Object.hasOwn(before, run)) throw new CommandError(`No currently admitted live cause has run key ${run}; nothing was cancelled.`, { status: 4 });
-    let answer;
-    let outcome = 'answered';
-    const cancelKey = scheduleChildKey(requestKey, 'cancel');
-    try { answer = await opWhole(client, null, rules.engine.cancel, { run }, { requestKey: cancelKey }); }
-    catch (error) {
-      if (error.status !== 4) throw error;
-      outcome = 'unknown';
-      answer = { cancelled: 'unknown' };
-    }
-    let after;
-    let verificationError;
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      try { after = live(await scheduleCauses(client, rules)); }
-      catch (error) { verificationError = error.message; break; }
-      if (!Object.hasOwn(after, run)) break;
-    }
-    if (verificationError) return { run, ...answer, outcome, cancellation_state: 'unverified',
-      requested: answer?.cancelled === true ? true : outcome === 'unknown' ? null : false,
-      complete: false, read_back: null, verification_error: verificationError, request_key: cancelKey,
-      scope: 'already-admitted cause only; future admissions are unchanged' };
-    const stillLive = Object.hasOwn(after, run);
-    const cancellationState = stillLive
-      ? (outcome === 'unknown' || answer?.cancelled === true ? 'pending' : 'not_running')
-      : 'retired';
-    return { run, ...answer, outcome,
-      complete: true, request_key: cancelKey,
-      cancellation_state: cancellationState, requested: answer?.cancelled === true ? true : outcome === 'unknown' ? null : false,
-      read_back: { live: stillLive },
-      scope: 'already-admitted cause only; future admissions are unchanged' };
+    const [run, ...extra] = args;
+    need(run, `Name the exact admitted run key: ${cliName()} schedule cancel RUN_KEY.`);
+    if (extra.length) throw new CommandError(`Use ${cliName()} schedule cancel RUN_KEY.`, { status: 2 });
+    return opWhole(client, null, rules.engine.cancel, { run }, { requestKey });
   }
   throw new CommandError(`Unknown schedule command ${action}. Run ${cliName()} help.`, { status: 2 });
 }
@@ -1676,34 +1396,17 @@ async function signedInClient(context) {
   return engineClient({ door, credential, renew, fetchImpl: context.fetchImpl, wait: context.wait, ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }) });
 }
 
-/** Writes this AI's own `ai` record (aiRecordOf) through the records door, conditioned on the value just read (null when
- *  it has none), so a person's edit made meanwhile (a nickname, an order) is never written over: a refused write is
- *  read and made again, at most `ai_record.write_tries` times. Answers { record } as written, or { record, value } with
- *  `dry` (nothing written). */
-export async function publishRecord(client, context, { dry = false, rules = settings } = {}) {
+/** This AI's own `ai` record (aiRecordOf) as one `keep` row for the person's own store, conditioned on `held`: the value
+ *  that store holds for it now (null when it has none), read there by the caller and handed in. A person's edit made
+ *  meanwhile (a nickname, an order) is carried, and the store refuses the keep when its value is no longer `held`. Nothing
+ *  is written here. */
+export async function publishRecord(client, context, { held = null, rules = settings } = {}) {
   const { engine } = rules;
   const account = context.account ??= (await client.whoami()).account;
   const place = context.place ??= context.placeImpl();
   const holding = holdingOf(context.me, context.state.held());
-  for (let tries = 1; ; tries += 1) {
-    const read = await client.op(engine.records, engine.read, { id: context.me.ai_id, type: engine.ai_type }, { idempotent: true });
-    const before = object(read?.value) ? read.value : null;
-    const value = aiRecordOf(context.me, { account, held: before, ...place, holding }, rules);
-    const record = { id: context.me.ai_id, type: engine.ai_type, value };
-    if (dry) return { record, before };
-    try {
-      await client.op(engine.records, engine.write, { records: [{ ...record, expected: before === null ? null : { type: engine.ai_type, value: before } }] });
-      return { record };
-    } catch (error) {
-      if (tries >= rules.ai_record.write_tries || !rules.ai_record.changed_codes.includes(error?.code)) throw error;
-    }
-  }
-}
-
-/** Publishes this AI's record when this run has not yet; a refusal only adds a note, since the job call itself stands. */
-async function ensurePublished(client, context) {
-  if (context.published) return null;
-  try { await publishRecord(client, context); context.published = true; return null; } catch (error) { return fill(settings.words.not_published, { why: error.message }); }
+  const value = aiRecordOf(context.me, { account, held, ...place, holding }, rules);
+  return { keep: [{ id: context.me.ai_id, type: engine.ai_type, value, expected: held === null ? null : { type: engine.ai_type, value: held } }] };
 }
 
 /** What `send` says about when the receiver sees the job: the AI it names reads it when it next reads its work; any AI's
@@ -1840,17 +1543,12 @@ async function serve(context) {
   const client = await signedInClient(context);
   const { me, state } = context;
   const log = entry => process.stderr.write(`${JSON.stringify({ at: new Date().toISOString(), agent_id: me.agent_id, ...entry })}\n`);
-  // This AI's record says it was seen now on every contact, so `who` shows it ready for as long as it serves.
-  const refresh = () => publishRecord(client, context).catch(error => log({ event: 'record_failed', error: error.message }));
-  await publishRecord(client, context);
   const stop = () => { log({ event: 'stopped' }); process.exit(0); };
   process.once('SIGINT', stop); process.once('SIGTERM', stop);
   log({ event: 'ready', ...(agUi ? { ag_ui: agUi } : { command: context.rest[0] }) });
-  let lastContact = Date.now();
   for (;;) {
-    if (Date.now() - lastContact >= settings.serve.contact_seconds * 1000) { await refresh(); lastContact = Date.now(); }
     let worked = false;
-    try { worked = await serveOnce({ client, me, command: context.rest, state, log, refresh, runImpl }); } catch (error) { log({ event: 'failed', error: error.message }); }
+    try { worked = await serveOnce({ client, me, command: context.rest, state, log, runImpl }); } catch (error) { log({ event: 'failed', error: error.message }); }
     if (!worked) await pause(settings.serve.contact_seconds * 1000);
   }
 }
@@ -1863,21 +1561,16 @@ export function updateWords({ rules = settings } = {}) {
 }
 
 /** `records replay-from-transcripts`: the rows this computer's AIs wrote, read from their transcripts
- *  (replay-recorded-writes.mjs, which reads shell lines with this program's own parser and names). A dry run writes
- *  only the inventory folder and needs no credential; --write --inventory FOLDER writes that folder's rows through the
- *  records door. */
+ *  (replay-recorded-writes.mjs, which reads shell lines with this program's own parser and names). It writes only the
+ *  inventory folder and needs no credential; its rows are kept in the person's own store by whoever restores them. */
 async function records(context, words) {
   const { flags } = context;
-  if (words[0] !== 'replay-from-transcripts') throw new CommandError('Name what to do: records replay-from-transcripts --since TIME | --write --inventory FOLDER.', { status: 2 });
+  if (words[0] !== 'replay-from-transcripts') throw new CommandError('Name what to do: records replay-from-transcripts --since TIME.', { status: 2 });
   const replay = await import('./replay-recorded-writes.mjs');
   const host = { parseArgs, expand, settings, programs: new Set([basename(expand(settings.install.link)), basename(fileURLToPath(import.meta.url))]) };
-  if (flags.write !== true) {
-    if (!Number.isFinite(Date.parse(flags.since ?? ''))) throw new CommandError('Name the earliest call to read: --since TIME, for example 2026-01-31T00:00:00Z.', { status: 2 });
-    return JSON.stringify(await replay.dryRun({ host, since: flags.since, env: context.env, home: context.transcriptHome }), null, 2);
-  }
-  const folder = need(flags.inventory, 'Name the inventory a dry run wrote: --write --inventory FOLDER.');
-  if (!existsSync(join(folder, 'records.jsonl'))) throw new CommandError(`${folder} holds no records.jsonl from a dry run.`, { status: 2 });
-  return JSON.stringify(await replay.writeInventory(await signedInClient(context), folder), null, 2);
+  if (flags.write !== undefined) throw new CommandError('Nothing is written from here: keep the inventory\'s rows in your own store, in its own language.', { status: 2 });
+  if (!Number.isFinite(Date.parse(flags.since ?? ''))) throw new CommandError('Name the earliest call to read: --since TIME, for example 2026-01-31T00:00:00Z.', { status: 2 });
+  return JSON.stringify(await replay.dryRun({ host, since: flags.since, env: context.env, home: context.transcriptHome }), null, 2);
 }
 
 const readJson = async (raw, example) => {
@@ -1886,46 +1579,6 @@ const readJson = async (raw, example) => {
   try { const value = JSON.parse(text); if (object(value)) return value; } catch { /* refused below */ }
   throw new CommandError(`The input is one JSON object, for example ${example}.`, { status: 2 });
 };
-
-/** Every path of `value` that holds a leaf (a non-object, or an array, kept whole), as `a.b` -> leaf. */
-const leaves = (value, path = '', out = {}) => {
-  if (object(value)) { for (const [name, inner] of Object.entries(value)) leaves(inner, path ? `${path}.${name}` : name, out); }
-  else out[path] = value;
-  return out;
-};
-
-/** What a records:write would do, read and not sent: per row its current value (records:read), the new value, the field-by-field
- *  diff, the fields the write drops, and `removes` for a value null. When the engine says it can check a write without committing it
- *  (capabilities.experimental[rule.capability]) the same records are also sent once as `check_only`, under a fresh request key, and
- *  `engine_check` is what the engine answered or the refusal the write would meet; an engine that does not say so is never sent it,
- *  because it would ignore the field and commit. */
-export async function dryRunWrite(client, request, { rules = settings } = {}) {
-  const rule = rules.direct_calls.dry_run_reads_first;
-  const rows = [];
-  for (const item of Array.isArray(request.input?.records) ? request.input.records : []) {
-    const read = await client.op(request.address, rule.read_method, { id: item?.id }, { idempotent: true });
-    const current = read?.value ?? null;
-    const next = item?.value ?? null;
-    const before = current === null ? {} : leaves(current), after = next === null ? {} : leaves(next);
-    const diff = [...new Set([...Object.keys(before), ...Object.keys(after)])].sort()
-      .filter(path => JSON.stringify(before[path]) !== JSON.stringify(after[path]))
-      .map(path => ({ field: path, before: path in before ? before[path] : null, after: path in after ? after[path] : null, change: !(path in before) ? 'added' : !(path in after) ? 'dropped' : 'changed' }));
-    rows.push({ id: item?.id, type: item?.type ?? read?.type ?? null,
-      action: next === null ? (current === null ? 'nothing to remove' : rule.removes) : current === null ? 'creates this row' : diff.length ? 'replaces this row' : 'no change',
-      current, new: next, diff, dropped_fields: diff.filter(entry => entry.change === 'dropped').map(entry => entry.field) });
-  }
-  let engineCheck = null;
-  if ((await client.whoami()).capabilities?.experimental?.[rule.capability] === true) {
-    try {
-      const answer = await client.op(request.address, request.method, { ...request.input, check_only: true }, { requestKey: randomUUID() });
-      engineCheck = answer?.check_only === true ? { would_refuse: false, changed: answer.changed, write_count: answer.write_count } : { would_refuse: null, warning: rule.not_honored, answer };
-    } catch (error) {
-      if (!(error instanceof CommandError)) throw error;
-      engineCheck = { would_refuse: true, refusal: error.message };
-    }
-  }
-  return { dry_run: true, sent: false, request, rows, engine_check: engineCheck, ...(engineCheck === null ? { note: rule.no_validate_route } : {}) };
-}
 
 /** A keep or read the door could not complete exactly is a refusal like any other (status 4: the caller may try again under the same job). */
 const kept = async work => { try { return await work; } catch (error) { throw error instanceof KeepRefused ? new CommandError(error.message, { status: 4 }) : error; } };
@@ -2006,7 +1659,7 @@ export async function main(argv, seams = {}) {
     return '';
   }
   if (command === 'serve') return serve(context);
-  if (!WORK_COMMANDS.has(command) && !['whoami', 'tools', 'connect', 'call', 'op', 'who', 'events', 'publish', 'schedule'].includes(command)) throw new CommandError(`Unknown command ${command}. Run ${cliName()} help.`, { status: 2 });
+  if (!WORK_COMMANDS.has(command) && !['whoami', 'tools', 'connect', 'call', 'op', 'who', 'publish', 'schedule'].includes(command)) throw new CommandError(`Unknown command ${command}. Run ${cliName()} help.`, { status: 2 });
   if (command === 'call' || command === 'op') {
     const known = settings.direct_calls.flags[command];
     const unknown = Object.keys(flags).find(name => !known.includes(name));
@@ -2014,8 +1667,7 @@ export async function main(argv, seams = {}) {
     if (flags['dry-run'] === true) {
       const request = { ...(flags.address ? { address: flags.address } : {}), method: opMethod(words[0]),
         request_key: flags['request-key'] ?? randomUUID(), input: await readJson(words[1], '{"id": "..."}') };
-      if (request.method !== settings.direct_calls.dry_run_reads_first.method) return JSON.stringify(request, null, 2);
-      return JSON.stringify(await dryRunWrite(await signedInClient(context), request), null, 2);
+      return JSON.stringify(request, null, 2);
     }
   }
   // A work command's words are checked before anything is sent.
@@ -2033,11 +1685,6 @@ export async function main(argv, seams = {}) {
     let answer = await workCall(client, call.work, call.input);
     if (command === 'take' && object(answer?.taken)) context.state.hold(context.me.agent_id, answer.taken);
     if (['finish', 'fail', 'release', 'withdraw', 'remove'].includes(command) && answer?.moved) context.state.letGo(holderOf(context.me, context.state.held(), call.input.id), call.input.id);
-    // What this AI holds changed, or it just sent work: its record says so (the move already stands, so a refusal is a note).
-    if (settings.work.publish_after.includes(command)) {
-      const note = await ensurePublished(client, context);
-      if (note) answer = { ...answer, note: [answer?.note, note].filter(Boolean).join(' ') };
-    }
     if (command === 'send' && flags.wait !== undefined && answer?.job_id) {
       const seconds = Number(flags.wait);
       if (!Number.isFinite(seconds) || seconds <= 0) throw new CommandError('--wait is a number of seconds.', { status: 2 });
@@ -2053,8 +1700,8 @@ export async function main(argv, seams = {}) {
     return print(command, answer);
   }
   if (command === 'publish') {
-    const written = await publishRecord(client, context, { dry: flags['dry-run'] === true });
-    return flags['dry-run'] ? JSON.stringify(written.record, null, 2) : print('publish', written);
+    const held = words[0] === undefined ? null : await readJson(words[0], '{"kind": "cli"}');
+    return JSON.stringify(await publishRecord(client, context, { held }), null, 2);
   }
   if (command === 'whoami') {
     // An engine started again holds no one until told: a pass it has not held is added again here, as login adds it.
@@ -2070,7 +1717,7 @@ export async function main(argv, seams = {}) {
   if (command === 'schedule') {
     const requestKey = flags['request-key'] ?? randomUUID();
     if (requestKey.length > 160) throw new CommandError('A schedule --request-key may be at most 160 characters so its per-step keys remain unique.', { status: 2 });
-    return print('schedule', await schedules(client, words, { requestKey, flags, rules: settings }));
+    return print('schedule', await schedules(client, words, { requestKey, rules: settings }));
   }
   if (command === 'tools') return print('tools', { tools: await allPages(client, null, engine.tools_list, {}, 'tools') });
   if (command === 'connect') return JSON.stringify(await connectToolServer(client, words[0], { origin: context.state.site() }), null, 2);
@@ -2090,11 +1737,11 @@ export async function main(argv, seams = {}) {
     const rows = (await workCall(client, 'ais', {}, { idempotent: true }))?.ais ?? [];
     const recent = row => flags.all === true || aiOf(row, { now }).recent;
     const shown = rows.filter(recent);
-    const names = await namesOf(client, shown.map(row => row.value ?? {}));
-    const ais = shown.map((row, at) => aiOf(row, { name: names[at], now, owner: account }));
+    const list = flags.list === undefined ? null : readJsonFile(flags.list, 'the list', '{"title_field": "name", "fields": [...]}');
+    const names = list === null ? [] : await namesOf(client, shown.map(row => row.value ?? {}), list);
+    const ais = shown.map((row, at) => aiOf(row, { name: names[at] ?? null, now, owner: account }));
     return print('who', { you: account, all: flags.all === true, groups: groupsOf(ais, { you: account }), hidden: rows.length - shown.length });
   }
-  return print('events', await client.op(engine.records, engine.history, { id: need(words[0], `Name the job: ${cliName()} events ID.`), limit: engine.history_limit }, { idempotent: true }));
 }
 
 

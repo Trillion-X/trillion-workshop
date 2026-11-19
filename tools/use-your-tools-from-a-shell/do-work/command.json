@@ -54,7 +54,7 @@
     ]
   },
   "direct_calls": {
-    "_what": "The flags `{cli} op` and `{cli} call` take, per command; any other flag is refused before anything is sent (parseArgs makes every unknown --flag a true, so an unchecked one was silently dropped: `op ... records:write --dry-run` removed a record on 2026-11-13). `--dry-run` is op only: it prints the request it would have sent {address, method, request_key, input} and sends nothing, except that for `dry_run_reads_first.method` (records:write) it reads each target row with `read_method` and prints, per row, the current value, the new value, a field-by-field diff, the fields the write drops, and `removes` for a value null; no write is sent.",
+    "_what": "The flags `{cli} op` and `{cli} call` take, per command; any other flag is refused before anything is sent (parseArgs makes every unknown --flag a true, so an unchecked one was silently dropped: an `op ... --dry-run` write was sent and removed a row on 2026-11-13). `--dry-run` is op only: it prints the request it would have sent {address, method, request_key, input} and sends nothing.",
     "flags": {
       "op": [
         "address",
@@ -74,14 +74,6 @@
         "help",
         "verbose"
       ]
-    },
-    "dry_run_reads_first": {
-      "method": "records:write",
-      "read_method": "records:read",
-      "removes": "REMOVES THIS ROW",
-      "capability": "records_write_check_only",
-      "no_validate_route": "This engine does not say it can check a write without committing it (initialize capabilities.experimental.records_write_check_only), so this preview cannot say whether the engine would refuse the write.",
-      "not_honored": "THE ENGINE DID NOT HONOR check_only: its answer is not a check, so the write may have been applied. Read the rows."
     }
   },
   "install": {
@@ -99,7 +91,7 @@
       "keep-the-connection.mjs",
       "packs/read-data/identity.mjs",
       "packs/read-data/blake3.mjs",
-      "packs/read-data/settled-write.mjs",
+      "settled-write.mjs",
       "packs/node_modules/@noble/hashes/_blake.js",
       "packs/node_modules/@noble/hashes/_md.js",
       "packs/node_modules/@noble/hashes/_u64.js",
@@ -318,10 +310,6 @@
     "tool": "do_one_thing_in_my_account",
     "protocol_version": "2025-06-18",
     "account_meta": "account",
-    "records": "@own-records",
-    "list": "records:list",
-    "read": "records:read",
-    "history": "records:history",
     "files": "@namespace",
     "tools_list": "tools:list",
     "tools_run": "tools:run",
@@ -329,13 +317,11 @@
     "job_type": "ai-job",
     "page_limit": 100,
     "most_pages": 1000,
-    "history_limit": 20,
-    "write": "records:write",
     "cancel": "tools:cancel",
-    "wake": { "declaration_kind": "wake-declaration", "switch": "wake:switch", "causes": "wake:causes" }
+    "wake": { "switch": "wake:switch", "list": "wake:list" }
   },
   "work": {
-    "_what": "Each AI-job command runs one Workshop work tool (trillion-workshop tools/hand-work-to-ais) with tools:run at @tools: `tools` names the tool for who (ais), send, work (see), take and every move (change); `actions` maps a move command to the action tool:change-an-ai-job takes; `publish_after` are the commands after which this AI writes its own ai record again (what it holds changed, or it just sent work).",
+    "_what": "Each AI-job command runs one Workshop work tool (trillion-workshop tools/hand-work-to-ais) with tools:run at @tools: `tools` names the tool for who (ais), send, work (see), take and every move (change); `actions` maps a move command to the action tool:change-an-ai-job takes.",
     "tools": {
       "ais": "tool:see-my-ais",
       "send": "tool:hand-a-job-to-an-ai",
@@ -364,14 +350,7 @@
       "edit": "edit",
       "withdraw": "withdraw",
       "remove": "remove"
-    },
-    "publish_after": [
-      "send",
-      "take",
-      "finish",
-      "fail",
-      "release"
-    ]
+    }
   },
   "bearers": {
     "_what": "The shapes of credential the door accepts as a bearer, one row each: a `pattern` the whole value must match. The command sends whatever bearer it is given ({CLI}_KEY, the kept key, a key read on standard input) as it is, and refuses only a value no row matches, so a new kind of key or pass is one row here and no change in code. nm_ is the Mac app's account key; tr_ is a Better Auth API key (the prefix and 64 letters, no digits or separators, as the apiKey plugin mints it: better-auth-official, Nov 14); the third is an access token that is a signed JWT (three base64url parts).",
@@ -445,8 +424,6 @@
     "nothing_to_take": "No waiting job you may take.",
     "moved": "{id}: {from} -> {to}.",
     "not_moved": "{id} was not moved ({reason}); here it is as it now is.",
-    "published": "Wrote {id}.",
-    "not_published": "This AI's record was not written: {why}",
     "not_finished": "Not finished after {seconds} seconds; read it later with {cli} work {id}.",
     "refused_code": "{which} did not do that.",
     "retry_with_key": "To ask again without doing it twice, add {flag} {key} to the command.",
@@ -581,11 +558,11 @@
     "ai_list": "list:ais",
     "formula_kind": "formula",
     "formula_tool": "tool:evaluate-a-formula",
-    "no_list": "No list {list} names your AIs: its title field must be a formula field. Make the list, or ask {site_name} to, and run {cli} who again.",
+    "no_list": "The list given with --list does not name your AIs: its title field must be a formula field. Give {list} as your store holds it, and run {cli} who --list FILE again.",
     "no_names": "{tool} did not answer one name per AI."
   },
   "ai_record": {
-    "_what": "This AI's own ai record, written by publish through @own-records records:write conditioned on the value just read. A new record starts from `new`; `write_tries` writes are tried when another write changed it meanwhile (the engine answers one of `changed_codes`).",
+    "_what": "This AI's own ai record, answered by publish as one keep row conditioned on the value the person's store holds now (handed in). A new record starts from `new`.",
     "new": {
       "kind": "cli",
       "can": [
@@ -595,18 +572,13 @@
         "how": "heartbeat",
         "minutes": 60
       }
-    },
-    "write_tries": 3,
-    "changed_codes": [
-      "original_command_conflict"
-    ]
+    }
   },
   "packs": {
     "_what": "Files this program carries from the tool that owns them, so the installed command stands alone. Each row names the owner's file (relative to the tools folder) and where its bytes sit here; pack-from-owners.mjs writes them, never by hand, and a test fails when a packed file differs from its owner's, imports a file that is not packed, or is missing from install.files.",
     "files": [
       { "owner": "content-identity/read-data/identity.mjs", "packed": "packs/read-data/identity.mjs" },
       { "owner": "content-identity/read-data/blake3.mjs", "packed": "packs/read-data/blake3.mjs" },
-      { "owner": "records-door/read-data/settled-write.mjs", "packed": "packs/read-data/settled-write.mjs" },
       { "owner": "carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs", "packed": "packs/tools/carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs" },
       { "owner": "carry-a-computer-to-a-meeting-point/read-data/ways.json", "packed": "packs/tools/carry-a-computer-to-a-meeting-point/read-data/ways.json" },
       { "owner": "carry-a-computer-to-a-meeting-point/read-data/ports.json", "packed": "packs/tools/carry-a-computer-to-a-meeting-point/read-data/ports.json" },

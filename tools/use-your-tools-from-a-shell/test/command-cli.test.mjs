@@ -283,13 +283,13 @@ test('the door: this computer\'s own door for the key when it has one, else the 
 
 test('the engine road sends a request key over the engine bound as its identity, the same on every retry, and a short key unchanged', async () => {
   let busy = 1;
-  const fake = await fakeDoor({ sse: true, ops: { '@own-records records:write': () => (busy-- > 0 ? { status: 503 } : { changed: 1 }) } });
+  const fake = await fakeDoor({ sse: true, ops: { '@tools tools:run': () => (busy-- > 0 ? { status: 503 } : { changed: 1 }) } });
   try {
     const client = engineClient({ door: doorAt(fake.mcp), credential: keyCredential, rules: quick, wait: noWait });
     const long = 'replay-from-transcripts-' + 'x'.repeat(260);
-    await client.op('@own-records', 'records:write', { records: [] }, { idempotent: true, requestKey: long });
-    await client.op('@own-records', 'records:write', { records: [] }, { idempotent: true, requestKey: 'short-key-1' });
-    const keys = fake.calls.filter(call => call.method === 'records:write').map(call => call.request_key);
+    await client.op('@tools', 'tools:run', { tool: 'tool:x', input: {} }, { idempotent: true, requestKey: long });
+    await client.op('@tools', 'tools:run', { tool: 'tool:x', input: {} }, { idempotent: true, requestKey: 'short-key-1' });
+    const keys = fake.calls.filter(call => call.method === 'tools:run').map(call => call.request_key);
     assert.equal(keys.length, 3, 'one refused attempt, then the retry, then the short key');
     assert.match(keys[0], /^key:1f:[0-9a-f]{64}$/);
     assert.equal(keys[0], keys[1], 'a retry of the long key carries the same identity');
@@ -304,16 +304,16 @@ test('the engine road: replies in JSON or events, one request key on every retry
   assert.deepEqual(repliesOf('event: message\ndata: {"id":1}\n\n'), [{ id: 1 }]);
   let busy = 2;
   const fake = await fakeDoor({ sse: true, ops: {
-    '@own-records records:list': () => (busy-- > 0 ? { status: 503 } : { records: [] }),
-    '@own-records records:read': () => ({ refused: 'That record kind is not readable here.' }),
+    '@tools tools:list': () => (busy-- > 0 ? { status: 503 } : { tools: [] }),
+    '@tools tools:run': () => ({ refused: 'That tool is not offered here.' }),
   } });
   try {
     const client = engineClient({ door: doorAt(fake.mcp), credential: keyCredential, rules: quick, wait: noWait });
-    assert.deepEqual(await client.op('@own-records', 'records:list', { type: 'ai' }, { idempotent: true }), { records: [] });
-    const keys = fake.calls.filter(call => call.method === 'records:list').map(call => call.request_key);
+    assert.deepEqual(await client.op('@tools', 'tools:list', {}, { idempotent: true }), { tools: [] });
+    const keys = fake.calls.filter(call => call.method === 'tools:list').map(call => call.request_key);
     assert.equal(keys.length, 3);
     assert.equal(new Set(keys).size, 1, 'a retry carries the same request key');
-    await assert.rejects(client.op('@own-records', 'records:read', { id: 'x' }), /not readable here/);
+    await assert.rejects(client.op('@tools', 'tools:run', { tool: 'tool:x', input: {} }), /not offered here/);
     // A refused key: the door says which door; at the public door it names this computer's local door.
     const refusedAt = (door, credential = { kind: 'key', bearer: `nm_${'cd'.repeat(32)}`, where: 'k' }) => engineClient({ door, credential, rules: quick, wait: noWait }).whoami();
     await assert.rejects(refusedAt(doorAt(fake.mcp)), error => error.status === 3 && error.message === settings.words.refused && error.detail === `${fake.mcp} answered 401 to this key, kept in k.`);
@@ -366,7 +366,7 @@ const nameOf = value => value.nickname ?? [value.app, value.model, value.compute
 // tools:run as the engine answers it: the tool's own answer under `result`.
 const ran = result => ({ exit_code: 0, replayed: false, result });
 
-test('who: the AIs tool:see-my-ais answers, named by the list:ais formula in one call, grouped by owner with yours first, ready chats beneath, the rest counted', async () => {
+test('who: the AIs tool:see-my-ais answers, named by the list:ais formula handed in, in one call, grouped by owner with yours first, ready chats beneath, the rest counted', async () => {
   const now = Date.now();
   const recent = new Date(now - 10 * 60_000).toISOString(), earlier = new Date(now - 5 * 3_600_000).toISOString(), old = new Date(now - 10 * 86_400_000).toISOString();
   const codex = { app: 'Codex', model: 'gpt-6.1-sol', computer: 'Studio' };
@@ -376,15 +376,15 @@ test('who: the AIs tool:see-my-ais answers, named by the list:ais formula in one
     { id: 'ai:codex-2-on-mac', value: { agent_id: 'codex-2-on-mac', ...codex }, live: false, seen_at: earlier, busy: 0 },
     { id: 'ai:old', value: { agent_id: 'take-open-work-preflight', label: 'take-open-work-preflight', kind: 'account' }, live: false, seen_at: old, busy: 0 },
   ];
-  let list = AI_LIST;
   const fake = await fakeDoor({ ops: {
-    '@own-records records:read': input => (input.id === 'list:ais' ? list : { id: input.id, value: null }),
     '@tools tools:run': input => (input.tool === 'tool:see-my-ais' ? ran({ ais })
       : input.tool === 'tool:evaluate-a-formula' ? ran({ values: input.input.rows.map(row => nameOf(row) || null), errors: [] }) : { refused: `no ${input.tool}` }),
   } });
   try {
     const seams = seamsFor(home(), { localDoor: () => fake.mcp });
-    const who = (await main(['who'], seams)).split('\n');
+    const folder = home(), listFile = join(folder, 'list.json');
+    writeFileSync(listFile, JSON.stringify(AI_LIST.value));
+    const who = (await main(['who', '--list', listFile], seams)).split('\n');
     assert.equal(who[0], `Yours (account ${ACCOUNT.slice(0, 8)}…)`);
     assert.match(who[1], /^ {2}Codex · gpt-6\.1-sol · Studio {2}1 of 2 chats ready {2}last seen .+$/);
     assert.equal(who[2], '    ready  ai:codex-1-on-mac  1 taken  working on: Review the login page');
@@ -397,7 +397,7 @@ test('who: the AIs tool:see-my-ais answers, named by the list:ais formula in one
     assert.equal(formulaCalls.length, 1, 'the names are worked out in one call');
     assert.deepEqual(formulaCalls[0].input.input.binding, AI_LIST.value.fields[0].derive.request.binding, 'the list\'s own formula, as it is stored');
     assert.equal(formulaCalls[0].input.input.rows.length, 3, 'only the AIs shown are named');
-    const all = await main(['who', '--all'], seams);
+    const all = await main(['who', '--all', '--list', listFile], seams);
     assert.match(all, /An AI with no app, model or computer recorded \(account\) {2}0 of 1 chats ready/);
     assert.match(all, / {4}away {2}ai:codex-2-on-mac {2}last seen /);
     assert.ok(!all.includes('take-open-work-preflight'), 'an AI\'s own label is never its name');
@@ -405,14 +405,17 @@ test('who: the AIs tool:see-my-ais answers, named by the list:ais formula in one
     assert.deepEqual(groups.map(group => [group.owner, group.mine, group.ais.map(ai => ai.chats.length)]), [[ACCOUNT, true, [2, 1]], ['1234567890abcdef', false, [1]]]);
     assert.equal(aiOf(ais[2], { now }).ready, false, 'liveness is the tool\'s, computed when read');
     assert.equal(render('who', { groups: [], hidden: 0 }), settings.who.none);
-    // With no list:ais (or one whose title is not a formula) nothing is named some other way: who says which list is missing.
-    for (const missing of [{ id: 'list:ais', value: null }, { ...AI_LIST, value: { ...AI_LIST.value, title_field: 'nickname' } }]) {
-      list = missing;
-      await assert.rejects(main(['who'], seams), error => error.status === 4 && error.message.includes('list:ais') && !/log ?in/i.test(error.message));
-    }
+    // A list whose title is not a formula names nothing some other way: who says which list it needs.
+    const notFormula = join(folder, 'not-formula.json');
+    writeFileSync(notFormula, JSON.stringify({ ...AI_LIST.value, title_field: 'nickname' }));
+    await assert.rejects(main(['who', '--list', notFormula], seams), error => error.status === 2 && error.message.includes('list:ais') && !/log ?in/i.test(error.message));
+    // With no list given the AIs are shown unnamed, and no row is read from anywhere: only the work tool is called.
+    const before = fake.calls.length;
+    const unnamed = (await main(['who'], seams)).split('\n');
+    assert.match(unnamed[1], /^ {2}An AI with no app, model or computer recorded/);
+    assert.deepEqual(fake.calls.slice(before).filter(call => call.method !== 'initialize').map(call => [call.method, call.input?.tool]), [['tools:run', 'tool:see-my-ais']]);
     const client = engineClient({ door: doorAt(fake.mcp), credential: keyCredential, rules: quick, wait: noWait });
-    list = AI_LIST;
-    assert.deepEqual(await namesOf(client, []), [], 'no AI shown: nothing to name');
+    assert.deepEqual(await namesOf(client, [], AI_LIST.value), [], 'no AI shown: nothing to name');
   } finally { await fake.close(); }
   // A Workshop without the work tool says which tool is missing, in plain words, never "log in".
   const bare = await fakeDoor({ ops: { '@tools tools:run': () => ({ code: 'tools_tool_unknown' }) } });
@@ -424,7 +427,6 @@ test('who: the AIs tool:see-my-ais answers, named by the list:ais formula in one
 
 test('send, work, take and every move are one Workshop work tool each; a job another AI moved first is shown, never retried', async () => {
   const job = { id: 'ai-job:k1', status: 'waiting', job: 'Fix the build', from: 'ai:claude-code-on-mac', to: null };
-  const writes = [];
   let race = false;
   const tools = {
     'tool:hand-a-job-to-an-ai': input => ({ job_id: `ai-job:${input.key}`, status: 'written', job: { ...job, id: `ai-job:${input.key}`, job: input.job, to: input.to } }),
@@ -437,24 +439,18 @@ test('send, work, take and every move are one Workshop work tool each; a job ano
   const fake = await fakeDoor({ ops: {
     '@tools tools:run': input => ran(tools[input.tool](input.input)),
     '@tools tools:list': () => changeTool,
-    '@own-records records:read': input => ({ id: input.id, type: 'ai', value: null }),
-    '@own-records records:write': input => { writes.push(input.records[0]); return { changed: true, write_count: 1 }; },
   } });
   try {
     const seams = seamsFor(home(), { localDoor: () => fake.mcp });
     const sent = await main(['send', 'any', 'Fix', 'the', 'build', '--key', 'k1'], seams);
     assert.match(sent, /^Sent ai-job:k1\.\nai-job:k1 {2}waiting {2}for any AI {2}from ai:claude-code-on-mac\n {2}job: Fix the build\nAny of your AIs can take it\./);
     assert.deepEqual(fake.calls.find(call => call.method === 'tools:run').input, { tool: 'tool:hand-a-job-to-an-ai', input: { as: `ai:claude-code-on-${computerOf()}`, job: 'Fix the build', key: 'k1', to: null } });
-    assert.equal(writes.length, 1, 'sending writes this AI\'s own record once');
-    assert.deepEqual([writes[0].id, writes[0].expected, writes[0].value.owner], [`ai:claude-code-on-${computerOf()}`, null, ACCOUNT], 'a new record is written on condition it is absent, its owner the door\'s account');
     assert.equal(await main(['work'], seams), `ai-job:k1  waiting  for any AI  from ai:claude-code-on-mac\n  job: Fix the build\n${settings.words.more_jobs}`);
     assert.equal(await main(['work', 'ai-job:k1'], seams), 'ai-job:k1  done  for any AI  from ai:claude-code-on-mac\n  job: Fix the build\n  result: Built.');
     assert.match(await main(['take'], seams), /^Took ai-job:k1\.\nai-job:k1 {2}taken {2}taken by ai:claude-code-on-/);
     assert.deepEqual(Object.keys(seams.state.held()), [`claude-code-on-${computerOf()} ai-job:k1`], 'the job taken is held here');
-    assert.equal(writes.at(-1).value.working_on, 'Fix the build', 'this AI\'s record says what it is working on');
     assert.match(await main(['finish', 'ai-job:k1', 'Built.'], seams), /^ai-job:k1: taken -> done\./);
     assert.deepEqual(seams.state.held(), {}, 'a finished job is let go');
-    assert.equal(writes.at(-1).value.working_on, null);
     const sentWithWait = await main(['send', 'any', 'x', '--key', 'k2', '--wait', '5'], seams);
     assert.match(sentWithWait, /^ai-job:k2 {2}done/, '--wait reads the job with tool:see-ai-work until it is finished');
     race = true;
@@ -476,8 +472,6 @@ test('a move names the claim read from the job\'s own row when this AI holds it:
     '@tools tools:run': input => ran(input.tool === 'tool:see-ai-work' ? { jobs: [rows[input.input.id]], more: false }
       : input.tool === 'tool:change-an-ai-job' ? (moves.push(input.input), { job_id: input.input.id, moved: true, from: 'taken', to: 'done', job: rows[input.input.id] }) : null),
     '@tools tools:list': () => changeTool,
-    '@own-records records:read': input => ({ id: input.id, type: 'ai', value: null }),
-    '@own-records records:write': () => ({ changed: true, write_count: 1 }),
   } });
   try {
     const folder = home();
@@ -497,41 +491,25 @@ test('a move names the claim read from the job\'s own row when this AI holds it:
   } finally { await fake.close(); }
 });
 
-test('publish: this AI\'s own record, written on condition of the value just read, and written again over a change made meanwhile', async () => {
+test('publish: this AI\'s own record as one keep row, conditioned on the value handed in, and nothing is read or written', async () => {
   const stored = { nickname: 'Builder', order: 3, app: 'Old app', live: { minutes: 30 } };
-  const writes = [];
-  let refusal = { code: 'original_command_conflict' };
-  const fake = await fakeDoor({ ops: {
-    '@own-records records:read': input => ({ id: input.id, type: 'ai', value: stored }),
-    '@own-records records:write': input => {
-      writes.push(input.records[0]);
-      const refused = refusal;
-      refusal = null;
-      return refused ?? { changed: true, write_count: 1 };
-    },
-  } });
+  const fake = await fakeDoor({ ops: {} });
   try {
     const seams = seamsFor(home(), { localDoor: () => fake.mcp });
-    const dry = JSON.parse(await main(['publish', '--dry-run'], seams));
-    assert.equal(writes.length, 0, 'a dry run writes nothing');
-    assert.deepEqual([dry.value.nickname, dry.value.order, dry.value.app], ['Builder', 3, 'Claude Code']);
-    assert.equal(await main(['publish'], seams), `Wrote ai:claude-code-on-${computerOf()}.`);
-    assert.equal(writes.length, 2, 'the engine\'s changed refusal is read and written again');
-    for (const write of writes) assert.deepEqual(write.expected, { type: 'ai', value: stored }, 'each write is conditioned on the value read');
-    refusal = { refused: 'not allowed' };
-    await assert.rejects(main(['publish'], seams), /not allowed/, 'any other refusal is not tried again');
-    assert.equal(writes.length, 3);
+    const fresh = JSON.parse(await main(['publish'], seams));
+    assert.equal(fresh.keep.length, 1);
+    assert.deepEqual([fresh.keep[0].id, fresh.keep[0].type, fresh.keep[0].expected, fresh.keep[0].value.owner], [`ai:claude-code-on-${computerOf()}`, 'ai', null, ACCOUNT],
+      'a new record is kept on condition it is absent, its owner the door\'s account');
+    const over = JSON.parse(await main(['publish', JSON.stringify(stored)], seams)).keep[0];
+    assert.deepEqual([over.value.nickname, over.value.order, over.value.app], ['Builder', 3, 'Claude Code'], 'the person\'s own cells are carried, the facts are set');
+    assert.deepEqual(over.expected, { type: 'ai', value: stored }, 'the keep is conditioned on the value handed in');
+    assert.deepEqual(fake.calls.map(call => call.method).filter(method => method !== 'initialize'), [], 'no operation is sent: only who the door answers for');
+    await assert.rejects(main(['publish', '[1]'], seams), /one JSON object/);
   } finally { await fake.close(); }
-  // At most write_tries writes.
-  const client = { whoami: async () => ({ account: ACCOUNT }), op: async (address, method) => {
-    if (method === 'records:read') return { value: null };
-    const error = Object.assign(new CommandError('conflict'), { code: 'original_command_conflict' });
-    if ((client.tries = (client.tries ?? 0) + 1) < 3) throw error;
-    return { changed: true };
-  } };
-  const context = { me, placeImpl: () => ({}), state: { held: () => ({}) } };
-  assert.equal((await publishRecord(client, context)).record.id, me.ai_id);
-  assert.equal(client.tries, 3);
+  const context = { me, placeImpl: () => ({}), state: { held: () => ({ [`${me.agent_id} ai-job:1`]: { id: 'ai-job:1', said: 'Fix the build' } }) } };
+  const client = { whoami: async () => ({ account: ACCOUNT }), op: async () => { throw new Error('nothing is sent'); } };
+  const { keep } = await publishRecord(client, context, { held: null });
+  assert.equal(keep[0].id, me.ai_id);
 });
 
 test('serve: a job taken is run, then finished, blocked on a next step when it cannot be checked or fails, or said stuck, each with tool:change-an-ai-job', async () => {
@@ -764,7 +742,7 @@ test('a refused call names the request key it was sent under, so the caller can 
     structuredContent: { code: 'original_input_refused', outcome: 'not_started' } } };
   const fetchImpl = async () => new Response(JSON.stringify(reply), { status: 200, headers: { 'content-type': 'application/json' } });
   const client = engineClient({ door: doorAt('http://127.0.0.1:9/mcp', { local: true }), credential: keyCredential, fetchImpl, rules: quick, wait: noWait });
-  await assert.rejects(opWhole(client, '@own-records', 'records:write', {}, { requestKey: 'quote-me-7' }), error => /Reference: quote-me-7\./.test(error.message));
+  await assert.rejects(opWhole(client, null, 'tools:run', {}, { requestKey: 'quote-me-7' }), error => /Reference: quote-me-7\./.test(error.message));
 });
 
 test('a job shows its own words, and its label on a line of its own', () => {
@@ -803,8 +781,6 @@ test('keep: a 10-byte result stays on the job row and a 50 MB one is kept as a f
     '@tools tools:run': input => ran(input.tool === 'tool:change-an-ai-job'
       ? (jobs[input.input.id] = { id: input.input.id, status: 'done', result: input.input.result }, { job_id: input.input.id, moved: true, from: 'taken', to: 'done', job: jobs[input.input.id] })
       : { jobs: [jobs[input.input.id]], more: false }),
-    '@own-records records:read': input => ({ id: input.id, type: 'ai', value: null }),
-    '@own-records records:write': () => ({ changed: true, write_count: 1 }),
   } });
   try {
     const stdinOf = bytes => { const stream = new PassThrough(); stream.end(bytes); return stream; };
