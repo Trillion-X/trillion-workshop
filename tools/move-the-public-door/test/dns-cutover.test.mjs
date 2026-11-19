@@ -151,3 +151,25 @@ test('the tool\'s code, rows, kits and README name no DNS or hosting vendor of t
   const files = ['tool-rows.json', 'README.md', ...['do-work', 'read-data', 'kits'].flatMap(dir => readdirSync(new URL(`${dir}/`, here)).map(name => `${dir}/${name}`))];
   for (const path of files) assert.doesNotMatch(read(path), /hetzner|cloudflare|points_a_name|dns_provider/i, path);
 });
+
+test('a name with no address record is placed new: one record is made, nothing else changes, and rollback removes it', async () => {
+  const w = world({ records: [record('c0000000', 'example.com', 'unrelated', { kind: 'TXT' }), record('c0000009', 'mail.example.com', '192.0.2.99')] }), f = file();
+  const placed = { hostname: 'files.example.com', address: '192.0.2.7' };
+  assert.equal((await prepareCutover(placed, args(w, f))).mode, 'new-record');
+  w.state.lose = 'POST';
+  await assert.rejects(changeCutover(placed, args(w, f)), /connection lost/);
+  assert.equal((await changeCutover(placed, args(w, f))).state, 'active', 'a lost answer is found by readback, not made twice');
+  const mine = w.state.records.filter(x => x.host === placed.hostname);
+  assert.deepEqual([mine.length, mine[0].value, w.state.writes.length], [1, placed.address, 1]);
+  assert.equal((await changeCutover(placed, args(w, f))).state, 'active', 'activating again changes nothing');
+  assert.equal(w.state.writes.length, 1);
+  await changeCutover(placed, args(w, f, { rollback: true }));
+  assert.deepEqual(w.state.records.map(x => x.id).sort(), ['c0000000', 'c0000009']);
+});
+
+test('a placed name refuses when unrelated records change before it is made', async () => {
+  const w = world({ records: [record('c0000000', 'example.com', 'unrelated', { kind: 'TXT' })] }), f = file();
+  const placed = { hostname: 'files.example.com', address: '192.0.2.7' };
+  await prepareCutover(placed, args(w, f)); w.state.records[0].value = 'independent';
+  await assert.rejects(changeCutover(placed, args(w, f)), /Unrelated DNS records/); assert.equal(w.state.writes.length, 0);
+});

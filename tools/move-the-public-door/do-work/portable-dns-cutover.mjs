@@ -80,8 +80,10 @@ export async function prepareCutover(c, { request, provider, receipts, file }) {
   const binding = b && before.bindings.find(x => at(x, b.host_at) === c.hostname);
   const required = Object.entries(b?.require ?? {});
   const managed = Boolean(binding) && targets.length === 1 && Boolean(at(targets[0], p.read_only_at)) && idOf(b, binding) === at(targets[0], p.binding_at) && required.every(([key, value]) => binding[key] === value);
-  if (targets.length !== 1 || (!managed && !p.editable_types.includes(typeOf(provider, targets[0])))) throw Error('Cutover requires one editable address record or its exact managed binding; no records were changed.');
-  const receipt = { schema: 'portable-dns-cutover/2', hostname: c.hostname, address: c.address, state: 'prepared', mode: managed ? 'managed-binding' : 'record', originalBinding: managed ? binding : undefined, before, targetId: idOf(p, targets[0]), desired: fill(p.desired, { host_name: c.hostname, address: c.address, lease_label_key: provider.lease_label_key }) };
+  // A name with no address record and no binding is placed new: activate makes its one record, rollback removes that record.
+  const placed = targets.length === 0 && !binding;
+  if (!placed && (targets.length !== 1 || (!managed && !p.editable_types.includes(typeOf(provider, targets[0]))))) throw Error('Cutover requires no address record at the name, one editable address record, or its exact managed binding; no records were changed.');
+  const receipt = { schema: 'portable-dns-cutover/2', hostname: c.hostname, address: c.address, state: 'prepared', mode: placed ? 'new-record' : managed ? 'managed-binding' : 'record', originalBinding: managed ? binding : undefined, before, targetId: placed ? null : idOf(p, targets[0]), desired: fill(p.desired, { host_name: c.hostname, address: c.address, lease_label_key: provider.lease_label_key }) };
   return receipts.save(file, receipt);
 }
 export async function changeCutover(c, { request, provider, receipts, file, rollback = false }) {
@@ -89,6 +91,7 @@ export async function changeCutover(c, { request, provider, receipts, file, roll
   const save = () => receipts.save(file, receipt), p = provider.record;
   if (receipt.hostname !== c.hostname || receipt.address !== c.address) throw Error('Saved cutover belongs to another placement.');
   if (receipt.mode === 'managed-binding') return changeManagedBinding(c, { request, provider, save, receipt, rollback });
+  if (receipt.mode === 'new-record') return changeNewRecord(c, { request, provider, save, receipt, rollback });
   const current = await snapshot(c, request, provider, receipt.before.zone, receipt.before.account), original = receipt.before.records.find(x => idOf(p, x) === receipt.targetId), row = current.records.find(x => idOf(p, x) === receipt.targetId);
   const expected = rollback ? receipt.afterTarget : original;
   const keysOf = Object.keys(receipt.desired), pick = value => Object.fromEntries(keysOf.map(key => [key, value[key]]));
@@ -107,6 +110,36 @@ export async function changeCutover(c, { request, provider, receipts, file, roll
   if (JSON.stringify(after.records.filter(x => idOf(p, x) !== receipt.targetId).map(x => shape(provider, x))) !== JSON.stringify(previous.map(x => shape(provider, x))) || JSON.stringify(after.guards) !== JSON.stringify(receipt.before.guards)) throw Error('DNS mutation readback found unrelated changes; rollback source retained.');
   receipt.state = rollback ? 'rolled-back' : 'active'; if (!rollback) receipt.afterTarget = actual;
   return save();
+}
+
+/** A name placed new: every record but this name's own must stay as it was, and the guarded lists too. Activate makes the one
+ * desired record when the name holds none (a lost answer is found again by readback, never made twice); rollback removes the
+ * record activate made, only while it is still exactly that record. */
+async function changeNewRecord(c, { request, provider, save, receipt, rollback }) {
+  const before = receipt.before, p = provider.record;
+  const preserved = state => {
+    const other = state.records.filter(x => nameOf(provider, x) !== c.hostname || !p.address_types.includes(typeOf(provider, x)));
+    const old = before.records.filter(x => nameOf(provider, x) !== c.hostname || !p.address_types.includes(typeOf(provider, x)));
+    if (stable(other, x => shape(provider, x)) !== stable(old, x => shape(provider, x)) || JSON.stringify(state.guards) !== JSON.stringify(before.guards)) throw Error('Unrelated DNS records or guarded lists changed; preserve the current state and investigate.');
+  };
+  const current = await snapshot(c, request, provider, before.zone, before.account); preserved(current);
+  const here = addressRows(provider, current, c.hostname);
+  if (rollback) {
+    if (here.length) {
+      if (here.length !== 1 || !has(here[0], receipt.desired) || (receipt.afterTarget && idOf(p, here[0]) !== idOf(p, receipt.afterTarget))) throw Error('The placed DNS record changed; rollback refused.');
+      receipt.state = 'rollback-removing-address'; await save();
+      await ask(request, provider, p, 'remove', { zone_id: before.zone }, idOf(p, here[0]));
+    }
+  } else if (!here.length) {
+    receipt.state = 'creating-address'; await save();
+    const answer = await ask(request, provider, p, 'create_given', { zone_id: before.zone, record_body: receipt.desired });
+    receipt.afterTarget = at(answer, p.created_at ?? 'result'); await save();
+  } else if (here.length !== 1 || !has(here[0], receipt.desired)) throw Error('The name holds an address record that is not the placed one; no mutation was made.');
+  const after = await snapshot(c, request, provider, before.zone, before.account); preserved(after);
+  const now = addressRows(provider, after, c.hostname);
+  if (rollback ? now.length : (now.length !== 1 || !has(now[0], receipt.desired))) throw Error('DNS placement needs readback reconciliation; the receipt is kept.');
+  if (!rollback) receipt.afterTarget = now[0];
+  receipt.state = rollback ? 'rolled-back' : 'active'; return save();
 }
 
 async function changeManagedBinding(c, { request, provider, save, receipt, rollback }) {
