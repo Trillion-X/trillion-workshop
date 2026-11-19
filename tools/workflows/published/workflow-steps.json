@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "629dc251bd61a9945d923cdf8c0b87c0263a77713064aa0e287ad43da2ffef03",
+  "blake3": "5b2c4e5e6d9c07f5312705f24921abe007079dcdb677bd4cee30bc5b79fcbe4e",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -37,6 +37,7 @@
     "build-a-campaign-world-from-a-two-sentence-concept",
     "build-a-design-system-from-the-ui-an-app-already-ships",
     "build-a-living-workbook-for-a-numeric-strategy",
+    "build-a-paid-social-campaign-in-three-audience-stages",
     "build-a-pipeline-that-makes-and-posts-short-videos-on-a-schedule",
     "build-a-short-video-shop-around-one-hero-product",
     "build-a-site-that-does-not-look-ai-made",
@@ -153,6 +154,7 @@
     "give-paid-buyers-access",
     "give-people-a-way-to-find-and-get-it",
     "ground-a-screen-in-real-product-references",
+    "grow-a-social-account-with-daily-posts-and-collaborations",
     "grow-a-subscription-program-from-first-order-to-win-back",
     "grow-an-audience-on-x",
     "grow-on-reddit-without-selling-first",
@@ -199,6 +201,7 @@
     "lift-a-stores-sales-per-visitor-offer-first-then-trust",
     "list-your-product-in-every-ai-connector-store",
     "lock-in",
+    "make-a-bold-promise-believable-to-a-skeptical-buyer",
     "make-a-business-run-without-its-founder",
     "make-a-custom-product-from-a-sketch-to-an-approved-sample",
     "make-a-font-from-measured-references",
@@ -376,6 +379,7 @@
     "split-what-must-be-certain-from-what-an-ai-may-reason",
     "start-from-the-persons-own-work",
     "start-reselling-goods-for-more-than-they-cost",
+    "start-selling-a-private-label-product-on-a-big-marketplace",
     "start-selling-bought-goods-on-an-online-marketplace",
     "stress-test-one-component-under-every-scenario-that-can-reach-it",
     "take-apart-a-winning-ad-before-copying-it",
@@ -423,6 +427,7 @@
     "work-out-what-to-save-each-month-to-reach-a-target-sum",
     "work-out-which-marketing-caused-the-revenue",
     "work-through-a-framework",
+    "work-with-micro-influencers-by-gifting-for-posts",
     "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
     "workflow:rewrite-a-broad-condition",
     "workflow:turn-one-long-recording-into-many-pieces",
@@ -69237,6 +69242,762 @@
     ],
     "part_of": [
      "workflow:track-show-rate-and-find-the-weak-stage"
+    ]
+   }
+  },
+  {
+   "id": "build-a-paid-social-campaign-in-three-audience-stages--gather-copy-and-creative-first",
+   "values": {
+    "title": "Have every piece of copy and creative ready before opening the ad platform",
+    "recipe": [
+     "build-a-paid-social-campaign-in-three-audience-stages"
+    ],
+    "position": 0,
+    "step": "gather-copy-and-creative-first",
+    "do": "Before you build, put in one sheet: for each stage, the headline, the body text, the destination address and the image or video file. Each stage gets its own copy. Check the sheet for pasted quote marks and typos with a second reader.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A person is about to build a first or new ad campaign.",
+    "done_when": "One sheet with a headline, body text, destination and file for every ad, read by a second person.",
+    "if_missing": "If creative is not ready, stop and finish it first; building half-ready campaigns costs more time than it saves.",
+    "why": "Building from a ready sheet is fast and avoids copy-paste mistakes that go live.",
+    "good_answer": "Passes: 6 ads listed, each with headline, text, address and file, and a second reader marked it clean. Fails: building while still writing the text.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (build a campaign in 30 minutes; newest strategies; ad walkthrough), https://www.youtube.com/watch?v=UNqBIE9G2GE, https://www.youtube.com/watch?v=lxVDnXVB40U, https://www.youtube.com/watch?v=W2NWXIoRKkw"
+    ],
+    "part_of": [
+     "workflow:build-a-paid-social-campaign-in-three-audience-stages"
+    ]
+   }
+  },
+  {
+   "id": "build-a-paid-social-campaign-in-three-audience-stages--set-campaign-goal-budget-and-name",
+   "values": {
+    "title": "Set the goal to purchases, split one budget across the stages and name the campaign",
+    "recipe": [
+     "build-a-paid-social-campaign-in-three-audience-stages"
+    ],
+    "position": 1,
+    "step": "set-campaign-goal-budget-and-name",
+    "do": "Choose purchases (revenue) as the optimisation goal even for the cold stage. Turn on one shared budget across the stages. Set the daily budget as the average order value times the total number of ads across all stages (for example 35 per order and 9 ads gives about 315 per day) and treat it as a rule of thumb, not a law. Leave cost limits off at first so the budget gets spent and you learn whether the product and creative work. Name the campaign with the product, the word full-funnel, the budget type and the date.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The ad sheet is ready.",
+    "done_when": "A campaign with the purchase goal, a shared budget, a daily figure with the sum shown, no cost limit, and a name holding product, stage plan, budget type and date.",
+    "if_missing": "If you do not know the average order value, take it from the last 30 days of orders and write the figure next to the budget.",
+    "why": "The money buys data; a budget tied to order value gives each ad enough room to show whether it works.",
+    "good_answer": "Passes: \"crop top full funnel - shared budget - 02-23\" with 315 a day from 35 x 9 ads. Fails: a name like \"campaign 1\" or a budget picked without the order value.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (build a campaign in 30 minutes; newest strategies; ad walkthrough), https://www.youtube.com/watch?v=UNqBIE9G2GE, https://www.youtube.com/watch?v=lxVDnXVB40U, https://www.youtube.com/watch?v=W2NWXIoRKkw"
+    ],
+    "part_of": [
+     "workflow:build-a-paid-social-campaign-in-three-audience-stages"
+    ]
+   }
+  },
+  {
+   "id": "build-a-paid-social-campaign-in-three-audience-stages--make-three-stages-and-name-each-audience",
+   "values": {
+    "title": "Make three stages: cold, engaged and site-acted, and name every audience by what it holds",
+    "recipe": [
+     "build-a-paid-social-campaign-in-three-audience-stages"
+    ],
+    "position": 2,
+    "step": "make-three-stages-and-name-each-audience",
+    "do": "Build the first stage for people who do not know you: keep it broad, exclude buyers from the last 30 days, leave audience expansion and automatic placement on so the creative does the work. Duplicate that stage twice, then rename and change the audience. Stage two is people who engaged with your own social pages (for example 365 days). Stage three is people who acted on your site (for example add to cart or visited a collection page in the last 14 days), with buyers excluded. Name each audience with its action and number of days. Set a small minimum spend per stage (for example 5 a day) so no stage gets starved; add a maximum only after a day or two shows one stage taking most of the money.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The campaign is named and the budget is shared.",
+    "done_when": "Three named stages with their audiences, buyer exclusion on the cold and site stages, and a minimum spend set on each.",
+    "if_missing": "If the site tracking event for purchases is not verified, fix that before publishing.",
+    "why": "Cold stage proves the creative is convincing to strangers; later stages catch the people who showed interest.",
+    "good_answer": "Passes: \"prospecting\", \"re-engagement\", \"remarketing atc and collection 14 days\" each with its audience and a 5 minimum. Fails: one stage holding all the spend or audiences with no day counts in their names.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (build a campaign in 30 minutes; newest strategies; ad walkthrough), https://www.youtube.com/watch?v=UNqBIE9G2GE, https://www.youtube.com/watch?v=lxVDnXVB40U, https://www.youtube.com/watch?v=W2NWXIoRKkw"
+    ],
+    "part_of": [
+     "workflow:build-a-paid-social-campaign-in-three-audience-stages"
+    ]
+   }
+  },
+  {
+   "id": "build-a-paid-social-campaign-in-three-audience-stages--load-ads-per-stage-and-publish",
+   "values": {
+    "title": "Load the ads for each stage with matching names, check them, and publish",
+    "recipe": [
+     "build-a-paid-social-campaign-in-three-audience-stages"
+    ],
+    "position": 3,
+    "step": "load-ads-per-stage-and-publish",
+    "do": "Put a mix of formats in the cold stage (several single images and one multi-image post) because you cannot know in advance which will work. Use the same copy across them. For the later stages use one video or the strongest image, with copy that is more direct and carries urgency. Send cold traffic to the page that lets them look around, and send site-acted people to the quickest path to buying. Name every ad with its format, copy version and date. Duplicate an ad instead of rebuilding it. Check the preview, character counts and links, then publish and confirm each ad shows as in review.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The three stages exist.",
+    "done_when": "At least six ads published across the stages, each named, with the right destination and showing as in review or live.",
+    "if_missing": "If a draft refuses to publish, publish the campaign level first, then the stages, then the ads.",
+    "why": "Several formats at the top and one clear path at the bottom gets data fastest.",
+    "good_answer": "Passes: 4 cold ads, 1 video and 1 image in the later stages, all named \"image 2 copy 1 02-23\" style. Fails: unpublished drafts left inside the campaign.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (build a campaign in 30 minutes; newest strategies; ad walkthrough), https://www.youtube.com/watch?v=UNqBIE9G2GE, https://www.youtube.com/watch?v=lxVDnXVB40U, https://www.youtube.com/watch?v=W2NWXIoRKkw"
+    ],
+    "part_of": [
+     "workflow:build-a-paid-social-campaign-in-three-audience-stages"
+    ]
+   }
+  },
+  {
+   "id": "build-a-paid-social-campaign-in-three-audience-stages--read-first-days-and-record-next-change",
+   "values": {
+    "title": "Read the first days of data and record the one change to make next",
+    "recipe": [
+     "build-a-paid-social-campaign-in-three-audience-stages"
+    ],
+    "position": 4,
+    "step": "read-first-days-and-record-next-change",
+    "do": "After the first days of spend, look at how each stage and ad used its budget, clicks, cost per purchase and revenue. Record what each result shows, which ad or stage to change first, and what you will leave alone. Note where tracking under-reports purchases.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The ads have spent for at least a day or two.",
+    "done_when": "A short record of results per stage, the single change chosen, what stays, and any tracking gap.",
+    "if_missing": "If there is too little spend to read, write how much more spend is needed and wait.",
+    "why": "One change at a time shows which change did the work; what matters most next is recorded for whoever decides.",
+    "good_answer": "Passes: \"cold stage spent 60 percent, cost per purchase 54 vs target 40, change: swap the first image, keep the copy\". Fails: changing five things at once.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (build a campaign in 30 minutes; newest strategies; ad walkthrough), https://www.youtube.com/watch?v=UNqBIE9G2GE, https://www.youtube.com/watch?v=lxVDnXVB40U, https://www.youtube.com/watch?v=W2NWXIoRKkw"
+    ],
+    "part_of": [
+     "workflow:build-a-paid-social-campaign-in-three-audience-stages"
+    ]
+   }
+  },
+  {
+   "id": "grow-a-social-account-with-daily-posts-and-collaborations--set-a-daily-minimum-and-never-skip",
+   "values": {
+    "title": "Set a minimum number of posts per day and keep it every day",
+    "recipe": [
+     "grow-a-social-account-with-daily-posts-and-collaborations"
+    ],
+    "position": 0,
+    "step": "set-a-daily-minimum-and-never-skip",
+    "do": "Pick a daily floor you can hold (at least one feed post per day to start; larger teams reach several posts and many stories a day). Write the floor down and keep it without missing days, because gaps cost followers and months to recover. Keep the content on one subject for one clear audience.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A person starts or restarts growing an account.",
+    "done_when": "A written daily minimum, a calendar of the next 14 days with a post planned for each day, and one sentence naming who the account speaks to.",
+    "if_missing": "If a day is missed, post the next day at the same floor and note the miss and its effect on follower growth.",
+    "why": "Platforms reward steady posting, and the growth compounds.",
+    "good_answer": "Passes: \"1 post a day, 14 days planned, speaks to home bakers\". Fails: \"post when inspired\" or a feed that mixes unrelated subjects.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (10K followers every week; gain followers organically; 25 growth hacks), https://www.youtube.com/watch?v=lZZ6NA2HORE, https://www.youtube.com/watch?v=J3U78q7Zf2o, https://www.youtube.com/watch?v=NyGkq5_5w8w"
+    ],
+    "part_of": [
+     "workflow:grow-a-social-account-with-daily-posts-and-collaborations"
+    ]
+   }
+  },
+  {
+   "id": "grow-a-social-account-with-daily-posts-and-collaborations--study-the-top-accounts-in-your-niche",
+   "values": {
+    "title": "List the top accounts speaking to your audience and note which posts do best",
+    "recipe": [
+     "grow-a-social-account-with-daily-posts-and-collaborations"
+    ],
+    "position": 1,
+    "step": "study-the-top-accounts-in-your-niche",
+    "do": "List 10 to 20 accounts that speak to your audience. For each, note the formats they post and which posts get the most saves, shares and comments. Define a top post for your own account (a number of views or likes it should reach) so you know when a post is unusually good.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The daily minimum is set.",
+    "done_when": "A list of 10 to 20 accounts with their best formats, and a stated number that makes a post count as a top post for you.",
+    "if_missing": "If you know few accounts, search the topic and the hashtags of your competitors.",
+    "why": "Success leaves clues; copying a format that already works saves guesswork.",
+    "good_answer": "Passes: 12 accounts, 3 formats noted for each, top post defined as 20,000 views. Fails: a list of names with no notes.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (10K followers every week; gain followers organically; 25 growth hacks), https://www.youtube.com/watch?v=lZZ6NA2HORE, https://www.youtube.com/watch?v=J3U78q7Zf2o, https://www.youtube.com/watch?v=NyGkq5_5w8w"
+    ],
+    "part_of": [
+     "workflow:grow-a-social-account-with-daily-posts-and-collaborations"
+    ]
+   }
+  },
+  {
+   "id": "grow-a-social-account-with-daily-posts-and-collaborations--mix-formats-and-use-the-newest-feature",
+   "values": {
+    "title": "Post in a mix of formats and use the platform newest feature first",
+    "recipe": [
+     "grow-a-social-account-with-daily-posts-and-collaborations"
+    ],
+    "position": 2,
+    "step": "mix-formats-and-use-the-newest-feature",
+    "do": "Rotate between multi-image posts, short videos, single images, stories and long videos. Give the newest feature of the platform a place every week, because platforms push their own new features. Reuse a headline that worked in one format as another format (for example a video headline as a multi-image post). Run a giveaway whose prize suits your own audience and ask for follow plus tag, so people who join are people who will stay. Switch to a business-type account so you can read insights on posts and tags.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Study notes exist.",
+    "done_when": "A week of posts using at least three formats including the newest feature, plus the insights view turned on.",
+    "if_missing": "If you lack video skills, start with multi-image posts and add one short video per week.",
+    "why": "Different formats reach different people, and the newest feature gets extra reach.",
+    "good_answer": "Passes: 7 posts: 2 multi-image, 2 short videos, 2 images, 1 story set. Fails: only one format all week.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (10K followers every week; gain followers organically; 25 growth hacks), https://www.youtube.com/watch?v=lZZ6NA2HORE, https://www.youtube.com/watch?v=J3U78q7Zf2o, https://www.youtube.com/watch?v=NyGkq5_5w8w"
+    ],
+    "part_of": [
+     "workflow:grow-a-social-account-with-daily-posts-and-collaborations"
+    ]
+   }
+  },
+  {
+   "id": "grow-a-social-account-with-daily-posts-and-collaborations--get-other-accounts-to-share-and-tag-you",
+   "values": {
+    "title": "Get other accounts to share your posts and tag you",
+    "recipe": [
+     "grow-a-social-account-with-daily-posts-and-collaborations"
+    ],
+    "position": 3,
+    "step": "get-other-accounts-to-share-and-tag-you",
+    "do": "List accounts with an audience about the size of yours or larger. Offer one of: shout-out for shout-out, product for a post, or a share of a good post with a tag. Send a short message to each. Engage naturally with posts under a hashtag and competitor posts every day, within the limits of the platform so the account is not blocked.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The account has posts to share.",
+    "done_when": "A list of at least 10 accounts with the offer sent to each and replies recorded.",
+    "if_missing": "If nobody replies, offer a product and shorten the message.",
+    "why": "Being tagged by many accounts is the quickest way to new followers, and the platform sees the pattern.",
+    "good_answer": "Passes: 10 accounts, each with the offer and a status of sent, replied or posted. Fails: a general \"please share us\" posted publicly.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (10K followers every week; gain followers organically; 25 growth hacks), https://www.youtube.com/watch?v=lZZ6NA2HORE, https://www.youtube.com/watch?v=J3U78q7Zf2o, https://www.youtube.com/watch?v=NyGkq5_5w8w"
+    ],
+    "part_of": [
+     "workflow:grow-a-social-account-with-daily-posts-and-collaborations"
+    ]
+   }
+  },
+  {
+   "id": "grow-a-social-account-with-daily-posts-and-collaborations--count-new-followers-by-source-and-record",
+   "values": {
+    "title": "Count new followers each week by what brought them and record what to do more of",
+    "recipe": [
+     "grow-a-social-account-with-daily-posts-and-collaborations"
+    ],
+    "position": 4,
+    "step": "count-new-followers-by-source-and-record",
+    "do": "Each week read the new followers and the posts or tags that brought the most. Record the best three, what to do more of, and what to drop.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A week of the plan has passed.",
+    "done_when": "A weekly record with follower change, the top three posts or tags, and one thing to do more of.",
+    "if_missing": "If the numbers are not visible, switch the account type and wait one week.",
+    "why": "Growth you can trace to a post or a tag can be repeated; the record shows what matters most next.",
+    "good_answer": "Passes: \"+410, top: carousel on pricing, tag from partner account; do more: pricing posts\". Fails: the total number only.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (10K followers every week; gain followers organically; 25 growth hacks), https://www.youtube.com/watch?v=lZZ6NA2HORE, https://www.youtube.com/watch?v=J3U78q7Zf2o, https://www.youtube.com/watch?v=NyGkq5_5w8w"
+    ],
+    "part_of": [
+     "workflow:grow-a-social-account-with-daily-posts-and-collaborations"
+    ]
+   }
+  },
+  {
+   "id": "work-with-micro-influencers-by-gifting-for-posts--decide-the-goal-and-pick-by-three-fits",
+   "values": {
+    "title": "Decide what the campaign is for and pick creators by reach, relevance and relationship",
+    "recipe": [
+     "work-with-micro-influencers-by-gifting-for-posts"
+    ],
+    "position": 0,
+    "step": "decide-the-goal-and-pick-by-three-fits",
+    "do": "Write the goal first: more followers through a giveaway, or sales through unique codes. Build the list from creators who already promote your competitors and who match your buyer. Judge each on reach (small and mid audiences can be worth more than large), relevance (same subject and audience, matching country) and relationship (engagement that varies from post to post; identical like counts every time suggest bought engagement). Skip creators with controversy or rude replies to their followers.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A person plans a product-for-post campaign.",
+    "done_when": "A written goal and a list of creators, each with reach, relevance, relationship notes and a yes or no.",
+    "if_missing": "If you have no first creator, search accounts that tag your competitors.",
+    "why": "Matching audiences and honest engagement decide results more than size.",
+    "good_answer": "Passes: goal \"sales by code\", 40 creators each with a note on audience match and engagement. Fails: 20 large accounts picked only by size.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (find influencers for 250k a week; work with 1000 influencers; things to avoid), https://www.youtube.com/watch?v=gNETUfn3kT0, https://www.youtube.com/watch?v=VTCXw-ChhWo, https://www.youtube.com/watch?v=oKivhEayDxU"
+    ],
+    "part_of": [
+     "workflow:work-with-micro-influencers-by-gifting-for-posts"
+    ]
+   }
+  },
+  {
+   "id": "work-with-micro-influencers-by-gifting-for-posts--build-a-list-from-one-good-creator",
+   "values": {
+    "title": "Grow the list from one good creator using the platform similar-accounts view",
+    "recipe": [
+     "work-with-micro-influencers-by-gifting-for-posts"
+    ],
+    "position": 1,
+    "step": "build-a-list-from-one-good-creator",
+    "do": "Find one creator you would gladly gift. Open the similar-accounts suggestions from that profile and follow the ones that fit. For volume, make a separate account used only for following creators; sort the follow list by date and you have a list with no duplicates.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The goal and fit rules are set.",
+    "done_when": "At least the target number of creators found (10 to 30 per month to start) and kept in one list.",
+    "if_missing": "If the list stays small, repeat from each creator you added.",
+    "why": "Similar accounts are already matched by the platform, so each one found leads to more.",
+    "good_answer": "Passes: 30 creators in one follow list sorted by date. Fails: names in three documents with duplicates.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (find influencers for 250k a week; work with 1000 influencers; things to avoid), https://www.youtube.com/watch?v=gNETUfn3kT0, https://www.youtube.com/watch?v=VTCXw-ChhWo, https://www.youtube.com/watch?v=oKivhEayDxU"
+    ],
+    "part_of": [
+     "workflow:work-with-micro-influencers-by-gifting-for-posts"
+    ]
+   }
+  },
+  {
+   "id": "work-with-micro-influencers-by-gifting-for-posts--send-a-short-first-message-and-follow-up",
+   "values": {
+    "title": "Send a short first message whose only aim is a reply, then follow up",
+    "recipe": [
+     "work-with-micro-influencers-by-gifting-for-posts"
+    ],
+    "position": 2,
+    "step": "send-a-short-first-message-and-follow-up",
+    "do": "Write the first message in two lines: say what you would send and what is in it for them. Use the creator name, not a placeholder. Like a few recent posts first so they look at messages. If there is no reply in 2 to 3 days, send a short follow-up; after that, an email. Do not paste a long product description.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The list is ready.",
+    "done_when": "Every creator has a first message sent and a recorded status.",
+    "if_missing": "If replies are under a third, shorten the message and improve the offer.",
+    "why": "Once they reply you sit at the top of their inbox, and you can then agree details.",
+    "good_answer": "Passes: \"Hi Maya, we would love to send you a baby blanket of your choice.\" Fails: a paragraph about how the product works.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (find influencers for 250k a week; work with 1000 influencers; things to avoid), https://www.youtube.com/watch?v=gNETUfn3kT0, https://www.youtube.com/watch?v=VTCXw-ChhWo, https://www.youtube.com/watch?v=oKivhEayDxU"
+    ],
+    "part_of": [
+     "workflow:work-with-micro-influencers-by-gifting-for-posts"
+    ]
+   }
+  },
+  {
+   "id": "work-with-micro-influencers-by-gifting-for-posts--agree-deliverables-and-set-a-unique-code",
+   "values": {
+    "title": "Agree exactly what they will post, and give each creator a unique discount code",
+    "recipe": [
+     "work-with-micro-influencers-by-gifting-for-posts"
+    ],
+    "position": 3,
+    "step": "agree-deliverables-and-set-a-unique-code",
+    "do": "After a reply, state the trade in one message: the product in return for one feed post and a few stories (or the form you choose), with the deadline. Allow creative freedom. Do not ask for more than the offer is worth. Create a unique code for each creator so sales can be traced. Collect the shipping address and email.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A creator has replied yes.",
+    "done_when": "For each creator: deliverables, deadline, code and address recorded.",
+    "if_missing": "If you cannot agree on terms, move on to the next creator.",
+    "why": "Clear deliverables prevent disputes, and codes show which gift produced sales.",
+    "good_answer": "Passes: \"1 post + 3 stories by Mar 10, code MAYA25, address received\". Fails: a vague \"post something\" with no code.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (find influencers for 250k a week; work with 1000 influencers; things to avoid), https://www.youtube.com/watch?v=gNETUfn3kT0, https://www.youtube.com/watch?v=VTCXw-ChhWo, https://www.youtube.com/watch?v=oKivhEayDxU"
+    ],
+    "part_of": [
+     "workflow:work-with-micro-influencers-by-gifting-for-posts"
+    ]
+   }
+  },
+  {
+   "id": "work-with-micro-influencers-by-gifting-for-posts--ship-the-gift-and-follow-up-until-posted",
+   "values": {
+    "title": "Ship the product at no charge, confirm arrival, remind kindly, and record the post",
+    "recipe": [
+     "work-with-micro-influencers-by-gifting-for-posts"
+    ],
+    "position": 4,
+    "step": "ship-the-gift-and-follow-up-until-posted",
+    "do": "Create a zero-value order so the creator gets the normal shipping notices. When it arrives, check in and keep the tone upbeat. Expect about 7 in 10 gifted creators to post, and remind those who have not. Record each post link and any extra content.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Deliverables are agreed.",
+    "done_when": "A sheet with ship date, arrival, post link or reminder status for every gifted creator.",
+    "if_missing": "If a creator never posts after two reminders, close the row and note it.",
+    "why": "Posting follow-up is where most of the value is lost.",
+    "good_answer": "Passes: \"10 gifted, 7 posted, 3 reminded\". Fails: product sent with no follow-up.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (find influencers for 250k a week; work with 1000 influencers; things to avoid), https://www.youtube.com/watch?v=gNETUfn3kT0, https://www.youtube.com/watch?v=VTCXw-ChhWo, https://www.youtube.com/watch?v=oKivhEayDxU"
+    ],
+    "part_of": [
+     "workflow:work-with-micro-influencers-by-gifting-for-posts"
+    ]
+   }
+  },
+  {
+   "id": "work-with-micro-influencers-by-gifting-for-posts--read-the-codes-and-record-what-matters-next",
+   "values": {
+    "title": "Read sales by code and record which creators to pay again",
+    "recipe": [
+     "work-with-micro-influencers-by-gifting-for-posts"
+    ],
+    "position": 5,
+    "step": "read-the-codes-and-record-what-matters-next",
+    "do": "Count sales for each code. Where a gifted creator made several sales, record a paid deal for them. Record what the totals show, the most useful creator type, and what to change in the next send-out.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A few weeks have passed since the posts.",
+    "done_when": "Sales by code for each creator, the creators chosen for a paid deal, and the next change.",
+    "if_missing": "If codes are not tracked, add them and run the next round with them.",
+    "why": "Traced sales turn gifting into a repeatable channel.",
+    "good_answer": "Passes: \"5 uses on one code, move to paid; 3 creators with 0 uses, drop\". Fails: judging by likes alone.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (find influencers for 250k a week; work with 1000 influencers; things to avoid), https://www.youtube.com/watch?v=gNETUfn3kT0, https://www.youtube.com/watch?v=VTCXw-ChhWo, https://www.youtube.com/watch?v=oKivhEayDxU"
+    ],
+    "part_of": [
+     "workflow:work-with-micro-influencers-by-gifting-for-posts"
+    ]
+   }
+  },
+  {
+   "id": "start-selling-a-private-label-product-on-a-big-marketplace--read-the-best-seller-and-new-release-lists",
+   "values": {
+    "title": "Read the best-seller and new-release lists and shortlist products",
+    "recipe": [
+     "start-selling-a-private-label-product-on-a-big-marketplace"
+    ],
+    "position": 0,
+    "step": "read-the-best-seller-and-new-release-lists",
+    "do": "Open the best-seller list and the new-release list for the category you know. Prefer a product that you personally use. Note products ranking high with few reviews, which means a weak listing is selling well; avoid ones dominated by large brands or by tens of thousands of reviews. For each shortlisted product, use a sales-estimate tool to record monthly sales and the trend, and the main search phrase with its monthly search volume.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A person wants a product to sell.",
+    "done_when": "A shortlist of products, each with monthly sales, review count, main search phrase and search volume.",
+    "if_missing": "If the category is empty of ideas, pick a hobby or something you use and search it.",
+    "why": "The marketplace already shows what sells; the job is finding a gap.",
+    "good_answer": "Passes: \"facial steamer: 37,000 a month, 18 reviews, 94,000 searches\". Fails: a product chosen only because it looks nice.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (find top products; sell for beginners; 5 things before you start), https://www.youtube.com/watch?v=aO8ywBlKt6k, https://www.youtube.com/watch?v=hc2u4_0vqfc, https://www.youtube.com/watch?v=vraiWv7dyiI"
+    ],
+    "part_of": [
+     "workflow:start-selling-a-private-label-product-on-a-big-marketplace"
+    ]
+   }
+  },
+  {
+   "id": "start-selling-a-private-label-product-on-a-big-marketplace--find-how-to-be-better-than-reviews-say",
+   "values": {
+    "title": "Read the one-star to three-star reviews and decide how your version will be better",
+    "recipe": [
+     "start-selling-a-private-label-product-on-a-big-marketplace"
+    ],
+    "position": 1,
+    "step": "find-how-to-be-better-than-reviews-say",
+    "do": "Read the low reviews of the top sellers. Note what customers complain about and what is missing (for example an official certification, an accessory, a better design). Choose one change that costs little and speaks to the main benefit. Write down your angle in a sentence.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A shortlist exists.",
+    "done_when": "One chosen product with a written angle and the list of complaints it answers.",
+    "if_missing": "If no gap shows, return to the shortlist and pick another.",
+    "why": "A better product with a clear reason makes buyers choose it.",
+    "good_answer": "Passes: \"no certified version exists; add a certification and a small accessory costing 10 cents\". Fails: copying a top seller without a change.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (find top products; sell for beginners; 5 things before you start), https://www.youtube.com/watch?v=aO8ywBlKt6k, https://www.youtube.com/watch?v=hc2u4_0vqfc, https://www.youtube.com/watch?v=vraiWv7dyiI"
+    ],
+    "part_of": [
+     "workflow:start-selling-a-private-label-product-on-a-big-marketplace"
+    ]
+   }
+  },
+  {
+   "id": "start-selling-a-private-label-product-on-a-big-marketplace--cost-the-product-and-all-fees",
+   "values": {
+    "title": "Write down what each unit costs and every fee before ordering",
+    "recipe": [
+     "start-selling-a-private-label-product-on-a-big-marketplace"
+    ],
+    "position": 2,
+    "step": "cost-the-product-and-all-fees",
+    "do": "List the cost of the product, label, box, anything inside, shipping, the marketplace referral percentage, pick-and-pack fee, storage and any marketing or staff costs. Work out profit per unit and the price that allows it.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The product is chosen.",
+    "done_when": "A sheet with every cost and fee per unit and the resulting profit.",
+    "if_missing": "If profit is thin, change the price or the product.",
+    "why": "Knowing the numbers is what makes it a business.",
+    "good_answer": "Passes: each line costed and profit positive at the planned price. Fails: only the factory cost known.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (find top products; sell for beginners; 5 things before you start), https://www.youtube.com/watch?v=aO8ywBlKt6k, https://www.youtube.com/watch?v=hc2u4_0vqfc, https://www.youtube.com/watch?v=vraiWv7dyiI"
+    ],
+    "part_of": [
+     "workflow:start-selling-a-private-label-product-on-a-big-marketplace"
+    ]
+   }
+  },
+  {
+   "id": "start-selling-a-private-label-product-on-a-big-marketplace--inspect-a-sample-and-protect-the-brand",
+   "values": {
+    "title": "Inspect a sample and protect the brand legally before the full order",
+    "recipe": [
+     "start-selling-a-private-label-product-on-a-big-marketplace"
+    ],
+    "position": 3,
+    "step": "inspect-a-sample-and-protect-the-brand",
+    "do": "Order a sample and test it in packing and shipping conditions (for example that a part does not break in transit). Have someone check quality before the full run. Register the trademark, copyright for images, and take liability insurance so you can use the marketplace brand tools.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Costs are worked out.",
+    "done_when": "A tested sample with notes, and the trademark and insurance filed or bought.",
+    "if_missing": "If registration takes time, record the date and start with the quality check.",
+    "why": "Defects and copycats cost more than the checks.",
+    "good_answer": "Passes: \"dropper too long by a few millimetres, fixed before the run\". Fails: shipping the full order untested.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (find top products; sell for beginners; 5 things before you start), https://www.youtube.com/watch?v=aO8ywBlKt6k, https://www.youtube.com/watch?v=hc2u4_0vqfc, https://www.youtube.com/watch?v=vraiWv7dyiI"
+    ],
+    "part_of": [
+     "workflow:start-selling-a-private-label-product-on-a-big-marketplace"
+    ]
+   }
+  },
+  {
+   "id": "start-selling-a-private-label-product-on-a-big-marketplace--list-send-stock-and-rank-with-reviews",
+   "values": {
+    "title": "List the product, send stock in, and win first ranking with sales and reviews",
+    "recipe": [
+     "start-selling-a-private-label-product-on-a-big-marketplace"
+    ],
+    "position": 4,
+    "step": "list-send-stock-and-rank-with-reviews",
+    "do": "Create the seller account and write a listing around the main search phrases. Ship stock to the marketplace warehouse using its shipping labels. Send your own list or ad traffic to the listing through a link that names the phrase, so the system links the product with it. Get your first 5 to 10 reviews before spending on ads.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The sample passed.",
+    "done_when": "A live listing with phrases in the title, stock checked in, and at least 5 reviews or a plan to reach them.",
+    "if_missing": "If reviews are slow, use the marketplace early reviewer programme.",
+    "why": "Page one for the main phrases needs sales and trust.",
+    "good_answer": "Passes: live with 6 reviews before ads started. Fails: ads run with no reviews.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (find top products; sell for beginners; 5 things before you start), https://www.youtube.com/watch?v=aO8ywBlKt6k, https://www.youtube.com/watch?v=hc2u4_0vqfc, https://www.youtube.com/watch?v=vraiWv7dyiI"
+    ],
+    "part_of": [
+     "workflow:start-selling-a-private-label-product-on-a-big-marketplace"
+    ]
+   }
+  },
+  {
+   "id": "start-selling-a-private-label-product-on-a-big-marketplace--run-automatic-ads-then-prune-and-record",
+   "values": {
+    "title": "Run automatic ads for a week or two, then prune the phrases and record what matters next",
+    "recipe": [
+     "start-selling-a-private-label-product-on-a-big-marketplace"
+    ],
+    "position": 5,
+    "step": "run-automatic-ads-then-prune-and-record",
+    "do": "Start automatic ad campaigns to learn which phrases convert. After a week or two, raise budgets on phrases that sell, and stop those that spend without sales. Record the findings and the next change.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The listing is live with reviews.",
+    "done_when": "A record of phrases kept, phrases stopped, and the next change.",
+    "if_missing": "If there are no sales yet, check the price, reviews and main image.",
+    "why": "Ad spend buys data; pruning turns it into profit.",
+    "good_answer": "Passes: 8 phrases kept, 14 stopped, budget raised on the top 3. Fails: leaving all phrases running.",
+    "came_from": [
+     "Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Foundr \" (find top products; sell for beginners; 5 things before you start), https://www.youtube.com/watch?v=aO8ywBlKt6k, https://www.youtube.com/watch?v=hc2u4_0vqfc, https://www.youtube.com/watch?v=vraiWv7dyiI"
+    ],
+    "part_of": [
+     "workflow:start-selling-a-private-label-product-on-a-big-marketplace"
+    ]
+   }
+  },
+  {
+   "id": "make-a-bold-promise-believable-to-a-skeptical-buyer--name-one-buyer-and-one-promise",
+   "values": {
+    "title": "Name the one buyer, the problem they feel and a promise with a time",
+    "recipe": [
+     "make-a-bold-promise-believable-to-a-skeptical-buyer"
+    ],
+    "position": 0,
+    "step": "name-one-buyer-and-one-promise",
+    "do": "Write the buyer in a sentence (for example, parents of teenagers with blemishes). Put their problem in their words at the top of the page, with one real testimonial above the fold. Make the promise a change with a time on it (for example, clear in 60 days), and shape the guarantee around it.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A person writes or fixes a page or ad.",
+    "done_when": "A one-line buyer, a one-line promise with a time, and a guarantee line written to match.",
+    "if_missing": "If you cannot name one buyer, read your reviews and pick the group that writes most.",
+    "why": "Speaking to one buyer makes the page feel made for them.",
+    "good_answer": "Passes: \"parents of teens with acne: clear in 60 days or money back\". Fails: \"for everyone, great skin\".",
+    "came_from": [
+     "Sweat Equity (Marketing Examined)'s method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Sweat Equity (Marketing Examined)\" (deconstruct a funnel; ads not converting; why nobody trusts your brand), https://episodes.captivate.fm/episode/c8b81629-821f-40dd-a4ce-b591ee813d1b.mp3, https://podcasts.captivate.fm/media/8be05775-db0b-413d-b1fa-0129ae2357ff/EP-43-Audio-Final.mp3, https://episodes.captivate.fm/episode/1680b8cc-3646-4504-b384-1ad8676d4615.mp3"
+    ],
+    "part_of": [
+     "workflow:make-a-bold-promise-believable-to-a-skeptical-buyer"
+    ]
+   }
+  },
+  {
+   "id": "make-a-bold-promise-believable-to-a-skeptical-buyer--admit-the-doubt-and-the-failed-solutions",
+   "values": {
+    "title": "Say why earlier solutions failed and admit the buyer doubt",
+    "recipe": [
+     "make-a-bold-promise-believable-to-a-skeptical-buyer"
+    ],
+    "position": 1,
+    "step": "admit-the-doubt-and-the-failed-solutions",
+    "do": "Write a short passage that names what the buyer has already tried and why it fell short. Add a moment of doubt in the story (for example, a point where the person almost quit) so the skepticism is acknowledged, not ignored.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The promise is written.",
+    "done_when": "A passage on failed solutions and one line of doubt in the script.",
+    "if_missing": "If you have no real doubt story, take it from reviews or support messages.",
+    "why": "A bold promise raises doubt; naming it first makes the rest believable.",
+    "good_answer": "Passes: \"I tried three creams and quit after 10 days, then...\". Fails: a smooth story where everything works at once.",
+    "came_from": [
+     "Sweat Equity (Marketing Examined)'s method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Sweat Equity (Marketing Examined)\" (deconstruct a funnel; ads not converting; why nobody trusts your brand), https://episodes.captivate.fm/episode/c8b81629-821f-40dd-a4ce-b591ee813d1b.mp3, https://podcasts.captivate.fm/media/8be05775-db0b-413d-b1fa-0129ae2357ff/EP-43-Audio-Final.mp3, https://episodes.captivate.fm/episode/1680b8cc-3646-4504-b384-1ad8676d4615.mp3"
+    ],
+    "part_of": [
+     "workflow:make-a-bold-promise-believable-to-a-skeptical-buyer"
+    ]
+   }
+  },
+  {
+   "id": "make-a-bold-promise-believable-to-a-skeptical-buyer--give-the-breakthrough-and-the-mechanism",
+   "values": {
+    "title": "Give the breakthrough and the specific mechanism that makes this different",
+    "recipe": [
+     "make-a-bold-promise-believable-to-a-skeptical-buyer"
+    ],
+    "position": 2,
+    "step": "give-the-breakthrough-and-the-mechanism",
+    "do": "Write what changed: the source, ingredient, method or discovery that explains why this works when earlier solutions did not. Be specific about the parts. Justify the price against the outcome.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The doubt is written.",
+    "done_when": "A short breakthrough passage with specifics and a line that justifies the price.",
+    "if_missing": "If the claim cannot be backed, tone the claim down.",
+    "why": "A named mechanism gives the buyer a reason to believe.",
+    "good_answer": "Passes: names the ingredient and the process. Fails: \"our secret formula\".",
+    "came_from": [
+     "Sweat Equity (Marketing Examined)'s method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Sweat Equity (Marketing Examined)\" (deconstruct a funnel; ads not converting; why nobody trusts your brand), https://episodes.captivate.fm/episode/c8b81629-821f-40dd-a4ce-b591ee813d1b.mp3, https://podcasts.captivate.fm/media/8be05775-db0b-413d-b1fa-0129ae2357ff/EP-43-Audio-Final.mp3, https://episodes.captivate.fm/episode/1680b8cc-3646-4504-b384-1ad8676d4615.mp3"
+    ],
+    "part_of": [
+     "workflow:make-a-bold-promise-believable-to-a-skeptical-buyer"
+    ]
+   }
+  },
+  {
+   "id": "make-a-bold-promise-believable-to-a-skeptical-buyer--answer-objections-in-the-script",
+   "values": {
+    "title": "Put the buyer likely objections and their answers in the script",
+    "recipe": [
+     "make-a-bold-promise-believable-to-a-skeptical-buyer"
+    ],
+    "position": 3,
+    "step": "answer-objections-in-the-script",
+    "do": "List the objections the buyer will raise. In the script, state each as a real scenario and its answer (for example, \"I wear them in the shower\" instead of \"waterproof\"). Make it read as a two-sided conversation.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The breakthrough is written.",
+    "done_when": "A list of objections, each answered by a scene or a plain line in the script.",
+    "if_missing": "If you do not know the objections, read your lowest reviews and pre-sale questions.",
+    "why": "People are convinced when they hear you say what they were about to say.",
+    "good_answer": "Passes: 5 objections, 5 answers in scenes. Fails: feature lists.",
+    "came_from": [
+     "Sweat Equity (Marketing Examined)'s method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Sweat Equity (Marketing Examined)\" (deconstruct a funnel; ads not converting; why nobody trusts your brand), https://episodes.captivate.fm/episode/c8b81629-821f-40dd-a4ce-b591ee813d1b.mp3, https://podcasts.captivate.fm/media/8be05775-db0b-413d-b1fa-0129ae2357ff/EP-43-Audio-Final.mp3, https://episodes.captivate.fm/episode/1680b8cc-3646-4504-b384-1ad8676d4615.mp3"
+    ],
+    "part_of": [
+     "workflow:make-a-bold-promise-believable-to-a-skeptical-buyer"
+    ]
+   }
+  },
+  {
+   "id": "make-a-bold-promise-believable-to-a-skeptical-buyer--stack-five-kinds-of-proof-and-risk-reversal",
+   "values": {
+    "title": "Add five kinds of proof and a risk reversal",
+    "recipe": [
+     "make-a-bold-promise-believable-to-a-skeptical-buyer"
+    ],
+    "position": 4,
+    "step": "stack-five-kinds-of-proof-and-risk-reversal",
+    "do": "Place on the page: single testimonials, the count of people who benefited, before-and-after case studies, expert or press endorsements, and customer-made content. Add a guarantee that matches the promise, plus stock or time limits only where true. Add proof of building in the open (milestones, behind the scenes) in content.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Objections are answered.",
+    "done_when": "The page with each of the five kinds of proof present and a guarantee.",
+    "if_missing": "If a kind of proof is missing, schedule how to gather it and list it as open.",
+    "why": "More kinds of proof cover more kinds of doubt.",
+    "good_answer": "Passes: all five present. Fails: only a star rating.",
+    "came_from": [
+     "Sweat Equity (Marketing Examined)'s method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Sweat Equity (Marketing Examined)\" (deconstruct a funnel; ads not converting; why nobody trusts your brand), https://episodes.captivate.fm/episode/c8b81629-821f-40dd-a4ce-b591ee813d1b.mp3, https://podcasts.captivate.fm/media/8be05775-db0b-413d-b1fa-0129ae2357ff/EP-43-Audio-Final.mp3, https://episodes.captivate.fm/episode/1680b8cc-3646-4504-b384-1ad8676d4615.mp3"
+    ],
+    "part_of": [
+     "workflow:make-a-bold-promise-believable-to-a-skeptical-buyer"
+    ]
+   }
+  },
+  {
+   "id": "make-a-bold-promise-believable-to-a-skeptical-buyer--record-the-page-and-the-next-change",
+   "values": {
+    "title": "Record the finished page and the next change to test",
+    "recipe": [
+     "make-a-bold-promise-believable-to-a-skeptical-buyer"
+    ],
+    "position": 5,
+    "step": "record-the-page-and-the-next-change",
+    "do": "Save the page and script with the promise, the doubt line, the breakthrough, the objections and the proof present. Record what to test next and the number to watch.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The page is complete.",
+    "done_when": "A saved page and script with a note of the next test and its measure.",
+    "if_missing": "If there is no traffic yet, record the first test to run when there is.",
+    "why": "The record shows what matters most next for whoever decides.",
+    "good_answer": "Passes: \"test the guarantee line, watch conversion on the page\". Fails: no record.",
+    "came_from": [
+     "Sweat Equity (Marketing Examined)'s method, taught in 3 videos: the person's old kept store, table video_transcripts creator \"Sweat Equity (Marketing Examined)\" (deconstruct a funnel; ads not converting; why nobody trusts your brand), https://episodes.captivate.fm/episode/c8b81629-821f-40dd-a4ce-b591ee813d1b.mp3, https://podcasts.captivate.fm/media/8be05775-db0b-413d-b1fa-0129ae2357ff/EP-43-Audio-Final.mp3, https://episodes.captivate.fm/episode/1680b8cc-3646-4504-b384-1ad8676d4615.mp3"
+    ],
+    "part_of": [
+     "workflow:make-a-bold-promise-believable-to-a-skeptical-buyer"
     ]
    }
   }

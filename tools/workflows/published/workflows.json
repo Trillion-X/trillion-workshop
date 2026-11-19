@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "e66032c59960768a1ccc7186289e83672e9ce6d6d1e82b900ef13be1844c8d0a",
+  "blake3": "f6fb70e565466db48b37e18f8c4e234a7a19767fad80dfabda1a0e7e04056aa4",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -37,6 +37,7 @@
     "build-a-campaign-world-from-a-two-sentence-concept",
     "build-a-design-system-from-the-ui-an-app-already-ships",
     "build-a-living-workbook-for-a-numeric-strategy",
+    "build-a-paid-social-campaign-in-three-audience-stages",
     "build-a-pipeline-that-makes-and-posts-short-videos-on-a-schedule",
     "build-a-short-video-shop-around-one-hero-product",
     "build-a-site-that-does-not-look-ai-made",
@@ -153,6 +154,7 @@
     "give-paid-buyers-access",
     "give-people-a-way-to-find-and-get-it",
     "ground-a-screen-in-real-product-references",
+    "grow-a-social-account-with-daily-posts-and-collaborations",
     "grow-a-subscription-program-from-first-order-to-win-back",
     "grow-an-audience-on-x",
     "grow-on-reddit-without-selling-first",
@@ -199,6 +201,7 @@
     "lift-a-stores-sales-per-visitor-offer-first-then-trust",
     "list-your-product-in-every-ai-connector-store",
     "lock-in",
+    "make-a-bold-promise-believable-to-a-skeptical-buyer",
     "make-a-business-run-without-its-founder",
     "make-a-custom-product-from-a-sketch-to-an-approved-sample",
     "make-a-font-from-measured-references",
@@ -376,6 +379,7 @@
     "split-what-must-be-certain-from-what-an-ai-may-reason",
     "start-from-the-persons-own-work",
     "start-reselling-goods-for-more-than-they-cost",
+    "start-selling-a-private-label-product-on-a-big-marketplace",
     "start-selling-bought-goods-on-an-online-marketplace",
     "stress-test-one-component-under-every-scenario-that-can-reach-it",
     "take-apart-a-winning-ad-before-copying-it",
@@ -423,6 +427,7 @@
     "work-out-what-to-save-each-month-to-reach-a-target-sum",
     "work-out-which-marketing-caused-the-revenue",
     "work-through-a-framework",
+    "work-with-micro-influencers-by-gifting-for-posts",
     "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
     "workflow:rewrite-a-broad-condition",
     "workflow:turn-one-long-recording-into-many-pieces",
@@ -7111,6 +7116,81 @@
     "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
     "fires_when": "[{\"label\": \"a part asks to track show rate and find the weakest stage of a sales path\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"conversion-question\", \"growth-question\", \"call-booked\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table library; the label is the condition in words.\"}]",
     "source": "{\"from\": \"the person's old kept store, table library, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "build-a-paid-social-campaign-in-three-audience-stages",
+   "values": {
+    "title": "Build a paid social campaign in three audience stages",
+    "recipe": "workflow:build-a-paid-social-campaign-in-three-audience-stages",
+    "job": "Sets up one paid campaign with a cold stage, a stage for people who engaged with you, and a stage for people who acted on your site, with one shared budget and names that explain themselves. For a seller about to run a first campaign with ads and copy already made.",
+    "produces": "A campaign with three audience stages, a budget set from order value, clean names, six or more live ads, and a note of what to change after the first days of data.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to build a paid social campaign in three audience stages\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"ad-to-launch\", \"request-to-set-up\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \\\"Foundr \\\" (build a campaign in 30 minutes; newest strategies; ad walkthrough), https://www.youtube.com/watch?v=UNqBIE9G2GE, https://www.youtube.com/watch?v=lxVDnXVB40U, https://www.youtube.com/watch?v=W2NWXIoRKkw; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \\\"Foundr \\\" (build a campaign in 30 minutes; newest strategies; ad walkthrough), https://www.youtube.com/watch?v=UNqBIE9G2GE, https://www.youtube.com/watch?v=lxVDnXVB40U, https://www.youtube.com/watch?v=W2NWXIoRKkw, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "grow-a-social-account-with-daily-posts-and-collaborations",
+   "values": {
+    "title": "Grow a social account with daily posts and collaborations",
+    "recipe": "workflow:grow-a-social-account-with-daily-posts-and-collaborations",
+    "job": "Grows a brand's social account by posting every day in a mix of formats, copying what works in the same niche, using each platform's newest feature, and getting other accounts to share and tag you. For anyone growing an audience from a few thousand followers up.",
+    "produces": "A posting plan with a daily minimum, a mix of formats, a list of accounts to learn from, a collaboration list with outreach sent, and a weekly count of new followers by source.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to grow a social account with daily posts and collaborations\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"audience-to-grow\", \"request-to-plan\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \\\"Foundr \\\" (10K followers every week; gain followers organically; 25 growth hacks), https://www.youtube.com/watch?v=lZZ6NA2HORE, https://www.youtube.com/watch?v=J3U78q7Zf2o, https://www.youtube.com/watch?v=NyGkq5_5w8w; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \\\"Foundr \\\" (10K followers every week; gain followers organically; 25 growth hacks), https://www.youtube.com/watch?v=lZZ6NA2HORE, https://www.youtube.com/watch?v=J3U78q7Zf2o, https://www.youtube.com/watch?v=NyGkq5_5w8w, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "work-with-micro-influencers-by-gifting-for-posts",
+   "values": {
+    "title": "Work with micro-influencers by gifting product for posts",
+    "recipe": "workflow:work-with-micro-influencers-by-gifting-for-posts",
+    "job": "Finds creators with small, engaged audiences that match your buyer, sends a short first message, agrees what they post, ships the product with a tracking code, and reads results. For a seller who wants steady sales from product-for-post deals.",
+    "produces": "A tracking sheet of creators with message status, deliverables, shipping, unique codes and post links, plus a result per code and the follow-ups still open.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to work with micro-influencers by gifting product for posts\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"audience-to-grow\", \"request-to-plan\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \\\"Foundr \\\" (find influencers for 250k a week; work with 1000 influencers; things to avoid), https://www.youtube.com/watch?v=gNETUfn3kT0, https://www.youtube.com/watch?v=VTCXw-ChhWo, https://www.youtube.com/watch?v=oKivhEayDxU; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \\\"Foundr \\\" (find influencers for 250k a week; work with 1000 influencers; things to avoid), https://www.youtube.com/watch?v=gNETUfn3kT0, https://www.youtube.com/watch?v=VTCXw-ChhWo, https://www.youtube.com/watch?v=oKivhEayDxU, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "start-selling-a-private-label-product-on-a-big-marketplace",
+   "values": {
+    "title": "Start selling a private-label product on a big marketplace",
+    "recipe": "workflow:start-selling-a-private-label-product-on-a-big-marketplace",
+    "job": "Chooses a product from what is already selling, finds how to make a better version, and lists, stocks, reviews and promotes it on a large online marketplace. For someone starting to sell their own-brand product.",
+    "produces": "A shortlist of products with sales and review numbers, the chosen product with a better angle, a costed fees sheet, an inspected sample, a live listing, and a week-two ad review.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to start selling a private-label product on a big marketplace\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"request-to-sell\", \"product-to-launch\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \\\"Foundr \\\" (find top products; sell for beginners; 5 things before you start), https://www.youtube.com/watch?v=aO8ywBlKt6k, https://www.youtube.com/watch?v=hc2u4_0vqfc, https://www.youtube.com/watch?v=vraiWv7dyiI; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Foundr's method, taught in 3 videos: the person's old kept store, table video_transcripts creator \\\"Foundr \\\" (find top products; sell for beginners; 5 things before you start), https://www.youtube.com/watch?v=aO8ywBlKt6k, https://www.youtube.com/watch?v=hc2u4_0vqfc, https://www.youtube.com/watch?v=vraiWv7dyiI, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "make-a-bold-promise-believable-to-a-skeptical-buyer",
+   "values": {
+    "title": "Make a bold promise believable to a skeptical buyer",
+    "recipe": "workflow:make-a-bold-promise-believable-to-a-skeptical-buyer",
+    "job": "Shapes a landing page and ad script so a buyer who has failed with other solutions believes the promise: speak to one buyer, name the promise and its time, admit the doubt, give the breakthrough, then stack proof and risk reversal. For a seller whose ads or page do not convert.",
+    "produces": "A page and an ad script with a one-buyer promise, a stated time and guarantee, a moment of doubt, a breakthrough, objection lines, and five kinds of proof.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to make a bold promise believable to a skeptical buyer\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"request-to-write\", \"ad-to-improve\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Sweat Equity (Marketing Examined)'s method, taught in 3 videos: the person's old kept store, table video_transcripts creator \\\"Sweat Equity (Marketing Examined)\\\" (deconstruct a funnel; ads not converting; why nobody trusts your brand), https://episodes.captivate.fm/episode/c8b81629-821f-40dd-a4ce-b591ee813d1b.mp3, https://podcasts.captivate.fm/media/8be05775-db0b-413d-b1fa-0129ae2357ff/EP-43-Audio-Final.mp3, https://episodes.captivate.fm/episode/1680b8cc-3646-4504-b384-1ad8676d4615.mp3; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Sweat Equity (Marketing Examined)'s method, taught in 3 videos: the person's old kept store, table video_transcripts creator \\\"Sweat Equity (Marketing Examined)\\\" (deconstruct a funnel; ads not converting; why nobody trusts your brand), https://episodes.captivate.fm/episode/c8b81629-821f-40dd-a4ce-b591ee813d1b.mp3, https://podcasts.captivate.fm/media/8be05775-db0b-413d-b1fa-0129ae2357ff/EP-43-Audio-Final.mp3, https://episodes.captivate.fm/episode/1680b8cc-3646-4504-b384-1ad8676d4615.mp3, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
    }
   }
  ]
