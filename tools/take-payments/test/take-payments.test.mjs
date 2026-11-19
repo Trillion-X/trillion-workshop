@@ -125,7 +125,7 @@ test('a webhook is believed only inside its window and with a matching signature
   assert.equal(good.admitted, true);
   assert.equal(good.event_kind, 'payment.confirmed');
   assert.equal(good.payment_event.kind, 'payment-event');
-  assert.equal(good.payment_event.id, 'payment-event:evt_1');
+  assert.equal(good.payment_event.id, 'payment-event:checkout:cs_1');
   assert.equal(good.payment_event.attributes.offer_id, 'offer:cake');
   assert.doesNotMatch(JSON.stringify(good), /whsec_/);
 

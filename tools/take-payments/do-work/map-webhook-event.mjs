@@ -12,9 +12,10 @@
 // "charge.refunded". Adding a new Stripe event type = a rule row in the DATA map,
 // ZERO code here (L090 / enum-dissolution: the decoder enumerates nothing).
 //
-// Idempotency (SP4): `event_id` = the Stripe `event.id`, so re-delivery of the
-// same webhook admits the same signed-event hash → the signed-event-authority
-// dedupe (BTreeMap<event_id, payload_hash>) counts it once. Fail-closed: an
+// Idempotency (SP4): `event_id` is the Stripe `event.id`, except a completed checkout, which is named by its
+// checkout session (`checkout:<cs id>`, see paymentEventIdOf). Re-delivery of the same webhook, or the same checkout
+// read from a list, gives the same event_id, so the signed-event-authority dedupe (BTreeMap<event_id, payload_hash>)
+// counts it once. Fail-closed: an
 // event type with no rule returns null (ignored, never a guessed revenue row).
 //
 // Pure function, zero I/O, zero secrets, zero network — fixture-provable with no
@@ -52,6 +53,26 @@ function occurredAtFrom(created) {
 }
 
 /**
+ * The id a completed checkout's payment row is named by. The webhook, the event list and the checkout list all name a
+ * checkout through this one function, so the same checkout is the same row whichever way it arrives.
+ */
+export function checkoutEventIdOf(sessionId) {
+  return `checkout:${sessionId}`;
+}
+
+/**
+ * The id a Stripe event's payment row is named by: a completed checkout by its checkout session, every other kind by
+ * its Stripe event id. A checkout reached by webhook and by either list has one row, not one per path.
+ */
+export function paymentEventIdOf(stripeEvent) {
+  const sessionId = stripeEvent.data?.object?.id;
+  if (stripeEvent.type === 'checkout.session.completed' && typeof sessionId === 'string' && sessionId) {
+    return checkoutEventIdOf(sessionId);
+  }
+  return typeof stripeEvent.id === 'string' ? stripeEvent.id : '';
+}
+
+/**
  * Map a verified Stripe webhook event to a generic revenue PaymentEvent, or null
  * if no rule matches the event type (ignored / fail-closed).
  * @param {object} stripeEvent - verified Stripe event { id, type, created, data:{object} }
@@ -78,7 +99,7 @@ export function mapStripeWebhookEvent(stripeEvent, eventMap) {
   attributes.provider_event_id = stripeEvent.id;
 
   return {
-    event_id: typeof stripeEvent.id === 'string' ? stripeEvent.id : '',
+    event_id: paymentEventIdOf(stripeEvent),
     occurred_at: occurredAtFrom(stripeEvent.created),
     event_kind: rule.target_event_kind,
     attributes,
@@ -88,5 +109,13 @@ export function mapStripeWebhookEvent(stripeEvent, eventMap) {
 /** Load the DATA map from disk (package-relative). */
 export function loadWebhookEventMap(mapPath) {
   return JSON.parse(readFileSync(mapPath, 'utf8'));
+}
+
+/**
+ * The payment row a mapped Stripe event becomes, named by the Stripe event id. Every path that reads a Stripe event
+ * (the webhook check, the event listing) builds its row here, so one event is one row whichever way it arrives.
+ */
+export function paymentEventNamedBy(mapped) {
+  return { kind: 'payment-event', id: `payment-event:${mapped.event_id}`, ...mapped };
 }
 

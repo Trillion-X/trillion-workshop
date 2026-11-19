@@ -247,6 +247,14 @@
       "object_ref_key": "provider_object_ref"
     },
     {
+      "operation_id": "operation:list-events",
+      "comment": "Events newest first, created since a time (created[gte]), optionally of the named types; starting_after pages to older ones. Stripe keeps events 30 days.",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/events",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
       "operation_id": "operation:list-sessions",
       "comment": "Completed checkout sessions, newest first, searched by the query the caller names.",
       "method": "GET",

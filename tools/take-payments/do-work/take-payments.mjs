@@ -41,7 +41,8 @@ import { ensureOfferPaymentLinks } from './ensure-offer-payment-links.mjs';
 import { destinationCheckoutSubject, onboardingLinkSubject, payeeAccountSubject, payeeReadiness, shareTransferSubject } from './connect-payees.mjs';
 import { call } from '../../shared-code/src/build-provider-request.mjs';
 import { admitStripeWebhook } from './admit-a-webhook.mjs';
-import { mapStripeWebhookEvent } from './map-webhook-event.mjs';
+import { checkoutEventIdOf, mapStripeWebhookEvent, paymentEventNamedBy } from './map-webhook-event.mjs';
+import { listStripeEvents } from './list-stripe-events.mjs';
 import { heldKey, makeStripeSender } from './stripe-send.mjs';
 import { assertTestKey, rehearseAPaymentSchedule } from './rehearse-a-payment-schedule.mjs';
 import { rehearseABillingPage } from './rehearse-a-billing-page.mjs';
@@ -76,7 +77,7 @@ function adjustmentsOf(input) {
 }
 
 function sender(context) {
-  return context.send ?? makeStripeSender({ key: heldKey(STRIPE_KEY_DESCRIPTOR, context.readKey) });
+  return context.send ?? makeStripeSender({ key: heldKey(STRIPE_KEY_DESCRIPTOR, context.readKey), fetchImpl: context.fetch });
 }
 
 // The sender of a test-mode tool: the person's held test key, and anything that is not a test key is refused before a
@@ -134,6 +135,15 @@ export const openABillingPage = async (input, context) => openBillingPage(input,
 /** Every completed checkout since a time, and every subscription that ended since a time: what a seller follows up. */
 export const listCompletedStripeCheckouts = async (input, context) => listCompletedHostedSessions(input, { send: sender(context) });
 export const listEndedStripeSubscriptions = async (input, context) => listEndedSubscriptions(input, { send: sender(context) });
+
+/**
+ * Stripe events of the kinds the event map names, from a time, as the payment rows the webhook check would keep for the
+ * same events (see list-stripe-events.mjs). Nothing is kept here; the caller keeps each row once by its id.
+ */
+export const listStripeEventsAsPaymentEvents = async (input, context) => listStripeEvents(input, {
+  send: sender(context),
+  eventMap: input.event_map ?? dataFile('webhook-event-map.json'),
+});
 export const tagAStripeSubscription = async (input, context) => updateSubscriptionMetadata(input, { send: sender(context) });
 
 /** One lasting payment link per priced option of every offer, the plan-management page, and the percent-off codes. */
@@ -169,7 +179,7 @@ export function checkAStripeEvent(input, context) {
   return {
     admitted: true,
     event_kind: verdict.event_kind,
-    payment_event: { kind: 'payment-event', id: `payment-event:${verdict.records[0].event_id}`, ...verdict.records[0] },
+    payment_event: paymentEventNamedBy(verdict.records[0]),
   };
 }
 
@@ -180,7 +190,7 @@ export function checkAStripeEvent(input, context) {
  */
 function checkoutAsStripeEvent(checkout) {
   return {
-    id: `checkout:${checkout.provider_session_id}`,
+    id: checkoutEventIdOf(checkout.provider_session_id),
     type: 'checkout.session.completed',
     created: checkout.created,
     data: { object: {
@@ -217,7 +227,8 @@ export async function listCompletedCheckoutsAsPaymentEvents(input, context) {
     const mapped = mapStripeWebhookEvent(checkoutAsStripeEvent(checkout), eventMap);
     if (!mapped) { left.not_mapped += 1; continue; }
     const pursuits = pursuitsOf.get(checkout.offer_id);
-    events.set(`payment-event:${mapped.event_id}`, { kind: 'payment-event', id: `payment-event:${mapped.event_id}`, ...mapped, ...(pursuits ? { pursuit_ids: pursuits } : {}) });
+    const row = paymentEventNamedBy(mapped);
+    events.set(row.id, { ...row, ...(pursuits ? { pursuit_ids: pursuits } : {}) });
   }
   return { events: [...events.values()], left_out: left, complete: listed.complete, next_created_after_unix: listed.next_created_after_unix };
 }

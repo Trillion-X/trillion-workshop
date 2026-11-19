@@ -52,7 +52,7 @@ describe('admit-a-webhook (Phase 2, no key)', () => {
     });
     expect(r.admitted).toBe(true);
     expect(r.event_kind).toBe('payment.confirmed');
-    expect(r.records[0].event_id).toBe('evt_checkout_1');
+    expect(r.records[0].event_id).toBe('checkout:cs_1');
     expect(r.records[0].attributes).toMatchObject({ amount_due_today_cents: 2950, currency: 'usd', offer_id: 'premium-membership' });
     expect(r.records[0].attributes).toMatchObject({
       cadence: 'one_time',
