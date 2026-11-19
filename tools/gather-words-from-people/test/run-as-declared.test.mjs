@@ -2,7 +2,7 @@
 //
 // Each tool run the way its row runs it: the row's own entry program is run by the real driver with the input on
 // standard input and NO records door (the rows declare none, and nothing is handed on descriptor 3). Each answer holds the
-// result, and a changing tool's answer holds the `write` for the caller's AI to put in a store.
+// result, and a changing tool's answer holds the `keep` for the caller's AI to put in a store.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
@@ -40,23 +40,23 @@ async function run(toolId, input) {
   });
 }
 
-test('every tool runs with no records door, from asking to what may show, and answers what to write', async () => {
+test('every tool runs with no records door, from asking to what may show, and answers what to keep', async () => {
   const ask = await run('tool:ask-people-for-words', { list, rows: [], case: 'made-up-case', people: [{ id: 'p1', name: 'Pat Example', address: 'pat@example.com', win: 'made-up-ref' }] });
   assert.equal(ask.error, undefined);
-  const [asked] = ask.result.write;
+  const [asked] = ask.result.keep;
   assert.equal(asked.id, ask.result.asked[0].row_id);
 
   const keep = await run('tool:keep-the-words-a-person-gave', { list, rows: [{ id: asked.id, value: asked.value }], row_id: asked.id, words: 'Made-up words.', consent: 'full-name', consent_note: 'made-up consent' });
   assert.equal(keep.error, undefined);
   assert.equal(keep.result.status, 'received');
-  const receivedRow = keep.result.write[0];
+  const receivedRow = keep.result.keep[0];
 
   const approve = await run('tool:approve-words-to-show', { list, rows: [{ id: receivedRow.id, value: receivedRow.value }], row_id: receivedRow.id, decision: 'approve', reviewed_words: 'Made-up words.' });
   assert.equal(approve.error, undefined);
   assert.equal(approve.result.status, 'approved');
-  assert.match(approve.result.write[0].value.approved_identity, /^1f:[0-9a-f]{64}$/);
+  assert.match(approve.result.keep[0].value.approved_identity, /^1f:[0-9a-f]{64}$/);
 
-  const shown = await run('tool:read-words-that-may-show', { list, rows: [{ id: receivedRow.id, value: approve.result.write[0].value }] });
+  const shown = await run('tool:read-words-that-may-show', { list, rows: [{ id: receivedRow.id, value: approve.result.keep[0].value }] });
   assert.deepEqual(shown.result.items.map(item => item.body), ['Made-up words.']);
 });
 

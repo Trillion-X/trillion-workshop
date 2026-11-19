@@ -191,8 +191,8 @@
     },
     "id": "tool:ask-people-for-words",
     "label": "Ask people for their words",
-    "job": "Ask people, each after their own good word, to say in their own words how it went: the asked row to write for each person for a case, and their draft",
-    "description": "For each person who may be asked, answers the asked row to write in the list and the person's draft ({to, subject, body}) from the words the list's gathers.ask holds, with {name} filled in. Sends nothing and writes nothing: the draft goes out through a sending tool the person chose, and the caller's AI puts `write` in a store. A person is asked once for a case (the same person and case, found among the `rows` handed in, is skipped as already_asked), and only with `win`, a reference to the person's own positive word that made this the time to ask (otherwise skipped as no_win). The address is in the draft only, never in the row to write. Returns asked ({row_id, person, draft}), skipped ({person, reason}) and write.",
+    "job": "Ask people, each after their own good word, to say in their own words how it went: the asked row to keep for each person for a case, and their draft",
+    "description": "For each person who may be asked, answers the asked row to keep in the list and the person's draft ({to, subject, body}) from the words the list's gathers.ask holds, with {name} filled in. Sends nothing and keeps nothing: the draft goes out through a sending tool the person chose, and the caller's AI keeps the `keep` rows in its store. A person is asked once for a case (the same person and case, found among the `rows` handed in, is skipped as already_asked), and only with `win`, a reference to the person's own positive word that made this the time to ask (otherwise skipped as no_win). The address is in the draft only, never in the row to keep. Returns asked ({row_id, person, draft}), skipped ({person, reason}) and keep.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -272,7 +272,7 @@
     },
     "output_schema": {
      "type": "object",
-     "description": "{ asked: [{ row_id, person, draft }], skipped: [{ person, reason }], write: [{ id, type, value, expected }] }"
+     "description": "{ asked: [{ row_id, person, draft }], skipped: [{ person, reason }], keep: [{ id, type, value, expected }] }"
     },
     "invoke": {
      "kind": "container",
@@ -655,7 +655,7 @@
     "id": "tool:keep-the-words-a-person-gave",
     "label": "Keep the words a person gave",
     "job": "Work out the row that keeps the words a person gave in reply, with the consent they gave and the words that gave it, as a received row of the list",
-    "description": "Answers the row that keeps words with one of the consents the list declares and consent_note, the person's own words that gave it (or where they are). With row_id it fills the row that asked them (found among the `rows` handed in); without it, `who` is required and the words become their own row, the same words from the same person always the same row. The row is received and any approval is taken away, so changed words are reviewed again. A withdrawn row takes no more words. The same call again changes nothing. Nothing is written by this tool: `write` holds the record for the caller's AI to put in a store, conditional on the row as handed in. Returns row_id, status, changed and write.",
+    "description": "Answers the row that keeps words with one of the consents the list declares and consent_note, the person's own words that gave it (or where they are). With row_id it fills the row that asked them (found among the `rows` handed in); without it, `who` is required and the words become their own row, the same words from the same person always the same row. The row is received and any approval is taken away, so changed words are reviewed again. A withdrawn row takes no more words. The same call again changes nothing. Nothing is written by this tool: `keep` holds the records the caller's AI keeps in its store, conditional on the row as handed in. Returns row_id, status, changed and keep.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -717,7 +717,7 @@
     },
     "output_schema": {
      "type": "object",
-     "description": "{ row_id, status, changed, write: [{ id, type, value, expected }] }"
+     "description": "{ row_id, status, changed, keep: [{ id, type, value, expected }] }"
     },
     "invoke": {
      "kind": "container",
@@ -1094,7 +1094,7 @@
     "id": "tool:approve-words-to-show",
     "label": "Approve words to show",
     "job": "Work out the approval, decline or withdrawal of one row of words exactly as it was reviewed, so only approved words are ever shown",
-    "description": "decision approve needs reviewed_words equal to the words now in the row, a received row, and a consent that allows showing: then the row to write is approved and pinned to the speaker, the words and the consent together. decline marks a received row declined. withdraw (the person took their consent back, or the owner took the words down) works on any row and stops it showing at once. The row is found among the `rows` handed in. Nothing is written by this tool: `write` holds the record for the caller's AI to put in a store, conditional on the row as handed in, so a store refuses it when the row changed since. Returns row_id, status and write.",
+    "description": "decision approve needs reviewed_words equal to the words now in the row, a received row, and a consent that allows showing: then the row to keep is approved and pinned to the speaker, the words and the consent together. decline marks a received row declined. withdraw (the person took their consent back, or the owner took the words down) works on any row and stops it showing at once. The row is found among the `rows` handed in. Nothing is written by this tool: `keep` holds the records the caller's AI keeps in its store, conditional on the row as handed in, so a store refuses it when the row changed since. Returns row_id, status and keep.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -1148,7 +1148,7 @@
     },
     "output_schema": {
      "type": "object",
-     "description": "{ row_id, status, write: [{ id, type, value, expected }] }"
+     "description": "{ row_id, status, keep: [{ id, type, value, expected }] }"
     },
     "invoke": {
      "kind": "container",

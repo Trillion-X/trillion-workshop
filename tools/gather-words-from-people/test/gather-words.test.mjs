@@ -1,7 +1,7 @@
 // tools/gather-words-from-people/test/gather-words.test.mjs
 //
 // The four tools over a made-up list of praise for a made-up bakery. The list's definition and rows are handed in as
-// input and a tool that changes a row answers `write`; a small in-memory store stands in for the caller's AI putting that
+// input and a tool that changes a row answers `keep`; a small in-memory store stands in for the caller's AI putting that
 // answer in a store, refusing a write whose `expected` is not what is held, as a store does. Nothing here is a real
 // person's words: every name, address and line is invented for the test.
 import { test } from 'node:test';
@@ -32,20 +32,20 @@ const listValue = (extra = {}) => ({
   ...extra,
 });
 
-// The caller's store: the rows it holds, and the answers' `write` put in it, each refused when its `expected` is not what is held.
+// The caller's store: the rows it holds, and the answers' `keep` put in it, each refused when its `expected` is not what is held.
 function store(rows = []) {
   const held = new Map(rows.map(row => [row.id, structuredClone(row.value)]));
   return {
     held,
     rows: () => [...held].map(([id, value]) => ({ id, value: structuredClone(value) })),
     put(answer) {
-      for (const row of answer.write ?? []) {
+      for (const row of answer.keep ?? []) {
         const now = held.get(row.id) ?? null;
         const same = row.expected === null ? now === null : now !== null && JSON.stringify(now) === JSON.stringify(row.expected.value);
         if (!same) throw new Error(`write refused: ${row.id} is not as expected`);
         assert.equal(row.type, TYPE);
       }
-      for (const row of answer.write ?? []) held.set(row.id, structuredClone(row.value));
+      for (const row of answer.keep ?? []) held.set(row.id, structuredClone(row.value));
       return answer;
     },
   };
@@ -75,15 +75,15 @@ test('the call must hand in the list\'s definition', () => {
   assert.throws(() => askPeopleForWords({ list: listValue({ gathers: undefined }), people, case: 'c1' }), /gathers/);
 });
 
-test('asking answers one asked row to write per person with each draft, writes nothing itself and sends nothing', () => {
+test('asking answers one asked row to keep per person with each draft, writes nothing itself and sends nothing', () => {
   const s = store();
   const out = askPeopleForWords({ list: listValue(), rows: s.rows(), people, case: 'cake-2026', now: '2026-11-12T20:00:00Z' });
   assert.equal(out.asked.length, 2);
   assert.deepEqual(out.skipped, []);
   assert.deepEqual(out.asked[0].draft, { to: 'ada@example.com', subject: 'How did the cake go, Ada Example?', body: 'Hi Ada Example, you told us the cake was a success. Would you tell us in your own words? Reply only if you want to.' });
   assert.equal(s.held.size, 0, 'the tool keeps nothing');
-  assert.equal(out.write.length, 2);
-  const row = out.write[0];
+  assert.equal(out.keep.length, 2);
+  const row = out.keep[0];
   assert.equal(row.id, out.asked[0].row_id);
   assert.equal(row.type, TYPE);
   assert.equal(row.expected, null);
@@ -97,7 +97,7 @@ test('a person is asked once for a case: the second ask is skipped and writes no
   const before = JSON.stringify([...s.held]);
   const again = call(askPeopleForWords, s, { people, case: 'cake-2026', now: '2026-11-13T20:00:00Z' });
   assert.deepEqual(again.asked, []);
-  assert.deepEqual(again.write, []);
+  assert.deepEqual(again.keep, []);
   assert.deepEqual(again.skipped.map(skip => [skip.person, skip.reason]), [['p1', 'already_asked'], ['p2', 'already_asked']]);
   assert.equal(JSON.stringify([...s.held]), before);
   const other = call(askPeopleForWords, s, { people: [people[0]], case: 'wedding-2027' });
@@ -108,7 +108,7 @@ test('a person with no reference to their own positive word is not asked, and no
   const out = askPeopleForWords({ list: listValue(), rows: [], people: [{ id: 'p3', name: 'Cy Made', address: 'cy@example.com' }, people[0]], case: 'c' });
   assert.deepEqual(out.skipped.map(skip => [skip.person, skip.reason]), [['p3', 'no_win']]);
   assert.equal(out.asked.length, 1);
-  assert.equal(out.write.length, 1);
+  assert.equal(out.keep.length, 1);
 });
 
 const asked = (s, person = people[0]) => call(askPeopleForWords, s, { people: [person], case: 'c' }).asked[0].row_id;
@@ -120,14 +120,14 @@ test('keeping words answers the received row with the consent given and the word
   assert.equal(out.status, 'received');
   assert.equal(out.changed, true);
   assert.equal(s.held.get(id).status, 'asked', 'the tool keeps nothing');
-  const [write] = out.write;
-  assert.equal(write.id, id);
-  assert.deepEqual(write.expected, { type: TYPE, value: s.held.get(id) });
-  assert.equal(write.value.words, 'The cake was the best part of the day.');
-  assert.equal(write.value.consent, 'first-name');
-  assert.equal(write.value.consent_note, 'Replied: yes, first name is fine');
-  assert.equal(write.value.status, 'received');
-  assert.equal(write.value.person, 'p1');
+  const [kept] = out.keep;
+  assert.equal(kept.id, id);
+  assert.deepEqual(kept.expected, { type: TYPE, value: s.held.get(id) });
+  assert.equal(kept.value.words, 'The cake was the best part of the day.');
+  assert.equal(kept.value.consent, 'first-name');
+  assert.equal(kept.value.consent_note, 'Replied: yes, first name is fine');
+  assert.equal(kept.value.status, 'received');
+  assert.equal(kept.value.person, 'p1');
 });
 
 test('words without a declared consent, an empty answer, or an unknown consent are refused with the options', () => {
@@ -148,7 +148,7 @@ test('words nobody asked for need who and become a received row, kept once howev
   assert.equal(one.row_id, two.row_id);
   assert.equal(one.changed, true);
   assert.equal(two.changed, false);
-  assert.deepEqual(two.write, []);
+  assert.deepEqual(two.keep, []);
   assert.equal(s.held.size, 1);
   assert.throws(() => keepTheWordsAPersonGave({ list: listValue(), rows: s.rows(), ...input, who: undefined }), /who/);
 });
@@ -175,7 +175,7 @@ test('approval takes the exact words that were reviewed and answers the pinned r
   const out = approveWordsToShow({ list: listValue(), rows: s.rows(), row_id: id, decision: 'approve', reviewed_words: 'The cake was the best part of the day.' });
   assert.equal(out.status, 'approved');
   assert.equal(s.held.get(id).status, 'received', 'the tool keeps nothing');
-  assert.match(out.write[0].value.approved_identity, /^1f:[0-9a-f]{64}$/);
+  assert.match(out.keep[0].value.approved_identity, /^1f:[0-9a-f]{64}$/);
 });
 
 test('words the person asked to keep private are never approved, and only received rows are', () => {
@@ -210,7 +210,7 @@ test('what may show is only approved words whose consent allows showing and whos
   assert.deepEqual(out.held_back, { not_approved: 1 });
   assert.ok(!JSON.stringify(out).includes('Words four.'), 'held-back words never leave');
   assert.ok(!JSON.stringify(out).includes('Cy Made') && !JSON.stringify(out).includes('Bo Sample'), 'a name goes out only as its consent says');
-  assert.equal('write' in out, false, 'reading answers items and nothing to write');
+  assert.equal('keep' in out, false, 'reading answers items and nothing to write');
 });
 
 test('words changed after approval, or a consent changed after approval, stop showing at once', () => {

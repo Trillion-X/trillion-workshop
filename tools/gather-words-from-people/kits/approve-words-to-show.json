@@ -148,7 +148,7 @@
   "instructions": [
     "1. Pour the two example rows into the testimonials list you already keep (see pour), or make list:praise from the ten fields above and give it a gathers block saying which field is which.",
     "2. Keep the person's words and consent first (tool:keep-the-words-a-person-gave), so the row is received.",
-    "3. Read the row's words, then say approve, decline or withdraw. To approve, the AI passes the list, its rows and reviewed_words exactly as you read them, and puts the answer's write in your store; the call is refused if they differ from the words in the row or if the consent does not allow showing.",
+    "3. Read the row's words, then say approve, decline or withdraw. To approve, the AI passes the list, its rows and reviewed_words exactly as you read them, and keeps the answer's keep rows in your store, each only where the row still holds its expected value; the call is refused if they differ from the words in the row or if the consent does not allow showing.",
     "4. Read row_id and status (approved, declined or withdrawn). Words changed after approval stop showing until approved again."
   ],
   "worked_examples": [
@@ -300,7 +300,7 @@
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the testimonials list you already keep and its fields. The tool matches each of the ten fields of list:praise to one of yours (the map you give, the same id, the same label, or a name in alike), refuses when fewer than 80% match, and otherwise answers the records:write that adds the two example rows to your list. The list also needs its own gathers block (which field holds the words, the speaker, the consent and the state, the consents and what each state is called) before these tools take it.",
+    "how": "Name the testimonials list you already keep and its fields. The tool matches each of the ten fields of list:praise to one of yours (the map you give, the same id, the same label, or a name in alike), refuses when fewer than 80% match, and otherwise answers the keep rows that add the two example rows to your list. The list also needs its own gathers block (which field holds the words, the speaker, the consent and the state, the consents and what each state is called) before these tools take it.",
     "example": {
       "kit_list": "list:praise",
       "into": {
