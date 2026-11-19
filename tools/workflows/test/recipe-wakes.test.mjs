@@ -76,7 +76,11 @@ test('the settings of a wake are what the engine takes: retry, skip_unchanged, r
   assert.deepEqual(wakeProblems(set({ skip_unchanged: false }), context), ['wakes[0].skip_unchanged must be true-or-names.']);
   assert.deepEqual(wakeProblems(set({ skip_unchanged: ['a', 'a'] }), context), ['wakes[0].skip_unchanged must be true-or-names.']);
   assert.deepEqual(wakeProblems(set({ rate: { most: 2 } }), context), ['wakes[0].rate.per_ms is required.']);
-  assert.deepEqual(wakeProblems(set({ replay: { within_ms: 0 } }), context), ['wakes[0].replay.within_ms must be positive.']);
+  assert.deepEqual(wakeProblems(set({ replay: { within_ms: 0 } }), context), [], 'within_ms 0 owes nothing, a row saying no to the engine default');
+  assert.deepEqual(wakeProblems(set({ retry: { attempts: 2, first_ms: 86400001 } }), context), ['wakes[0].retry.first_ms must be at most 86400000 (most_wait_ms).']);
+  assert.deepEqual(wakeProblems(set({ retry: { attempts: 2, first_ms: 1, most_ms: 1e18 } }), context), ['wakes[0].retry.most_ms must be at most 86400000 (most_wait_ms).']);
+  assert.deepEqual(wakeProblems(set({ rate: { most: 257, per_ms: 1000 } }), context), ['wakes[0].rate.most must be at most 256 (max_live).']);
+  assert.deepEqual(wakeProblems(set({ rate: { most: 1, per_ms: 86400001 } }), context), ['wakes[0].rate.per_ms must be at most 86400000 (most_wait_ms).']);
   assert.deepEqual(wakeProblems([{ id: 'keep', on: { running: {} }, budget: { steps: 1, wall_ms: 120000 }, input: { start_at: 'first' }, rate: { most: 1, per_ms: 1 } }], context),
     ['wakes[0].rate is taken only on a fact wake.'], 'a kept program restarts itself and admits once');
 });
