@@ -12,7 +12,7 @@
   "instructions": [
     "1. Register each phone or browser that should get notices (its devices row: web-push with its push subscription, or apns with its token). That is the device's own step.",
     "2. Switch on the wake every-five-minutes once, with store {credential_name} and audience.",
-    "3. Every five minutes each new unread notice of the last day goes once to each device registered before it, addressed to it or to every device; notice_sends keeps each send's stage."
+    "3. Every five minutes each new unread notice of the last day goes once to each device registered before it, addressed to it or to every device. notice_sends keeps each send's stage and tries: a definite failure is tried again (three tries in all), an uncertain one is not, and a device its push service says is gone keeps its row but loses its address, so it is sent nothing more."
   ],
   "worked_examples": [
     {

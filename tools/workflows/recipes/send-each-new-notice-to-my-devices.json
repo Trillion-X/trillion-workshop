@@ -6,8 +6,8 @@
         "kind": "workflow-recipe",
         "id": "workflow:send-each-new-notice-to-my-devices",
         "label": "Send each new notice to my devices",
-        "job": "Every five minutes, send each new unread notice in the person's own notices to the phones and browsers they registered (web push and Apple push), once per device, and keep which were sent. A device sees only notices made after it registered, addressed to it or to every device.",
-        "produces": "For each new notice, one push to each registered phone or browser, and one notice_sends row per notice and device with the send's stage.",
+        "job": "Every five minutes, send each new unread notice in the person's own notices to the phones and browsers they registered (web push and Apple push), once per device, and keep what each push came to: a definite failure is tried again on later runs (three tries in all), an uncertain one is not, and a device its push service says is gone is sent nothing more. A device sees only notices made after it registered, addressed to it or to every device.",
+        "produces": "For each new notice, one push to each registered phone or browser, and one notice_sends row per notice and device with its stage (sent, not-sent, uncertain or gone) and tries.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -178,6 +178,26 @@
               }
             },
             {
+              "id": "widen-sends",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "alter table notice_sends add column if not exists tries integer not null default 1"
+                },
+                "context": {
+                  "step_id": "widen-sends"
+                }
+              }
+            },
+            {
               "id": "read-due",
               "kind": "ask",
               "config": {
@@ -190,7 +210,7 @@
                       "path": "store.credential_name"
                     }
                   },
-                  "sql": "SELECT n.id, coalesce(n.kind, 'needs-you') AS kind, n.title, n.body, n.url, json_agg(json_build_object('device_id', d.id, 'route', d.platform, 'address', CASE WHEN d.platform = 'web-push' THEN d.token::jsonb ELSE to_jsonb(d.token) END) ORDER BY d.id) AS devices FROM notices n JOIN devices d ON (n.device_id IS NULL OR n.device_id = d.id) AND d.platform IN ('web-push', 'apns') AND d.token IS NOT NULL AND n.made_at >= d.registered_at WHERE n.read_at IS NULL AND n.made_at > now() - interval '1 day' AND NOT EXISTS (SELECT 1 FROM notice_sends s WHERE s.notice_id = n.id AND s.device_id = d.id) GROUP BY n.id ORDER BY n.id LIMIT 20"
+                  "sql": "SELECT n.id, coalesce(n.kind, 'needs-you') AS kind, n.title, n.body, n.url, json_agg(json_build_object('device_id', d.id, 'route', d.platform, 'address', CASE WHEN d.platform = 'web-push' THEN d.token::jsonb ELSE to_jsonb(d.token) END) ORDER BY d.id) AS devices FROM notices n JOIN devices d ON (n.device_id IS NULL OR n.device_id = d.id) AND d.platform IN ('web-push', 'apns') AND d.token IS NOT NULL AND n.made_at >= d.registered_at WHERE n.read_at IS NULL AND n.made_at > now() - interval '1 day' AND NOT EXISTS (SELECT 1 FROM notice_sends s WHERE s.notice_id = n.id AND s.device_id = d.id AND NOT (s.stage = 'not-sent' AND s.tries < 3)) GROUP BY n.id ORDER BY n.id LIMIT 20"
                 },
                 "context": {
                   "step_id": "read-due"
@@ -233,6 +253,11 @@
             },
             {
               "from": "make-sends",
+              "to": "widen-sends",
+              "kind": "always"
+            },
+            {
+              "from": "widen-sends",
               "to": "read-due",
               "kind": "always"
             },
@@ -351,7 +376,7 @@
                           "path": "store.credential_name"
                         }
                       },
-                      "sql": "INSERT INTO notice_sends (notice_id, device_id, stage) SELECT $1::bigint, d->>'device_id', $3::text FROM jsonb_array_elements($2::jsonb) AS d ON CONFLICT (notice_id, device_id) DO NOTHING",
+                      "sql": "INSERT INTO notice_sends (notice_id, device_id, stage) SELECT $1::bigint, r->>'device_id', CASE WHEN r->>'device_id' IN (SELECT jsonb_array_elements_text($3::jsonb)) THEN 'gone' ELSE r->>'stage' END FROM jsonb_each($2::jsonb) AS route(name, answer), jsonb_array_elements(coalesce(route.answer->'device_results', '[]'::jsonb)) AS r WHERE r->>'device_id' IS NOT NULL ON CONFLICT (notice_id, device_id) DO UPDATE SET stage = excluded.stage, tries = notice_sends.tries + 1, at = now()",
                       "params": [
                         {
                           "$kind": "binding",
@@ -363,8 +388,9 @@
                         {
                           "$kind": "binding",
                           "select": {
-                            "from": "loop",
-                            "path": "notice.devices"
+                            "from": "steps",
+                            "key": "send",
+                            "path": "output.routes"
                           },
                           "transform": [
                             {
@@ -380,13 +406,59 @@
                           "select": {
                             "from": "steps",
                             "key": "send",
-                            "path": "output.stage"
-                          }
+                            "path": "output.gone_device_ids"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.stringify",
+                              "args": {
+                                "format": "json"
+                              }
+                            }
+                          ]
                         }
                       ]
                     },
                     "context": {
                       "step_id": "keep-sends"
+                    }
+                  }
+                },
+                {
+                  "id": "forget-gone",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "store.credential_name"
+                        }
+                      },
+                      "sql": "UPDATE devices SET token = NULL WHERE id IN (SELECT jsonb_array_elements_text($1::jsonb))",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "steps",
+                            "key": "send",
+                            "path": "output.gone_device_ids"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.stringify",
+                              "args": {
+                                "format": "json"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "context": {
+                      "step_id": "forget-gone"
                     }
                   }
                 }
@@ -395,6 +467,11 @@
                 {
                   "from": "send",
                   "to": "keep-sends",
+                  "kind": "always"
+                },
+                {
+                  "from": "keep-sends",
+                  "to": "forget-gone",
                   "kind": "always"
                 }
               ]
