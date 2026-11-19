@@ -1,0 +1,194 @@
+{
+  "about": "workflow:find-the-recording-of-a-heard-line: keeps, for each heard stretch of sound, its recording and timed segments in the person's store, with a lookup index that finds the recording and the segment of a second, fed by small pages of what changed. It replaces tools/find-the-recording-and-the-exact-moment-a-heard-line (src/transcript-source-index.mjs), whose whole job was a lookup table over the retired record store's transcript rows, kept by triggers (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:find-the-recording-of-a-heard-line",
+        "label": "Find the recording of a heard line",
+        "job": "Keep, for each heard stretch of sound (a transcript), its recording and its timed segments in the person's own store, indexed by the recording and the stretch's identity so that a second of a heard line finds its recording and the segment it falls in; the index is fed by small pages of what changed, and a removed stretch leaves the index.",
+        "produces": "The store's own objects for transcripts, their changes and the lookup index, proven on the example attempts, and each add, change, page, find and removal kept, read back or refused.",
+        "source": {
+          "from": "tools/find-the-recording-and-the-exact-moment-a-heard-line (src/transcript-source-index.mjs, moved from the old tree), read on the Workshop origin/main 13c05f2c8c",
+          "note": "Only the keeping is the store's job: the transcripts' segments, the changes to them and the lookup index, fed by bounded pages (at most 256 segments a page in the old form). The triggers, the table names and the state row were the old store's own form and are not carried. The lookup is half-open: a segment holds the seconds from its start up to its end."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Operations to run this time: add or change {identity, value_identity, source_id, segments [[start, end], ...]}, remove {identity}, index_page {limit}, find {source_id, identity, second}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the index is already kept (kept_in, or null) and the names of the objects that already keep it.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: transcripts (identity, value_identity, source_id and their segments, each segment with its index, start and end), a change list with one entry per identity changed or removed, and a lookup index by source_id and identity giving each segment's index, start and end. An add or change writes the transcript and its segments and queues the identity; a remove takes the transcript out and queues it. An index page takes at most limit queued identities (1 to 128) in the order they were queued, and for each rebuilds its lookup rows from the transcript it holds, or takes them out when there is none. A find reads the one segment whose start is at or before the second and whose end is after it, and gives the recording (source_id), the segment index, its start and its end, or nothing. Refuse a limit outside 1 to 128, a second that is not a number, and an empty identity. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, run these operations in order, each through the store's own objects: [{\"op\": \"add\", \"identity\": \"t1\", \"value_identity\": \"v1\", \"source_id\": \"s1\", \"segments\": [[0, 2], [2, 5]]}, {\"op\": \"index_page\", \"limit\": 1}, {\"op\": \"find\", \"source_id\": \"s1\", \"identity\": \"t1\", \"second\": 3}, {\"op\": \"find\", \"source_id\": \"s1\", \"identity\": \"t1\", \"second\": 9}, {\"op\": \"change\", \"identity\": \"t1\", \"value_identity\": \"v2\", \"source_id\": \"s1\", \"segments\": [[0, 4]]}, {\"op\": \"index_page\", \"limit\": 128}, {\"op\": \"find\", \"source_id\": \"s1\", \"identity\": \"t1\", \"second\": 3}, {\"op\": \"remove\", \"identity\": \"t1\"}, {\"op\": \"index_page\", \"limit\": 128}, {\"op\": \"find\", \"source_id\": \"s1\", \"identity\": \"t1\", \"second\": 1}, {\"op\": \"index_page\", \"limit\": 0}]. Answers: add and change give added and changed; remove gives removed; index_page gives {indexed, more} with the identities it took in, in order, and more when identities are still queued; find gives {recording, segment, start, end} or null; a refused operation gives refused. Then remove the throwaway place. Submit answers: one per attempt, in order, exactly as the answers above.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt gives the answer the intent says",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    "added",
+                    {
+                      "indexed": [
+                        "t1"
+                      ],
+                      "more": false
+                    },
+                    {
+                      "recording": "s1",
+                      "segment": 1,
+                      "start": 2,
+                      "end": 5
+                    },
+                    null,
+                    "changed",
+                    {
+                      "indexed": [
+                        "t1"
+                      ],
+                      "more": false
+                    },
+                    {
+                      "recording": "s1",
+                      "segment": 0,
+                      "start": 0,
+                      "end": 4
+                    },
+                    "removed",
+                    {
+                      "indexed": [
+                        "t1"
+                      ],
+                      "more": false
+                    },
+                    null,
+                    "refused"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's operations",
+            "do": "Run each item of operations through the store's own objects, in order, and read back the transcript each add or change wrote. With no operations, submit empty lists. Submit answers (one per operation, as in the prove step) and found_identities (each identity read back, by id).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers",
+                "found_identities"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                },
+                "found_identities": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes a transcript, its segments and its lookup rows; the recording the transcript came from is the person's own and is not kept here."
+      }
+    }
+  ]
+}
