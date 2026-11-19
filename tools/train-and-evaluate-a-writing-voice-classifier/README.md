@@ -18,7 +18,7 @@ Old Trillion (Trillion-X/trillion) never trained or evaluated a voice classifier
 
 | Setting | Where | What it decides |
 |---|---|---|
-| `endpoint` | the `list:settings` row `record:setting:train-and-evaluate-a-writing-voice-classifier~<scope_kind>~<scope_id>`: the row's request carries it in `settings_record` as `records:read` gave it, read with `tools/settings` `setting()`; the command takes the file of that record (`--settings-record <file>`), or `--endpoint` | The classifier's `/v1/systemone` address. Its `/health` must name a serving identity, and every reply must name the same one and the requested model. |
+| `endpoint` | the `list:settings` row `record:setting:train-and-evaluate-a-writing-voice-classifier~<scope_kind>~<scope_id>`: the row's request carries it in `settings_record` as the store gave it, read with `tools/settings` `setting()`; the command takes the file of that record (`--settings-record <file>`), or `--endpoint` | The classifier's `/v1/systemone` address. Its `/health` must name a serving identity, and every reply must name the same one and the requested model. |
 | `model` | the same row, or `--model` | The model asked, as its replies name it. |
 | `attempts`, `workers` | the same row (optional), or `--single-attempt`, `--workers` | Tries per request (3) and requests at once (4, at most 8). |
 | `decider_common_dir` | `--decider-common-dir` | Train and score only: the folder holding the decider model frame (`common.py`, which loads the pinned model snapshot), on the computer that trains. |
