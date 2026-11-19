@@ -2,9 +2,9 @@
 //
 // Get started is a catalogue screen (tool:get-started, moved from records/marketplace-screens.json) drawn from one read,
 // tool:read-setup, whose answer is the whole description: the layout is the read itself. Old trillion's read asked the
-// account's setup owner (GET /setup/facts?user_agent=&origin=); today's tool:read-setup asks the account files door's
-// setup_facts with the same two browser facts, reads the account's own show rules and setup context, and draws with
-// tool:see-what-is-left-to-set-up (tools/set-up-my-account/test/read-setup.test.mjs holds that test and the golden).
+// account's setup owner (GET /setup/facts?user_agent=&origin=); today's tool:read-setup is handed setup_facts beside
+// the same two browser facts and the account's own show rules and setup context, and draws with
+// tool:see-what-is-left-to-set-up's function (tools/set-up-my-account/test/read-setup.test.mjs holds that test and the golden).
 //
 // Adapted: the old test's routing assertions (own-resource-compatibility sends /work/api/screens/get-started to the
 // screen host) are the engine's generic screen host now; what stays here is the row the host reads, with its read's
@@ -43,12 +43,10 @@ test('the layout is what the read answered, whole', () => {
   assert.deepEqual(draw(screenRow.screen.layout, { reads: { setup: answered } }), answered);
 });
 
-test('the read is a Workshop row that takes what the screen sends and runs the screen tool through its door', () => {
+test('the read is a Workshop row that takes what the screen sends and draws the screen with no door', () => {
   assert.ok(readRow, 'tool:read-setup is in tools/set-up-my-account');
   assert.deepEqual(Object.keys(screenRow.screen.reads[0].input).sort(), ['account_id', 'origin', 'user_agent']);
   for (const name of Object.keys(screenRow.screen.reads[0].input)) assert.ok(readRow.input_schema.properties[name], name);
-  assert.deepEqual(readRow.invoke.records.runs, ['tool:see-what-is-left-to-set-up']);
-  assert.deepEqual(readRow.invoke.records.rights.map(right => right.files ? ['files', right.operations] : [right.id ?? right.prefix, right.operations]),
-    [['files', ['setup_facts']], ['show-rules', ['workspace:read']], ['setup-context', ['workspace:read']],
-      ['ai-job:workflow:setup-with-your-ai:', ['records:read']]]);
+  assert.equal(readRow.invoke.records, undefined, 'it opens no records door: its settings come in its input');
+  assert.equal(readRow.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
 });

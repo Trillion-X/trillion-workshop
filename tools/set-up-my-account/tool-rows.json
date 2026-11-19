@@ -121,7 +121,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -552,7 +551,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -619,7 +617,7 @@
         "label": "Read my setup",
         "status": "active",
         "job": "Gather what my account's setup is made of and draw the Get started screen from it",
-        "description": "The one read of the Get started screen (tool:get-started). It is handed this account's setup facts as setup_facts (sign-ins and their app grants, notification devices, the AI connection, computers, the setup runtime, device releases, the last setup snapshot: what the caller can read of them, since no one owner answers them now), reads the account's own show rules (show-rules) and setup context (setup-context) from `stored`, and runs tool:see-what-is-left-to-set-up with them and the page's account id, answering the screen it draws. The setup run is handed in as setup_run (the status tool:run-workflow-definition answered and the answers so far), since no tool keeps a run. A source it could not read is left unknown, so the screen is not ready rather than opened on a guess. It writes nothing.",
+        "description": "The one read of the Get started screen (tool:get-started). It is handed this account's setup facts as setup_facts (sign-ins and their app grants, notification devices, the AI connection, computers, the setup runtime, device releases, the last setup snapshot: what the caller can read of them, since no one owner answers them now), is handed the account's own show rules (show-rules) and setup context (setup-context) as the caller read them from the person's own store, in stored.workspace, and draws the screen with tool:see-what-is-left-to-set-up's own function from them and the page's account id, in the same run. The setup run is handed in as setup_run (the status tool:run-workflow-definition answered and the answers so far), since no tool keeps a run. A source it could not read is left unknown, so the screen is not ready rather than opened on a guess. It writes nothing.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -659,7 +657,13 @@
             },
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, setup-context, as this row's `stored` lists. What is not given is not there."
+              "description": "The person's own settings, read by the caller from where the person keeps them and handed in: { workspace: { label: value } } for show-rules and setup-context. A label handed in as null is read and not there; a label left out could not be read and is unknown, never none. The run reads and writes no store.",
+              "additionalProperties": false,
+              "properties": {
+                "workspace": {
+                  "type": "object"
+                }
+              }
             }
           }
         },
@@ -699,6 +703,7 @@
               {
                 "package": "workflows",
                 "paths": [
+                  "do-work/run-a-function.mjs",
                   "read-data/public-recipes.mjs",
                   "recipes"
                 ],
@@ -739,14 +744,6 @@
                   "src"
                 ],
                 "at": "/opt/set-up-my-devices-and-cameras"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
               },
               {
                 "package": "content-identity",
@@ -830,7 +827,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/set-up-my-account/do-work/read-setup.mjs",
             "readSetup"
           ],
@@ -838,12 +835,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "runs": [
-              "tool:see-what-is-left-to-set-up"
-            ]
           }
         },
         "needs": {
@@ -868,39 +859,8 @@
               "origin": "https://app.example.test",
               "now": "2026-01-01T00:00:00.000Z"
             },
-            "file_answers": {
-              "setup_facts": {
-                "facts": {
-                  "aiConnected": false,
-                  "aiApps": []
-                }
-              }
-            },
-            "tool_runs": {
-              "tool:see-what-is-left-to-set-up": {
-                "title": "Connect your AI to start",
-                "ready": false,
-                "requirements": []
-              }
-            },
             "output_selector": "$.result.title",
             "contains": "Connect your AI"
-          }
-        ],
-        "stored": [
-          {
-            "kind": "@own-records",
-            "id": "show-rules",
-            "operations": [
-              "workspace:read"
-            ]
-          },
-          {
-            "kind": "@own-records",
-            "id": "setup-context",
-            "operations": [
-              "workspace:read"
-            ]
           }
         ]
       }
