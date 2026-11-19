@@ -29,8 +29,8 @@
               }
             },
             "budget": {
-              "steps": 4,
-              "wall_ms": 300000
+              "steps": 40,
+              "wall_ms": 3600000
             },
             "input": {
               "start_at": "choose"
