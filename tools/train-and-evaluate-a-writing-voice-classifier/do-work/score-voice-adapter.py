@@ -5,6 +5,10 @@ This never calls or changes the shared classifier service. It accepts either
 the trainer's JSONL row format or the maintained book-voice v3 challenge JSON,
 captures the complete request-shaped state/question/options and option logits,
 and refuses any row whose complete composed prompt exceeds 4096 tokens.
+
+Draft mode (--request FILE, or - for standard input) scores one draft text paragraph by paragraph with the same request
+each row gets here, and answers {"result": {paragraph_scores, body_min}} or {"error": why}. It decides nothing: the
+caller compares body_min with its own setting.
 """
 from __future__ import annotations
 
@@ -39,14 +43,49 @@ def decider_common_dir(argv):
     return None
 
 
+def draft_request_text(argv):
+    """Draft mode's request as given (--request FILE, or - for standard input), read once, or None outside draft mode."""
+    for index, word in enumerate(argv):
+        source = argv[index + 1] if word == "--request" and index + 1 < len(argv) else (
+            word.split("=", 1)[1] if word.startswith("--request=") else None)
+        if source is not None:
+            try:
+                return sys.stdin.read() if source == "-" else Path(source).read_text(encoding="utf-8")
+            except OSError as error:
+                return error
+    return None
+
+
+def draft_snapshot_dir(raw):
+    """The decider model snapshot a draft request names: its own `decider` package is imported from there."""
+    try:
+        base_model = json.loads(raw).get("base_model") if isinstance(raw, str) else None
+    except (ValueError, AttributeError):
+        return None
+    return Path(base_model).expanduser() if isinstance(base_model, str) and base_model.strip() else None
+
+
 FINETUNE = decider_common_dir(sys.argv)
+DRAFT_REQUEST = draft_request_text(sys.argv)
 if FINETUNE is not None:
     sys.path.insert(0, str(FINETUNE))
+if draft_snapshot_dir(DRAFT_REQUEST) is not None:
+    sys.path.insert(0, str(draft_snapshot_dir(DRAFT_REQUEST)))
 sys.path.insert(0, str(HERE))
 from exposure_audit import audit_exposure  # noqa: E402
-import common  # noqa: E402
-from decider.infer import Example, Q  # noqa: E402
-from decider.systemone import render_question, render_state  # noqa: E402
+try:
+    import common  # noqa: E402
+    from decider.infer import Example, Q  # noqa: E402
+    from decider.systemone import render_question, render_state  # noqa: E402
+except ModuleNotFoundError as missing:
+    if DRAFT_REQUEST is None:
+        raise
+    if isinstance(DRAFT_REQUEST, OSError):
+        print(json.dumps({"error": f"The request file cannot be read: {DRAFT_REQUEST}"}))
+        sys.exit(2)
+    print(json.dumps({"error": f"Cannot load the decider model frame ({missing.name}): give --decider-common-dir, the "
+                      "folder holding common.py, and base_model, the decider model snapshot holding decider/"}))
+    sys.exit(2)
 print("phase: scorer dependencies imported", file=sys.stderr, flush=True)
 
 ROW_SCHEMA = "book-voice-adapter-training-row-v1"
@@ -736,20 +775,55 @@ def require_complete_comparison(selected_indices: list[int], comparisons: list[d
         raise ValueError("Batch comparison is incomplete, duplicated, or out of selected-row order")
 
 
+def prepare_request(model, row: dict, row_index: int, temperature: float) -> dict:
+    """Build one row's exact request: the complete state, the question and its options in order, within 4096 tokens."""
+    state_text = json.dumps(row["state"], ensure_ascii=False, separators=(",", ":"))
+    if render_state(state_text) != state_text:
+        raise ValueError(f"State rendering changed for {row['id']}")
+    question_spec = {"type": "choice", "instructions": row["question"], "criteria": row["criteria"]}
+    rendered = render_question(question_spec)
+    option_names, option_texts = rendered["names"], rendered["options"]
+    if len(option_names) != len(option_texts) or len(option_texts) < 2:
+        raise ValueError(f"Rendered options are incomplete for {row['id']}")
+    option_map = dict(row["wire_criterion"]["criteria"])
+    if list(option_map) != option_names:
+        raise ValueError(f"Wire option order differs from the rendered prompt for {row['id']}")
+    context_ids = model.tok.encode("Context:\n" + state_text, add_special_tokens=False)
+    if len(context_ids) > MAX_ROW_TOKENS + 1:
+        raise ValueError(f"Complete state for {row['id']} exceeds the 4096-token request bound")
+    built = common.build(Example(state_text, [Q(rendered["question"], option_texts, 0)]), model.tok,
+                         rng=common._Keep(), max_options=common.MAX_OPTIONS, max_ctx_tokens=MAX_ROW_TOKENS + 1)
+    if built["ids"][:len(context_ids)] != context_ids:
+        raise ValueError(f"Prompt construction truncated the complete state for {row['id']}")
+    if built["perms"] != [list(range(len(option_texts)))]:
+        raise ValueError(f"Prompt construction changed option order for {row['id']}")
+    token_count = len(built["ids"])
+    if token_count > MAX_ROW_TOKENS:
+        raise ValueError(f"Complete composed request for {row['id']} is {token_count} tokens; limit is {MAX_ROW_TOKENS}")
+    return {
+        "row": row, "built": built, "option_names": option_names,
+        "wire": build_adapter_wire(row, state_text, rendered["question"]), "token_count": token_count,
+        "state_token_count": len(context_ids),
+        "state_text": state_text, "row_index": row_index,
+        "temperature": temperature,
+    }
+
+
+def row_logits(model, torch, prepared_item: dict) -> list[float]:
+    """One request alone in one eval-mode model call: its raw option logits in option order."""
+    with torch.no_grad():
+        batch = common.collate([prepared_item["built"]], model.tok.pad_token_id)
+        tensors = {key: value.to(common.DEVICE) if torch.is_tensor(value) else value for key, value in batch.items()}
+        logits = model.slot_logits(*[
+            tensors[key] for key in ("input_ids", "attention_mask", "slot_idx", "slot_batch", "nopts")
+        ]).float()
+        return [float(value) for value in logits[0, :len(prepared_item["option_names"])].cpu().tolist()]
+
+
 def run_batch_comparison(model, torch, prepared: list[dict], batch_size: int) -> list[dict]:
     """Run the same eval-mode model rowwise and in caller-sized batches."""
     slices = batch_slices(len(prepared), batch_size)
-    rowwise_logits = {}
-    with torch.no_grad():
-        for prepared_item in prepared:
-            batch = common.collate([prepared_item["built"]], model.tok.pad_token_id)
-            tensors = {key: value.to(common.DEVICE) if torch.is_tensor(value) else value for key, value in batch.items()}
-            logits = model.slot_logits(*[
-                tensors[key] for key in ("input_ids", "attention_mask", "slot_idx", "slot_batch", "nopts")
-            ]).float()
-            count = len(prepared_item["option_names"])
-            rowwise_logits[prepared_item["row_index"]] = [float(value) for value in logits[0, :count].cpu().tolist()]
-            del batch, tensors, logits
+    rowwise_logits = {item["row_index"]: row_logits(model, torch, item) for item in prepared}
 
     comparisons = []
     with torch.no_grad():
@@ -841,6 +915,122 @@ def write_progress(path: Path, *, dataset_role: str, data_path: Path,
     temporary = path.with_name(path.name + ".tmp")
     temporary.write_text(json.dumps(progress, ensure_ascii=False) + "\n", encoding="utf-8")
     temporary.replace(path)
+
+
+DRAFT_FAMILY = "draft"
+DRAFT_FRAME = "{text}"  # common.configure needs a frame; a scored request is built from the state, never from the frame
+
+
+def split_paragraphs(text: str) -> list[str]:
+    """A draft's paragraphs: the runs of lines between blank lines, each without its outer white space."""
+    return [part.strip() for part in re.split(r"\n\s*\n", text.replace("\r\n", "\n")) if part.strip()]
+
+
+def draft_rows(request: dict) -> tuple[list[dict], list[dict]]:
+    """Check a draft request; return one entry per paragraph and the rows to score, projected by adapt_v3.
+
+    A paragraph shorter than min_paragraph_chars stays in the entries as skipped and is not scored. The rows are the
+    unlabeled v3 rows of a challenge holding the scored paragraphs and the given criterion, so each request is the one
+    this scorer builds for any v3 row.
+    """
+    if not isinstance(request, dict) or request.get("mode") != "draft":
+        raise ValueError('The request must be an object with mode "draft"')
+    text = request.get("text")
+    if not isinstance(text, str) or not text.strip():
+        raise ValueError("text is empty: give the words of the draft to score")
+    shortest = request.get("min_paragraph_chars")
+    if isinstance(shortest, bool) or not isinstance(shortest, int) or shortest < 0:
+        raise ValueError("min_paragraph_chars must be a whole number of characters, 0 or more; "
+                         "a paragraph shorter than it is skipped")
+    criterion = request.get("criterion")
+    if not isinstance(criterion, dict) or not isinstance(criterion.get("id"), str) or not criterion["id"].strip():
+        raise ValueError("criterion must be a v3 criterion object with its id, question, options and reference_context")
+    if criterion.get("deterministic"):
+        raise ValueError("criterion is deterministic: a draft is scored only with a model criterion")
+    reference = criterion.get("reference_context")
+    if not isinstance(reference, str) or not reference.strip():
+        raise ValueError("criterion needs its pinned reference_context")
+    _, options, _ = question_from_criterion(criterion)
+    if "pass" not in options:
+        raise ValueError("criterion needs an option named pass: each paragraph's answer is its p_pass")
+    entries, items = [], []
+    for index, paragraph in enumerate(split_paragraphs(text)):
+        entries.append({"index": index, "chars": len(paragraph)})
+        if len(paragraph) < shortest:
+            entries[-1]["skipped"] = True
+            continue
+        items.append({"id": f"paragraph-{index}", "family": DRAFT_FAMILY, "split": "unlabeled",
+                      "block_kind": "paragraph", "text": paragraph, "reader_context": ""})
+    if not items:
+        return entries, []
+    challenge = {"schema": CHALLENGE_SCHEMA, "criteria": [{**criterion, "applies_to": ["paragraph"]}], "items": items}
+    return entries, adapt_v3(challenge)
+
+
+def score_draft(request: dict, model, logits_of, temperature: float) -> dict:
+    """Score every paragraph the request does not skip; body_min is the lowest p_pass, null when none was scored.
+
+    logits_of(prepared_item) gives the raw option logits of one prepared request (row_logits on the loaded adapter).
+    """
+    entries, rows = draft_rows(request)
+    scored = [entry for entry in entries if not entry.get("skipped")]
+    for entry, row in zip(scored, rows, strict=True):
+        prepared_item = prepare_request(model, row, entry["index"], temperature)
+        probabilities = _softmax_values([value / temperature for value in logits_of(prepared_item)])
+        entry["p_pass"] = dict(zip(prepared_item["option_names"], probabilities))["pass"]
+    return {"paragraph_scores": entries,
+            "body_min": min(entry["p_pass"] for entry in scored) if scored else None}
+
+
+def read_request(raw) -> dict:
+    if isinstance(raw, OSError):
+        raise ValueError(f"The request file cannot be read: {raw}")
+    if not isinstance(raw, str):
+        raise ValueError("Give the draft request: --request FILE, or --request - for standard input")
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as error:
+        raise ValueError(f"The request is not JSON: {error}") from error
+
+
+def draft_main(argv: list[str]) -> int:
+    """Score one draft and print {"result": ...} as the last line (exit 0), or {"error": why} (exit 2)."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--decider-common-dir", type=Path,
+                        help="folder holding the decider model frame common.py (read before this parser runs)")
+    parser.add_argument("--request", required=True, help="the draft request JSON file, or - for standard input")
+    parser.parse_args(argv)  # the request itself was read once, before the model frame was imported (DRAFT_REQUEST)
+    refusals = (ValueError, OSError) + ((common.Refused,) if hasattr(common, "Refused") else ())
+    try:
+        request = read_request(DRAFT_REQUEST)
+        draft_rows(request)
+        for key in ("adapter", "base_model"):
+            if not isinstance(request.get(key), str) or not request[key].strip():
+                raise ValueError(f"{key} must name a folder: the adapter train wrote, and the decider model snapshot")
+        adapter = Path(request["adapter"]).expanduser().resolve(strict=True)
+        adapter_model = adapter / "adapter_model.safetensors"
+        receipt_path = adapter / "train-info.json"
+        if not adapter_model.is_file() or not receipt_path.is_file():
+            raise ValueError("Adapter needs adapter_model.safetensors and its train-info.json receipt")
+        receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+        base_model = Path(request["base_model"]).expanduser().resolve(strict=True)
+        if receipt.get("adapter_model_blake3") != digest(adapter_model):
+            raise ValueError("Adapter weights do not match their training receipt")
+        if "base_snapshot" in receipt and receipt["base_snapshot"] != str(base_model):
+            raise ValueError("base_model is not the snapshot the adapter's receipt names")
+        common.configure(str(base_model), DRAFT_FRAME)
+        import torch
+        common.quiet()
+        print("phase: loading adapter and base model for a draft", file=sys.stderr, flush=True)
+        model = common.load(adapter=str(adapter), train=False)
+        model.eval()
+        faulthandler.cancel_dump_traceback_later()
+        answer = score_draft(request, model, lambda item: row_logits(model, torch, item), common.temperature())
+    except refusals as error:
+        print(json.dumps({"error": str(error)}, ensure_ascii=False))
+        return 2
+    print(json.dumps({"result": answer}, ensure_ascii=False))
+    return 0
 
 
 def main() -> None:
@@ -973,38 +1163,10 @@ def main() -> None:
     prepared = []
     scoring_rows = [(index, rows[index]) for index in selected_indices] if args.compare_batch is not None else list(enumerate(rows))
     for row_number, (row_index, row) in enumerate(scoring_rows, 1):
-        state_text = json.dumps(row["state"], ensure_ascii=False, separators=(",", ":"))
-        if render_state(state_text) != state_text:
-            raise ValueError(f"State rendering changed for {row['id']}")
-        question_spec = {"type": "choice", "instructions": row["question"], "criteria": row["criteria"]}
-        rendered = render_question(question_spec)
-        option_names, option_texts = rendered["names"], rendered["options"]
-        if len(option_names) != len(option_texts) or len(option_texts) < 2:
-            raise ValueError(f"Rendered options are incomplete for {row['id']}")
-        option_map = dict(row["wire_criterion"]["criteria"])
-        if list(option_map) != option_names:
-            raise ValueError(f"Wire option order differs from the rendered prompt for {row['id']}")
-        context_ids = model.tok.encode("Context:\n" + state_text, add_special_tokens=False)
-        max_state_tokens = max(max_state_tokens, len(context_ids))
-        if len(context_ids) > MAX_ROW_TOKENS + 1:
-            raise ValueError(f"Complete state for {row['id']} exceeds the 4096-token request bound")
-        built = common.build(Example(state_text, [Q(rendered["question"], option_texts, 0)]), model.tok,
-                             rng=common._Keep(), max_options=common.MAX_OPTIONS, max_ctx_tokens=MAX_ROW_TOKENS + 1)
-        if built["ids"][:len(context_ids)] != context_ids:
-            raise ValueError(f"Prompt construction truncated the complete state for {row['id']}")
-        if built["perms"] != [list(range(len(option_texts)))]:
-            raise ValueError(f"Prompt construction changed option order for {row['id']}")
-        token_count = len(built["ids"])
-        if token_count > MAX_ROW_TOKENS:
-            raise ValueError(f"Complete composed request for {row['id']} is {token_count} tokens; limit is {MAX_ROW_TOKENS}")
-        max_row_tokens = max(max_row_tokens, token_count)
-        wire = build_adapter_wire(row, state_text, rendered["question"])
-        prepared.append({
-            "row": row, "built": built, "option_names": option_names,
-            "wire": wire, "token_count": token_count,
-            "state_text": state_text, "row_index": row_index,
-            "temperature": temperature,
-        })
+        prepared_item = prepare_request(model, row, row_index, temperature)
+        max_state_tokens = max(max_state_tokens, prepared_item["state_token_count"])
+        max_row_tokens = max(max_row_tokens, prepared_item["token_count"])
+        prepared.append(prepared_item)
         if row_number % 100 == 0 or row_number == len(scoring_rows):
             print(f"phase: prepared {row_number}/{len(scoring_rows)} selected rows", file=sys.stderr, flush=True)
 
@@ -1150,4 +1312,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    if any(word == "--request" or word.startswith("--request=") for word in sys.argv[1:]):
+        sys.exit(draft_main(sys.argv[1:]))
     main()

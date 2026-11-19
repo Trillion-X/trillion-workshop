@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/train-and-evaluate-a-writing-voice-classifier/tool-rows.json; do-work/score-voice-adapter.py (main, summarize, apply_decision_policy); test/scoring-input-mode.test.mjs for the v3 challenge shape",
+  "drafted_from": "tool row in tools/train-and-evaluate-a-writing-voice-classifier/tool-rows.json; do-work/score-voice-adapter.py (main, summarize, apply_decision_policy); test/scoring-input-mode.test.mjs for the v3 challenge shape; do-work/score-voice-adapter.py (draft_rows, score_draft, draft_main) and test/test_score_voice_draft.py for draft mode",
   "start_here": "Say to your AI: \"Score the passages in ~/voice/challenge.json with my adapter in ~/voice/adapter-1 and write the report to ~/voice/report.json, role development-check.\" It runs the scorer on your computer and hands back the summary and the report path.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads a challenge file and an adapter folder you name and writes one report file on your computer.",
@@ -7,13 +7,16 @@
   "tools": [
     "tool:score-writing-with-a-voice-adapter",
     "tool:train-a-writing-voice-adapter",
-    "tool:evaluate-a-writing-voice-classifier"
+    "tool:evaluate-a-writing-voice-classifier",
+    "tool:judge-against-rules"
   ],
   "instructions": [
     "1. Train an adapter first with tool:train-a-writing-voice-adapter; its out folder holds the adapter and train-info.json, which the scorer checks by BLAKE3.",
     "2. Write the challenge file (schema book-voice-decider-challenge-v3): criteria with a question, options, a pinned reference_context and applies_to, and items with id, family, split, source_kind, block_kind, text and reader_context. Items with split \"eval\" carry checks (their gold); items with split \"unlabeled\" carry none. The worked example has one item.",
     "3. Say \"Score these passages with my adapter\" with data, adapter, out (a report path that does not exist yet), decider_common_dir and dataset_role (any label you choose for the run). The AI reads the row with tools:list and runs its run command.",
-    "4. Read the summary it prints and the full report at out: every row's probabilities, its predicted option, its decision (uncertain when the probability is at or under the criterion's diagnostic minimum, 0.5 when none), and training_exposure, the audit of whether the passage was in the training rows. Unlabeled rows get no accuracy."
+    "4. Read the summary it prints and the full report at out: every row's probabilities, its predicted option, its decision (uncertain when the probability is at or under the criterion's diagnostic minimum, 0.5 when none), and training_exposure, the audit of whether the passage was in the training rows. Unlabeled rows get no accuracy.",
+    "5. To check one draft before anyone sees it, give a draft request instead of a challenge: {mode: \"draft\", text, adapter, base_model (the decider model snapshot), criterion (one v3 criterion with id, question, options holding pass, and reference_context), min_paragraph_chars}. The AI runs: python3 trillion-workshop/tools/train-and-evaluate-a-writing-voice-classifier/do-work/score-voice-adapter.py --decider-common-dir {decider_common_dir} --request <the request file, or - for standard input>. The text is split at blank lines; a paragraph shorter than min_paragraph_chars comes back as skipped, every other one gets p_pass from the same request a v3 row gets. body_min is the lowest p_pass (null when every paragraph was skipped). The tool decides nothing: the drafting step compares body_min with its own settings row.",
+    "6. Phrases a draft must not hold are a separate deterministic check: tool:judge-against-rules with one rule row {id, words: [the phrases]} and the same text finds each phrase in any case, with its offset. A drafting step runs both and keeps both answers."
   ],
   "worked_examples": [
     {
@@ -31,6 +34,22 @@
       },
       "given": "Read from tools/train-and-evaluate-a-writing-voice-classifier/do-work/score-voice-adapter.py; the model could not be run here. After tools:list the AI runs: python3 trillion-workshop/tools/train-and-evaluate-a-writing-voice-classifier/do-work/score-voice-adapter.py --decider-common-dir /work/decider/finetune --data /work/voice/challenge.json --out /work/voice/report.json --adapter /work/voice/adapter-1 --dataset-role development-check. /work/voice/challenge.json holds: {\"schema\":\"book-voice-decider-challenge-v3\",\"criteria\":[{\"id\":\"reader-fit\",\"question\":\"Does the explanation name the object?\",\"primitive\":\"one-of\",\"options\":[{\"name\":\"pass\",\"description\":\"The object is named.\"},{\"name\":\"fail\",\"description\":\"The object is missing.\"}],\"reference_context\":\"Check the literal reader context and target.\",\"applies_to\":[\"paragraph\"]}],\"items\":[{\"id\":\"case-one\",\"family\":\"example-one\",\"split\":\"eval\",\"source_kind\":\"constructed_regression\",\"block_kind\":\"paragraph\",\"text\":\"The package contains twelve pencils.\",\"reader_context\":\"\",\"checks\":{\"reader-fit\":\"pass\"}}]}.",
       "hands_back": "It prints {\"out\": \"/work/voice/report.json\", \"dataset_role\": \"development-check\", \"items\": 1, \"summary\": {...}, \"max_composed_row_tokens\": <measured>}. Worked out from summarize(): summary.scored_rows 1, labeled_rows 1, binary_labeled_rows 1, and when the adapter gives pass the most probability, raw_prediction_correct 1, decision_label_matches 1, accepted_correct 1 and diagnostic_accuracy 1.0 (pass probability over 0.5); when it gives pass 0.5 or less, decision is \"uncertain\" and accepted_correct is 0. The probabilities themselves, max_composed_row_tokens and the exposure audit are measured on the computer and not stated here. The report file has schema \"book-voice-isolated-adapter-evaluation-v1\", qualification \"none; development diagnostics only\" and one entry in items."
+    },
+    {
+      "title": "Score one draft paragraph by paragraph",
+      "ask": "Before I see this reply, score each paragraph with my voice adapter and tell me the lowest score.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:score-writing-with-a-voice-adapter"
+          }
+        }
+      },
+      "given": "From test/test_score_voice_draft.py, run on stand-in logits in place of the model. After tools:list the AI writes the request to /work/voice/draft-request.json and runs: python3 trillion-workshop/tools/train-and-evaluate-a-writing-voice-classifier/do-work/score-voice-adapter.py --decider-common-dir /work/decider/finetune --request /work/voice/draft-request.json. The request file holds: {\"mode\": \"draft\", \"text\": \"Hello friend,\\n\\nThe garden gate sticks in wet weather, so lift it a little before you push.\\n\\n\\n  Bring the blue watering can back to the shed when you finish.  \\n\\nThanks!\", \"adapter\": \"/work/voice/adapter-1\", \"base_model\": \"/work/decider/snapshot\", \"criterion\": {\"id\": \"plain-voice\", \"question\": \"Does this passage read in the writer's own voice?\", \"primitive\": \"one-of\", \"options\": [{\"name\": \"pass\", \"description\": \"It reads as the writer writes.\"}, {\"name\": \"fail\", \"description\": \"It reads as wording the writer rejected.\"}], \"reference_context\": \"Judge the wording: short, direct and concrete.\", \"applies_to\": [\"heading\"]}, \"min_paragraph_chars\": 40}. Stand-in raw logits (pass, fail) are [2, 0] for the garden-gate paragraph and [-1, 0] for the watering-can paragraph, at temperature 1.",
+      "hands_back": "It prints {\"result\": {\"paragraph_scores\": [{\"index\": 0, \"chars\": 13, \"skipped\": true}, {\"index\": 1, \"chars\": 75, \"p_pass\": 0.8808}, {\"index\": 2, \"chars\": 61, \"p_pass\": 0.2689}, {\"index\": 3, \"chars\": 7, \"skipped\": true}], \"body_min\": 0.2689}} on its last line. The greeting (13 characters) and the sign-off (7) are under 40 and come back skipped; body_min 0.2689 is the watering-can paragraph. With the real adapter the p_pass values are measured on the computer; the shape is the same."
     }
   ]
 }

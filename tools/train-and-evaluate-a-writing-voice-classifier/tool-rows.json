@@ -1226,18 +1226,58 @@
         ],
         "kind": "ai-tool-descriptor",
         "id": "tool:score-writing-with-a-voice-adapter",
-        "label": "Score labelled or unlabeled passages with a writing-voice adapter",
+        "label": "Score labelled or unlabeled passages, or one draft, with a writing-voice adapter",
         "status": "active",
-        "job": "Score passages with a trained writing-voice adapter and report every probability, with the exposure of the passages to the training rows",
-        "description": "Runs on the person's computer that holds the decider model snapshot. Validates the challenge with the maintained validator before weights load, binds the adapter and its receipt by BLAKE3, keeps every row's probabilities and the audit of what the adapter was trained on, and never invents accuracy for unlabeled rows.",
+        "job": "Score passages with a trained writing-voice adapter and report every probability, with the exposure of the passages to the training rows, or score one draft paragraph by paragraph",
+        "description": "Runs on the person's computer that holds the decider model snapshot. Validates the challenge with the maintained validator before weights load, binds the adapter and its receipt by BLAKE3, keeps every row's probabilities and the audit of what the adapter was trained on, and never invents accuracy for unlabeled rows. Draft mode (mode \"draft\") scores one draft text instead: it splits the text at blank lines, keeps paragraphs shorter than min_paragraph_chars as skipped, scores every other one with the same request a v3 row gets, and answers paragraph_scores and body_min (the lowest p_pass) with no decision; the caller compares body_min with its own setting.",
         "input_schema": {
           "type": "object",
-          "required": [
-            "data",
-            "out",
-            "decider_common_dir"
+          "anyOf": [
+            {
+              "required": [
+                "data",
+                "out",
+                "decider_common_dir"
+              ]
+            },
+            {
+              "required": [
+                "mode",
+                "text",
+                "adapter",
+                "base_model",
+                "criterion",
+                "min_paragraph_chars",
+                "decider_common_dir"
+              ]
+            }
           ],
           "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "draft"
+              ],
+              "description": "draft: score the one text given, paragraph by paragraph, in place of a challenge file"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "description": "draft mode: the words of the draft; paragraphs are split at blank lines"
+            },
+            "base_model": {
+              "type": "string",
+              "description": "draft mode: the decider model snapshot folder the adapter was trained on"
+            },
+            "criterion": {
+              "type": "object",
+              "description": "draft mode: one v3 model criterion (id, question, options with one named pass, reference_context)"
+            },
+            "min_paragraph_chars": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "draft mode: a paragraph shorter than this is answered as skipped and not scored"
+            },
             "data": {
               "type": "string",
               "description": "the challenge DATA (v3)"
@@ -1277,7 +1317,7 @@
             "node",
             "the decider model snapshot"
           ],
-          "say": "Runs on the person's computer that holds the decider model snapshot. Validates the challenge with the maintained validator before weights load, binds the adapter and its receipt by BLAKE3, keeps every row's probabilities and the audit of what the adapter was trained on, and never invents accuracy for unlabeled rows."
+          "say": "Runs on the person's computer that holds the decider model snapshot. Validates the challenge with the maintained validator before weights load, binds the adapter and its receipt by BLAKE3, keeps every row's probabilities and the audit of what the adapter was trained on, and never invents accuracy for unlabeled rows. For draft mode write the request to a file and run python3 trillion-workshop/tools/train-and-evaluate-a-writing-voice-classifier/do-work/score-voice-adapter.py --decider-common-dir {decider_common_dir} --request <the request file, or - for standard input>; its last line is {\"result\": {paragraph_scores, body_min}} or {\"error\": why}."
         },
         "licence_class": "licence:maker-own",
         "placements": [

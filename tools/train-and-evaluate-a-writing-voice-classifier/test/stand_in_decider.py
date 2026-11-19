@@ -44,7 +44,8 @@ def plan_rows(questions, _shuffle):
 
 def build(example, tokenizer, _rng=None, max_options=8, max_ctx_tokens=4097, layout="state_first", **_):
     text = "Context:\n" + example.state + "".join(f"\n{q.question}\n" + "\n".join(q.options) for q in example.questions)
-    return {"ids": tokenizer.encode(text, add_special_tokens=False), "gold": example.questions[0].gold}
+    return {"ids": tokenizer.encode(text, add_special_tokens=False), "gold": example.questions[0].gold,
+            "perms": [list(range(len(q.options))) for q in example.questions]}
 
 
 class Tokenizer:
