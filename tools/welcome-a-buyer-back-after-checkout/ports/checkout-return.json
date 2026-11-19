@@ -30,7 +30,7 @@
   ],
   "allowed_deltas": [
     "Inject host-owned facilities instead of importing retired Worker engines",
-    "Reach the selected account record through the existing records door",
+    "Take the selected account record as input and give the change back as keep with the value it expected",
     "Keep content in supplied list rows rather than new content files"
   ],
   "banned_substitutions": [

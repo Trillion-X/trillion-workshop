@@ -14,8 +14,6 @@
 //   3. What was kept is the buyer's own (KV `checkout-return:<account id>`), for `keep_seconds`, and only read by them.
 //   4. Nothing here writes markup: the page is section DATA for the shared page shell (tools/ui/show/server-rendered-page).
 //
-import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
-
 const KEY = userId => `checkout-return:${userId}`;
 const LONGEST_ADDRESS = 2048;
 
@@ -86,24 +84,29 @@ function welcomePage(cameFrom, offer = null) {
   return { cameFromOf, keepCameFrom, keptCameFrom, WELCOME_ADDRESS, welcomePage };
 }
 
-/** Selected-account records-door seam; expiry is checked on every read, without accepting an account id from input. */
-export function checkoutReturnOverDoor({ door, welcome, afterPurchase, now = () => Date.now() }) {
+/** The buyer's kept context as rows in hand: the caller reads the selected account's `checkout-return:yours` record
+ *  from its own store and hands it in as `stored.records` (value null when absent); a change comes back as `keep`, the
+ *  record with the value it expected, so a store refuses it when the record moved. Expiry is checked on every read. */
+export function checkoutReturnInHand({ welcome, afterPurchase, now = () => Date.now() }) {
   const owner = makeCheckoutReturn({ welcome, afterPurchase });
   const type = 'checkout-return', id = 'checkout-return:yours';
+  // The handed record, or null when the store has none. Leaving it out is refused, never read as absent.
+  const heldOf = stored => {
+    const record = (Array.isArray(stored?.records) ? stored.records : []).find(row => row?.id === id);
+    if (!record) throw new TypeError(`Hand in the ${id} record as stored.records (value null when absent).`);
+    return record.value === null || record.value === undefined ? null : { type: record.type ?? type, value: record.value };
+  };
   return {
     ...owner,
-    async keep(input) {
+    keep(input, stored) {
       const cameFrom = owner.cameFromOf(new URLSearchParams(input));
       if (!cameFrom) throw new TypeError('Give a listed origin and a safe return address.');
-      const before = await door.readRecord(type, id);
-      const expected = before ? { type: before.type, value: before.value } : null;
+      const expected = heldOf(stored);
       const value = { came_from: cameFrom, expires_at: now() + welcome.keep_seconds * 1000 };
-      const rows = [{ id, type, value, expected }];
-      await door.write(rows, { key: `checkout-return:${makeHashCodeHexFromJson(rows)}` });
-      return cameFrom;
+      return { came_from: cameFrom, keep: [{ id, type, value, expected }] };
     },
-    async kept() {
-      const record = await door.readRecord(type, id);
+    kept(stored) {
+      const record = heldOf(stored);
       if (!record || !Number.isFinite(record.value?.expires_at) || record.value.expires_at <= now()) return null;
       return owner.cameFromOf(new URLSearchParams(record.value.came_from));
     },

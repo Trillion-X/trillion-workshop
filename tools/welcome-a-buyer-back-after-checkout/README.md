@@ -5,12 +5,14 @@ The source-first checkout-return library. `returnAddress` validates credential-f
 and welcome section DATA. `welcome` is read from the person's installed content rows; `afterPurchase` is the payment
 owner's purchased-offer wording function. No payment implementation or content copy is installed here.
 
-`checkoutReturnOverDoor({ door, welcome, afterPurchase, now? })` additionally offers `keep({ from, return })` and
-`kept()` over the selected account's `checkout-return:yours` record of kind `checkout-return`. Writes use the existing
-records door's exact-value conditions and BLAKE3 request identities. The record contains `came_from` and `expires_at`;
-expiry is enforced on reads. This does not promise physical TTL erasure of the engine's retained record history.
+`checkoutReturnInHand({ welcome, afterPurchase, now? })` additionally offers `keep({ from, return }, stored)` and
+`kept(stored)` over the selected account's `checkout-return:yours` record of kind `checkout-return`. The caller reads that
+record from the person's own store and hands it in as `stored.records` (value null when absent); leaving it out is
+refused, never read as absent. `keep` answers `{ came_from, keep }`: the record with the value it expected, so a store
+refuses the write when the record moved. The record contains `came_from` and `expires_at`; expiry is enforced on reads.
+This does not promise physical TTL erasure of the store's retained record history.
 
-The caller must supply an already-authorized account door and the payment/content owners. This library does not
-install a purchase route or a page renderer. The welcome output remains section DATA for the shared shell.
+The caller supplies the payment/content owners. This library reaches no store, and does not install a purchase route
+or a page renderer. The welcome output remains section DATA for the shared shell.
 
 Run `node --test tools/welcome-a-buyer-back-after-checkout/test/checkout-return.test.mjs`.
