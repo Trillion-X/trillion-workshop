@@ -1,85 +1,94 @@
 // tools/documents-as-list-rows/read-data/namespace-files.mjs
 //
-// Purpose: the `files` document-properties.mjs reads rows from, over the person's Namespace files: the files door's
-// operations (list_files, read_file) reached through the run's records door (`door.files`, tools/records-door), the
-// same shape folder-files.mjs gives for a folder on the person's computer. Ported from the Namespace files of the
-// lists' documents row source in the earlier Trillion app (namespaceFiles in its src/document-properties.mjs), onto
-// the door's files contract.
+// Purpose: the `files` document-properties.mjs reads rows from, over the person's Namespace files that the caller hands
+// in as `stored.files` ({ "/Notes/plan.md": text, "/Notes/scan.bin": { base64 } }). The caller reads them from the
+// Namespace with its own reach; this module only shapes them, into the same shape folder-files.mjs gives a folder on
+// the person's computer.
 //
 // Non-Negotiable Invariants:
-//   1. Every file is read by its name, so a run whose right covers one folder reads only that folder (a right's id
-//      rule reaches names under its folder; an identity is under no folder).
-//   2. A listing reads names only; a document's bytes come with `read`, page after page of the door's read_file until
-//      the document or the bytes asked for are read.
-//   3. A Namespace name has no conditional write in the files door yet, so `writeIfUnchanged` and
-//      `removeIfUnchanged` refuse: a document is never written or removed without knowing it is still the one read.
+//   1. Only the names handed in exist: a listing and a read answer from them, and a name not handed in is not found.
+//   2. A document's identity is `1f:` and the BLAKE3 of its exact bytes (tools/content-identity), the same as a folder's.
+//   3. Nothing is written or removed here: a handed-in set has no conditional write, so `writeIfUnchanged` and
+//      `removeIfUnchanged` refuse, and a document is never changed without knowing it is still the one read.
 //
-//   namespaceFiles(files) → { foldersUnder, list, entry, read, writeIfUnchanged, removeIfUnchanged }, where
-//   files(operation, input) is the run's door.files.
-const READ_BYTES = 262144;
+//   namespaceFiles(files) → { foldersUnder, list, entry, read, readSlice, writeIfUnchanged, removeIfUnchanged }, where
+//   files is the handed-in map of names to text or { base64 }.
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+
 const say = (code, words) => Object.assign(new Error(words), { code });
 const folderOf = name => (name.endsWith('/') ? name : `${name}/`);
-// One page's bytes: the door answers text as utf-8 and other bytes (or a page cut inside a character) as base64.
-const bytesOf = page => Buffer.from(page.content ?? '', page.encoding === 'base64' ? 'base64' : 'utf8');
 
-export function namespaceFiles(files) {
-  const list = async (folder, after, limit) => {
-    const page = await files('list_files', { folder: folderOf(folder), ...(after ? { after } : {}), ...(limit ? { limit } : {}) });
-    return { names: page.names ?? [], next_after: page.next_after ?? null, folders: page.folders ?? [] };
+// One name's exact bytes: text as utf-8, or the bytes its { base64 } names. Anything else is refused, never guessed.
+function bytesOf(name, content) {
+  if (typeof content === 'string') return Buffer.from(content, 'utf8');
+  if (content !== null && typeof content === 'object' && !Array.isArray(content) && typeof content.base64 === 'string') {
+    return Buffer.from(content.base64, 'base64');
+  }
+  throw say('bad_input', `${name} must be handed in as text or as {base64}.`);
+}
+
+export function namespaceFiles(handed) {
+  if (handed === null || typeof handed !== 'object' || Array.isArray(handed)) {
+    throw say('bad_input', 'The Namespace files must be handed in as stored.files: {name: text or {base64}}.');
+  }
+  const files = new Map(Object.entries(handed).map(([name, content]) => {
+    if (!name.startsWith('/')) throw say('bad_input', `${name} is not a Namespace name: it starts with /.`);
+    const bytes = bytesOf(name, content);
+    return [name, { bytes, identity: makeHashCodeHexFromBytes(bytes) }];
+  }));
+  const named = name => {
+    const file = files.get(name);
+    if (!file) throw say('not_a_document', `${name} was not handed in.`);
+    return file;
+  };
+  // The names directly under `folder`, sorted.
+  const childrenOf = folder => {
+    const prefix = folderOf(folder);
+    return [...files.keys()].filter(name => name.startsWith(prefix) && !name.slice(prefix.length).includes('/')).sort();
   };
   return {
-    // Every folder under `folder`, from the folders each first page of a listing names.
+    // Every folder under `folder`, from the folders the handed-in names pass through.
     async foldersUnder(folder) {
-      const found = [];
-      const walk = async at => {
-        for (const child of (await list(at, null, 1)).folders) {
-          const name = typeof child === 'string' ? child : child.name;
-          found.push(name.replace(/\/$/, ''));
-          await walk(name);
+      const found = new Set();
+      const base = folderOf(folder);
+      for (const name of files.keys()) {
+        if (!name.startsWith(base)) continue;
+        let at = folder.replace(/\/$/, '');
+        for (const part of name.slice(base.length).split('/').slice(0, -1)) {
+          at = `${at}/${part}`;
+          found.add(at);
         }
-      };
-      await walk(folder);
-      return found.sort();
+      }
+      return [...found].sort();
     },
-    list,
-    async entry(name) {
-      const page = await files('read_file', { name_or_identity: name, offset: 0, length: 0 }).catch(() => null);
-      return page ? { name, identity: page.identity, byte_length: page.byte_length } : null;
+    // The names of a folder's files, a page at a time. A listing reads names only.
+    async list(folder, after, limit) {
+      const rest = childrenOf(folder).filter(name => !after || name > after);
+      const shown = rest.slice(0, limit);
+      return { names: shown.map(name => ({ name })), next_after: rest.length > shown.length ? shown.at(-1) : null };
+    },
+    async entry(name, { identity = true } = {}) {
+      const file = files.get(name);
+      if (!file) return null;
+      return { name, ...(identity ? { identity: file.identity } : {}), byte_length: file.bytes.length };
     },
     // The first `most` bytes of the named document as text: { identity, text, complete, facts }.
     async read(_identity, most, name) {
-      const parts = [];
-      let offset = 0, total = null, identity = null;
-      while (offset < most) {
-        const page = await files('read_file', { name_or_identity: name, offset, length: Math.min(READ_BYTES, most - offset) });
-        ({ identity, byte_length: total } = page);
-        if (!page.bytes_returned) break;
-        parts.push(bytesOf(page));
-        offset += page.bytes_returned;
-        if (offset >= total) break;
-      }
-      // The pages are joined as bytes before they are read as text, so a character cut between two pages stays whole.
-      return { identity, text: Buffer.concat(parts).toString('utf8'), complete: total !== null && offset >= total, facts: { byte_length: total } };
+      const file = named(name);
+      return { identity: file.identity, text: new TextDecoder().decode(file.bytes.subarray(0, most)), complete: file.bytes.length <= most,
+        facts: { byte_length: file.bytes.length } };
     },
     async readSlice(expected, offset, length, name) {
       if (!Number.isSafeInteger(offset) || offset < 0 || !Number.isSafeInteger(length) || length < 0) throw say('bad_input', 'A document byte range is non-negative whole numbers.');
-      const parts = [];
-      let received = 0, identity = expected;
-      while (received < length) {
-        const page = await files('read_file', { name_or_identity: name, offset: offset + received, length: Math.min(READ_BYTES, length - received) });
-        identity = page.identity;
-        if (identity !== expected) throw say('document_changed', `${name} changed while its content was read.`);
-        const part = bytesOf(page);
-        if (!page.bytes_returned || part.length !== page.bytes_returned || part.length > length - received) throw say('bad_input', `${name} did not answer its requested byte range.`);
-        parts.push(part); received += part.length;
-      }
-      return { identity, bytes: Buffer.concat(parts) };
+      const file = named(name);
+      if (file.identity !== expected) throw say('document_changed', `${name} changed while its content was read.`);
+      return { identity: file.identity, bytes: file.bytes.subarray(offset, offset + length) };
     },
     async writeIfUnchanged(name) {
-      throw say('not_written', `${name} is a Namespace file, and the files door has no write that checks the file is still the one read.`);
+      throw say('not_written', `${name} is a handed-in Namespace file: nothing here writes it, and no write checks the file is still the one read.`);
     },
     async removeIfUnchanged(name) {
-      throw say('not_written', `${name} is a Namespace file, and the files door has no removal that checks the file is still the one read.`);
+      throw say('not_written', `${name} is a handed-in Namespace file: nothing here removes it, and no removal checks the file is still the one read.`);
     },
   };
 }

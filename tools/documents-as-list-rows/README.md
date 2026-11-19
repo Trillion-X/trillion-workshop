@@ -35,7 +35,7 @@ Each command prints one JSON answer. Exit codes:
 
 ## Rows
 
-`readDocumentRows({ root, folder?, match?, after?, limit?, backlinks?, most_bytes? })` answers `{ rows, next }`. `readNamespaceDocumentRows({ folder?, ... }, { door })` answers the same page from a folder of the person's Namespace files (`tool:read-namespace-documents-as-list-rows`, a container row whose records right is the files folder): `read-data/namespace-files.mjs` reads each file by its name through the run's records door (`door.files`: list_files, then read_file a page at a time, joined as bytes). It writes nothing, because the files door has no write that checks a file is still the one read. A row is `{ id, title, identity, values }`:
+`readDocumentRows({ root, folder?, match?, after?, limit?, backlinks?, most_bytes? })` answers `{ rows, next }`. `readNamespaceDocumentRows({ stored: { files }, folder?, ... })` answers the same page from the person's Namespace files, which the caller reads from the Namespace and hands in as `stored.files` (`{name: text or {base64}}`, names under `/`; `tool:read-namespace-documents-as-list-rows`). `read-data/namespace-files.mjs` shapes those files as a folder is shaped: nothing is read or written outside them, and a missing `stored.files` is refused. It writes nothing. A row is `{ id, title, identity, values }`:
 - `id` is the document's name under the folder, as `/notes/plan.md`.
 - `identity` is `1f:` followed by the BLAKE3 of its bytes (`tools/content-identity`).
 - `values` holds the document's own properties as `note.<key>`, and its file facts as `file.<key>`: name, basename, ext, path, folder, size, ctime, mtime, identity, links, embeds, tags and aliases.
@@ -50,7 +50,7 @@ How the folder is read:
 - `paths` is an exact positive catalogue of file names under the granted root, read without walking unrelated folders. Every name still goes through the files owner's root and symlink checks. `text_extensions` declares the UTF-8 file extensions a source reads, such as `json`, `py` or `mjs`, instead of the document extensions, in a folder scan and in a catalogue alike; a source that declares none reads only the document extensions. Source bytes are read as text and never executed.
 - An empty string in `text_extensions` explicitly admits extensionless UTF-8 files such as a named `LICENSE` or prompt, in a folder scan or a catalogue; a source that does not declare it reads no extensionless file.
 - `paths_file` names a JSON positive catalogue under that same granted root instead of embedding `paths` in a bounded list record. It may be a JSON array of exact paths or `{ "prefixes": [{ "prefix": "/folder", "paths": ["name.md"] }] }` when many paths share directories. The grouped form expands each basename under its absolute prefix; prefixes cannot traverse up the tree and names cannot contain separators. Its identity is checked, its complete JSON must fit the existing per-document byte read bound, and each selected name still passes the normal root checks.
-- `most_bytes` bounds the answer's JSON: the page ends at the last row that fits, and `next` goes on from there. A caller whose answer travels in a bounded message names its room this way; a door answers a run within one MCP message of 65,536 bytes that carries the answer twice.
+- `most_bytes` bounds the answer's JSON: the page ends at the last row that fits, and `next` goes on from there. A caller whose answer travels in a bounded message names its room this way; a tool run answers within one MCP message of 65,536 bytes that carries the answer twice.
 - The documents of a page are read `reads_at_once` at a time (32).
 
 ### Whole document text, kept with the same rows
@@ -75,7 +75,7 @@ The defaults are DATA in `document-properties.json` and can be overridden by a `
 
 The first piece keeps the original `/folder/name.md` ID. Later IDs are `/folder/name.md#text-part-00000002`, and so on. All current frontmatter and file facts are kept. Reconstruct a document only after checking that its identity, part count and every consecutive part number agree, then join the text in part order. A list refresh can remove obsolete trailing child rows through its existing exact-source removal scope when a document becomes shorter.
 
-With content enabled, `limit` and `most_bytes` bound the emitted rows and the complete answer, including child rows. Pass `next` back unchanged: an unfinished document uses an opaque cursor pinned to its identity. A document changed between pages is refused, so text from two edits is never joined. The Namespace source reads the same pieces through the existing files door by name and checks the identity on every byte page. Invalid UTF-8 and incomplete byte ranges are refused. No file-content reference or local path is substituted for missing text.
+With content enabled, `limit` and `most_bytes` bound the emitted rows and the complete answer, including child rows. Pass `next` back unchanged: an unfinished document uses an opaque cursor pinned to its identity. A document changed between pages is refused, so text from two edits is never joined. The Namespace source cuts the same pieces from the files handed in and checks the identity on every byte page. Invalid UTF-8 and incomplete byte ranges are refused. No file-content reference or local path is substituted for missing text.
 
 For a byte-budgeted content answer that omits the page-resolved links and embeds caches, has no folder formulas,
 and does not ask for backlinks, parent metadata lookahead is at most `min(limit, ceil(most_bytes / part_bytes))`.
@@ -172,7 +172,7 @@ A mapping with `cut: "atoms"` is the second split rule, chosen by DATA per list.
 node do-work/documents.mjs atoms --root DIR (--mapping FILE | --stdin) [--check]
 ```
 
-The report goes to standard error and each row to standard output as one JSON line, ready for `records:write`.
+The report goes to standard error and each row to standard output as one JSON line, ready for the caller to keep.
 
 | Key | Holds |
 |---|---|
@@ -199,7 +199,7 @@ A row's value is `key` (heading path plus the piece's lead), `heading_path`, `b3
 | `read-data/document-properties.mjs` | Frontmatter, links and tags, the property-types sidecar, and the `documents` row source: a page of rows, field kinds, and the conditional property write. |
 | `read-data/document-properties.json` | The source's DATA: namespaces, sidecar name, kinds, file facts, link and tag syntaxes, bounds and refusal words. |
 | `read-data/folder-files.mjs` | The `files` of one folder on the person's computer: names only in a listing, bytes with their identity, and the identity-checked write. |
-| `read-data/namespace-files.mjs` | The `files` of the person's Namespace, through the run's records door: names from list_files, bytes from read_file by name; no write. |
+| `read-data/namespace-files.mjs` | The `files` of the person's Namespace, as the caller hands them in (`stored.files`): names and bytes from that input; no write. |
 | `read-data/split.mjs` | Splitting documents into one document per item by a mapping. |
 | `read-data/atoms.mjs` | The atoms rule: a document cut into pieces, and a mapping's pieces as rows, one per identity. |
 | `read-data/rows.mjs` | The functions the rows run: `readDocumentRows`, `changeDocumentRows`, `splitIntoDocuments`, `cutIntoRecords`. |
@@ -209,6 +209,6 @@ A row's value is `key` (heading path plus the piece's lead), `heading_path`, `b3
 
 ## Dependencies
 
-**Depends on:** Node, `tools/content-identity` (BLAKE3 identities, with `@noble/hashes`), and for the Namespace row `tools/records-door` (`run-an-export.mjs` and its `door.files`).
+**Depends on:** Node and `tools/content-identity` (BLAKE3 identities, with `@noble/hashes`). No row reaches a door: the Namespace row's files come in its input.
 
 **Depended on by:** a list whose `row_sources` names the `documents` source.

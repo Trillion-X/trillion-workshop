@@ -646,59 +646,40 @@ test('a JSON list splits into one document per item: plain values as fields, the
   await assert.rejects(splitIntoDocuments({ root, mapping: 'mapping.json', check: true }), /Two items make the id plant/);
 });
 
-// A made-up Namespace behind the files door's list_files and read_file, answering reads in small pages the way the door
-// does: text as utf-8, a page cut inside a character as base64.
-function namespaceDoor(documents, pageBytes = 7) {
-  const asked = [];
-  const files = async (operation, input) => {
-    asked.push([operation, input]);
-    if (operation === 'list_files') {
-      const folder = input.folder.replace(/\/$/, '');
-      const names = Object.keys(documents).filter(name => name.startsWith(`${folder}/`) && !name.slice(folder.length + 1).includes('/')).sort()
-        .filter(name => !input.after || name > input.after);
-      const folders = input.after ? [] : [...new Set(Object.keys(documents).filter(name => name.startsWith(`${folder}/`)).map(name => name.slice(folder.length + 1))
-        .filter(rest => rest.includes('/')).map(rest => `${folder}/${rest.split('/')[0]}`))];
-      const shown = names.slice(0, input.limit ?? 50);
-      return { names: shown.map(name => ({ name, identity: `id-${name}`, byte_length: Buffer.byteLength(documents[name]) })), next_after: shown.length < names.length ? shown.at(-1) : null, folders };
-    }
-    if (operation === 'read_file') {
-      const bytes = Buffer.from(documents[input.name_or_identity]);
-      const part = bytes.subarray(input.offset, input.offset + Math.min(input.length ?? pageBytes, pageBytes));
-      const text = new TextDecoder('utf-8', { fatal: true });
-      let encoding = 'utf-8', content;
-      try { content = text.decode(part); } catch { encoding = 'base64'; content = part.toString('base64'); }
-      return { identity: `id-${input.name_or_identity}`, byte_length: bytes.length, offset: input.offset, bytes_returned: part.length, encoding, content };
-    }
-    throw new Error(`no operation ${operation}`);
-  };
-  return { door: { files }, asked };
-}
-
-test('Namespace documents are rows too: read by name through the run\'s files door, page after page, a cut character kept whole', async () => {
-  const { door, asked } = namespaceDoor({
+// A made-up Namespace: the files the caller reads from it and hands in as stored.files, text or { base64 }.
+test('Namespace documents are rows too: the files handed in are the rows, nothing outside them is read', async () => {
+  const stored = { files: {
     '/Garden/basil.md': '---\nplant: basil\nnote: café crème\n---\nWater daily.\n',
     '/Garden/beds/mint.md': '---\nplant: mint\n---\n',
     '/Kitchen/bread.md': '---\nplant: none\n---\n',
-  });
-  const page = await readNamespaceDocumentRows({ folder: '/Garden' }, { door });
+  } };
+  const page = await readNamespaceDocumentRows({ folder: '/Garden', stored });
   assert.deepEqual(page.rows.map(row => row.id), ['/Garden/basil.md', '/Garden/beds/mint.md']);
   assert.equal(page.rows[0].values['note.note'], 'café crème');
-  assert.ok(asked.every(([, input]) => !String(input.name_or_identity ?? '').startsWith('id-')), 'every read is by name');
-  await assert.rejects(readNamespaceDocumentRows({ folder: '/Garden' }, {}), /no records door with files/);
+  assert.match(page.rows[0].identity, /^1f:[0-9a-f]{64}$/);
+  await assert.rejects(readNamespaceDocumentRows({ folder: '/Garden' }), { code: 'bad_input' });
+  await assert.rejects(readNamespaceDocumentRows({ folder: '/Garden', stored: {} }), { code: 'bad_input' });
+  await assert.rejects(readNamespaceDocumentRows({ folder: '/Garden', stored: { files: { 'Garden/x.md': 'plant: x' } } }), { code: 'bad_input' });
+  await assert.rejects(readNamespaceDocumentRows({ folder: '/Garden', stored: { files: { '/Garden/x.md': 12 } } }), { code: 'bad_input' });
 });
 
-test('Namespace content pieces join exact UTF-8 across both source and files-door byte pages', async () => {
+test('Namespace content pieces join exact UTF-8 across byte pieces, text or base64 alike', async () => {
   const text = '---\nname: café\n---\n' + 'a🙂é漢\n'.repeat(50);
-  const { door } = namespaceDoor({ '/Notes/one.md': text }, 7);
-  const rows = [];
-  let after = null;
-  do {
-    const page = await readNamespaceDocumentRows({ folder: '/Notes', content: { part_bytes: 31 }, after, limit: 2 }, { door });
-    rows.push(...page.rows); after = page.next;
-  } while (after);
-  assert.equal(rows[0].id, '/Notes/one.md');
-  assert.equal(rows.map(row => row.values['document.text']).join(''), text);
-  assert.equal(rows.length, rows[0].values['document.parts']);
+  const pieces = async file => {
+    const rows = [];
+    let after = null;
+    do {
+      const page = await readNamespaceDocumentRows({ folder: '/Notes', stored: { files: { '/Notes/one.md': file } }, content: { part_bytes: 31 }, after, limit: 2 });
+      rows.push(...page.rows); after = page.next;
+    } while (after);
+    return rows;
+  };
+  for (const file of [text, { base64: Buffer.from(text, 'utf8').toString('base64') }]) {
+    const rows = await pieces(file);
+    assert.equal(rows[0].id, '/Notes/one.md');
+    assert.equal(rows.map(row => row.values['document.text']).join(''), text);
+    assert.equal(rows.length, rows[0].values['document.parts']);
+  }
 });
 
 test('the rows command pages and the set command refuses a stale identity with exit 1', async () => {

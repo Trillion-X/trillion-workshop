@@ -11,11 +11,11 @@
 //      and split.mjs.
 //
 //   readDocumentRows({ root, folder?, match?, after?, limit?, backlinks?, most_bytes? }) → { rows, next }
-//   readNamespaceDocumentRows({ folder?, match?, after?, limit?, backlinks?, most_bytes? }, { door }) → { rows, next }
+//   readNamespaceDocumentRows({ stored: { files }, folder?, match?, after?, limit?, backlinks?, most_bytes? }) → { rows, next }
 //   changeDocumentRows({ root, folder?, rows: [{ id, values?: { 'note.<key>': value | null }, text?, if_identity? }],
 //     remove?: [{ id, if_identity }] }) → { kept, removed }
 //   splitIntoDocuments({ root, mapping, out?, leftover?, check? }) → the split's report
-//   cutIntoRecords({ root, mapping, check? }) → { report, records }: an atoms mapping's rows for records:write
+//   cutIntoRecords({ root, mapping, check? }) → { report, records }: an atoms mapping's rows, for the caller to keep
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { documentRowSources, documentSelection, folderKey, say } from './document-properties.mjs';
@@ -31,7 +31,7 @@ const needRoot = root => {
   return root;
 };
 
-// `most_bytes` bounds the answer's JSON: a caller whose answer travels in a bounded message (a door answers a run in
+// `most_bytes` bounds the answer's JSON: a caller whose answer travels in a bounded message (a tool run answers in
 // one MCP message) names its room, and the page ends at the last row that fits, its `next` going on from there. A first
 // row bigger than the room is refused, never cut.
 export async function readDocumentRows({ root, ...page } = {}) {
@@ -45,11 +45,11 @@ export async function readDocumentSelection({ root, source = {}, allow_relative_
     paths_file: selected.paths_file ?? null };
 }
 
-// The same page over the person's Namespace files, through the run's records door (run-an-export.mjs hands `door`; the
-// row's files right is the folder the run may read). `folder` is a Namespace folder.
-export async function readNamespaceDocumentRows(page = {}, { door } = {}) {
-  if (typeof door?.files !== 'function') throw say('bad_input', { what: 'This run was handed no records door with files.' });
-  return pageOf(namespaceFiles((operation, input) => door.files(operation, input)), page);
+// The same page over the person's Namespace files, which the caller reads from the Namespace and hands in as
+// `stored.files` ({name: text or {base64}}, names under /). `folder` is a Namespace folder. Nothing is read here.
+export async function readNamespaceDocumentRows({ stored, ...page } = {}) {
+  if (stored?.files === undefined) throw say('bad_input', { what: 'The Namespace files must be handed in as stored.files: {name: text or {base64}}.' });
+  return pageOf(namespaceFiles(stored.files), page);
 }
 
 async function pageOf(files, { folder = '/', match, exclude, paths, paths_file, text_extensions, after = null, limit = data.limits.page_rows, backlinks = false, most_bytes, content = false } = {}) {
@@ -103,7 +103,7 @@ async function atomSources(files, plan) {
 }
 
 /**
- * The rows of an atoms mapping, ready for records:write: { report, records }. `check` answers the report only.
+ * The rows of an atoms mapping, for the caller to keep: { report, records }. `check` answers the report only.
  * One row per piece of text; a piece found again adds a source to its row. The mapping names the record type, the id
  * prefix and the documents (atoms.mjs); the code knows no list.
  */

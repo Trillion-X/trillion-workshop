@@ -1,18 +1,18 @@
 {
   "drafted_from": "tool:read-namespace-documents-as-list-rows's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Read the markdown documents in a folder of my account's files as rows: each document's frontmatter is its fields, with the file's name, folder, size, dates, links, tags and identity, a page at a time\", with {\"folder\":\"/Notes\"}. It runs tool:read-namespace-documents-as-list-rows and answers {\"rows\":[{\"id\":\"/Notes/plan.md\",\"title\":\"plan\",\"identity\":\"1f:a83a09f1c4b493836e2ef7ba4f403221e1e2309c337ab43769ec7ac01868c0ea\",\"values\":{\"note.status\":\"draft\",\"file.name\":\"plan.md\",\"file.basename\":\"plan\",\"file.ext\":\"md\",\"file.path\":\"/Notes/plan.md\",\"file.folder\":\"/Notes\",\"file.size\":53,\"file.identity\":\"1f:a83a09f1c4b493836e2ef7ba4f403221e1e2309c337ab43769ec7ac01868c0ea\",\"file.links\":[] ...",
+  "start_here": "Say to your AI: \"Read the markdown documents in a folder of my account's files as rows: each document's frontmatter is its fields, with the file's name, folder, size, dates, links, tags and identity, a page at a time\", with the folder and the Namespace files your AI reads, given as stored.files (for example {\"folder\":\"/Notes\",\"stored\":{\"files\":{\"/Notes/plan.md\":\"...\"}}}). It runs tool:read-namespace-documents-as-list-rows and answers {\"rows\":[{\"id\":\"/Notes/plan.md\",\"title\":\"plan\",\"identity\":\"1f:a83a09f1c4b493836e2ef7ba4f403221e1e2309c337ab43769ec7ac01868c0ea\",\"values\":{\"note.status\":\"draft\",\"file.name\":\"plan.md\",\"file.basename\":\"plan\",\"file.ext\":\"md\",\"file.path\":\"/Notes/plan.md\",\"file.folder\":\"/Notes\",\"file.size\":53,\"file.identity\":\"1f:a83a09f1c4b493836e2ef7ba4f403221e1e2309c337ab43769ec7ac01868c0ea\",\"file.links\":[] ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows () through the records door.",
+  "no_lists_because": "It names no list of yours: it takes the files you hand in and keeps nothing.",
   "workflows": [],
   "tools": [
     "tool:read-namespace-documents-as-list-rows",
     "tool:read-documents-as-list-rows"
   ],
   "instructions": [
-    "1. Say to your AI: \"Read the markdown documents in a folder of my account's files as rows: each document's frontmatter is its fields, with the file's name, folder, size, dates, links, tags and identity, a page at a time\", and give it nothing more: every input is optional.",
+    "1. Say to your AI: \"Read the markdown documents in a folder of my account's files as rows: each document's frontmatter is its fields, with the file's name, folder, size, dates, links, tags and identity, a page at a time\", and give it the files: your AI reads them from your Namespace and hands them in as stored.files; folder is optional.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-namespace-documents-as-list-rows and its input (the worked example shows one).",
-    "3. Read what comes back: The same rows as tool:read-documents-as-list-rows, read from the person's Namespace files through the run's records door (list_files and read_file, every file read by its name) instead of a folder on their computer.",
-    "4. It reads and writes only its own rows through the records door: undefined (list_files, read_file)."
+    "3. Read what comes back: The same rows as tool:read-documents-as-list-rows, read from the Namespace files handed in as stored.files instead of a folder on their computer.",
+    "4. It reads only the files handed in and writes nothing."
   ],
   "worked_examples": [
     {
@@ -26,12 +26,17 @@
           "input": {
             "tool": "tool:read-namespace-documents-as-list-rows",
             "input": {
-              "folder": "/Notes"
+              "folder": "/Notes",
+              "stored": {
+                "files": {
+                  "/Notes/plan.md": "---\nstatus: draft\n---\n# Sample plan\n\nA made-up note.\n"
+                }
+              }
             }
           }
         }
       },
-      "given": "The input {\"folder\":\"/Notes\"}.",
+      "given": "The input {\"folder\":\"/Notes\",\"stored\":{\"files\":{\"/Notes/plan.md\":\"---\\nstatus: draft\\n---\\n# Sample plan\\n\\nA made-up note.\\n\"}}}.",
       "hands_back": "It answered {\"rows\":[{\"id\":\"/Notes/plan.md\",\"title\":\"plan\",\"identity\":\"1f:a83a09f1c4b493836e2ef7ba4f403221e1e2309c337ab43769ec7ac01868c0ea\",\"values\":{\"note.status\":\"draft\",\"file.name\":\"plan.md\",\"file.basename\":\"plan\",\"file.ext\":\"md\",\"file.path\":\"/Notes/plan.md\",\"file.folder\":\"/Notes\",\"file.size\":53,\"file.identity\":\"1f:a83a09f1c4b493836e2ef7ba4f403221e1e2309c337ab43769ec7ac01868c0ea\",\"file.links\":[],\"file.embeds\":[],\"file.tags\":[],\"file.aliases\":[]}}],\"next\":null}."
     }
   ]

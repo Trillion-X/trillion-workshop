@@ -114,7 +114,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -196,7 +195,7 @@
             "after": {"type": ["string", "null"], "description": "The `next` of the page before; left out for the first page."},
             "limit": {"type": "integer", "minimum": 1, "maximum": 2000, "description": "Rows a page holds (200 when left out)."},
             "backlinks": {"type": "boolean", "description": "Work out which documents link to each row (reads the whole folder)."},
-            "most_bytes": {"type": "integer", "minimum": 1, "description": "The most bytes the answer may take: the page ends at the last row that fits (a door answers a run within one bounded message)."},
+            "most_bytes": {"type": "integer", "minimum": 1, "description": "The most bytes the answer may take: the page ends at the last row that fits (a tool run answers within one bounded message)."},
             "content": {"type":["boolean","object"],"description":"Opt in to complete document text: original parent row ID plus stable linked child rows for bounded pieces. Join all consecutively numbered pieces; a cursor pins an unfinished document identity. An object overrides the generic content field names and nominal part_bytes.","additionalProperties":false,"properties":{"field":{"type":"string","minLength":1},"parent_field":{"type":"string","minLength":1},"index_field":{"type":"string","minLength":1},"count_field":{"type":"string","minLength":1},"complete_field":{"type":"string","minLength":1},"part_bytes":{"type":"integer","minimum":4,"maximum":262144},"source_field":{"type":"string","minLength":1},"section_field":{"type":"string","minLength":1},"offset_field":{"type":"string","minLength":1},"sections":{"type":["object","null"],"description":"An existing splitDocuments heading/row mapping, consumed as DATA. Emits stable virtual section rows and original raw remainder spans; original parent keeps metadata and all source bytes are preserved without a duplicate full-body row."},"omit_fields":{"type":"array","items":{"type":"string"},"description":"Explicitly omit only declared regenerable derived file caches. Defaults to none. Source/frontmatter fields, file identity/path and content text may never be omitted."}}},
             "exclude": {"type":"array","items":{"type":"string"},"description":"Exclude document paths relative to folder by glob, using the same semantics as match."},
             "paths": {"type":"array","items":{"type":"string"},"description":"Read only these exact absolute-within-root document names, without recursively walking other folders. Every path still obeys the granted root and symlink checks."},
@@ -344,7 +343,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -416,7 +414,7 @@
         "needs": {"expected_seconds": 3, "network_egress": false},
         "label": "Show a folder of my account's documents as the rows of a list",
         "job": "Read the markdown documents in a folder of my account's files as rows: each document's frontmatter is its fields, with the file's name, folder, size, dates, links, tags and identity, a page at a time",
-        "description": "The same rows as tool:read-documents-as-list-rows, read from the person's Namespace files through the run's records door (list_files and read_file, every file read by its name) instead of a folder on their computer. A page holds up to `limit` rows and answers `next` while more remain; `match` keeps the documents whose path fits a glob; `most_bytes` ends a page at the last row whose answer fits. It writes nothing: the files door has no write that checks a file is still the one read. Optional content:true adds exact complete UTF-8 text including frontmatter in bounded linked pieces, keeping the original parent ID and metadata. Child pieces name their parent, part number and total; pass the opaque next cursor unchanged. No body is silently truncated.",
+        "description": "The same rows as tool:read-documents-as-list-rows, read from the Namespace files the caller hands in as stored.files (every name under /, as text or {base64}) instead of a folder on their computer. A page holds up to `limit` rows and answers `next` while more remain; `match` keeps the documents whose path fits a glob; `most_bytes` ends a page at the last row whose answer fits. It writes nothing. Optional content:true adds exact complete UTF-8 text including frontmatter in bounded linked pieces, keeping the original parent ID and metadata. Child pieces name their parent, part number and total; pass the opaque next cursor unchanged. No body is silently truncated.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -434,7 +432,7 @@
             "paths_file": {"type":"string","description":"Name of a JSON array positive catalogue under the granted root, instead of embedding paths in a bounded list record. Read through the same files owner, identity checked and refused if it exceeds the existing per-document byte bound."},
             "stored": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here. Required for this row: files: {name: text or {base64}}, every name under / (the Namespace files shown as rows). What is not given is refused, never read as empty."
             }
           }
         },
@@ -444,7 +442,7 @@
           "workdir": "/opt/tools/documents-as-list-rows",
           "internet": false,
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/tools/documents-as-list-rows/read-data/rows.mjs", "readNamespaceDocumentRows"],
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/tools/documents-as-list-rows/read-data/rows.mjs", "readNamespaceDocumentRows"],
           "stdin": {"fill": {"from": "input"}},
           "files": {
             "package_files": [
@@ -463,12 +461,11 @@
                 "at": "/opt/tools/content-identity"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
@@ -490,36 +487,13 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           }
         },
         "result_selector": "$.result",
-        "provenance": {"source": "Written for the Workshop: the documents row source over the files door, as the earlier lists read a Namespace folder"},
-        "verify": [{"kind": "sample-run", "input": {"folder": "/Notes"}, "door_files": {"/Notes/plan.md": "---\nstatus: draft\n---\n# Sample plan\n\nA made-up note.\n"}}],
-        "stored": [
-          {
-            "files": "/",
-            "operations": [
-              "list_files",
-              "read_file"
-            ]
-          }
-        ]
+        "provenance": {"source": "Written for the Workshop: the documents row source over the Namespace files the caller hands in, as the earlier lists read a Namespace folder"},
+        "verify": [{"kind": "sample-run", "input": {"folder": "/Notes", "stored": {"files": {"/Notes/plan.md": "---\nstatus: draft\n---\n# Sample plan\n\nA made-up note.\n"}}}}]
       }
     },
     {
@@ -633,7 +607,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",
@@ -877,7 +850,6 @@
           "trillion-workshop/record-video",
           "trillion-workshop/record-video-with-teleprompter",
           "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
           "trillion-workshop/refuse-requests-to-private-addresses",
           "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
           "trillion-workshop/review-what-a-list-says",

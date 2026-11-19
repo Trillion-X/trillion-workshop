@@ -120,7 +120,7 @@ export function atomsOf(markdown) {
 //      `source_count` is the true number. Text cut short by `most_text_bytes` says so (`text_clipped`), never silently.
 //
 //   splitAtoms(mapping, read) → { items: Map(id → { fields, parts }), leftover, report }
-//   atomRecords(items, mapping) → [{ id, type, value }] for records:write
+//   atomRecords(items, mapping) → [{ id, type, value }], for the caller to keep
 export async function splitAtoms(mapping, read) {
   if (!Array.isArray(mapping?.sources) || !mapping.sources.length) throw Object.assign(new Error('The mapping needs `sources`.'), { code: 'bad_input' });
   const items = new Map();
