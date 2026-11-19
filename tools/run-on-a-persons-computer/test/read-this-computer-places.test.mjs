@@ -50,3 +50,15 @@ test('the reader reads a service row handed in, with its tool run on the account
     assert.deepEqual(runs, ['tool:made-up-list']);
   } finally { reader.stop(); fs.rmSync(shared, { recursive: true, force: true }); }
 });
+
+test('two handed-in rows with one route are read once, and the log names the other', async () => {
+  const shared = folder(), lines = [];
+  const twin = { id: 'made-up-twin', values: { ...service.values, label: 'Twin' } };
+  const reader = startReading({ rows: starters, places: [service, twin], call: async () => ({ result: { things: [] } }), account: async () => ({ status: 200, body: {} }),
+    keep: async () => ({}), shared, timers: false, log: line => lines.push(line), hearing: () => null, look: async () => ({ sources: [], browser_sites: [] }) });
+  try {
+    await reader.once();
+    assert.deepEqual(reader.status().places.map(place => place.route), ['Made-up service']);
+    assert.ok(lines.some(line => line.includes('made-up-twin')), 'the row left unread is named');
+  } finally { reader.stop(); fs.rmSync(shared, { recursive: true, force: true }); }
+});

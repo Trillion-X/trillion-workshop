@@ -25,11 +25,15 @@ The one Connections list, services and these places together, is `tool:list-ever
 
 ## The inputs list
 
-`computer/inputs.mjs` is how the reader reaches the list `inputs` (`computer/inputs-list.json` is its definition) through
-the person's records door: it makes the list once with `computer-sources.json`'s `sources` as its starting rows (a row the
-person later removes or changes is never put back), reads the rows back as the places the reader looks at and reads (at most
-once in `inputs.every_seconds`), and keeps the last rows it saw (`inputs-cache.json` in the computer's progress folder) so a
-Mac that cannot reach the account goes on reading what it read. The list is made first, then each starting row not there yet, then the list is marked `seeded`, so a first run cut off in between goes on from where it stopped and a row removed after the mark is never put back. Two rows with one `read.route` are not both read (the first is; the log names the other), and a place not read, or failing to be read, for `inputs.warn_after_hours` (24, or the row's own `warn_after_hours`) carries a `warning` in its status, which the report to Connections includes and which takes the place out of `reading`. A row's `reading` set to No leaves the place listed (Connections
+`computer/inputs.mjs` is how the reader reaches the list `inputs` (`computer/inputs-list.json` is its definition). It reaches no
+store: the caller reads the list (its record and its rows) from the store the person keeps it in, hands it in to `take`, keeps
+the writes `take` returns, and calls `apply` with the places. `inputsWrites` makes the list once with `computer-sources.json`'s
+`sources` as its starting rows (a row the person later removes or changes is never put back), and `liveInputs` reads the rows
+back as the places the reader looks at and reads (at most once in `inputs.every_seconds`, `due`), and keeps the last places it
+saw (`inputs-cache.json` in the computer's progress folder) so a Mac that cannot reach the account goes on reading what it read.
+The writes are the list, then each starting row not there yet, then the list marked `seeded`, so a first run cut off in between
+goes on from where it stopped and a row removed after the mark is never put back. Each write is `{id, type, value, expected}`:
+a store refuses a write whose `expected` record has moved. Two rows with one `read.route` are not both read (the first is; the log names the other), and a place not read, or failing to be read, for `inputs.warn_after_hours` (24, or the row's own `warn_after_hours`) carries a `warning` in its status, which the report to Connections includes and which takes the place out of `reading`. A row's `reading` set to No leaves the place listed (Connections
 shows it) and unread. A service row names its connection by handle (`connection`) and never holds a secret.
 
 A connected service is read by the `tool` reader, in the reader's own process: the row names a Workshop tool (`tool`), its
@@ -82,7 +86,7 @@ try here is skipped (no preview, no pane, the host name for the computer's name)
 | `whatsapp-web/do-work/worker.mjs` | Moved with it: `runConnector`, one bounded run (session restore, pairing hold, bounded reconnects, history and live fold, creds saved on every update) and `snapshotFileStore`. |
 | `whatsapp-web/do-work/live-shell.mjs` | Moved with it: the real Baileys socket factory, session pack and restore, half-paired session sweep, phone-code and QR emitters, and the command line. Its default folders and the vault blob calls are the retired runtime's: not wired here. |
 | `computer/computer-sources.json` | The rows the `inputs` list starts with, and every wait and word the reader keeps. |
-| `computer/inputs.mjs` | The `inputs` list as the reader reaches it (`liveInputs`, `startersOf`), and the `tool` reader for a connected service (`serviceReader`, `toolRunner`, `readersWith`). |
+| `computer/inputs.mjs` | The `inputs` list as the reader reaches it (`liveInputs`, `inputsWrites`, `startersOf`), and the `tool` reader for a connected service (`serviceReader`, `readersWith`). |
 | `computer/inputs-list.json` | The list's definition: its fields and what a row holds. |
 | `test/inputs-are-rows.test.mjs` | The list is made once, a removed row stays removed, a paused row is unread, an unreachable account keeps the last rows, and a made-up service added as one row arrives once each. |
 | `computer/computer-sources.mjs` | Finds which places are on this computer and which need a switch (`look`), `placesOf` for a store with wildcards, `accessPaneAddress`, and `programRun` / `openAddress` (the `programs` rows). |

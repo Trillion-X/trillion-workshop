@@ -6,13 +6,16 @@
 //   This module is how the reader reaches that list: it makes the list once with its starting rows (the `sources` of
 //   computer-sources.json), reads the rows back as the places the reader looks at and reads, keeps the last rows it
 //   saw so a Mac that cannot reach the account keeps reading what it read, and reads a connected service through the
-//   `tool` reader: any Workshop tool the row names, run through the account's door.
+//   `tool` reader: any Workshop tool the row names, run with the run the caller hands in.
+//
+// Nothing here reads or writes a store. The caller reads the list (its record and its rows) from the store the person
+// keeps it in, hands it in, and keeps the writes that come back; the list is never reached through a door object.
 //
 // Non-negotiable invariants
 //   1. Nothing here names a place or a service. A place is a row; a new kind of store is a leaf of READERS in
 //      read-new-items.mjs; a new service is a row naming a tool, with no code.
 //   2. The list is the original. computer-sources.json `sources` is only the starting rows, copied in once when the
-//      list does not exist: a row the person later removed or changed is never put back (lists-door.mjs `ensure`).
+//      list does not exist: a row the person later removed or changed is never put back (inputsWrites).
 //   3. A row holds no secret. A service row names its connection by handle (`connection`), which the named tool's own
 //      run resolves in the vault; the key never passes through a row or through this module.
 //   4. A row the person set `reading: "No"` is still a place Connections lists, and is never read.
@@ -99,10 +102,6 @@ export const serviceReader = run => async (carrier, since) => {
   return items;
 };
 
-/** run(tool, input) over the person's door: the tool's result, or a throw saying why it did not finish (the door reads
- * the engine's answer, tools/records-door records-door.mjs resultOfRun). */
-export const toolRunner = door => (tool, input) => door.run(tool, input);
-
 /** The readers a look uses: each local leaf in its own child process, and the `tool` reader in this process. */
 export const readersWith = extra => {
   const own = Object.fromEntries(Object.keys(READERS).map(name => [name, (carrier, since) => CHILD_READERS[name](carrier, since)]));
@@ -116,54 +115,69 @@ const writeJson = (file, value) => {
   renameSync(`${file}.next`, file);
 };
 
+// The list's own value as the account keeps it: its definition with its row type (the record type of its rows).
+const listValue = definition => {
+  const {id: _id, ...value} = definition;
+  return {row_type: definition.id, indexes: [], ...value};
+};
+
+/**
+ * What the caller keeps, from the list as the caller read it (`held`: {list, rows}, list null when the list is not made
+ * yet, rows [{id, values}]). The writes come in the order they must be kept: the list, then each starting row not there
+ * yet, then the list marked seeded, so a first run cut off between them goes on from where it stopped, and a row the
+ * person removed after the mark is never put back. Each write is a record of the shape a list is kept in ({id, type,
+ * value, expected}, expected null when the record must be absent); a store refuses a write whose expected record has
+ * moved. Returns { keep, sources }: the places once keep is kept, as the reader reads them.
+ */
+export function inputsWrites(held, rows, definition = inputsDefinition(), now = () => Date.now()) {
+  const listId = `list:${definition.id}`, rowType = `record:${definition.id}`;
+  const made = held.list ?? listValue(definition);
+  const have = new Set(held.rows.map(row => row.id));
+  const missing = held.list?.seeded ? [] : startersOf(rows).filter(row => !have.has(row.id));
+  const keep = [];
+  if (!held.list) keep.push({id: listId, type: 'list', value: made, expected: null});
+  for (const row of missing) keep.push({id: `${rowType}:${row.id}`, type: rowType, value: row.values, expected: null});
+  if (!held.list?.seeded) keep.push({id: listId, type: 'list', value: {...made, seeded: new Date(now()).toISOString()}, expected: {type: 'list', value: made}});
+  return {keep, sources: [...held.rows, ...missing].map(sourceOfRow)};
+}
+
 /**
  * The places as the account's list holds them. `sources` and `carriers` are live arrays, changed in place at each
- * refresh, so the readers that hold them see the list as it is now. Before the list has ever been read they hold the
- * last rows this computer saw (cacheFile), else the starting rows.
+ * apply, so the readers that hold them see the list as it is now. Before the list has ever been read they hold the
+ * last places this computer saw (cacheFile), else the starting rows.
  *
- * lists: { find(id), ensure({id, starters, ...definition}), read(id) } over the person's records door (lists-door.mjs).
- * Returns { sources, carriers, refresh({force}) -> Promise<boolean> (true when the account's list was read), ready() }.
+ * The caller reads the list and keeps what comes back, so this module never reaches a store:
+ *   if (inputs.due()) { const {keep, sources} = inputs.take(held); await store.keep(keep); inputs.apply(sources); }
+ * where held is {list, rows} as read, or null when the read failed (then take keeps nothing and apply does nothing).
  */
-export function liveInputs({lists, rows, definition = inputsDefinition(), cacheFile = null, everySeconds = rows.inputs?.every_seconds ?? 60, now = () => Date.now(), log = () => {}}) {
+export function liveInputs({rows, definition = inputsDefinition(), cacheFile = null, everySeconds = rows.inputs?.every_seconds ?? 60, now = () => Date.now(), log = () => {}}) {
   const sources = [], carriers = [];
-  let readAt = null, made = false, ready = false;
-  const apply = next => {
+  let readAt = null, ready = false;
+  const place = next => {
     sources.splice(0, sources.length, ...next);
     carriers.splice(0, carriers.length, ...readable(next, log).map(source => source.read));
   };
-  // The list exists with its starting rows once: the list first, then each starting row not there yet, then the mark
-  // that it is seeded. A first run cut off between the steps goes on from where it stopped, and a row the person
-  // removed after the mark is never put back.
-  async function seeded() {
-    const id = definition.id;
-    let list = await lists.find(id);
-    if (!list) list = await lists.ensure({...definition});
-    if (list.seeded) return;
-    const {rows: held} = await lists.read(id);
-    const have = new Set(held.map(row => row.id));
-    const missing = startersOf(rows).filter(row => !have.has(row.id));
-    if (missing.length) await lists.putRows(id, {rows: missing});
-    await lists.save({id, seeded: new Date(now()).toISOString()});
-  }
-  apply((cacheFile && readJson(cacheFile)?.sources) || rows.sources);
+  place((cacheFile && readJson(cacheFile)?.sources) || rows.sources);
   return {
     sources, carriers,
     ready: () => ready,
-    async refresh({force = false} = {}) {
-      if (!force && readAt !== null && now() - readAt < everySeconds * 1000) return false;
+    /** Whether the list is due for a read: once in every_seconds, or at once when forced. */
+    due({force = false} = {}) { return force || readAt === null || now() - readAt >= everySeconds * 1000; },
+    /** The list as the caller read it, or null when the read failed. Returns { keep, sources }, see inputsWrites. */
+    take(held) {
       readAt = now();
-      try {
-        if (!made) { await seeded(); made = true; }
-        const {rows: held} = await lists.read(definition.id);
-        const next = held.map(sourceOfRow);
-        apply(next);
-        ready = true;
-        if (cacheFile) writeJson(cacheFile, {sources: next, at: new Date(now()).toISOString()});
-        return true;
-      } catch (error) {
-        log(`Inputs: the list could not be read, so the last rows go on being read: ${String(error?.message ?? error).slice(0, 200)}`);
-        return false;
+      if (!held) {
+        log('Inputs: the list could not be read, so the last rows go on being read');
+        return {keep: [], sources: null};
       }
+      return inputsWrites(held, rows, definition, now);
+    },
+    /** Makes these places the ones read, once the caller has kept what take returned (null leaves the last places). */
+    apply(next) {
+      if (!next) return;
+      place(next);
+      ready = true;
+      if (cacheFile) writeJson(cacheFile, {sources: next, at: new Date(now()).toISOString()});
     },
   };
 }
