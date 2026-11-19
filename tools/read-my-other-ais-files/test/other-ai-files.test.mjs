@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, symlinkSync, writeFileSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { otherAiFiles } from '../read-data/other-ai-files.mjs';
+import { otherAiFiles, otherAiFilesInGrantedFolder } from '../read-data/other-ai-files.mjs';
 import rules from '../read-data/other-ai-files.json' with { type: 'json' };
 import toolRows from '../tool-rows.json' with { type: 'json' };
 
@@ -43,6 +43,7 @@ test('an unknown app or kind is said, and the tool is a Workshop row on the pers
   assert.match(otherAiFiles({ kind: 'dreams' }, { home }).error, /dreams is not a kind/);
   const row = toolRows.records.map(each => each.payload).find(each => each.id === 'tool:other-ai-files');
   assert.deepEqual([row.invoke.kind, row.invoke.capabilities], ['computer', ['read-a-folder']]);
+  assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
 });
 
 test('another app\'s MCP servers are described with their variable names only, never their values, and are never switched on', () => {
@@ -53,10 +54,16 @@ test('another app\'s MCP servers are described with their variable names only, n
   assert.equal(got.files[0].kind, 'mcp_servers');
 });
 
+test('the granted folder is required: a run with no grant is refused, never read under some other home', () => {
+  assert.throws(() => otherAiFilesInGrantedFolder({ input: {} }), /No folder was granted/);
+  assert.throws(() => otherAiFilesInGrantedFolder(), /No folder was granted/);
+});
+
 test('the row\'s command reads under the granted folder and prints { result } as its last line', async () => {
   const { execFileSync } = await import('node:child_process');
-  const command = new URL('../../records-door/do-work/run-an-export.mjs', import.meta.url).pathname;
+  const command = new URL('../../workflows/do-work/run-a-function.mjs', import.meta.url).pathname;
   const module = new URL('../read-data/other-ai-files.mjs', import.meta.url).pathname;
-  const out = execFileSync(process.execPath, [command, module, 'otherAiFilesInGrantedFolder', home], { input: JSON.stringify({ source: 'claude-code', kind: 'instructions', read: ['claude-code/instructions/CLAUDE.md'] }) }).toString().trim().split('\n').at(-1);
+  const request = { input: { source: 'claude-code', kind: 'instructions', read: ['claude-code/instructions/CLAUDE.md'] }, folder: home };
+  const out = execFileSync(process.execPath, [command, module, 'otherAiFilesInGrantedFolder'], { input: JSON.stringify(request) }).toString().trim().split('\n').at(-1);
   assert.equal(JSON.parse(out).result.files[0].text, 'Be brief.');
 });
