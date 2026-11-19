@@ -1,5 +1,5 @@
 // Workflows: a job done in several steps, run by the workflow engine (crates/workflow-core, reached only as the
-// Workshop tool tool:run-workflow-definition, run in process by src/built-in-tools.mjs), with this person's AI, agents and Workshop tools answering its steps and every answer kept.
+// Workshop tool tool:run-workflow-definition, run in process by src/built-in-tools.mjs), with this person's AI and Workshop tools answering its steps and every answer kept.
 //
 // A workflow is DATA (a row of kind "workflow-recipe"): its job in plain words, an input schema, and either ordered
 // `steps` or an engine `definition` ({ steps, edges }: the step graph workflow-core runs, with branches, parallel
@@ -8,12 +8,6 @@
 //   - a step the AI does becomes an `ask` named "ai": its answer is the output the AI sends with submit_workflow_step;
 //   - a step with `run_tool: { tool_id, input }` becomes an `ask` named by the tool id: this person's Workshop runs it
 //     wherever the tool lives (the host's compute or a web address);
-//   - an `ask` named "agent:<agent_id>" is handed to that agent of this account, and its finished result is the answer
-//     ("agent:" with no id hands it to the agent its input names in `to_agent`, and with none, to whichever of the
-//     account's agents takes it first, so a rule can aim the same workflow at one agent by its input alone; its input's
-//     `said`, when given, is the work as the person sees it, kept on the handoff apart from the job the AI reads; its
-//     `once_per`, when given, names the item the work is about, so every run about that item reaches one handoff; its
-//     `case_id` is the decision the work is worked through);
 //   - a step's `checks` become ordinary steps after it (tools/workflows/read-data/check-bindings.mjs): a `return` step
 //     that says rule by rule whether each holds, judged by the bindings its kind row in recipe-check-kinds.json gives,
 //     and a `fail` step reached when one does not, naming the rule and the values that break it; a check that looks
@@ -26,7 +20,7 @@
 // gets past it: src/failure.mjs `tries_again_later`), nothing about the step was decided, so the run does not fail: it
 // waits at that step, tries again (src/workflow-interruptions.json), and after enough tries in a row shows as stuck
 // until a read reaches it or it is resumed. An ask whose answer is not there
-// yet (the AI has not sent it, a tool is still working or failed, an agent has not finished) is answered
+// yet (the AI has not sent it, a tool is still working or failed) is answered
 // "not-answered-yet": the engine pauses there, and the run waits at that step. Nothing polls: reading the run asks
 // again. An answer is kept only when the engine got past it, so an output its checks refuse is never kept; a refused
 // tool output leaves the step waiting for the tool to run again or for output sent instead.
@@ -124,7 +118,7 @@ function definitionProblems(definition) {
     if (!object(step) || !/^[a-z0-9][a-z0-9_#-]*$/.test(step.id ?? '') || !nonempty(step.kind)) { problems.push(`${name} must have an id (lowercase letters, numbers, dashes, underscores or #) and a kind.`); return; }
     if (ids.has(step.id)) problems.push(`${name}.id "${step.id}" is used twice.`);
     ids.add(step.id);
-    if (step.kind === 'ask' && !nonempty(step.config?.name)) problems.push(`${name}.config.name must say who answers: "ai", a tool id, or "agent:<agent_id>".`);
+    if (step.kind === 'ask' && !nonempty(step.config?.name)) problems.push(`${name}.config.name must say who answers: "ai" or a tool id.`);
     if (step.kind === 'ask') problems.push(...pinProblems(step.config?.context?.pinned, `${name}.config.context.pinned`));
     if (step.kind === 'ask' && step.config?.name === 'ai' && !(nonempty(step.config.input?.do) && object(step.config.input?.submit) && step.config.input.submit.type === 'object')) problems.push(`${name}.config.input must say what the AI does (do) and the shape it hands back (submit, a JSON Schema with "type": "object").`);
     if (step.kind === 'check') problems.push(`${name} is a check step, which the engine no longer has: put the rules in a step's \`checks\`, or judge them with a \`return\` step and an \`on_result\` edge to a \`fail\` step.`);
@@ -210,8 +204,6 @@ const toolIdsOf = row => asksOf(row).map(step => step.config.name).filter(name =
 // maker:      this account's opaque identity in the market.
 // tools:      the Workshop, when the host has one: { run({ tool_id, input, request_key }) → task, read({ task_id }) → task,
 //               describe({ tool_id }) }. An ask named by a tool id runs through it.
-// agents:     this account's agents, when the host has them: { handOff({ job, to_agent, input, request_key }) → { handoff_id },
-//               read({ handoff_id }) → { state, result } }. An ask named "agent:<agent_id>" is handed to that agent.
 // similarity: meaning search, when the host has it: (text, { id: description }) → { id: similarity 0..1 } | null. Without
 //               it, or when it answers null (meaning cannot be had now, src/meaning-or-words.mjs), shared words are counted,
 //               and find says so when meaning was expected.
@@ -266,9 +258,9 @@ export function sourceFacts(row) {
 }
 
 // pause:      (ms) → a promise that settles after ms; how a pass waits before trying an unreachable step again.
-export function makeWorkflows({ shared, sourced = null, sourceReads = null, sourceConfig = null, sourceProblems = null, completeness = { withActionCompleteness: recipe => recipe, actionCompletenessProblems: () => [] }, spaced = null, store, builtIn, market = null, maker = null, tools = null, agents = null, similarity = null, similar_at_least = { meaning: 0.85, words: 0.5 }, now = () => new Date(), pause = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
+export function makeWorkflows({ shared, sourced = null, sourceReads = null, sourceConfig = null, sourceProblems = null, completeness = { withActionCompleteness: recipe => recipe, actionCompletenessProblems: () => [] }, spaced = null, store, builtIn, market = null, maker = null, tools = null, similarity = null, similar_at_least = { meaning: 0.85, words: 0.5 }, now = () => new Date(), pause = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
   const { withActionCompleteness, actionCompletenessProblems } = completeness;
-  // Serialize only a run's local transitions, never a tool or agent's work. A stop can therefore be kept while a
+  // Serialize only a run's local transitions, never a tool's work. A stop can therefore be kept while a
   // dispatched call is in flight, and an older pass cannot overwrite it or dispatch another effect afterward.
   const runChanges = new Map();
   const activePasses = new Map();
@@ -287,11 +279,6 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
         if (!task.task_id && !task.request_key) continue;
         entries.set(`tool:${step_id}`, { kind: 'tool', step_id, tool_id: task.tool_id, state: task.state,
           ...(task.request_key ? { request_key: task.request_key } : {}), ...(task.task_id ? { task_id: task.task_id, next_call: { tool: 'read_task', arguments: { task_id: task.task_id } } } : {}) });
-      }
-      for (const [step_id, handoff] of Object.entries(run.handoffs ?? {})) {
-        if (!handoff.handoff_id && !handoff.request_key) continue;
-        entries.set(`agent:${step_id}`, { kind: 'agent', step_id, state: run.waiting?.find(step => step.step_id === step_id)?.agent?.state ?? handoff.state ?? 'unknown',
-          ...(handoff.request_key ? { request_key: handoff.request_key } : {}), ...(handoff.handoff_id ? { handoff_id: handoff.handoff_id, next_call: { tool: 'read_handoff', arguments: { handoff_id: handoff.handoff_id } } } : {}) });
       }
     }
     return [...entries.values()];
@@ -469,11 +456,11 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
   };
 
   // One run of the engine over a run, answering each ask from what the run kept, the output just sent (`sent`), the
-  // Workshop and the account's agents. Returns the run as it stands after, and what was refused of `sent`.
+  // Workshop. Returns the run as it stands after, and what was refused of `sent`.
   async function pass(run, sent = null) {
     const current = await store.run(run.run_id);
     if (current?.withdrawal || run.withdrawal) return { run: current?.withdrawal ? current : run, refused: null };
-    const next = { ...run, done: { ...(run.done ?? {}) }, tool_runs: { ...(run.tool_runs ?? {}) }, tool_attempts: { ...(run.tool_attempts ?? {}) }, handoffs: { ...(run.handoffs ?? {}) } };
+    const next = { ...run, done: { ...(run.done ?? {}) }, tool_runs: { ...(run.tool_runs ?? {}) }, tool_attempts: { ...(run.tool_attempts ?? {}) } };
     const active = activePasses.get(run.run_id) ?? new Set();
     active.add(next);
     activePasses.set(run.run_id, active);
@@ -484,7 +471,6 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
     // What one try of the engine answered and left waiting; each try starts them again.
     let answered = new Map();
     let waiting = [];
-    let withdrawn = null;
     let readFailures = [];
     let reachedActors = new Map(), actorRefusal = null;
     const priorActor = id => reachedActors.has(id) ? reachedActors.get(id) : next.done[id]?.actor_evidence;
@@ -551,59 +537,16 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
       return wait(name, payload, context, { tool_run: noted });
     }
 
-    async function answerFromAgent(name, payload, context, key, payloadIdentity) {
-      const step_id = context.step_id;
-      if (!agents) return wait(name, payload, context, { agent: { state: 'failed', error: 'This service has no agents here.' } });
-      let handoff = next.handoffs[step_id];
-      if (!handoff?.handoff_id) {
-        const to_agent = name.slice('agent:'.length) || (nonempty(payload.to_agent) ? payload.to_agent.trim() : null);
-        // `once_per` names the item the work is about, so every run handing off the same item reaches one handoff;
-        // `case_id` is the decision behind it, and `priority` how soon it is taken (higher first). `run_id` names this run as
-        // one that waits on the handoff, so the handoff's finish carries this run on by itself, whichever runs share it.
-        const request_key = `${run.run_id}:${step_id}`;
-        const handed = await launchWhileRunning(run, () => {
-          next.handoffs[step_id] = { request_key, agent_id: to_agent ?? '', state: 'starting' };
-        }, () => agents.handOff({ job: context.do ?? payload.do ?? `Step ${step_id} of ${run.recipe.id}`, ...(nonempty(payload.said) ? { said: payload.said } : {}),
-          ...(nonempty(payload.once_per) ? { once_per: payload.once_per } : {}), ...(nonempty(payload.case_id) ? { case_id: payload.case_id } : {}),
-          ...(Number.isInteger(payload.priority) ? { priority: payload.priority } : {}),
-          to_agent, input: payload, request_key, run_id: run.run_id }));
-        if (!handed) return notYet({ step_id });
-        handoff = { handoff_id: handed.handoff_id, agent_id: to_agent ?? '', request_key };
-        next.handoffs[step_id] = handoff;
-      }
-      const read = await agents.read({ handoff_id: handoff.handoff_id });
-      handoff.state = read.withdrawal || read.result?.state === 'withdrawn' ? 'withdrawn' : read.state;
-      // A terminal withdrawal carries no successful answer, even when this step accepts any object.
-      // Older host adapters expose the terminal storage state, so retain the result-state guard too.
-      if (read.withdrawal || read.state === 'withdrawn' || read.result?.state === 'withdrawn') {
-        withdrawn ??= { handoff_id: handoff.handoff_id, step_id, ...(read.withdrawal ?? {}), reason: read.withdrawal?.reason ?? read.result?.reason ?? 'The requested work was withdrawn.' };
-        return notYet({ step_id });
-      }
-      if (read.state === 'finished') {
-        const problems = [...shapeProblems(read.result, context.submit), ...actorAdmissionProblems(context.actor_policy, read.actor_evidence, priorActor, priorAdmitted)];
-        if (!problems.length) {
-          answered.set(step_id, { key, payloadIdentity, output: read.result, evidence: { handoff_id: handoff.handoff_id, ...(read.actor_evidence ? { actor_evidence: read.actor_evidence } : {}) } });
-          reachedActors.set(step_id, read.actor_evidence ?? null);
-          return bytesOf(read.result);
-        }
-        return wait(name, payload, context, { agent: { ...handoff, state: 'finished', problems } });
-      }
-      return wait(name, payload, context, { agent: { ...handoff, state: read.state } });
-    }
-
     const ask = async (name, payloadBytes, contextBytes) => {
       const payload = valueOf(payloadBytes);
       const context = valueOf(contextBytes);
-      if (withdrawn) return notYet({ step_id: context.step_id });
       const { key, payloadIdentity } = answerKeyOf(next, context.step_id, payload);
       if (next.done[key]) {
         reachedActors.set(context.step_id, next.done[key].actor_evidence ?? null);
         return bytesOf(await store.output(run.run_id, key));
       }
       if (sent && sent.step_id === context.step_id) {
-        const problems = context.actor_policy && name.startsWith('agent:')
-          ? ['This step requires the completed agent handoff; supplied output cannot replace its author evidence.']
-          : actorAdmissionProblems(context.actor_policy, sent.actor_evidence, priorActor, priorAdmitted);
+        const problems = actorAdmissionProblems(context.actor_policy, sent.actor_evidence, priorActor, priorAdmitted);
         if (problems.length) {
           actorRefusal = problems;
           return wait(name, payload, context, { actor_problems: problems });
@@ -615,8 +558,7 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
       if (name === 'ai') return wait(name, payload, context);
       if (name === WAIT_ASK) return answerWait(name, payload, context, key, payloadIdentity);
       if (name.startsWith('tool:')) return answerFromTool(name, payload, context, key, payloadIdentity);
-      if (name.startsWith('agent:')) return answerFromAgent(name, payload, context, key, payloadIdentity);
-      throw new Error(`Nobody here answers "${name}": an ask is answered by "ai", a tool id, or "agent:<agent_id>".`);
+      throw new Error(`Nobody here answers "${name}": an ask is answered by "ai" or a tool id.`);
     };
     const read = async from => {
       const { catalog, id } = JSON.parse(from);
@@ -706,7 +648,7 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
     return await changeRun(run.run_id, async () => {
       const stopped = await store.run(run.run_id);
       if (stopped?.withdrawal) {
-        // A call launched before stop may now have returned its real task/handoff id. Keep that follow-up evidence,
+        // A call launched before stop may now have returned its real task id. Keep that follow-up evidence,
         // but admit no new step or successful result and never undo the stop with this older engine pass.
         const withdrawal = { ...stopped.withdrawal, started_work: startedWork(stopped, next) };
         const kept = { ...stopped, withdrawal };
@@ -739,14 +681,7 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
       // A refused tool answer leaves its step waiting, shown with what the check found.
       const stillWaiting = [...waiting, ...[...answered].filter(([step_id, answer]) => refusals.has(step_id) && !answer.sent).map(([step_id]) => ({ ...shownOf(definition, step_id), tool_run: next.tool_runs[step_id] }))];
       const byOrder = (a, b) => definitionOrder(definition, a.step_id) - definitionOrder(definition, b.step_id);
-      if (withdrawn) {
-        // Use the existing non-success terminal state so health, run cards and keep-running agree.
-        next.state = 'failed';
-        next.withdrawal = withdrawn;
-        next.error = `Work ${withdrawn.handoff_id} was withdrawn: ${withdrawn.reason}`;
-        next.waiting = [];
-        delete next.interrupted;
-      } else if (interruption) {
+      if (interruption) {
         // The step the run is at waits, marked so: the step it could not reach, or, when that step was admitted already
         // (the engine asks every kept answer again) or the engine itself was not reached, the first step not done.
         const tries = (run.interrupted?.tries ?? 0) + 1;
@@ -814,10 +749,10 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
       : run.state === 'stuck' ? { tool: 'read_workflow_run', arguments: { run_id: run.run_id, resume: true }, note: 'Tries the step again from where the run stopped; every step done so far is kept.' }
       : step.interrupted ? { tool: 'read_workflow_run', arguments: { run_id: run.run_id }, note: 'The host could not reach this step just now; reading the run tries it again. Nothing done so far is lost.' }
       : step.waits_until ? { tool: 'read_workflow_run', arguments: { run_id: run.run_id }, note: `This step waits until ${step.waits_until}; the host reads the run again then, and so does reading it yourself after that time.` }
-      : toolRun?.state === 'working' || toolRun?.state === 'scheduled' || (step.agent && !step.agent.problems && step.agent.state !== 'failed') ? { tool: 'read_workflow_run', arguments: { run_id: run.run_id }, note: 'The tool is still working; read the run again later. Working is waiting, not failure.' }
+      : toolRun?.state === 'working' || toolRun?.state === 'scheduled' ? { tool: 'read_workflow_run', arguments: { run_id: run.run_id }, note: 'The tool is still working; read the run again later. Working is waiting, not failure.' }
         : toolRun && (toolRun.problems || toolRun.state === 'failed') ? { tool: 'submit_workflow_step', arguments: { run_id: run.run_id, step_id: step.step_id, run_again: true }, note: 'Runs the tool again, or send output yourself instead.' }
           : { tool: 'submit_workflow_step', arguments: { run_id: run.run_id, step_id: step.step_id, output: '(what this step asks for, in the shape of submit)' } };
-    const shownStep = item => ({ step_id: item.step_id, title: item.title, do: item.do, submit: item.submit, checks: item.checks, ...(item.actor_policy ? { actor_policy: item.actor_policy } : {}), ...(item.actor_problems ? { actor_problems: item.actor_problems } : {}), ...(item.asks?.startsWith('tool:') ? { runs_tool: item.asks } : {}), ...(item.asks?.startsWith('agent:') ? { handed_to: item.asks.slice('agent:'.length) } : {}), ...(item.tool_run ? { tool_run: item.tool_run } : {}), ...(item.agent ? { agent: item.agent } : {}), ...(item.interrupted ? { interrupted: item.interrupted } : {}), ...(item.waits_until ? { waits_until: item.waits_until } : {}) });
+    const shownStep = item => ({ step_id: item.step_id, title: item.title, do: item.do, submit: item.submit, checks: item.checks, ...(item.actor_policy ? { actor_policy: item.actor_policy } : {}), ...(item.actor_problems ? { actor_problems: item.actor_problems } : {}), ...(item.asks?.startsWith('tool:') ? { runs_tool: item.asks } : {}), ...(item.tool_run ? { tool_run: item.tool_run } : {}),...(item.interrupted ? { interrupted: item.interrupted } : {}), ...(item.waits_until ? { waits_until: item.waits_until } : {}) });
     const done = [];
     const budget = { left: RUN_OUTPUT_SHOWN_CHARS };
     for (const item of asks) {
@@ -827,7 +762,7 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
         ? shownOutput(run.run_id, item.id, await store.output(run.run_id, item.id), budget)
         : { read_whole_output: wholeOutputCall(run.run_id, item.id) };
       done.push({ step_id: item.id, title: item.config.context?.title ?? item.id, admitted_at: kept.admitted_at,
-        ...(kept.task_id ? { task_id: kept.task_id, tool_id: kept.tool_id } : {}), ...(kept.handoff_id ? { handoff_id: kept.handoff_id } : {}), ...(kept.actor_evidence ? { actor_evidence: kept.actor_evidence } : {}), ...output });
+        ...(kept.task_id ? { task_id: kept.task_id, tool_id: kept.tool_id } : {}), ...(kept.actor_evidence ? { actor_evidence: kept.actor_evidence } : {}), ...output });
     }
     const readWholeOutputs = done.filter(item => item.read_whole_output).map(item => item.read_whole_output);
     return {
@@ -836,7 +771,7 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
       recipe_identity: run.recipe_identity,
       state: run.state,
       ...(run.withdrawal ? { withdrawal: run.withdrawal } : {}),
-      who_does_the_work: 'You, the AI, unless a step names a tool or an agent, which the host runs or hands the step to. The host runs the steps on its workflow engine, checks each output and keeps the evidence; no step is done until its output passes.',
+      who_does_the_work: 'You, the AI, unless a step names a tool, which the host runs. The host runs the steps on its workflow engine, checks each output and keeps the evidence; no step is done until its output passes.',
       input: run.input,
       done,
       ...(run.state === 'working' || run.state === 'stuck'
@@ -858,7 +793,7 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
   // failed fails the same way again and says so.
   async function resume(run_id) {
     const run = await runOf(run_id);
-    if (run.withdrawal) throw new WorkflowError('This run stopped because its requested work was withdrawn. Start a new run explicitly; resuming cannot recreate that work.');
+    if (run.withdrawal) throw new WorkflowError('This run was stopped. Start a new run explicitly; resuming cannot recreate the stopped work.');
     if (run.state === 'finished') throw new WorkflowError('This run is finished; there is nothing to carry on.');
     const { interrupted: _tries, error: _error, ...kept } = run;
     return await view((await pass({ ...kept, state: 'working' })).run);
@@ -1074,8 +1009,7 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
         return await view((await pass({ ...run, tool_runs: others, tool_attempts: attempts })).run);
       }
       const problems = shapeProblems(output, current.submit);
-      if (current.actor_policy && current.asks?.startsWith('agent:')) problems.push('This step requires the completed agent handoff; supplied output cannot replace its author evidence.');
-      else if (current.actor_policy && !submittedActorEvidence(reader)) problems.push('This step requires authenticated actor evidence from its actual author.');
+      if (current.actor_policy && !submittedActorEvidence(reader)) problems.push('This step requires authenticated actor evidence from its actual author.');
       if (!problems.length) {
         const contract = run.recipe.action_completeness;
         const inventory = contract && step_id === contract.proof_step ? await store.output(run_id, contract.inventory_step) : undefined;
@@ -1094,7 +1028,7 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
       return await view(await runOf(run_id));
     },
 
-    // Reading a run runs it again, so a tool or agent that answered since is admitted now.
+    // Reading a run runs it again, so a tool that answered since is admitted now.
     // With step_id, reads that admitted step's whole output instead; with resume, carries a stopped or stuck run on.
     async read({ run_id, step_id, resume: resuming = false }) {
       if (resuming) return await resume(run_id);
@@ -1121,7 +1055,7 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
       return run.withdrawal.reason === String(reason ?? '').trim() ? { state: 'committed', result: { stopped: true, run: await view(run) } } : { state: 'unknown' };
     },
 
-    // Stop the continuation itself, including a manual ask that has no handoff to withdraw. This does not cancel a
+    // Stop the continuation itself, including a manual ask. This does not cancel a
     // dispatched tool, recall a sent effect, or claim the requested outcome happened. Its original evidence stays.
     async stop({ run_id, reason }) {
       if (!nonempty(reason) || reason.trim().length > 2000) throw new WorkflowError('reason must say why this workflow is stopping, in 1 to 2000 characters.');
@@ -1132,7 +1066,7 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
         const next = { ...run, state: 'failed', waiting: [], error: `Workflow stopped: ${reason.trim()}`,
           withdrawal: { kind: 'workflow-stop', at: now().toISOString(), reason: reason.trim(),
             started_work: startedWork(run, ...(activePasses.get(run_id) ?? [])),
-            note: 'Workflow continuation is stopped. Previously started tools and agents are unchanged and may still finish or have effects; read their own records before making any claim about cancellation.' } };
+            note: 'Workflow continuation is stopped. Previously started tools are unchanged and may still finish or have effects; read their own records before making any claim about cancellation.' } };
         delete next.interrupted;
         await store.putRun(next);
         return next;

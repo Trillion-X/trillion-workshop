@@ -51,17 +51,17 @@ test('(c) a subset-of check fails a bad answer on the engine, naming the value',
 
 test('(d) a row holding its own definition runs as that definition', async () => {
   const definition = {
-    id: 'workflow:made-up-hand-off', name: 'Hand off', kind: 'workflow', is_active: true, version: 1,
+    id: 'workflow:made-up-draft', name: 'Draft', kind: 'workflow', is_active: true, version: 1,
     steps: [
-      { id: 'draft', kind: 'ask', config: { name: 'agent:made-up-writer', input: { topic: 'rye' }, context: { step_id: 'draft' } } },
+      { id: 'draft', kind: 'ask', config: { name: 'ai', input: { do: 'Draft a line about rye', submit: { type: 'object' } }, context: { step_id: 'draft' } } },
       { id: 'proof', kind: 'ask', config: { name: 'ai', input: {}, context: { step_id: 'proof' } } },
     ],
     edges: [{ from: 'draft', to: 'proof', kind: 'always' }],
   };
-  const own = { id: 'record:workflow-recipe:made-up-hand-off', value: { recipe: 'workflow:made-up-hand-off', title: 'Hand off', definition: json(definition) } };
+  const own = { id: 'record:workflow-recipe:made-up-draft', value: { recipe: 'workflow:made-up-draft', title: 'Draft', definition: json(definition) } };
   const first = await runAWorkflow({ row: own, steps: [] });
   assert.deepEqual(first.definition, definition);
-  assert.deepEqual(first.run.waiting, [{ step_id: 'draft', asks: 'agent:made-up-writer', input: { topic: 'rye' } }]);
+  assert.deepEqual(first.run.waiting, [{ step_id: 'draft', asks: 'ai', input: { do: 'Draft a line about rye', submit: { type: 'object' } } }]);
   const done = await runAWorkflow({ row: own, steps: [], answers: { draft: { text: 'Rye keeps.' }, proof: { ok: true } } });
   assert.equal(done.run.status, 'completed');
 });
@@ -119,7 +119,7 @@ test('a parallel loop asks every lane before it pauses, so every lane is waiting
     { id: 'workflow:made-up-fan', name: 'Fan', kind: 'workflow', is_active: true, version: 1,
       steps: [{ id: 'lanes', kind: 'loop', config: { source: Array.from({ length: lanes }, (_, index) => index), item_var: 'lane', definition_id: 'workflow:made-up-lane', parallel: true, max_concurrency: lanes } }] },
     { id: 'workflow:made-up-lane', name: 'Lane', kind: 'workflow', is_active: true, version: 1,
-      steps: [{ id: 'work', kind: 'ask', config: { name: 'agent:', input: {}, context: {} } }] },
+      steps: [{ id: 'work', kind: 'ask', config: { name: 'ai', input: { do: 'Work the lane', submit: { type: 'object' } }, context: {} } }] },
   ];
   const run = await runWorkflow({ definitions, workflow_id: 'workflow:made-up-fan' });
   assert.equal(run.status, 'paused');

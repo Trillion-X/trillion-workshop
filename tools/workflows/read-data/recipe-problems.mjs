@@ -109,7 +109,7 @@ function actorPolicyProblems(policy, { name, step_id, asks, prior }) {
   if (!object(policy) || policy.authenticated !== true || Object.keys(policy).some(key => !['authenticated', 'distinct_from', 'distinct_from_if_admitted'].includes(key)))
     return [`${name}.actor_policy must require authenticated: true with distinct_from or distinct_from_if_admitted prior step ids.`];
   const own = asks.get(step_id);
-  if (!(own?.name === 'ai' || own?.name?.startsWith('agent:'))) problems.push(`${name}.actor_policy requires an AI or agent ask.`);
+  if (own?.name !== 'ai') problems.push(`${name}.actor_policy requires an AI ask.`);
   for (const field of ['distinct_from', 'distinct_from_if_admitted']) {
     const refs = policy[field] ?? [];
     if (!Array.isArray(refs) || refs.length > 64 || refs.some(id => typeof id !== 'string') || new Set(refs).size !== refs.length)
@@ -139,7 +139,7 @@ export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY, { stepAnat
   problems.push(...conditionProblems(recipe[FIRES_WHEN.field]));
   if (recipe.definition !== undefined) {
     if (stepAnatomy) for (const [index, step] of (Array.isArray(recipe.definition?.steps) ? recipe.definition.steps : []).entries()) {
-      if (step?.kind === 'ask') problems.push(...stepAnatomyProblems(step.config?.input, { name: `definition.steps[${index}].config.input`, judged: step.config?.name === 'ai' || step.config?.name?.startsWith('agent:') }));
+      if (step?.kind === 'ask') problems.push(...stepAnatomyProblems(step.config?.input, { name: `definition.steps[${index}].config.input`, judged: step.config?.name === 'ai' }));
     }
     return [...problems, ...definitionProblems(recipe.definition, vocabulary)];
   }
@@ -180,7 +180,7 @@ function definitionProblems(definition, vocabulary) {
     if (!object(step) || !/^[a-z0-9][a-z0-9_#-]*$/.test(step.id ?? '') || !nonempty(step.kind)) { problems.push(`${name} must have an id (lowercase letters, numbers, dashes, underscores or #) and a kind.`); return; }
     if (ids.has(step.id)) problems.push(`${name}.id "${step.id}" is used twice.`);
     ids.add(step.id);
-    if (step.kind === 'ask' && !nonempty(step.config?.name)) problems.push(`${name}.config.name must say who answers: "ai", a tool id, or "agent:<agent_id>".`);
+    if (step.kind === 'ask' && !nonempty(step.config?.name)) problems.push(`${name}.config.name must say who answers: "ai" or a tool id.`);
     if (step.kind === 'ask') problems.push(...pinProblems(step.config?.context?.pinned, `${name}.config.context.pinned`));
     if (step.kind === 'ask' && step.config?.name === 'ai' && !(nonempty(step.config.input?.do) && object(step.config.input?.submit) && step.config.input.submit.type === 'object')) problems.push(`${name}.config.input must say what the AI does (do) and the shape it hands back (submit, a JSON Schema with "type": "object").`);
     if (step.kind === 'check') {

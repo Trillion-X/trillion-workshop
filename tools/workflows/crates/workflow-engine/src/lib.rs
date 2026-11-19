@@ -545,7 +545,7 @@ mod tests {
             let root = serde_json::json!({ "id": "fan", "name": "Fan", "kind": "workflow", "is_active": true, "version": 1,
                 "steps": [{ "id": "lanes", "kind": "loop", "config": { "source": (0..40).collect::<Vec<_>>(), "item_var": "lane", "definition_id": "lane", "parallel": parallel, "max_concurrency": 40 } }] });
             let lane = serde_json::json!({ "id": "lane", "name": "Lane", "kind": "workflow", "is_active": true, "version": 1,
-                "steps": [{ "id": "work", "kind": "ask", "config": { "name": "agent:", "input": {}, "context": { "step_id": "work" } } }] });
+                "steps": [{ "id": "work", "kind": "ask", "config": { "name": "ai", "input": {}, "context": { "step_id": "work" } } }] });
             vec![serde_json::from_value(root).unwrap(), serde_json::from_value(lane).unwrap()]
         };
         let host = Arc::new(NotYet(Mutex::new(0)));
