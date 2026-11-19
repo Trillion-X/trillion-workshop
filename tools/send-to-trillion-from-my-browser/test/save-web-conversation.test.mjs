@@ -14,11 +14,9 @@ import { lazyChat } from './web-conversations/lazy-chat.mjs';
 import { conversationFrom } from 'trillion-workshop/tools/conversations/read-data/chat-archives.mjs';
 import { messages } from 'trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
 import { localStore } from 'trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
-import { importConversation, stagedRecords } from 'trillion-workshop/tools/conversations/read-data/chat-import.mjs';
-import conversationTools from 'trillion-workshop/tools/conversations/tool-rows.json' with { type: 'json' };
-import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
-import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
-import { listsOverDoor } from 'trillion-workshop/tools/records-door/read-data/lists-door.mjs';
+import { importConversation, ownerRecords } from 'trillion-workshop/tools/conversations/read-data/chat-import.mjs';
+import { answering } from 'trillion-workshop/tools/conversations/read-data/rows-in-hand.mjs';
+import { heldStore, runKept } from 'trillion-workshop/tools/conversations/test/support/held-store.mjs';
 
 const site = id => sites.sites.find(row => row.id === id);
 const fixture = name => readFile(new URL(`./web-conversations/${name}.html`, import.meta.url), 'utf8');
@@ -225,35 +223,25 @@ test('a message that names its place in its conversation is kept once, however m
   assert.throws(() => kept.record({ messages: [{ ...batch.messages[0], source_ref: '' }] }), /source_ref/);
 });
 
-// The maintained conversation importer reaches the person's private records through its records door.
-// The published owner's rights and transport stand-in replace the retired Worker/PersonStore harness.
-const importRights = conversationTools.records.map(record => record.payload)
-  .find(row => row.id === 'tool:import-my-conversations-from-a-source').invoke.records.rights;
-
-test('saving a chat from its page twice keeps its messages once in the private Trillion', { timeout: 60000 }, async t => {
-  const fake = await startFakeDoor({ rights: importRights });
-  t.after(() => fake.close());
-  const door = openRecordsDoor({ descriptor: fake.descriptor, wait: async () => {} });
-  const staged = stagedRecords(door);
-  const supply = { eeaf: staged.eeaf, commit: step => staged.commit(step), lists: listsOverDoor(door),
-    now: () => new Date('2026-09-29T10:00:00Z'),
-    addSpaceItems: () => assert.fail('a private chat adds no shared-space items'),
-    relay: () => assert.fail('a private chat needs no network relay') };
+// The conversation importer is handed the person's rows it asks for and answers what it keeps; the test plays the
+// person's store (tools/conversations/test/support/held-store.mjs), handing rows in and writing each keep back.
+test('saving a chat from its page twice keeps its messages once in the private Trillion', async () => {
+  const store = heldStore();
+  const now = () => new Date('2026-09-29T10:00:00Z');
+  const save = conversation => runKept(store, (request, context) => answering(request, context, hand =>
+    importConversation({ conversation, app: 'ChatGPT' }, { hand, eeaf: ownerRecords(hand), now })), {}).then(done => done.answer);
   const page = { conversation_id: '6717f0aa', title: 'Glaze test tiles', messages: [
     { id: 'aaa-user-1', speaker: 'person', text: 'Why did this glaze crawl?' },
     { id: 'bbb-ai-1', speaker: 'ai', text: 'Too thick over dust.', model: 'gpt-5' },
   ] };
-  const reach = { private: true, spaces: 'all' };
-  const first = await importConversation({ conversation: page, app: 'ChatGPT', reach }, supply);
+  const first = await save(page);
   assert.deepEqual({ added: first.added, already: first.already_there, into: first.into }, { added: 2, already: 0, into: 'private' });
-  const second = await importConversation({ conversation: { ...page, messages: [...page.messages, { id: 'ccc-user-2', speaker: 'person', text: 'Thanks' }] }, app: 'ChatGPT', reach }, supply);
+  assert.ok(first.keep.every(item => 'expected' in item), 'every write carries the record it expected');
+  const second = await save({ ...page, messages: [...page.messages, { id: 'ccc-user-2', speaker: 'person', text: 'Thanks' }] });
   assert.deepEqual({ added: second.added, already: second.already_there }, { added: 1, already: 2 });
-  const read = { messages: [] };
-  for await (const record of door.list({ type: 'message', where: { conversation_id: 'ChatGPT:6717f0aa' } })) read.messages.push(record.value);
-  assert.deepEqual(read.messages.map(message => [message.speaker, message.text, message.source_ref]).sort((a, b) => a[2].localeCompare(b[2])), [
+  const read = store.rowsOf('message').filter(record => record.value.conversation_id === 'ChatGPT:6717f0aa').map(record => record.value);
+  assert.deepEqual(read.map(message => [message.speaker, message.text, message.source_ref]).sort((a, b) => a[2].localeCompare(b[2])), [
     ['person', 'Why did this glaze crawl?', 'aaa-user-1'], ['ai', 'Too thick over dust.', 'bbb-ai-1'], ['person', 'Thanks', 'ccc-user-2'],
   ]);
-  assert.equal(read.messages.find(message => message.source_ref === 'bbb-ai-1').model, 'gpt-5');
-  await assert.rejects(importConversation({ conversation: page, app: 'ChatGPT', reach: { private: false, spaces: [] } }, supply), /cannot keep messages in the private/);
-  assert.equal([...fake.kept.values()].filter(record => record.type === 'message').length, 3, 'a refused import writes no extra messages');
+  assert.equal(read.find(message => message.source_ref === 'bbb-ai-1').model, 'gpt-5');
 });
