@@ -58,3 +58,11 @@ test('polish is handed this computer\'s model: the dictate row asks the dictatio
   assert.equal(silent.text, 'keep this');
   assert.match(silent.model.said, /left as it was/);
 });
+
+test('the dictation rows run the workflows function runner and mount no records door', () => {
+  for (const row of [rows['tool:dictate'], rows['tool:type-dictated-text']]) {
+    assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+    assert.ok(row.invoke.files.package_files.some(spec => spec.package === 'workflows' && spec.paths.includes('do-work/run-a-function.mjs') && spec.at === '/opt/workflows'));
+    assert.ok(!row.invoke.files.package_files.some(spec => spec.package === 'records-door'));
+  }
+});

@@ -5,7 +5,7 @@
 //   app the person is in, the recognition is biased by their dictionary and what surrounds the cursor, the text is put
 //   at the cursor as one clipboard transaction (save, write, paste, restore, verify), and the edits the person makes
 //   afterwards teach their dictionary. It is tool:dictate and tool:type-dictated-text, run on the person's computer as
-//     node /opt/records-door/do-work/run-an-export.mjs /opt/type-what-i-say/read-data/dictation.mjs dictate|typeDictatedText
+//     node /opt/workflows/do-work/run-a-function.mjs /opt/type-what-i-say/read-data/dictation.mjs dictate|typeDictatedText
 //   with { input, folder } on standard input, `folder` the folder the person granted for their rows and history. It holds
 //   the push-to-talk / hands-free key table; the key events themselves come from the Mac app's native layer.
 //
