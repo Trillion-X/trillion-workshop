@@ -13,7 +13,7 @@
 // is `runId` of the setup recipe and the policy's request key, and its checked answers are the answers the caller kept, so
 // the separate verification receipt the old owner saved is the verify-outcome answer itself (read-setup.mjs supplies
 // readRun and readOutput over the setup_run the caller hands in). Nothing here writes: no receipt or session is kept by a read.
-import { withoutSecrets } from '../../../learn-a-workflow-from-a-job/src/scheduler.mjs';
+import { withoutSecrets } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/scheduler.mjs';
 import { workResultWords } from '../../../see-what-my-ais-did/from-an-older-version/src/work-results.mjs';
 import { nativeSourceReturn, setupCapabilityEvidence } from '../../../show-each-setup-step-with-the-real-things-found/from-an-older-version/src/setup-capability-evidence.mjs';
 // A setup run's id: the setup recipe and the request key it is run under.

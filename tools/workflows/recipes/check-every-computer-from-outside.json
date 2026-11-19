@@ -5,12 +5,13 @@
         "kind": "workflow-recipe",
         "id": "workflow:check-every-computer-from-outside",
         "label": "Check every computer from outside",
-        "job": "Look at each of the person's computers the way anyone on the internet can (open ports, certificates, the SSH version, the domains' registration, how long a connection takes), compare it with what each computer's row declares, and tell each difference as a computer-finding fact, so a workflow or a person hears it the moment it shows up.",
-        "produces": "One computer-finding fact per difference found: an open port the row does not declare, a declared port that does not answer, a certificate or domain within its warning days or unreadable.",
+        "job": "Look at each of the person's computers the way anyone on the internet can (open ports, certificates, the SSH version, the domains' registration, how long a connection takes), compare it with what each computer's row declares, and tell each difference as a computer-finding fact, and keep what it saw of each computer as a row of the person's own store, so a workflow or a person hears each difference the moment it shows up and anyone can read back what was seen and when.",
+        "produces": "One computer-finding fact per difference found: an open port the row does not declare, a declared port that does not answer, a certificate or domain within its warning days or unreadable. And one row per computer per check in the person's own store: what was seen, its open ports and its findings, with the time it was seen.",
         "input_schema": {
           "type": "object",
           "required": [
-            "computers"
+            "computers",
+            "store"
           ],
           "properties": {
             "computers": {
@@ -40,6 +41,19 @@
                   }
                 }
               }
+            },
+            "store": {
+              "type": "object",
+              "required": [
+                "credential_name"
+              ],
+              "description": "Where what each check saw is kept: the person's own store, reached with the login whose vault name is credential_name. The run makes its table seen_from_outside there when it is missing and adds one row per computer per check.",
+              "properties": {
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run keeps each row with"
+                }
+              }
             }
           }
         },
@@ -50,6 +64,26 @@
           "is_active": true,
           "version": 1,
           "steps": [
+            {
+              "id": "make-table",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "create table if not exists seen_from_outside (computer text, address text not null, checked_at timestamptz not null, open_ports integer[] not null default array[]::integer[], findings jsonb not null default '[]'::jsonb, seen jsonb not null, kept_at timestamptz not null default now(), primary key (address, checked_at))"
+                },
+                "context": {
+                  "step_id": "make-table"
+                }
+              }
+            },
             {
               "id": "check-each",
               "kind": "loop",
@@ -67,7 +101,13 @@
               }
             }
           ],
-          "edges": [],
+          "edges": [
+            {
+              "from": "make-table",
+              "to": "check-each",
+              "kind": "always"
+            }
+          ],
           "uses": [
             {
               "id": "workflow:check-every-computer-from-outside:check-one",
@@ -117,6 +157,50 @@
                   }
                 },
                 {
+                  "id": "keep",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "store.credential_name"
+                        }
+                      },
+                      "sql": "insert into seen_from_outside (computer, address, checked_at, open_ports, findings, seen) select $1::text, $2::text, ($3::jsonb ->> 'checked_at')::timestamptz, array(select (p ->> 'port')::integer from jsonb_array_elements(coalesce($3::jsonb -> 'ports', '[]'::jsonb)) p where (p ->> 'open')::boolean order by 1), coalesce($3::jsonb -> 'findings', '[]'::jsonb), $3::jsonb on conflict do nothing",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "computer.name"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "computer.address"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "steps",
+                            "key": "check",
+                            "path": "output"
+                          }
+                        }
+                      ]
+                    },
+                    "context": {
+                      "step_id": "keep"
+                    }
+                  }
+                },
+                {
                   "id": "tell-each",
                   "kind": "loop",
                   "config": {
@@ -137,6 +221,11 @@
               "edges": [
                 {
                   "from": "check",
+                  "to": "keep",
+                  "kind": "always"
+                },
+                {
+                  "from": "keep",
                   "to": "tell-each",
                   "kind": "always"
                 }
@@ -263,9 +352,66 @@
             }
           ],
           "runs": [
-            "tool:check-a-computer-from-outside"
+            "tool:check-a-computer-from-outside",
+            "tool:run-sql-in-my-database"
           ]
-        }
+        },
+        "wakes": [
+          {
+            "id": "daily",
+            "on": {
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:check-every-computer-from-outside:daily"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:check-every-computer-from-outside:daily",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-01",
+                      "local_window": {
+                        "start": "14:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:check-every-computer-from-outside",
+                        "owner_dispatch": {
+                          "name": "workflow:check-every-computer-from-outside",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "day"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "budget": {
+              "steps": 40,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "make-table"
+            }
+          }
+        ]
       }
     }
   ]

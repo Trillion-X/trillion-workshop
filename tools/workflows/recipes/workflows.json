@@ -140002,6 +140002,87 @@
           "from": "The roadmap's backup item (a restore drill of a database's backup on a scratch computer; the time is written, and a backup with no passed drill counts as unproven), Nov 18 2026; and the industry practice that a backup is proven only by restoring it, judged and drafted 2026-11-18 from the person's own kept rows",
           "note": "Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow."
         },
+        "wakes": [
+          {
+            "id": "weekly",
+            "on": {
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:prove-a-backup-restores-on-a-spare-computer:weekly"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:prove-a-backup-restores-on-a-spare-computer:weekly",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-03",
+                      "local_window": {
+                        "start": "15:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:prove-a-backup-restores-on-a-spare-computer",
+                        "owner_dispatch": {
+                          "name": "workflow:prove-a-backup-restores-on-a-spare-computer",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "week",
+                        "weekdays": [
+                          6
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "budget": {
+              "steps": 40,
+              "wall_ms": 1800000
+            },
+            "input": {
+              "start_at": "read-what-is-backed-up"
+            }
+          },
+          {
+            "id": "chosen--a-part-asks-to-prove-a-backup-restores-on-a-spare-computer",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:prove-a-backup-restores-on-a-spare-computer",
+                  "condition": "a part asks to prove a backup restores on a spare computer"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-what-is-backed-up"
+            }
+          }
+        ],
         "fires_when": [
           {
             "label": "a part asks to prove a backup restores on a spare computer",
@@ -140364,30 +140445,6 @@
             "part_of": [
               "workflow:prove-a-backup-restores-on-a-spare-computer"
             ]
-          }
-        ],
-        "wakes": [
-          {
-            "id": "chosen--a-part-asks-to-prove-a-backup-restores-on-a-spare-computer",
-            "on": {
-              "fact": {
-                "kind": "workflow-chosen",
-                "from": [
-                  "run"
-                ],
-                "match": {
-                  "workflow": "workflow:prove-a-backup-restores-on-a-spare-computer",
-                  "condition": "a part asks to prove a backup restores on a spare computer"
-                }
-              }
-            },
-            "budget": {
-              "steps": 10,
-              "wall_ms": 900000
-            },
-            "input": {
-              "start_at": "read-what-is-backed-up"
-            }
           }
         ]
       }

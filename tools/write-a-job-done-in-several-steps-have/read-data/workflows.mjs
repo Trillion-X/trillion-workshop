@@ -45,7 +45,7 @@ import { bytesToHex } from '@noble/hashes/utils.js';
 import { schemaProblems } from '../../keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs';
 import { finishedRuns, learnedRecipe, learnedSettings, learnedWords, publicShape } from '../../learn-a-workflow-from-a-job/src/learned-workflows.mjs';
 import { failureOf } from '../../tweak-live-controls/failure.mjs';
-import { withoutSecrets } from '../../learn-a-workflow-from-a-job/src/scheduler.mjs';
+import { withoutSecrets } from '../../keep-and-wake-ai-sessions-on-this-computer/src/scheduler.mjs';
 import { publishedWorkflowRow } from '../../leave-a-makers-private-starting-values-out/src/published-workflow-privacy.mjs';
 import { MATCHED_BY_WORDS, wordShare, wordsOf } from '../../keep-and-wake-ai-sessions-on-this-computer/src/meaning-or-words.mjs';
 import interruptions from '../../workflow-interruptions/src/workflow-interruptions.json' with { type: 'json' };

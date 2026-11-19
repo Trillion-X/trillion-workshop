@@ -1,18 +1,20 @@
 {
   "start_here": "Say to your AI: \"Check every computer of mine from outside.\" It reads your computers' rows, runs workflow:check-every-computer-from-outside with them, and each difference it finds is told as a computer-finding fact.",
   "lists": [],
-  "no_lists_because": "It keeps nothing: the computers come in as values the caller read from where the person keeps them, and each finding leaves as a fact any workflow or person can hear.",
+  "no_lists_because": "It keeps no list: what each check saw is one row of table seen_from_outside in the store the caller names (made by the run when missing), the computers come in as values the caller read from where the person keeps them, and each finding leaves as a fact any workflow or person can hear.",
   "workflows": [
     "workflow:check-every-computer-from-outside"
   ],
   "tools": [
-    "tool:check-a-computer-from-outside"
+    "tool:check-a-computer-from-outside",
+    "tool:run-sql-in-my-database"
   ],
   "instructions": [
     "1. Read each computer's row from wherever you keep it: name, public address, declared ports and site names.",
-    "2. Call tools:run with tool tool:run-workflow-definition and input {row: \"workflow:check-every-computer-from-outside\", computers: [...]}.",
+    "2. Call tools:run with tool tool:run-workflow-definition and input {row: \"workflow:check-every-computer-from-outside\", computers: [...], store: {credential_name}}, or switch on its daily wake with that input; credential_name is the vault name of a login to the store that keeps what was seen.",
     "3. Each difference becomes a computer-finding fact {computer, kind_of_finding, about, said, at}; a workflow hears it with a wake on {fact: {kind: computer-finding}}.",
-    "4. Fix each finding through the computer's row and run it again: a fixed difference is no longer told."
+    "4. Read back what was seen: select computer, checked_at, open_ports, findings from seen_from_outside order by checked_at desc.",
+    "5. Fix each finding through the computer's row and run it again: a fixed difference is no longer told."
   ],
   "worked_examples": [
     {
