@@ -15,6 +15,7 @@ import { authorizeQuery, signedQuery } from './oauth-query.mjs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { FormAlert } from '../../ui/show/form-alert/FormAlert.tsx';
+import busySentence from 'sign-in-busy-sentence';
 import { isBusy, busyWords } from './busy.mjs';
 
 const authBase = '/api/auth';
@@ -70,7 +71,7 @@ function fail(text, next, focus) {
 }
 // Any answer that failed goes through here: a busy server (429 or a 5xx) is said in the terminal's busy words, with Try again (the sign-in is kept);
 // anything else is the fallback words with the action the caller names.
-const refusal = (error, fallback = words.failed, next) => isBusy(error?.status) ? fail(busyWords(siteName), 'try-again') : fail(fallback, next);
+const refusal = (error, fallback = words.failed, next) => isBusy(error?.status) ? fail(busyWords(busySentence, siteName), 'try-again') : fail(fallback, next);
 const field = (form, name) => form.querySelector(`[name="${name}"]`)?.value?.trim() ?? '';
 const show = name => { for (const step of document.querySelectorAll('[data-step]')) step.hidden = step.dataset.step !== name; };
 const json = async (path, options) => {

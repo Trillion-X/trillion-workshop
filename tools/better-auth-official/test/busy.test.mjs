@@ -10,6 +10,7 @@ import { isBusy, busyWords } from '../pages/busy.mjs';
 import command from '../../use-your-tools-from-a-shell/do-work/command.json' with { type: 'json' };
 
 const client = readFileSync(new URL('../pages/sign-in-client.mjs', import.meta.url), 'utf8');
+const sentence = command.words.sign_in_busy;
 
 // The status a stand-in sign-in server answers the page's request with, as the page's fetch reads it.
 async function answerOf(status) {
@@ -28,13 +29,13 @@ test('a 429 and a 503 from the sign-in server are busy, and the page says the te
     const seen = await answerOf(status);
     assert.equal(seen, status);
     assert.ok(isBusy(seen), `${status} is busy`);
-    assert.equal(busyWords('Acme'), command.words.sign_in_busy.replace('{site_name}', 'Acme'), `${status} says the terminal's words`);
+    assert.equal(busyWords(sentence, 'Acme'), sentence.replace('{site_name}', 'Acme'), `${status} says the terminal's words`);
   }
 });
 
 test('every 5xx is busy, and the words name no unfilled gap', async () => {
   for (const status of [500, 502, 504]) assert.ok(isBusy(await answerOf(status)), `${status}`);
-  assert.doesNotMatch(busyWords('Acme'), /\{site_name\}/);
+  assert.doesNotMatch(busyWords(sentence, 'Acme'), /\{site_name\}/);
 });
 
 test('answers that are not busy never get the busy words', async () => {
@@ -42,8 +43,15 @@ test('answers that are not busy never get the busy words', async () => {
   assert.equal(isBusy(undefined), false, 'no answer at all (network down) is not busy');
 });
 
-test('the page routes every failed answer through refusal, so no site decides busy on its own', () => {
+test('the page takes the sentence from the build and routes every failed answer through refusal', () => {
+  assert.match(client, /import busySentence from 'sign-in-busy-sentence';/);
   assert.match(client, /from '\.\/busy\.mjs'/);
-  assert.match(client, /const refusal = \(error, fallback = words\.failed, next\) => isBusy\(error\?\.status\) \? fail\(busyWords\(siteName\), 'try-again'\) : fail\(fallback, next\);/);
+  assert.match(client, /const refusal = \(error, fallback = words\.failed, next\) => isBusy\(error\?\.status\) \? fail\(busyWords\(busySentence, siteName\), 'try-again'\) : fail\(fallback, next\);/);
   assert.doesNotMatch(client, /status === 429|status >= 500|too_many/);
+});
+
+test('the bundle holds the busy sentence and none of the terminal\'s other words', () => {
+  const bundle = readFileSync(new URL('../pages/assets/sign-in.js', import.meta.url), 'utf8');
+  assert.ok(bundle.includes(JSON.stringify(sentence).slice(1, -1)), 'the sentence is in the bundle');
+  assert.ok(!bundle.includes(command.words.no_credential), 'another terminal word is not');
 });

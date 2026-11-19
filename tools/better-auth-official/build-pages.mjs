@@ -7,6 +7,7 @@
 // up, would throw "Cannot read properties of null (reading 'useRef')" and show no error at all. One resolver sends every import of
 // react and react-dom, from any folder, to this tool's copy.
 import { build } from 'esbuild';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const here = new URL('.', import.meta.url);
@@ -21,13 +22,24 @@ const oneReact = {
   },
 };
 
+// The terminal's busy sentence is read from its own DATA at build time and handed to the pages as one module, so the bundle holds that sentence
+// only and no second copy of it lives in this tool.
+const commandWords = JSON.parse(readFileSync(new URL('../use-your-tools-from-a-shell/do-work/command.json', here), 'utf8')).words;
+const busySentence = {
+  name: 'sign-in-busy-sentence',
+  setup(builder) {
+    builder.onResolve({ filter: /^sign-in-busy-sentence$/ }, () => ({ path: 'sign-in-busy-sentence', namespace: 'busy' }));
+    builder.onLoad({ filter: /.*/, namespace: 'busy' }, () => ({ contents: `export default ${JSON.stringify(commandWords.sign_in_busy)};`, loader: 'js' }));
+  },
+};
+
 export const options = {
   entryPoints: [fileURLToPath(new URL('pages/sign-in-client.mjs', here))],
   bundle: true,
   minify: true,
   format: 'iife',
   target: 'es2020',
-  plugins: [oneReact],
+  plugins: [oneReact, busySentence],
   outfile: 'pages/assets/sign-in.js',
 };
 
