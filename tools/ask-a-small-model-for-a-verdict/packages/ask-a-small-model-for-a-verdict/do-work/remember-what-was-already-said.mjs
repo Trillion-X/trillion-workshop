@@ -34,9 +34,10 @@
 //   neighbour, which costs an inflated count on one shape and a missing one on
 //   another. Compare that with the current behaviour, which is no memory at all.
 
-import {readFileSync, writeFileSync, mkdirSync} from 'node:fs'
+import {readFileSync, writeFileSync, mkdirSync, realpathSync } from 'node:fs'
 import {dirname} from 'node:path'
 import {judge} from '../../../../shared-code/packages/ask-a-small-model-for-a-verdict/do-work/ask-for-a-verdict.mjs'
+import { pathToFileURL } from 'node:url';
 
 /** How much of the offending text to keep. Enough to recognise, not a transcript. */
 export const KEEP_CHARACTERS = 600
@@ -235,7 +236,7 @@ export async function main(argv) {
   return 0
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   main(process.argv.slice(2)).then(
     code => process.exit(code),
     error => {

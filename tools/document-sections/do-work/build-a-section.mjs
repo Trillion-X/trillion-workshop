@@ -9,6 +9,8 @@
 // build-entries-section.mjs, unchanged: every line of an entry is quoted and nothing else about it is touched.
 import { text as readStdin } from 'node:stream/consumers';
 import { renderSection } from './build-entries-section.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const word = (value, fallback) => (typeof value === 'string' && value ? value : fallback);
 
@@ -36,7 +38,7 @@ export function buildFromInput(input) {
   return { text: bytes, entries: total, sources: sources.length };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try {
     console.log(JSON.stringify({ result: buildFromInput(JSON.parse((await readStdin(process.stdin)) || '{}')) }));
   } catch (error) {

@@ -33,6 +33,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { runConnector, snapshotFileStore } from './worker.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 /**
  * A `vault` adapter (runConnector's session capability) backed by the Baileys
@@ -334,7 +336,7 @@ export async function main(argv) {
 }
 
 // Executed directly by the process-job (not when imported by a test).
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   main(process.argv.slice(2)).then((s) => process.exit(s.wroteSnapshot || s.paired ? 0 : 1))
     .catch((e) => { process.stderr.write(String(e && e.stack || e) + '\n'); process.exit(1); });
 }

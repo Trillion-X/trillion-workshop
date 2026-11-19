@@ -10,6 +10,8 @@
  */
 import { spawnSync } from 'node:child_process';
 import { scoreQuality } from './detect-quality.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 function probeDuration(file) {
   const r = spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', file], { encoding: 'utf8' });
@@ -64,7 +66,7 @@ export function bestPosterTime(file, opts = {}) {
 }
 
 // CLI: node pick-poster-frame.mjs <file> [--step S]
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const [file, ...rest] = process.argv.slice(2);
   if (!file) { console.error('usage: pick-poster-frame.mjs <file> [--step S]'); process.exit(2); }
   const opt = {};

@@ -16,6 +16,8 @@ import { judge } from '../../judge-words/do-work/judge-words.mjs';
 import { buildOwnerDelivery, evaluateGate, plainObject, requiredVerdictsMet } from '../read-data/check-writing.mjs';
 import { checkEvidenceContract, evidenceProvenanceForDelivery, evidenceReviewBinding } from '../read-data/evidence-contract.mjs';
 import { recipeOf } from '../read-data/library.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const refused = (reject_code, reason, extra = {}) => ({ passed: false, reject_code, reason, ...extra });
 
@@ -70,7 +72,7 @@ export function checkWritingAgainstItsRecipe(input = {}) {
   return { passed: true, delivery, ...(evidenceReview ? { evidence_review: { binding: evidenceReview.binding, assurance: evidenceReview.review_assurance, rights: evidenceReview.rights_assurance } } : {}), ...(judged?.findings.length ? { findings: judged.findings } : {}) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try {
     console.log(JSON.stringify({ result: checkWritingAgainstItsRecipe(JSON.parse((await text(process.stdin)) || '{}')) }));
   } catch (error) {

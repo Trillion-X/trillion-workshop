@@ -8,9 +8,10 @@
  * textfile so no `:`/`'`/`%` can break the graph).
  */
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 
@@ -53,7 +54,7 @@ export function burnCoverText(posterIn, title, posterOut, opts = {}) {
 }
 
 // CLI: node author-cover-text.mjs <poster-in> <out> --title "TEXT" [--size N --color #hex --box-color #hex --y-frac F]
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const [posterIn, out, ...rest] = process.argv.slice(2);
   if (!posterIn || !out) { console.error('usage: author-cover-text.mjs <poster-in> <out> --title "TEXT" [--size N --color #hex --box-color #hex --y-frac F]'); process.exit(2); }
   const opt = {}; let title = '';

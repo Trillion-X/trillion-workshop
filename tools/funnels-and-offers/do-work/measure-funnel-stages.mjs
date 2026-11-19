@@ -6,6 +6,8 @@
 // A fact that names no stage in the list is counted in facts_unplaced, not dropped silently.
 import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 import { reduceStageMeasures } from '../read-data/stage-measures.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
@@ -22,7 +24,7 @@ export function measureFunnelStages(input) {
   return { stages, facts_read: input.facts.length, facts_unplaced: input.facts.length - placed };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try { process.stdout.write(`${JSON.stringify(measureFunnelStages(JSON.parse(process.argv[2] ?? '{}')))}\n`); }
   catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }
 }

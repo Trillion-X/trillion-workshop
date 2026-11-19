@@ -10,14 +10,15 @@
 //
 // TOOLS_FOLDER is the Workshop's tools folder (the one holding every tools/<name>/tool-rows.json).
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, realpathSync } from 'node:fs';
 import { catalogText } from '../read-data/tool-catalog.mjs';
 import { committedTree, immutableTree } from '../read-data/committed-tree.mjs';
 import { resolve, dirname } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const TARGET = new URL('../published/tools.json', import.meta.url);
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   if (!process.argv[2]) { console.error('Give the Workshop tools folder: node publish-tool-catalog.mjs TOOLS_FOLDER [--check]'); process.exit(2); }
   const refAt = process.argv.indexOf('--git-ref');
   const treeAt = process.argv.indexOf('--git-tree');

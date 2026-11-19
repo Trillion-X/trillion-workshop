@@ -11,6 +11,8 @@
  * two clips of the same action (the deletion test: swap the footage, zero code change).
  */
 import { alignClips } from './align-clips.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const round3 = (n) => Math.round(n * 1000) / 1000;
 
@@ -45,7 +47,7 @@ export function authorAlignedSplit(fileA, fileB, opts = {}) {
 }
 
 // CLI: node author-aligned-split.mjs <fileA> <fileB> [--lead S] [--duration S] [--layout h|v|grid] [--label-a X] [--label-b Y]
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const [a, b, ...rest] = process.argv.slice(2);
   if (!a || !b) { console.error('usage: author-aligned-split.mjs <fileA> <fileB> [--lead S] [--duration S] [--layout h|v|grid] [--label-a X] [--label-b Y]'); process.exit(2); }
   const opt = {};

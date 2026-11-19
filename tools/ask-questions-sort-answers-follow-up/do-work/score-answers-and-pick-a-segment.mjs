@@ -9,6 +9,8 @@
 // added, subtotals by label, the segment with its title, meaning and next step, and that segment's follow-up.
 import { decide } from '../read-data/score-and-segment.ts';
 import { readFollowUpSequences, selectFollowUpSequence } from '../read-data/follow-up-sequences.ts';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 export function scoreAnswersAndPickASegment(input) {
   const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -31,7 +33,7 @@ export function scoreAnswersAndPickASegment(input) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try { process.stdout.write(`${JSON.stringify(scoreAnswersAndPickASegment(JSON.parse(process.argv[2] ?? '{}')))}\n`); }
   catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }
 }

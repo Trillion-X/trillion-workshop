@@ -14,6 +14,8 @@
  * ever malform the ffmpeg filter (injection-safe).
  */
 import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const round3 = (n) => Math.round((Number(n) || 0) * 1000) / 1000;
 const round1 = (n) => Math.round((Number(n) || 0) * 10) / 10;
@@ -64,7 +66,7 @@ export function colorMatchFilter(transfer) {
 }
 
 // CLI: measure both clips and emit the transfer + ready-to-apply grade as DATA.
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const [src, ref] = [process.argv[2], process.argv[3]];
   if (!src || !ref) { process.stderr.write('[color-match] usage: node color-match.mjs <source-path> <reference-path>\n'); process.exit(2); }
   const srcStats = channelStats(src,{ss:process.argv[4]});

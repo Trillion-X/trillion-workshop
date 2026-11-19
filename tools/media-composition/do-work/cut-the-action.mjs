@@ -24,7 +24,7 @@
  * Prints the report of the run as JSON on its last line.
  */
 import { execFileSync, spawnSync } from 'node:child_process';
-import { readFileSync, rmSync, statSync } from 'node:fs';
+import { readFileSync, rmSync, statSync, realpathSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { checkOutputLength, refuseUntilReady, removedRanges } from './range-edits.mjs';
@@ -36,6 +36,7 @@ import { cutByEvents, editFor } from './cut-by-events.mjs';
 import { detectEvents } from './detect-events.mjs';
 import { measureVideo, renderEdl } from './render-an-edit.mjs';
 import { makeVideoPipeline, uploadInParts } from './video-pipeline.mjs';
+import { pathToFileURL } from 'node:url';
 import pipelineConfig from './video-pipeline.json' with { type: 'json' };
 
 const argument = (name, argv) => { const at = argv.indexOf(`--${name}`); return at >= 0 ? argv[at + 1] : undefined; };
@@ -118,7 +119,7 @@ export const cutTools = {
   },
 };
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const argv = process.argv.slice(2);
   const command = argument('ask-model-command', argv);
   try {

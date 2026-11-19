@@ -11,7 +11,8 @@
 // { fact: { kind, from, match?, watch? } } | { running: {} }). The states and their words are DATA
 // (read-data/states.json). Prints { result } on its last line. Reads nothing else and keeps nothing.
 import { text } from 'node:stream/consumers';
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 const STATES = JSON.parse(readFileSync(new URL('../read-data/states.json', import.meta.url), 'utf8'));
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -85,7 +86,7 @@ export function seeWhatRunsOnItsOwn(input, states = STATES) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const input = JSON.parse((await text(process.stdin)) || '{}');
   console.log(JSON.stringify({ result: seeWhatRunsOnItsOwn(input) }));
 }

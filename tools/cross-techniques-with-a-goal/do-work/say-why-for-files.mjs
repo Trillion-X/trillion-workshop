@@ -26,9 +26,9 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, renameSync, writeFileSync, realpathSync } from 'node:fs';
 import { basename, dirname, join, relative } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { embedder, sameMeaning, writer } from './meaning.mjs';
 import { askingJudge, forRows, makeProposer, makeSettler, proposalSchema, recordedJudge, rowText, settledFields } from './say-why.mjs';
@@ -272,7 +272,7 @@ export async function sayWhyForFiles(request, log = () => {}) {
   throw new Error(`step must be list, propose, take or settle; it was ${JSON.stringify(request.step)}.`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const request = JSON.parse(readFileSync(0, 'utf8'));
   const result = await sayWhyForFiles(request, line => process.stderr.write(`${line}\n`));
   console.log(JSON.stringify({ result }));

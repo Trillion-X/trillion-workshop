@@ -25,10 +25,11 @@
 // Run: node replace-exact-text.mjs <granted folder> [edits.json]
 //   with { file, find, replace } or { edits: [...] } on standard input, or in the JSON file named after the folder.
 
-import { constants } from 'node:fs';
+import { constants, realpathSync } from 'node:fs';
 import { lstat, open, readFile, realpath, rename, stat, unlink } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { randomBytes } from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 
 export class Refusal extends Error {}
 
@@ -154,7 +155,7 @@ async function main() {
   process.stdout.write(`${JSON.stringify({ result })}\n`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   main().catch(error => {
     process.stdout.write(`${JSON.stringify({ error: error instanceof Refusal ? error.message : `could not edit: ${error.message}` })}\n`);
     process.exitCode = 1;

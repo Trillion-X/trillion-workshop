@@ -20,6 +20,8 @@ import settings from '../../keep-and-wake-ai-sessions-on-this-computer/src/waiti
 import { controlOf } from '../../hold-one-thing-until-done/read-data/needs-you-hold.mjs';
 import { placeOfAddress } from '../../hand-off-jobs-between-agents/src/workspace/addresses.mjs';
 import surfaces from '../../shared-code/src/workspace/screens.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 /** Whether a screen's description draws anything to press: an action, a switch or a field, anywhere in it. */
 export function pressable(description) {
@@ -86,4 +88,4 @@ async function main() {
   if (broken.length) process.exitCode = 1;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) await main();
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) await main();

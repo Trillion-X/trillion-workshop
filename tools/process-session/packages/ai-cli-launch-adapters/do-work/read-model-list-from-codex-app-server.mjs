@@ -23,6 +23,8 @@
 // Prints {listed: [slug...], hidden: [slug...]} to stdout.
 
 import { spawn } from "node:child_process";
+import { pathToFileURL } from "node:url";
+import { realpathSync } from "node:fs";
 
 export function readModelListFromCodexAppServer({ codexBinary, codexHome, includeHidden = false, timeoutMs = 30000, spawnImpl = spawn }) {
   return new Promise((resolve, reject) => {
@@ -70,7 +72,7 @@ function readArg(argv, flag) {
   return i === -1 ? undefined : argv[i + 1];
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const codexBinary = readArg(process.argv, "--codex");
   if (!codexBinary) {
     process.stderr.write("usage: --codex <binary> [--codex-home <dir>] [--include-hidden]\n");

@@ -12,7 +12,8 @@
 // that name); without it nothing is published and the step says so. Saving the same id again replaces the row, so
 // running it after every switch publishes exactly the rows in source. Prints one line per row and exits 1 when any
 // row was refused.
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 const rows = JSON.parse(readFileSync(new URL('../records/marketplace-screens.json', import.meta.url), 'utf8')).tools;
 
@@ -36,7 +37,7 @@ export async function publishMarketplaceScreens({ origin, key, fetcher = fetch }
   return results;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const at = process.argv.indexOf('--origin');
   const origin = at >= 0 ? process.argv[at + 1] : '';
   if (!origin) throw new Error('Give the Trillion address: --origin <Trillion address>.');

@@ -14,6 +14,8 @@
  * then knows the clip can't fully fill / fit the slot at an acceptable speed and can pad / trim instead.
  */
 import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const round3 = (n) => Math.round((Number(n) || 0) * 1000) / 1000;
 const clamp = (n, lo, hi, d = 0) => { const v = Number.isFinite(Number(n)) ? Number(n) : d; return Math.max(lo, Math.min(hi, v)); };
@@ -48,7 +50,7 @@ export function fitToDuration(file, targetDuration, opts = {}) {
 }
 
 // CLI: measure the clip and emit the speed factor to set as the clip's `speed`.
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const file = process.argv[2];
   const target = Number(process.argv[3]);
   if (!file || !Number.isFinite(target)) { process.stderr.write('[retime-to-fit] usage: node retime-to-fit.mjs <video-path> <target-seconds> [minSpeed] [maxSpeed]\n'); process.exit(2); }

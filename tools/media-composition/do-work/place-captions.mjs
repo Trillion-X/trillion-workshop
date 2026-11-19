@@ -9,6 +9,8 @@
  * not track (detect-track does) and does not render (video-compose does), it only DECIDES.
  */
 import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const round = (n) => Math.round(n);
 function median(nums) {
@@ -49,7 +51,7 @@ export function placeCaptionsForVideo(file, { marginFrac = 0.08, stepMs = 150, g
 }
 
 // CLI: node place-captions.mjs <video> [--margin-frac F] -> prints {edge,alignment,marginV,subjectY}
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const file = process.argv[2];
   if (!file) { console.error('usage: place-captions.mjs <video> [--margin-frac F]'); process.exit(2); }
   const mfIdx = process.argv.indexOf('--margin-frac');

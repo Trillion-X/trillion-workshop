@@ -7,7 +7,8 @@
 // supply a hash: a later edit necessarily produces a different snapshot hash.
 
 import { blake3 } from '@noble/hashes/blake3.js';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, realpathSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 const DOCUMENT_ADDRESS_PREFIX = 'package::documents::documents::';
 
@@ -84,6 +85,6 @@ function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) process.exit(main());
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) process.exit(main());
 
 export { publicationSnapshot, stableJson };

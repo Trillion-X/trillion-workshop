@@ -11,8 +11,9 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { cosine, embedder } from './meaning.mjs';
+import { pathToFileURL } from 'node:url';
 
 export async function measureReuseLine({ meaning, pairs }) {
   const embed = embedder(meaning);
@@ -32,7 +33,7 @@ export async function measureReuseLine({ meaning, pairs }) {
   return { meaning: { model: meaning.model, dims: meaning.dims }, reuse_at: Math.round(best.line * 1000) / 1000, misplaced: misplaced(best.line).map(item => item.pair), ...scored };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const request = JSON.parse(readFileSync(0, 'utf8'));
   const pairs = request.pairs ?? JSON.parse(readFileSync(new URL('./reuse-line-pairs.json', import.meta.url), 'utf8'));
   console.log(JSON.stringify({ result: await measureReuseLine({ meaning: request.meaning, pairs }) }));

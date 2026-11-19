@@ -8,6 +8,8 @@
  * from the gate (pure, unit-tested), so the same gate serves the producer and the UI.
  */
 import { spawn, spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const lastMatch = (text, re) => { let m, last = null; while ((m = re.exec(text)) !== null) last = m[1]; return last; };
 
@@ -82,7 +84,7 @@ export function checkPublishLoudness(file, opts = {}) {
 }
 
 // CLI: node measure-loudness.mjs <file> [--target L] [--tolerance T] [--max-peak P]
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const [file, ...rest] = process.argv.slice(2);
   if (!file) { console.error('usage: measure-loudness.mjs <file> [--target L] [--tolerance T] [--max-peak P]'); process.exit(2); }
   const opt = {};

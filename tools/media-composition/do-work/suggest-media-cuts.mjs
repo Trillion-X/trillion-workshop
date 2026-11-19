@@ -8,6 +8,8 @@
 //   suggestMediaCuts({ identity, mode, transcript, kept? }) -> { lines, keep: { id, entry } | null, modes }
 import { autoEditLines } from '../read-data/auto-edit.mjs';
 import { suggestionId } from '../read-data/suggestion-stream.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 import stream from '../read-data/suggestion-stream.json' with { type: 'json' };
 
 export async function suggestMediaCuts({ identity, mode, transcript, kept = null }) {
@@ -19,7 +21,7 @@ export async function suggestMediaCuts({ identity, mode, transcript, kept = null
   return { id, lines, keep, modes: Object.keys(stream.modes) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const { text } = await import('node:stream/consumers');
   const input = JSON.parse((await text(process.stdin)) || '{}');
   console.log(JSON.stringify({ result: await suggestMediaCuts(input) }));

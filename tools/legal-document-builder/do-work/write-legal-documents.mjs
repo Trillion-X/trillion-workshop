@@ -6,9 +6,10 @@
 // assembles each document from the clause library (data/policy-clause-library.json) with the business's facts, and
 // prints one JSON line: each document's text, its BLAKE3 identity, the clauses used, whether it is ready to publish,
 // and which facts are missing or still to be confirmed, plus every fact each asked-for document reads.
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { assembleDocumentsForBusiness } from '../read-data/assemble-legal-documents.ts';
+import { pathToFileURL } from 'node:url';
 
 const library = JSON.parse(readFileSync(new URL('../data/policy-clause-library.json', import.meta.url), 'utf8'));
 const identityOf = text => makeHashCodeHexFromBytes(new TextEncoder().encode(text));
@@ -46,7 +47,7 @@ export function writeLegalDocuments(input) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try { process.stdout.write(`${JSON.stringify(writeLegalDocuments(JSON.parse(process.argv[2] ?? '{}')))}\n`); }
   catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }
 }

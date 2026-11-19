@@ -7,6 +7,8 @@
 // hands it text, because a tool container has no access to the person's files.
 import { text as readStdin } from 'node:stream/consumers';
 import { placeSection } from './append-section.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 export function placeInText(input) {
   if (typeof input?.document_text !== 'string') throw new Error('document_text must be the markdown document, as text.');
@@ -14,7 +16,7 @@ export function placeInText(input) {
   return placeSection(input.document_text, input.section_text);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try {
     console.log(JSON.stringify({ result: placeInText(JSON.parse((await readStdin(process.stdin)) || '{}')) }));
   } catch (error) {

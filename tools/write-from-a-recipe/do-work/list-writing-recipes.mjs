@@ -6,6 +6,8 @@
 // instruction blocks a recipe may name. `words` keeps the recipes and blocks whose label or id holds every word.
 import { text } from 'node:stream/consumers';
 import { BLOCKS, RECIPES } from '../read-data/library.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 export function listWritingRecipes(input = {}) {
   const words = typeof input.words === 'string' ? input.words.toLowerCase().split(/\s+/).filter(Boolean) : [];
@@ -18,7 +20,7 @@ export function listWritingRecipes(input = {}) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try {
     console.log(JSON.stringify({ result: listWritingRecipes(JSON.parse((await text(process.stdin)) || '{}')) }));
   } catch (error) {

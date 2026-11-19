@@ -29,9 +29,10 @@
 //   - Returns provenance {provider_id, cli_id, model_id} on every result.
 // =============================================================================
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, realpathSync } from "node:fs";
 import { resolveTransport } from "./transport-capabilities.mjs";
 import { remoteHttpStreamTransport } from "./remote-http-stream-transport.mjs";
+import { pathToFileURL } from "node:url";
 
 /** Non-empty string or null. */
 export function asString(value) {
@@ -563,6 +564,6 @@ function main(argv) {
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   process.exit(main(process.argv));
 }

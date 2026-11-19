@@ -17,6 +17,8 @@
  * Output (stdout, JSON): { path: [{ t, x, y }], width, height, step_ms, grid }
  */
 import { execFileSync, spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const round4 = value => Math.round(value * 10000) / 10000;
 
@@ -96,7 +98,7 @@ export function trackMovingSubject(video, { stepMs = 125, grid = 64 } = {}) {
   return { path, width, height, step_ms: stepMs, grid };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const [video, ...rest] = process.argv.slice(2);
   const options = new Map();
   for (let at = 0; at < rest.length; at += 2) options.set(rest[at].replace(/^--/, ''), Number(rest[at + 1]));

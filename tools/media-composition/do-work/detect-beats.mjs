@@ -12,6 +12,8 @@
  */
 import { execFileSync } from 'node:child_process';
 import { detectBeatsFromChannel } from './beat-onset-picker.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 /** Analysis sample rate for onset detection (mono). Lower is fine and fast; onsets are broadband. */
 const ANALYSIS_SR = 22050;
@@ -45,7 +47,7 @@ export function detectBeats(file, opts = {}) {
 }
 
 // CLI: node detect-beats.mjs <file> [--hop N] [--threshold-k K] [--min-gap S] [--window-frames N]
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const [file, ...rest] = process.argv.slice(2);
   if (!file) { console.error('usage: detect-beats.mjs <file> [--hop N] [--threshold-k K] [--min-gap S] [--window-frames N]'); process.exit(2); }
   const opt = {};

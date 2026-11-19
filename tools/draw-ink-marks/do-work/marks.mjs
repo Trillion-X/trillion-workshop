@@ -7,6 +7,8 @@
 // and one JSON line out: { result }, or { error } with a non-zero exit when the request cannot be read. Operations,
 // styles and tool rows are the person's own records, passed in whole (bare, as { payload } or as { value_json }).
 import { text as readStdin } from 'node:stream/consumers';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 import {
   mapPointsForTool, materializeMarkRecords, nearestMarkPathRef,
   readMarkTarget, readMarkTools, toolEmitsClosedSet, toolErases,
@@ -74,7 +76,7 @@ export const runVerb = (verb, input) => {
   return verbs[verb](input ?? {});
 };
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try {
     console.log(JSON.stringify({ result: runVerb(process.argv[2], JSON.parse((await readStdin(process.stdin)) || '{}')) }));
   } catch (error) {

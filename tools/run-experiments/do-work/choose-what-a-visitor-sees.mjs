@@ -12,6 +12,8 @@
 import { validateCandidateSet } from '../read-data/candidate-set-schema.ts';
 import { validateDecider } from '../read-data/decider-schema.ts';
 import { builtinOps, scoreCandidates } from '../read-data/score-candidates.ts';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 // The scoring code reports each decision with console.log; this command's answer is its last stdout line.
 console.log = console.error;
@@ -32,7 +34,7 @@ export function chooseWhatAVisitorSees(input) {
   return { chosen: scored.winner, ranked: scored.ranked, findings: scored.findings, rule_used: scored.op_used };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try { process.stdout.write(`${JSON.stringify(chooseWhatAVisitorSees(JSON.parse(process.argv[2] ?? '{}')))}\n`); }
   catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }
 }

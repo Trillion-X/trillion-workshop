@@ -28,7 +28,8 @@
  */
 import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 import CAMERA from '../read-data/reframe-camera.json' with { type: 'json' };
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -240,7 +241,7 @@ export function autoReframe(file, opts = {}) {
 }
 
 // CLI: node auto-reframe.mjs <file> [--aspect-w N] [--aspect-h N] [--fill blur|crop|<color>]
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const [file, ...rest] = process.argv.slice(2);
   if (!file) { console.error('usage: auto-reframe.mjs <file> [--aspect-w N] [--aspect-h N] [--fill blur|crop|<color>]'); process.exit(2); }
   const opt = {};

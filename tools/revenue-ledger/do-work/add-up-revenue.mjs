@@ -7,6 +7,8 @@
 // and prints one JSON line: the RevenueView (gross, refunds, net, active recurring, by cohort, by role, and the
 // payments that need a look). Which fields hold what and which kinds add or subtract are the caller's DATA.
 import { projectRevenue } from '../read-data/project-revenue.ts';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const path = value => Array.isArray(value) && value.length > 0 && value.every(part => typeof part === 'string');
@@ -29,7 +31,7 @@ export function addUpRevenue(input) {
   return { ...projectRevenue(payments, { currency_field_path: [], recurring_field_path: [], ...reading }), payments_read: payments.length };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try { process.stdout.write(`${JSON.stringify(addUpRevenue(JSON.parse(process.argv[2] ?? '{}')))}\n`); }
   catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }
 }

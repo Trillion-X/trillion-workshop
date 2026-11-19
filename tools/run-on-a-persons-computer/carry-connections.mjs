@@ -26,13 +26,14 @@
 //   4. No service is named in this file: connections, verbs' modules and words are DATA in carry-connections.json.
 //
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync, realpathSync } from 'node:fs';
 import { homedir, hostname } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { accountCaller, fileKeeper } from './read-this-computer.mjs';
 import { endWithTheApp } from './end-with-the-app.mjs';
 import { reconcile } from './reconcile-fields.mjs';
+import { pathToFileURL } from 'node:url';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 const home = path => String(path).replace(/^~(?=\/|$)/, homedir());
@@ -266,6 +267,6 @@ async function main(argv) {
   listen();
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   main(process.argv.slice(2)).catch(error => { process.stderr.write(`${error.stack ?? error}\n`); process.exit(1); });
 }

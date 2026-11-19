@@ -14,6 +14,8 @@
  * emitting the SAME window shape (L090).
  */
 import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
 
@@ -51,7 +53,7 @@ export function measureMotion(file, { windowSeconds = 1 } = {}) {
 }
 
 // CLI: node detect-motion.mjs <file> [windowSeconds=1]
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const file = process.argv[2];
   const windowSeconds = Number.isFinite(Number(process.argv[3])) && Number(process.argv[3]) > 0 ? Number(process.argv[3]) : 1;
   if (!file) { console.error('usage: detect-motion.mjs <file> [windowSeconds=1]'); process.exit(2); }

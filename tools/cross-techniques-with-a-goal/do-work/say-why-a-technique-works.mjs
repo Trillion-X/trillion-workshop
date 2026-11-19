@@ -14,10 +14,11 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { embedder, sameMeaning, writer } from './meaning.mjs';
 import { askingJudge, forRows, makeProposer, makeSettler } from './say-why.mjs';
 import { emptyLexicon } from './vocabulary.mjs';
+import { pathToFileURL } from 'node:url';
 
 const shipped = JSON.parse(readFileSync(new URL('./technique-conventions.json', import.meta.url), 'utf8'));
 
@@ -46,7 +47,7 @@ export async function sayWhyATechniqueWorks(request) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try {
     console.log(JSON.stringify({ result: await sayWhyATechniqueWorks(JSON.parse(readFileSync(0, 'utf8'))) }));
   } catch (error) {

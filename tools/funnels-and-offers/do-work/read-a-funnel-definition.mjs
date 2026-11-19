@@ -6,6 +6,8 @@
 // Prints one JSON line { funnel }: each stage with its title, versions (the decided one marked live), price, measures and
 // conversion percent; or { funnel: null, reason } when there is no such funnel.
 import { liveVariantMapFromDecisions, resolveFunnelDefinition } from '../read-data/funnel-definition.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
@@ -25,7 +27,7 @@ export function readAFunnelDefinition(input) {
   return funnel ? { funnel } : { funnel: null, reason: 'No funnel-definition record with that id was found.' };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try { process.stdout.write(`${JSON.stringify(readAFunnelDefinition(JSON.parse(process.argv[2] ?? '{}')))}\n`); }
   catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }
 }

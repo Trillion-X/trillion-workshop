@@ -8,12 +8,13 @@
 // moved files from their receipts on a clean checkout of the destination. only narrows the groups planned; apply_groups
 // carries out some of the planned groups, placing shared files as the whole plan would. The move row (see move-rows/) holds every
 // choice: the two trees, the groups and their folders, what stays, and the provider calls to swap.
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { isAbsolute, join, resolve } from 'node:path';
 import { applyMove } from '../read-data/apply-move.mjs';
 import { checkMove } from '../read-data/check-move.mjs';
 import { MoveRefusal, openTreeAt } from '../read-data/code-tree.mjs';
 import { planMove } from '../read-data/plan-move.mjs';
+import { pathToFileURL } from 'node:url';
 
 const here = resolve(import.meta.dirname, '..');
 
@@ -43,7 +44,7 @@ export function moveCode(request) {
   return { ...plan, applied };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   let input = '';
   for await (const chunk of process.stdin) input += chunk;
   try {

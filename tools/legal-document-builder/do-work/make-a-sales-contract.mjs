@@ -8,6 +8,8 @@
 // `export_request` is what tool:export-a-document-to-a-file takes (its `document`, and the `formats` as the format ids to ask for);
 // `approval_link` is made only when `base_url` is given. The work is read-data/contract-output.ts.
 import { text as readStdin } from 'node:stream/consumers';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 import {
   acceptanceRequirementsForContract, buildApprovalRequest, contractTermsRows, exportRequestFromApproval, readContractOutputTargets, safeFileStem,
 } from '../read-data/contract-output.ts';
@@ -43,7 +45,7 @@ export function makeSalesContract(input) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try {
     console.log(JSON.stringify({ result: makeSalesContract(JSON.parse((await readStdin(process.stdin)) || '{}')) }));
   } catch (error) {

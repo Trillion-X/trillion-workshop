@@ -17,6 +17,8 @@
  */
 import settings from '../read-data/detect-events.json' with { type: 'json' };
 import { run as runStream } from './stream-core.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const finite = value => typeof value === 'number' && Number.isFinite(value);
 const clamp01 = value => Math.max(0, Math.min(1, value));
@@ -51,7 +53,7 @@ export async function detectEvents({ detector: id, video, from = 0, to, askModel
     && event.time >= from && (to === undefined || event.time <= to)).map(event => ({ ...event, confidence: clamp01(event.confidence) }));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const [video, ...rest] = process.argv.slice(2);
   const options = new Map();
   for (let at = 0; at < rest.length; at += 2) options.set(rest[at].replace(/^--/, ''), rest[at + 1]);

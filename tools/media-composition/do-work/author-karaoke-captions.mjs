@@ -1,3 +1,5 @@
+import { pathToFileURL } from "node:url";
+import { realpathSync } from "node:fs";
 /**
  * #230 Karaoke caption authorer (the word-by-word highlight that drives social-video retention). Turns a DATA
  * `lines` array (each {start, end, words:[{text,start,end}]}, exactly what caption-lines.ts emits) into an ASS
@@ -147,7 +149,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 // CLI: node author-karaoke-captions.mjs --lines '<json>' [--highlight #hex --base #hex --size N --width W --height H]
 // Prints the ASS string. `--lines` is the caption-lines output ([{start,end,words:[{text,start,end}]}]).
 // The page imports this author too (the editor's captions), where there is no command line to read.
-if (globalThis.process?.argv && import.meta.url === `file://${process.argv[1]}`) {
+if (globalThis.process?.argv && import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const args = process.argv.slice(2);
   const opt = {}; let lines = [];
   for (let i = 0; i < args.length; i += 2) {

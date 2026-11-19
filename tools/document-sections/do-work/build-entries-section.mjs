@@ -29,6 +29,8 @@
 
 import {readFile, writeFile} from 'node:fs/promises'
 import {resolve} from 'node:path'
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 export class EntriesRefused extends Error {}
 
@@ -140,7 +142,7 @@ export async function run(argv) {
   return {wrote: out, entries: total, sources: from.length, bytes: Buffer.byteLength(bytes)}
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   run(process.argv.slice(2)).then(
     result => process.stdout.write(`${JSON.stringify(result, null, 2)}\n`),
     error => {

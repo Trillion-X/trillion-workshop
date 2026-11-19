@@ -35,7 +35,8 @@
 //     [--about "<text>"]    or give it directly
 //     [--because "<text>"]  why the original answer was wrong
 
-import {readFileSync, writeFileSync} from 'node:fs'
+import {readFileSync, writeFileSync, realpathSync } from 'node:fs'
+import { pathToFileURL } from 'node:url';
 
 /** The most recent verdict for this rubric that kept what it looked at. */
 export function lastVerdictFor(logPath, rubricId) {
@@ -155,7 +156,7 @@ export async function main(argv) {
   return 0
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   main(process.argv.slice(2)).then(
     code => process.exit(code),
     error => {

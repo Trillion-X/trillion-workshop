@@ -31,6 +31,8 @@
 import {readFile} from 'node:fs/promises'
 import {judge, VerdictRefused} from '../../../../ai-command-center/.claude/hooks/judges/ask-for-a-verdict.mjs'
 import {everyNode} from './roll-up-work-completion.mjs'
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const ADAPTERS = {
   'locally-served': () => import('../../../../ai-command-center/.claude/hooks/judges/ask-a-locally-served-model.mjs'),
@@ -174,7 +176,7 @@ export async function main(argv) {
   return 0
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   main(process.argv.slice(2)).then(
     code => process.exit(code),
     error => {

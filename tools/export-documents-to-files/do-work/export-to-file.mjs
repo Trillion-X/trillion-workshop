@@ -21,6 +21,8 @@ import { renderSvg } from './render-svg.mjs';
 import { renderDocx } from './render-docx.mjs';
 import { renderXlsx } from './render-xlsx.mjs';
 import { formatTakes } from './format-takes.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const RENDERERS = {
   template: (document, options, context) => renderTemplate(document, options, context),
@@ -110,7 +112,7 @@ export const runVerb = (verb, input) => {
   return verbs[verb](input ?? {});
 };
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try {
     console.log(JSON.stringify({ result: runVerb(process.argv[2], JSON.parse((await readStdin(process.stdin)) || '{}')) }));
   } catch (error) {

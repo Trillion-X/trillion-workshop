@@ -36,9 +36,10 @@
 //     [--about "<text>"]    or give it directly
 //     [--because "<text>"]  why the original answer was wrong
 
-import {writeFileSync} from 'node:fs'
+import {writeFileSync, realpathSync } from 'node:fs'
 import {checkRubric, blake3Material, VerdictRefused} from './ask-for-a-verdict.mjs'
 import {readJudgeLogFile, maxStructuredReadBytes} from './judge-log-frontier.mjs'
+import { pathToFileURL } from 'node:url';
 
 const normalized = value => value.normalize('NFKC').replace(/\s+/gu, ' ').trim().toLocaleLowerCase('en-US')
 const caseIdentity = rubric => `blake3:${blake3Material(JSON.stringify([rubric.question, rubric.answer_shape, rubric.calibration]))}`
@@ -193,7 +194,7 @@ export async function main(argv) {
   return 0
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   main(process.argv.slice(2)).then(
     code => process.exit(code),
     error => {

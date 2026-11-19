@@ -29,6 +29,8 @@
 //     on_match: 'deny'|'warn' }
 // =============================================================================
 
+import { pathToFileURL } from "node:url";
+import { realpathSync } from "node:fs";
 /** Read one field off the tool-use payload by name (dotted paths supported). */
 export function selectField(toolUsePayload, field) {
   if (toolUsePayload == null || typeof field !== 'string' || field.length === 0) return undefined;
@@ -114,7 +116,7 @@ export async function main(argv, io = {}) {
   return result.verdict === 'deny' ? 0 : 0; // never crash the launch; the verdict is the signal
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   main(process.argv).then((code) => process.exit(typeof code === 'number' ? code : 0)).catch((error) => {
     process.stderr.write(`[harness-guard] error ${error?.message ?? error}\n`);
     process.exit(0);

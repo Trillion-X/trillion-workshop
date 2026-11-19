@@ -20,6 +20,8 @@
 import { execFileSync } from 'node:child_process';
 import { LOOKS, chooseLooks, clipColourFields } from '../read-data/looks.mjs';
 import { renderEdl } from './render-an-edit.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 /** The clip's colour choices from command-line values (an empty value means "not given"). */
 export function colourChoice(args) {
@@ -38,7 +40,7 @@ export function colourChoice(args) {
   return { looks, adjust, match };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const args = new Map();
   for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);
   try {

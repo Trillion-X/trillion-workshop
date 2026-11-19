@@ -37,6 +37,8 @@
 //     [--only <id>] [--depth <n>]
 
 import {aggregateOf, measure as measureOf} from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs'
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 // A state says three things: how it is written, whether it counts as finished,
 // and whether an item in it still needs something pointed at. Every tree
@@ -273,7 +275,7 @@ export function rollUpWork(treeDocument, {as = 'json', only = null, depth = null
 }
 
 // argv[2] is one JSON input: { tree, as?, only?, depth? }. Prints one JSON line.
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try {
     const {tree, ...options} = JSON.parse(process.argv[2] ?? '{}')
     process.stdout.write(`${JSON.stringify(rollUpWork(tree, options))}\n`)

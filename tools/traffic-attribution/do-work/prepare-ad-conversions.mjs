@@ -15,6 +15,8 @@ import { createHash } from 'node:crypto';
 import settings from '../read-data/ad-conversions.json' with { type: 'json' };
 import { isValidProjectId } from '../read-data/traffic-address.ts';
 import { clickIdsOf, clickIdsToAdd } from '../read-data/click-ids.ts';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' ? value.trim() : typeof value === 'number' && Number.isFinite(value) ? String(value) : '');
@@ -144,7 +146,7 @@ export function prepareAdConversions(input) {
   return { project, sends, skipped, said: `${count} event${count === 1 ? '' : 's'} ready in ${sends.length} send${sends.length === 1 ? '' : 's'}; ${skipped.length} conversion${skipped.length === 1 ? '' : 's'} not sent. Run each send's tool with its input; running the same sends again is counted once by each platform.` };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try { process.stdout.write(`${JSON.stringify(prepareAdConversions(JSON.parse(process.argv[2] ?? '{}')))}\n`); }
   catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }
 }

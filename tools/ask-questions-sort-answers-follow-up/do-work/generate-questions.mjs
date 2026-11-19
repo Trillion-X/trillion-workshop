@@ -15,6 +15,8 @@
 //   out:     { "questions": [ { id, kind:"question", questionId, questionTypeId, label,
 //                              required, answer, sourceRef } ] }
 
+import { pathToFileURL } from "node:url";
+import { realpathSync } from "node:fs";
 /** Words too common to be a useful cloze blank (a small, generic stoplist). */
 const STOPWORDS = new Set([
   'about', 'above', 'after', 'again', 'against', 'their', 'there', 'these', 'those',
@@ -71,7 +73,7 @@ export function generateQuestions(text, { max = 8, sourceRef = '' } = {}) {
 
 // ---- The Workshop tool "Make quiz questions from a piece of text" ----
 // argv[2] is one JSON input: { text, max?, source_ref? }. Prints one JSON line: { questions }.
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try {
     const { text, max = 8, source_ref: sourceRef = '' } = JSON.parse(process.argv[2] ?? '{}');
     if (typeof text !== 'string' || !text.trim()) throw new Error('text must be the words to make questions from.');

@@ -26,6 +26,8 @@
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 /** What a step can DO. Adding a verb is an entry here, never a branch below. */
 export const ACTIONS = {
@@ -177,7 +179,7 @@ export async function run(argv) {
   return readback
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   run(process.argv.slice(2)).then(
     readback => process.stdout.write(`${JSON.stringify(readback, null, 2)}\n`),
     error => { process.stderr.write(`${error.message}\n`); process.exitCode = 1 },

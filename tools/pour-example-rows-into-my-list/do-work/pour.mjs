@@ -10,6 +10,8 @@
 //   node do-work/pour.mjs < { kit_list, into, field_map?, least_coverage?, already_there? }
 //     -> { poured, coverage, matched, unmatched, left_out, rows, write, says }
 
+import { pathToFileURL } from "node:url";
+import { realpathSync } from "node:fs";
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 // A name as a person would say it: lowercase letters and digits, words joined, a plural s dropped.
@@ -131,4 +133,4 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) await main();
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) await main();

@@ -11,6 +11,8 @@
 //   { observations: [{ observerId, trustRef, path, value, at }], findings: [text] }
 // A join that does not validate is refused with every problem listed.
 import { attributeOutcomes } from '../read-data/attribute-outcomes.ts';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 // The join reports itself with console.log; this command's answer is its last stdout line.
 console.log = console.error;
@@ -26,7 +28,7 @@ export function creditOutcomesToCandidates(input) {
   return result;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try { process.stdout.write(`${JSON.stringify(creditOutcomesToCandidates(JSON.parse(process.argv[2] ?? '{}')))}\n`); }
   catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }
 }

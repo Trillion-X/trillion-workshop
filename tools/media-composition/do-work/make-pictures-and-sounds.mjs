@@ -30,9 +30,9 @@
  * Output (stdout, last line, JSON): { style, makes, count, made: [{ name, media_type, bytes }], failed: [{ error }] }
  */
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync, realpathSync } from 'node:fs';
 import { basename, dirname, join, resolve as absolute } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { bestPosterTime } from './pick-poster-frame.mjs';
 
 const MAX_COUNT = 12;
@@ -317,7 +317,7 @@ async function callProcess(maker, values, deps, { allInto } = {}) {
   return null;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const args = new Map();
   for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);
   try {

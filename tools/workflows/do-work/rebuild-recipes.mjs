@@ -8,10 +8,11 @@
 //   node tools/workflows/do-work/rebuild-recipes.mjs --check   exit 1 when the file on disk is not what the two published files make
 //   node tools/workflows/do-work/rebuild-recipes.mjs --row-updates FILE  applies explicit pending local row DATA to the saved views, then rebuilds recipes/
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, realpathSync } from 'node:fs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { applyWorkflowRowUpdates, recipesFromViews } from '../read-data/recipe-rows.mjs';
 import { withDerivedRecords } from '../read-data/derived-records.mjs';
+import { pathToFileURL } from 'node:url';
 
 const PUBLISHED = new URL('../published/', import.meta.url);
 const TARGET = new URL('../recipes/workflows.json', import.meta.url);
@@ -166,7 +167,7 @@ export function workflowViewsWithAccountReadback(workflows, steps, readback, syn
   return { workflows: setViewIdentity(nextWorkflows), steps: setViewIdentity(nextSteps) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const updatePath = process.argv.includes('--row-updates') ? process.argv[process.argv.indexOf('--row-updates') + 1] : null;
   const readbackPath = process.argv.includes('--account-readback') ? process.argv[process.argv.indexOf('--account-readback') + 1] : null;
   if (process.argv.includes('--row-updates') && !updatePath) { console.error('Give the row DATA file after --row-updates.'); process.exit(2); }

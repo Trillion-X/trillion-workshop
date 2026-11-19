@@ -21,6 +21,8 @@
 //        [--params-json '{...}'] [--codex-home <dir>] [--cwd <dir>]
 
 import { spawn } from "node:child_process";
+import { pathToFileURL } from "node:url";
+import { realpathSync } from "node:fs";
 
 export function askOneMethodOfACodexAppServer({
   codexBinary,
@@ -64,7 +66,7 @@ function readArg(argv, flag) {
   return i === -1 ? undefined : argv[i + 1];
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const codexBinary = readArg(process.argv, "--codex");
   const method = readArg(process.argv, "--method");
   if (!codexBinary || !method) {

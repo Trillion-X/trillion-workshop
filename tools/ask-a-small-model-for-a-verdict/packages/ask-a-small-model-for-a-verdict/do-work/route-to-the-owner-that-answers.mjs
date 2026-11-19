@@ -33,6 +33,8 @@
 
 import {readFile} from 'node:fs/promises'
 import {judge} from '../../../../shared-code/packages/ask-a-small-model-for-a-verdict/do-work/ask-for-a-verdict.mjs'
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const ADAPTERS = {
   'locally-served': () => import('../../../../shared-code/packages/ask-a-small-model-for-a-verdict/do-work/ask-a-locally-served-model.mjs'),
@@ -134,7 +136,7 @@ export async function main(argv) {
   return 0
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   main(process.argv.slice(2)).then(
     code => process.exit(code),
     error => {

@@ -12,8 +12,9 @@
 //   node author-effect-stack.mjs --clip-id <id> --stack '[{"compute":"glow","params":{"strength":0.6}}]' [--out file]
 //   node author-effect-stack.mjs --clip-id <id> --look vhs [--out file]
 //   node author-effect-stack.mjs --global --stack '[...]'
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, realpathSync } from 'node:fs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { pathToFileURL } from 'node:url';
 import {
   buildEffectCatalog, validateEffectStack, resolveLookStack,
   createComputeEffects, createKeyframeEffects,
@@ -116,4 +117,4 @@ function main() {
   else process.stdout.write(text);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) main();

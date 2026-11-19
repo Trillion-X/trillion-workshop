@@ -9,6 +9,8 @@
 //     leader: { <rate id>: candidate_id } }
 // A rate is left out for a candidate whose numerator or denominator is missing or whose denominator is zero.
 import { aggregateOutcomes, computeRate } from '../read-data/scoreboard.ts';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 // The aggregation reports itself with console.log; this command's answer is its last stdout line.
 console.log = console.error;
@@ -33,7 +35,7 @@ export function readExperimentResults(input) {
   return { address: board.address, candidates: board.candidates, total_events: board.total_events, leader };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try { process.stdout.write(`${JSON.stringify(readExperimentResults(JSON.parse(process.argv[2] ?? '{}')))}\n`); }
   catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }
 }

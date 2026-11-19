@@ -28,7 +28,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {spawn} from 'node:child_process';
-import {fileURLToPath} from 'node:url';
+import {fileURLToPath, pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const RULES = `You are testing whether a real person's request can be done with the tools you have.
 Use ONLY the tools available to you. Do not guess results and do not invent data.
@@ -168,4 +169,4 @@ async function main() {
   process.stdout.write(JSON.stringify(summary.counts) + '\n');
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().catch(error => { process.stderr.write(error.message + '\n'); process.exit(1); });
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) main().catch(error => { process.stderr.write(error.message + '\n'); process.exit(1); });

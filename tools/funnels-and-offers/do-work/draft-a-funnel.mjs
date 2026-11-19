@@ -7,6 +7,8 @@
 // is title-only; pointing it at a workflow node, an offer or a measure is adding a ref to its row.
 import { randomBytes } from 'node:crypto';
 import { appendStage, buildNewFunnelDefinition, readFunnelDefinition } from '../read-data/funnel-definition.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
@@ -22,7 +24,7 @@ export function draftAFunnel(input, entropy = () => randomBytes(3).toString('hex
   return { funnel: (input.stages ?? []).reduce((definition, title) => appendStage(definition, title), start) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try { process.stdout.write(`${JSON.stringify(draftAFunnel(JSON.parse(process.argv[2] ?? '{}')))}\n`); }
   catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }
 }

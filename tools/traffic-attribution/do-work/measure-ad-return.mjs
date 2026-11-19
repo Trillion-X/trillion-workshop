@@ -21,6 +21,8 @@ import { buildTrackedProjectRecord } from '../read-data/registry.ts';
 import { isClickIdSignal } from '../read-data/click-ids.ts';
 import { groupObserverFactsByProject, TRAFFIC_CONVERSION_KIND, TRAFFIC_OBSERVER_FACT_KIND } from './observe-traffic.ts';
 import { computeUnitEconomics } from '../../unit-economics/read-data/compute-unit-economics.ts';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' ? value.trim() : typeof value === 'number' && Number.isFinite(value) ? String(value) : '');
@@ -197,7 +199,7 @@ export function measureAdReturn(input) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try { process.stdout.write(`${JSON.stringify(measureAdReturn(JSON.parse(process.argv[2] ?? '{}')))}\n`); }
   catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }
 }

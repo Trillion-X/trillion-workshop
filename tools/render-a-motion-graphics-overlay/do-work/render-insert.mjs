@@ -13,9 +13,10 @@
 //   node do-work/render-insert.mjs < request.json
 import { text } from 'node:stream/consumers';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isSettingId, settingsOf } from '../../settings/read-data/settings.mjs';
 import { FOLDER, OverlayRequestError, refuseRowIds, runProgram } from './render-overlay.mjs';
+import { realpathSync } from 'node:fs';
 
 export const CLAIMS_FOLDER = 'check-every-claim-against-its-facts-and-sources';
 const here = dirname(fileURLToPath(import.meta.url));
@@ -42,7 +43,7 @@ export async function renderInsert({ stdin = process.stdin, out = process.stdout
   return runProgram([python, join(here, 'render_an_overlay_insert.py')], handed, out);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try {
     process.exitCode = await renderInsert();
   } catch (error) {

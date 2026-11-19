@@ -46,12 +46,13 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // Reading names out of a folder tree belongs to the package that owns facts about local files, not
 // to a second walk written here. See `checkFilesPresentInPackage` for what that owner already
 // handles correctly and this file would have had to rediscover.
 import { namesAndContentIdentitiesFromAFolderTree } from '../../local-files/read-data/names-and-content-identities-from-a-folder-tree.mjs';
+import { realpathSync } from 'node:fs';
 
 /**
  * DATA, not dispatch. A new language is a row here and nothing else changes.
@@ -1047,4 +1048,4 @@ async function main() {
   process.exitCode = options.listOnly ? 0 : exitCodeFor(report.totals, options);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) main();

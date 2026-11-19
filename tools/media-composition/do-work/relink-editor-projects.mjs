@@ -27,8 +27,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { execFile } from 'node:child_process';
-import { existsSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { existsSync, realpathSync } from 'node:fs';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // Each element Premiere reads a media location from, and how its value is written.
 export const MEDIA_PATH_ELEMENTS = Object.freeze([
@@ -176,7 +176,7 @@ export async function relinkEditorProjects({ moves, projects, premiere = relinkP
   return { projects: projectReports, resolve: resolveReport, said: summarize(projectReports, resolveReport) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const args = new Map();
   for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);
   try {

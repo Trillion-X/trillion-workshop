@@ -10,6 +10,8 @@
 import { buildTrackedProjectRecord } from '../read-data/registry.ts';
 import { groupObserverFactsByProject, TRAFFIC_CONVERSION_KIND, TRAFFIC_OBSERVER_FACT_KIND } from './observe-traffic.ts';
 import { availableDimensionIds, deriveProjection } from './derive-projection.ts';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 export function breakDownVisitsAndSales(input) {
   const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -35,7 +37,7 @@ export function breakDownVisitsAndSales(input) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try { process.stdout.write(`${JSON.stringify(breakDownVisitsAndSales(JSON.parse(process.argv[2] ?? '{}')))}\n`); }
   catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }
 }

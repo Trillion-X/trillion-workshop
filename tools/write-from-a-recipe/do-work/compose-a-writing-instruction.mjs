@@ -8,6 +8,8 @@
 import { text } from 'node:stream/consumers';
 import { composeRunRequest } from '../read-data/compose-instruction.mjs';
 import { blocksWith, recipeOf, workItemOf } from '../read-data/library.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 export function composeAWritingInstruction(input = {}) {
   const recipe = recipeOf(input);
@@ -24,7 +26,7 @@ export function composeAWritingInstruction(input = {}) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try {
     console.log(JSON.stringify({ result: composeAWritingInstruction(JSON.parse((await text(process.stdin)) || '{}')) }));
   } catch (error) {

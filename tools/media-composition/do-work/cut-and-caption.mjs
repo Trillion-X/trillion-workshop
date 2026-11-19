@@ -26,6 +26,8 @@ import { execFileSync } from 'node:child_process';
 import { captionLinesForCut, wordsOf } from '../read-data/caption-lines.ts';
 import { captionAss, resolveCaptionStyle } from '../read-data/caption-styles.mjs';
 import { renderEdl } from './render-an-edit.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 /** The caption style the command names: a style id from read-data/caption-styles.json, a style row of one's own as
  *  JSON (starting from a catalog style named by its `id`), or nothing for the default style. */
@@ -58,7 +60,7 @@ function probeVideo(video) {
   return { width, height, duration };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const args = new Map();
   for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);
   try {

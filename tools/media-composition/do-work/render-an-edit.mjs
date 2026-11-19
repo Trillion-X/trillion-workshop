@@ -16,9 +16,9 @@
  * Output (stdout, JSON, last line): { duration_seconds, width, height, has_audio, bytes, segments }
  */
 import { execFileSync } from 'node:child_process';
-import { statSync } from 'node:fs';
+import { statSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const COMPOSE = join(dirname(fileURLToPath(import.meta.url)), 'video-compose.mjs');
 
@@ -76,7 +76,7 @@ export function renderEdl(edl, output, { workdir } = {}) {
   return { ...measureVideo(output), segments: edl?.spine?.segments?.length ?? 0 };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const args = new Map();
   for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);
   // Diagnostic: what the run's /input folder holds before any render, so a missing copy shows in the error.

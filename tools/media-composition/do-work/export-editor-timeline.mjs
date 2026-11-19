@@ -13,10 +13,11 @@
  * Usage: node export-editor-timeline.mjs --edl JSON --title TEXT --output FILE.xml [--source-metadata JSON]
  * Output (stdout, JSON): { sequence, retained, limitations, bytes }
  */
-import { statSync, writeFileSync } from 'node:fs';
+import { statSync, writeFileSync, realpathSync } from 'node:fs';
 import { exportXmeml } from './export-xmeml.mjs';
+import { pathToFileURL } from 'node:url';
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const args = new Map();
   for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);
   try {

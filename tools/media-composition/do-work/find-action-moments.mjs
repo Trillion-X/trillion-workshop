@@ -28,6 +28,8 @@
  */
 import { execFileSync, spawnSync } from 'node:child_process';
 import { frameEnergyFlux } from './beat-onset-picker.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 export const SAMPLE_RATE = 22050;
 export const HOP = 256;
@@ -138,7 +140,7 @@ export function findActionMoments(video, { from = 0, to, count = 5, minGap = 1 }
   return { duration: round3(duration), from: round3(start), to: round3(end), moments, best: moments.length ? { time: moments[0].time } : null };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const [video, ...rest] = process.argv.slice(2);
   const options = new Map();
   for (let at = 0; at < rest.length; at += 2) options.set(rest[at].replace(/^--/, ''), Number(rest[at + 1]));

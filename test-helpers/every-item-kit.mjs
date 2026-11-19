@@ -14,11 +14,12 @@
 //   With rules.refuse_changed_items true (tools/workflows/kit-template.json), an item still on the allowance list that this
 //   change touches (a file in its tool folder outside kits/, or its workflow recipe) is refused until it has its kit.
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { root, rows, rowsOf, folders, tools as TOOLS } from './tool-rows.mjs';
 import { KIT_TEMPLATE, answerDraftProblems, kitProblems } from '../tools/workflows/read-data/kit-problems.mjs';
 import { publicRecipes } from '../tools/workflows/read-data/public-recipes.mjs';
+import { pathToFileURL } from 'node:url';
 
 export const OWED_FILE = resolve(root, 'test/items-without-a-kit.json');
 
@@ -112,7 +113,7 @@ export function kitGateProblems({ owed = JSON.parse(readFileSync(OWED_FILE, 'utf
   return problems;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const given = flag => { const at = process.argv.indexOf(flag); return at > 0 && existsSync(process.argv[at + 1]) ? readFileSync(process.argv[at + 1], 'utf8') : null; };
   const [beforeText, changedText, recipesText] = [given('--before'), given('--changed'), given('--before-recipes')];
   const touched = touchedIds({ changed: changedText ? changedText.split('\n').filter(Boolean) : [], beforeRecipes: recipesText ? JSON.parse(recipesText) : null });

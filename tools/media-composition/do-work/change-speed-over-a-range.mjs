@@ -17,6 +17,8 @@
  */
 import { execFileSync } from 'node:child_process';
 import { renderEdl } from './render-an-edit.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const round3 = value => Math.round(value * 1000) / 1000;
 // A piece shorter than this is left out rather than rendered as a flash of a frame or two.
@@ -40,7 +42,7 @@ export function speedRangeEdl({ video, from, to, speed, keepFrom, keepTo }) {
 
 const durationOf = video => Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', video], { encoding: 'utf8' }).trim());
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const args = new Map();
   for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);
   try {

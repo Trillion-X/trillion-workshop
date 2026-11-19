@@ -3,6 +3,8 @@ import { redactStripeResponse } from './stripe-response-redactor.mjs';
 // Re-exported so existing importers (tests) keep `readCliInput` from this module.
 export { readCliInput } from './read-cli-input.mjs';
 import { readCliInput } from './read-cli-input.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 export function buildDryRunReceipt(input) {
   const mapped = mapCapabilityRequest(input);
@@ -16,7 +18,7 @@ export function buildDryRunReceipt(input) {
   });
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const input = readCliInput(process.argv.slice(2));
   process.stdout.write(`${JSON.stringify(buildDryRunReceipt(input))}\n`);
 }

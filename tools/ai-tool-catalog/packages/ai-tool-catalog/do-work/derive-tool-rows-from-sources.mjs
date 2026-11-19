@@ -27,9 +27,9 @@
 //
 // Invariants: every returned row passes the ai-tool-catalog decoder; a template value
 // `{ "fill": { "from": "entry", "field": <entry field> } }` is filled now, every other `fill` is left for run time.
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { admitToolDescriptor } from '../read-data/read-ai-tool-catalog.ts';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -119,7 +119,7 @@ export function payloadsIn(path) {
   return files.flatMap(file => (JSON.parse(readFileSync(file, 'utf8')).records ?? []).map(record => record.payload));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const paths = process.argv.slice(2);
   if (!paths.length) throw new Error('usage: derive-tool-rows-from-sources.mjs <records file or folder> ...');
   const derived = await toolRowsFromSources(paths.flatMap(payloadsIn));

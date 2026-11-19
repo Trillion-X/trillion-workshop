@@ -13,10 +13,11 @@
  * Output (stdout, JSON): { time, chosen_by, score, width, height, bytes }
  */
 import { execFileSync } from 'node:child_process';
-import { statSync } from 'node:fs';
+import { statSync, realpathSync } from 'node:fs';
 import { bestPosterTime } from './pick-poster-frame.mjs';
+import { pathToFileURL } from 'node:url';
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const args = new Map();
   for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);
   try {

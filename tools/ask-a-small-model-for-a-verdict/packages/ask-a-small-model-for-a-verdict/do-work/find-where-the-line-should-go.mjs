@@ -29,9 +29,10 @@
 // Usage
 //   find-where-the-line-should-go.mjs --rubrics <path> [--rubric <id>]
 
-import {readFileSync} from 'node:fs'
+import {readFileSync, realpathSync } from 'node:fs'
 import {checkRubric, scoreCandidate} from '../../../../shared-code/packages/ask-a-small-model-for-a-verdict/do-work/ask-for-a-verdict.mjs'
 import {classifiersFrom} from './route-to-the-owner-that-answers.mjs'
+import { pathToFileURL } from 'node:url';
 
 /**
  * Where to draw one line between two labelled groups.
@@ -157,7 +158,7 @@ export async function main(argv) {
   return 0
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   main(process.argv.slice(2)).then(
     code => process.exit(code),
     error => {

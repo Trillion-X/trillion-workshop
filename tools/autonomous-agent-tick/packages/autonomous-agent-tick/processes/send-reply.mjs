@@ -45,6 +45,8 @@
 // ./lib/carrier.mjs, mounted beside this file by this action's manifest entry.
 import { resolveCarrier, resolvePartition, CARRIER_AND_PARTITION_REQUIRED } from './lib/carrier.mjs';
 import { chooseRoute } from './lib/reply-route.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const CARRIER_URL = resolveCarrier();
 const PARTITION_LABEL = resolvePartition();
@@ -148,6 +150,6 @@ async function main() {
   console.log(JSON.stringify({ tag: 'send-reply', request_id: REQUEST_ID, chat_id: chatId, channel: route.channel, destination_id: route.destination_id, chars: text.length, dispatched }));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) { main().catch((e) => { console.error('send-reply fatal:', e.message); process.exitCode = 1; }); }
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) { main().catch((e) => { console.error('send-reply fatal:', e.message); process.exitCode = 1; }); }
 
 export { replyText };

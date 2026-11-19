@@ -66,6 +66,8 @@ import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { deriveModelCatalogWithToolExposure } from "./derive-model-catalog-with-tool-exposure.mjs";
 import { readModelListFromCodexAppServer } from "./read-model-list-from-codex-app-server.mjs";
+import { pathToFileURL } from "node:url";
+import { realpathSync } from "node:fs";
 
 // The provider blocks of a Codex config, verbatim, without the rest (hooks,
 // MCP servers, notify, projects), so a scratch consumer home resolves the same
@@ -349,7 +351,7 @@ function readArg(argv, flag) {
   return i === -1 ? undefined : argv[i + 1];
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const sourcesFile = readArg(process.argv, "--sources");
   if (!sourcesFile) {
     process.stderr.write("usage: --sources <sources.json>\n");

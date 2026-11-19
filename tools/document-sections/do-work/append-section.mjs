@@ -26,6 +26,8 @@
 
 import { readFile, writeFile, rename, stat } from 'node:fs/promises'
 import { resolve, dirname, basename, join } from 'node:path'
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const FENCE = /^\s*(```|~~~)/
 const HEADING = /^(#{1,6})\s+\S/
@@ -120,7 +122,7 @@ export async function run(argv) {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   run(process.argv.slice(2)).then(
     (readback) => process.stdout.write(`${JSON.stringify(readback, null, 2)}\n`),
     (error) => {

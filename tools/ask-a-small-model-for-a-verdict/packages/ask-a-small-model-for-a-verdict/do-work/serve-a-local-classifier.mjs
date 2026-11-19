@@ -33,9 +33,10 @@
 // which is what lets any number of callers ask for it at once.
 
 import {spawn} from 'node:child_process'
-import {readdirSync, existsSync, mkdirSync, openSync, readFileSync} from 'node:fs'
+import {readdirSync, existsSync, mkdirSync, openSync, readFileSync, realpathSync } from 'node:fs'
 import {join, dirname} from 'node:path'
 import {homedir} from 'node:os'
+import { pathToFileURL } from 'node:url';
 
 const CACHE = join(homedir(), '.cache', 'huggingface', 'hub')
 
@@ -154,6 +155,6 @@ export async function main(argv) {
   return up ? 0 : 1
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   main(process.argv.slice(2)).then(code => process.exit(code))
 }

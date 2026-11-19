@@ -29,6 +29,8 @@
 //   put-one-secret-in-the-vault.mjs --name <holder> --from-file <path> [--insert-only]
 
 import {askTheVault} from '../read-data/ask-the-vault-for-one-secret.mjs'
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 function readArguments(argv) {
   const values = new Map()
@@ -56,7 +58,7 @@ export async function main(argv) {
   return answer.saved === name || answer.kept === true ? 0 : 1
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   main(process.argv.slice(2)).then(
     code => process.exit(code),
     error => {

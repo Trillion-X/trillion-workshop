@@ -2,7 +2,8 @@
 // Validate an owner-local address BEFORE a workflow direct-read can see it.
 // This keeps foreign package records out of Documents publication memory.
 
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, realpathSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 const DOCUMENT_ADDRESS_PREFIX = 'package::documents::documents::';
 const DOCUMENT_INDEX_ADDRESS_PREFIX = 'package::documents::document-index::';
@@ -38,4 +39,4 @@ function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) process.exit(main());
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) process.exit(main());

@@ -30,10 +30,10 @@
 // Usage
 //   get-the-judges-ready.mjs --rubrics <path> --remember <path> [--passes 1]
 
-import {readFileSync, writeFileSync, rmSync, mkdirSync, existsSync} from 'node:fs'
+import {readFileSync, writeFileSync, rmSync, mkdirSync, existsSync, realpathSync } from 'node:fs'
 import {dirname} from 'node:path'
 import {spawn} from 'node:child_process'
-import {fileURLToPath} from 'node:url'
+import {fileURLToPath, pathToFileURL } from 'node:url'
 import {checkRubric, chooseCandidate, rememberedIn} from '../../../../shared-code/packages/ask-a-small-model-for-a-verdict/do-work/ask-for-a-verdict.mjs'
 import {providersIn, whoCanBeAsked} from './who-can-be-asked.mjs'
 
@@ -117,6 +117,6 @@ export async function main(argv) {
   return 0
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   main(process.argv.slice(2)).then(code => process.exit(code), error => { process.stderr.write(`${error.message}\n`); process.exit(1) })
 }

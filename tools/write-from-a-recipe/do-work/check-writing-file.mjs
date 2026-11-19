@@ -3,6 +3,7 @@
 import { constants, closeSync, fstatSync, openSync, readFileSync, readSync, realpathSync } from 'node:fs';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { text } from 'node:stream/consumers';
+import { pathToFileURL } from 'node:url';
 
 // Keep package loading inside a catch: on a native computer runner a broken
 // package closure must become a small, source-free tool error, not a Node stack.
@@ -75,7 +76,7 @@ export function checkWritingFile(input, { folder, maxBytes = limits.max_bytes } 
   return checkWritingAgainstItsRecipe(request);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try {
     const input = JSON.parse((await text(process.stdin)) || '{}');
     console.log(JSON.stringify({ result: checkWritingFile(input, { folder: process.argv[2] }) }));

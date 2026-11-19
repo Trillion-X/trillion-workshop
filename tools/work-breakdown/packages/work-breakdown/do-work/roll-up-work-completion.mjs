@@ -38,6 +38,8 @@
 
 import {readFile, writeFile} from 'node:fs/promises'
 import {resolve} from 'node:path'
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 // A state says three things: how it is written, whether it counts as finished,
 // and whether an item in it still needs something pointed at. Every tree
@@ -289,7 +291,7 @@ export async function run(argv) {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   run(process.argv.slice(2)).then(
     result => {
       process.stdout.write(

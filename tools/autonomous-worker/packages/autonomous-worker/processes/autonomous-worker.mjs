@@ -33,9 +33,10 @@
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, realpathSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 function nonEmptyEnv(value) {
   const text = typeof value === 'string' ? value.trim() : '';
@@ -518,4 +519,4 @@ async function main() {
 }
 
 // Run only when invoked directly (not when imported by the self-test).
-if (import.meta.url === `file://${process.argv[1]}`) { main().catch(e => { console.error(e); process.exit(1); }); }
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) { main().catch(e => { console.error(e); process.exit(1); }); }

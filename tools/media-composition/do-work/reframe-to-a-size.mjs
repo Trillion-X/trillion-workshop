@@ -25,6 +25,8 @@ import { execFileSync } from 'node:child_process';
 import { autoReframe, trackToReframe } from './auto-reframe.mjs';
 import { trackMovingSubject } from './track-moving-subject.mjs';
 import { renderEdl } from './render-an-edit.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const even = value => Math.max(2, 2 * Math.round(value / 2));
 /** The output frame: the caller's exact size, or the largest window of the new shape inside the source picture. */
@@ -39,7 +41,7 @@ export function frameSize({ aspectW, aspectH, source, width, height }) {
     : { width: even(source.width), height: even(source.width * aspectH / aspectW) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const args = new Map();
   for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);
   try {

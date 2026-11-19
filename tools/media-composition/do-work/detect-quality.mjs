@@ -13,6 +13,8 @@
  * brightness} shape, so ranking stays blind to how quality was measured (L090).
  */
 import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
 const round3 = (n) => Math.round(n * 1000) / 1000;
@@ -70,7 +72,7 @@ export function pickBestTakes(files, opts = {}) {
 }
 
 // CLI: node detect-quality.mjs <file...> [--fps N]
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const args = process.argv.slice(2);
   const files = [];
   const opt = {};

@@ -10,9 +10,10 @@
 //
 // An index is a JSON-lines file, one row per file, plus an optional types file. Nothing here names a person, a drive or a
 // kind of file; "video" is a word in the types file, not in this code. Read only: it never builds or changes an index.
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, realpathSync } from 'node:fs';
 import { join } from 'node:path';
 import { settingsFor } from '../../settings/read-data/settings.mjs';
+import { pathToFileURL } from 'node:url';
 
 const DEFAULT_FIELDS = { path: 'path', display_path: 'display_path', name: 'name', root: 'root', type: 'content_type', tags: 'tags', text: 'text', identity: 'identity', size: 'size' };
 const DEFAULT_WEIGHTS = { name: 5, tag: 4, path: 2, text: 1, phrase: 8, all_terms: 6, book_tag: 10 };
@@ -157,7 +158,7 @@ export async function findFilesInAnIndexForARun(request) {
   return { ...findFilesInAnIndex({ ...settings, ...Object.fromEntries(Object.entries(own).filter(([, v]) => v !== undefined)) }), ...(from ? { settings_from: from } : {}) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try { process.stdout.write(`${JSON.stringify(findFilesInAnIndex(JSON.parse(process.argv[2] ?? '{}')))}\n`); }
   catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }
 }

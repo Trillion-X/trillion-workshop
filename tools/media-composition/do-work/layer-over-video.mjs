@@ -19,6 +19,8 @@
 import { execFileSync } from 'node:child_process';
 import { layerProblems, layersToEdit } from '../read-data/layers-to-edit.mjs';
 import { renderEdl } from './render-an-edit.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 /** The facts a layer needs from a file: its length in seconds, its picture width, and whether it is a still. */
 export function probeFile(file) {
@@ -65,7 +67,7 @@ function jsonArg(text, name) {
   return value;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const args = new Map();
   for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);
   try {

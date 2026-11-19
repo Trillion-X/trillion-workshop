@@ -1,3 +1,5 @@
+import { pathToFileURL } from "node:url";
+import { realpathSync } from "node:fs";
 /**
  * #228 Beat-synced multi-clip montage authorer (the music-montage that gets the views). Given a list of clips and
  * a list of CUT TIMES (the beats to cut on, from detect-beats -> beat-sync), this assigns each successive clip to
@@ -44,7 +46,7 @@ export function authorBeatMontage(clips, cutTimes, opts = {}) {
 }
 
 // CLI: node author-beat-montage.mjs --clips a.mp4,b.mp4,c.mp4 --cuts 0,0.5,1,1.5 [--clip-start S] [--width W] [--height H] [--fps F]
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const args = process.argv.slice(2);
   const opt = {}; let clips = [], cuts = [];
   for (let i = 0; i < args.length; i += 2) {

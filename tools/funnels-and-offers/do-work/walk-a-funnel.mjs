@@ -6,6 +6,8 @@
 // there is no graph or no entry node). `at` is where the buyer is (the entry when absent or unknown); with `outcome` the
 // answer also says where the buyer goes next.
 import { advanceFunnel, funnelStepAtCursor, resolveCtaLinks, resolveFunnelFlow } from '../read-data/funnel-flow.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const lists = ['graphs', 'nodes', 'experiments', 'variants', 'offer_experiments', 'cta_links'];
@@ -28,7 +30,7 @@ export function walkAFunnel(input) {
   return answer;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try { process.stdout.write(`${JSON.stringify(walkAFunnel(JSON.parse(process.argv[2] ?? '{}')))}\n`); }
   catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }
 }

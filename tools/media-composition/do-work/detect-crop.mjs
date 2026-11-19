@@ -12,6 +12,8 @@
  * `crop` is null when the detected rect already equals the full frame (nothing to remove) - a safe no-op.
  */
 import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const clampInt = (n, lo, hi, d) => { const v = Math.round(Number.isFinite(Number(n)) ? Number(n) : d); return Math.max(lo, Math.min(hi, v)); };
 
@@ -50,7 +52,7 @@ export function detectCrop(file, opts = {}) {
 }
 
 // CLI: emit the content crop rect as DATA for a caller to set as the clip's `crop`.
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const file = process.argv[2];
   if (!file) { process.stderr.write('[detect-crop] usage: node detect-crop.mjs <video-path> [limit] [round]\n'); process.exit(2); }
   const limit = process.argv[3] !== undefined ? Number(process.argv[3]) : undefined;

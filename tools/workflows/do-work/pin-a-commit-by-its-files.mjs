@@ -26,6 +26,8 @@
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const hex = bytes => Buffer.from(bytes).toString('hex');
 
@@ -74,7 +76,7 @@ export function pinOf(repository, commit, address) {
   return { address: at, files_blake3: manifestIdentity(files), files: files.length };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const [repository, commit, address] = process.argv.slice(2);
   if (!repository || !commit || !address) { console.error('Give the repository folder, the full commit and the archive address: node pin-a-commit-by-its-files.mjs REPOSITORY COMMIT ADDRESS'); process.exit(2); }
   process.stdout.write(`${JSON.stringify(pinOf(repository, commit, address))}\n`);

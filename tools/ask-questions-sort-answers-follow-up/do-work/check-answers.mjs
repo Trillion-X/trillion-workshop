@@ -7,9 +7,10 @@
 // verdict and message, whether every answer is valid, and the first one that is not.
 // `registry` (the question-type rows, indexed) and `checkAnswers` are the form checker other tools import, so a
 // form's shape and the checking of its answers live here and nowhere else.
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { buildFillScreenModel } from '../read-data/fill-screen-model.ts';
 import { indexCapabilities } from '../read-data/question-descriptor.ts';
+import { pathToFileURL } from 'node:url';
 
 export const registry = indexCapabilities(JSON.parse(readFileSync(new URL('../data/question-types.json', import.meta.url), 'utf8')).rows);
 
@@ -30,7 +31,7 @@ export function checkAnswers(input) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try { process.stdout.write(`${JSON.stringify(checkAnswers(JSON.parse(process.argv[2] ?? '{}')))}\n`); }
   catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }
 }

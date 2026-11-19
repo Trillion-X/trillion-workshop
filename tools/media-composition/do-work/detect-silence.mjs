@@ -13,6 +13,8 @@
  * All knobs are DATA and sanitized (clamp + round), so a malformed value can never reach an ffmpeg arg.
  */
 import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const round3 = (n) => Math.round((Number(n) || 0) * 1000) / 1000;
 const clamp = (n, lo, hi, d = 0) => { const v = Number.isFinite(Number(n)) ? Number(n) : d; return Math.max(lo, Math.min(hi, v)); };
@@ -97,7 +99,7 @@ export function detectSilence(videoPath, opts = {}) {
 }
 
 // CLI: emit the silence intervals + keep spans as DATA for a caller to build a silence-removed EDL.
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const videoPath = process.argv[2];
   if (!videoPath) { process.stderr.write('[detect-silence] usage: node detect-silence.mjs <video-path> [thresholdDb] [minSilenceSec] [padSec]\n'); process.exit(2); }
   const thresholdDb = process.argv[3] !== undefined ? Number(process.argv[3]) : undefined;

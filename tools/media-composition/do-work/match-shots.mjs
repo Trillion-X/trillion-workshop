@@ -21,9 +21,10 @@
  * Output (stdout, JSON, last line): the edit with each matched clip's grade extended.
  */
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, realpathSync } from 'node:fs';
 import { join } from 'node:path';
 import { resolveRenderDimensions } from './resolve-render-dimensions.mjs';
+import { pathToFileURL } from 'node:url';
 
 const M = [[0.4124, 0.3576, 0.1805], [0.2126, 0.7152, 0.0722], [0.0193, 0.1192, 0.9505]];
 const WHITE = M.map(row => row[0] + row[1] + row[2]);
@@ -156,7 +157,7 @@ export function matchShots(edl, folder, rules = {}) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const args = new Map();
   for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);
   try {

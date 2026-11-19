@@ -44,10 +44,10 @@
 //   0  let the turn end
 //   2  block it, with the reason on stderr for the agent to read
 
-import {readFileSync, writeFileSync, appendFileSync, mkdirSync, readdirSync, statSync, openSync, readSync, closeSync} from 'node:fs'
+import {readFileSync, writeFileSync, appendFileSync, mkdirSync, readdirSync, statSync, openSync, readSync, closeSync, realpathSync } from 'node:fs'
 import {dirname, join} from 'node:path'
 import {homedir} from 'node:os'
-import {fileURLToPath} from 'node:url'
+import {fileURLToPath, pathToFileURL } from 'node:url'
 import {judge, VerdictRefused, NotCalibratedYet, rememberedIn} from '../../../../shared-code/packages/ask-a-small-model-for-a-verdict/do-work/ask-for-a-verdict.mjs'
 import {whoCanBeAsked} from './who-can-be-asked.mjs'
 import {startInTheBackground} from './get-the-judges-ready.mjs'
@@ -500,7 +500,7 @@ export async function main(argv, stdin) {
   return 2
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   // Failing open includes failing open on TIME. No request below carries its
   // own limit, and when every fast classifier is unreachable the fallback is a
   // local server that may first load a 30 GB model. The harness waits for this

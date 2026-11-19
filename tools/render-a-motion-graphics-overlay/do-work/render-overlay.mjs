@@ -10,8 +10,9 @@
 import { spawn } from 'node:child_process';
 import { text } from 'node:stream/consumers';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isSettingId } from '../../settings/read-data/settings.mjs';
+import { realpathSync } from 'node:fs';
 
 export const FOLDER = 'render-a-motion-graphics-overlay';
 const here = dirname(fileURLToPath(import.meta.url));
@@ -51,7 +52,7 @@ export async function renderOverlay({ stdin = process.stdin, out = process.stdou
   return runProgram([python, join(here, 'render_a_motion_graphics_overlay.py')], handed, out);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   try {
     process.exitCode = await renderOverlay();
   } catch (error) {

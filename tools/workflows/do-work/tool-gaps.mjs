@@ -9,9 +9,10 @@
 //
 // TOOLS_FOLDER is the Workshop's tools folder (the one holding every tools/<name>/tool-rows.json).
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { recipeToolGaps } from '../read-data/recipe-problems.mjs';
 import { workshopToolIds } from '../read-data/workshop-tool-ids.mjs';
+import { pathToFileURL } from 'node:url';
 
 // The gaps of every recipe in a `{ records: [{ payload }] }` file, against the tool rows under `tools`.
 export function toolGaps(recipesFile, tools) {
@@ -26,7 +27,7 @@ export function toolGaps(recipesFile, tools) {
   return { missing: Object.fromEntries(Object.entries(missing).sort()), by_recipe: byRecipe };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   if (!process.argv[2]) { console.error('Give the Workshop tools folder: node tool-gaps.mjs TOOLS_FOLDER'); process.exit(2); }
   console.log(JSON.stringify(toolGaps(new URL('../recipes/workflows.json', import.meta.url), process.argv[2]), null, 2));
 }

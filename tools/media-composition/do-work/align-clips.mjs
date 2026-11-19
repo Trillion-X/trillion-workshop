@@ -15,6 +15,8 @@
  */
 import { extractMonoPcm } from './detect-beats.mjs';
 import { frameEnergyFlux } from './beat-onset-picker.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 const round3 = (n) => Math.round(n * 1000) / 1000;
 
@@ -62,7 +64,7 @@ export function alignClips(fileA, fileB, opts = {}) {
 }
 
 // CLI: node align-clips.mjs <fileA> <fileB> [--lead S] [--hop N]
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const [a, b, ...rest] = process.argv.slice(2);
   if (!a || !b) { console.error('usage: align-clips.mjs <fileA> <fileB> [--lead S] [--hop N]'); process.exit(2); }
   const opt = {};

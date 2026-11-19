@@ -16,8 +16,9 @@
 //
 // This writes the records at the address their readers use. It is the same
 // `engine.operation.write-batch` every live data change goes through.
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { basename } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 import {
   scanCurrentUnderPath,
@@ -238,7 +239,7 @@ async function main() {
   process.stdout.write(`${JSON.stringify(answer).slice(0, 400)}\n`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   main().catch((error) => {
     process.stderr.write(`${error?.message ?? error}\n`);
     process.exit(1);

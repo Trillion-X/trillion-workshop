@@ -17,6 +17,8 @@ import { bestPosterTime } from './pick-poster-frame.mjs';
 import { loudnessGate } from './measure-loudness.mjs';
 import { captionPlacement } from './place-captions.mjs';
 import { karaokeAss } from './author-karaoke-captions.mjs';
+import { pathToFileURL } from 'node:url';
+import { realpathSync } from 'node:fs';
 
 /**
  * PURE: pick the ACTION window from motion segments (energy is per-clip max-normalized, peak = 1.0). Returns the
@@ -108,7 +110,7 @@ export function applyPlanToSegment(segment, plan) {
 export { loudnessGate };
 
 // CLI: node author-reel-plan.mjs <file> [--aspect-w N] [--aspect-h N] [--target-lufs L]
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const [file, ...rest] = process.argv.slice(2);
   if (!file) { console.error('usage: author-reel-plan.mjs <file> [--aspect-w N] [--aspect-h N] [--target-lufs L]'); process.exit(2); }
   const opt = {};

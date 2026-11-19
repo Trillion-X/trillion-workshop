@@ -1,3 +1,5 @@
+import { pathToFileURL } from "node:url";
+import { realpathSync } from "node:fs";
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const rawValue = field => object(field) && typeof field.value === 'string' ? field.value : null;
 
@@ -135,7 +137,7 @@ export function assessCommonsFileForReuse(input) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   let source = process.argv[2] ?? '';
   if (!source) for await (const chunk of process.stdin) source += chunk;
   process.stdout.write(`${JSON.stringify(assessCommonsFileForReuse(JSON.parse(source)))}\n`);
