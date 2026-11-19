@@ -129100,9 +129100,15 @@
           {
             "id": "launch-recorded",
             "on": {
-              "record": {
-                "resource": "own-records",
-                "kind": "launch"
+              "fact": {
+                "kind": "something-changed",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "place": "launch",
+                  "change": "added"
+                }
               }
             },
             "budget": {
@@ -202445,9 +202451,15 @@
           {
             "id": "shared",
             "on": {
-              "record": {
-                "resource": "own-records",
-                "kind": "shared"
+              "fact": {
+                "kind": "something-changed",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "place": "shared",
+                  "change": "added"
+                }
               }
             },
             "budget": {

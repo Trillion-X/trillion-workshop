@@ -1290,7 +1290,7 @@
     "recipe": "workflow:plan-a-launch-as-a-content-campaign",
     "source": "{\"from\":\"a principles registry mined from video captions\",\"name\":\"Run a launch as a content campaign planned against real milestones; fire the launch inside one short window; launch often; announce publicly what you will do\",\"principles\":[\"P-082\",\"P-093\",\"P-071\",\"P-098\"],\"note\":\"Adopted: the phase order (list, tease, hype, collect, blitz), the 30 to 120 minute window for every supporting post, launches as recurring content moments, and the public promise turned into follow-up pieces. Not adopted: posting from accounts the person does not own or asking supporters to hide that they are connected to the launch; every supporting voice posts as itself.\"}",
     "title": "Plan a launch as a content campaign",
-    "wakes": "[{\"id\":\"launch-recorded\",\"on\":{\"record\":{\"resource\":\"own-records\",\"kind\":\"launch\"}},\"budget\":{\"steps\":60,\"wall_ms\":3600000},\"input\":{\"start_at\":\"read-launch\"}}]"
+    "wakes": "[{\"id\":\"launch-recorded\",\"on\":{\"fact\":{\"kind\":\"something-changed\",\"from\":[\"run\"],\"match\":{\"place\":\"launch\",\"change\":\"added\"}}},\"budget\":{\"steps\":60,\"wall_ms\":3600000},\"input\":{\"start_at\":\"read-launch\"}}]"
    }
   },
   {
@@ -1728,7 +1728,7 @@
     "recipe": "workflow:turn-something-shared-into-what-you-can-use",
     "source": "{\"from\":\"a person's standing rule\",\"name\":\"Anything shared means incorporate it, not acknowledge it\",\"note\":\"Written from the way one person's AI handled 30 shared posts, repositories and product pages on 2026-10-30: each was split into parts and each part went to the owner of its kind. Steps that deceive people or evade a platform's checks are recorded as not adopted with the reason, never silently dropped.\"}",
     "title": "Turn something shared into what you can use",
-    "wakes": "[{\"id\":\"shared\",\"on\":{\"record\":{\"resource\":\"own-records\",\"kind\":\"shared\"}},\"budget\":{\"steps\":50,\"wall_ms\":1800000},\"input\":{\"start_at\":\"gather\"}}]"
+    "wakes": "[{\"id\":\"shared\",\"on\":{\"fact\":{\"kind\":\"something-changed\",\"from\":[\"run\"],\"match\":{\"place\":\"shared\",\"change\":\"added\"}}},\"budget\":{\"steps\":50,\"wall_ms\":1800000},\"input\":{\"start_at\":\"gather\"}}]"
    }
   },
   {

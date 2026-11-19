@@ -1,0 +1,48 @@
+{
+  "drafted_from": "workflow:plan-a-launch-as-a-content-campaign's published row and its steps (read-launch, phases, blitz-runbook, drafts, check-words, approve, schedule, readback) in published/workflows.json and published/workflow-steps.json.",
+  "start_here": "Say to your AI: \"Plan the launch in my launch record spring-course for email, video and my feed, with Sam posting as himself.\" The AI reads that launch record, plans four dated phases backwards from its launch time, writes the launch-day runbook, drafts every post for its platform, checks each word against your own rules and shows you every post to approve before anything is scheduled.",
+  "lists": [],
+  "no_lists_because": "It keeps nothing of its own: it reads the launch record you already wrote with records:read and earlier launch records with records:list, and writes its readback into that launch record's history.",
+  "workflows": [
+    "workflow:plan-a-launch-as-a-content-campaign"
+  ],
+  "tools": [
+    "tool:check-against-a-persons-rules-and-verdicts",
+    "tool:tell-the-person",
+    "tool:github:gitroomhq-postiz-app"
+  ],
+  "instructions": [
+    "1. Write a launch record (kind launch) with what launches, the launch date and time with its time zone, the offer and why now, or let the launch workflow that writes it run first.",
+    "2. Say \"Plan the launch in my launch record <id> for <your channels>\"; name any supporting voices and the sign-up target if you have them. Answer any question the AI asks with tool:tell-the-person before it goes on.",
+    "3. Read the phases, the blitz runbook and each checked draft the AI shows you; reply with the drafts you approve exactly as written and the ones you do not. Nothing is scheduled until you approve it, and each supporting voice posts from its own account."
+  ],
+  "worked_examples": [
+    {
+      "title": "A launch record becomes a planned four-phase campaign",
+      "ask": "Plan the launch in my launch record spring-course for my email list, my video channel and my feed; Sam posts as himself.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:plan-a-launch-as-a-content-campaign",
+              "input": {
+                "launch_record": "spring-course",
+                "channels": ["email list", "video channel", "feed"],
+                "supporting_voices": ["Sam"],
+                "list_target": 300
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:plan-a-launch-as-a-content-campaign",
+      "step": "read-launch",
+      "given": "The launch record spring-course holds the course, its launch date and time with a time zone, the offer and the reason for launching now.",
+      "hands_back": "Four dated phases (list, tease, hype-and-collect, blitz), a blitz runbook with the lead post first and each channel and Sam 30 to 120 minutes later, and every draft checked and waiting for your approval."
+    }
+  ]
+}
