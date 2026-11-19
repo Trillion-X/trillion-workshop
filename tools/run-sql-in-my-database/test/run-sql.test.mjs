@@ -169,6 +169,26 @@ test('a standing read-only login is made from the held role connection, reads ev
   await assert.rejects(runSql({ connection: shareConnection, input: { sql: 'SELECT 1' } }), /password authentication failed|does not exist/);
 });
 
+test('a minted member login reads, adds, changes and removes rows, of a table made after it too, and cannot change a table or make a login', async () => {
+  const until = new Date(Date.now() + 3600000).toISOString();
+  const minted = await runSql({ connection: ownerConnection, input: { recipe: { name: 'may-change-rows', action: 'create', valid_until: until } } });
+  const [{ role, connection }] = minted.rows;
+  assert.match(role, /^may_change_rows_[0-9a-f]{12}$/);
+  await runSql({ connection: ownerConnection, input: { sql: 'CREATE TABLE notes (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, words text)' } });
+  await runSql({ connection, input: { sql: "INSERT INTO tasks (id, title) VALUES ('t-member', 'added by a member')" } });
+  await runSql({ connection, input: { sql: "UPDATE tasks SET title = 'changed by a member' WHERE id = 't-member'" } });
+  await runSql({ connection, input: { sql: "INSERT INTO notes (words) VALUES ('a table made after the login')" } });
+  assert.deepEqual((await runSql({ connection, input: { sql: 'SELECT words FROM notes' } })).rows, [{ words: 'a table made after the login' }]);
+  await runSql({ connection, input: { sql: "DELETE FROM tasks WHERE id = 't-member'" } });
+  await assert.rejects(runSql({ connection, input: { sql: 'ALTER TABLE tasks ADD COLUMN extra text' } }), /must be owner/);
+  await assert.rejects(runSql({ connection, input: { sql: 'DROP TABLE notes' } }), /must be owner/);
+  await assert.rejects(runSql({ connection, input: { sql: "CREATE ROLE p_member_made LOGIN PASSWORD 'x'" } }), /permission denied/);
+  await runSql({ connection: ownerConnection, input: { recipe: { name: 'may-change-rows', action: 'drop', role } } });
+  await runSql({ connection: ownerConnection, input: { sql: 'DROP TABLE notes' } });
+  assert.deepEqual((await runSql({ connection: ownerConnection, input: { sql: 'SELECT id FROM tasks ORDER BY id' } })).rows, [{ id: 't1' }]);
+  assert.deepEqual(await roles(), []);
+});
+
 test('a minted read-only login works until its time and is refused after it; a past time makes a login that cannot sign in', async () => {
   const until = new Date(Date.now() + 3600000).toISOString();
   const minted = await runSql({ connection: ownerConnection, input: { recipe: { name: 'read-only', action: 'create', valid_until: until } } });
