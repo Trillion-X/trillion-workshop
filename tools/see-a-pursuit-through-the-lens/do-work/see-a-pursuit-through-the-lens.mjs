@@ -1,6 +1,6 @@
 // tools/see-a-pursuit-through-the-lens/do-work/see-a-pursuit-through-the-lens.mjs
 //
-// tool:see-a-pursuit-through-the-lens, run as a function (tools/records-door do-work/run-an-export.mjs): how an AI
+// tool:see-a-pursuit-through-the-lens, run as a function (tools/workflows do-work/run-a-function.mjs): how an AI
 // should look at what a person is pursuing, from that person's own lens. The caller hands the lens in (`lens`: the
 // lens rows its AI read from the person's lists, and the opening, parts and closing it read around them); this keeps
 // nothing and reads nothing. The answer is what src/pursuit-lens.mjs makes of it, unchanged: the paragraph every AI

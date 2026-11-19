@@ -44,6 +44,9 @@ test('refusals say what to hand in', () => {
 test('the row runs with no records door and its answer holds the result', async () => {
   const row = rowOf(rows, 'tool:see-a-pursuit-through-the-lens');
   assert.equal(row.invoke.records, undefined);
+  assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.deepEqual(row.invoke.files.package_files.map(files => files.package), ['see-a-pursuit-through-the-lens', 'workflows']);
+  assert.equal(row.uses_tools.includes('trillion-workshop/records-door'), false);
   const made = await answerOf(row, { answer: 'setup', lens: madeUp() });
   assert.equal(made.status, 0, JSON.stringify(made.error));
   assert.deepEqual(made.result.setup.parts.map(part => part.name), ['Soil', 'Weather']);

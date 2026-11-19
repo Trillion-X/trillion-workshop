@@ -1,9 +1,9 @@
 // How an AI sees what a person is pursuing, as DATA: the places to look, the parts to read what it finds by (what goes
 // on inside the person, the game around them, the one move that matters), and rows of what to look for and what to do.
 // The lens is the person's own rows, handed in by whoever calls this: useLens(lens) once (Trillion's own in-account
-// run hands in the rows it keeps), or each function's `data` (the Workshop row reads them from the person's lists
-// through their records door, do-work/see-a-pursuit-through-the-lens.mjs). Where a row came from (`source`) is never
-// sent out by anything here.
+// run hands in the rows it keeps), or each function's `data` (the Workshop row is handed them in its input by
+// a caller that read them from the person's own store, do-work/see-a-pursuit-through-the-lens.mjs). Where a row came
+// from (`source`) is never sent out by anything here.
 let lens = null;
 
 /** Hand in the lens ({ opening, parts, closing, rows }) the functions read when they are given none. */
