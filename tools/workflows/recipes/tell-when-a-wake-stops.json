@@ -1,0 +1,112 @@
+{
+  "_what": "Tells the person when one of their wakes stops, through tool:tell-the-person (every way they chose for needs-you). It wakes on the wake-failed fact the engine keeps (trillion-rust e9f19e41c) and names no store: the fact carries the tool, the wake and the cause. Switching the wake off and on again resumes it, which the notice says.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:tell-when-a-wake-stops",
+        "label": "Tell me when a wake stops",
+        "job": "Tell the person when one of their wakes stops, with its cause, and that switching it off and on resumes it. It names no store: it hears the wake-failed fact the engine keeps whenever a wake turns failed.",
+        "produces": "One notice to the person per wake-failed fact, kind needs-you, titled '<tool> <wake> stopped: <cause>'.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "fact": {
+              "type": "object",
+              "description": "The wake-failed fact the engine kept: tool (the tool the wake belongs to), wake (the wake's id), cause (why it stopped)"
+            }
+          }
+        },
+        "wakes": [
+          {
+            "id": "a-wake-stopped",
+            "on": {
+              "fact": {
+                "kind": "wake-failed",
+                "from": [
+                  "wake"
+                ]
+              }
+            },
+            "budget": {
+              "steps": 2,
+              "wall_ms": 120000
+            },
+            "input": {
+              "start_at": "tell"
+            }
+          }
+        ],
+        "definition": {
+          "id": "workflow:tell-when-a-wake-stops",
+          "name": "Tell me when a wake stops",
+          "kind": "workflow",
+          "is_active": true,
+          "version": 1,
+          "steps": [
+            {
+              "id": "tell",
+              "kind": "ask",
+              "config": {
+                "name": "tool:tell-the-person",
+                "input": {
+                  "title": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "fact.tool"
+                    },
+                    "resolve_nested_bindings": true,
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "fact.tool"
+                              }
+                            },
+                            " ",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "fact.wake"
+                              }
+                            },
+                            " stopped: ",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "fact.cause"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "body": "Switch it off and on to resume it.",
+                  "kind": "needs-you"
+                },
+                "context": {
+                  "step_id": "tell"
+                }
+              }
+            }
+          ],
+          "edges": []
+        },
+        "records": {
+          "runs": [
+            "tool:tell-the-person"
+          ]
+        }
+      }
+    }
+  ]
+}

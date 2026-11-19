@@ -1,0 +1,45 @@
+{
+  "drafted_from": "workflow:tell-when-a-wake-stops's own file, tools/workflows/recipes/tell-when-a-wake-stops.json (its wake, definition and steps), and the engine's wake-failed fact (trillion-rust e9f19e41c).",
+  "start_here": "Say to your AI: \"Tell me when one of my wakes stops.\" The AI turns on workflow:tell-when-a-wake-stops's wake a-wake-stopped. From then on, each wake that stops is told to you with its cause, and switching it off and on again resumes it.",
+  "lists": [],
+  "no_lists_because": "It keeps nothing and reads nothing: the wake-failed fact carries the tool, the wake and the cause, and the run tells one notice.",
+  "workflows": [
+    "workflow:tell-when-a-wake-stops"
+  ],
+  "tools": [
+    "tool:tell-the-person"
+  ],
+  "instructions": [
+    "1. Turn on this workflow's wake a-wake-stopped. The engine keeps a wake-failed fact whenever a wake turns failed.",
+    "2. Read each notice that comes: its title names the tool, the wake and the cause; switch that wake off and on to resume it.",
+    "3. Read the answer: a notice says what stopped and why; once you have fixed the cause, switch the wake off and then on again, and read wake:list until it shows the wake running."
+  ],
+  "worked_examples": [
+    {
+      "title": "A wake stops and the person is told its cause",
+      "ask": "(the engine kept a wake-failed fact for the keep-noticing wake of notice-when-something-shows-up)",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:tell-when-a-wake-stops",
+              "fact": {
+                "tool": "tool:notice-when-something-shows-up",
+                "wake": "keep-noticing-row-changes",
+                "cause": "No waiter descriptor rows under packages/notice-when-something-shows-up/waiter-descriptor"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:tell-when-a-wake-stops",
+      "step": "tell",
+      "given": "The engine kept wake-failed {tool notice-when-something-shows-up, wake keep-noticing-row-changes, cause No waiter descriptor rows under packages/notice-when-something-shows-up/waiter-descriptor}.",
+      "hands_back": "One tool:tell-the-person call with title \"tool:notice-when-something-shows-up keep-noticing-row-changes stopped: No waiter descriptor rows under packages/notice-when-something-shows-up/waiter-descriptor\", body \"Switch it off and on to resume it.\", kind needs-you."
+    }
+  ]
+}
