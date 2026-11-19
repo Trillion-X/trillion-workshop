@@ -4,9 +4,9 @@ import { mkdtemp, writeFile, symlink, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { keepALocalFile } from '../do-work/keep-a-local-file.mjs';
-import { LARGE_FILE } from '../../records-door/read-data/whole-file.mjs';
+import { LARGE_FILE } from '../../workflows/read-data/whole-file.mjs';
 
-// A door that records each call: pieces for a small write, and the lease road for a large one.
+// A host whose files right records each call: pieces for a small write, and the lease road for a large one.
 function fakeDoor() {
   const calls = [];
   return {
@@ -29,7 +29,7 @@ test('keeps a regular file in pieces and answers the door finish', async () => {
   const path = join(dir, 'clip.mp4');
   await writeFile(path, Buffer.alloc(100_000, 7));
   const door = fakeDoor();
-  const answer = await keepALocalFile({ path, name: '/site/clip.mp4', media_type: 'video/mp4' }, { door });
+  const answer = await keepALocalFile({ path, name: '/site/clip.mp4', media_type: 'video/mp4' }, door);
   assert.deepEqual(answer.refused, []);
   assert.equal(answer.kept[0].bytes, 100_000);
   assert.deepEqual(answer.kept[0].finished, { name: '/site/clip.mp4', state: 'written' });
@@ -42,7 +42,7 @@ test('a file above the whole-file threshold goes over the lease road, not in pie
   const path = join(dir, 'big.mov');
   await writeFile(path, Buffer.alloc(LARGE_FILE.threshold_bytes + 5, 1));
   const door = fakeDoor();
-  const answer = await keepALocalFile({ path, name: '/films/big.mov' }, { door });
+  const answer = await keepALocalFile({ path, name: '/films/big.mov' }, door);
   assert.equal(answer.kept[0].finished.state, 'uploaded');
   assert.deepEqual(door.calls.map(call => call.op), ['writeLarge']);
   assert.equal(door.calls[0].size, LARGE_FILE.threshold_bytes + 5);
@@ -63,7 +63,7 @@ test('a list keeps each file in order and names each refusal, and one refusal do
     { path: 'relative.txt', name: '/a/rel.txt' },
     { path: real, name: '/../escape.txt' },
     { path: real, name: '/a/real.txt' },
-  ] }, { door });
+  ] }, door);
   assert.deepEqual(answer.kept.map(file => file.name), ['/a/real.txt']);
   assert.deepEqual(answer.refused.map(row => row.reason), [
     'A link is not kept; name the file itself.',
@@ -77,6 +77,6 @@ test('a list keeps each file in order and names each refusal, and one refusal do
 test('a run over the most files is refused before anything is sent', async () => {
   const door = fakeDoor();
   const files = Array.from({ length: 300 }, (_, index) => ({ path: `/tmp/x${index}`, name: `a/${index}` }));
-  await assert.rejects(keepALocalFile({ files }, { door }), { code: 'refused' });
+  await assert.rejects(keepALocalFile({ files }, door), { code: 'refused' });
   assert.equal(door.calls.length, 0);
 });

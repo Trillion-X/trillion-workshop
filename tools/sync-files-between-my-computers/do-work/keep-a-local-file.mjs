@@ -1,7 +1,7 @@
 // tools/sync-files-between-my-computers/do-work/keep-a-local-file.mjs
 //
 // Keeps files from the person's computer in their Files under the names they choose. One file (path, name) or a list
-// (files: [{ path, name, media_type }]) is kept in order; each file is kept by records-door's keepLocalFile, which
+// (files: [{ path, name, media_type }]) is kept in order; each file is kept by workflows' keepLocalFile (read-data/whole-file.mjs), which
 // sends a small file in pieces and a file above the whole-file threshold over the lease road.
 //
 // Non-Negotiable Invariants:
@@ -12,12 +12,12 @@
 //   3. Nothing is deleted or moved here. A file is read in place.
 //   4. A run keeps at most DATA `most_files` (keep-a-local-file.json) files.
 //
-//   keepALocalFile({ path, name, media_type } | { files: [...] }, { door }) — `door` is read only when a file is kept
+//   keepALocalFile({ path, name, media_type } | { files: [...] }, host) — `host` (the run's host actions) is read only when a file is kept
 //     → { kept: [{ name, bytes, media_type, finished }], refused: [{ path, name, code, reason }] }
 import { lstat } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { isAbsolute } from 'node:path';
-import { keepLocalFile } from '../../records-door/read-data/whole-file.mjs';
+import { keepLocalFile } from '../../workflows/read-data/whole-file.mjs';
 
 const SETTINGS = JSON.parse(readFileSync(new URL('./keep-a-local-file.json', import.meta.url), 'utf8'));
 
@@ -36,8 +36,8 @@ async function keepOne({ path, name, media_type = 'application/octet-stream' } =
   const info = await (context.stat ?? lstat)(path);
   if (info.isSymbolicLink()) refuse('A link is not kept; name the file itself.');
   if (!info.isFile()) refuse('Only a regular file can be kept.');
-  // The door is read only when a file is kept: a run that keeps nothing never opens it.
-  const finished = await keepLocalFile(context.door, name, path, { mediaType: media_type });
+  // The host's files right is used only when a file is kept: a run that keeps nothing never asks for it.
+  const finished = await keepLocalFile(context, name, path, { mediaType: media_type });
   return { name, bytes: info.size, media_type, finished };
 }
 
