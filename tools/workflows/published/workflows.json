@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "741525be464205f29d87ef9043fb23e64ea993620a7eeb614c50c9769f2815f1",
+  "blake3": "9ffd65aa173fe742649513571ef59cb1d503750112cab6a422b3cd6df1eadd2e",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -23,6 +23,7 @@
     "ask-for-ten-and-keep-the-winner",
     "audit-a-site-against-its-references-for-originality",
     "audit-an-app-store-listing",
+    "brief-a-creator-with-one-full-brief",
     "bring-an-old-sites-content-into-the-sellers-own-store",
     "bring-in-a-framework",
     "bring-in-my-processes",
@@ -31,6 +32,8 @@
     "build-a-design-system-from-the-ui-an-app-already-ships",
     "build-a-living-workbook-for-a-numeric-strategy",
     "build-a-soundtrack-from-real-recordings",
+    "build-an-ad-hook-for-the-buyers-stage",
+    "build-an-audience-with-traffic-hopper-and-conversion",
     "build-the-abilities-the-work-needs",
     "build-the-landing-page",
     "buy-and-deliver",
@@ -41,6 +44,7 @@
     "check-a-claim-and-explain-it-in-plain-words",
     "check-a-customer-support-case-before-it-is-closed",
     "check-a-decision-against-your-map",
+    "check-that-a-new-customer-pays-for-their-own-acquisition-fast",
     "check-what-a-standing-system-did-this-week",
     "check-what-changed-and-fix-what-failed",
     "choose-a-change-worth-making",
@@ -64,6 +68,7 @@
     "design-an-upgrade-moment-that-asks-after-value",
     "design-popups-and-banners-that-convert-without-annoying",
     "direct-and-render-a-short-motion-film",
+    "document-the-journey-in-public-before-launch",
     "draw-a-technical-illustration-of-how-something-works",
     "earn-links-and-mentions-for-the-pages-that-need-them",
     "earn-press-coverage",
@@ -75,7 +80,10 @@
     "fetch-a-social-post-by-link",
     "file-what-needs-the-person",
     "fill-in-a-lean-canvas-with-evidence",
+    "finance-inventory-with-debt-tied-to-sell-through",
     "find-a-partner-and-plan-a-joint-campaign",
+    "find-ad-angles-in-customers-own-words",
+    "find-and-attack-the-one-constraint-on-growth",
     "find-moments-in-a-recording",
     "find-the-deepest-root-cause-of-a-bug",
     "find-the-gaps-between-a-design-and-its-target",
@@ -97,7 +105,9 @@
     "get-a-product-listed-in-the-directories-that-fit-it",
     "get-a-rented-room-ready-after-a-stay",
     "get-a-stalled-agent-moving-again",
+    "get-customers-by-mastering-one-way-first",
     "get-past-a-wall-called-impossible",
+    "get-the-first-hundred-reviews",
     "give-a-row-its-workflows",
     "give-or-end-access-by-hand",
     "give-paid-buyers-access",
@@ -105,10 +115,12 @@
     "ground-a-screen-in-real-product-references",
     "grow-an-audience-on-x",
     "grow-on-reddit-without-selling-first",
+    "grow-one-persons-brand-to-a-million-dollars",
     "grow-the-one-tree",
     "hand-to-an-agent",
     "handle-a-customer-access-case",
     "handle-every-inbox-daily",
+    "hire-by-treating-applicants-like-customers",
     "hire-help-for-a-step",
     "hold-us-to-it",
     "improve-a-signup-flow",
@@ -120,11 +132,13 @@
     "keep-a-change-under-review-until-it-is-clean",
     "keep-a-changelog-from-what-shipped",
     "keep-a-product-positioning-record",
+    "keep-customers-by-finding-why-they-leave",
     "keep-each-payment-where-the-seller-keeps-their-rows",
     "keep-every-pursuit-moving-with-a-board-and-a-weekly-pulse",
     "keep-it-working",
     "keep-what-was-learned-usable-by-others",
     "keep-what-you-find-in-lists",
+    "launch-a-first-product-to-a-list-built-first",
     "lead-me-to-it",
     "learn-the-person",
     "legal-pages-and-support",
@@ -139,8 +153,11 @@
     "make-a-sound-in-code-and-improve-it-by-listening",
     "make-adapt-or-update-a-skill",
     "make-ads-from-winning-reference-ads",
+    "make-ads-that-differ-in-who-what-how-and-shape",
+    "make-an-ad-with-ai-while-a-person-decides",
     "make-an-image-that-does-its-job",
     "make-and-improve-a-skill-by-testing",
+    "make-content-in-volume-with-outside-help",
     "make-it-easy-to-recognize-and-use",
     "make-it-once-for-everyone",
     "make-it-perform",
@@ -148,12 +165,14 @@
     "make-media-from-a-stated-generation-recipe",
     "make-one-piece-of-content-from-audience-to-publish",
     "make-short-videos-from-footage",
+    "make-static-ads-one-change-at-a-time",
     "make-the-person-understand-a-result",
     "make-the-piece-without-waiting-for-the-person",
     "make-the-speech-sound-good",
     "manage-member-billing",
     "map-style-values-onto-existing-design-tokens",
     "map-the-customer-journey-into-a-channel-library",
+    "match-the-ad-format-to-the-buyers-stage",
     "measure-a-sport-technique-from-footage",
     "measure-how-a-codebase-is-growing",
     "measure-the-funnel-and-set-a-baseline",
@@ -200,10 +219,13 @@
     "put-it-where-it-belongs",
     "question-the-belief-until-it-holds",
     "quintillion",
+    "raise-prices-and-keep-the-customers-worth-keeping",
     "raise-the-bar-the-work-is-held-to",
+    "raise-the-price-by-asking-what-would-need-to-be-true",
     "reach-companies-with-a-long-open-job-post",
     "reach-local-businesses-by-zip-code",
     "reach-the-people-it-matters-to",
+    "read-ad-numbers-to-choose-the-fix",
     "read-before-deciding",
     "read-the-surroundings-around-a-person",
     "real-life-cases",
@@ -225,6 +247,7 @@
     "run-a-cold-email-channel",
     "run-a-community",
     "run-a-course-from-list-rows",
+    "run-a-creative-learning-loop",
     "run-a-creator-partnership-program",
     "run-a-guest-show-to-reach-target-buyers",
     "run-a-linkedin-content-system",
@@ -236,8 +259,10 @@
     "run-team-led-content",
     "same-abilities-each-device-its-own-look",
     "say-if-it-is-known-new-or-rechecked",
+    "score-a-business-on-product-audience-and-sales-channel",
     "score-and-rewrite-copy-against-the-persons-copy-rules",
     "sell-a-paid-working-session-to-a-business",
+    "sell-more-to-each-customer-after-the-first-yes",
     "sell-what-the-pursuit-makes",
     "send-a-prospect-a-sample-made-for-them",
     "set-and-change-the-price-of-a-product",
@@ -248,21 +273,27 @@
     "set-up-business-accounts-and-connections",
     "set-up-lead-handling-from-first-touch-to-customer",
     "set-up-your-checks",
+    "set-your-own-terms-before-selling-a-business",
     "sharpen-the-words-of-a-domain-and-record-hard-decisions",
     "ship-the-whole-branch-to-live",
     "show-every-state-of-a-component",
     "simulate-a-choice-forward",
+    "sort-every-task-by-whether-someone-else-can-take-it",
     "speed-up-ci-for-agent-speed-changes",
     "split-what-must-be-certain-from-what-an-ai-may-reason",
     "start-from-the-persons-own-work",
     "stress-test-one-component-under-every-scenario-that-can-reach-it",
+    "take-apart-a-winning-ad-before-copying-it",
     "take-payments-with-stripe",
     "take-refundable-deposits-for-a-free-event",
+    "teach-a-job-by-writing-showing-and-watching",
     "test-a-business-model-one-belief-at-a-time",
     "test-a-finding",
     "test-an-app-end-to-end-and-fix-what-breaks",
+    "test-new-ads-apart-from-proven-ones",
     "test-prices-and-change-a-page-for-each-visitor",
     "trace-to-first-principles",
+    "train-a-sales-team-with-a-script-and-daily-practice",
     "treat-things-that-arrive-together-as-one-job",
     "turn-a-code-change-into-a-review-report",
     "turn-a-correction-into-workflows",
@@ -279,6 +310,8 @@
     "understand-where-a-pursuit-is-starting-from",
     "walk-a-pursuit-through-your-map",
     "weigh-a-marketing-decision-through-conflicting-expert-lenses",
+    "win-raving-fans-by-one-to-one-outreach",
+    "work-backward-from-a-ten-million-valuation",
     "work-backwards-from-available-names",
     "work-out-which-marketing-caused-the-revenue",
     "work-through-a-framework",
@@ -286,8 +319,11 @@
     "workflow:rewrite-a-broad-condition",
     "workflow:turn-one-long-recording-into-many-pieces",
     "write-a-design-first-prompt-for-generating-a-screen",
+    "write-a-founder-ad",
+    "write-a-native-story-ad",
     "write-a-research-prompt-without-the-answer-in-it",
     "write-a-twelve-month-marketing-plan-by-funnel-stage",
+    "write-an-ad-script-with-a-villain-and-a-hero",
     "write-and-iterate-ad-copy-from-real-customer-words",
     "write-one-components-documentation-from-its-sources",
     "write-product-words",
@@ -4743,6 +4779,546 @@
     "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
     "fires_when": "[{\"label\": \"a part asks to measure what a computer can still take\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"capacity-question\", \"week-ended\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from The roadmap's item on measuring each computer before adding anything (its study of connections, memory per connection, disk and each store's own stopping limits), Nov 18 2026; the label is the condition in words.\"}]",
     "source": "{\"from\": \"The roadmap's item on measuring each computer before adding anything (its study of connections, memory per connection, disk and each store's own stopping limits), Nov 18 2026, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "build-an-ad-hook-for-the-buyers-stage",
+   "values": {
+    "title": "Build an ad opening that stops the right viewer",
+    "recipe": "workflow:build-an-ad-hook-for-the-buyers-stage",
+    "job": "Writes the first seconds of a video or image ad for one named stage of the buyer, across what is seen, heard and written, then checks the opening against watch numbers. For anyone making ads who wants openings that attract buyers, not only views.",
+    "produces": "One opening written for a named buyer stage in three layers that say the same thing, the trigger it uses, and the watch numbers read against it.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to build an ad opening that stops the right viewer\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"ad-to-write\", \"opening-to-fix\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Fraser Cottrell's method, from 51 videos (157; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Fraser Cottrell's method, from 51 videos (157, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "make-an-ad-with-ai-while-a-person-decides",
+   "values": {
+    "title": "Make an ad with AI tools while a person decides",
+    "recipe": "workflow:make-an-ad-with-ai-while-a-person-decides",
+    "job": "Makes an ad draft with AI help: a person writes the strategy and judges the result, and AI writes first drafts of scripts, makes images or clips from references and iterates on them. For anyone who wants ads made fast without handing the choices to AI.",
+    "produces": "A person-chosen angle, a script written first and cut into short pieces, generated images or clips matched to a reference, the checks made on them, and the rules checked before use.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to make an ad with AI tools while a person decides\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"ad-to-make\", \"content-to-produce\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Fraser Cottrell's method, from 49 videos (270; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Fraser Cottrell's method, from 49 videos (270, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "find-ad-angles-in-customers-own-words",
+   "values": {
+    "title": "Find ad angles in the customers' own words",
+    "recipe": "workflow:find-ad-angles-in-customers-own-words",
+    "job": "Reads what real buyers say in reviews, comments, forums and past-customer answers, pulls out their language, pains, objections and reasons to buy, and turns them into ad angles. For anyone writing ads who has no tested angle yet.",
+    "produces": "A kept research record of customer words by source, the reasons people buy and the objections, and a short list of angles each tied to a quote.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to find ad angles in the customers' own words\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"ad-to-write\", \"research-to-do\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Fraser Cottrell's method, from 36 videos (76; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Fraser Cottrell's method, from 36 videos (76, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "read-ad-numbers-to-choose-the-fix",
+   "values": {
+    "title": "Read ad numbers to choose what to fix",
+    "recipe": "workflow:read-ad-numbers-to-choose-the-fix",
+    "job": "Reads the cost of a customer together with the watch and click numbers of an ad, says why it is cheap or dear, and ties each weak number to one change in the ad or its page. For anyone running ads who wants to know why an ad wins or loses.",
+    "produces": "A table of each ad with cost per customer, opening, hold, click and cost to reach numbers, a reason for each, and one named change per weak number.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to read ad numbers to choose what to fix\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"numbers-to-read\", \"ad-to-fix\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Fraser Cottrell's method, from 39 videos (81; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Fraser Cottrell's method, from 39 videos (81, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "make-static-ads-one-change-at-a-time",
+   "values": {
+    "title": "Make static ads and test one change at a time",
+    "recipe": "workflow:make-static-ads-one-change-at-a-time",
+    "job": "Builds a reusable template for image ads around one message, makes variations that change only one element, and compares them on cost and clicks. For anyone who needs cheap, fast ads to test.",
+    "produces": "A reusable template, a set of variations each differing in one element, and a comparison of cost per customer, click rate and cost per click.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to make static ads and test one change at a time\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"ad-to-make\", \"variation-to-test\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Fraser Cottrell's method, from 37 videos (121; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Fraser Cottrell's method, from 37 videos (121, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "brief-a-creator-with-one-full-brief",
+   "values": {
+    "title": "Brief a creator with one complete brief",
+    "recipe": "workflow:brief-a-creator-with-one-full-brief",
+    "job": "Writes one brief that holds everything a creator and an editor need, matches the creator to the buyer, and gives a shot list and script variations. For anyone who hires people to film ads.",
+    "produces": "One brief with the buyer, message, format, concept, tone, reasoning, examples and shot list, a creator matched to the buyer, and the raw footage requested.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to brief a creator with one complete brief\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"piece-to-make\", \"person-to-brief\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Fraser Cottrell's method, from 33 videos (53; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Fraser Cottrell's method, from 33 videos (53, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "take-apart-a-winning-ad-before-copying-it",
+   "values": {
+    "title": "Take apart a winning ad before copying it",
+    "recipe": "workflow:take-apart-a-winning-ad-before-copying-it",
+    "job": "Finds ads that are really winning, works out why each works, and carries the reason, not the surface, into a new ad. For anyone who wants to learn from other ads without making a copy.",
+    "produces": "A list of winning ads with the proof they win, the reason each works, what is being carried over and the new ad built from it.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to take apart a winning ad before copying it\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"reference-to-study\", \"ad-to-write\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Fraser Cottrell's method, from 29 videos (53; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Fraser Cottrell's method, from 29 videos (53, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "write-a-native-story-ad",
+   "values": {
+    "title": "Write an ad as a short true story",
+    "recipe": "workflow:write-a-native-story-ad",
+    "job": "Writes an ad as a personal story with a before, a turning point and an honest outcome, so it reads as native content and not as an advert. For anyone whose ad should feel like a real person telling something that happened.",
+    "produces": "A story with a real before state, a trusted recommendation, a change over time and an outcome without cure claims, written in customer language, with the opening shown before the fold.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to write an ad as a short true story\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"ad-to-write\", \"story-to-tell\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Fraser Cottrell's method, from 28 videos (55; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Fraser Cottrell's method, from 28 videos (55, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "write-an-ad-script-with-a-villain-and-a-hero",
+   "values": {
+    "title": "Write an ad script with a villain and a hero",
+    "recipe": "workflow:write-an-ad-script-with-a-villain-and-a-hero",
+    "job": "Writes a short ad script that names what causes the viewer's problem, makes the product the answer, backs it with proof and ends with a clear call. For anyone writing a video ad for a product that solves a problem.",
+    "produces": "A script in order with a hook, the problem, the amplified pain, the solution, benefits, proof and call, each line matched to a picture, with the main objection answered.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to write an ad script with a villain and a hero\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"ad-to-write\", \"script-to-write\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Fraser Cottrell's method, from 23 videos (48; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Fraser Cottrell's method, from 23 videos (48, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "run-a-creative-learning-loop",
+   "values": {
+    "title": "Run a loop that turns each ad into the next",
+    "recipe": "workflow:run-a-creative-learning-loop",
+    "job": "Runs a repeating process of writing openings, briefing, launching, testing and reading results, where each part of an ad is kept as a block that can be swapped, and results feed the next batch. For anyone who makes ads often and wants every batch to teach something.",
+    "produces": "A set of ads broken into blocks, a launch with a learning goal, the results read against each block, and the changes made to the next batch.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to run a loop that turns each ad into the next\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"ads-to-run\", \"learning-to-keep\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Fraser Cottrell's method, from 23 videos (35; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Fraser Cottrell's method, from 23 videos (35, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "match-the-ad-format-to-the-buyers-stage",
+   "values": {
+    "title": "Match the ad format to how ready the buyer is",
+    "recipe": "workflow:match-the-ad-format-to-the-buyers-stage",
+    "job": "Decides which kind of ad to make for each stage of a buyer: educate those who do not know the problem, build trust with those who do, and convert those ready to buy. For anyone choosing what ad to make next.",
+    "produces": "Each stage with its buyer, the goal for the ad, the format chosen and why, and the stage with no ad yet.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to match the ad format to how ready the buyer is\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"ad-to-choose\", \"plan-to-make\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Fraser Cottrell's method, from 22 videos (69; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Fraser Cottrell's method, from 22 videos (69, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "write-a-founder-ad",
+   "values": {
+    "title": "Write a founder ad that builds trust",
+    "recipe": "workflow:write-a-founder-ad",
+    "job": "Writes a short ad in which the founder tells why they began, what makes the product different and why they recommend it. For a business whose founder has a real story.",
+    "produces": "A short script on three beats, a chosen way to produce it, a source for the facts and a plain first line starting with the problem.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to write a founder ad that builds trust\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"ad-to-write\", \"story-to-tell\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Fraser Cottrell's method, from 21 videos (57; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Fraser Cottrell's method, from 21 videos (57, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "make-ads-that-differ-in-who-what-how-and-shape",
+   "values": {
+    "title": "Make ads that differ in who, what, how and shape",
+    "recipe": "workflow:make-ads-that-differ-in-who-what-how-and-shape",
+    "job": "Builds a set of ads that differ in the buyer they speak to, what they say, how they open and the format, so the platform has real choices to show different people. For anyone whose ads all look the same.",
+    "produces": "A table of ads with the buyer, message, opening and format of each, showing how each differs from the others, and the winning angle carried into other formats.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to make ads that differ in who, what, how and shape\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"ads-to-plan\", \"variation-to-test\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Fraser Cottrell's method, from 12 videos (17; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Fraser Cottrell's method, from 12 videos (17, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "test-new-ads-apart-from-proven-ones",
+   "values": {
+    "title": "Test new ads apart from proven ones, then move winners",
+    "recipe": "workflow:test-new-ads-apart-from-proven-ones",
+    "job": "Puts new ads in their own test space with a set share of budget, so they get spend, then moves only proven winners into the main space. For anyone whose new ads get no spend beside old ones.",
+    "produces": "A test space with its share of budget, one test per ad group, a decision rule for winners, and the winners moved with their results.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to test new ads apart from proven ones, then move winners\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"ads-to-run\", \"test-to-run\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Fraser Cottrell's method, from 8 videos (14; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Fraser Cottrell's method, from 8 videos (14, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "find-and-attack-the-one-constraint-on-growth",
+   "values": {
+    "title": "Find and attack the one thing limiting growth",
+    "recipe": "workflow:find-and-attack-the-one-constraint-on-growth",
+    "job": "Finds the single factor that stops a business growing as fast as it should, then puts every available method on it until it stops being the limit. For an owner whose growth has stalled.",
+    "produces": "The growth gap in numbers, whether supply or demand limits it, the one chosen constraint, the methods running against it with owners and dates, and the next constraint found.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to find and attack the one thing limiting growth\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"growth-stalled\", \"request-to-sort\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Alex Hormozi's method, from 51 videos (78; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Alex Hormozi's method, from 51 videos (78, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "check-that-a-new-customer-pays-for-their-own-acquisition-fast",
+   "values": {
+    "title": "Check a new customer repays what they cost within 30 days",
+    "recipe": "workflow:check-that-a-new-customer-pays-for-their-own-acquisition-fast",
+    "job": "Measures what it costs to win a customer, what one is worth, and how much cash arrives in the first 30 days, then judges whether growth can fund itself. For an owner deciding how much to spend on getting customers.",
+    "produces": "Cost to win a customer, lifetime value, the ratio, the cash collected in 30 days, a verdict on whether acquisition can be paid for from that cash, and the changes that shorten payback.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to check a new customer repays what they cost within 30 days\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"spending-decision\", \"numbers-to-check\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Alex Hormozi's method, from 20 videos (36; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Alex Hormozi's method, from 20 videos (36, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "teach-a-job-by-writing-showing-and-watching",
+   "values": {
+    "title": "Teach a job by writing it, showing it and watching it done",
+    "recipe": "workflow:teach-a-job-by-writing-showing-and-watching",
+    "job": "Hands a job to a person in three passes: the steps are written, the job is shown in real time, and the person does it while watched until it is right without correction. For anyone passing work to someone else.",
+    "produces": "A written set of steps or a script, a recorded demonstration, and a watched run by the new person that passed without correction.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to teach a job by writing it, showing it and watching it done\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"handing-off-work\", \"person-cannot-do-it\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Alex Hormozi's method, from 11 videos (12; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Alex Hormozi's method, from 11 videos (12, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "sort-every-task-by-whether-someone-else-can-take-it",
+   "values": {
+    "title": "Sort every task by whether someone else can take it",
+    "recipe": "workflow:sort-every-task-by-whether-someone-else-can-take-it",
+    "job": "Lists every task a person does, values their own hour, and sorts tasks by whether they can be handed off now, set up once, or need a person who does not yet exist, then hands off from the easiest. For an owner short of time.",
+    "produces": "A task list sorted into three groups with the hourly value used, the first tasks handed off, and the freed time pointed at higher-value work.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to sort every task by whether someone else can take it\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"too-much-to-do\", \"request-to-sort\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Alex Hormozi's method, from 9 videos (12; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Alex Hormozi's method, from 9 videos (12, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "sell-more-to-each-customer-after-the-first-yes",
+   "values": {
+    "title": "Sell more to each customer after the first yes",
+    "recipe": "workflow:sell-more-to-each-customer-after-the-first-yes",
+    "job": "Finds what a customer naturally buys next, places offers at points in their journey, prices a larger offer, and adds a smaller one for those who say no. For an owner who wants more revenue per customer without more customers.",
+    "produces": "The next natural purchases, the offer points, the priced upsell with the revenue it should add, the fallback for a no, and revenue per customer before and after.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to sell more to each customer after the first yes\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"revenue-per-customer\", \"offer-design\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Alex Hormozi's method, from 58 videos (124; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Alex Hormozi's method, from 58 videos (124, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "hire-by-treating-applicants-like-customers",
+   "values": {
+    "title": "Hire by treating applicants like customers",
+    "recipe": "workflow:hire-by-treating-applicants-like-customers",
+    "job": "Describes a role from what the best people do, finds applicants the same ways customers are found, screens and tests them on real work, and onboards for retention. For an owner who must hire.",
+    "produces": "A role description built from top performers, applicant sources, a screen and a work test with scores, a decision from enough candidates, and an onboarding plan.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to hire by treating applicants like customers\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"hiring-need\", \"people-short\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Alex Hormozi's method, from 49 videos (91; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Alex Hormozi's method, from 49 videos (91, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "raise-prices-and-keep-the-customers-worth-keeping",
+   "values": {
+    "title": "Raise prices and keep the customers worth keeping",
+    "recipe": "workflow:raise-prices-and-keep-the-customers-worth-keeping",
+    "job": "Works out what a price rise does to profit, adds value so it can be justified, writes the notice, and lets the rise filter out low-value customers. For an owner who underprices.",
+    "produces": "The profit effect of the rise, the value added, a written notice, the help offered to those who cannot pay, and the results after the change.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to raise prices and keep the customers worth keeping\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"pricing-question\", \"underpriced-work\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Alex Hormozi's method, from 42 videos (93; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Alex Hormozi's method, from 42 videos (93, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "get-customers-by-mastering-one-way-first",
+   "values": {
+    "title": "Get customers by mastering one way before adding another",
+    "recipe": "workflow:get-customers-by-mastering-one-way-first",
+    "job": "Lists the ways customers can be reached, picks the one that fits the person's skills and team, gives it daily hours, tests by changing only the offer and the path from lead to customer, and doubles it before adding another. For an early business.",
+    "produces": "The ways listed, the one chosen with the reason, the daily hours and counts, test results with one variable at a time, and the next step.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to get customers by mastering one way before adding another\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"need-more-customers\", \"channel-choice\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Alex Hormozi's method, from 21 videos (29; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Alex Hormozi's method, from 21 videos (29, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "keep-customers-by-finding-why-they-leave",
+   "values": {
+    "title": "Keep customers by finding why they leave",
+    "recipe": "workflow:keep-customers-by-finding-why-they-leave",
+    "job": "Measures how many customers leave, learns from those who stayed and those who left, builds the first weeks so the right actions happen, secures renewal early, and makes staying easy. For an owner with recurring customers.",
+    "produces": "The monthly leave rate and one-year keep rate, what keepers did, the onboarding changes, the renewal timing, the easier-to-stay options, and the cancel conversation.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to keep customers by finding why they leave\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"customers-leaving\", \"retention-question\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Alex Hormozi's method, from 118 videos (293; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Alex Hormozi's method, from 118 videos (293, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "train-a-sales-team-with-a-script-and-daily-practice",
+   "values": {
+    "title": "Train a sales team with a script and daily practice",
+    "recipe": "workflow:train-a-sales-team-with-a-script-and-daily-practice",
+    "job": "Writes the sales conversation as parts, has each person memorize it until it sounds natural, practices one part a day with feedback, and moves to live practice. For an owner who needs others to sell.",
+    "produces": "A scripted conversation in parts, a memorized and natural delivery, daily practice records, and a live run with feedback.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to train a sales team with a script and daily practice\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"team-must-sell\", \"training-need\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Alex Hormozi's method, from 96 videos (176; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Alex Hormozi's method, from 96 videos (176, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "make-content-in-volume-with-outside-help",
+   "values": {
+    "title": "Make content in volume with outside help",
+    "recipe": "workflow:make-content-in-volume-with-outside-help",
+    "job": "Sets a daily output, hires outside producers to reach it, copies their best processes in-house, and studies the top pieces. For an owner whose customers come from content.",
+    "produces": "A daily output target, producers engaged, the best methods written down, and what the top pieces had in common.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to make content in volume with outside help\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"content-plan\", \"need-more-reach\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Alex Hormozi's method, from 27 videos (32; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Alex Hormozi's method, from 27 videos (32, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "grow-one-persons-brand-to-a-million-dollars",
+   "values": {
+    "title": "Grow one person's brand to a million dollars",
+    "recipe": "workflow:grow-one-persons-brand-to-a-million-dollars",
+    "job": "Take a seller who wants to build a brand from nothing to about a million in yearly sales by serving one person well with several products. It sets the target numbers at each point and names the step that matters most.",
+    "produces": "A person described, a list of 100, launch sales against target, review count, daily sales for the product, an ambassador list, paid results and one named priority.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to grow one person's brand to a million dollars\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"new-business-to-start\", \"growth-target-set\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Ryan Daniel Moran's method, from 96 videos\\\", \\\"https://www.youtube.com/watch?v=CQX_vudbDmM\\\", \\\"https://www.youtube.com/watch?v=KW7Ibwd-0dw\\\", \\\"https://www.youtube.com/watch?v=y_ukCk9lvNQ\\\", \\\"https://www.youtube.com/watch?v=pJD0dl9kWqI\\\", \\\"https://www.youtube.com/watch?v=uKz9w6Ef_Rk\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Ryan Daniel Moran's method, from 96 videos\\\", \\\"https://www.youtube.com/watch?v=CQX_vudbDmM\\\", \\\"https://www.youtube.com/watch?v=KW7Ibwd-0dw\\\", \\\"https://www.youtube.com/watch?v=y_ukCk9lvNQ\\\", \\\"https://www.youtube.com/watch?v=pJD0dl9kWqI\\\", \\\"https://www.youtube.com/watch?v=uKz9w6Ef_Rk\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "launch-a-first-product-to-a-list-built-first",
+   "values": {
+    "title": "Launch a product to a list built first",
+    "recipe": "workflow:launch-a-first-product-to-a-list-built-first",
+    "job": "Build a list of people who ask to be first and launch to them, whether the product is ready or not. For a seller with a product or a prototype.",
+    "produces": "The chosen way, a live join page, a source list with a date, weekly list counts, three launch emails and a record of sales per source.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to launch a product to a list built first\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"new-product-to-sell\", \"audience-to-build\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Ryan Daniel Moran's method, from 51 videos\\\", \\\"https://www.youtube.com/watch?v=vCuMcQ9eWMI\\\", \\\"https://www.youtube.com/watch?v=Qy8_l7HPIVc\\\", \\\"https://www.youtube.com/watch?v=5y0_iFpFJz4\\\", \\\"https://www.youtube.com/watch?v=ms9XY824NtQ\\\", \\\"https://www.youtube.com/watch?v=y_ukCk9lvNQ\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Ryan Daniel Moran's method, from 51 videos\\\", \\\"https://www.youtube.com/watch?v=vCuMcQ9eWMI\\\", \\\"https://www.youtube.com/watch?v=Qy8_l7HPIVc\\\", \\\"https://www.youtube.com/watch?v=5y0_iFpFJz4\\\", \\\"https://www.youtube.com/watch?v=ms9XY824NtQ\\\", \\\"https://www.youtube.com/watch?v=y_ukCk9lvNQ\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "get-the-first-hundred-reviews",
+   "values": {
+    "title": "Get the first hundred reviews",
+    "recipe": "workflow:get-the-first-hundred-reviews",
+    "job": "Gather the first 100 real reviews from the first buyers by direct contact so that later traffic can convert. For a seller of any product.",
+    "produces": "A contact record for each first buyer, a daily review count, collected videos and pictures, and a go or wait on paid traffic.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to get the first hundred reviews\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"first-buyers\", \"proof-needed\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Ryan Daniel Moran's method, from 31 videos\\\", \\\"https://www.youtube.com/watch?v=GBgReYa9hX8\\\", \\\"https://www.youtube.com/watch?v=9pfJU8QeI0g\\\", \\\"https://www.youtube.com/watch?v=J1g2q4Ry9DE\\\", \\\"https://www.youtube.com/watch?v=2eLng0bFkKQ\\\", \\\"https://www.youtube.com/watch?v=Bl8P6NjpIfo\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Ryan Daniel Moran's method, from 31 videos\\\", \\\"https://www.youtube.com/watch?v=GBgReYa9hX8\\\", \\\"https://www.youtube.com/watch?v=9pfJU8QeI0g\\\", \\\"https://www.youtube.com/watch?v=J1g2q4Ry9DE\\\", \\\"https://www.youtube.com/watch?v=2eLng0bFkKQ\\\", \\\"https://www.youtube.com/watch?v=Bl8P6NjpIfo\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "build-an-audience-with-traffic-hopper-and-conversion",
+   "values": {
+    "title": "Build an audience with traffic, a hopper and a sale",
+    "recipe": "workflow:build-an-audience-with-traffic-hopper-and-conversion",
+    "job": "Build an audience from three parts: a place that brings attention, a place the seller controls to nurture it, and a way to ask for the sale.",
+    "produces": "The three parts named, a join link per piece of content, leads per piece and the weakest part named.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to build an audience with traffic, a hopper and a sale\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"audience-to-build\", \"content-to-judge\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Ryan Daniel Moran's method, from 35 videos\\\", \\\"https://www.youtube.com/watch?v=YBp0pX_sHvE\\\", \\\"https://www.youtube.com/watch?v=5y0_iFpFJz4\\\", \\\"https://www.youtube.com/watch?v=p0qu50TevGo\\\", \\\"https://www.youtube.com/watch?v=MgS0m_IUqU8\\\", \\\"https://www.youtube.com/watch?v=0E8y5tddXpE\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Ryan Daniel Moran's method, from 35 videos\\\", \\\"https://www.youtube.com/watch?v=YBp0pX_sHvE\\\", \\\"https://www.youtube.com/watch?v=5y0_iFpFJz4\\\", \\\"https://www.youtube.com/watch?v=p0qu50TevGo\\\", \\\"https://www.youtube.com/watch?v=MgS0m_IUqU8\\\", \\\"https://www.youtube.com/watch?v=0E8y5tddXpE\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "win-raving-fans-by-one-to-one-outreach",
+   "values": {
+    "title": "Win raving fans one person at a time",
+    "recipe": "workflow:win-raving-fans-by-one-to-one-outreach",
+    "job": "Build a small devoted group of customers by writing to people daily by hand, for a seller before and after the first sales.",
+    "produces": "A daily contact log, replies to every message, a core group list, a sublist of ambassadors with what each gave and one named next contact.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to win raving fans one person at a time\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"customers-to-grow\", \"message-arrived\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Ryan Daniel Moran's method, from 27 videos\\\", \\\"https://www.youtube.com/watch?v=YBp0pX_sHvE\\\", \\\"https://www.youtube.com/watch?v=5y0_iFpFJz4\\\", \\\"https://www.youtube.com/watch?v=OWagecibFMQ\\\", \\\"https://www.youtube.com/watch?v=2eLng0bFkKQ\\\", \\\"https://www.youtube.com/watch?v=RxFqwqJsR3I\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Ryan Daniel Moran's method, from 27 videos\\\", \\\"https://www.youtube.com/watch?v=YBp0pX_sHvE\\\", \\\"https://www.youtube.com/watch?v=5y0_iFpFJz4\\\", \\\"https://www.youtube.com/watch?v=OWagecibFMQ\\\", \\\"https://www.youtube.com/watch?v=2eLng0bFkKQ\\\", \\\"https://www.youtube.com/watch?v=RxFqwqJsR3I\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "score-a-business-on-product-audience-and-sales-channel",
+   "values": {
+    "title": "Score a business on product, audience and sales channel",
+    "recipe": "workflow:score-a-business-on-product-audience-and-sales-channel",
+    "job": "Score a business on its product, its audience and its sales channels, find the weakest, and fill it by partnership.",
+    "produces": "Three scores with evidence, the weakest named with its cost and a partner or reason for none.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to score a business on product, audience and sales channel\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"business-to-judge\", \"partner-to-find\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Ryan Daniel Moran's method, from 24 videos\\\", \\\"https://www.youtube.com/watch?v=2i29DOYBih0\\\", \\\"https://www.youtube.com/watch?v=9BL7zgbltoQ\\\", \\\"https://www.youtube.com/watch?v=4FAGupJ-X5E\\\", \\\"https://www.youtube.com/watch?v=WwK4-CHHviY\\\", \\\"https://www.youtube.com/watch?v=Ff93RadaGO0\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Ryan Daniel Moran's method, from 24 videos\\\", \\\"https://www.youtube.com/watch?v=2i29DOYBih0\\\", \\\"https://www.youtube.com/watch?v=9BL7zgbltoQ\\\", \\\"https://www.youtube.com/watch?v=4FAGupJ-X5E\\\", \\\"https://www.youtube.com/watch?v=WwK4-CHHviY\\\", \\\"https://www.youtube.com/watch?v=Ff93RadaGO0\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "finance-inventory-with-debt-tied-to-sell-through",
+   "values": {
+    "title": "Finance stock with debt tied to sell-through",
+    "recipe": "workflow:finance-inventory-with-debt-tied-to-sell-through",
+    "job": "Pay for a stock order with borrowed money repaid as the stock sells. For an owner with steady sales who wants cash kept for growth.",
+    "produces": "Monthly sales, the cash cycle in days, offers, a cost-against-return sheet, a repayment schedule and one named risk.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to finance stock with debt tied to sell-through\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"money-decision\", \"order-to-place\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Ryan Daniel Moran's method, from 19 videos\\\", \\\"https://www.youtube.com/watch?v=HBcT_w3KiiM\\\", \\\"https://www.youtube.com/watch?v=fjMHcLkWFws\\\", \\\"https://www.youtube.com/watch?v=HbAXVWx6uD0\\\", \\\"https://www.youtube.com/watch?v=XJCMeSgqL84\\\", \\\"https://www.youtube.com/watch?v=Ip_HoX0doIg\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Ryan Daniel Moran's method, from 19 videos\\\", \\\"https://www.youtube.com/watch?v=HBcT_w3KiiM\\\", \\\"https://www.youtube.com/watch?v=fjMHcLkWFws\\\", \\\"https://www.youtube.com/watch?v=HbAXVWx6uD0\\\", \\\"https://www.youtube.com/watch?v=XJCMeSgqL84\\\", \\\"https://www.youtube.com/watch?v=Ip_HoX0doIg\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "document-the-journey-in-public-before-launch",
+   "values": {
+    "title": "Document the journey in public before a launch",
+    "recipe": "workflow:document-the-journey-in-public-before-launch",
+    "job": "Share the building of a brand in public each day so followers become buyers on launch day.",
+    "produces": "A topic list, a daily post log, followers gained, a first-in-line group and a list of who got in touch.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to document the journey in public before a launch\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"story-to-tell\", \"launch-coming\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Ryan Daniel Moran's method, from 23 videos\\\", \\\"https://www.youtube.com/watch?v=oDZvUUtRM0g\\\", \\\"https://www.youtube.com/watch?v=7uLTPQ-T8TM\\\", \\\"https://www.youtube.com/watch?v=SHKli1AUCqg\\\", \\\"https://www.youtube.com/watch?v=7NXz-2GfWoI\\\", \\\"https://www.youtube.com/watch?v=8W2LsGQtAOw\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Ryan Daniel Moran's method, from 23 videos\\\", \\\"https://www.youtube.com/watch?v=oDZvUUtRM0g\\\", \\\"https://www.youtube.com/watch?v=7uLTPQ-T8TM\\\", \\\"https://www.youtube.com/watch?v=SHKli1AUCqg\\\", \\\"https://www.youtube.com/watch?v=7NXz-2GfWoI\\\", \\\"https://www.youtube.com/watch?v=8W2LsGQtAOw\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "set-your-own-terms-before-selling-a-business",
+   "values": {
+    "title": "Set your own terms before selling a business",
+    "recipe": "workflow:set-your-own-terms-before-selling-a-business",
+    "job": "Prepare to sell a business with a business that does not depend on the owner, trailing figures and a written term document given before any offer.",
+    "produces": "A list of owner-only jobs, a trailing figure, a term document, buyers who received it and a table of offers.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to set your own terms before selling a business\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"sale-coming\", \"money-decision\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Ryan Daniel Moran's method, from 9 videos\\\", \\\"https://www.youtube.com/watch?v=W-niISr0S80\\\", \\\"https://www.youtube.com/watch?v=qxBrHjb1tNE\\\", \\\"https://www.youtube.com/watch?v=VrZ_2MElVr8\\\", \\\"https://www.youtube.com/watch?v=ejzxTcX20Rw\\\", \\\"https://www.youtube.com/watch?v=UECMqAYHbU8\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Ryan Daniel Moran's method, from 9 videos\\\", \\\"https://www.youtube.com/watch?v=W-niISr0S80\\\", \\\"https://www.youtube.com/watch?v=qxBrHjb1tNE\\\", \\\"https://www.youtube.com/watch?v=VrZ_2MElVr8\\\", \\\"https://www.youtube.com/watch?v=ejzxTcX20Rw\\\", \\\"https://www.youtube.com/watch?v=UECMqAYHbU8\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "work-backward-from-a-ten-million-valuation",
+   "values": {
+    "title": "Work backward from a ten million valuation",
+    "recipe": "workflow:work-backward-from-a-ten-million-valuation",
+    "job": "Write the pitch for a much higher value and work out what must be true, the steps and the people that would make it so.",
+    "produces": "A pitch, a list of conditions with numbers, steps with owners, added people and the biggest gap.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to work backward from a ten million valuation\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"growth-target-set\", \"pitch-to-write\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Ryan Daniel Moran's method, from 14 videos\\\", \\\"https://www.youtube.com/watch?v=Rq9mG8yfAcw\\\", \\\"https://www.youtube.com/watch?v=eWdYSb8XYb8\\\", \\\"https://www.youtube.com/watch?v=ejzxTcX20Rw\\\", \\\"https://www.youtube.com/watch?v=fLnPY68W7Fc\\\", \\\"https://www.youtube.com/watch?v=gXg77m98p6U\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Ryan Daniel Moran's method, from 14 videos\\\", \\\"https://www.youtube.com/watch?v=Rq9mG8yfAcw\\\", \\\"https://www.youtube.com/watch?v=eWdYSb8XYb8\\\", \\\"https://www.youtube.com/watch?v=ejzxTcX20Rw\\\", \\\"https://www.youtube.com/watch?v=fLnPY68W7Fc\\\", \\\"https://www.youtube.com/watch?v=gXg77m98p6U\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "raise-the-price-by-asking-what-would-need-to-be-true",
+   "values": {
+    "title": "Raise the price by asking what must be true",
+    "recipe": "workflow:raise-the-price-by-asking-what-would-need-to-be-true",
+    "job": "Ask what would need to be true for the price to double and make the changes it names.",
+    "produces": "A list of answers, changes with owners, a legacy group and a plan.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to raise the price by asking what must be true\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"price-decision\", \"margin-too-low\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Ryan Daniel Moran's method, from 4 videos\\\", \\\"https://www.youtube.com/watch?v=xbZ8AXhWSUQ\\\", \\\"https://www.youtube.com/watch?v=A2axxxeyhrY\\\", \\\"https://www.youtube.com/watch?v=VPbY27Owyd8\\\", \\\"https://www.youtube.com/watch?v=ejzxTcX20Rw\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Ryan Daniel Moran's method, from 4 videos\\\", \\\"https://www.youtube.com/watch?v=xbZ8AXhWSUQ\\\", \\\"https://www.youtube.com/watch?v=A2axxxeyhrY\\\", \\\"https://www.youtube.com/watch?v=VPbY27Owyd8\\\", \\\"https://www.youtube.com/watch?v=ejzxTcX20Rw\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
    }
   }
  ]
