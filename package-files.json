@@ -103,6 +103,161 @@
   }
  ],
  "tool:add-an-email-sending-domain": [],
+ "tool:add-captions": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
  "tool:add-decision-evidence": [
   {
    "package": "decide-with-a-method",
@@ -247,6 +402,33 @@
  ],
  "tool:add-reviewed-videos-to-a-packaging-ledger": [],
  "tool:add-to-notion": [],
+ "tool:add-up-revenue": [
+  {
+   "package": "revenue-ledger",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/parts/revenue-ledger"
+  }
+ ],
+ "tool:add-work-item": [
+  {
+   "package": "work-breakdown",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/parts/work-breakdown"
+  },
+  {
+   "package": "work-breakdown",
+   "paths": [
+    "read-data/read-task-json.ts",
+    "read-data/read-tasks.ts"
+   ],
+   "at": "/opt/work-breakdown"
+  }
+ ],
  "tool:admit-attachments-to-a-message": [
   {
    "package": "admit-attachments-to-a-message",
@@ -2565,6 +2747,161 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:arrange-videos": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
  "tool:ask-a-command-line-mcp-server-once": [
   {
    "package": "serve-command-line-mcp-servers-on-the-web",
@@ -2878,6 +3215,15 @@
   }
  ],
  "tool:assemble-a-plan-into-a-cut": [],
+ "tool:assess-wikimedia-commons-file-reuse": [
+  {
+   "package": "wikimedia-commons",
+   "paths": [
+    "do-work/assess-commons-reuse.mjs"
+   ],
+   "at": "/opt/parts/wikimedia-commons"
+  }
+ ],
  "tool:assign-helpers-under-capacity": [
   {
    "package": "form-groups-and-matches",
@@ -3042,6 +3388,250 @@
     "do-work/exposure_audit.py"
    ],
    "at": "/opt/train-and-evaluate-a-writing-voice-classifier"
+  }
+ ],
+ "tool:blur-faces-not-agreed": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "packages": [
+    "numpy",
+    "onnxruntime",
+    "kaldi-native-fbank",
+    "blake3",
+    "webrtcvad-wheels",
+    "pillow",
+    "flatbuffers",
+    "packaging",
+    "protobuf",
+    "sympy",
+    "mpmath",
+    "coloredlogs",
+    "humanfriendly"
+   ],
+   "at": "/opt/media-composition/do-work"
+  },
+  {
+   "packages": [
+    "yunet-face-model",
+    "sface-face-model"
+   ],
+   "at": "/opt/models/faces"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "read-data/adjustment-layers.mjs",
+    "read-data/auto-cleanup.ts",
+    "read-data/auto-edit.json",
+    "read-data/auto-edit.mjs",
+    "read-data/caption-lines.ts",
+    "read-data/caption-styles.json",
+    "read-data/caption-styles.mjs",
+    "read-data/detect-events.json",
+    "read-data/layers-to-edit.mjs",
+    "read-data/looks.json",
+    "read-data/looks.mjs",
+    "read-data/reframe-camera.json",
+    "read-data/session-pairing.mjs",
+    "read-data/suggestion-stream.json",
+    "read-data/suggestion-stream.mjs",
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
+ "tool:break-down-visits-and-sales": [
+  {
+   "package": "traffic-attribution",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/parts/traffic-attribution"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src/list-aggregates.mjs"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+    "rules/compile-rules.mjs",
+    "rules/evaluate-over-rows.mjs",
+    "rules/evaluation-guards.json",
+    "rules/evaluation-guards.mjs",
+    "rules/evaluator-bytes-in-the-page.mjs",
+    "rules/filter-records.mjs",
+    "rules/filter-rows-by-rules.mjs",
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src/configurations.mjs",
+    "src/list-aggregates.mjs",
+    "src/list-refusals.mjs"
+   ],
+   "at": "/opt/query-and-change-list-rows"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "do-work/wall-time.ts"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "unit-economics",
+   "paths": [
+    "read-data/compute-unit-economics.ts"
+   ],
+   "at": "/opt/unit-economics"
+  },
+  {
+   "package": "wall-time",
+   "paths": [
+    "read-data/wall-time.mjs"
+   ],
+   "at": "/opt/wall-time"
   }
  ],
  "tool:brief-a-profile": [
@@ -4478,6 +5068,161 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:change-speed-over-a-range": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
   }
  ],
  "tool:change-what-holds-me": [
@@ -6258,6 +7003,17 @@
    "at": "/opt/browse-and-upload-my-files"
   }
  ],
+ "tool:check-form-answers": [
+  {
+   "package": "ask-questions-sort-answers-follow-up",
+   "paths": [
+    "do-work",
+    "read-data",
+    "data"
+   ],
+   "at": "/opt/parts/ask-questions-sort-answers-follow-up"
+  }
+ ],
  "tool:check-given-pages-at-every-width": [
   {
    "package": "check-every-screen-at-every-width",
@@ -6865,6 +7621,7 @@
    "at": "/opt/match-picks"
   }
  ],
+ "tool:check-proof-of-finished-work": [],
  "tool:check-prose-against-its-writing-rules": [],
  "tool:check-quotes-against-their-source-bytes": [],
  "tool:check-someone-is-in-a-space": [
@@ -7722,6 +8479,18 @@
     "node_modules/@noble/hashes"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
+ "tool:choose-what-a-visitor-sees": [
+  {
+   "package": "run-experiments",
+   "paths": [
+    "do-work/choose-what-a-visitor-sees.mjs",
+    "read-data/candidate-set-schema.ts",
+    "read-data/decider-schema.ts",
+    "read-data/score-candidates.ts"
+   ],
+   "at": "/opt/parts/run-experiments"
   }
  ],
  "tool:cite-principles-from-captions": [],
@@ -8720,6 +9489,104 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:credit-outcomes-to-candidates": [
+  {
+   "package": "run-experiments",
+   "paths": [
+    "do-work/credit-outcomes-to-candidates.mjs",
+    "read-data/attribute-outcomes.ts",
+    "do-work/observe.ts"
+   ],
+   "at": "/opt/parts/run-experiments"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src/list-aggregates.mjs"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+    "rules/compile-rules.mjs",
+    "rules/evaluate-over-rows.mjs",
+    "rules/evaluation-guards.json",
+    "rules/evaluation-guards.mjs",
+    "rules/evaluator-bytes-in-the-page.mjs",
+    "rules/filter-records.mjs",
+    "rules/filter-rows-by-rules.mjs",
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src/configurations.mjs",
+    "src/list-aggregates.mjs",
+    "src/list-refusals.mjs"
+   ],
+   "at": "/opt/query-and-change-list-rows"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "do-work/wall-time.ts"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "wall-time",
+   "paths": [
+    "read-data/wall-time.mjs"
+   ],
+   "at": "/opt/wall-time"
+  }
+ ],
  "tool:critique-a-public-page": [
   {
    "package": "page-critic",
@@ -8809,6 +9676,161 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:cut-and-caption": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
   }
  ],
  "tool:decide-a-nudge": [
@@ -9903,6 +10925,16 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:draft-a-funnel": [
+  {
+   "package": "funnels-and-offers",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/parts/funnels-and-offers"
+  }
+ ],
  "tool:draft-a-post": [
   {
    "package": "social-posts",
@@ -10747,7 +11779,317 @@
  ],
  "tool:export-a-markdown-book-to-word": [],
  "tool:export-browser-login-cookies-for-yt-dlp": [],
+ "tool:export-editor-timeline": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
  "tool:export-records-as-list-rows": [],
+ "tool:extract-sound": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
  "tool:fade-live-ink-marks": [
   {
    "package": "draw-lists-on-a-canvas",
@@ -11097,6 +12439,316 @@
    "at": "/opt/settings"
   }
  ],
+ "tool:find-action-moments": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
+ "tool:find-beats": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
  "tool:find-cold-rows": [
   {
    "package": "review-what-a-list-says",
@@ -11197,6 +12849,161 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:find-events-against-a-running-baseline": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
   }
  ],
  "tool:find-faces": [
@@ -11999,6 +13806,179 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
+ "tool:find-recurring-voices": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "numpy",
+    "onnxruntime",
+    "kaldi-native-fbank",
+    "blake3",
+    "webrtcvad-wheels",
+    "pillow",
+    "flatbuffers",
+    "packaging",
+    "protobuf",
+    "sympy",
+    "mpmath",
+    "coloredlogs",
+    "humanfriendly"
+   ],
+   "at": "/opt/media-composition/do-work"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
  "tool:find-repeated-voice-edits": [
   {
    "package": "how-someone-does-their-thing",
@@ -12109,6 +14089,316 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:find-scene-changes": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
+ "tool:find-silence": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
   }
  ],
  "tool:find-the-event-that-starts-one-tour": [
@@ -13127,6 +15417,265 @@
   }
  ],
  "tool:give-back-a-computer": [],
+ "tool:give-referral-rewards": [
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "referral-codes-and-rewards",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/referral-codes-and-rewards"
+  },
+  {
+   "package": "paid-access",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/paid-access"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+    "rules/compile-rules.mjs",
+    "rules/evaluate-over-rows.mjs",
+    "rules/evaluation-guards.json",
+    "rules/evaluation-guards.mjs",
+    "rules/evaluator-bytes-in-the-page.mjs",
+    "rules/filter-records.mjs",
+    "rules/filter-rows-by-rules.mjs"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
+ "tool:grade-a-video": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
  "tool:grade-and-repair-speech-audio": [],
  "tool:hand-a-job-to-an-ai": [
   {
@@ -16327,6 +18876,161 @@
    "at": "/opt/formula-engine"
   }
  ],
+ "tool:layer-pictures-over-video": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
  "tool:leave-a-space": [
   {
    "package": "space-members",
@@ -17884,6 +20588,16 @@
   }
  ],
  "tool:list-sending-keys": [],
+ "tool:list-tasks-and-what-blocks-them": [
+  {
+   "package": "work-breakdown",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/parts/work-breakdown"
+  }
+ ],
  "tool:list-the-conversation-sources-on-this-computer": [
   {
    "package": "conversations",
@@ -19414,6 +22128,7 @@
   }
  ],
  "tool:make-a-lut-for-log-footage": [],
+ "tool:make-a-picture-vector-set-of-my-videos": [],
  "tool:make-a-plain-work-title": [
   {
    "package": "judge-words",
@@ -19423,8 +22138,138 @@
    "at": "/opt/judge-words"
   }
  ],
+ "tool:make-a-referral-code": [
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "referral-codes-and-rewards",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/referral-codes-and-rewards"
+  },
+  {
+   "package": "paid-access",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/paid-access"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+    "rules/compile-rules.mjs",
+    "rules/evaluate-over-rows.mjs",
+    "rules/evaluation-guards.json",
+    "rules/evaluation-guards.mjs",
+    "rules/evaluator-bytes-in-the-page.mjs",
+    "rules/filter-records.mjs",
+    "rules/filter-rows-by-rules.mjs"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
+ "tool:make-a-sales-contract": [
+  {
+   "package": "legal-document-builder",
+   "paths": [
+    "do-work",
+    "read-data",
+    "data"
+   ],
+   "at": "/opt/parts/legal-document-builder"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:make-a-sending-key": [],
  "tool:make-a-sound-effect-palette": [],
+ "tool:make-a-vector-set-from-picture-vectors-my-apps-kept": [],
  "tool:make-a-view-patch": [
   {
    "package": "build-a-screen-from-patches",
@@ -19752,6 +22597,17 @@
  ],
  "tool:make-marketplace-tiles-with-their-icons": [],
  "tool:make-plain-text-extracts-of-claim-sources": [],
+ "tool:make-quiz-questions": [
+  {
+   "package": "ask-questions-sort-answers-follow-up",
+   "paths": [
+    "do-work",
+    "read-data",
+    "data"
+   ],
+   "at": "/opt/parts/ask-questions-sort-answers-follow-up"
+  }
+ ],
  "tool:make-spoken-line-candidates-one-slot-at-a-time": [],
  "tool:make-the-decision": [
   {
@@ -19893,6 +22749,16 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:make-tracked-link": [
+  {
+   "package": "traffic-attribution",
+   "paths": [
+    "do-work/make-a-tracked-link.mjs",
+    "read-data/tracked-link.mjs"
+   ],
+   "at": "/opt/parts/traffic-attribution"
   }
  ],
  "tool:make-youtube-playlists-from-a-sort-plan": [],
@@ -20077,6 +22943,161 @@
    "at": "/opt/node_modules/playwright-core"
   }
  ],
+ "tool:match-colour": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
  "tool:match-rows": [
   {
    "package": "match-rows",
@@ -20214,6 +23235,111 @@
   }
  ],
  "tool:measure-a-reference-video": [],
+ "tool:measure-ad-return": [
+  {
+   "package": "traffic-attribution",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/parts/traffic-attribution"
+  },
+  {
+   "package": "unit-economics",
+   "paths": [
+    "read-data/compute-unit-economics.ts",
+    "read-data/unit-economics-types.ts"
+   ],
+   "at": "/opt/parts/unit-economics"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src/list-aggregates.mjs"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+    "rules/compile-rules.mjs",
+    "rules/evaluate-over-rows.mjs",
+    "rules/evaluation-guards.json",
+    "rules/evaluation-guards.mjs",
+    "rules/evaluator-bytes-in-the-page.mjs",
+    "rules/filter-records.mjs",
+    "rules/filter-rows-by-rules.mjs",
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src/configurations.mjs",
+    "src/list-aggregates.mjs",
+    "src/list-refusals.mjs"
+   ],
+   "at": "/opt/query-and-change-list-rows"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "do-work/wall-time.ts"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "wall-time",
+   "paths": [
+    "read-data/wall-time.mjs"
+   ],
+   "at": "/opt/wall-time"
+  }
+ ],
  "tool:measure-first-frame": [
   {
    "package": "measure-first-frame",
@@ -20237,6 +23363,103 @@
    "at": "/opt/node_modules/playwright-core"
   }
  ],
+ "tool:measure-funnel-stages": [
+  {
+   "package": "funnels-and-offers",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/parts/funnels-and-offers"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src/list-aggregates.mjs"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+    "rules/compile-rules.mjs",
+    "rules/evaluate-over-rows.mjs",
+    "rules/evaluation-guards.json",
+    "rules/evaluation-guards.mjs",
+    "rules/evaluator-bytes-in-the-page.mjs",
+    "rules/filter-records.mjs",
+    "rules/filter-rows-by-rules.mjs",
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src/configurations.mjs",
+    "src/list-aggregates.mjs",
+    "src/list-refusals.mjs"
+   ],
+   "at": "/opt/query-and-change-list-rows"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "do-work/wall-time.ts"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "wall-time",
+   "paths": [
+    "read-data/wall-time.mjs"
+   ],
+   "at": "/opt/wall-time"
+  }
+ ],
  "tool:measure-how-a-show-stages-a-characters-turns": [
   {
    "package": "measure-a-characters-voice-lines-and-staging",
@@ -20245,6 +23468,161 @@
     "read-data"
    ],
    "at": "/opt/measure-a-characters-voice-lines-and-staging"
+  }
+ ],
+ "tool:measure-loudness": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
   }
  ],
  "tool:measure-narration-takes": [],
@@ -20783,6 +24161,161 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:mix-sound-layers": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
   }
  ],
  "tool:move-a-booking-on-my-calendar": [
@@ -21361,6 +24894,161 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:name-a-voice": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
   }
  ],
  "tool:name-my-next-commitment": [
@@ -23577,6 +27265,161 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:pick-cover-frame": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
  "tool:pick-fired-rules": [
   {
    "package": "evaluate-progress",
@@ -24629,6 +28472,16 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:point-editor-projects-at-new-places": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work/relink-editor-projects.mjs",
+    "do-work/relink-in-resolve.py"
+   ],
+   "at": "/opt/media-composition"
+  }
+ ],
  "tool:post-balanced-entries": [
   {
    "package": "settle-amounts-and-reconcile",
@@ -24720,6 +28573,16 @@
     "read-data"
    ],
    "at": "/opt/opponent-game-plan"
+  }
+ ],
+ "tool:prepare-ad-conversions": [
+  {
+   "package": "traffic-attribution",
+   "paths": [
+    "do-work/prepare-ad-conversions.mjs",
+    "read-data"
+   ],
+   "at": "/opt/parts/traffic-attribution"
   }
  ],
  "tool:prepare-public-content-for-discovery": [
@@ -26479,6 +30342,16 @@
    "at": "/opt/formula-engine"
   }
  ],
+ "tool:read-a-funnel-definition": [
+  {
+   "package": "funnels-and-offers",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/parts/funnels-and-offers"
+  }
+ ],
  "tool:read-a-link": [
   {
    "package": "browse-public-page",
@@ -27525,6 +31398,104 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
+ "tool:read-experiment-results": [
+  {
+   "package": "run-experiments",
+   "paths": [
+    "do-work/read-experiment-results.mjs",
+    "read-data/scoreboard.ts",
+    "read-data/score-candidates.ts"
+   ],
+   "at": "/opt/parts/run-experiments"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src/list-aggregates.mjs"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+    "rules/compile-rules.mjs",
+    "rules/evaluate-over-rows.mjs",
+    "rules/evaluation-guards.json",
+    "rules/evaluation-guards.mjs",
+    "rules/evaluator-bytes-in-the-page.mjs",
+    "rules/filter-records.mjs",
+    "rules/filter-rows-by-rules.mjs",
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src/configurations.mjs",
+    "src/list-aggregates.mjs",
+    "src/list-refusals.mjs"
+   ],
+   "at": "/opt/query-and-change-list-rows"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "do-work/wall-time.ts"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "wall-time",
+   "paths": [
+    "read-data/wall-time.mjs"
+   ],
+   "at": "/opt/wall-time"
+  }
+ ],
  "tool:read-form-results": [
   {
    "package": "ask-questions-sort-answers-follow-up",
@@ -27679,6 +31650,7 @@
    "at": "/opt/tell-ais-how-to-act"
   }
  ],
+ "tool:read-internet-archive-item": [],
  "tool:read-latest-answers-as-lines": [
   {
    "package": "ask-questions-sort-answers-follow-up",
@@ -29578,6 +33550,7 @@
    "at": "/opt/settings"
   }
  ],
+ "tool:read-wikimedia-commons-file-metadata": [],
  "tool:read-words-that-may-show": [
   {
    "package": "gather-words-from-people",
@@ -30514,6 +34487,161 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:reframe-video": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
  "tool:refresh-measurement-history": [
   {
    "package": "keep-measurements-current",
@@ -31391,6 +35519,161 @@
  ],
  "tool:render-a-pointillist-frame": [],
  "tool:render-a-pointillist-target-animation": [],
+ "tool:render-an-edit": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
  "tool:render-an-overlay-insert-for-a-cut": [
   {
    "package": "render-a-motion-graphics-overlay",
@@ -32354,6 +36637,110 @@
     "read-data/archive-limits.json"
    ],
    "at": "/opt/check-a-folder-against-my-rules"
+  }
+ ],
+ "tool:roll-up-work-completion": [
+  {
+   "package": "work-breakdown",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/parts/work-breakdown"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src/list-aggregates.mjs"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+    "rules/compile-rules.mjs",
+    "rules/evaluate-over-rows.mjs",
+    "rules/evaluation-guards.json",
+    "rules/evaluation-guards.mjs",
+    "rules/evaluator-bytes-in-the-page.mjs",
+    "rules/filter-records.mjs",
+    "rules/filter-rows-by-rules.mjs",
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src/configurations.mjs",
+    "src/list-aggregates.mjs",
+    "src/list-refusals.mjs"
+   ],
+   "at": "/opt/query-and-change-list-rows"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "do-work/wall-time.ts"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "wall-time",
+   "paths": [
+    "read-data/wall-time.mjs"
+   ],
+   "at": "/opt/wall-time"
+  },
+  {
+   "package": "work-breakdown",
+   "paths": [
+    "read-data/read-task-json.ts",
+    "read-data/read-tasks.ts"
+   ],
+   "at": "/opt/work-breakdown"
   }
  ],
  "tool:route-buttons": [
@@ -33836,6 +38223,104 @@
    "at": "/opt/live-match-scores"
   }
  ],
+ "tool:score-answers-and-pick-segment": [
+  {
+   "package": "ask-questions-sort-answers-follow-up",
+   "paths": [
+    "do-work",
+    "read-data",
+    "data"
+   ],
+   "at": "/opt/parts/ask-questions-sort-answers-follow-up"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src/list-aggregates.mjs"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+    "rules/compile-rules.mjs",
+    "rules/evaluate-over-rows.mjs",
+    "rules/evaluation-guards.json",
+    "rules/evaluation-guards.mjs",
+    "rules/evaluator-bytes-in-the-page.mjs",
+    "rules/filter-records.mjs",
+    "rules/filter-rows-by-rules.mjs",
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src/configurations.mjs",
+    "src/list-aggregates.mjs",
+    "src/list-refusals.mjs"
+   ],
+   "at": "/opt/query-and-change-list-rows"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "do-work/wall-time.ts"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "wall-time",
+   "paths": [
+    "read-data/wall-time.mjs"
+   ],
+   "at": "/opt/wall-time"
+  }
+ ],
  "tool:score-held-out-lines-with-a-small-model": [],
  "tool:score-how-alike-lines-sound-to-a-reference-voice": [],
  "tool:score-questionnaire-responses": [
@@ -34250,6 +38735,7 @@
   }
  ],
  "tool:search-freesound-for-free-sound-effects": [],
+ "tool:search-internet-archive": [],
  "tool:search-mixkit-for-free-sound-effects": [],
  "tool:search-one-of-my-lists": [
   {
@@ -34335,6 +38821,7 @@
   }
  ],
  "tool:search-the-treg-catalog": [],
+ "tool:search-wikimedia-commons-files": [],
  "tool:see-a-files-change": [
   {
    "package": "git-changes",
@@ -39754,6 +44241,20 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:suggest-media-cuts": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work/suggest-media-cuts.mjs",
+    "read-data/auto-edit.mjs",
+    "read-data/auto-edit.json",
+    "read-data/auto-cleanup.ts",
+    "read-data/suggestion-stream.mjs",
+    "read-data/suggestion-stream.json"
+   ],
+   "at": "/opt/media-composition"
+  }
+ ],
  "tool:suggest-zooms": [
   {
    "package": "suggest-zooms-from-pointer-moves",
@@ -41683,6 +46184,24 @@
    "at": "/opt/node_modules/@opencoredev/social-sdk"
   }
  ],
+ "tool:use-an-app-on-this-computer": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work/use-an-app-here.mjs",
+    "do-work/apps-here.json",
+    "do-work/app-files/davinci-resolve/resolve-bridge.scriptlib"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  }
+ ],
  "tool:use-your-tools-from-a-shell": [],
  "tool:verify-waiting-on-me-completion": [
   {
@@ -41837,6 +46356,16 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:walk-a-funnel": [
+  {
+   "package": "funnels-and-offers",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/parts/funnels-and-offers"
   }
  ],
  "tool:walk-a-new-person-through-first-setup": [
@@ -42475,6 +47004,37 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
+ "tool:withdraw-a-referral-code": [
+  {
+   "package": "referral-codes-and-rewards",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/parts/referral-codes-and-rewards"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "paid-access",
+   "paths": [
+    "read-data/access-grants.mjs"
+   ],
+   "at": "/opt/paid-access"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:words-as-picture-vector": [
   {
    "package": "words-as-picture-vector",
@@ -42702,6 +47262,120 @@
    "at": "/opt/wall-time"
   }
  ],
+ "tool:work-out-referral-codes": [
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "referral-codes-and-rewards",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/referral-codes-and-rewards"
+  },
+  {
+   "package": "paid-access",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/paid-access"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+    "rules/compile-rules.mjs",
+    "rules/evaluate-over-rows.mjs",
+    "rules/evaluation-guards.json",
+    "rules/evaluation-guards.mjs",
+    "rules/evaluator-bytes-in-the-page.mjs",
+    "rules/filter-records.mjs",
+    "rules/filter-rows-by-rules.mjs"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
+ "tool:work-out-unit-economics": [
+  {
+   "package": "unit-economics",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/parts/unit-economics"
+  }
+ ],
  "tool:work-out-where-a-learner-stands": [
   {
    "package": "lessons-and-learning-paths",
@@ -42853,6 +47527,44 @@
  ],
  "tool:write-a-web-page-from-a-record": [],
  "tool:write-a-word-template-from-the-words-i-keep-and-the-slots": [],
+ "tool:write-legal-documents": [
+  {
+   "package": "legal-document-builder",
+   "paths": [
+    "do-work",
+    "read-data",
+    "data"
+   ],
+   "at": "/opt/parts/legal-document-builder"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/parts/content-identity"
+  },
+  {
+   "module": "@noble/hashes",
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:write-message-models-for-every-app": [],
  "tool:write-public-share-files": [
   {
