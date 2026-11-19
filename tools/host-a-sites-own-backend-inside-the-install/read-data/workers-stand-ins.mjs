@@ -85,13 +85,22 @@ export function fillTemplate(template, message) {
     if (whole) return message[whole[1]];
     return template.replace(/\{([a-z_]+)\}/g, (_, name) => String(message[name] ?? ''));
   }
-  if (Array.isArray(template)) return template.map(item => fillTemplate(item, message)).filter(item => item !== undefined);
+  // A list item that fills to a list joins its items into the list: ["{to}"] with two recipients is two items.
+  if (Array.isArray(template)) return template.flatMap(item => { const filled = fillTemplate(item, message); return filled === undefined ? [] : Array.isArray(filled) ? filled : [filled]; });
   if (template && typeof template === 'object') {
     const out = {};
     for (const [key, value] of Object.entries(template)) { const filled = fillTemplate(value, message); if (filled !== undefined) out[key] = filled; }
     return out;
   }
   return template;
+}
+
+// The Workers EMAIL binding takes an address as text or { email, name }, and `to` as text or a list; a provider's request
+// takes text. An address object becomes "Name <email>" (or the email alone), and a list of them a list of texts.
+export function addressText(address) {
+  if (Array.isArray(address)) return address.map(addressText);
+  if (address && typeof address === 'object') return address.name ? `${String(address.name).replace(/[<>"]/g, '')} <${address.email}>` : String(address.email ?? '');
+  return address;
 }
 
 const at = (value, path) => String(path ?? '').split('.').filter(Boolean).reduce((found, step) => found?.[step], value);
@@ -103,7 +112,7 @@ export function emailBy({ provider, key, fetchImpl = fetch }) {
       if (!key) throw Object.assign(new Error(`This computer holds no ${provider.name ?? 'email provider'} key for the site, so no mail can be sent.`), { code: 'email_not_set_up' });
       const { url, method = 'POST', headers = {}, auth, body, timeout_ms: timeout = 15000 } = provider.request;
       const sent = { ...headers, ...(auth ? { [auth.header]: `${auth.prefix ?? ''}${key}` } : {}) };
-      const answer = await fetchImpl(url, { method, headers: sent, body: JSON.stringify(fillTemplate(body, message)), signal: AbortSignal.timeout(timeout) });
+      const answer = await fetchImpl(url, { method, headers: sent, body: JSON.stringify(fillTemplate(body, { ...message, from: addressText(message.from), to: addressText(message.to), replyTo: addressText(message.replyTo) })), signal: AbortSignal.timeout(timeout) });
       const reply = await answer.json().catch(() => ({}));
       if (!answer.ok) {
         const said = at(reply, provider.error_at);

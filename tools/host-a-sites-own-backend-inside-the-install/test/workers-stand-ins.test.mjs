@@ -49,6 +49,11 @@ test('env.EMAIL sends the request its provider file describes, with the key in t
   assert.equal(sent[0][0], 'https://api.resend.com/emails');
   assert.equal(sent[0][2], 'Bearer k1');
   assert.deepEqual(sent[0][1], { from: 'a@b.c', to: ['d@e.f'], subject: 's', text: 't', headers: { 'List-Id': 'x' } }, 'a field the message leaves out (html) is left out');
+  await mail.send({ from: { email: 'hello@b.c', name: 'Bee' }, to: 'd@e.f', subject: 's', text: 't' });
+  assert.equal(sent[1][1].from, 'Bee <hello@b.c>', 'a Workers address object is sent as text');
+  await mail.send({ from: { email: 'hello@b.c' }, to: ['d@e.f'], subject: 's', text: 't' });
+  assert.equal(sent[2][1].from, 'hello@b.c');
+  assert.deepEqual(sent[2][1].to, ['d@e.f'], 'a list of recipients fills the list, not a list inside it');
   await assert.rejects(emailBy({ provider, key: null }).send({}), { code: 'email_not_set_up', message: /no Resend key/ });
   await assert.rejects(emailBy({ provider: null, key: 'k' }).send({}), { code: 'email_not_set_up' });
   const refused = emailBy({ provider, key: 'k', fetchImpl: async () => new Response('{"message":"domain not verified"}', { status: 403 }) });
