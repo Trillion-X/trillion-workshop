@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "cf8bf3d9ef6a6494dae566c327205ee84c760b413ad72e46d2852bad145184a4",
+  "blake3": "a71fc69641d143d30be29fb354675e11b6ed7ec173d953956fcfe0b02b23ba61",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -56,6 +56,7 @@
     "capture-a-set-of-ui-references-with-evidence-and-prompts",
     "capture-a-whole-page-as-one-trustworthy-image",
     "carry-each-lesson-into-the-next-work",
+    "change-a-databases-shape-without-stopping-what-uses-it",
     "check-a-change-for-security-holes",
     "check-a-claim-and-explain-it-in-plain-words",
     "check-a-customer-support-case-before-it-is-closed",
@@ -68148,6 +68149,168 @@
     ],
     "part_of": [
      "workflow:judge-whether-a-product-idea-is-worth-launching"
+    ]
+   }
+  },
+  {
+   "id": "change-a-databases-shape-without-stopping-what-uses-it--say-the-change-and-what-uses-the-old-shape",
+   "values": {
+    "title": "Say the change and everything that uses the old shape",
+    "recipe": [
+     "change-a-databases-shape-without-stopping-what-uses-it"
+    ],
+    "position": 0,
+    "step": "say-the-change-and-what-uses-the-old-shape",
+    "do": "Write the change in plain words: what is added, renamed, split, retyped or removed. Then list every reader and writer of the parts it touches: programs, scheduled runs, saved queries, views, shares and other people's logins, each found by searching the code at its newest commit and the store's own list of what depends on what, not from memory.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "When the run starts.",
+    "done_when": "The change is written, and each part it touches has its list of readers and writers, each with where it was found.",
+    "if_missing": "When a step needs what only the person holds (the store's write turn, a credential, a decision about data that would be lost), put it in open with exactly what is needed and stop before changing anything.",
+    "why": "A removal that breaks a reader nobody listed is an outage.",
+    "good_answer": "Passes: 'rename column due to due_at: read by the site at 4be77d0 (two files), the morning run, one view; written by the booking intake'. Fails: 'used by the app', or a list made without searching.",
+    "came_from": [
+     "The roadmap's deploy item (a migration step that expands first and contracts later), Nov 18 2026; and the industry's expand-then-contract practice for changing a live store's shape while the old and new code both run"
+    ],
+    "part_of": [
+     "workflow:change-a-databases-shape-without-stopping-what-uses-it"
+    ]
+   }
+  },
+  {
+   "id": "change-a-databases-shape-without-stopping-what-uses-it--expand-only",
+   "values": {
+    "title": "Add the new shape beside the old",
+    "recipe": [
+     "change-a-databases-shape-without-stopping-what-uses-it"
+    ],
+    "position": 1,
+    "step": "expand-only",
+    "do": "In the store's own language, make only additions: the new column, table or index beside the old, with nothing removed or renamed, each made in a way that does not lock out readers for long (an index built without blocking, a column with no rewrite). Keep a backup's newest time from before this step. Read back that the old shape still answers every listed reader.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After 'Say the change and everything that uses the old shape'.",
+    "done_when": "The new shape exists, the old is unchanged, and a read through the old shape still answers.",
+    "if_missing": "When a step needs what only the person holds (the store's write turn, a credential, a decision about data that would be lost), put it in open with exactly what is needed and stop before changing anything.",
+    "why": "Old code keeps running while new code is not yet everywhere.",
+    "good_answer": "Passes: 'added due_at beside due; due still read by the site; backup newest 18:00 before the change'. Fails: renaming in place, or a change that held a lock for minutes.",
+    "came_from": [
+     "The roadmap's deploy item (a migration step that expands first and contracts later), Nov 18 2026; and the industry's expand-then-contract practice for changing a live store's shape while the old and new code both run"
+    ],
+    "part_of": [
+     "workflow:change-a-databases-shape-without-stopping-what-uses-it"
+    ]
+   }
+  },
+  {
+   "id": "change-a-databases-shape-without-stopping-what-uses-it--write-both-and-fill-the-new",
+   "values": {
+    "title": "Write both shapes and fill the new from the old",
+    "recipe": [
+     "change-a-databases-shape-without-stopping-what-uses-it"
+    ],
+    "position": 2,
+    "step": "write-both-and-fill-the-new",
+    "do": "Change every writer so it writes both the old and the new shape. Then fill the new shape from the old for everything written before, in small batches, counting as you go. Read back that the counts and a sample of values agree between the two.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After 'Add the new shape beside the old'.",
+    "done_when": "Every writer writes both, the fill is done, and old and new agree in count and in a sample of values.",
+    "if_missing": "When a step needs what only the person holds (the store's write turn, a credential, a decision about data that would be lost), put it in open with exactly what is needed and stop before changing anything.",
+    "why": "The new shape must hold everything before anything reads it alone.",
+    "good_answer": "Passes: 'intake and site write both since 4c1e2a9; 41,233 of 41,233 filled; 200 sampled, all equal'. Fails: a fill with no count, or a writer still writing only the old.",
+    "came_from": [
+     "The roadmap's deploy item (a migration step that expands first and contracts later), Nov 18 2026; and the industry's expand-then-contract practice for changing a live store's shape while the old and new code both run"
+    ],
+    "part_of": [
+     "workflow:change-a-databases-shape-without-stopping-what-uses-it"
+    ]
+   }
+  },
+  {
+   "id": "change-a-databases-shape-without-stopping-what-uses-it--move-the-readers",
+   "values": {
+    "title": "Move every reader to the new shape",
+    "recipe": [
+     "change-a-databases-shape-without-stopping-what-uses-it"
+    ],
+    "position": 3,
+    "step": "move-the-readers",
+    "do": "Change each listed reader to read the new shape, one at a time, each released and watched before the next. After the last, search again for any reader of the old shape: the code at its newest commit and the store's own record of recent queries, over a stretch long enough to include every scheduled run.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After 'Write both shapes and fill the new from the old'.",
+    "done_when": "Each listed reader reads the new shape, released, and the fresh search finds no reader of the old shape over the stretch.",
+    "if_missing": "When a step needs what only the person holds (the store's write turn, a credential, a decision about data that would be lost), put it in open with exactly what is needed and stop before changing anything.",
+    "why": "Removing what something still reads is the outage this workflow exists to avoid.",
+    "good_answer": "Passes: 'site, morning run and view moved; no query touched due in 8 days, which covers the weekly run'. Fails: 'should be unused now'.",
+    "came_from": [
+     "The roadmap's deploy item (a migration step that expands first and contracts later), Nov 18 2026; and the industry's expand-then-contract practice for changing a live store's shape while the old and new code both run"
+    ],
+    "part_of": [
+     "workflow:change-a-databases-shape-without-stopping-what-uses-it"
+    ]
+   }
+  },
+  {
+   "id": "change-a-databases-shape-without-stopping-what-uses-it--contract-later",
+   "values": {
+    "title": "Remove the old shape later",
+    "recipe": [
+     "change-a-databases-shape-without-stopping-what-uses-it"
+    ],
+    "position": 4,
+    "step": "contract-later",
+    "do": "Only after the quiet stretch, change the writers to stop writing the old shape, then remove the old shape in the store's own language, keeping a backup's newest time from before the removal. Read back that every reader still answers.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After 'Move every reader to the new shape'.",
+    "done_when": "The old shape is gone, a backup from before the removal is noted, and every reader answers.",
+    "if_missing": "When a step needs what only the person holds (the store's write turn, a credential, a decision about data that would be lost), put it in open with exactly what is needed and stop before changing anything.",
+    "why": "Removal is the only step that cannot be taken back without the backup.",
+    "good_answer": "Passes: 'due dropped 2026-11-26, backup 2026-11-26 03:00, all readers answer'. Fails: removing it on the same day it was replaced.",
+    "came_from": [
+     "The roadmap's deploy item (a migration step that expands first and contracts later), Nov 18 2026; and the industry's expand-then-contract practice for changing a live store's shape while the old and new code both run"
+    ],
+    "part_of": [
+     "workflow:change-a-databases-shape-without-stopping-what-uses-it"
+    ]
+   }
+  },
+  {
+   "id": "change-a-databases-shape-without-stopping-what-uses-it--keep-the-change",
+   "values": {
+    "title": "Keep what was changed",
+    "recipe": [
+     "change-a-databases-shape-without-stopping-what-uses-it"
+    ],
+    "position": 5,
+    "step": "keep-the-change",
+    "do": "Keep the change wherever the person keeps this pursuit's rows: what changed, each step's date, the readers moved, the counts, the backup times and when the old shape was removed.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After 'Remove the old shape later'.",
+    "done_when": "One row holds the change with every step's date and its counts.",
+    "if_missing": "When a step needs what only the person holds (the store's write turn, a credential, a decision about data that would be lost), put it in open with exactly what is needed and stop before changing anything.",
+    "why": "The next change starts from what this one left.",
+    "good_answer": "Passes: 'due -> due_at: expanded 11-18, filled 11-18, readers moved 11-19, removed 11-26'. Fails: no dates.",
+    "came_from": [
+     "The roadmap's deploy item (a migration step that expands first and contracts later), Nov 18 2026; and the industry's expand-then-contract practice for changing a live store's shape while the old and new code both run"
+    ],
+    "part_of": [
+     "workflow:change-a-databases-shape-without-stopping-what-uses-it"
     ]
    }
   }
