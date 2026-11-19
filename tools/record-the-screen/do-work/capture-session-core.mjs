@@ -292,5 +292,5 @@ export const captureTools = {
   },
 };
 
-/** The same tool as one function, the shape tools/records-door's run-an-export.mjs calls. */
+/** The same tool as one function, the shape tools/workflows' do-work/run-a-function.mjs calls. */
 export const capture = input => captureTools.capture(input);

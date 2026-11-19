@@ -173,3 +173,12 @@ test('through the tool a person\'s AI uses: the tool row runs the capture export
   assert.equal(typeof captureTools.capture, 'function');
   assert.deepEqual(await capture({ action: 'status' }), { state: 'idle' });
 });
+
+test('both tool rows run the workflows function runner and mount no records door', () => {
+  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
+  assert.equal(rows.length, 2);
+  for (const row of rows) {
+    assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs', row.id);
+    assert.equal(JSON.stringify(row).includes('records-door'), false, row.id);
+  }
+});
