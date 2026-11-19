@@ -1,0 +1,189 @@
+{
+  "about": "workflow:keep-the-history-of-anything: the intent, its render step and its prove attempts from three unrelated fields; test/keep-the-history-of-anything.test.mjs runs the attempts through two example renderings (test/fixtures/keep-the-history-of-anything) and holds every answer.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-the-history-of-anything",
+        "label": "Keep the history of anything, under every id it has had",
+        "job": "Keep every change any source tells about any thing, once, under the ids the source used; say which ids are one thing, for how long and on whose word, as statements that can be undone; read a thing's whole history in the order things happened, as known at any time, so whatever acts on a change reads all that already passed.",
+        "produces": "The store's own objects for statements, mentions and their configuration, proven on the example attempts of three unrelated fields, and each statement kept, repeated, refused, undone or read back.",
+        "source": {
+          "from": "A design lane of Nov 19 2026 that replaced one owner's per-person timeline tables (an address-only person, source names in its columns, alert words that knew one kind of booking) with one mechanism, after reading open CRMs (none keeps a reversible merge), identity graphs (links without direction join two things through one shared id), bitemporal stores (two times) and the change-event standards (a source and its own id make one change).",
+          "note": "Taken: the change fact every noticer tells (where, place, change, at, key, before, after) as the columns of a statement; a source and its own id for the change, kept once; when it happened and when it was learned; undo as a later statement. New: identity as a statement whose meaning row names the role it joins from and the role it joins to, directed and held over a span of time, so a shared id never joins two things and an id given to someone else later keeps its old history; a retraction is never retracted, and a redo is the statement told again."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Operations to run this time, as the prove step's attempts write them: config, tell, meaning, history, things, too_shared, erase"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "position": 0,
+            "came_from": [
+              "record:rule:a-tool-is-only-what-the-store-cannot-do"
+            ],
+            "part_of": [
+              "workflow:keep-the-history-of-anything"
+            ],
+            "checks": [],
+            "when": "The run starts, before anything is made or kept.",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where statements and mentions are already kept (kept_in, or null) and the names of the objects that keep them.",
+            "done_when": "kept_in and objects are answered from what the store itself said.",
+            "if_missing": "If the store cannot be reached, submit { kept_in: null, objects: [] } and say why in the run; make nothing.",
+            "why": "Objects made twice split one history into two.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "position": 1,
+            "came_from": [
+              "record:rule:a-tool-is-only-what-the-store-cannot-do"
+            ],
+            "part_of": [
+              "workflow:keep-the-history-of-anything"
+            ],
+            "checks": [],
+            "when": "The look step found nothing kept.",
+            "do": "Make, in the store's own form: statements (source, told, place, change, at, recorded_at set by the store, key, before, after, detail, meaning, retracts, holds_from, holds_until, erased_at; source with told kept once); mentions (statement, role, scheme, value), found by scheme and value; and the configuration, every row optional: schemes (fold_case, most_things), meanings (joins_from and joins_to for a meaning that joins two ids), meaning rules (a predicate over the told change, in the store's own words, first in order wins, else the meaning is unknown) and mention rules (a path into the told change gives an id of a scheme in a role). Then the reads: the ids that reach a thing over the span each path holds; the things an id is of at a time (where its links end; a loop of links with no way out is one thing named by its least id); a thing's history (every statement about an id that reached it when the statement happened, and every retraction of one, oldest first, as known at a time, with whether each stands and whether an id it names is another thing's too); the ids over their scheme's limit; and erasure. A retraction that points at a retraction is refused with the words: to undo it, tell the retracted statement again. Submit the names of the objects made, or the ones the look step found.",
+            "done_when": "Every object named here exists in the store under the names submitted.",
+            "if_missing": "If the store has no way to make one of them, submit what was made and name the missing one; never keep a statement anywhere else.",
+            "why": "The store keeps what is kept; no tool keeps it for the person.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "position": 2,
+            "came_from": [
+              "record:rule:a-tool-is-only-what-the-store-cannot-do"
+            ],
+            "part_of": [
+              "workflow:keep-the-history-of-anything"
+            ],
+            "checks": [],
+            "when": "The objects exist and have not been proven in this store.",
+            "do": "In a throwaway place in the same store, with the same objects, run each field's attempts in order, each field in a fresh place, and compare every answer with the one written beside it. A tell answers kept, same (already held) or refused; a history answers the source/told of each statement in order, with (undone) after one that does not stand; things answers each thing as \"scheme value\"; too_shared answers \"scheme value count\"; meaning answers the meaning a statement was given or found by the rules; erase answers how many statements were emptied. Times are as written; a statement is recorded after the one before it. The attempts: {\"hospital\":[{\"op\":\"config\",\"schemes\":[{\"scheme\":\"phone\",\"most_things\":1}],\"meanings\":[{\"meaning\":\"admitted\"},{\"meaning\":\"lab-result\"},{\"meaning\":\"reminder\"},{\"meaning\":\"overlay\"},{\"meaning\":\"same-patient\",\"joins_from\":\"record\",\"joins_to\":\"patient\"},{\"meaning\":\"reached-at\",\"joins_from\":\"contact\",\"joins_to\":\"patient\"}]},{\"op\":\"tell\",\"source\":\"north-admissions\",\"told\":\"adt-1\",\"at\":\"2030-01-01T01:00:00.000Z\",\"meaning\":\"admitted\",\"mentions\":[[\"record\",\"record-north\",\"N-123\"]],\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"south-lab\",\"told\":\"lab-9\",\"at\":\"2030-01-01T02:00:00.000Z\",\"meaning\":\"lab-result\",\"mentions\":[[\"record\",\"record-south\",\"S-987\"]],\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"patient-index\",\"told\":\"link-1\",\"at\":\"2030-01-01T03:00:00.000Z\",\"meaning\":\"same-patient\",\"mentions\":[[\"record\",\"record-north\",\"N-123\"],[\"patient\",\"patient\",\"P-1\"]],\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"patient-index\",\"told\":\"link-2\",\"at\":\"2030-01-01T03:00:00.000Z\",\"meaning\":\"same-patient\",\"mentions\":[[\"record\",\"record-south\",\"S-987\"],[\"patient\",\"patient\",\"P-1\"]],\"answer\":\"kept\"},{\"op\":\"history\",\"thing\":[\"patient\",\"P-1\"],\"answer\":[\"north-admissions/adt-1\",\"south-lab/lab-9\",\"patient-index/link-1\",\"patient-index/link-2\"]},{\"op\":\"tell\",\"source\":\"records-office\",\"told\":\"overlay-1\",\"at\":\"2030-01-01T04:00:00.000Z\",\"meaning\":\"overlay\",\"retracts\":[\"patient-index\",\"link-2\"],\"answer\":\"kept\"},{\"op\":\"history\",\"thing\":[\"patient\",\"P-1\"],\"answer\":[\"north-admissions/adt-1\",\"patient-index/link-1\",\"patient-index/link-2 (undone)\",\"records-office/overlay-1\"]},{\"op\":\"history\",\"thing\":[\"patient\",\"P-1\"],\"known_after\":[\"patient-index\",\"link-2\"],\"answer\":[\"north-admissions/adt-1\",\"south-lab/lab-9\",\"patient-index/link-1\",\"patient-index/link-2\"]},{\"op\":\"tell\",\"source\":\"records-office\",\"told\":\"undo-overlay\",\"at\":\"2030-01-01T05:00:00.000Z\",\"meaning\":\"overlay\",\"retracts\":[\"records-office\",\"overlay-1\"],\"answer\":\"refused\"},{\"op\":\"tell\",\"source\":\"patient-index\",\"told\":\"link-3\",\"at\":\"2030-01-01T05:00:00.000Z\",\"meaning\":\"same-patient\",\"mentions\":[[\"record\",\"record-south\",\"S-987\"],[\"patient\",\"patient\",\"P-2\"]],\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"front-desk\",\"told\":\"phone-1\",\"at\":\"2030-01-01T05:00:00.000Z\",\"meaning\":\"reached-at\",\"mentions\":[[\"contact\",\"phone\",\"555-0100\"],[\"patient\",\"patient\",\"P-1\"]],\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"front-desk\",\"told\":\"phone-2\",\"at\":\"2030-01-01T05:00:00.000Z\",\"meaning\":\"reached-at\",\"mentions\":[[\"contact\",\"phone\",\"555-0100\"],[\"patient\",\"patient\",\"P-2\"]],\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"reminders\",\"told\":\"sms-1\",\"at\":\"2030-01-01T06:00:00.000Z\",\"meaning\":\"reminder\",\"mentions\":[[\"to\",\"phone\",\"555-0100\"]],\"answer\":\"kept\"},{\"op\":\"things\",\"id\":[\"phone\",\"555-0100\"],\"at\":\"2030-01-01T07:00:00.000Z\",\"answer\":[\"patient P-1\",\"patient P-2\"]},{\"op\":\"things\",\"id\":[\"record-north\",\"N-123\"],\"at\":\"2030-01-01T07:00:00.000Z\",\"answer\":[\"patient P-1\"]},{\"op\":\"too_shared\",\"at\":\"2030-01-01T07:00:00.000Z\",\"answer\":[\"phone 555-0100 2\"]},{\"op\":\"erase\",\"thing\":[\"patient\",\"P-2\"],\"answer\":5},{\"op\":\"tell\",\"source\":\"south-lab\",\"told\":\"lab-9\",\"at\":\"2030-01-01T02:00:00.000Z\",\"meaning\":\"lab-result\",\"mentions\":[[\"record\",\"record-south\",\"S-987\"]],\"answer\":\"same\"},{\"op\":\"history\",\"thing\":[\"patient\",\"P-2\"],\"answer\":[]},{\"op\":\"history\",\"thing\":[\"patient\",\"P-1\"],\"answer\":[\"north-admissions/adt-1\",\"patient-index/link-1\",\"front-desk/phone-1\",\"reminders/sms-1\"]}],\"shipping\":[{\"op\":\"config\",\"schemes\":[{\"scheme\":\"track-a\",\"fold_case\":true},{\"scheme\":\"track-b\",\"fold_case\":true},{\"scheme\":\"parcel\"}],\"meanings\":[{\"meaning\":\"scanned\"},{\"meaning\":\"delivered\"},{\"meaning\":\"labelled\",\"joins_from\":\"label\",\"joins_to\":\"parcel\"}],\"meaning_rules\":[{\"position\":1,\"place\":\"scans\",\"path\":[\"after\",\"status\"],\"equals\":\"delivered\",\"meaning\":\"delivered\"},{\"position\":2,\"place\":\"scans\",\"meaning\":\"scanned\"}],\"mention_rules\":[{\"source\":\"carrier-a-feed\",\"place\":\"scans\",\"path\":[\"key\"],\"role\":\"label\",\"scheme\":\"track-a\"},{\"source\":\"carrier-b-feed\",\"place\":\"scans\",\"path\":[\"key\"],\"role\":\"label\",\"scheme\":\"track-b\"}]},{\"op\":\"tell\",\"source\":\"shipper\",\"told\":\"label-a\",\"at\":\"2030-01-01T00:00:00.000Z\",\"meaning\":\"labelled\",\"mentions\":[[\"label\",\"track-a\",\"a-1\"],[\"parcel\",\"parcel\",\"PX-1\"]],\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"shipper\",\"told\":\"label-b\",\"at\":\"2030-01-01T03:00:00.000Z\",\"meaning\":\"labelled\",\"mentions\":[[\"label\",\"track-b\",\"b-7\"],[\"parcel\",\"parcel\",\"PX-1\"]],\"holds_from\":\"2030-01-01T03:00:00.000Z\",\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"carrier-b-feed\",\"told\":\"scan-b-2\",\"place\":\"scans\",\"change\":\"added\",\"at\":\"2030-01-01T05:00:00.000Z\",\"key\":\"B-7\",\"after\":{\"status\":\"delivered\"},\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"carrier-b-feed\",\"told\":\"scan-b-2\",\"place\":\"scans\",\"change\":\"added\",\"at\":\"2030-01-01T05:00:00.000Z\",\"key\":\"B-7\",\"after\":{\"status\":\"delivered\"},\"answer\":\"same\"},{\"op\":\"tell\",\"source\":\"carrier-a-feed\",\"told\":\"scan-a-1\",\"place\":\"scans\",\"change\":\"added\",\"at\":\"2030-01-01T01:00:00.000Z\",\"key\":\"A-1\",\"after\":{\"status\":\"picked up\"},\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"carrier-a-feed\",\"told\":\"scan-a-2\",\"place\":\"scans\",\"change\":\"added\",\"at\":\"2030-01-01T02:00:00.000Z\",\"key\":\"A-1\",\"after\":{\"status\":\"at hub\"},\"answer\":\"kept\"},{\"op\":\"meaning\",\"of\":[\"carrier-b-feed\",\"scan-b-2\"],\"answer\":\"delivered\"},{\"op\":\"history\",\"thing\":[\"parcel\",\"PX-1\"],\"answer\":[\"shipper/label-a\",\"carrier-a-feed/scan-a-1\",\"carrier-a-feed/scan-a-2\",\"shipper/label-b\",\"carrier-b-feed/scan-b-2\"]},{\"op\":\"history\",\"thing\":[\"parcel\",\"PX-1\"],\"known_after\":[\"carrier-a-feed\",\"scan-a-1\"],\"answer\":[\"shipper/label-a\",\"carrier-a-feed/scan-a-1\",\"shipper/label-b\",\"carrier-b-feed/scan-b-2\"]},{\"op\":\"tell\",\"source\":\"shipper\",\"told\":\"label-a-unbounded\",\"at\":\"2030-01-01T09:00:00.000Z\",\"meaning\":\"labelled\",\"retracts\":[\"shipper\",\"label-a\"],\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"shipper\",\"told\":\"label-a-bounded\",\"at\":\"2030-01-01T00:00:00.000Z\",\"meaning\":\"labelled\",\"mentions\":[[\"label\",\"track-a\",\"a-1\"],[\"parcel\",\"parcel\",\"PX-1\"]],\"holds_until\":\"2030-01-01T09:00:00.000Z\",\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"shipper\",\"told\":\"label-a-px2\",\"at\":\"2030-01-01T10:00:00.000Z\",\"meaning\":\"labelled\",\"mentions\":[[\"label\",\"track-a\",\"a-1\"],[\"parcel\",\"parcel\",\"PX-2\"]],\"holds_from\":\"2030-01-01T10:00:00.000Z\",\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"carrier-a-feed\",\"told\":\"scan-a-9\",\"place\":\"scans\",\"change\":\"added\",\"at\":\"2030-01-01T11:00:00.000Z\",\"key\":\"A-1\",\"after\":{\"status\":\"picked up\"},\"answer\":\"kept\"},{\"op\":\"history\",\"thing\":[\"parcel\",\"PX-1\"],\"answer\":[\"shipper/label-a (undone)\",\"shipper/label-a-bounded\",\"carrier-a-feed/scan-a-1\",\"carrier-a-feed/scan-a-2\",\"shipper/label-b\",\"carrier-b-feed/scan-b-2\",\"shipper/label-a-unbounded\"]},{\"op\":\"history\",\"thing\":[\"parcel\",\"PX-2\"],\"answer\":[\"shipper/label-a-px2\",\"carrier-a-feed/scan-a-9\"]},{\"op\":\"things\",\"id\":[\"track-a\",\"a-1\"],\"at\":\"2030-01-01T02:00:00.000Z\",\"answer\":[\"parcel PX-1\"]},{\"op\":\"things\",\"id\":[\"track-a\",\"a-1\"],\"at\":\"2030-01-01T11:00:00.000Z\",\"answer\":[\"parcel PX-2\"]}],\"research\":[{\"op\":\"config\",\"meanings\":[{\"meaning\":\"version-posted\"},{\"meaning\":\"cited\"},{\"meaning\":\"not-merged\"},{\"meaning\":\"same-work\",\"joins_from\":\"id\",\"joins_to\":\"work\"},{\"meaning\":\"alias-of\",\"joins_from\":\"alias\",\"joins_to\":\"id\"},{\"meaning\":\"merged-into\",\"joins_from\":\"old\",\"joins_to\":\"new\"}]},{\"op\":\"tell\",\"source\":\"preprint-server\",\"told\":\"v1\",\"at\":\"2030-01-01T01:00:00.000Z\",\"meaning\":\"version-posted\",\"mentions\":[[\"item\",\"preprint\",\"2301.0001\"]],\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"citation-index\",\"told\":\"c-1\",\"at\":\"2030-01-01T04:00:00.000Z\",\"meaning\":\"cited\",\"mentions\":[[\"cited\",\"doi\",\"10.1/alt\"]],\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"catalogue\",\"told\":\"s-1\",\"at\":\"2030-01-01T02:00:00.000Z\",\"meaning\":\"same-work\",\"mentions\":[[\"id\",\"preprint\",\"2301.0001\"],[\"work\",\"work\",\"W1\"]],\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"catalogue\",\"told\":\"s-2\",\"at\":\"2030-01-01T03:00:00.000Z\",\"meaning\":\"same-work\",\"mentions\":[[\"id\",\"doi\",\"10.1/x\"],[\"work\",\"work\",\"W1\"]],\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"registry\",\"told\":\"a-1\",\"at\":\"2030-01-01T03:00:00.000Z\",\"meaning\":\"alias-of\",\"mentions\":[[\"alias\",\"doi\",\"10.1/alt\"],[\"id\",\"doi\",\"10.1/x\"]],\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"citation-index\",\"told\":\"c-2\",\"at\":\"2030-01-01T05:00:00.000Z\",\"meaning\":\"cited\",\"mentions\":[[\"cited\",\"work\",\"W2\"]],\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"catalogue\",\"told\":\"m-1\",\"at\":\"2030-01-01T06:00:00.000Z\",\"meaning\":\"merged-into\",\"mentions\":[[\"old\",\"work\",\"W2\"],[\"new\",\"work\",\"W1\"]],\"answer\":\"kept\"},{\"op\":\"history\",\"thing\":[\"work\",\"W1\"],\"answer\":[\"preprint-server/v1\",\"catalogue/s-1\",\"catalogue/s-2\",\"registry/a-1\",\"citation-index/c-1\",\"citation-index/c-2\",\"catalogue/m-1\"]},{\"op\":\"tell\",\"source\":\"catalogue\",\"told\":\"u-1\",\"at\":\"2030-01-01T07:00:00.000Z\",\"meaning\":\"not-merged\",\"retracts\":[\"catalogue\",\"m-1\"],\"answer\":\"kept\"},{\"op\":\"history\",\"thing\":[\"work\",\"W1\"],\"answer\":[\"preprint-server/v1\",\"catalogue/s-1\",\"catalogue/s-2\",\"registry/a-1\",\"citation-index/c-1\",\"catalogue/m-1 (undone)\",\"catalogue/u-1\"]},{\"op\":\"tell\",\"source\":\"catalogue\",\"told\":\"m-2\",\"at\":\"2030-01-01T08:00:00.000Z\",\"meaning\":\"merged-into\",\"mentions\":[[\"old\",\"work\",\"W2\"],[\"new\",\"work\",\"W1\"]],\"answer\":\"kept\"},{\"op\":\"tell\",\"source\":\"other-catalogue\",\"told\":\"m-3\",\"at\":\"2030-01-01T08:00:00.000Z\",\"meaning\":\"merged-into\",\"mentions\":[[\"old\",\"work\",\"W1\"],[\"new\",\"work\",\"W2\"]],\"answer\":\"kept\"},{\"op\":\"things\",\"id\":[\"doi\",\"10.1/alt\"],\"at\":\"2030-01-01T09:00:00.000Z\",\"answer\":[\"work W1\"]},{\"op\":\"things\",\"id\":[\"work\",\"W2\"],\"at\":\"2030-01-01T09:00:00.000Z\",\"answer\":[\"work W1\"]}]}",
+            "done_when": "Every answer equals the one written beside its attempt.",
+            "if_missing": "If an answer differs, stop and submit the attempt, the answer written and the answer given; keep nothing for the person until it is fixed.",
+            "why": "An intent rendered into a store is only as good as the answers it gives on cases from fields it was not made for.",
+            "good_answer": "Passes: { \"proven\": true, \"differ\": [] } after every field ran. Fails: { \"proven\": true } when the shipping field's late scan sorted last, or when the hospital's shared phone joined its two patients.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "proven",
+                "differ"
+              ],
+              "properties": {
+                "proven": {
+                  "type": "boolean"
+                },
+                "differ": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "run",
+            "title": "Run this time's operations",
+            "position": 3,
+            "came_from": [
+              "record:rule:a-tool-is-only-what-the-store-cannot-do"
+            ],
+            "part_of": [
+              "workflow:keep-the-history-of-anything"
+            ],
+            "checks": [],
+            "when": "The objects are proven.",
+            "do": "Run input.operations in order through the store's own objects, as the prove step runs its attempts. Before writing to or about a person, read the history of every thing the writing is about and say how many statements were read and the newest time among them; zero is said as no history.",
+            "done_when": "Every operation has its answer, in the prove step's answer shapes.",
+            "if_missing": "If no operations were given, submit { answers: [] }.",
+            "why": "One history read before writing to anyone stops a reply that contradicts what already passed.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
