@@ -1,6 +1,6 @@
 // tools/credit-kept-lines-to-their-writer/do-work/credit-kept-lines-to-their-writer.mjs
 //
-// tool:credit-kept-lines-to-their-writer, run as a function (tools/records-door do-work/run-an-export.mjs): given the
+// tool:credit-kept-lines-to-their-writer, run as a function (tools/workflows do-work/run-a-function.mjs): given the
 // versions of a text (oldest first) and who wrote each, credits every line still in the newest version to whoever first
 // wrote it, by src/kept-work.mjs keptWork unchanged. It keeps nothing.
 //
