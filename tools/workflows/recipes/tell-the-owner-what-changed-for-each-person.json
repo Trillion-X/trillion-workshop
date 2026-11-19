@@ -1,5 +1,5 @@
 {
-  "_what": "Every five minutes reads due_tells() from the person's own history: each person (a thing whose scheme is told_about) with standing new statements whose meanings' tell_after has passed since the newest, batched, with the tell_words for that set of meanings (a cancel and a new booking together are 'moved the call'). For each it first claims the tell (tells, primary key thing and through), so the same changes are never told twice even when two runs overlap, then puts one ready action to the owner as a row of their notices (in the store their switch names, the one workflow:read-my-notices reads): when the person's next call starts within soon_minutes, a notice to call them now; else it reads the mail already sent to the address they used last (tool:find-mail) and the calendar (tool:read-calendar-events), has tool:ask-a-model draft the email, reads the owner's voice settings row from their database (tool_setting(id)) and scores the draft with it (tool:score-writing-with-a-voice-adapter, mode draft), refusing a draft whose lowest paragraph score is under the owner's bar or unscored, checks the owner's phrase rules (tool:judge-against-rules), saves it as a draft in the owner's own mailbox (tool:save-a-mail-draft) and tells the owner it is there: the owner sending it is the yes, and the sent mail comes back into the history through the owner's sent-mail waiter as a sent statement, whose meaning has no tell_after, so it starts nothing. When a step of the draft fails or the voice check refuses it, the notice says what changed without a draft; when a notice itself fails, the claim is given back so the next look tells it, and a saved draft that notice would have named is removed. The next call is the earliest starts_at of the person's bookings whose latest statement has no cancelled_at: the names a source's waiter row carries its values under (service-lists shape.carry). Everything the person owns (history connection, mail, calendar, voice, phrase rules, who is told) comes in on their own switch; the row names none.",
+  "_what": "Every five minutes reads due_tells() from the person's own history: each person (a thing whose scheme is told_about) with standing new statements whose meanings' tell_after has passed since the newest, batched, with the tell_words for that set of meanings (a cancel and a new booking together are 'moved the call'). For each it first claims the tell (tells, primary key thing and through), so the same changes are never told twice even when two runs overlap, then puts one ready action to the owner as a row of their notices (in the store their switch names, the one workflow:read-my-notices reads): when the person's next call starts within soon_minutes, a notice to call them now; else it reads the mail already sent to the address they used last (tool:find-mail) and the calendar (tool:read-calendar-events), has tool:ask-a-model draft the email, scores it with the owner's voice scorer (tool:score-writing-with-a-voice-adapter, mode draft) and the owner's phrase rules (tool:judge-against-rules), saves it as a draft in the owner's own mailbox (tool:save-a-mail-draft) and tells the owner it is there: the owner sending it is the yes, and the sent mail comes back into the history through the owner's sent-mail waiter as a sent statement, whose meaning has no tell_after, so it starts nothing. When a step of the draft fails, the notice says what changed without a draft; when a notice itself fails, the claim is given back so the next look tells it, and a saved draft that notice would have named is removed. The next call is the earliest starts_at of the person's bookings whose latest statement has no cancelled_at: the names a source's waiter row carries its values under (service-lists shape.carry). Everything the person owns (history connection, mail, calendar, voice, phrase rules, who is told) comes in on their own switch; the row names none.",
   "records": [
     {
       "payload": {
@@ -33,7 +33,7 @@
             },
             "voice": {
               "type": "object",
-              "description": "The owner's voice for tool:score-writing-with-a-voice-adapter draft mode: credential_name, the vault name of the database login that holds their voice settings row, and setting, that row's id (record:setting:train-and-evaluate-a-writing-voice-classifier~person~<them>); the database answers tool_setting(id) with the row, whose settings.draft names the adapter, model, criterion, min_paragraph_chars and bar"
+              "description": "The owner's voice scorer settings for tool:score-writing-with-a-voice-adapter draft mode: adapter, base_model, criterion, min_paragraph_chars, decider_common_dir"
             },
             "phrase_rules": {
               "type": "array",
@@ -766,35 +766,6 @@
                   }
                 },
                 {
-                  "id": "read-my-voice",
-                  "kind": "ask",
-                  "config": {
-                    "name": "tool:run-sql-in-my-database",
-                    "input": {
-                      "credential_name": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "voice.credential_name"
-                        }
-                      },
-                      "sql": "SELECT tool_setting($1::text) AS record",
-                      "params": [
-                        {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "voice.setting"
-                          }
-                        }
-                      ]
-                    },
-                    "context": {
-                      "step_id": "read-my-voice"
-                    }
-                  }
-                },
-                {
                   "id": "score-the-voice",
                   "kind": "ask",
                   "config": {
@@ -820,102 +791,44 @@
                           }
                         ]
                       },
-                      "settings_record": {
+                      "adapter": {
                         "$kind": "binding",
                         "select": {
-                          "from": "steps",
-                          "key": "read-my-voice",
-                          "path": "output.rows.0.record"
+                          "from": "input",
+                          "path": "voice.adapter"
+                        }
+                      },
+                      "base_model": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "voice.base_model"
+                        }
+                      },
+                      "criterion": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "voice.criterion"
+                        }
+                      },
+                      "min_paragraph_chars": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "voice.min_paragraph_chars"
+                        }
+                      },
+                      "decider_common_dir": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "voice.decider_common_dir"
                         }
                       }
                     },
                     "context": {
                       "step_id": "score-the-voice"
-                    }
-                  }
-                },
-                {
-                  "id": "voice-meets-the-bar",
-                  "kind": "return",
-                  "config": {
-                    "value": {
-                      "meets": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "steps",
-                          "key": "score-the-voice",
-                          "path": "output.result.body_min"
-                        },
-                        "transform": [
-                          {
-                            "op": "op:core.if_null",
-                            "args": {
-                              "value": -1
-                            }
-                          },
-                          {
-                            "op": "op:core.ge",
-                            "args": {
-                              "value": {
-                                "$kind": "binding",
-                                "select": {
-                                  "from": "steps",
-                                  "key": "score-the-voice",
-                                  "path": "output.result.bar"
-                                },
-                                "transform": [
-                                  {
-                                    "op": "op:core.if_null",
-                                    "args": {
-                                      "value": 2
-                                    }
-                                  }
-                                ]
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  }
-                },
-                {
-                  "id": "voice-below-the-bar",
-                  "kind": "fail",
-                  "config": {
-                    "error": {
-                      "$kind": "binding",
-                      "select": {
-                        "from": "input",
-                        "path": "start_at"
-                      },
-                      "resolve_nested_bindings": true,
-                      "transform": [
-                        {
-                          "op": "op:core.concat",
-                          "args": {
-                            "values": [
-                              "The draft does not read in the owner's voice, so it was not saved: its lowest paragraph score is under the owner's bar, or no paragraph was scored. The scorer said: ",
-                              {
-                                "$kind": "binding",
-                                "select": {
-                                  "from": "steps",
-                                  "key": "score-the-voice",
-                                  "path": "output.result"
-                                },
-                                "transform": [
-                                  {
-                                    "op": "op:core.stringify",
-                                    "args": {
-                                      "format": "json"
-                                    }
-                                  }
-                                ]
-                              }
-                            ]
-                          }
-                        }
-                      ]
                     }
                   }
                 },
@@ -1583,61 +1496,13 @@
                 },
                 {
                   "from": "draft",
-                  "to": "read-my-voice",
-                  "kind": "always"
-                },
-                {
-                  "from": "read-my-voice",
                   "to": "score-the-voice",
                   "kind": "always"
                 },
                 {
                   "from": "score-the-voice",
-                  "to": "voice-meets-the-bar",
-                  "kind": "always"
-                },
-                {
-                  "from": "voice-meets-the-bar",
                   "to": "check-the-phrases",
-                  "kind": "on_result",
-                  "config": {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "input",
-                      "path": "output.meets"
-                    },
-                    "transform": [
-                      {
-                        "op": "op:core.equals",
-                        "args": {
-                          "value": true
-                        }
-                      }
-                    ]
-                  }
-                },
-                {
-                  "from": "voice-meets-the-bar",
-                  "to": "voice-below-the-bar",
-                  "kind": "on_result",
-                  "config": {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "input",
-                      "path": "output.meets"
-                    },
-                    "transform": [
-                      {
-                        "op": "op:core.equals",
-                        "args": {
-                          "value": true
-                        }
-                      },
-                      {
-                        "op": "op:core.not"
-                      }
-                    ]
-                  }
+                  "kind": "always"
                 },
                 {
                   "from": "check-the-phrases",
@@ -1665,17 +1530,7 @@
                   "kind": "on_failure"
                 },
                 {
-                  "from": "read-my-voice",
-                  "to": "changed-without-a-draft",
-                  "kind": "on_failure"
-                },
-                {
                   "from": "score-the-voice",
-                  "to": "changed-without-a-draft",
-                  "kind": "on_failure"
-                },
-                {
-                  "from": "voice-below-the-bar",
                   "to": "changed-without-a-draft",
                   "kind": "on_failure"
                 },

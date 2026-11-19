@@ -99,21 +99,15 @@ test('a database row change with no kinds is chosen too, and the keep step keeps
 const SETTINGS = { history: { credential_name: 'my-history-connection' }, address_scheme: 'email', soon_minutes: 120,
   notices: { credential_name: 'my-notices-connection', kind: 'needs-you' },
   mail: { provider: 'gmail', connection: { connection_id: 'service_connection:google-account:example' } }, calendar: { provider: 'google-calendar', connection: { connection_id: 'service_connection:google-account:example' }, calendar_id: 'primary' },
-  voice: { credential_name: 'my-voice-connection', setting: 'record:setting:train-and-evaluate-a-writing-voice-classifier~person~someone' },
+  voice: { adapter: '/opt/example-adapter', base_model: '/opt/example-model', criterion: { id: 'x' }, min_paragraph_chars: 40, decider_common_dir: '/opt/example-decider' },
   phrase_rules: [{ id: 'no-filler', words: ['just checking in'] }] };
 const due = (soon, extra = {}) => ({ thing_scheme: 'person', thing_value: 'person:bo', through: 9, meanings: ['booked', 'cancelled'], words: 'moved the call', addresses: address('bo'), address: address('bo.work'),
   next_call_at: '2026-11-21T13:00:00.000Z', soon, now_at: '2026-11-19T13:00:00Z', calendar_to: '2026-11-22T13:00:00Z', history: '[]', ...extra });
-// The owner's voice settings row as their database's tool_setting(id) answers it, and what the scorer answers by default.
-const VOICE_ROW = { id: SETTINGS.voice.setting, scope_kind: 'person', scope_id: 'someone', status: 'active',
-  settings: JSON.stringify({ draft: { adapter: '/opt/example-adapter', base_model: '/opt/example-model', criterion: { id: 'x' }, min_paragraph_chars: 40, bar: 0.5 } }) };
-const SCORED = { result: { paragraph_scores: [{ index: 0, chars: 40, p_pass: 0.8 }], body_min: 0.8, bar: 0.5 } };
-function tellDoor({ rows, claimed = true, fail = null, scored = SCORED }) {
+function tellDoor({ rows, claimed = true, fail = null }) {
   return door((name, input) => {
     const notice = name === 'tool:run-sql-in-my-database' && input.sql.startsWith('insert into notices');
-    const voiceRow = name === 'tool:run-sql-in-my-database' && input.sql.startsWith('SELECT tool_setting');
-    if (fail === name || (fail === 'notice' && notice) || (fail === 'voice-row' && voiceRow)) throw Object.assign(new Error(`${name} refused`), { code: 'tools_run_input_refused' });
+    if (fail === name || (fail === 'notice' && notice)) throw Object.assign(new Error(`${name} refused`), { code: 'tools_run_input_refused' });
     if (notice) return { rows: [{ notification_id: 'told:1' }], row_count: 1 };
-    if (voiceRow) return { rows: [{ record: VOICE_ROW }], row_count: 1 };
     if (name === 'tool:run-sql-in-my-database') {
       if (input.sql.includes('due_tells')) return { rows, row_count: rows.length };
       if (input.sql.startsWith('INSERT INTO tells')) return claimed ? { rows: [{ call_now: input.params[4], write_now: !input.params[4] }], row_count: 1 } : { rows: [], row_count: 0 };
@@ -122,7 +116,7 @@ function tellDoor({ rows, claimed = true, fail = null, scored = SCORED }) {
     if (name === 'tool:ask-a-model') return { choices: [{ message: { role: 'assistant', content: '{"subject":"Our call","text":"See you then."}' } }] };
     if (name === 'tool:find-mail') return { messages: [{ subject: 'Your call', to: address('bo') }] };
     if (name === 'tool:read-calendar-events') return { blocks: [{ title: 'Call with Bo', start: '2026-11-21T13:00:00Z' }] };
-    if (name === 'tool:score-writing-with-a-voice-adapter') return scored;
+    if (name === 'tool:score-writing-with-a-voice-adapter') return { result: { paragraph_scores: [{ index: 0, chars: 40, p_pass: 0.8 }], body_min: 0.8 } };
     if (name === 'tool:judge-against-rules') return { passed: true, status: 'passed', findings: [], lines: [], said: 'clean' };
     if (name === 'tool:save-a-mail-draft') return { draft_id: 'draft-1', message_id: null, thread_id: null };
     if (name === 'tool:delete-a-mail-draft') return { deleted: true };
@@ -131,7 +125,7 @@ function tellDoor({ rows, claimed = true, fail = null, scored = SCORED }) {
 }
 const tellRun = d => runAsTheTool(wake(TELL, 'every-five-minutes', { schedule_id: 'x' }, 'clock::due@1', SETTINGS), d);
 const MADE = ['CREATE', 'CREATE', 'alter'];
-const DRAFTED = [...MADE, 'WITH', 'INSERT', 'tool:find-mail', 'tool:read-calendar-events', 'tool:ask-a-model', 'SELECT', 'tool:score-writing-with-a-voice-adapter', 'tool:judge-against-rules', 'tool:save-a-mail-draft', 'notice'];
+const DRAFTED = [...MADE, 'WITH', 'INSERT', 'tool:find-mail', 'tool:read-calendar-events', 'tool:ask-a-model', 'tool:score-writing-with-a-voice-adapter', 'tool:judge-against-rules', 'tool:save-a-mail-draft', 'notice'];
 const asked = d => d.calls.map(call => call.name !== 'tool:run-sql-in-my-database' ? call.name : call.input.sql.startsWith('insert into notices') ? 'notice' : call.input.sql.split(/\s/)[0]);
 /** A notice's own fields, from the insert's params ($1 kind, $2 title, $3 body, $4 key). */
 const noticeOf = call => ({ credential_name: call.input.credential_name, kind: call.input.params[0], title: call.input.params[1], body: call.input.params[2], key: call.input.params[3] });
@@ -144,10 +138,7 @@ test('a settled person is told once: a checked draft to the address used last, i
   assert.equal(d.calls[0].input.credential_name, 'my-notices-connection', 'the notices table is made where the person keeps their notices');
   assert.equal(d.calls[3].input.credential_name, 'my-history-connection', 'the history is the one the person switched on with');
   assert.equal(d.calls[5].input.text, `to:${address('bo.work')}`);
-  assert.equal(d.calls[8].input.credential_name, 'my-voice-connection', 'the voice row is read where the owner keeps it');
-  assert.deepEqual(d.calls[8].input.params, [SETTINGS.voice.setting]);
-  assert.deepEqual(d.calls[9].input, { mode: 'draft', text: 'See you then.', settings_record: VOICE_ROW }, 'the scorer gets the draft and the owner\'s own row, nothing else');
-  assert.deepEqual(d.calls[10].input.rules, SETTINGS.phrase_rules);
+  assert.deepEqual(d.calls[9].input.rules, SETTINGS.phrase_rules);
   assert.match(d.calls[7].input.messages[1].content, /Mail already sent to them: .*Your call.*Calendar: .*Call with Bo/);
   const save = d.calls.at(-2).input;
   const notice = noticeOf(d.calls.at(-1));
@@ -174,40 +165,16 @@ test('changes already told are not told again: the claim refuses and nothing is 
 });
 
 test('a draft step that fails still tells what changed; a notice that fails gives its claim back and removes its draft', async () => {
-  for (const failing of ['tool:find-mail', 'tool:read-calendar-events', 'tool:ask-a-model', 'voice-row', 'tool:score-writing-with-a-voice-adapter', 'tool:judge-against-rules', 'tool:save-a-mail-draft']) {
+  for (const failing of ['tool:find-mail', 'tool:read-calendar-events', 'tool:ask-a-model', 'tool:score-writing-with-a-voice-adapter', 'tool:judge-against-rules', 'tool:save-a-mail-draft']) {
     const d = tellDoor({ rows: [due(false)], fail: failing });
     assert.equal((await tellRun(d)).status, 'completed');
-    assert.deepEqual(asked(d).slice(-2), [failing === 'voice-row' ? 'SELECT' : failing, 'notice'], failing);
+    assert.deepEqual(asked(d).slice(-2), [failing, 'notice'], failing);
     assert.match(noticeOf(d.calls.at(-1)).body, /^No draft was made/);
   }
   const told = tellDoor({ rows: [due(false)], fail: 'notice' });
   await tellRun(told);
   assert.deepEqual(asked(told).slice(-3), ['notice', 'DELETE', 'tool:delete-a-mail-draft']);
   assert.equal(told.calls.at(-1).input.draft_id, 'draft-1');
-});
-
-test('a draft under the owner\'s voice bar, unscored, or with no bar is refused by the check: nothing is saved and the notice says what changed', async () => {
-  const cases = {
-    'under the bar': { result: { paragraph_scores: [{ index: 0, chars: 90, p_pass: 0.97 }, { index: 1, chars: 120, p_pass: 0.0061 }], body_min: 0.0061, bar: 0.5 } },
-    'every paragraph skipped': { result: { paragraph_scores: [{ index: 0, chars: 7, skipped: true }], body_min: null, bar: 0.5 } },
-    'no bar in the row': { result: { paragraph_scores: [{ index: 0, chars: 90, p_pass: 0.99 }], body_min: 0.99 } },
-    'handed back with no result': null,
-  };
-  for (const [why, scored] of Object.entries(cases)) {
-    const d = tellDoor({ rows: [due(false)], scored });
-    const run = await tellRun(d);
-    assert.equal(run.status, 'completed', `${why}: ${run.error_message}`);
-    assert.deepEqual(asked(d).slice(-2), ['tool:score-writing-with-a-voice-adapter', 'notice'], why);
-    assert.equal(d.calls.some(call => call.name === 'tool:save-a-mail-draft'), false, `${why}: no draft is saved`);
-    assert.match(noticeOf(d.calls.at(-1)).body, /^No draft was made/, why);
-  }
-});
-
-test('a draft exactly at the bar passes the check', async () => {
-  const d = tellDoor({ rows: [due(false)], scored: { result: { paragraph_scores: [{ index: 0, chars: 90, p_pass: 0.5 }], body_min: 0.5, bar: 0.5 } } });
-  assert.equal((await tellRun(d)).status, 'completed');
-  assert.deepEqual(asked(d), DRAFTED);
-  assert.match(noticeOf(d.calls.at(-1)).body, /Voice score \(lowest paragraph\): 0\.5\./);
 });
 
 test("every kind the noticer's example booking waiter gives a change is one some workflow's fires_when reads", () => {
