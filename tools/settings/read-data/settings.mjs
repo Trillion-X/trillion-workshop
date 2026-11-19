@@ -104,17 +104,6 @@ export async function readSetting(door, { folder, scopes, fallback = null, tool 
   return fallback;
 }
 
-/** tool:read-a-tool-setting-through-my-door: { settings_prefix: "record:setting:<folder>~", scopes, tool? } in. */
-export async function readSettingRow(input, { door }) {
-  const prefix = input?.settings_prefix;
-  if (typeof prefix !== 'string' || !prefix.startsWith(ID_PREFIX) || !prefix.endsWith('~') || prefix.slice(ID_PREFIX.length, -1).includes('~')) {
-    throw new SettingError(`settings_prefix is ${ID_PREFIX}<workshop-folder>~, the rows the run may read.`);
-  }
-  const folder = prefix.slice(ID_PREFIX.length, -1);
-  const found = await readSetting(door, { folder, scopes: input.scopes, tool: input.tool });
-  return { folder, found: found !== null, settings: found };
-}
-
 // --- Reading a named row through the run's records door (added for tools that take settings_record as an id) ---
 
 const isPlain = value => value !== null && typeof value === 'object' && !Array.isArray(value);
