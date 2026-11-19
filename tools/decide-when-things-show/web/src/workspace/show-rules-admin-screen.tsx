@@ -6,7 +6,7 @@
 //   the generic records write like any other: the preset's copy (show-rules.json `sharing.record_prefix` + preset id:
 //   { label, types }, the preset with every preset it inherits) and its grant (record-sharing.json
 //   `door_grant.record_prefix` + that label: { record, people: [{ principal, key_blake3 }], changed_at }), which the
-//   person's own door honors for each person's share key (trillion-rust src/account_rights/share_grant.rs). The people
+//   sharing owner's reader honors for each person's share key (trillion-rust src/account_rights/share_grant.rs). The people
 //   a preset is shared with are its group; one person is one account.
 //
 // Non-negotiable invariants
@@ -69,7 +69,7 @@ const peopleOf = (value: unknown): Person[] => (object(value) && Array.isArray(v
   ? value.people.filter((person): person is Person => object(person) && typeof person.principal === 'string' && typeof person.key_blake3 === 'string')
   : []);
 
-/** A new share key: the door's token prefix and 32 random bytes, base64url. */
+/** A new share key: the grant's token prefix and 32 random bytes, base64url. */
 function newShareKey(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(KEY_BYTES));
   const text = btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');

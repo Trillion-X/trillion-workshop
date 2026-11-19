@@ -2,15 +2,15 @@
 //
 // PURPOSE
 //   The rows of this tool, run by tools/records-door/do-work/run-an-export.mjs over the person's own `show-rules` record
-//   (show-rules.json `record`): see when things show, keep or change a rule, take a rule away, keep a type, take a type
+//   (show-rules.json `record`, handed in as `records`): see when things show, keep or change a rule, take a rule away, keep a type, take a type
 //   away, switch a kept type on or off, share a kept type with someone, stop sharing it with them. A person and an AI
 //   run the same rows, so each change is the same change wherever it starts.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. The decisions are the moved store's: read-data/show-rules-store.mjs makeShowRules (trillion src/show-rules-store.mjs)
 //      read, set and remove, with its edit rules and its refusals in its words, over changedRecord. Sharing is
-//      a2e1365f33's two records, in its words (show-rules.json `sharing.words`). This file reads the records through the
-//      door, hands them to that code, and answers what it would write.
+//      a2e1365f33's two records, in its words (show-rules.json `sharing.words`). This file takes the records the caller
+//      read from its own store and hands in as `records`, hands them to that code, and answers what it would write.
 //   2. Nothing here names a person, subject, control or type: show-rules.json and the request say them.
 //   3. A run's key may not write a workspace record, so a change answers `keep`: the records to write, in order, each
 //      with the value read as `expected`, written by whoever holds the person's write (the page's generic records write,
@@ -38,7 +38,7 @@ import { makeShowRules } from '../read-data/show-rules-store.mjs';
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const word = value => typeof value === 'string' && value.trim().length > 0;
 const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
-// The person's own door: the account owner, as the store's edit rules read the actor.
+// The person's own account owner, as the store's edit rules read the actor.
 const OWN = { account_id: 'own' };
 
 const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
@@ -113,18 +113,18 @@ export function takenOff(after, before) {
   return { ...next, ...(kept.length ? { types: kept } : {}), ...(inUse.length ? { in_use: inUse } : {}) };
 }
 
-/** The records the door holds for these labels: label → value, absent labels left out. */
-async function readLabels(door, labels) {
-  const { records } = await door.readWorkspace(labels);
-  return new Map(labels.filter(label => records[label] !== undefined && records[label] !== null).map(label => [label, records[label]]));
+/** The records the caller handed in as `records` for these labels: label → value, absent labels left out. */
+function readLabels(input, labels) {
+  const given = object(input.records) ? input.records : {};
+  return new Map(labels.filter(label => given[label] !== undefined && given[label] !== null).map(label => [label, given[label]]));
 }
 
 /**
  * The moved store over what was read. Its writes are kept aside, in order, and each later read sees them, so several
  * changes in one run build on each other. `keep()` answers them against what was first read.
  */
-async function storeOver(door, input) {
-  const first = await readLabels(door, [data.record]);
+async function storeOver(input) {
+  const first = readLabels(input, [data.record]);
   // The store reads the record with the shipped default laid under it; keep() takes the default back off.
   const held = new Map(first);
   const laid = laidUnder(first.get(data.record) ?? null);
@@ -151,9 +151,9 @@ const changeOnly = (input, field) => {
 };
 
 /** tool:see-when-things-show (show-rules-store.mjs read) */
-export async function seeWhenThingsShow(input = {}, { door } = {}) {
+export async function seeWhenThingsShow(input = {}) {
   if (!object(input)) throw new Error('The request is one object.');
-  const { store, first } = await storeOver(door, input);
+  const { store, first } = await storeOver(input);
   const answer = await store.read({ space_id: input.space_id ?? null });
   // Where each kept type's share is kept, for share-a-kept-show-type and stop-sharing-a-show-type to name; a type
   // that ships with Trillion and the person did not change says `shipped`.
@@ -161,41 +161,41 @@ export async function seeWhenThingsShow(input = {}, { door } = {}) {
   return { ...answer, types: answer.types.map(type => ({ ...type, ...(shipped(type.id) ? { shipped: true } : {}), grant: grantLabel(type.id) })) };
 }
 
-async function set(door, input, change) {
-  const { store, keep } = await storeOver(door, input);
+async function set(input, change) {
+  const { store, keep } = await storeOver(input);
   const answer = await store.set(change, { actor: OWN });
   return { ...answer, keep: keep() };
 }
 
 /** tool:keep-a-show-rule (show-rules-store.mjs set { rule } | { starting }) */
-export async function keepAShowRule(input = {}, { door } = {}) {
+export async function keepAShowRule(input = {}) {
   const change = changeOnly(input);
   if (!object(change.rule) && !object(change.starting)) throw new Error('rule is { label, subject, when, effect, until? }; starting is { id, on } for a starting rule.');
-  return set(door, input, object(change.starting) ? { starting: change.starting } : { rule: change.rule });
+  return set(input, object(change.starting) ? { starting: change.starting } : { rule: change.rule });
 }
 
 /** tool:take-a-show-rule-away (show-rules-store.mjs remove) */
-export async function takeAShowRuleAway(input = {}, { door } = {}) {
+export async function takeAShowRuleAway(input = {}) {
   const change = changeOnly(input, 'id');
-  const { store, keep } = await storeOver(door, input);
+  const { store, keep } = await storeOver(input);
   const answer = await store.remove(change, { actor: OWN });
   return { ...answer, keep: keep() };
 }
 
 /** tool:keep-a-show-type (show-rules-store.mjs set { type }) */
-export async function keepAShowType(input = {}, { door } = {}) {
+export async function keepAShowType(input = {}) {
   const change = changeOnly(input, 'type');
   if (!object(change.type)) throw new Error('A type is { id, label, inherits?, rules }: id is lowercase words joined by hyphens.');
-  return set(door, input, change);
+  return set(input, change);
 }
 
 /** tool:take-a-show-type-away (show-rules-store.mjs set { remove_type }) */
-export async function takeAShowTypeAway(input = {}, { door } = {}) {
+export async function takeAShowTypeAway(input = {}) {
   const change = changeOnly(input, 'remove_type');
   if (!word(change.remove_type)) throw new Error('remove_type names the id of a type you keep.');
   const id = change.remove_type;
   const switched = shippedOn().find(one => one.id === id);
-  const { store, keep, first } = await storeOver(door, input);
+  const { store, keep, first } = await storeOver(input);
   const before = first.get(data.record) ?? null;
   // A shipped type is every account's and cannot be taken away, only switched off; taking away the person's own copy
   // of one gives them the shipped one back, switched as their copy was.
@@ -217,10 +217,10 @@ export async function takeAShowTypeAway(input = {}, { door } = {}) {
  * tool:switch-a-kept-show-type (show-rules-store.mjs set { use }). The switch is the request's `use` ({ type, on }); the run
  * reads no record but the person's show-rules setting and keeps nothing: `keep` is the record for the person's write.
  */
-export async function switchAKeptShowType(input = {}, { door } = {}) {
+export async function switchAKeptShowType(input = {}) {
   if (!object(input)) throw new Error('The request is one object.');
   if (!object(input.use)) throw new Error('use names type, the id of a profile you keep, and on: true to switch it on, false to switch it off.');
-  const { store, keep } = await storeOver(door, input);
+  const { store, keep } = await storeOver(input);
   const answer = await store.set({ use: input.use }, { actor: OWN });
   return { ...answer, keep: keep() };
 }
@@ -233,7 +233,7 @@ const words = data.sharing.words;
 /** The people a grant names, read as the store holds it; anything that is not a grant names nobody. */
 const peopleOf = value => (object(value) && Array.isArray(value.people)
   ? value.people.filter(person => object(person) && typeof person.principal === 'string' && typeof person.key_blake3 === 'string') : []);
-/** A share key: the door's bearer prefix and 32 random bytes. */
+/** A share key: the grant's token prefix and 32 random bytes. */
 const shareKey = () => `${sharing.door_grant.token_prefix}${randomBytes(32).toString('base64url')}`;
 
 function shareInput(input) {
@@ -245,10 +245,10 @@ function shareInput(input) {
 }
 
 /** tool:share-a-kept-show-type */
-export async function shareAKeptShowType(input = {}, { door } = {}) {
+export async function shareAKeptShowType(input = {}) {
   const { type, principal } = shareInput(input);
   const at = nowOf(input);
-  const read = await readLabels(door, [data.record, grantLabel(type)]);
+  const read = readLabels(input, [data.record, grantLabel(type)]);
   const presets = typesOf(laidUnder(read.get(data.record) ?? null));
   const preset = presets.find(one => one.id === type);
   if (!preset) throw new Error(`${words.share_failed}: no preset ${type} is kept here. ${words.none}`);
@@ -272,10 +272,10 @@ export async function shareAKeptShowType(input = {}, { door } = {}) {
 }
 
 /** tool:stop-sharing-a-show-type */
-export async function stopSharingAShowType(input = {}, { door } = {}) {
+export async function stopSharingAShowType(input = {}) {
   const { type, principal } = shareInput(input);
   const at = nowOf(input);
-  const before = (await readLabels(door, [grantLabel(type)])).get(grantLabel(type)) ?? null;
+  const before = readLabels(input, [grantLabel(type)]).get(grantLabel(type)) ?? null;
   const people = peopleOf(before);
   if (!people.some(person => person.principal === principal)) throw new Error(`${type} is not shared with ${principal}.`);
   const left = people.filter(person => person.principal !== principal);

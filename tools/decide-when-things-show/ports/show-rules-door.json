@@ -8,7 +8,7 @@
   "quote": "it coudl all be confiurable thorugh hte workflwo trigger formuela engiens ... to drastically rduce the comlexityand capcbclties of the s the sdiabr and screen arnamgent"
  },
  "mode": "NO_PRIOR_OWNER",
- "job": "see, keep, take away, switch and share a person's show rules and kept presets over their own show-rules record through their records door",
+ "job": "see, keep, take away, switch and share a person's show rules and kept presets over their own show-rules record, from the records the caller hands in",
  "sources": [],
  "targets": [
   {
@@ -23,7 +23,7 @@
   {
    "repository": "trillion-workshop",
    "path": "tools/decide-when-things-show/read-data/",
-   "why": "This tool's moved code (ports/show-rules-store.json): trillion src/show-rules-store.mjs makeShowRules read (190f72754e line 461), set (484) and remove (525), byte for byte but for imports. do-work/show-rules.mjs only reads the person's records through the door, hands them to that store, and answers what it would write."
+   "why": "This tool's moved code (ports/show-rules-store.json): trillion src/show-rules-store.mjs makeShowRules read (190f72754e line 461), set (484) and remove (525), byte for byte but for imports. do-work/show-rules.mjs takes the person's records as input, hands them to that store, and answers what it would write."
   },
   {
    "repository": "trillion",

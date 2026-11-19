@@ -28,26 +28,22 @@ const RECORD = {
   rules: [rule('own-1')],
   types: [type('base', [rule('quiet')]), type('child', [rule('loud', { on: false })], ['base'])],
 };
-const run = (slug, input, record = RECORD, records = []) =>
-  answerOf(row(slug), { now: NOW, ...input }, { records, doorOptions: { workspaceRecords: record === null ? {} : { [data.record]: record } } });
+const run = (slug, input, record = RECORD) =>
+  answerOf(row(slug), { now: NOW, records: record === null ? {} : { [data.record]: record }, ...input }, {});
 const kept = result => {
   assert.equal(result.keep.length, 1);
   assert.equal(result.keep[0].label, data.record);
   return result.keep[0];
 };
 
-test('every action is one row, and every row reads only the show-rules record or the grant it is asked about', () => {
+test('every action is one row, and no row reaches a door: the caller hands in the records it reads', () => {
   const ids = ROWS.records.map(one => one.payload.id);
   assert.deepEqual(ids, ['see-when-things-show', 'keep-a-show-rule', 'take-a-show-rule-away', 'keep-a-show-type', 'take-a-show-type-away',
     'switch-a-kept-show-type', 'share-a-kept-show-type', 'stop-sharing-a-show-type'].map(slug => `tool:${slug}`));
   for (const one of ROWS.records.map(record => record.payload)) {
-    for (const right of rightsOf(one) ?? []) {
-      if (right.kind === '@own-records') {
-        assert.deepEqual(right.operations, ['workspace:read'], `${one.id} only reads`);
-        assert.ok(right.id === data.record || right.id?.fill?.field === 'grant', `${one.id} reads its record or the grant named`);
-      }
-      assert.ok(!right.operations.includes('workspace:write'), `${one.id} claims no workspace write`);
-    }
+    assert.equal(one.stored, undefined, `${one.id} declares no stored rights`);
+    assert.deepEqual(rightsOf(one), [], `${one.id} reaches no door`);
+    assert.ok(one.input_schema.properties.records, `${one.id} takes the records it reads as input`);
   }
 });
 
@@ -144,12 +140,10 @@ test('a switch is the request\'s own use: no wake, no record read, and the answe
   const one = row('switch-a-kept-show-type');
   assert.equal(one.wakes, undefined);
   assert.deepEqual(one.input_schema.required, ['use']);
-  assert.deepEqual(rightsOf(one), [{ kind: '@own-records', id: data.record, operations: ['workspace:read'] }]);
-  const { status, result, calls } = await run('switch-a-kept-show-type', { use: { type: 'child', on: true } });
+  const { status, result } = await run('switch-a-kept-show-type', { use: { type: 'child', on: true } });
   assert.equal(status, 0);
   assert.deepEqual(result.in_use, [...SHIPPED_ON, 'child']);
   assert.deepEqual(kept(result).value.in_use, ['child'], 'the answer holds the record');
-  assert.ok(!(calls ?? []).some(call => String(call.method ?? call).startsWith('records:')), 'no records call is made');
   const none = await run('switch-a-kept-show-type', {});
   assert.match(none.error, /use names type/);
 });
@@ -199,8 +193,8 @@ test('a shipped type can be shared like a kept one', async () => {
 });
 
 const GRANT = id => `sharing:${data.sharing.record_prefix}${id}`;
-const share = (input, records = {}) => answerOf(row('share-a-kept-show-type'), { now: NOW, grant: GRANT(input.type), ...input },
-  { doorOptions: { workspaceRecords: { [data.record]: RECORD, ...records } } });
+const share = (input, records = {}) => answerOf(row('share-a-kept-show-type'),
+  { now: NOW, grant: GRANT(input.type), records: { [data.record]: RECORD, ...records }, ...input }, {});
 
 test('share a kept type: the copy first, with what it inherits, then the grant, holding only the key\'s BLAKE3 (a2e1365f33)', async () => {
   const { status, result } = await share({ type: 'child', principal: 'sample-account' });
@@ -230,8 +224,8 @@ test('a share with someone already named is refused in the screen\'s words, with
 test('stop sharing takes the person out of the grant and leaves the others', async () => {
   const people = [{ principal: 'sample-account', key_blake3: 'a'.repeat(64) }, { principal: 'sample-other', key_blake3: 'b'.repeat(64) }];
   const grant = { record: `${data.sharing.record_prefix}child`, people, changed_at: NOW };
-  const { status, result } = await answerOf(row('stop-sharing-a-show-type'), { type: 'child', principal: 'sample-account', grant: GRANT('child'), now: NOW },
-    { doorOptions: { workspaceRecords: { [GRANT('child')]: grant } } });
+  const { status, result } = await answerOf(row('stop-sharing-a-show-type'),
+    { type: 'child', principal: 'sample-account', grant: GRANT('child'), now: NOW, records: { [GRANT('child')]: grant } }, {});
   assert.equal(status, 0);
   assert.deepEqual(result.keep, [{ label: GRANT('child'), value: { ...grant, people: [people[1]] }, expected: grant }]);
   const none = await answerOf(row('stop-sharing-a-show-type'), { type: 'child', principal: 'sample-account', grant: GRANT('child') });

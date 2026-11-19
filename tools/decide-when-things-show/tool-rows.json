@@ -203,9 +203,9 @@
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
             },
-            "stored": {
+            "records": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, as this row's `stored` lists. What is not given is not there."
+              "description": "The rows this run reads, handed in by the caller as { label: value }: the person's show-rules record under its label (show-rules.json `record`) and, for the share tools, the grant named by `grant`. The caller reads them from where the person keeps them (the engine keeps none); a label left out is not there."
             }
           }
         },
@@ -328,7 +328,7 @@
                 ],
                 "at": "/opt/content-identity"
               },
-{
+              {
                 "package": "shared-code",
                 "paths": [
                   "src/effect-outcomes.json",
@@ -400,11 +400,8 @@
         "verify": [
           {
             "kind": "sample-run",
-            "input": {},
-            "output_selector": "$",
-            "contains": "rules",
-            "doorOptions": {
-              "workspaceRecords": {
+            "input": {
+              "records": {
                 "show-rules": {
                   "rules": [
                     {
@@ -426,7 +423,9 @@
                   ]
                 }
               }
-            }
+            },
+            "output_selector": "$",
+            "contains": "rules"
           }
         ],
         "record_model": {
@@ -477,16 +476,7 @@
               "_read_by": "src/configurations.mjs: bounded target-specific saved configuration pages with stable identity cursors"
             }
           ]
-        },
-        "stored": [
-          {
-            "kind": "@own-records",
-            "id": "show-rules",
-            "operations": [
-              "workspace:read"
-            ]
-          }
-        ]
+        }
       }
     },
     {
@@ -692,9 +682,9 @@
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
             },
-            "stored": {
+            "records": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, as this row's `stored` lists. What is not given is not there."
+              "description": "The rows this run reads, handed in by the caller as { label: value }: the person's show-rules record under its label (show-rules.json `record`) and, for the share tools, the grant named by `grant`. The caller reads them from where the person keeps them (the engine keeps none); a label left out is not there."
             }
           }
         },
@@ -827,7 +817,7 @@
                 ],
                 "at": "/opt/content-identity"
               },
-{
+              {
                 "package": "shared-code",
                 "paths": [
                   "src/effect-outcomes.json",
@@ -906,12 +896,8 @@
                 "when": null,
                 "effect": "silence"
               },
-              "now": "2026-01-01T00:00:00.000Z"
-            },
-            "output_selector": "$",
-            "contains": "keep",
-            "doorOptions": {
-              "workspaceRecords": {
+              "now": "2026-01-01T00:00:00.000Z",
+              "records": {
                 "show-rules": {
                   "rules": [
                     {
@@ -933,16 +919,9 @@
                   ]
                 }
               }
-            }
-          }
-        ],
-        "stored": [
-          {
-            "kind": "@own-records",
-            "id": "show-rules",
-            "operations": [
-              "workspace:read"
-            ]
+            },
+            "output_selector": "$",
+            "contains": "keep"
           }
         ]
       }
@@ -1148,9 +1127,9 @@
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
             },
-            "stored": {
+            "records": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, as this row's `stored` lists. What is not given is not there."
+              "description": "The rows this run reads, handed in by the caller as { label: value }: the person's show-rules record under its label (show-rules.json `record`) and, for the share tools, the grant named by `grant`. The caller reads them from where the person keeps them (the engine keeps none); a label left out is not there."
             }
           }
         },
@@ -1280,7 +1259,7 @@
                 ],
                 "at": "/opt/content-identity"
               },
-{
+              {
                 "package": "shared-code",
                 "paths": [
                   "src/effect-outcomes.json",
@@ -1353,12 +1332,8 @@
           {
             "kind": "sample-run",
             "input": {
-              "id": "sample-rule"
-            },
-            "output_selector": "$",
-            "contains": "Taken away",
-            "doorOptions": {
-              "workspaceRecords": {
+              "id": "sample-rule",
+              "records": {
                 "show-rules": {
                   "rules": [
                     {
@@ -1380,16 +1355,9 @@
                   ]
                 }
               }
-            }
-          }
-        ],
-        "stored": [
-          {
-            "kind": "@own-records",
-            "id": "show-rules",
-            "operations": [
-              "workspace:read"
-            ]
+            },
+            "output_selector": "$",
+            "contains": "Taken away"
           }
         ]
       }
@@ -1595,9 +1563,9 @@
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
             },
-            "stored": {
+            "records": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, as this row's `stored` lists. What is not given is not there."
+              "description": "The rows this run reads, handed in by the caller as { label: value }: the person's show-rules record under its label (show-rules.json `record`) and, for the share tools, the grant named by `grant`. The caller reads them from where the person keeps them (the engine keeps none); a label left out is not there."
             }
           }
         },
@@ -1727,7 +1695,7 @@
                 ],
                 "at": "/opt/content-identity"
               },
-{
+              {
                 "package": "shared-code",
                 "paths": [
                   "src/effect-outcomes.json",
@@ -1804,12 +1772,8 @@
                 "id": "sample-preset",
                 "label": "Sample preset",
                 "rules": []
-              }
-            },
-            "output_selector": "$",
-            "contains": "sample-preset",
-            "doorOptions": {
-              "workspaceRecords": {
+              },
+              "records": {
                 "show-rules": {
                   "rules": [
                     {
@@ -1831,16 +1795,9 @@
                   ]
                 }
               }
-            }
-          }
-        ],
-        "stored": [
-          {
-            "kind": "@own-records",
-            "id": "show-rules",
-            "operations": [
-              "workspace:read"
-            ]
+            },
+            "output_selector": "$",
+            "contains": "sample-preset"
           }
         ]
       }
@@ -2046,9 +2003,9 @@
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
             },
-            "stored": {
+            "records": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, as this row's `stored` lists. What is not given is not there."
+              "description": "The rows this run reads, handed in by the caller as { label: value }: the person's show-rules record under its label (show-rules.json `record`) and, for the share tools, the grant named by `grant`. The caller reads them from where the person keeps them (the engine keeps none); a label left out is not there."
             }
           }
         },
@@ -2178,7 +2135,7 @@
                 ],
                 "at": "/opt/content-identity"
               },
-{
+              {
                 "package": "shared-code",
                 "paths": [
                   "src/effect-outcomes.json",
@@ -2251,12 +2208,8 @@
           {
             "kind": "sample-run",
             "input": {
-              "remove_type": "sample-preset"
-            },
-            "output_selector": "$",
-            "contains": "keep",
-            "doorOptions": {
-              "workspaceRecords": {
+              "remove_type": "sample-preset",
+              "records": {
                 "show-rules": {
                   "rules": [
                     {
@@ -2278,16 +2231,9 @@
                   ]
                 }
               }
-            }
-          }
-        ],
-        "stored": [
-          {
-            "kind": "@own-records",
-            "id": "show-rules",
-            "operations": [
-              "workspace:read"
-            ]
+            },
+            "output_selector": "$",
+            "contains": "keep"
           }
         ]
       }
@@ -2504,9 +2450,9 @@
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
             },
-            "stored": {
+            "records": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, as this row's `stored` lists. What is not given is not there."
+              "description": "The rows this run reads, handed in by the caller as { label: value }: the person's show-rules record under its label (show-rules.json `record`) and, for the share tools, the grant named by `grant`. The caller reads them from where the person keeps them (the engine keeps none); a label left out is not there."
             }
           }
         },
@@ -2640,7 +2586,7 @@
                 ],
                 "at": "/opt/content-identity"
               },
-{
+              {
                 "package": "shared-code",
                 "paths": [
                   "src/effect-outcomes.json",
@@ -2716,12 +2662,8 @@
               "use": {
                 "type": "sample-preset",
                 "on": true
-              }
-            },
-            "output_selector": "$",
-            "contains": "Switched on",
-            "doorOptions": {
-              "workspaceRecords": {
+              },
+              "records": {
                 "show-rules": {
                   "rules": [
                     {
@@ -2743,16 +2685,9 @@
                   ]
                 }
               }
-            }
-          }
-        ],
-        "stored": [
-          {
-            "kind": "@own-records",
-            "id": "show-rules",
-            "operations": [
-              "workspace:read"
-            ]
+            },
+            "output_selector": "$",
+            "contains": "Switched on"
           }
         ]
       }
@@ -2968,9 +2903,9 @@
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
             },
-            "stored": {
+            "records": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, the label the request names, as this row's `stored` lists. What is not given is not there."
+              "description": "The rows this run reads, handed in by the caller as { label: value }: the person's show-rules record under its label (show-rules.json `record`) and, for the share tools, the grant named by `grant`. The caller reads them from where the person keeps them (the engine keeps none); a label left out is not there."
             }
           }
         },
@@ -3104,7 +3039,7 @@
                 ],
                 "at": "/opt/content-identity"
               },
-{
+              {
                 "package": "shared-code",
                 "paths": [
                   "src/effect-outcomes.json",
@@ -3179,12 +3114,8 @@
             "input": {
               "type": "sample-preset",
               "principal": "sample-account",
-              "grant": "sharing:show-types-shared:sample-preset"
-            },
-            "output_selector": "$",
-            "contains": "show-types-shared:sample-preset",
-            "doorOptions": {
-              "workspaceRecords": {
+              "grant": "sharing:show-types-shared:sample-preset",
+              "records": {
                 "show-rules": {
                   "rules": [
                     {
@@ -3206,28 +3137,9 @@
                   ]
                 }
               }
-            }
-          }
-        ],
-        "stored": [
-          {
-            "kind": "@own-records",
-            "id": "show-rules",
-            "operations": [
-              "workspace:read"
-            ]
-          },
-          {
-            "kind": "@own-records",
-            "id": {
-              "fill": {
-                "from": "input",
-                "field": "grant"
-              }
             },
-            "operations": [
-              "workspace:read"
-            ]
+            "output_selector": "$",
+            "contains": "show-types-shared:sample-preset"
           }
         ]
       }
@@ -3443,9 +3355,9 @@
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
             },
-            "stored": {
+            "records": {
               "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for the label the request names, as this row's `stored` lists. What is not given is not there."
+              "description": "The rows this run reads, handed in by the caller as { label: value }: the person's show-rules record under its label (show-rules.json `record`) and, for the share tools, the grant named by `grant`. The caller reads them from where the person keeps them (the engine keeps none); a label left out is not there."
             }
           }
         },
@@ -3571,7 +3483,7 @@
                 ],
                 "at": "/opt/content-identity"
               },
-{
+              {
                 "package": "shared-code",
                 "paths": [
                   "src/effect-outcomes.json",
@@ -3646,12 +3558,8 @@
             "input": {
               "type": "sample-preset",
               "principal": "sample-account",
-              "grant": "sharing:show-types-shared:sample-preset"
-            },
-            "output_selector": "$",
-            "contains": "sharing:show-types-shared:sample-preset",
-            "doorOptions": {
-              "workspaceRecords": {
+              "grant": "sharing:show-types-shared:sample-preset",
+              "records": {
                 "sharing:show-types-shared:sample-preset": {
                   "record": "show-types-shared:sample-preset",
                   "people": [
@@ -3663,21 +3571,9 @@
                   "changed_at": "2026-01-01T00:00:00.000Z"
                 }
               }
-            }
-          }
-        ],
-        "stored": [
-          {
-            "kind": "@own-records",
-            "id": {
-              "fill": {
-                "from": "input",
-                "field": "grant"
-              }
             },
-            "operations": [
-              "workspace:read"
-            ]
+            "output_selector": "$",
+            "contains": "sharing:show-types-shared:sample-preset"
           }
         ]
       }

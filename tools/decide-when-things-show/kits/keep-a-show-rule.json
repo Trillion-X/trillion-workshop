@@ -2,7 +2,7 @@
   "drafted_from": "tool:keep-a-show-rule's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep a rule about when something shows, hides or stays quiet for me, or switch a starting rule off or on\", with {\"rule\":{\"label\":\"Sample: quiet notices\",\"subject\":\"notification\",\"when\":null,\"effect\":\"silence\"},\"now\":\"2026-01-01T00:00:00.000Z\"}. It runs tool:keep-a-show-rule and answers {\"rule\":{\"label\":\"Sample: quiet notices\",\"subject\":\"notification\",\"when\":null,\"effect\":\"silence\",\"id\":\"rule-mjuohs00-n2aedk\",\"on\":true,\"made_at\":\"2026-01-01T00:00:00.000Z\"},\"rules\":[{\"id\":\"setup-require-assigned-devices\",\"label\":\"Require the devices assigned to this account\",\"subject\":\"setup-step\",\"effect\":\"change\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\" ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (@own-records) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes the rows it reads as its records input and answers each change as keep.",
   "workflows": [],
   "tools": [
     "tool:keep-a-show-rule"
@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Keep a rule about when something shows, hides or stays quiet for me, or switch a starting rule off or on\", and give it nothing more: every input is optional.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:keep-a-show-rule and its input (the worked example shows one).",
     "3. Read what comes back: Keeps one rule in your show-rules record (rule; one with the id of a rule you keep changes it), or switches a starting rule off or on (starting: { id, on }).",
-    "4. It reads and writes only its own rows through the records door: @own-records (workspace:read)."
+    "4. It reads only the rows you hand in as records, and answers each change as keep for the person's own store to write."
   ],
   "worked_examples": [
     {

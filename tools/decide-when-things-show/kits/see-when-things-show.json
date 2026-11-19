@@ -2,7 +2,7 @@
   "drafted_from": "tool:see-when-things-show's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show me the rules that decide when things show, hide or stay quiet for me, and the types I keep\", with {}. It runs tool:see-when-things-show and answers {\"rules\":[{\"id\":\"setup-require-assigned-devices\",\"label\":\"Require the devices assigned to this account\",\"subject\":\"setup-step\",\"effect\":\"change\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"owner\",\"operator\":\"is_any_of\",\"params\":{\"values\":[\"device\"]}},{\"kind\":\"rule\",\"field\":\"required_for_account\",\"operator\":\"is_true\",\"params\":{}}]} ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (@own-records) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes the rows it reads as its records input and changes nothing.",
   "workflows": [],
   "tools": [
     "tool:see-when-things-show"
@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Show me the rules that decide when things show, hide or stay quiet for me, and the types I keep\", and give it nothing more: every input is optional.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:see-when-things-show and its input (the worked example shows one).",
     "3. Read what comes back: Reads your show-rules record and answers every rule in force (the starting rules, your own, and those of the types you have switched on), the subjects a rule can be about with their facts, the moment facts, the effects, the quick choices and the operators a rule's when can use, the types you keep and which are on (in_use).",
-    "4. It reads and writes only its own rows through the records door: @own-records (workspace:read)."
+    "4. It reads only the rows you hand in as records and changes nothing."
   ],
   "worked_examples": [
     {

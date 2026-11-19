@@ -3,7 +3,7 @@
 A person's show rules, the presets (types) they keep, which presets are on, and who they share a preset with, as Workshop rows that a person and their AI run. The rules are the person's own `show-rules` record (show-rules.json `record`). The open page follows that same record, so a change kept from any of them reaches the page through its one change notice.
 
 - **Moved, not rewritten.** The rows run trillion `src/show-rules-store.mjs` (190f72754e) `makeShowRules`: `read`, `set` and `remove`, with its edit rules and its refusals in its own words. Its change function is `changedRecord` (`tools/set-up-my-account/read-data/show-rules.mjs`). The store and the account facts it imports (`src/work-for-ais.mjs` lines 74-122) are moved byte for byte, and only their imports change. The same goes for the controls list (`tools/ui/show/show-rules/declared-controls.mjs`) and the old AI tools (`src/show-rules-tools.mjs`). See `ports/show-rules-store.json`. Sharing follows a2e1365f33 (Account visibility), in its words (`show-rules.json` `sharing.words`).
-- **The door reads; the person's write keeps.** Each row reads `show-rules` (and, to share, the grant it names) with `workspace:read`, one exact label each. A run's key may not write a workspace record, so a change answers `keep`: `[{ label, value, expected }]`, in order, with the value as read as `expected`. The page keeps it through its generic records write (`keepChange`), or a grant the person gives does. A record changed in the meantime is not written over. Nothing here keeps a second store.
+- **The caller reads; the person's write keeps.** Each row takes the rows it reads as its `records` input, handed in by the caller from where the person keeps them: `show-rules` (and, to share, the grant it names), one exact label each. No row reaches a door. A run's key may not write a workspace record, so a change answers `keep`: `[{ label, value, expected }]`, in order, with the value as read as `expected`. The page keeps it through its generic records write (`keepChange`), or a grant the person gives does. A record changed in the meantime is not written over. Nothing here keeps a second store.
 - **Defaults are an overlay.** A shipped preset is read under the person's record and never written into it. The shipped presets are `tools/starting-set/shipped-defaults.json` (the Simple workspace, in use for every account). The rows lay that default under the record the way trillion-rust `src/records/shipped_defaults.rs` does (`laidUnder`), so `see-when-things-show` lists the Simple workspace (`shipped: true`) and in use, and `switch-a-kept-show-type` switches it like a kept type. Before answering `keep` they take it back off (`takenOff`): a shipped type the person did not change is not written, and its switch is kept as the person's `starting.<id>.on` (false when off; left out when back on), where the engine reads it. A shipped type cannot be taken away, only switched off; changing one keeps the person's own copy, and taking that copy away gives the shipped one back, switched as the copy was. Shipped types can be shared like kept ones.
 - **Nothing names a person, subject, control or type.** show-rules.json and the request say them.
 
@@ -30,17 +30,17 @@ The old `/show-rules/accounts` and `/show-rules/set { give }` have no rows, beca
 
 | File | Purpose |
 |------|---------|
-| `do-work/show-rules.mjs` | The eight functions, run by `tools/records-door/do-work/run-an-export.mjs`: reads through the door, runs the store, answers `keep` |
+| `do-work/show-rules.mjs` | The eight functions, run by `tools/records-door/do-work/run-an-export.mjs` (the shared runner): take `records`, run the store, answer `keep` |
 | `read-data/show-rules-store.mjs` | trillion `src/show-rules-store.mjs`, moved |
 | `read-data/account-facts.mjs` | trillion `src/work-for-ais.mjs` lines 74-122, moved |
 | `read-data/declared-controls.mjs`, `read-data/open-choices.json` | Every declared control, moved |
 | `read-data/show-rules-tools.mjs` | The old AI tools' words, moved; the old edit-authority test reads them |
-| `read-data/work-for-ais.json`, `read-data/record-sharing.json` | The account facts and the door grant's prefixes, moved |
+| `read-data/work-for-ais.json`, `read-data/record-sharing.json` | The account facts and the grant's prefixes, moved |
 | `read-data/controls.json`, `read-data/service-records.json` | Moved byte for byte from trillion-rust `product/controls.json` and `product/service-records.json` when the engine's product/ folder was deleted: the controls each part draws (by part, the rows trillion-rust `src/local_account/show_rules.rs` `controls` reads with `open-choices.json`) and the operator records every account reads (labels, prefixes, `read_seconds`). The engine reads these, and `open-choices.json`, `work-for-ais.json`, `set-up-my-account/read-data/show-rules.json`, `set-up-my-account/read-data/setup-steps.json` and `formula-engine/rules/rule-operators.json`, from the account's installed Workshop (trillion-rust `src/local_account/show_rules/data.json`); it carries no copy |
 | `tool-rows.json` | The eight Workshop rows |
 | `ports/show-rules-store.json`, `ports/show-rules-door.json` | The port contracts |
 | `test/show-rules-*.test.mjs`, `test/show-type*.test.mjs` | The five old trillion tests; only their paths changed |
-| `test/show-rules.test.mjs` | Each row over made-up records against the records door stand-in |
+| `test/show-rules.test.mjs` | Each row over made-up records handed in as `records` |
 | `show/show-rules-admin-mount.tsx` | The module entry of `tool:screen-show-rules-admin`: its `mount` is `mountShowRulesAdminScreen`. |
 | `web/src/workspace/show-rules-admin-screen.tsx` | The admin's screen for sharing a preset with people: the preset's copy and its grant, written through the generic records write. Moved byte for byte from the web client (`moved-from.json`). |
 
