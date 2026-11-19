@@ -8,10 +8,13 @@ import { randomUUID } from 'node:crypto';
 const GUARD = 'state.guard';
 const GUARD_STALE_MS = 5000;
 const POLL_MS = 180;
-const PROBE_OPTIONS = { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 2000, killSignal: 'SIGKILL' };
+// A ps answer on a busy Mac takes seconds (measured Nov 19 2026 at load 13: 1.7 to 5.5 s wall for one pid, with no CPU used),
+// so the timeout must outlast that. A timed-out probe reads as UNKNOWN_LIVE, which blocks admission: it must not fire on a slow answer.
+export const PROBE_OPTIONS = { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 20000, killSignal: 'SIGKILL' };
 export const UNKNOWN_LIVE = 'unverified-live-process';
 // This process's own start time cannot change while it runs, so it is asked of ps once: every acquire, guard entry and
-// own-ticket check asked again, and each ps costs hundreds of milliseconds on a loaded computer.
+// own-ticket check asked again, and each ps costs seconds on a loaded computer. No in-process API reads a start time on macOS
+// (Node has none, and a direct sysctl call still needs a spawned interpreter), so ps stays the probe and gets the time it needs.
 let ownIdentity = null;
 export const identityOf = pid => {
   if (!Number.isInteger(pid) || pid <= 0) return null;

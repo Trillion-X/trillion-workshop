@@ -2,12 +2,11 @@
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { computerCacheFolder } from './computer-cache-folder.mjs';
-import { createProcessAdmissionQueue, identityOf, sameLiveProcess, UNKNOWN_LIVE } from './process-admission.mjs';
+import { createProcessAdmissionQueue, identityOf, PROBE_OPTIONS, sameLiveProcess, UNKNOWN_LIVE } from './process-admission.mjs';
 import { groupCleanupError, runOwnedProcess } from './run-owned-process.mjs';
 
 export const HEAVY_WORK_CLAIM = 'TRILLION_HEAVY_WORK_CLAIM';
 const ROOT = join(computerCacheFolder(), 'heavy-work-admission');
-const PROBE_OPTIONS = { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 2000, killSignal: 'SIGKILL' };
 const groupsOf = owner => owner?.process_groups ?? (owner?.group_id ? [{ group_id: owner.group_id, group_started: owner.group_started }] : []);
 
 export function heavyWorkOwnerIsLive(owner, inspect = identityOf) {
