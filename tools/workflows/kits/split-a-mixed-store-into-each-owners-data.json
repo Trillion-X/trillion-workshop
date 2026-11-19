@@ -1,0 +1,50 @@
+{
+  "start_here": "Say to your AI: \"Split <my old store> into each owner's own database: <owner database> for <whose>, and so on.\"",
+  "lists": [],
+  "no_lists_because": "The ledger is a table of the person's own database (row_moves) and the rows land in each owner's own database; no list is kept.",
+  "workflows": [
+    "workflow:split-a-mixed-store-into-each-owners-data"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database",
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Name the store (a vault name of its connection, or its file) and the language it is read in.",
+    "2. Name each owner: the vault name of their own database and whose data it is.",
+    "3. Name your own database for the ledger.",
+    "4. The AI lists every table, decides whose each part is and keeps that in row_moves before anything moves; read it and change a row before the move if a part is wrong.",
+    "5. Each part is written by its key, so a stopped run is run again; each is read back, and moved_at is set only when the counts match.",
+    "6. The store is left as it was; remove it only once nothing waits."
+  ],
+  "worked_examples": [
+    {
+      "title": "Split one old store between a person and their company",
+      "ask": "Split my old store into my own database and the shop's management database.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:split-a-mixed-store-into-each-owners-data",
+              "source": { "name": "old-store.sqlite", "language": "sqlite" },
+              "owners": [
+                { "credential_name": "my-own-database", "who": "me" },
+                { "credential_name": "shop-management-database", "who": "the shop's management" }
+              ],
+              "ledger": { "credential_name": "my-own-database" }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:split-a-mixed-store-into-each-owners-data",
+      "step": "say",
+      "given": "The store holds tables notes (12 rows, mine), payments (3 rows, the shop's) and cache (40 rows, kept nowhere).",
+      "hands_back": "owners [{owner \"my-own-database\", parts 1, rows 12, waiting 0}, {owner \"shop-management-database\", parts 1, rows 3, waiting 0}, {owner \"(no owner)\", parts 1, rows 0, waiting 0}]; said \"2 parts of old-store.sqlite are in their owners' databases; 0 wait\""
+    }
+  ],
+  "drafted_from": "workflow:split-a-mixed-store-into-each-owners-data steps render, list-places, sort, move-each, read-back, say"
+}

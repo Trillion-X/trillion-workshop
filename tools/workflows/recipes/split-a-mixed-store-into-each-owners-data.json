@@ -1,0 +1,365 @@
+{
+  "about": "tools/workflows/recipes: one store that holds several owners' rows (a person's, each company's management, each company's product) split so each owner's rows live in that owner's own database. The store is read directly in its own language; where each part goes is a row of the person's own ledger (row_moves) before anything moves; each part is written in batches that are safe to run again and read back by key; the source is left as it was, and removing it waits until every part is read back.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:split-a-mixed-store-into-each-owners-data",
+        "label": "Split a mixed store into each owner's data",
+        "job": "Read a store that mixes several owners' rows, decide which owner each table (or part of a table) belongs to, write each part into that owner's own database, and read it back there, keeping a ledger of where every part went and how many rows arrived.",
+        "produces": "One row_moves row per part of the store in the person's own database: where it went, why, and the rows read, written and read back; and the rows themselves in each owner's database.",
+        "source": {
+          "from": "the transfer lanes that judged each table of one mixed store into outcome rows, tool:run-sql-in-my-database and Postgres jsonb_populate_recordset, read on trillion-workshop origin/main",
+          "note": "Nothing is copied twice and nothing is deleted here: a part is written by its key with ON CONFLICT DO NOTHING, so a run that stops is run again, and the source stays until every part is read back (removal waits for the confirmed new home)."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "source",
+            "owners",
+            "ledger"
+          ],
+          "properties": {
+            "source": {
+              "type": "object",
+              "required": [
+                "name",
+                "language"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "What the store is: a vault name of its connection, or the path of its file on this computer"
+                },
+                "language": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The language it is read in (postgres, sqlite, or another the AI reads directly)"
+                }
+              }
+            },
+            "owners": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "credential_name",
+                  "who"
+                ],
+                "properties": {
+                  "credential_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The vault name of the owner's own database (one that may make tables)"
+                  },
+                  "who": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Whose data it is, in plain words (the person; a company's management; a company's product)"
+                  }
+                }
+              }
+            },
+            "ledger": {
+              "type": "object",
+              "required": [
+                "credential_name"
+              ],
+              "properties": {
+                "credential_name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The vault name of the person's own database, where row_moves is kept"
+                }
+              }
+            },
+            "batch_rows": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Rows written in one statement (500 when none); keep one batch under the database's statement size"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "render",
+            "title": "Make the ledger if it is absent",
+            "do": "Run the statement named row-moves of this step's sql through tool:run-sql-in-my-database with credential_name = input.ledger.credential_name. It only creates what is missing. Submit {rendered: true}.",
+            "sql": [
+              {
+                "name": "row-moves",
+                "params": [],
+                "text": "CREATE TABLE IF NOT EXISTS row_moves (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, source text NOT NULL, place text NOT NULL, which text, owner text, into_place text, key text, why text NOT NULL, read_count bigint, written_count bigint, read_back_count bigint, moved_at timestamptz, made_at timestamptz NOT NULL DEFAULT now(), UNIQUE NULLS NOT DISTINCT (source, place, which))"
+              }
+            ],
+            "submit": {
+              "type": "object",
+              "required": [
+                "rendered"
+              ],
+              "properties": {
+                "rendered": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "list-places",
+            "title": "List every table of the store with its rows and columns",
+            "do": "Read input.source directly in its own language (for sqlite: the file opened read-only; for postgres: tool:run-sql-in-my-database with credential_name = input.source.name) and list every table or list it holds, with its row count, its columns and the column (or columns) that name one row. Change nothing in the source. Submit {places: [{place, rows, columns, key}]}, every table, empty ones too.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "places"
+              ],
+              "properties": {
+                "places": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "place",
+                      "rows",
+                      "columns"
+                    ],
+                    "properties": {
+                      "place": {
+                        "type": "string"
+                      },
+                      "rows": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "columns": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "key": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "sort",
+            "title": "Decide whose each part is, and keep it as a ledger row",
+            "do": "For each place, read a few of its rows and decide which of input.owners it belongs to, by what the rows are about and who acts on them, not by its name alone. When one table holds rows of several owners, split it by a condition in the source's own language (which), one part per owner. A part that belongs to no owner (scratch, a cache, a copy kept elsewhere) gets owner null and says why. Keep each part with the statement named keep of this step's sql through tool:run-sql-in-my-database with credential_name = input.ledger.credential_name and params [source name, place, which (null for the whole table), owner credential_name (null for none), the table name in the owner's database (the same name unless it would clash), key column(s), why]. Every place of list-places has at least one row. Submit {parts: the rows kept, each {id, place, which, owner, into_place, key, why}}.",
+            "sql": [
+              {
+                "name": "keep",
+                "params": [
+                  "source",
+                  "place",
+                  "which",
+                  "owner",
+                  "into_place",
+                  "key",
+                  "why"
+                ],
+                "text": "INSERT INTO row_moves (source, place, which, owner, into_place, key, why) VALUES ($1::text, $2::text, $3::text, $4::text, $5::text, $6::text, $7::text) ON CONFLICT (source, place, which) DO UPDATE SET owner = EXCLUDED.owner, into_place = EXCLUDED.into_place, key = EXCLUDED.key, why = EXCLUDED.why WHERE row_moves.moved_at IS NULL RETURNING id"
+              }
+            ],
+            "submit": {
+              "type": "object",
+              "required": [
+                "parts"
+              ],
+              "properties": {
+                "parts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "place",
+                      "why"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "place": {
+                        "type": "string"
+                      },
+                      "which": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "owner": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "into_place": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "key": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "why": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "move-each",
+            "title": "Write each part into its owner's database, in batches safe to run again",
+            "do": "For each part with an owner and no moved_at: in the owner's database (tool:run-sql-in-my-database, credential_name = the part's owner) make into_place if it is absent, with the source's columns in the owner's language's nearest types and the key as its primary key. Then read the part's rows from the source in batches of input.batch_rows (500 when none), ordered by key, as JSON, and write each batch with the statement named write of this step's sql, both of its %I filled with into_place by the database's own format() and params [the batch as JSON text]; a row already there by its key is left as it is. Add up the rows read and the rows each write returned, and keep them with the statement named counted in the ledger. Submit {moved: [{id, read_count, written_count}]}.",
+            "sql": [
+              {
+                "name": "write",
+                "params": [
+                  "batch"
+                ],
+                "text": "INSERT INTO %I SELECT * FROM jsonb_populate_recordset(NULL::%I, $1::jsonb) ON CONFLICT DO NOTHING"
+              },
+              {
+                "name": "counted",
+                "params": [
+                  "id",
+                  "read_count",
+                  "written_count"
+                ],
+                "text": "UPDATE row_moves SET read_count = $2::bigint, written_count = coalesce(written_count, 0) + $3::bigint WHERE id = $1::bigint RETURNING id"
+              }
+            ],
+            "submit": {
+              "type": "object",
+              "required": [
+                "moved"
+              ],
+              "properties": {
+                "moved": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "read_count",
+                      "written_count"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "read_count": {
+                        "type": "integer"
+                      },
+                      "written_count": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "read-back",
+            "title": "Read every part back in its owner's database",
+            "do": "For each moved part, count in the owner's database the rows of into_place whose key is one of the keys read from the source (a part split by which counts only its own keys). Keep the count with the statement named read-back; it sets moved_at only when the count equals read_count. A part whose count differs is named with both numbers, and it is run again from move-each, which writes only what is missing. Submit {read_back: [{id, read_back_count, moved}]}.",
+            "sql": [
+              {
+                "name": "read-back",
+                "params": [
+                  "id",
+                  "read_back_count"
+                ],
+                "text": "UPDATE row_moves SET read_back_count = $2::bigint, moved_at = CASE WHEN $2::bigint = read_count THEN now() END WHERE id = $1::bigint RETURNING id, read_back_count, moved_at IS NOT NULL AS moved"
+              }
+            ],
+            "submit": {
+              "type": "object",
+              "required": [
+                "read_back"
+              ],
+              "properties": {
+                "read_back": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "read_back_count",
+                      "moved"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "read_back_count": {
+                        "type": "integer"
+                      },
+                      "moved": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "say",
+            "title": "Say where everything went",
+            "do": "Run the statement named where-it-went of this step's sql through tool:run-sql-in-my-database with credential_name = input.ledger.credential_name and params [source name]. Answer {owners: its rows, waiting: the parts not yet read back, said: \"<n> parts of <source> are in their owners' databases; <m> wait\"}. The source is left as it was; removing it is its own decision once nothing waits.",
+            "sql": [
+              {
+                "name": "where-it-went",
+                "params": [
+                  "source"
+                ],
+                "text": "SELECT coalesce(owner, '(no owner)') AS owner, count(*) AS parts, coalesce(sum(read_back_count), 0) AS rows, count(*) FILTER (WHERE owner IS NOT NULL AND moved_at IS NULL) AS waiting FROM row_moves WHERE source = $1::text GROUP BY 1 ORDER BY 1"
+              }
+            ],
+            "submit": {
+              "type": "object",
+              "required": [
+                "owners",
+                "said"
+              ],
+              "properties": {
+                "owners": {
+                  "type": "array"
+                },
+                "waiting": {
+                  "type": "array"
+                },
+                "said": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}
