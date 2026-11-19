@@ -92,8 +92,8 @@
   "example_renderings": [
     {
       "for": "a Postgres database made by workflow:make-a-database-for-each-pursuit",
-      "file": "tools/workflows/kits/tell-me-when-something-changes/example-postgres-row-changes.mjs",
-      "what": "The Postgres leaf the noticer uses, copied here as one example rendering of this workflow for a Postgres store: it reads the database's own change table in commit order and tells each change as something-changed. It is one person's own choice for a Postgres store, not a shared default; nothing shared names this file, and any store can be rendered the same way from this kit's intent and examples."
+      "file": "tools/notice-when-something-shows-up/do-work/mechanisms/row-changes.mjs",
+      "what": "The Postgres leaf the noticer uses, read as one example rendering of this workflow for a Postgres store: it reads the database's own change table in commit order and tells each change as something-changed. It is one person's own choice for a Postgres store, not a shared default; the shared leaf stays where it is, and any store can be rendered from this kit's intent and examples."
     }
   ]
 }
