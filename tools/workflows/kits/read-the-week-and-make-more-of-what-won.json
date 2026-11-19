@@ -4,7 +4,8 @@
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it reads the published pieces the person already keeps as records, or their public profiles, and hands its ranking and briefs back in the run's answer.",
   "workflows": [
-    "workflow:read-the-week-and-make-more-of-what-won"
+    "workflow:read-the-week-and-make-more-of-what-won",
+    "workflow:tell-the-person"
   ],
   "tools": [
     "tool:run-workflow-definition",
@@ -13,7 +14,6 @@
     "tool:read-a-page-in-my-browser",
     "tool:check-against-a-persons-rules-and-verdicts",
     "tool:cross-techniques-with-a-goal",
-    "tool:tell-the-person",
     "tool:transcribe-audio-and-repair-whisper-loops"
   ],
   "instructions": [

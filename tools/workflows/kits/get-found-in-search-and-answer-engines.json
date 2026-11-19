@@ -3,14 +3,14 @@
  "lists": [],
  "no_lists_because": "It keeps no list: it writes one search-visibility record to your own records so the next run can compare, and its answers sit on the run record.",
  "workflows": [
-  "workflow:get-found-in-search-and-answer-engines"
+  "workflow:get-found-in-search-and-answer-engines",
+  "workflow:tell-the-person"
  ],
  "tools": [
   "tool:run-workflow-definition",
   "tool:check-a-page-for-search-and-answer-engines",
   "tool:read-public-web-page",
-  "tool:read-a-page-in-my-browser",
-  "tool:tell-the-person"
+  "tool:read-a-page-in-my-browser"
  ],
  "instructions": [
   "1. Give your site, the reader questions to ask and the engines; check_rows is optional.",

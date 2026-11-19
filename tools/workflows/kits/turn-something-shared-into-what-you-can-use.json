@@ -8,12 +8,12 @@
     "workflow:method-contact-reality",
     "workflow:method-test-a-design-against-every-case",
     "workflow:start-from-the-persons-own-work",
-    "workflow:turn-something-shared-into-what-you-can-use"
+    "workflow:turn-something-shared-into-what-you-can-use",
+    "workflow:tell-the-person"
   ],
   "tools": [
     "tool:gate-a-piece-against-a-checklist",
-    "tool:run-workflow-definition",
-    "tool:tell-the-person"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Give what was shared (links or pasted text) and, if you like, why it matters to you: {\"shared\": [\"https://example.com/a-post-about-pricing-pages\"], \"why\": \"use what fits my coaching site\"}. It also wakes by itself when something is shared into your account.",

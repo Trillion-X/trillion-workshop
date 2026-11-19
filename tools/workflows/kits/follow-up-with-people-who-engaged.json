@@ -3,7 +3,8 @@
  "lists": [],
  "no_lists_because": "It names no list of its own: it reads the records you already keep of posted pieces, people and sign-ups, and writes only people and customer steps you approve.",
  "workflows": [
-  "workflow:follow-up-with-people-who-engaged"
+  "workflow:follow-up-with-people-who-engaged",
+  "workflow:tell-the-person"
  ],
  "tools": [
   "tool:run-workflow-definition",
@@ -11,7 +12,6 @@
   "tool:find-people",
   "tool:rank-people-by-activity",
   "tool:check-against-a-persons-rules-and-verdicts",
-  "tool:tell-the-person",
   "tool:record-a-customer-step"
  ],
  "instructions": [

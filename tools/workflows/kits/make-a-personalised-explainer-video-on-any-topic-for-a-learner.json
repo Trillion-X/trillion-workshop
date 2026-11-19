@@ -4,16 +4,15 @@
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
-    "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner"
+    "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
+    "workflow:tell-the-person"
   ],
-  "tools": [
-    "tool:tell-the-person"
-  ],
+  "tools": [],
   "instructions": [
     "1. Say the run line in start_here with your own topic and a short description of the learner (level, goal, how long they will watch).",
     "2. Read the lesson plan the plan-the-lesson step shows you and say go; nothing is spent on voice or pictures before that.",
     "3. The AI writes the lines, speaks them, times the words, draws one character and one picture per line, moves the mouth and renders, all on your own computer.",
-    "4. Read the check-it result (word errors 0, length ok, no paid service) and the paths tool:tell-the-person gives for the finished video."
+    "4. Read the check-it result (word errors 0, length ok, no paid service) and the paths workflow:tell-the-person gives for the finished video."
   ],
   "worked_examples": [
     {

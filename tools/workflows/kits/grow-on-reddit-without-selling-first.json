@@ -3,12 +3,12 @@
  "lists": [],
  "no_lists_because": "It keeps no list of its own: each step hands back one answer kept on the run record, and every comment and post goes out only after the person approves the exact words.",
  "workflows": [
-  "workflow:grow-on-reddit-without-selling-first"
+  "workflow:grow-on-reddit-without-selling-first",
+  "workflow:tell-the-person"
  ],
  "tools": [
   "tool:run-workflow-definition",
-  "tool:read-a-page-in-my-browser",
-  "tool:tell-the-person"
+  "tool:read-a-page-in-my-browser"
  ],
  "instructions": [
   "1. Gather three inputs: product (one plain sentence), keywords (the phrases buyers type into Google) and reddit_username (without u/). Sign in to Reddit in your own browser.",

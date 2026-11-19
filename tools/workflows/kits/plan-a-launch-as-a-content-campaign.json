@@ -5,17 +5,17 @@
   "no_lists_because": "It keeps nothing of its own: it reads the launch record you already wrote with records:read and earlier launch records with records:list, and writes its readback into that launch record's history.",
   "workflows": [
     "workflow:plan-a-launch-as-a-content-campaign",
-    "workflow:send-each-post-at-its-time"
+    "workflow:send-each-post-at-its-time",
+    "workflow:tell-the-person"
   ],
   "tools": [
     "tool:check-against-a-persons-rules-and-verdicts",
-    "tool:tell-the-person",
     "tool:set-a-post-to-go-at-its-time",
     "tool:draft-a-post"
   ],
   "instructions": [
     "1. Write a launch record (kind launch) with what launches, the launch date and time with its time zone, the offer and why now, or let the launch workflow that writes it run first.",
-    "2. Say \"Plan the launch in my launch record <id> for <your channels>\"; name any supporting voices and the sign-up target if you have them. Answer any question the AI asks with tool:tell-the-person before it goes on.",
+    "2. Say \"Plan the launch in my launch record <id> for <your channels>\"; name any supporting voices and the sign-up target if you have them. Answer any question the AI asks with workflow:tell-the-person before it goes on.",
     "3. Read the phases, the blitz runbook and each checked draft the AI shows you; reply with the drafts you approve exactly as written and the ones you do not. Nothing is scheduled until you approve it, and each supporting voice posts from its own account."
   ],
   "worked_examples": [

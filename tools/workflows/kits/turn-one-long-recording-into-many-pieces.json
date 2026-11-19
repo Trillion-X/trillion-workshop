@@ -306,7 +306,8 @@
   ],
   "workflows": [
     "workflow:turn-one-long-recording-into-many-pieces",
-    "workflow:make-short-videos-from-footage"
+    "workflow:make-short-videos-from-footage",
+    "workflow:tell-the-person"
   ],
   "tools": [
     "tool:list-connected-drives",
@@ -314,8 +315,7 @@
     "tool:list-a-drive-folder",
     "tool:transcribe-audio-and-repair-whisper-loops",
     "tool:file-spoken-moments-into-topic-buckets",
-    "tool:check-against-a-persons-rules-and-verdicts",
-    "tool:tell-the-person"
+    "tool:check-against-a-persons-rules-and-verdicts"
   ],
   "instructions": [
     "1. Copy the files from your camera card or recorder to a folder on a connected drive: the card stays as it is, and the workflow only reads the copy. Ask your AI to connect the drive first if tool:list-connected-drives shows none.",

@@ -1,0 +1,135 @@
+{
+  "about": "tools/workflows/recipes: telling the person one thing is one row of the notices table every notice workflow renders (devices, notices, with kind and key). Replaces tool:tell-the-person, retired with tools/tell-the-person; a step that tells the person something runs this.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:tell-the-person",
+        "label": "Tell the person",
+        "job": "Tell the person one thing: keep one notice (a title, a body, a kind and, when there is one, a link) in the notices of the person's own database, the table their devices read and the read, mark-read and act workflows use. A notice with a key is kept once, however often it is told.",
+        "produces": "One row of the person's notices, told:<id>, or the one already kept under the same key.",
+        "source": {
+          "from": "tool:tell-the-person (retired in 05f587fee) and the notices table of workflow:read-my-device-notices, read on trillion-workshop origin/main",
+          "note": "Telling is one insert into the store's own notices table; delivery to a device is the device's route, read by workflow:read-my-device-notices. Any step that tells the person something runs this workflow with its own words."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "database",
+            "title"
+          ],
+          "properties": {
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The name of the person's own database, the one the notices live in (the store the account keeps its rows in)."
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "description": "What the person reads first, in a few plain words"
+            },
+            "body": {
+              "type": "string",
+              "description": "The rest of what they need to know or do, in plain words"
+            },
+            "kind": {
+              "type": "string",
+              "description": "What sort of notice it is, in the person's own words for it (needs-you when none)"
+            },
+            "key": {
+              "type": "string",
+              "description": "A name for this one thing; told again under the same key it is not kept twice"
+            },
+            "url": {
+              "type": "string",
+              "description": "Where the person goes to act on it"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "render",
+            "title": "Make the notice tables if they are absent, with kind and key",
+            "do": "Run the statements of this step's sql, in order, through tool:run-sql-in-my-database with database = input.database. They only create what is missing, so a run where both tables exist changes nothing. Submit {rendered: true}.",
+            "sql": [
+              {
+                "name": "devices",
+                "params": [],
+                "text": "CREATE TABLE IF NOT EXISTS devices (id text PRIMARY KEY, platform text NOT NULL CHECK (platform IN ('live', 'web-push', 'apns')), token text, app_build text, registered_at timestamptz NOT NULL DEFAULT now(), last_seen_at timestamptz NOT NULL DEFAULT now())"
+              },
+              {
+                "name": "notices",
+                "params": [],
+                "text": "CREATE TABLE IF NOT EXISTS notices (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, device_id text REFERENCES devices (id), title text NOT NULL DEFAULT '', body text NOT NULL DEFAULT '', url text, made_at timestamptz NOT NULL DEFAULT now(), read_at timestamptz, acted_at timestamptz)"
+              },
+              {
+                "name": "kind-and-key",
+                "params": [],
+                "text": "ALTER TABLE notices ADD COLUMN IF NOT EXISTS kind text, ADD COLUMN IF NOT EXISTS key text"
+              }
+            ],
+            "submit": {
+              "type": "object",
+              "required": [
+                "rendered"
+              ],
+              "properties": {
+                "rendered": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "tell",
+            "title": "Keep the notice once",
+            "do": "Run the statement named tell of this step's sql through tool:run-sql-in-my-database with database = input.database and params [title, body (empty when none), kind (needs-you when none), key (null when none), url (null when none)]. When it returns a row, that is the notice: answer {id: \"told:<id>\", kept: true, said: \"Told the person: <title>.\"}. When it returns none, a notice under that key was already kept: run the statement named kept with params [key] and answer {id: \"told:<id>\", kept: false, said: \"Already told under <key>.\"}. Nothing else is written.",
+            "sql": [
+              {
+                "name": "tell",
+                "params": [
+                  "title",
+                  "body",
+                  "kind",
+                  "key",
+                  "url"
+                ],
+                "text": "INSERT INTO notices (title, body, kind, key, url) SELECT $1::text, coalesce($2::text, ''), coalesce($3::text, 'needs-you'), $4::text, $5::text WHERE $4::text IS NULL OR NOT EXISTS (SELECT 1 FROM notices WHERE key = $4::text) RETURNING id"
+              },
+              {
+                "name": "kept",
+                "params": [
+                  "key"
+                ],
+                "text": "SELECT id FROM notices WHERE key = $1::text ORDER BY id LIMIT 1"
+              }
+            ],
+            "submit": {
+              "type": "object",
+              "required": [
+                "id",
+                "kept",
+                "said"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^told:[0-9]+$"
+                },
+                "kept": {
+                  "type": "boolean"
+                },
+                "said": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

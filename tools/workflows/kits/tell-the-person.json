@@ -1,0 +1,45 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:tell-the-person with database <the name of my own account database>, title <what I read first> and body <the rest>.\"",
+  "lists": [],
+  "no_lists_because": "A notice is a row of the person's own database; this workflow keeps it there and names no list of its own.",
+  "workflows": [
+    "workflow:tell-the-person"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Name the database your account keeps its rows in.",
+    "2. Say \"Run workflow:tell-the-person\" with database, title and body; add kind, a key (so the same thing is told once) and a url when there is one.",
+    "3. The first run makes the devices and notices tables when they are absent; a run where they exist changes nothing.",
+    "4. Your devices read the notice with workflow:read-my-device-notices; read them all with workflow:read-my-notices."
+  ],
+  "worked_examples": [
+    {
+      "title": "Tell me a booking was cancelled",
+      "ask": "Tell me Bo cancelled the Friday call.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:tell-the-person",
+              "database": "<my account database>",
+              "title": "Bo cancelled the Friday call",
+              "body": "Their history is in your history list.",
+              "key": "booking:101:cancelled"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:tell-the-person",
+      "step": "tell",
+      "given": "The notices table holds no notice under booking:101:cancelled.",
+      "hands_back": "id told:1, kept true; said \"Told the person: Bo cancelled the Friday call.\". Told again under the same key: the same id, kept false."
+    }
+  ],
+  "drafted_from": "workflow:tell-the-person steps render, tell"
+}

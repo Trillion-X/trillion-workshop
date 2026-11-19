@@ -4,13 +4,13 @@
   "lists": [],
   "no_lists_because": "Its output is scripts, a test plan and a log the person starts empty in their own analytics, not rows of a list.",
   "workflows": [
-    "workflow:find-and-test-the-short-video-formats-that-sell-your-app"
+    "workflow:find-and-test-the-short-video-formats-that-sell-your-app",
+    "workflow:tell-the-person"
   ],
   "tools": [
     "tool:run-workflow-definition",
     "tool:github:yt-dlp-yt-dlp",
-    "tool:read-a-page-in-my-browser",
-    "tool:tell-the-person"
+    "tool:read-a-page-in-my-browser"
   ],
   "instructions": [
     "1. Write the app in one sentence, its best feature, the category in your words, up to five competitors and the platform you post on.",

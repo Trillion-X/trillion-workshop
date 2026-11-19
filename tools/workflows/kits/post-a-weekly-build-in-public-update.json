@@ -4,13 +4,13 @@
   "lists": [],
   "no_lists_because": "It reads the person's own records named in its input and keeps one post-a-weekly-build-in-public record of its own, so it ships no list.",
   "workflows": [
-    "workflow:post-a-weekly-build-in-public-update"
+    "workflow:post-a-weekly-build-in-public-update",
+    "workflow:tell-the-person"
   ],
   "tools": [
     "tool:run-workflow-definition",
     "tool:check-against-a-persons-rules-and-verdicts",
-    "tool:read-a-page-in-my-browser",
-    "tool:tell-the-person"
+    "tool:read-a-page-in-my-browser"
   ],
   "instructions": [
     "1. Name the record kinds or lists that show your work in lists (for example \"tasks\" and \"sales\"), the platforms you post on, your word rules and the words you never share (private).",

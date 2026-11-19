@@ -4,7 +4,8 @@
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
-    "workflow:make-one-piece-of-content-from-audience-to-publish"
+    "workflow:make-one-piece-of-content-from-audience-to-publish",
+    "workflow:tell-the-person"
   ],
   "tools": [
     "tool:add-captions",
@@ -45,7 +46,6 @@
     "tool:search-everything-with-one-question",
     "tool:send-a-post",
     "tool:set-a-post-to-go-at-its-time",
-    "tool:tell-the-person",
     "tool:transcribe-audio-and-repair-whisper-loops"
   ],
   "instructions": [

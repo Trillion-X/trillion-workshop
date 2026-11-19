@@ -3,7 +3,8 @@
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
-    "workflow:test-prices-and-change-a-page-for-each-visitor"
+    "workflow:test-prices-and-change-a-page-for-each-visitor",
+    "workflow:tell-the-person"
   ],
   "tools": [
     "tool:break-down-visits-and-sales",
@@ -11,7 +12,6 @@
     "tool:credit-outcomes-to-candidates",
     "tool:make-tracked-link",
     "tool:read-experiment-results",
-    "tool:tell-the-person",
     "tool:run-workflow-definition"
   ],
   "instructions": [

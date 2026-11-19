@@ -4,7 +4,8 @@
   "lists": [],
   "no_lists_because": "It keeps no list of its own: the person's own material, photos and product files stay where they are, and each step hands back its style sheet, drafts and weekly numbers in its answer.",
   "workflows": [
-    "workflow:run-a-slideshow-page-that-sells-a-small-digital-product"
+    "workflow:run-a-slideshow-page-that-sells-a-small-digital-product",
+    "workflow:tell-the-person"
   ],
   "tools": [
     "tool:run-workflow-definition",
@@ -15,7 +16,6 @@
     "tool:github:mflux-community-mflux",
     "tool:github:blaizzy-mlx-video",
     "tool:break-down-visits-and-sales",
-    "tool:tell-the-person",
     "tool:make-tracked-link",
     "tool:draft-a-post"
   ],
