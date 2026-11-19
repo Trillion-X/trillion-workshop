@@ -1,6 +1,6 @@
 -- The history of anything, under any of its identifiers: one rendering, for a Postgres store.
 -- It names no domain, no source, no vendor and no person. What a thing, an identifier, a source and a meaning are
--- is configuration: rows of schemes, meanings, meaning_rules and mention_rules.
+-- is configuration: rows of schemes, meanings, meaning_rules, mention_rules and tell_words.
 --
 -- Invariants:
 --   1. Nothing is overwritten. A statement is kept as told; a wrong one is retracted by a later statement.
@@ -11,7 +11,11 @@
 --   4. A link holds over [holds_from, holds_until); a statement reaches a thing only through links holding at the
 --      statement's `at`. An identifier given to someone else later (a recycled number) keeps its old history.
 --   5. Every read takes `known`: what was recorded by then. Late and out-of-order statements sort by `at`.
---   6. Erasure empties every statement in the thing's history and deletes their mentions; (source, told) stays, so a
+--   6. What is due to be told about a thing is a read: the standing statements of a meaning with tell_after, newer
+--      than the thing's last tell, once the newest is older than the longest tell_after among them; one tells row per
+--      thing and statement keeps a tell from being made twice. Which meanings are told, how long they settle, which
+--      kinds of thing are told about and the words for a set of meanings are rows.
+--   7. Erasure empties every statement in the thing's history and deletes their mentions; (source, told) stays, so a
 --      redelivery of an erased telling stays erased.
 
 CREATE TABLE statements (
@@ -38,10 +42,14 @@ CREATE TABLE mentions (
 CREATE INDEX mentions_identifier ON mentions (scheme, value);
 
 -- Configuration. Every row is optional: a scheme, source or meaning with no row still works.
-CREATE TABLE schemes (scheme text PRIMARY KEY, fold_case boolean NOT NULL DEFAULT false, most_things int, words text);
-CREATE TABLE meanings (meaning text PRIMARY KEY, joins_from text, joins_to text, words text,
+CREATE TABLE schemes (scheme text PRIMARY KEY, fold_case boolean NOT NULL DEFAULT false, most_things int, words text,
+  told_about boolean NOT NULL DEFAULT false);  -- due_tells speaks of things of this scheme
+CREATE TABLE meanings (meaning text PRIMARY KEY, joins_from text, joins_to text, words text, tell_after interval,
   CHECK ((joins_from IS NULL) = (joins_to IS NULL)));
 CREATE TABLE meaning_rules (position int PRIMARY KEY, source text, place text, change text, path text, meaning text NOT NULL);
+CREATE TABLE tell_words (position int PRIMARY KEY, all_of text[] NOT NULL, words text NOT NULL);
+CREATE TABLE tells (thing_scheme text NOT NULL, thing_value text NOT NULL, through bigint NOT NULL REFERENCES statements (id),
+  words text NOT NULL, made_at timestamptz NOT NULL DEFAULT clock_timestamp(), PRIMARY KEY (thing_scheme, thing_value, through));
 CREATE TABLE mention_rules (source text, place text, path text NOT NULL, role text NOT NULL, scheme text NOT NULL,
   UNIQUE NULLS NOT DISTINCT (source, place, path, role, scheme));
 -- The told change as one document, for rule paths: $.key, $.place, $.change, $.before, $.after, $.detail.
@@ -155,6 +163,28 @@ CREATE FUNCTION too_shared(at_time timestamptz DEFAULT now()) RETURNS TABLE (sch
   SELECT i.scheme, i.value, count(*) FROM (SELECT DISTINCT m.scheme, m.value FROM mentions m JOIN schemes sc ON sc.scheme = m.scheme AND sc.most_things IS NOT NULL) i
   CROSS JOIN LATERAL things_of(i.scheme, i.value, at_time) t
   GROUP BY i.scheme, i.value HAVING count(*) > (SELECT most_things FROM schemes WHERE scheme = i.scheme) $$;
+
+-- What is due to be told, per thing: statements of a meaning with tell_after, standing, not covered by an earlier
+-- tell of that thing, once the newest of them is older than the longest tell_after among them.
+CREATE FUNCTION due_tells(now_at timestamptz DEFAULT now())
+RETURNS TABLE (thing_scheme text, thing_value text, through bigint, meanings text[], words text) LANGUAGE sql STABLE AS $$
+  WITH fresh AS (
+    SELECT DISTINCT s.id, s.meaning, s.recorded_at, mn.tell_after, th.scheme AS ts, th.value AS tv
+    FROM statements s JOIN meanings mn ON mn.meaning = s.meaning AND mn.tell_after IS NOT NULL
+    JOIN mentions m ON m.statement = s.id
+    CROSS JOIN LATERAL things_of(m.scheme, m.value, s.at) th
+    JOIN schemes sc ON sc.scheme = th.scheme AND sc.told_about
+    WHERE s.retracts IS NULL AND s.erased_at IS NULL AND stands(s.id, now_at) AND s.recorded_at <= now_at
+      AND s.id > coalesce((SELECT max(t.through) FROM tells t WHERE t.thing_scheme = th.scheme AND t.thing_value = th.value), 0)),
+  batch AS (
+    SELECT ts, tv, max(id) AS through, array_agg(DISTINCT meaning ORDER BY meaning) AS meanings,
+      max(recorded_at) AS newest, max(tell_after) AS wait
+    FROM fresh GROUP BY ts, tv)
+  SELECT b.ts, b.tv, b.through, b.meanings,
+    coalesce((SELECT w.words FROM tell_words w WHERE w.all_of <@ b.meanings ORDER BY w.position LIMIT 1),
+      (SELECT string_agg(coalesce(mn.words, mn.meaning), ', ' ORDER BY mn.meaning) FROM meanings mn WHERE mn.meaning = ANY (b.meanings)))
+  FROM batch b WHERE now_at - b.newest >= b.wait $$;
+
 
 -- Erase a thing: empty every statement that mentions an identifier which, when the statement happened, was this
 -- thing's alone, and every retraction of one; delete their mentions. A statement about an identifier another thing

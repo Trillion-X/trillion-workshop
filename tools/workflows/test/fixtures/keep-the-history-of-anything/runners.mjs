@@ -40,10 +40,11 @@ export async function postgresRunner(PGlite, renderingSql) {
     db, q,
     can: () => true,
     async config(a) {
-      for (const r of a.schemes ?? []) await db.query('INSERT INTO schemes (scheme, fold_case, most_things) VALUES ($1, $2, $3)', [r.scheme, r.fold_case ?? false, r.most_things ?? null]);
-      for (const r of a.meanings ?? []) await db.query('INSERT INTO meanings (meaning, joins_from, joins_to) VALUES ($1, $2, $3)', [r.meaning, r.joins_from ?? null, r.joins_to ?? null]);
+      for (const r of a.schemes ?? []) await db.query('INSERT INTO schemes (scheme, fold_case, most_things, told_about) VALUES ($1, $2, $3, $4)', [r.scheme, r.fold_case ?? false, r.most_things ?? null, r.told_about ?? false]);
+      for (const r of a.meanings ?? []) await db.query('INSERT INTO meanings (meaning, joins_from, joins_to, tell_after) VALUES ($1, $2, $3, $4)', [r.meaning, r.joins_from ?? null, r.joins_to ?? null, r.tell_after_seconds === undefined ? null : `${r.tell_after_seconds} seconds`]);
       for (const r of a.meaning_rules ?? []) await db.query('INSERT INTO meaning_rules (position, source, place, change, path, meaning) VALUES ($1, $2, $3, $4, $5, $6)',
         [r.position, r.source ?? null, r.place ?? null, r.change ?? null, r.path ? (r.equals === undefined ? path(r.path) : `$.${r.path.slice(0, -1).join('.')} ? (@.${r.path.at(-1)} == ${JSON.stringify(r.equals)})`) : null, r.meaning]);
+      for (const r of a.tell_words ?? []) await db.query('INSERT INTO tell_words VALUES ($1, $2, $3)', [r.position, r.all_of, r.words]);
       for (const r of a.mention_rules ?? []) await db.query('INSERT INTO mention_rules (source, place, path, role, scheme) VALUES ($1, $2, $3, $4, $5)', [r.source ?? null, r.place ?? null, path(r.path), r.role, r.scheme]);
       return null;
     },
@@ -68,13 +69,24 @@ export async function postgresRunner(PGlite, renderingSql) {
     },
     async things(a) { return (await q("SELECT scheme || ' ' || value AS t FROM things_of($1, $2, $3) ORDER BY 1", [...a.id, a.at])).map((r) => r.t); },
     async too_shared(a) { return (await q("SELECT scheme || ' ' || value || ' ' || things AS t FROM too_shared($1) ORDER BY 1", [a.at])).map((r) => r.t); },
+    async due_tells(a) {
+      const now = new Date(new Date(await recordedOf(a.after)).getTime() + a.plus_seconds * 1000).toISOString();
+      return (await q("SELECT thing_scheme || ' ' || thing_value AS thing, meanings, words FROM due_tells($1) ORDER BY 1", [now]));
+    },
+    async tell_made(a) {
+      const now = new Date(new Date(await recordedOf(a.after)).getTime() + a.plus_seconds * 1000).toISOString();
+      const { rows } = await db.query(`INSERT INTO tells (thing_scheme, thing_value, through, words)
+        SELECT thing_scheme, thing_value, through, words FROM due_tells($1) WHERE thing_scheme = $2 AND thing_value = $3
+        ON CONFLICT DO NOTHING RETURNING through`, [now, ...a.thing]);
+      return rows.length ? 'made' : 'nothing due';
+    },
     async erase(a) { return Number((await q('SELECT erase($1, $2) AS n', a.thing))[0].n); },
   };
   return runner;
 }
 
 // The embedded rendering answers the keeping, linking, spans, retraction, dedupe and as-known reads; the rest of the
-// attempts (things, sharing reports, erasure) are answered by the server rendering only, and say so.
+// attempts (things, sharing reports, what is due to be told, erasure) are answered by the server rendering only, and say so.
 export function embeddedRunner(DatabaseSync, renderingSql) {
   const db = new DatabaseSync(':memory:');
   db.exec(renderingSql);
