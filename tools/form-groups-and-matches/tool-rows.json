@@ -192,7 +192,7 @@
         "status": "active",
         "read_only": true,
         "job": "Show what is in my groups, lists or collections, with the groups inside them, in their order",
-        "description": "Give roots: the addresses of the groups to start from, each { family, parts: { name: text } }. Each group is read from the person's records (type group) and every member that is itself a group is followed, so the answer holds those groups and everything inside them at any depth. Returns groups (each { groupRef, memberOrder, members: { memberId: { memberId, nodeRef, role?, presentation? } } }, members in memberOrder), count, and skipped: the ids of records that were not a well-formed group or claimed another group's address. A root that is not a group yet is simply not in the answer. It changes nothing.",
+        "description": "Give roots: the addresses of the groups to start from, each { family, parts: { name: text } }. Each group is found among the records handed in (type group) and every member that is itself a group is followed, so the answer holds those groups and everything inside them at any depth. Returns groups (each { groupRef, memberOrder, members: { memberId: { memberId, nodeRef, role?, presentation? } } }, members in memberOrder), count, and skipped: the ids of records that were not a well-formed group or claimed another group's address. A root that is not a group yet is simply not in the answer. It changes nothing and reads no store: the caller hands the records in.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -208,9 +208,17 @@
               },
               "description": "The groups to start from"
             },
-            "stored": {
-              "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of group, as this row's `stored` lists. What is not given is not there."
+            "records": {
+              "type": "array",
+              "description": "The group records the caller read from its own store, each { id, type, value } (type group; a group record the caller does not hand in is not there). The run reads and writes no store.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ]
+              }
             }
           },
           "$defs": {
@@ -362,14 +370,6 @@
             },
             "output_selector": "$.count",
             "contains": "0"
-          }
-        ],
-        "stored": [
-          {
-            "kind": "group",
-            "operations": [
-              "records:read"
-            ]
           }
         ]
       }
@@ -562,7 +562,7 @@
         "label": "Change my groups: add, move, order, nest and remove",
         "status": "active",
         "job": "Add things to my groups, lists or collections, move and reorder them, put some into a new group inside, take a group apart, or bring a whole folder tree in as groups",
-        "description": "A group is any list of addresses (records, pages, people, other groups) in an order; a member whose address is a group nests that group. changes is a list applied in order as one change: ensure-group, add-member (nodeRef, memberId, role?, presentation?, placement?), remove-member (memberId), reorder-member (memberId, placement), move-member (memberId, toGroupRef, placement?), set-member-fields (memberId, role and presentation, null clears), patch-member-presentation (memberId, presentation merged into what is there), group-members (memberIds, toGroupRef: the new group, wrapperMemberId), ungroup-members (wrapperMemberId), delete-group. Every change names groupRef { family, parts }; a placement is { index }, { before: memberId }, { after: memberId } or { at: start | end }. Member ids are yours: nothing is invented. tree (optional) is { family, records: [{ node_id, parent_id, ordinal, role, title, external_identity, attributes }] }: nodes with role group become groups and every node is placed in its parent by ordinal, its title and attributes kept as presentation. The groups touched are read first; a group can never end up inside itself, and a repeated member id is refused, so the whole change is refused and nothing is written. Only groups that changed are written; a group that is gone is removed. Returns groups (every group the change read or made, as it is now), written, removed (record ids) and unplaced (tree nodes not placed, with why).",
+        "description": "A group is any list of addresses (records, pages, people, other groups) in an order; a member whose address is a group nests that group. changes is a list applied in order as one change: ensure-group, add-member (nodeRef, memberId, role?, presentation?, placement?), remove-member (memberId), reorder-member (memberId, placement), move-member (memberId, toGroupRef, placement?), set-member-fields (memberId, role and presentation, null clears), patch-member-presentation (memberId, presentation merged into what is there), group-members (memberIds, toGroupRef: the new group, wrapperMemberId), ungroup-members (wrapperMemberId), delete-group. Every change names groupRef { family, parts }; a placement is { index }, { before: memberId }, { after: memberId } or { at: start | end }. Member ids are yours: nothing is invented. tree (optional) is { family, records: [{ node_id, parent_id, ordinal, role, title, external_identity, attributes }] }: nodes with role group become groups and every node is placed in its parent by ordinal, its title and attributes kept as presentation. The groups touched are found among the records handed in; a group can never end up inside itself, and a repeated member id is refused, so the whole change is refused and nothing is written. Only groups that changed are kept: keep holds each changed group record { id, type, value, expected } (value null removes a group that is gone, expected is the record as it was handed in, null for a new one). The run writes no store. Returns groups (every group the change read or made, as it is now), written (how many records changed), removed (record ids), unplaced (tree nodes not placed, with why) and keep.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -652,9 +652,17 @@
                 }
               }
             },
-            "stored": {
-              "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of group, as this row's `stored` lists. What is not given is not there."
+            "records": {
+              "type": "array",
+              "description": "The group records the caller read from its own store, each { id, type, value } (type group; a group record the caller does not hand in is not there). The run reads and writes no store.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ]
+              }
             }
           },
           "$defs": {
@@ -710,7 +718,16 @@
             },
             "keep": {
               "type": "array",
-              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+              "description": "The group records that changed for the caller to put in its store: rows { id, type, value, expected } (value null removes; expected is the record as it was handed in, null for a new one, so a store refuses the write when it moved).",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value",
+                  "expected"
+                ]
+              }
             }
           }
         },
@@ -820,15 +837,6 @@
             },
             "output_selector": "$.groups[0].groupRef.parts.id",
             "contains": "verify"
-          }
-        ],
-        "stored": [
-          {
-            "kind": "group",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
           }
         ]
       }

@@ -15,7 +15,7 @@ Keeps groups of anything in a person's records (lists, collections, folders, boa
 | `read-data/select-groups.mjs` | Groups formed by expected value with prepared introductions and their send gate. |
 | `read-data/select-configurations.mjs` | Which options go ahead together; only a shared collision ref makes two compete. |
 | `read-data/capacity-assignment.mjs` | Helpers assigned within their capacity, from pair answers or from scored candidates; also the row's command (`executeAssignmentOperation`). |
-| `do-work/my-groups.mjs` | The commands of `tool:read-my-groups` and `tool:change-my-groups` over the records door. |
+| `do-work/my-groups.mjs` | The commands of `tool:read-my-groups` and `tool:change-my-groups`: the group records the caller hands in as `records`, read or changed in memory; a change answers the changed records as `keep` (each with the value it expected). No records door. |
 | `do-work/regroup-a-tree.mjs` | The command of `tool:regroup-a-tree`. |
 | `do-work/form-matches.mjs` | The command of `tool:form-matches`: shortlists or candidates in, groups, introductions and connections out. |
 | `do-work/check-match-evidence.mjs` | The command of `tool:check-match-evidence`. |
@@ -27,7 +27,7 @@ Keeps groups of anything in a person's records (lists, collections, folders, boa
 | `test/group-graph.test.mjs` | The membership gauntlet: every operation, nesting and the cycle rule (the original graph's twenty cases, and ids that are object property names). |
 | `test/group-records.test.mjs` | Record ids, the fold (later wins, removed, misplaced and malformed records) and the minimal writes. |
 | `test/group-changes.test.mjs` | Every kind of change through one applier, and the hard cases as writes. |
-| `test/my-groups.test.mjs` | The two group rows against the stand-in records door: fresh, existing, no-op, a loop across stored groups, ungrouping, a tree import, the read. |
+| `test/my-groups.test.mjs` | The two group rows on records handed in: fresh, existing, no-op, a loop across stored groups, ungrouping, a tree import, the read, a spoofed record. |
 | `test/tree-to-groups.test.mjs` | The tree bridge (twelve cases) and regrouping by intent (ten cases), on a made-up bakery's folders. |
 | `test/match-fixtures.mjs` | A made-up bakers' circle: three factors, two scope fields, candidates and consents. |
 | `test/select-groups.test.mjs`, `test/expected-value.test.mjs`, `test/match-evidence.test.mjs`, `test/matchmaker-gauntlet.test.mjs`, `test/capacity-assignment.test.mjs`, `test/select-configurations.test.mjs` | The original package's matching tests, on the made-up program. |
@@ -78,7 +78,7 @@ Keeps groups of anything in a person's records (lists, collections, folders, boa
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (its runner for every row, and its client for the two group rows), `tools/content-identity` for the consent identity (with the `@noble/hashes` module it imports), Node 24 in the tool container.
+**Depends on:** `tools/records-door` (its runner for every row; the group rows take their records as input and reach no door), `tools/content-identity` for the consent identity (with the `@noble/hashes` module it imports), Node 24 in the tool container.
 
 **Not carried from the Trillion app's matchmaker:** each candidate's level (no standing owner here); the request-an-introduction road beside discover; the copy-rule check of its words (the community's words are its own); and the arm weights' feedback (`chance_best`): the keeper's view gives each arm's shown and converted events for an experiment owner, and the arms' weights stay the community's settings.
 

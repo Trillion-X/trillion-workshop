@@ -22,10 +22,9 @@ for (const row of descriptors) {
   });
 }
 
-// The community matchmaker's rows: they reach its records (all but the settings check) and pack tools/content-identity
-// with the BLAKE3 module it imports.
+// The community matchmaker's rows and the group rows take their records as input and reach no store. Every row packs
+// tools/content-identity with the BLAKE3 module it imports.
 const COMMUNITY = /community/;
-const REACH_RECORDS = new Set(['tool:read-my-groups', 'tool:change-my-groups']);
 
 test('every row packs its own files and the records door runner, offers no network, and names its maker', () => {
   for (const row of descriptors) {
@@ -33,7 +32,7 @@ test('every row packs its own files and the records door runner, offers no netwo
     const packed = row.invoke.files.package_files.map(spec => spec.package ?? spec.module ?? spec.packages?.[0]?.replace(/^node_modules\//, ""));
     assert.deepEqual(packed, ['form-groups-and-matches', 'records-door', 'content-identity', '@noble/hashes', 'browse-and-upload-my-files'], row.id);
     assert.equal(row.maker, 'maker:form-groups-and-matches');
-    assert.equal(rightsOf(row).length > 0, REACH_RECORDS.has(row.id), `${row.id}: which rows read stored records`);
+    assert.deepEqual(rightsOf(row), [], `${row.id}: no row declares stored rights`);
   }
 });
 
