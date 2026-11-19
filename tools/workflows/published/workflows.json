@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "3ab22de1ffb7b44a55295fb08415b664d2ee035b8940aecfa6583857397e16e6",
+  "blake3": "894e6de5e23863fb9bf47a4a38d170930680419da769342ed9fa2fffd56e3a9f",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -48,6 +48,8 @@
     "build-an-agent-that-researches-and-returns-a-cited-report",
     "build-an-agent-that-sorts-incoming-mail-and-drafts-replies",
     "build-an-audience-with-traffic-hopper-and-conversion",
+    "build-an-unpaid-creator-network-around-a-product",
+    "build-muscle-with-hard-sessions-enough-food-and-sleep",
     "build-the-abilities-the-work-needs",
     "build-the-landing-page",
     "buy-and-deliver",
@@ -64,6 +66,7 @@
     "choose-a-change-worth-making",
     "choose-a-product-by-timing-differentiation-and-landed-margin",
     "choose-a-product-category-where-the-leader-has-stopped-caring",
+    "choose-and-package-a-long-video-idea-then-read-where-viewers-leave",
     "choose-audience-countries-by-payout",
     "choose-four-products-for-one-person",
     "choose-how-to-price-automation-work",
@@ -79,6 +82,7 @@
     "compare-designs-by-simulating-them-forward",
     "compare-several-designs-of-one-piece-of-interface",
     "compress-a-work-segment-into-observations-that-survive-context-loss",
+    "cut-spending-in-one-expense-area",
     "deepen-a-request-like-a-top-professional",
     "deliver-a-finished-automation-project",
     "deliver-it-and-keep-it-sustainable",
@@ -166,6 +170,7 @@
     "join-anonymous-visits-to-the-conversion-you-own",
     "judge-an-affiliate-program-before-joining",
     "judge-sound-by-measurement",
+    "judge-whether-a-product-idea-is-worth-launching",
     "judge-whether-a-pursuit-is-worth-the-persons-time",
     "keep-a-change-under-review-until-it-is-clean",
     "keep-a-changelog-from-what-shipped",
@@ -269,8 +274,10 @@
     "position-a-product-as-luxury-with-story-and-scarcity",
     "possibility-to-proof",
     "post-on-social-channels-on-a-schedule",
+    "prepare-a-home-for-a-fast-sale",
     "print-and-deliver",
     "prototype-a-product-flow-in-motion",
+    "prove-a-backup-restores-on-a-spare-computer",
     "prove-the-launch-on-the-real-url",
     "publish-a-project-as-a-public-repository",
     "publish-articles-and-newsletter-on-a-cadence",
@@ -318,6 +325,7 @@
     "run-a-guest-show-to-reach-target-buyers",
     "run-a-linkedin-content-system",
     "run-a-micro-creator-program-with-briefs-and-usage-rights",
+    "run-a-ninety-day-daily-block-of-proof-leads-and-conversations",
     "run-a-sale-weekend-with-a-staged-offer-and-primed-lists",
     "run-a-sales-call-by-a-stated-framework",
     "run-a-sales-pipeline-from-signals-to-booked-calls",
@@ -336,6 +344,7 @@
     "sell-what-the-pursuit-makes",
     "send-a-prospect-a-sample-made-for-them",
     "set-and-change-the-price-of-a-product",
+    "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped",
     "set-up-a-business-on-the-account",
     "set-up-a-recurring-task-that-is-safe-to-repeat",
     "set-up-a-standing-agent-loop",
@@ -349,6 +358,7 @@
     "ship-the-whole-branch-to-live",
     "show-every-state-of-a-component",
     "show-interest-and-build-attraction",
+    "show-the-real-work-of-building-a-business-on-camera",
     "sign-a-first-paying-client-for-an-automation-build",
     "simulate-a-choice-forward",
     "sort-every-task-by-whether-someone-else-can-take-it",
@@ -357,6 +367,8 @@
     "split-a-list-into-groups-that-are-worth-sending-to",
     "split-what-must-be-certain-from-what-an-ai-may-reason",
     "start-from-the-persons-own-work",
+    "start-reselling-goods-for-more-than-they-cost",
+    "start-selling-bought-goods-on-an-online-marketplace",
     "stress-test-one-component-under-every-scenario-that-can-reach-it",
     "take-apart-a-winning-ad-before-copying-it",
     "take-payments-with-stripe",
@@ -399,6 +411,7 @@
     "work-backward-from-a-ten-million-valuation",
     "work-backwards-from-available-names",
     "work-out-what-owning-a-small-business-really-pays-the-owner",
+    "work-out-what-to-save-each-month-to-reach-a-target-sum",
     "work-out-which-marketing-caused-the-revenue",
     "work-through-a-framework",
     "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
@@ -6759,6 +6772,201 @@
     "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
     "fires_when": "[{\"label\": \"a part asks to get a first client with free tools and a recorded walkthrough\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"sales-outreach\", \"lead-generation\", \"business-idea\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table video_transcripts creator Nick Saraev, https://www.youtube.com/watch?v=bao3ogOcpiw, https://www.youtube.com/watch?v=6EDWkFlxRWI, https://www.youtube.com/watch?v=Gz8tbgZTdpI, https://www.youtube.com/watch?v=XE6VcwCBSqA; the label is the condition in words.\"}]",
     "source": "{\"from\": \"the person's old kept store, table video_transcripts creator Nick Saraev, https://www.youtube.com/watch?v=bao3ogOcpiw, https://www.youtube.com/watch?v=6EDWkFlxRWI, https://www.youtube.com/watch?v=Gz8tbgZTdpI, https://www.youtube.com/watch?v=XE6VcwCBSqA, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "run-a-ninety-day-daily-block-of-proof-leads-and-conversations",
+   "values": {
+    "title": "Run a 90-day daily block of proof, leads and conversations",
+    "recipe": "workflow:run-a-ninety-day-daily-block-of-proof-leads-and-conversations",
+    "job": "Sets a small goal, then a fixed daily block of gathering proof from buyers, posting it to one capture place, talking to people who engaged and reaching out, kept for 90 days. For an early seller whose sales are small and scattered.",
+    "produces": "A written goal and daily numbers, an asset list, a daily checklist, a weekly count over 90 days, and a record of what grew and what matters most next.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to run a 90-day daily block of proof, leads and conversations\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"growth-stalled\", \"daily-habit-to-set\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from Ryan Daniel Moran's method, taught in 4 videos\\\", \\\"https://www.youtube.com/watch?v=bevwj7cs9zU\\\", \\\"https://www.youtube.com/watch?v=opbXD5SB98k\\\", \\\"https://traffic.libsyn.com/secure/freedomfastlane/Build_A_1M_E-Commerce_Business_In_2_Hours_Day_CAP_RDM.mp3?dest-id=203381\\\", \\\"https://traffic.libsyn.com/secure/freedomfastlane/Full_Cut_1.mp3?dest-id=203381\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"Ryan Daniel Moran's method, taught in 4 videos\\\", \\\"https://www.youtube.com/watch?v=bevwj7cs9zU\\\", \\\"https://www.youtube.com/watch?v=opbXD5SB98k\\\", \\\"https://traffic.libsyn.com/secure/freedomfastlane/Build_A_1M_E-Commerce_Business_In_2_Hours_Day_CAP_RDM.mp3?dest-id=203381\\\", \\\"https://traffic.libsyn.com/secure/freedomfastlane/Full_Cut_1.mp3?dest-id=203381\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "prove-a-backup-restores-on-a-spare-computer",
+   "values": {
+    "title": "Prove a backup restores on a spare computer",
+    "recipe": "workflow:prove-a-backup-restores-on-a-spare-computer",
+    "job": "Restore the newest backup of each store a computer keeps onto a spare computer, time it, compare it with the live store, and record the drill, so a backup counts only once it has been restored.",
+    "produces": "Each store's restore time, the count comparison with the live store, a pass or fail, and the spare computer removed and read back.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to prove a backup restores on a spare computer\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"week-ended\", \"computer-finding\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from The roadmap's backup item (a restore drill of a database's backup on a scratch computer; the time is written, and a backup with no passed drill counts as unproven), Nov 18 2026; and the industry practice that a backup is proven only by restoring it; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"The roadmap's backup item (a restore drill of a database's backup on a scratch computer; the time is written, and a backup with no passed drill counts as unproven), Nov 18 2026; and the industry practice that a backup is proven only by restoring it, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "choose-and-package-a-long-video-idea-then-read-where-viewers-leave",
+   "values": {
+    "title": "Choose and package a long video idea, then read where viewers leave",
+    "recipe": "workflow:choose-and-package-a-long-video-idea-then-read-where-viewers-leave",
+    "job": "Finds what works for a long video in your niche, turns an idea into a one-line promise with a title and thumbnail, writes an opening that earns attention and reads the first 30 seconds and the drop-offs after it. For anyone making long videos for a channel.",
+    "produces": "A table of videos that beat their channel average, a one-line idea with its floor, 10 or more title and thumbnail concepts with one chosen, an opening with its questions marked, a retention reading with the one change for next time, and a record ending with what matters most.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to choose and package a long video idea, then read where viewers leave\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"piece-to-make\", \"result-to-read\", \"design-request\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table video_transcripts creator='Open Residency', videos Z2uoA3bhJT0 (6 parts), Yl_HLGoWWJE (5 parts), VcqQmrGqthg (6 parts) (taught in 3 videos); the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table video_transcripts creator='Open Residency', videos Z2uoA3bhJT0 (6 parts), Yl_HLGoWWJE (5 parts), VcqQmrGqthg (6 parts) (taught in 3 videos), judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "build-muscle-with-hard-sessions-enough-food-and-sleep",
+   "values": {
+    "title": "Build muscle with hard sessions, enough food and sleep",
+    "recipe": "workflow:build-muscle-with-hard-sessions-enough-food-and-sleep",
+    "job": "Sets a weekly training plan, logs every set, sets protein and a small surplus, protects sleep and checks progress by photos and measures. For a person who wants to add muscle slowly and steadily.",
+    "produces": "A weekly plan, a log that beats the last session, a protein and calorie number with a weight trend, a sleep record, a photo and measure comparison, and a record of what held back growth most.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to build muscle with hard sessions, enough food and sleep\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"plan-to-make\", \"result-to-read\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table video_transcripts creator='First Things THRST With Mike Thurston', videos jpjqNtc2U-k (3 parts), tCqN0Ijicp0 (3 parts), 4aUH0ha3Zxs (4 parts), Al0UuX_73RE (2 parts) (taught in 4 videos); the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table video_transcripts creator='First Things THRST With Mike Thurston', videos jpjqNtc2U-k (3 parts), tCqN0Ijicp0 (3 parts), 4aUH0ha3Zxs (4 parts), Al0UuX_73RE (2 parts) (taught in 4 videos), judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "work-out-what-to-save-each-month-to-reach-a-target-sum",
+   "values": {
+    "title": "Work out what to save each month to reach a target sum",
+    "recipe": "workflow:work-out-what-to-save-each-month-to-reach-a-target-sum",
+    "job": "Turns an income, a target sum and a starting age into the monthly amount and share of pay that reaches the target by a retirement age. For anyone deciding how much to put away and whether a later start is still workable.",
+    "produces": "A list of start ages with the monthly amount, the yearly amount and the share of income for each, the assumptions written beside it, and the one start age the person will use.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to work out what to save each month to reach a target sum\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"money-question\", \"plan-to-make\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table video_transcripts creator CNBC Make It, video ids 77Xs3fCvcU4, BgKfaLZX_Pg, 4WpxXbhRasI, hQd91s_HUCo, fur6Oaj50Rc; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table video_transcripts creator CNBC Make It, video ids 77Xs3fCvcU4, BgKfaLZX_Pg, 4WpxXbhRasI, hQd91s_HUCo, fur6Oaj50Rc, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "prepare-a-home-for-a-fast-sale",
+   "values": {
+    "title": "Prepare a home for a fast sale with a few key improvements",
+    "recipe": "workflow:prepare-a-home-for-a-fast-sale",
+    "job": "Walks a seller through the few places a buyer judges in the first half minute so the home sells faster. For anyone about to list a house or flat.",
+    "produces": "A list of the entrance, living room, kitchen, bedroom and bathroom work chosen for the budget, each item with its cost and a before and after photo.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to prepare a home for a fast sale with a few key improvements\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"thing-to-sell\", \"home-to-prepare\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table video_transcripts creator CNBC Make It, video ids fFzaPhUDWxA, mbkRIlX7jv8, vRhbxf5Pwc8; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table video_transcripts creator CNBC Make It, video ids fFzaPhUDWxA, mbkRIlX7jv8, vRhbxf5Pwc8, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "cut-spending-in-one-expense-area",
+   "values": {
+    "title": "Cut spending in one expense area without making life worse",
+    "recipe": "workflow:cut-spending-in-one-expense-area",
+    "job": "Picks one regular cost, finds what is actually spent, and swaps each part for a free or cheaper way, then counts the yearly saving. For anyone who wants to spend less on food, transport, fitness or any single area.",
+    "produces": "A list of what was spent in the area, the swap chosen for each, and the yearly saving worked out from the monthly difference.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to cut spending in one expense area without making life worse\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"money-question\", \"habit-to-change\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table video_transcripts creator CNBC Make It, video ids 3csjLPgfAXA, aJusgBmEbuk, 3kRX4bhCYEo, J6nUjVZFhI4; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table video_transcripts creator CNBC Make It, video ids 3csjLPgfAXA, aJusgBmEbuk, 3kRX4bhCYEo, J6nUjVZFhI4, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "start-reselling-goods-for-more-than-they-cost",
+   "values": {
+    "title": "Start reselling goods for more than they cost",
+    "recipe": "workflow:start-reselling-goods-for-more-than-they-cost",
+    "job": "Finds things that sell for more than they cost, checks what the same thing sold for, prices it realistically and lists it with the best conditions. For anyone who wants to turn unused things or cheap finds into cash.",
+    "produces": "A list of items each with its cost, the price similar items actually sold for, the price it is listed at and the margin, plus the number that sold.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to start reselling goods for more than they cost\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"thing-to-sell\", \"side-income-idea\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table video_transcripts creator CNBC Make It, video ids Pl5jYugr_fE, FHukqIbF5Zs, dA4msFWa4GQ; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table video_transcripts creator CNBC Make It, video ids Pl5jYugr_fE, FHukqIbF5Zs, dA4msFWa4GQ, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "start-selling-bought-goods-on-an-online-marketplace",
+   "values": {
+    "title": "Start selling bought goods on an online marketplace",
+    "recipe": "workflow:start-selling-bought-goods-on-an-online-marketplace",
+    "job": "Sets up a seller who buys goods from suppliers, checks the numbers on each, and lists those that make money. For anyone starting a resale business that buys from suppliers and sells through a large online marketplace.",
+    "produces": "A business with its own email and a basic page, a list of suppliers asked, a supplier price list checked item by item, and a first profitable product with its numbers.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to start selling bought goods on an online marketplace\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"business-to-start\", \"thing-to-sell\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table video_transcripts creator CNBC Make It, video ids Nwrg8Ae40yU, dFShOdo9-t8, wyeTpn1YLZU; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table video_transcripts creator CNBC Make It, video ids Nwrg8Ae40yU, dFShOdo9-t8, wyeTpn1YLZU, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped",
+   "values": {
+    "title": "Set aside a recurring hour to plan and clear what gets skipped",
+    "recipe": "workflow:set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped",
+    "job": "Sets up a weekly rhythm: three outcomes chosen on Monday, a protected hour to look at the calendar from above, a weekly hour for small put-off jobs, and a Friday review. For anyone who feels busy but behind.",
+    "produces": "Three written outcomes for the week, a protected hour and a power hour booked in the calendar, and a Friday note on what was done and why the rest was not.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to set aside a recurring hour to plan and clear what gets skipped\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"week-to-plan\", \"habit-to-change\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table video_transcripts creator CNBC Make It, video ids PH9O_H_sw8U, Ugd8U30h64I, nDobjrtV4Ik; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table video_transcripts creator CNBC Make It, video ids PH9O_H_sw8U, Ugd8U30h64I, nDobjrtV4Ik, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "build-an-unpaid-creator-network-around-a-product",
+   "values": {
+    "title": "Build an unpaid network of creators around a product",
+    "recipe": "workflow:build-an-unpaid-creator-network-around-a-product",
+    "job": "Sets up a person to send a product to many everyday creators, ask for nothing, offer a share of sales, and turn what they post into a steady stream of fresh content and ads. For a brand that cannot afford paid creators.",
+    "produces": "A named person who runs the network, a count of creators by how they came in, a standard offer, a way of collecting every post, and a weekly note of what the ads taught.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to build an unpaid network of creators around a product\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"thing-to-promote\", \"audience-to-reach\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table video_transcripts creator Elevator Goods, video ids 1Cn5ZzKcRZw, 1yEz3VwjfQM, UiOSwotsPw4, r1vGCNiRaUw, dsbVdvodoMY; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table video_transcripts creator Elevator Goods, video ids 1Cn5ZzKcRZw, 1yEz3VwjfQM, UiOSwotsPw4, r1vGCNiRaUw, dsbVdvodoMY, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "show-the-real-work-of-building-a-business-on-camera",
+   "values": {
+    "title": "Show the real work of building a business on camera",
+    "recipe": "workflow:show-the-real-work-of-building-a-business-on-camera",
+    "job": "Documents the daily work of building a business, not only the results, so the audience sees what it takes and the founder gains access to help, hires and money. For a founder who wants to start sharing.",
+    "produces": "A decision to start now, a simple way to capture the work as it happens, a first published piece that shows the work and not only the results, and a count of what came back in help and applications.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to show the real work of building a business on camera\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"business-to-start\", \"audience-to-reach\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table video_transcripts creator Elevator Goods, video ids Dv75Z992lt4, d1e5UiUcIug, o3pt5XhI1-U; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table video_transcripts creator Elevator Goods, video ids Dv75Z992lt4, d1e5UiUcIug, o3pt5XhI1-U, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "judge-whether-a-product-idea-is-worth-launching",
+   "values": {
+    "title": "Judge whether a product idea is worth launching",
+    "recipe": "workflow:judge-whether-a-product-idea-is-worth-launching",
+    "job": "Measures a product idea on market size and growth, unit economics, margin set before launch and repeat purchase fit, and gives a launch or do-not-launch answer. For a founder choosing between ideas.",
+    "produces": "A yes or no for launching the idea, with the numbers for market size, unit economics, margin and repeat cadence behind it.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to judge whether a product idea is worth launching\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"decision-to-make\", \"thing-to-sell\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table video_transcripts creator Elevator Goods, video ids zyaddp5s7tc, MS_fE6mnh8c, b9s3kCvTLpc, q5BIoed5sBU, j53tavXon5E; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table video_transcripts creator Elevator Goods, video ids zyaddp5s7tc, MS_fE6mnh8c, b9s3kCvTLpc, q5BIoed5sBU, j53tavXon5E, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
    }
   }
  ]

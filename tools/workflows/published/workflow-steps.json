@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "6fbe7ac021444f59d94686b3eca8e68a11b416ba4c4a9adf706c0c3b83d739f8",
+  "blake3": "cf8bf3d9ef6a6494dae566c327205ee84c760b413ad72e46d2852bad145184a4",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -48,6 +48,8 @@
     "build-an-agent-that-researches-and-returns-a-cited-report",
     "build-an-agent-that-sorts-incoming-mail-and-drafts-replies",
     "build-an-audience-with-traffic-hopper-and-conversion",
+    "build-an-unpaid-creator-network-around-a-product",
+    "build-muscle-with-hard-sessions-enough-food-and-sleep",
     "build-the-abilities-the-work-needs",
     "build-the-landing-page",
     "buy-and-deliver",
@@ -64,6 +66,7 @@
     "choose-a-change-worth-making",
     "choose-a-product-by-timing-differentiation-and-landed-margin",
     "choose-a-product-category-where-the-leader-has-stopped-caring",
+    "choose-and-package-a-long-video-idea-then-read-where-viewers-leave",
     "choose-audience-countries-by-payout",
     "choose-four-products-for-one-person",
     "choose-how-to-price-automation-work",
@@ -79,6 +82,7 @@
     "compare-designs-by-simulating-them-forward",
     "compare-several-designs-of-one-piece-of-interface",
     "compress-a-work-segment-into-observations-that-survive-context-loss",
+    "cut-spending-in-one-expense-area",
     "deepen-a-request-like-a-top-professional",
     "deliver-a-finished-automation-project",
     "deliver-it-and-keep-it-sustainable",
@@ -166,6 +170,7 @@
     "join-anonymous-visits-to-the-conversion-you-own",
     "judge-an-affiliate-program-before-joining",
     "judge-sound-by-measurement",
+    "judge-whether-a-product-idea-is-worth-launching",
     "judge-whether-a-pursuit-is-worth-the-persons-time",
     "keep-a-change-under-review-until-it-is-clean",
     "keep-a-changelog-from-what-shipped",
@@ -269,8 +274,10 @@
     "position-a-product-as-luxury-with-story-and-scarcity",
     "possibility-to-proof",
     "post-on-social-channels-on-a-schedule",
+    "prepare-a-home-for-a-fast-sale",
     "print-and-deliver",
     "prototype-a-product-flow-in-motion",
+    "prove-a-backup-restores-on-a-spare-computer",
     "prove-the-launch-on-the-real-url",
     "publish-a-project-as-a-public-repository",
     "publish-articles-and-newsletter-on-a-cadence",
@@ -318,6 +325,7 @@
     "run-a-guest-show-to-reach-target-buyers",
     "run-a-linkedin-content-system",
     "run-a-micro-creator-program-with-briefs-and-usage-rights",
+    "run-a-ninety-day-daily-block-of-proof-leads-and-conversations",
     "run-a-sale-weekend-with-a-staged-offer-and-primed-lists",
     "run-a-sales-call-by-a-stated-framework",
     "run-a-sales-pipeline-from-signals-to-booked-calls",
@@ -336,6 +344,7 @@
     "sell-what-the-pursuit-makes",
     "send-a-prospect-a-sample-made-for-them",
     "set-and-change-the-price-of-a-product",
+    "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped",
     "set-up-a-business-on-the-account",
     "set-up-a-recurring-task-that-is-safe-to-repeat",
     "set-up-a-standing-agent-loop",
@@ -349,6 +358,7 @@
     "ship-the-whole-branch-to-live",
     "show-every-state-of-a-component",
     "show-interest-and-build-attraction",
+    "show-the-real-work-of-building-a-business-on-camera",
     "sign-a-first-paying-client-for-an-automation-build",
     "simulate-a-choice-forward",
     "sort-every-task-by-whether-someone-else-can-take-it",
@@ -357,6 +367,8 @@
     "split-a-list-into-groups-that-are-worth-sending-to",
     "split-what-must-be-certain-from-what-an-ai-may-reason",
     "start-from-the-persons-own-work",
+    "start-reselling-goods-for-more-than-they-cost",
+    "start-selling-bought-goods-on-an-online-marketplace",
     "stress-test-one-component-under-every-scenario-that-can-reach-it",
     "take-apart-a-winning-ad-before-copying-it",
     "take-payments-with-stripe",
@@ -399,6 +411,7 @@
     "work-backward-from-a-ten-million-valuation",
     "work-backwards-from-available-names",
     "work-out-what-owning-a-small-business-really-pays-the-owner",
+    "work-out-what-to-save-each-month-to-reach-a-target-sum",
     "work-out-which-marketing-caused-the-revenue",
     "work-through-a-framework",
     "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
@@ -66074,6 +66087,2067 @@
     ],
     "part_of": [
      "workflow:get-a-first-client-with-free-tools-and-a-recorded-walkthrough"
+    ]
+   }
+  },
+  {
+   "id": "run-a-ninety-day-daily-block-of-proof-leads-and-conversations--write-the-goal-and-the-daily-sales-it-needs",
+   "values": {
+    "title": "Write the goal and the daily numbers for the next 90 days",
+    "recipe": [
+     "run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ],
+    "position": 0,
+    "step": "write-the-goal-and-the-daily-sales-it-needs",
+    "do": "Write the goal for the next 90 days as one small number, not the final dream. Work out what it needs per day: the price, the sales per month, then the sales per day, and how many of those must come from content, from the list and from the selling page. Choose the one way you want to grow (for example without paid ads) so the block fits it.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At the start, before the first block.",
+    "done_when": "The goal is one number with a date. The sales per day are written and are a size that daily work could reach.",
+    "if_missing": "Ask what number would count as progress, then use the next step up, not the last one.",
+    "why": "A goal split into daily numbers shows how little the daily work has to deliver, and a chosen way to grow stops the block from drifting. Ryan Daniel Moran's method, taught in 4 videos: growth cannot be forced, but the things that lead to sales can be done every day, so do a short fixed block of them for a set time and let the results compound.",
+    "good_answer": "'$25,000 a month at a $50 price is about 500 sales, about 14 a day.' Fails: 'grow a lot' or a goal with no date.",
+    "came_from": [
+     "Ryan Daniel Moran's method, taught in 4 videos",
+     "https://www.youtube.com/watch?v=bevwj7cs9zU",
+     "https://www.youtube.com/watch?v=opbXD5SB98k",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Build_A_1M_E-Commerce_Business_In_2_Hours_Day_CAP_RDM.mp3?dest-id=203381",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Full_Cut_1.mp3?dest-id=203381"
+    ],
+    "part_of": [
+     "workflow:run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ]
+   }
+  },
+  {
+   "id": "run-a-ninety-day-daily-block-of-proof-leads-and-conversations--list-what-you-already-have-and-what-got-you-here",
+   "values": {
+    "title": "List what you already have and what produced your sales so far",
+    "recipe": [
+     "run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ],
+    "position": 1,
+    "step": "list-what-you-already-have-and-what-got-you-here",
+    "do": "List every asset already in hand: the list of contacts, the followers, the people who replied, the people who may share your work, past customers, reviews, photos, messages and screenshots people sent. Find what produced the sales so far. Do more of that before adding anything new.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Before choosing the block.",
+    "done_when": "Every asset is named with a count, and the thing that produced the current sales is written down.",
+    "if_missing": "If nothing sold yet, list the people who already showed interest and what they said.",
+    "why": "The same sources that produced the current sales usually have more in them, and new tactics take attention from what already works. Ryan Daniel Moran's method, taught in 4 videos: growth cannot be forced, but the things that lead to sales can be done every day, so do a short fixed block of them for a set time and let the results compound.",
+    "good_answer": "'247 followers, 57 list contacts, 7 people who may share, 13 reviews.' Fails: a list of things you wish you had.",
+    "came_from": [
+     "Ryan Daniel Moran's method, taught in 4 videos",
+     "https://www.youtube.com/watch?v=bevwj7cs9zU",
+     "https://www.youtube.com/watch?v=opbXD5SB98k",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Build_A_1M_E-Commerce_Business_In_2_Hours_Day_CAP_RDM.mp3?dest-id=203381",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Full_Cut_1.mp3?dest-id=203381"
+    ],
+    "part_of": [
+     "workflow:run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ]
+   }
+  },
+  {
+   "id": "run-a-ninety-day-daily-block-of-proof-leads-and-conversations--choose-the-content-that-grows-reach-and-set-the-block",
+   "values": {
+    "title": "Choose the content and write the daily block as a checklist",
+    "recipe": [
+     "run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ],
+    "position": 2,
+    "step": "choose-the-content-that-grows-reach-and-set-the-block",
+    "do": "Decide which kind of content makes more people want to buy from you (the source's example was proof from customers). Set one daily block of 2 to 3 hours with fixed parts: 30 minutes to gather, 30 minutes to post and send people to one place, at least 5 conversations, and 30 minutes of outreach. Write it as a checklist.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the assets are listed.",
+    "done_when": "A checklist exists with a fixed time for each part and a fixed place in the morning.",
+    "if_missing": "If 2 hours is too much, shorten each part but keep every part.",
+    "why": "The block is small enough to repeat for a long time, and a checklist makes finishing it the win rather than the sales result. Ryan Daniel Moran's method, taught in 4 videos: growth cannot be forced, but the things that lead to sales can be done every day, so do a short fixed block of them for a set time and let the results compound.",
+    "good_answer": "'30 min proof, 30 min post and capture, 5 messages, 30 min outreach, first thing every morning.' Fails: 'do marketing when I can'.",
+    "came_from": [
+     "Ryan Daniel Moran's method, taught in 4 videos",
+     "https://www.youtube.com/watch?v=bevwj7cs9zU",
+     "https://www.youtube.com/watch?v=opbXD5SB98k",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Build_A_1M_E-Commerce_Business_In_2_Hours_Day_CAP_RDM.mp3?dest-id=203381",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Full_Cut_1.mp3?dest-id=203381"
+    ],
+    "part_of": [
+     "workflow:run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ]
+   }
+  },
+  {
+   "id": "run-a-ninety-day-daily-block-of-proof-leads-and-conversations--gather-proof-for-thirty-minutes",
+   "values": {
+    "title": "Gather proof from buyers for 30 minutes a day",
+    "recipe": [
+     "run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ],
+    "position": 3,
+    "step": "gather-proof-for-thirty-minutes",
+    "do": "Each day spend 30 minutes collecting what buyers and friends say about the product: new review requests, messages, screenshots, videos people sent, past customer emails, comments. Save each piece with its source so it can be posted and used again.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Every day, in the block.",
+    "done_when": "At least one new saved piece of proof, with where it came from, or one new request for it sent.",
+    "if_missing": "If there are no buyers yet, ask friends who used it and past contacts who tried a sample.",
+    "why": "Proof posted by others is the content that makes strangers buy, and every conversation feeds it. Ryan Daniel Moran's method, taught in 4 videos: growth cannot be forced, but the things that lead to sales can be done every day, so do a short fixed block of them for a set time and let the results compound.",
+    "good_answer": "'Saved 2 screenshots, asked 3 buyers for a review.' Fails: nothing saved, or proof written by you.",
+    "came_from": [
+     "Ryan Daniel Moran's method, taught in 4 videos",
+     "https://www.youtube.com/watch?v=bevwj7cs9zU",
+     "https://www.youtube.com/watch?v=opbXD5SB98k",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Build_A_1M_E-Commerce_Business_In_2_Hours_Day_CAP_RDM.mp3?dest-id=203381",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Full_Cut_1.mp3?dest-id=203381"
+    ],
+    "part_of": [
+     "workflow:run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ]
+   }
+  },
+  {
+   "id": "run-a-ninety-day-daily-block-of-proof-leads-and-conversations--post-it-and-send-all-attention-to-one-capture-place",
+   "values": {
+    "title": "Post proof and send all attention to one capture place",
+    "recipe": [
+     "run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ],
+    "position": 4,
+    "step": "post-it-and-send-all-attention-to-one-capture-place",
+    "do": "Post the proof and a call to action in the places where your buyers are, and send everything to one place that takes a contact address, with a first-buyer incentive such as a discount on the first order. Do not point people to many places.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Every day, in the block.",
+    "done_when": "The day's post is out, every link leads to the one capture place, and the first-buyer incentive is stated there.",
+    "if_missing": "If the capture place does not exist yet, make it first, with the one promise that converts best.",
+    "why": "A person who gives a contact address for a discount is a likely buyer, and scattering the same small attention across many places grows none of them. Ryan Daniel Moran's method, taught in 4 videos: growth cannot be forced, but the things that lead to sales can be done every day, so do a short fixed block of them for a set time and let the results compound.",
+    "good_answer": "'1 post and 2 stories, one link, $15 off the first order.' Fails: links to a shop, a group, a booking page and a quiz at once.",
+    "came_from": [
+     "Ryan Daniel Moran's method, taught in 4 videos",
+     "https://www.youtube.com/watch?v=bevwj7cs9zU",
+     "https://www.youtube.com/watch?v=opbXD5SB98k",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Build_A_1M_E-Commerce_Business_In_2_Hours_Day_CAP_RDM.mp3?dest-id=203381",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Full_Cut_1.mp3?dest-id=203381"
+    ],
+    "part_of": [
+     "workflow:run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ]
+   }
+  },
+  {
+   "id": "run-a-ninety-day-daily-block-of-proof-leads-and-conversations--open-five-conversations-with-people-who-engaged",
+   "values": {
+    "title": "Open at least five personal conversations a day",
+    "recipe": [
+     "run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ],
+    "position": 5,
+    "step": "open-five-conversations-with-people-who-engaged",
+    "do": "Write personally to at least 5 people who followed, commented, replied or joined the list. Thank them, ask what brought them, and ask for feedback or a review in a kind way. Save what they say as proof when they agree.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Every day, in the block.",
+    "done_when": "At least 5 personal messages sent, and the replies saved with proof marked.",
+    "if_missing": "If no one engaged today, write to recent buyers and thank them.",
+    "why": "One person who is met well often becomes a buyer, a review or a video, and these conversations make the next day's proof. Ryan Daniel Moran's method, taught in 4 videos: growth cannot be forced, but the things that lead to sales can be done every day, so do a short fixed block of them for a set time and let the results compound.",
+    "good_answer": "'5 messages sent, 2 replies, 1 review promised.' Fails: copied text sent to everyone.",
+    "came_from": [
+     "Ryan Daniel Moran's method, taught in 4 videos",
+     "https://www.youtube.com/watch?v=bevwj7cs9zU",
+     "https://www.youtube.com/watch?v=opbXD5SB98k",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Build_A_1M_E-Commerce_Business_In_2_Hours_Day_CAP_RDM.mp3?dest-id=203381",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Full_Cut_1.mp3?dest-id=203381"
+    ],
+    "part_of": [
+     "workflow:run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ]
+   }
+  },
+  {
+   "id": "run-a-ninety-day-daily-block-of-proof-leads-and-conversations--reach-out-to-people-who-can-share-it-and-email-the-list",
+   "values": {
+    "title": "Reach out to people who can share it and email the list",
+    "recipe": [
+     "run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ],
+    "position": 6,
+    "step": "reach-out-to-people-who-can-share-it-and-email-the-list",
+    "do": "For 30 minutes write to people your buyers trust and offer them the product, and send one message to your list that uses the new proof. Do not control what they do with it; plant the offer and continue.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Every day, in the block.",
+    "done_when": "Outreach messages sent and the list mailed with at least one proof item, with a count of each.",
+    "if_missing": "If you have nobody to write to, ask each buyer who they know who has the same problem.",
+    "why": "People answer when they can see others who love the product, which is why proof is posted before outreach. Ryan Daniel Moran's method, taught in 4 videos: growth cannot be forced, but the things that lead to sales can be done every day, so do a short fixed block of them for a set time and let the results compound.",
+    "good_answer": "'4 messages to people with followers, 1 email to the list with a buyer's words.' Fails: sending the same request to ten people with no proof.",
+    "came_from": [
+     "Ryan Daniel Moran's method, taught in 4 videos",
+     "https://www.youtube.com/watch?v=bevwj7cs9zU",
+     "https://www.youtube.com/watch?v=opbXD5SB98k",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Build_A_1M_E-Commerce_Business_In_2_Hours_Day_CAP_RDM.mp3?dest-id=203381",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Full_Cut_1.mp3?dest-id=203381"
+    ],
+    "part_of": [
+     "workflow:run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ]
+   }
+  },
+  {
+   "id": "run-a-ninety-day-daily-block-of-proof-leads-and-conversations--keep-the-block-for-ninety-days-and-count-the-work",
+   "values": {
+    "title": "Run the block for ninety days and count the work",
+    "recipe": [
+     "run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ],
+    "position": 7,
+    "step": "keep-the-block-for-ninety-days-and-count-the-work",
+    "do": "Run the block every day for 90 days without changing the plan. Tick the checklist each day as the win. Once a week count what grew: contacts, reviews, proof saved, conversations, sales. If something looks slow, keep going; change nothing until the 90 days end.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Daily for 90 days, counted weekly.",
+    "done_when": "The checklist is ticked on most days, and a weekly count shows the numbers moving.",
+    "if_missing": "If days are missed, shorten the block but never skip all of it.",
+    "why": "The hard part is not the work, it is not deviating before results show, and a time limit makes it an experiment with a gain either way. Ryan Daniel Moran's method, taught in 4 videos: growth cannot be forced, but the things that lead to sales can be done every day, so do a short fixed block of them for a set time and let the results compound.",
+    "good_answer": "'Week 6: 40 new contacts, 9 reviews, sales up from 17k to 33k a month.' Fails: switching to a new tactic in week 3.",
+    "came_from": [
+     "Ryan Daniel Moran's method, taught in 4 videos",
+     "https://www.youtube.com/watch?v=bevwj7cs9zU",
+     "https://www.youtube.com/watch?v=opbXD5SB98k",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Build_A_1M_E-Commerce_Business_In_2_Hours_Day_CAP_RDM.mp3?dest-id=203381",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Full_Cut_1.mp3?dest-id=203381"
+    ],
+    "part_of": [
+     "workflow:run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ]
+   }
+  },
+  {
+   "id": "run-a-ninety-day-daily-block-of-proof-leads-and-conversations--record-what-grew-and-what-matters-most-next",
+   "values": {
+    "title": "Record what grew and what matters most",
+    "recipe": [
+     "run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ],
+    "position": 8,
+    "step": "record-what-grew-and-what-matters-most-next",
+    "do": "At day 90 write what grew, by how much, and which part of the block produced the most. Write the one habit worth doubling and the one place the attention should compound. Keep this record where you keep your records for this pursuit.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At the end of the 90 days.",
+    "done_when": "One page: starting and ending numbers, the best part of the block, and what matters most now.",
+    "if_missing": "If the numbers did not move, record which part was skipped or changed.",
+    "why": "The record turns 90 days of habits into what to keep doing and what to try, so the next choice is made from facts. Ryan Daniel Moran's method, taught in 4 videos: growth cannot be forced, but the things that lead to sales can be done every day, so do a short fixed block of them for a set time and let the results compound.",
+    "good_answer": "'List grew from 57 to 410; proof posts brought the most sales; double the conversations.' Fails: only a feeling that it went well.",
+    "came_from": [
+     "Ryan Daniel Moran's method, taught in 4 videos",
+     "https://www.youtube.com/watch?v=bevwj7cs9zU",
+     "https://www.youtube.com/watch?v=opbXD5SB98k",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Build_A_1M_E-Commerce_Business_In_2_Hours_Day_CAP_RDM.mp3?dest-id=203381",
+     "https://traffic.libsyn.com/secure/freedomfastlane/Full_Cut_1.mp3?dest-id=203381"
+    ],
+    "part_of": [
+     "workflow:run-a-ninety-day-daily-block-of-proof-leads-and-conversations"
+    ]
+   }
+  },
+  {
+   "id": "prove-a-backup-restores-on-a-spare-computer--read-what-is-backed-up",
+   "values": {
+    "title": "Read what is backed up and where",
+    "recipe": [
+     "prove-a-backup-restores-on-a-spare-computer"
+    ],
+    "position": 0,
+    "step": "read-what-is-backed-up",
+    "do": "Read each computer's own row wherever the person keeps it. For each store it keeps (a database, a folder of files), list the backup it declares: where the copies go, how often, the newest copy's time, and the vault name of the key that reads them. Read the newest copy's time from the backup place itself, not from the row.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "When the run starts.",
+    "done_when": "Each store is listed with its backup place, its schedule, its read key's vault name, and the newest copy's time as read from the backup place.",
+    "if_missing": "When a step needs what only the person holds (a credential, approval of a price for the spare computer), put it in open with exactly what is needed and stop before starting anything that costs money.",
+    "why": "A backup nobody has listed is never drilled.",
+    "good_answer": "Passes: 'pursuits database: copies to the object store bucket every 6 h, newest 2026-11-18 17:00, read key named in the vault'. Fails: a time copied from the row, or a store with no backup left off the list.",
+    "came_from": [
+     "The roadmap's backup item (a restore drill of a database's backup on a scratch computer; the time is written, and a backup with no passed drill counts as unproven), Nov 18 2026; and the industry practice that a backup is proven only by restoring it"
+    ],
+    "part_of": [
+     "workflow:prove-a-backup-restores-on-a-spare-computer"
+    ]
+   }
+  },
+  {
+   "id": "prove-a-backup-restores-on-a-spare-computer--get-a-spare-computer",
+   "values": {
+    "title": "Get a spare computer for the drill",
+    "recipe": [
+     "prove-a-backup-restores-on-a-spare-computer"
+    ],
+    "position": 1,
+    "step": "get-a-spare-computer",
+    "do": "Get a spare computer that runs the same program version as the store's own computer, from a description written as a row, sized to hold the restored copy. It is not the live computer, and it has no public name. Write down its price per hour and when it will be removed.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After 'Read what is backed up and where'.",
+    "done_when": "A spare computer exists, its row and price are recorded, and it shares nothing with the live computer except read access to the backup place.",
+    "if_missing": "When a step needs what only the person holds (a credential, approval of a price for the spare computer), put it in open with exactly what is needed and stop before starting anything that costs money.",
+    "why": "A drill on the live computer can destroy the thing it is proving.",
+    "good_answer": "Passes: 'spare: 4 GB, same database version, no public name, 0.01 per hour, removed at the end of this run'. Fails: restoring onto the live computer, or a spare that can write to the backup place.",
+    "came_from": [
+     "The roadmap's backup item (a restore drill of a database's backup on a scratch computer; the time is written, and a backup with no passed drill counts as unproven), Nov 18 2026; and the industry practice that a backup is proven only by restoring it"
+    ],
+    "part_of": [
+     "workflow:prove-a-backup-restores-on-a-spare-computer"
+    ]
+   }
+  },
+  {
+   "id": "prove-a-backup-restores-on-a-spare-computer--restore-the-newest-copy",
+   "values": {
+    "title": "Restore the newest copy and time it",
+    "recipe": [
+     "prove-a-backup-restores-on-a-spare-computer"
+    ],
+    "position": 2,
+    "step": "restore-the-newest-copy",
+    "do": "On the spare computer, restore the newest copy with the backup's own restore command, reading it with the read key from the vault. Write down the start time, the end time and every error. Then bring the store up and read that it answers.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After 'Get a spare computer for the drill'.",
+    "done_when": "The restore ends, the store answers on the spare computer, and the minutes it took are written.",
+    "if_missing": "When a step needs what only the person holds (a credential, approval of a price for the spare computer), put it in open with exactly what is needed and stop before starting anything that costs money.",
+    "why": "The time to restore is what an outage will cost.",
+    "good_answer": "Passes: 'restored 3.1 GB in 7 min 40 s, the database answers, no errors'. Fails: 'restore started' with no end, or a store that will not start counted as a pass.",
+    "came_from": [
+     "The roadmap's backup item (a restore drill of a database's backup on a scratch computer; the time is written, and a backup with no passed drill counts as unproven), Nov 18 2026; and the industry practice that a backup is proven only by restoring it"
+    ],
+    "part_of": [
+     "workflow:prove-a-backup-restores-on-a-spare-computer"
+    ]
+   }
+  },
+  {
+   "id": "prove-a-backup-restores-on-a-spare-computer--compare-the-copy-with-the-live-store",
+   "values": {
+    "title": "Compare the copy with the live store",
+    "recipe": [
+     "prove-a-backup-restores-on-a-spare-computer"
+    ],
+    "position": 3,
+    "step": "compare-the-copy-with-the-live-store",
+    "do": "For each table, folder or list in the store, count its items on the restored copy and on the live store, and read the newest item's time on each. The copy is good when every count matches up to the copy's time and nothing newer than its time is missing beyond what the schedule allows.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After 'Restore the newest copy and time it'.",
+    "done_when": "Each part has its live and restored counts and newest times, and a pass or a fail with the reason.",
+    "if_missing": "When a step needs what only the person holds (a credential, approval of a price for the spare computer), put it in open with exactly what is needed and stop before starting anything that costs money.",
+    "why": "A restore that starts but lost data is not a backup.",
+    "good_answer": "Passes: 'rows: live 41,233, copy 41,190, the 43 missing are newer than the copy's time (6 h schedule)'. Fails: 'looks complete', or a count read from only one side.",
+    "came_from": [
+     "The roadmap's backup item (a restore drill of a database's backup on a scratch computer; the time is written, and a backup with no passed drill counts as unproven), Nov 18 2026; and the industry practice that a backup is proven only by restoring it"
+    ],
+    "part_of": [
+     "workflow:prove-a-backup-restores-on-a-spare-computer"
+    ]
+   }
+  },
+  {
+   "id": "prove-a-backup-restores-on-a-spare-computer--remove-the-spare-and-record-the-drill",
+   "values": {
+    "title": "Remove the spare computer and record the drill",
+    "recipe": [
+     "prove-a-backup-restores-on-a-spare-computer"
+    ],
+    "position": 4,
+    "step": "remove-the-spare-and-record-the-drill",
+    "do": "Remove the spare computer through its row and read back that it is gone. Then keep the drill wherever the person keeps this pursuit's rows: the store, the copy's time, the minutes to restore, the count comparison, pass or fail, and today's date. A store whose newest pass is older than the person's own interval counts as unproven.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After 'Compare the copy with the live store'.",
+    "done_when": "The spare is gone, read back, and one drill row per store holds its pass or fail, its minutes and its date.",
+    "if_missing": "When a step needs what only the person holds (a credential, approval of a price for the spare computer), put it in open with exactly what is needed and stop before starting anything that costs money.",
+    "why": "The next check needs the date of the last good drill.",
+    "good_answer": "Passes: 'spare removed 18:52; drill kept: pursuits database, pass, 7 min 40 s, 2026-11-18'. Fails: a spare left running, or a pass kept without the counts.",
+    "came_from": [
+     "The roadmap's backup item (a restore drill of a database's backup on a scratch computer; the time is written, and a backup with no passed drill counts as unproven), Nov 18 2026; and the industry practice that a backup is proven only by restoring it"
+    ],
+    "part_of": [
+     "workflow:prove-a-backup-restores-on-a-spare-computer"
+    ]
+   }
+  },
+  {
+   "id": "choose-and-package-a-long-video-idea-then-read-where-viewers-leave--find-videos-that-beat-their-channel-average",
+   "values": {
+    "title": "Find videos that beat their channel average",
+    "recipe": [
+     "choose-and-package-a-long-video-idea-then-read-where-viewers-leave"
+    ],
+    "position": 0,
+    "step": "find-videos-that-beat-their-channel-average",
+    "do": "List videos in the niche you want to reach and, for each, the channel's usual views and this video's views. Mark any video at 30 times or more its channel's average. For each marked video and its ordinary neighbours, write what differs: the title, the thumbnail, the format, the style. Judge views and the shape of the viewer-retention curve; do not rank by click rate or average watch time alone, because a three-hour video can raise average watch time without being better.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Before choosing what to make next.",
+    "done_when": "A table of at least 5 marked videos, each with channel average, views, the multiple, and the one packaging or format difference from its neighbours.",
+    "if_missing": "If no tool shows channel averages, work them out by hand from the creator's last 10 videos.",
+    "why": "A video that beats its own channel's average shows what the viewers chose, and the difference between it and its neighbours is usually packaging, not the editing or the intro.",
+    "good_answer": "Passes: 'a 40x video; its neighbours used a talking-head thumbnail, this one shows the odd object with the question as the title'. Fails: 'these did well because the creator is famous'.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator='Open Residency', videos Z2uoA3bhJT0 (6 parts), Yl_HLGoWWJE (5 parts), VcqQmrGqthg (6 parts) (taught in 3 videos)"
+    ],
+    "part_of": [
+     "workflow:choose-and-package-a-long-video-idea-then-read-where-viewers-leave"
+    ]
+   }
+  },
+  {
+   "id": "choose-and-package-a-long-video-idea-then-read-where-viewers-leave--say-the-idea-in-one-line-a-glance-can-read",
+   "values": {
+    "title": "Say the idea in one line a glance can read",
+    "recipe": [
+     "choose-and-package-a-long-video-idea-then-read-where-viewers-leave"
+    ],
+    "position": 1,
+    "step": "say-the-idea-in-one-line-a-glance-can-read",
+    "do": "Write the video's idea as one plain sentence, a log line. Test it three ways: a person who knows nothing about the subject understands it at one glance; it has a question or a twist a viewer would want answered; it has something to see, not only something to say. If it needs a long title, many parts or special words, it is a thought, not an idea; cut it down or drop it. Also write the floor: how many views a dull version with a plain title would still get from your most loyal viewers. The idea decides how far above that floor the video can go.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After step 1 gave you what works, before you shoot anything.",
+    "done_when": "A one-line idea, the answer to each of the three tests, and a floor number.",
+    "if_missing": "If the idea does not pass, write 3 other ideas from the marked videos and test each the same way.",
+    "why": "Every viewer decides in a glance. If you cannot say the idea in one line, they cannot understand it in one glance.",
+    "good_answer": "Passes: 'Why does this reservoir hold 96 million black balls?' with three yes answers. Fails: 'A deep look at several ideas about water, with context'.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator='Open Residency', videos Z2uoA3bhJT0 (6 parts), Yl_HLGoWWJE (5 parts), VcqQmrGqthg (6 parts) (taught in 3 videos)"
+    ],
+    "part_of": [
+     "workflow:choose-and-package-a-long-video-idea-then-read-where-viewers-leave"
+    ]
+   }
+  },
+  {
+   "id": "choose-and-package-a-long-video-idea-then-read-where-viewers-leave--design-the-title-and-thumbnail-before-making-the-video",
+   "values": {
+    "title": "Design the title and thumbnail before making the video",
+    "recipe": [
+     "choose-and-package-a-long-video-idea-then-read-where-viewers-leave"
+    ],
+    "position": 2,
+    "step": "design-the-title-and-thumbnail-before-making-the-video",
+    "do": "Before recording or editing, make many thumbnail concepts and several titles for the one-line idea. For each, name the curiosity gap: the distance between what the viewer is shown and what they would want to know. Prefer a simple twist on a form the viewer already knows over a complex design. Ask of each: is it intriguing enough that someone spends this much time on it, and does it show something to look at. Choose one pair, and if none is intriguing enough, the idea may belong in another form, such as a short clip, a post or an email, not a long video.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the idea passes, before shooting.",
+    "done_when": "At least 10 title and thumbnail concepts, each with its curiosity gap in a sentence, and one chosen pair.",
+    "if_missing": "If you have time for few concepts, make at least 10 and have a person who does not know the idea say what they think the video is about.",
+    "why": "The click is about half of what decides whether a video spreads; without it the best video is never seen.",
+    "good_answer": "Passes: 'gap: why would anyone fill a reservoir with black balls; twist: a familiar burger, coloured wrong'. Fails: 'looks nice'.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator='Open Residency', videos Z2uoA3bhJT0 (6 parts), Yl_HLGoWWJE (5 parts), VcqQmrGqthg (6 parts) (taught in 3 videos)"
+    ],
+    "part_of": [
+     "workflow:choose-and-package-a-long-video-idea-then-read-where-viewers-leave"
+    ]
+   }
+  },
+  {
+   "id": "choose-and-package-a-long-video-idea-then-read-where-viewers-leave--write-an-opening-that-opens-small-questions",
+   "values": {
+    "title": "Write an opening that opens small questions",
+    "recipe": [
+     "choose-and-package-a-long-video-idea-then-read-where-viewers-leave"
+    ],
+    "position": 3,
+    "step": "write-an-opening-that-opens-small-questions",
+    "do": "Write the opening so it uses as little context as possible. Do not explain the subject or introduce the guest at length. Open several small questions in the viewer's mind that the video will answer later, and say what is coming in words that make the viewer want it. If the video is a list, say how many items there are and reveal them slowly, not all at the start. Plan a fresh question or a re-hook every 10 to 20 seconds, because attention is earned again and again, never kept for good once earned. The opening, the title and the thumbnail must say the same thing.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the title and thumbnail are chosen, before the script is final.",
+    "done_when": "The opening text, with each question it opens listed and a mark where each is answered or re-opened.",
+    "if_missing": "If the opening needs context to make sense, move the context to the point where the video needs it.",
+    "why": "Viewers who feel the promise in the opening stay; confusion in the first seconds sends them away.",
+    "good_answer": "Passes: 'opens 3 questions in 25 seconds; question 1 is answered at 4:10'. Fails: 'starts with who I am and the history of the subject'.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator='Open Residency', videos Z2uoA3bhJT0 (6 parts), Yl_HLGoWWJE (5 parts), VcqQmrGqthg (6 parts) (taught in 3 videos)"
+    ],
+    "part_of": [
+     "workflow:choose-and-package-a-long-video-idea-then-read-where-viewers-leave"
+    ]
+   }
+  },
+  {
+   "id": "choose-and-package-a-long-video-idea-then-read-where-viewers-leave--read-the-first-thirty-seconds-and-where-viewers-leave",
+   "values": {
+    "title": "Read the first thirty seconds and where viewers leave",
+    "recipe": [
+     "choose-and-package-a-long-video-idea-then-read-where-viewers-leave"
+    ],
+    "position": 4,
+    "step": "read-the-first-thirty-seconds-and-where-viewers-leave",
+    "do": "When the video has run long enough to show a pattern, read its views and its retention curve. Check the first 30 seconds first, since that shows whether the video matched what the packaging promised. A normal curve falls smoothly; look for a cliff, a sudden drop at one point, and at that point read what was said and shown, because it is usually something viewers did not understand or visuals that did not fit the words. Put the video beside a winner from step 1 and write the single most likely difference. Change that one thing in the next video.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After a video has been out long enough to show a pattern.",
+    "done_when": "For the video: views against the channel average, the first-30-seconds reading, each cliff with its time and cause, and the one change for next time.",
+    "if_missing": "If the video has too few views to read, say so and wait; do not change the plan on a handful of views.",
+    "why": "Views include the click, the watch and the satisfaction, so they are hard to fool; the curve shows where a fix will pay off.",
+    "good_answer": "Passes: 'cliff at 0:42: the words said the guest's name while the screen showed a graph; next video: say what the screen shows'. Fails: 'retention looks fine'.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator='Open Residency', videos Z2uoA3bhJT0 (6 parts), Yl_HLGoWWJE (5 parts), VcqQmrGqthg (6 parts) (taught in 3 videos)"
+    ],
+    "part_of": [
+     "workflow:choose-and-package-a-long-video-idea-then-read-where-viewers-leave"
+    ]
+   }
+  },
+  {
+   "id": "choose-and-package-a-long-video-idea-then-read-where-viewers-leave--record-what-you-found-and-what-matters-most",
+   "values": {
+    "title": "Record what you found and what matters most",
+    "recipe": [
+     "choose-and-package-a-long-video-idea-then-read-where-viewers-leave"
+    ],
+    "position": 5,
+    "step": "record-what-you-found-and-what-matters-most",
+    "do": "Write down which marked videos you studied, the idea you chose and its floor, the title and thumbnail pair, how the opening worked, and what the retention curve showed. End with the one finding that matters most for the next video, stated as a sentence a stranger could act on.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At the end of the run.",
+    "done_when": "A record with each item above and one 'matters most' sentence.",
+    "if_missing": "If nothing clear came out, record that and what one number you will check next time.",
+    "why": "A run that records what it learned makes the next one start higher.",
+    "good_answer": "Passes: 'matters most: the first 30 seconds lost 40% because the title promised a result the opening did not mention'. Fails: 'a list of everything we did'.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator='Open Residency', videos Z2uoA3bhJT0 (6 parts), Yl_HLGoWWJE (5 parts), VcqQmrGqthg (6 parts) (taught in 3 videos)"
+    ],
+    "part_of": [
+     "workflow:choose-and-package-a-long-video-idea-then-read-where-viewers-leave"
+    ]
+   }
+  },
+  {
+   "id": "build-muscle-with-hard-sessions-enough-food-and-sleep--set-the-weekly-training-so-each-session-is-hard",
+   "values": {
+    "title": "Set the weekly training so each session is hard",
+    "recipe": [
+     "build-muscle-with-hard-sessions-enough-food-and-sleep"
+    ],
+    "position": 0,
+    "step": "set-the-weekly-training-so-each-session-is-hard",
+    "do": "Choose 3 or 4 training days a week, 5 at most. Make the sessions full-body, or arrange them so each muscle group is trained about twice a week. Use fewer hard working sets, not more easy ones, and mostly low-to-moderate rep ranges; the sources disagree on how low, so test your own and keep what leaves you strong and not too sore to train again in two days. The aim is to make each session as strong a signal to grow as it can be. If you have the energy for six or seven days, the sessions are not hard enough or the volume is too high.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "When you begin or reset a muscle-building block.",
+    "done_when": "A written weekly plan: the days, what each trains, hard working sets per muscle, and the rep range.",
+    "if_missing": "If you can only train 2 days, make both full-body and say so; do not add sets to fill the gap.",
+    "why": "A muscle grows from a strong signal it can recover from; more days of tired sessions give less.",
+    "good_answer": "Passes: '4 days, upper and lower, each muscle twice, 10 to 12 hard sets per muscle a week, 5 to 10 reps'. Fails: 'train every day'.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator='First Things THRST With Mike Thurston', videos jpjqNtc2U-k (3 parts), tCqN0Ijicp0 (3 parts), 4aUH0ha3Zxs (4 parts), Al0UuX_73RE (2 parts) (taught in 4 videos)"
+    ],
+    "part_of": [
+     "workflow:build-muscle-with-hard-sessions-enough-food-and-sleep"
+    ]
+   }
+  },
+  {
+   "id": "build-muscle-with-hard-sessions-enough-food-and-sleep--log-each-set-and-beat-the-last-session",
+   "values": {
+    "title": "Log each set and beat the last session",
+    "recipe": [
+     "build-muscle-with-hard-sessions-enough-food-and-sleep"
+    ],
+    "position": 1,
+    "step": "log-each-set-and-beat-the-last-session",
+    "do": "For each working set, write the weight, the reps and how close to failure it ended. In the next session for that lift, aim to add a rep or a little weight at the same closeness to failure. Pay attention to the pain, the technique, how the joints feel, and whether you feel the target muscle working. Do not train to failure on every set; track the nearness instead.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At every training session.",
+    "done_when": "A log in which each lift shows the previous and the current session's weight, reps and nearness to failure.",
+    "if_missing": "If you did not log, treat the session as unmeasured and repeat the weights from the last logged one.",
+    "why": "What you do not write down you cannot beat, and what you cannot beat is not growth.",
+    "good_answer": "Passes: 'bench 100 kg: 8 reps, 2 left last week; 9 reps, 2 left today'. Fails: 'felt heavy'.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator='First Things THRST With Mike Thurston', videos jpjqNtc2U-k (3 parts), tCqN0Ijicp0 (3 parts), 4aUH0ha3Zxs (4 parts), Al0UuX_73RE (2 parts) (taught in 4 videos)"
+    ],
+    "part_of": [
+     "workflow:build-muscle-with-hard-sessions-enough-food-and-sleep"
+    ]
+   }
+  },
+  {
+   "id": "build-muscle-with-hard-sessions-enough-food-and-sleep--eat-a-small-surplus-with-enough-protein",
+   "values": {
+    "title": "Eat a small surplus with enough protein",
+    "recipe": [
+     "build-muscle-with-hard-sessions-enough-food-and-sleep"
+    ],
+    "position": 2,
+    "step": "eat-a-small-surplus-with-enough-protein",
+    "do": "Eat slightly more than you burn, enough to add mass slowly over a long time, in years and not weeks. Set protein at about one gram per pound of body weight a day; the sources agree that more than about 1.5 grams per pound adds little, and that undereating protein makes it hard to build or keep muscle. If you eat the same meals each day you can count once and stop counting. Do not squeeze protein so high that carbohydrates and fats fall and training suffers.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Every day while building.",
+    "done_when": "A daily protein number in grams, a rough calorie intake against what you burn, and a body-weight trend that rises slowly.",
+    "if_missing": "If you do not know your intake, write down what you eat for 3 ordinary days and add it up.",
+    "why": "Muscle is built from surplus energy and protein; a slow surplus adds muscle without adding as much fat.",
+    "good_answer": "Passes: 'weight 80 kg, protein 175 g, about 300 kcal over, gaining 0.25 kg a month'. Fails: 'eating a lot'.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator='First Things THRST With Mike Thurston', videos jpjqNtc2U-k (3 parts), tCqN0Ijicp0 (3 parts), 4aUH0ha3Zxs (4 parts), Al0UuX_73RE (2 parts) (taught in 4 videos)"
+    ],
+    "part_of": [
+     "workflow:build-muscle-with-hard-sessions-enough-food-and-sleep"
+    ]
+   }
+  },
+  {
+   "id": "build-muscle-with-hard-sessions-enough-food-and-sleep--protect-sleep-and-limit-what-wrecks-it",
+   "values": {
+    "title": "Protect sleep and limit what wrecks it",
+    "recipe": [
+     "build-muscle-with-hard-sessions-enough-food-and-sleep"
+    ],
+    "position": 3,
+    "step": "protect-sleep-and-limit-what-wrecks-it",
+    "do": "Aim for about eight hours a night in a dark, cool room. Keep a regular time. Cut alcohol, which the sources say disrupts sleep, the next day's training and how the body is made up. When you travel and sleep suffers, say so and lower that week's training load. Note the cost of poor sleep: people who slept less lost more muscle while losing fat.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Every night.",
+    "done_when": "A sleep log that shows hours and the nights below seven, and what was changed after a bad night.",
+    "if_missing": "If you cannot measure sleep, record the time you went to bed and the time you woke.",
+    "why": "Growth happens in recovery; poor sleep takes back what training put in.",
+    "good_answer": "Passes: 'averaged 7.1 hours; two nights under 6 after drinks; no alcohol on training eves now'. Fails: 'sleep is fine'.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator='First Things THRST With Mike Thurston', videos jpjqNtc2U-k (3 parts), tCqN0Ijicp0 (3 parts), 4aUH0ha3Zxs (4 parts), Al0UuX_73RE (2 parts) (taught in 4 videos)"
+    ],
+    "part_of": [
+     "workflow:build-muscle-with-hard-sessions-enough-food-and-sleep"
+    ]
+   }
+  },
+  {
+   "id": "build-muscle-with-hard-sessions-enough-food-and-sleep--check-progress-by-photos-and-measures-not-a-scale-estimate",
+   "values": {
+    "title": "Check progress by photos and measures",
+    "recipe": [
+     "build-muscle-with-hard-sessions-enough-food-and-sleep"
+    ],
+    "position": 4,
+    "step": "check-progress-by-photos-and-measures-not-a-scale-estimate",
+    "do": "Every 4 to 6 weeks take photos in the same light, pose and time of day and measure body weight and a few body parts the same way. Compare with the previous set side by side. Do not trust the body-fat figure of a home scale, which can be guessed from height and weight. If nothing changed in 8 weeks while the log shows lifts rising and the weight rising, look at the photos before changing the plan.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Every 4 to 6 weeks.",
+    "done_when": "A dated set of photos and measures and a one-line comparison with the previous set.",
+    "if_missing": "If photos are not possible, use the same three measurements every time.",
+    "why": "The mirror and the tape do not flatter; they show whether the block worked.",
+    "good_answer": "Passes: 'chest +1.5 cm and arms +0.5 cm since week 0; photo shows a bigger chest'. Fails: 'I feel bigger'.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator='First Things THRST With Mike Thurston', videos jpjqNtc2U-k (3 parts), tCqN0Ijicp0 (3 parts), 4aUH0ha3Zxs (4 parts), Al0UuX_73RE (2 parts) (taught in 4 videos)"
+    ],
+    "part_of": [
+     "workflow:build-muscle-with-hard-sessions-enough-food-and-sleep"
+    ]
+   }
+  },
+  {
+   "id": "build-muscle-with-hard-sessions-enough-food-and-sleep--record-what-you-found-and-what-matters-most",
+   "values": {
+    "title": "Record what you found and what matters most",
+    "recipe": [
+     "build-muscle-with-hard-sessions-enough-food-and-sleep"
+    ],
+    "position": 5,
+    "step": "record-what-you-found-and-what-matters-most",
+    "do": "Record the weekly plan, the lift trends, average protein and weight trend, sleep and the photo comparison. End with the one thing that held back growth most in this block, as a sentence you can act on.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At the end of each block.",
+    "done_when": "A record with each item above and one 'held back most' sentence.",
+    "if_missing": "If the numbers are missing, record which and begin logging them first.",
+    "why": "A block that ends with its limit named starts the next one at the limit.",
+    "good_answer": "Passes: 'held back most: sleep averaged 6 hours on training weeks'. Fails: 'train harder'.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator='First Things THRST With Mike Thurston', videos jpjqNtc2U-k (3 parts), tCqN0Ijicp0 (3 parts), 4aUH0ha3Zxs (4 parts), Al0UuX_73RE (2 parts) (taught in 4 videos)"
+    ],
+    "part_of": [
+     "workflow:build-muscle-with-hard-sessions-enough-food-and-sleep"
+    ]
+   }
+  },
+  {
+   "id": "work-out-what-to-save-each-month-to-reach-a-target-sum--state-the-assumptions",
+   "values": {
+    "title": "State the numbers the answer rests on",
+    "recipe": [
+     "work-out-what-to-save-each-month-to-reach-a-target-sum"
+    ],
+    "position": 0,
+    "step": "state-the-assumptions",
+    "do": "Write down the yearly income (turn an hourly wage into a yearly figure by full-time hours), the target sum, the retirement age, the yearly return you will assume, and the balance already saved. Use a return that is cautious, not hopeful. Write beside them what the math leaves out: pay rises, an employer match, inflation and surprises.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Before any figure is worked out.",
+    "done_when": "Income, target sum, retirement age, assumed return and starting balance are each a number, and the list of things the math leaves out is written next to them.",
+    "if_missing": "If the person gives a wage by the hour, multiply it out to a year. If they do not know a number, ask for it or pick a cautious one and mark it as a guess.",
+    "why": "Every start age gives a different answer only because of these inputs; an answer without them cannot be checked or redone.",
+    "good_answer": "Income 60,000 a year; target 1 million; retire at 65; return 6% a year; starting balance 0; leaves out raises, employer match, inflation.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids 77Xs3fCvcU4, BgKfaLZX_Pg, 4WpxXbhRasI, hQd91s_HUCo, fur6Oaj50Rc"
+    ],
+    "part_of": [
+     "workflow:work-out-what-to-save-each-month-to-reach-a-target-sum"
+    ]
+   }
+  },
+  {
+   "id": "work-out-what-to-save-each-month-to-reach-a-target-sum--work-out-each-start-age",
+   "values": {
+    "title": "Work out the monthly amount for each start age",
+    "recipe": [
+     "work-out-what-to-save-each-month-to-reach-a-target-sum"
+    ],
+    "position": 1,
+    "step": "work-out-each-start-age",
+    "do": "For each start age in steps of about five years from now until the last age where saving is still possible, work out the monthly amount that grows to the target by the retirement age at the assumed return. Write the monthly amount, the yearly amount and that yearly amount as a share of income.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the assumptions are written.",
+    "done_when": "Each start age has three numbers: a monthly amount, a yearly amount and a share of income, and the later the age the larger each is.",
+    "if_missing": "If a start age needs more than half of income, still write the number and mark it as close to impossible to pay after tax and living costs.",
+    "why": "The same target costs far more each year the start is delayed, because early money earns returns on its returns. The list shows that in the person's own numbers.",
+    "good_answer": "Start at 25: about 500 a month, 12% of income. Start at 30: about 700 a month, 17%. Start at 35: about 1,000 a month, 24%. Start at 40: about 1,400 a month, a third of income.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids 77Xs3fCvcU4, BgKfaLZX_Pg, 4WpxXbhRasI, hQd91s_HUCo, fur6Oaj50Rc"
+    ],
+    "part_of": [
+     "workflow:work-out-what-to-save-each-month-to-reach-a-target-sum"
+    ]
+   }
+  },
+  {
+   "id": "work-out-what-to-save-each-month-to-reach-a-target-sum--compare-with-the-usual-rule",
+   "values": {
+    "title": "Compare each share with the usual rule of thumb",
+    "recipe": [
+     "work-out-what-to-save-each-month-to-reach-a-target-sum"
+    ],
+    "position": 2,
+    "step": "compare-with-the-usual-rule",
+    "do": "Set each share of income beside the common advice to put away 10 to 15% of pay. Mark each start age as under the rule, inside it or far above it.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the list exists.",
+    "done_when": "Every row of the list is marked under, inside or above the usual 10 to 15%.",
+    "if_missing": "If the person has a different rule they keep, use theirs and say so.",
+    "why": "The rule of thumb only fits an early start; the person needs to see which starting ages it fails for.",
+    "good_answer": "Start at 25: 12%, inside the rule. Start at 40: 33%, far above it.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids 77Xs3fCvcU4, BgKfaLZX_Pg, 4WpxXbhRasI, hQd91s_HUCo, fur6Oaj50Rc"
+    ],
+    "part_of": [
+     "workflow:work-out-what-to-save-each-month-to-reach-a-target-sum"
+    ]
+   }
+  },
+  {
+   "id": "work-out-what-to-save-each-month-to-reach-a-target-sum--choose-the-start-age",
+   "values": {
+    "title": "Pick the start age the person will use and say what it costs",
+    "recipe": [
+     "work-out-what-to-save-each-month-to-reach-a-target-sum"
+    ],
+    "position": 3,
+    "step": "choose-the-start-age",
+    "do": "Choose the earliest start age that is real for the person today, which is usually now. Write the monthly amount for that age as the one number to act on, and say what the amount is as a share of what is left after tax and rent.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the comparison.",
+    "done_when": "One start age and one monthly amount are named, with the share of take-home pay it takes.",
+    "if_missing": "If the amount cannot be paid in full today, name the part that can be paid now and the date the rest starts.",
+    "why": "A list helps only if it ends in one amount to set aside; the later the start, the more the answer is a larger monthly amount, not a different goal.",
+    "good_answer": "Start now at 30: 700 a month, which is 17% of income and about a fifth of take-home pay.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids 77Xs3fCvcU4, BgKfaLZX_Pg, 4WpxXbhRasI, hQd91s_HUCo, fur6Oaj50Rc"
+    ],
+    "part_of": [
+     "workflow:work-out-what-to-save-each-month-to-reach-a-target-sum"
+    ]
+   }
+  },
+  {
+   "id": "work-out-what-to-save-each-month-to-reach-a-target-sum--record-what-was-found",
+   "values": {
+    "title": "Record what was found and what matters most",
+    "recipe": [
+     "work-out-what-to-save-each-month-to-reach-a-target-sum"
+    ],
+    "position": 4,
+    "step": "record-what-was-found",
+    "do": "Record the assumptions, the list, the chosen start age and monthly amount, and the single thing that changes the answer most (for example an employer match not counted, or a start that can be earlier). Keep it wherever the person keeps this pursuit's rows, in that store's own way.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At the end.",
+    "done_when": "The assumptions, the list, the chosen amount and the one thing that matters most are recorded where the person will find them again.",
+    "if_missing": "If the record cannot be kept, hand the text back to the person and say where it was meant to go.",
+    "why": "A plan that is not recorded is not found again when pay or age changes and the numbers must be redone.",
+    "good_answer": "Chosen: 700 a month from now. Matters most: the employer match is not counted, so ask what the match is.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids 77Xs3fCvcU4, BgKfaLZX_Pg, 4WpxXbhRasI, hQd91s_HUCo, fur6Oaj50Rc"
+    ],
+    "part_of": [
+     "workflow:work-out-what-to-save-each-month-to-reach-a-target-sum"
+    ]
+   }
+  },
+  {
+   "id": "prepare-a-home-for-a-fast-sale--walk-in-as-the-buyer",
+   "values": {
+    "title": "Walk in as the buyer and note the first 30 seconds",
+    "recipe": [
+     "prepare-a-home-for-a-fast-sale"
+    ],
+    "position": 0,
+    "step": "walk-in-as-the-buyer",
+    "do": "Arrive the way a buyer does: from the street, to the front entrance, then inside. Note what a buyer sees and feels in the first 30 seconds, because that is when they decide whether they like the home. Take a photo of each place as it is now.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "First, before any money is spent.",
+    "done_when": "There is a photo and a note for the street view, the entrance, the living room, the kitchen and the main bedroom.",
+    "if_missing": "If the person cannot visit, use their photos taken from where a buyer would stand.",
+    "why": "A buyer's decision is made quickly and from the outside in; the work should follow the buyer's path, not the owner's list.",
+    "good_answer": "A note per photo: 'door paint peeling, bushes untidy, living room rug too small'. Fails: 'house looks fine'.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids fFzaPhUDWxA, mbkRIlX7jv8, vRhbxf5Pwc8"
+    ],
+    "part_of": [
+     "workflow:prepare-a-home-for-a-fast-sale"
+    ]
+   }
+  },
+  {
+   "id": "prepare-a-home-for-a-fast-sale--lift-the-outside-first",
+   "values": {
+    "title": "Lift the street view and the front entrance",
+    "recipe": [
+     "prepare-a-home-for-a-fast-sale"
+    ],
+    "position": 1,
+    "step": "lift-the-outside-first",
+    "do": "Repaint the front door, tidy the bushes and the garden, and pressure wash the path and drive. Keep the colours consistent and the outdoor lighting soft so the house does not glare against its neighbours. Spend on the lawn, shrubs and paint before anything inside.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the walk-in.",
+    "done_when": "The door, plants, path and drive are each done or dropped with a reason, and the street view photo is retaken.",
+    "if_missing": "If the budget is small, do the door and the path and skip the rest, and say so.",
+    "why": "The street view is the first thing a buyer sees and sets how interested they are before they step inside.",
+    "good_answer": "A buyer who pulls up can picture themselves coming home here in the evening.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids fFzaPhUDWxA, mbkRIlX7jv8, vRhbxf5Pwc8"
+    ],
+    "part_of": [
+     "workflow:prepare-a-home-for-a-fast-sale"
+    ]
+   }
+  },
+  {
+   "id": "prepare-a-home-for-a-fast-sale--make-the-living-room-look-large",
+   "values": {
+    "title": "Make the living room look large and bright",
+    "recipe": [
+     "prepare-a-home-for-a-fast-sale"
+    ],
+    "position": 2,
+    "step": "make-the-living-room-look-large",
+    "do": "Paint the living room a light colour, add new lighting, add covers over worn seating and put down a larger rug, because buyers judge the size of a room by its rug and by its light. Keep floors light-coloured and the look neutral rather than personal.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the entrance.",
+    "done_when": "The living room is painted or cleaned, has brighter lighting and a rug sized to the room, and a new photo is taken.",
+    "if_missing": "If painting is not possible, change the rug, the lighting and the covers only.",
+    "why": "Buyers read a room's size from its colour and its rug; a personal or dark look narrows the number of buyers who like it.",
+    "good_answer": "The room looks bigger in the second photo than in the first.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids fFzaPhUDWxA, mbkRIlX7jv8, vRhbxf5Pwc8"
+    ],
+    "part_of": [
+     "workflow:prepare-a-home-for-a-fast-sale"
+    ]
+   }
+  },
+  {
+   "id": "prepare-a-home-for-a-fast-sale--lift-the-kitchen-and-bedroom",
+   "values": {
+    "title": "Lift the kitchen, the main bedroom and its bathroom",
+    "recipe": [
+     "prepare-a-home-for-a-fast-sale"
+    ],
+    "position": 3,
+    "step": "lift-the-kitchen-and-bedroom",
+    "do": "In the kitchen, resurface or paint the cabinets and make sure the refrigerator is clean and looks new, because buyers open it first. Add low-cost lighting under the counters and dimmers in the rooms people live in. In the main bedroom, put the bed against the wall that faces the door, bedside stands on each side with lamps, natural light from the windows, and no loose wires showing. Treat the main bathroom the same way.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the living room.",
+    "done_when": "The kitchen, bedroom and bathroom are each done or dropped with a reason, and each has a new photo.",
+    "if_missing": "If only one room can be done, do the kitchen.",
+    "why": "These are the rooms where buyers decide; a small cost there changes the impression more than the same money spent elsewhere.",
+    "good_answer": "Cabinets resurfaced, a clean refrigerator, under-counter light, a bed facing the door with lamps on each side.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids fFzaPhUDWxA, mbkRIlX7jv8, vRhbxf5Pwc8"
+    ],
+    "part_of": [
+     "workflow:prepare-a-home-for-a-fast-sale"
+    ]
+   }
+  },
+  {
+   "id": "prepare-a-home-for-a-fast-sale--record-what-was-found",
+   "values": {
+    "title": "Record what was done and what matters most",
+    "recipe": [
+     "prepare-a-home-for-a-fast-sale"
+    ],
+    "position": 4,
+    "step": "record-what-was-found",
+    "do": "Record each place with its cost and its before and after photo, and name the one piece of work that changed the first impression the most. Keep it wherever the person keeps this pursuit's rows, in that store's own way.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At the end.",
+    "done_when": "Each place has a cost and two photos, and one piece of work is named as the biggest change.",
+    "if_missing": "If a place was skipped, write the reason beside it.",
+    "why": "The record shows what the money bought and lets the next seller repeat the useful work.",
+    "good_answer": "Biggest change: the repainted front door and the larger living room rug.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids fFzaPhUDWxA, mbkRIlX7jv8, vRhbxf5Pwc8"
+    ],
+    "part_of": [
+     "workflow:prepare-a-home-for-a-fast-sale"
+    ]
+   }
+  },
+  {
+   "id": "cut-spending-in-one-expense-area--pick-one-area-and-list-the-spend",
+   "values": {
+    "title": "Pick one area and list what is spent in it",
+    "recipe": [
+     "cut-spending-in-one-expense-area"
+    ],
+    "position": 0,
+    "step": "pick-one-area-and-list-the-spend",
+    "do": "Choose one area where money goes every week or month. List each regular cost in it with its amount and how often it is paid, using the last month of statements or receipts. Add what is spent on top out of habit.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "First.",
+    "done_when": "Every regular cost in the area is on the list with an amount and a frequency, and the total for a month is written.",
+    "if_missing": "If receipts are missing, use the person's best guess and mark it as a guess.",
+    "why": "A swap can only be chosen against a number; a vague area gives a vague saving.",
+    "good_answer": "Fitness: 50 a month on race entries, 16 on a bike share, 15 on racket restringing, 50 on bottled drinks. Total 131 a month.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids 3csjLPgfAXA, aJusgBmEbuk, 3kRX4bhCYEo, J6nUjVZFhI4"
+    ],
+    "part_of": [
+     "workflow:cut-spending-in-one-expense-area"
+    ]
+   }
+  },
+  {
+   "id": "cut-spending-in-one-expense-area--swap-each-cost-for-a-free-or-cheaper-way",
+   "values": {
+    "title": "Swap each cost for a free or cheaper way",
+    "recipe": [
+     "cut-spending-in-one-expense-area"
+    ],
+    "position": 1,
+    "step": "swap-each-cost-for-a-free-or-cheaper-way",
+    "do": "For each cost, name a way to get the same thing for nothing or for less. Walk instead of paying for transport. Run outdoors or use a friend's building gym instead of a studio. Take a first-time offer or a free session. Keep a cost that is locked in a contract and keep it cheap, and say when the contract ends.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the list.",
+    "done_when": "Each cost has a swap, a keep with a reason, or a drop with a reason, and the new monthly amount is written.",
+    "if_missing": "If no swap keeps the thing the person values, keep the cost and say which one it is.",
+    "why": "The aim is the same result at a lower price, so each swap must still give the person what they wanted.",
+    "good_answer": "Walk the 35 blocks instead of the 117 monthly pass; run the river path instead of paying for a class.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids 3csjLPgfAXA, aJusgBmEbuk, 3kRX4bhCYEo, J6nUjVZFhI4"
+    ],
+    "part_of": [
+     "workflow:cut-spending-in-one-expense-area"
+    ]
+   }
+  },
+  {
+   "id": "cut-spending-in-one-expense-area--plan-ahead-and-buy-on-sale",
+   "values": {
+    "title": "Plan the shopping around what is on sale",
+    "recipe": [
+     "cut-spending-in-one-expense-area"
+    ],
+    "position": 2,
+    "step": "plan-ahead-and-buy-on-sale",
+    "do": "Spend five minutes looking at this week's deals before leaving. Plan the meals or the uses around what is cheap. When a staple is on sale, buy enough for two or three months and keep a full cupboard, so there are fewer trips. Shop with a written list and never when hungry.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "When the area is food or any repeat purchase.",
+    "done_when": "A list written from the deals, a count of trips planned for the week, and the staples to stock up on named.",
+    "if_missing": "If there are no deals in a week, shop from the stocked cupboard and skip the trip.",
+    "why": "Fewer trips mean fewer unplanned items, and buying staples at their lowest price lowers the average cost.",
+    "good_answer": "Pasta at 0.99 a box with a coupon: buy four. Trips reduced from four or five a week to one or two.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids 3csjLPgfAXA, aJusgBmEbuk, 3kRX4bhCYEo, J6nUjVZFhI4"
+    ],
+    "part_of": [
+     "workflow:cut-spending-in-one-expense-area"
+    ]
+   }
+  },
+  {
+   "id": "cut-spending-in-one-expense-area--put-back-three-to-five-items",
+   "values": {
+    "title": "Put back three to five items before paying",
+    "recipe": [
+     "cut-spending-in-one-expense-area"
+    ],
+    "position": 3,
+    "step": "put-back-three-to-five-items",
+    "do": "Stop before paying. Take out three to five items that the person can live without and put them back or remove them from the basket. Write down how much the basket fell by.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At the till or before checkout.",
+    "done_when": "Three to five items are removed and the new total is written next to the old one.",
+    "if_missing": "If nothing can be removed, the list was already tight; write that.",
+    "why": "Impulse items are the spending the person does not notice; removing them costs no planning.",
+    "good_answer": "Put back chocolate and avocados: the basket fell by 6.91.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids 3csjLPgfAXA, aJusgBmEbuk, 3kRX4bhCYEo, J6nUjVZFhI4"
+    ],
+    "part_of": [
+     "workflow:cut-spending-in-one-expense-area"
+    ]
+   }
+  },
+  {
+   "id": "cut-spending-in-one-expense-area--count-the-saving",
+   "values": {
+    "title": "Count the yearly saving and record it",
+    "recipe": [
+     "cut-spending-in-one-expense-area"
+    ],
+    "position": 4,
+    "step": "count-the-saving",
+    "do": "Subtract the new monthly total from the old and multiply by twelve. Write the yearly saving beside each swap and name the one swap that saved the most. Keep it wherever the person keeps this pursuit's rows, in that store's own way.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the swaps.",
+    "done_when": "A yearly saving is written for each swap, and one swap is named as the biggest.",
+    "if_missing": "If a swap cost something to start, subtract that from the first year.",
+    "why": "Money not spent only matters if it is counted, and the biggest swap shows where the next cut should come from.",
+    "good_answer": "117 a month saved by walking, which is 1,404 a year.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids 3csjLPgfAXA, aJusgBmEbuk, 3kRX4bhCYEo, J6nUjVZFhI4"
+    ],
+    "part_of": [
+     "workflow:cut-spending-in-one-expense-area"
+    ]
+   }
+  },
+  {
+   "id": "start-reselling-goods-for-more-than-they-cost--choose-what-to-resell",
+   "values": {
+    "title": "Choose items by demand, condition and season",
+    "recipe": [
+     "start-reselling-goods-for-more-than-they-cost"
+    ],
+    "position": 0,
+    "step": "choose-what-to-resell",
+    "do": "Pick items people want: a sought-after maker, in the best condition (no tears, stains or smells), and in season for the time they sell. For things the person already owns, use the one-year rule: if it was not used in a year, sell it. For things bought, buy out of season when they are cheaper.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "First.",
+    "done_when": "Each item has a reason it sells (maker, condition, season) written next to it.",
+    "if_missing": "If an item has a tear or a smell, mark it as not worth the time.",
+    "why": "Sale price is set by who wants the thing, what shape it is in and when; buying right sets the margin before anything is listed.",
+    "good_answer": "A winter coat bought in summer on sale; a bag with a known maker and no marks.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids Pl5jYugr_fE, FHukqIbF5Zs, dA4msFWa4GQ"
+    ],
+    "part_of": [
+     "workflow:start-reselling-goods-for-more-than-they-cost"
+    ]
+   }
+  },
+  {
+   "id": "start-reselling-goods-for-more-than-they-cost--check-what-it-sold-for",
+   "values": {
+    "title": "Check what similar items sold for",
+    "recipe": [
+     "start-reselling-goods-for-more-than-they-cost"
+    ],
+    "position": 1,
+    "step": "check-what-it-sold-for",
+    "do": "For each item, find the price a close match actually sold for, not the price it is listed at. Write the person's own guess first, then the sold price, then the cost. Buy only if the sold price is at least one to two times the cost.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After choosing items.",
+    "done_when": "Each item has a cost, a guess, a sold price for a close match and a ratio of sold price to cost.",
+    "if_missing": "If no close match has sold, price low and mark the item as untested.",
+    "why": "A realistic price comes from sales, not from hope, and the ratio shows whether the work is worth the time.",
+    "good_answer": "A clock bought in a lot for 225; a close match sold for about 500. Fails: 'it looks valuable'.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids Pl5jYugr_fE, FHukqIbF5Zs, dA4msFWa4GQ"
+    ],
+    "part_of": [
+     "workflow:start-reselling-goods-for-more-than-they-cost"
+    ]
+   }
+  },
+  {
+   "id": "start-reselling-goods-for-more-than-they-cost--list-and-offer-free-shipping",
+   "values": {
+    "title": "Photograph, list and offer free shipping",
+    "recipe": [
+     "start-reselling-goods-for-more-than-they-cost"
+    ],
+    "position": 2,
+    "step": "list-and-offer-free-shipping",
+    "do": "Photograph the best items well, list each with the realistic price, and offer free shipping so the buyer sees one price. Sort anything that will not sell into donate, recycle or throw away.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After pricing.",
+    "done_when": "Each item is listed with photos, a price and the shipping offer, and the leftover items are sorted.",
+    "if_missing": "If items cannot be listed within a week, say which ones wait.",
+    "why": "Good photos and one all-in price remove the reasons buyers hesitate.",
+    "good_answer": "Boxing gloves listed at a fair price with free shipping went to a buyer in another city.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids Pl5jYugr_fE, FHukqIbF5Zs, dA4msFWa4GQ"
+    ],
+    "part_of": [
+     "workflow:start-reselling-goods-for-more-than-they-cost"
+    ]
+   }
+  },
+  {
+   "id": "start-reselling-goods-for-more-than-they-cost--count-sales-and-time",
+   "values": {
+    "title": "Count what sold and the time it took",
+    "recipe": [
+     "start-reselling-goods-for-more-than-they-cost"
+    ],
+    "position": 3,
+    "step": "count-sales-and-time",
+    "do": "After a stated period write what sold, the money received and the hours spent. Work out money per hour and name which items sold fastest.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After a week or two.",
+    "done_when": "A count of items sold, money received, hours spent and money per hour is written.",
+    "if_missing": "If nothing sold, lower the price of the best two items and wait again.",
+    "why": "Money per hour shows whether this is worth continuing and which kind of item to look for next.",
+    "good_answer": "Two sales, about 350 for four hours of work.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids Pl5jYugr_fE, FHukqIbF5Zs, dA4msFWa4GQ"
+    ],
+    "part_of": [
+     "workflow:start-reselling-goods-for-more-than-they-cost"
+    ]
+   }
+  },
+  {
+   "id": "start-reselling-goods-for-more-than-they-cost--record-what-was-found",
+   "values": {
+    "title": "Record what was found and what matters most",
+    "recipe": [
+     "start-reselling-goods-for-more-than-they-cost"
+    ],
+    "position": 4,
+    "step": "record-what-was-found",
+    "do": "Record the items, the costs, the sold prices, the money per hour and the one kind of item that made the most. Keep it wherever the person keeps this pursuit's rows, in that store's own way.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At the end.",
+    "done_when": "The items, the numbers and the best kind of item are recorded where the person will find them again.",
+    "if_missing": "If the numbers are partial, record what is known and write what is not.",
+    "why": "A record of what sold at what price is what lets the next round start from facts.",
+    "good_answer": "Best kind: branded clothes bought out of season, marked up two times.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids Pl5jYugr_fE, FHukqIbF5Zs, dA4msFWa4GQ"
+    ],
+    "part_of": [
+     "workflow:start-reselling-goods-for-more-than-they-cost"
+    ]
+   }
+  },
+  {
+   "id": "start-selling-bought-goods-on-an-online-marketplace--look-like-a-business",
+   "values": {
+    "title": "Set up so suppliers will take you seriously",
+    "recipe": [
+     "start-selling-bought-goods-on-an-online-marketplace"
+    ],
+    "position": 0,
+    "step": "look-like-a-business",
+    "do": "Register a legal business, get a professional email address and put up a simple page that says what the company does. Suppliers will not deal with a name sent from a personal address.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "First.",
+    "done_when": "A legal business exists, a professional email address works and a basic page is live.",
+    "if_missing": "If registration will take time, say the date and send nothing to suppliers before it.",
+    "why": "Brands and distributors are approached by many sellers each week and answer those who look like a real business.",
+    "good_answer": "A company with its own address and a one-page site naming what it sells.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids Nwrg8Ae40yU, dFShOdo9-t8, wyeTpn1YLZU"
+    ],
+    "part_of": [
+     "workflow:start-selling-bought-goods-on-an-online-marketplace"
+    ]
+   }
+  },
+  {
+   "id": "start-selling-bought-goods-on-an-online-marketplace--ask-many-suppliers-for-price-lists",
+   "values": {
+    "title": "Ask many large suppliers for price lists",
+    "recipe": [
+     "start-selling-bought-goods-on-an-online-marketplace"
+    ],
+    "position": 1,
+    "step": "ask-many-suppliers-for-price-lists",
+    "do": "Start with large distributors and wholesalers, because brands directly are harder to win without a track record. Ask 50 to 1,000 suppliers for an account and their price lists. It is a numbers game: expect each to send tens of thousands of products.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the setup.",
+    "done_when": "A count of suppliers asked, accounts opened and price lists received is written.",
+    "if_missing": "If few answer, ask more and check the message for a professional tone.",
+    "why": "The first profitable product is found by volume of suppliers, not by one good conversation.",
+    "good_answer": "100 suppliers asked, 12 accounts opened, 12 price lists received.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids Nwrg8Ae40yU, dFShOdo9-t8, wyeTpn1YLZU"
+    ],
+    "part_of": [
+     "workflow:start-selling-bought-goods-on-an-online-marketplace"
+    ]
+   }
+  },
+  {
+   "id": "start-selling-bought-goods-on-an-online-marketplace--check-the-numbers-on-each-product",
+   "values": {
+    "title": "Check the numbers on each product",
+    "recipe": [
+     "start-selling-bought-goods-on-an-online-marketplace"
+    ],
+    "position": 2,
+    "step": "check-the-numbers-on-each-product",
+    "do": "For each product, look it up on the marketplace and see how often it sells. Work out what it costs from the supplier, the marketplace's fees and the selling price, and keep only products that leave a profit. Prefer a product that sells several times a day.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After price lists arrive.",
+    "done_when": "Each kept product has a cost, the fees, a selling price, a profit and a sales rate.",
+    "if_missing": "If no product leaves a profit, ask more suppliers or change the category.",
+    "why": "Profit is decided by the numbers on each product, so a product with no margin is dropped however well it sells.",
+    "good_answer": "Buy for 10, sell for 20, selling five or six a day.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids Nwrg8Ae40yU, dFShOdo9-t8, wyeTpn1YLZU"
+    ],
+    "part_of": [
+     "workflow:start-selling-bought-goods-on-an-online-marketplace"
+    ]
+   }
+  },
+  {
+   "id": "start-selling-bought-goods-on-an-online-marketplace--start-small-then-hire-for-the-work",
+   "values": {
+    "title": "Start with one profitable product and add help as work grows",
+    "recipe": [
+     "start-selling-bought-goods-on-an-online-marketplace"
+    ],
+    "position": 3,
+    "step": "start-small-then-hire-for-the-work",
+    "do": "Buy a small first order, do the labelling, packing and shipping by hand, and watch the result. When the work fills nights and weekends, hire help for packing, prep and shipping.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After a first profit.",
+    "done_when": "A first order has sold with a profit and the hours spent are counted.",
+    "if_missing": "If the first order does not sell, change the product, not the supplier list.",
+    "why": "Early hand work shows exactly what each task costs, so hiring is a measured choice.",
+    "good_answer": "A first order sold within two weeks of buying.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids Nwrg8Ae40yU, dFShOdo9-t8, wyeTpn1YLZU"
+    ],
+    "part_of": [
+     "workflow:start-selling-bought-goods-on-an-online-marketplace"
+    ]
+   }
+  },
+  {
+   "id": "start-selling-bought-goods-on-an-online-marketplace--build-the-brand-and-test-prices",
+   "values": {
+    "title": "Test prices and tell the product's story",
+    "recipe": [
+     "start-selling-bought-goods-on-an-online-marketplace"
+    ],
+    "position": 4,
+    "step": "build-the-brand-and-test-prices",
+    "do": "Register the brand if the goods are the person's own, register the product, tell its story on the listing and compare two prices on the same product to see which brings more visitors and more orders. Watch competitor prices.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "When a product sells steadily.",
+    "done_when": "Two prices are tested on one product and the winner is written with its numbers.",
+    "if_missing": "If traffic is too low to compare, wait for more visits before choosing.",
+    "why": "A test and a story turn a product that sells into a product that keeps selling.",
+    "good_answer": "14.99 against 19.99, the one with more orders kept.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids Nwrg8Ae40yU, dFShOdo9-t8, wyeTpn1YLZU"
+    ],
+    "part_of": [
+     "workflow:start-selling-bought-goods-on-an-online-marketplace"
+    ]
+   }
+  },
+  {
+   "id": "start-selling-bought-goods-on-an-online-marketplace--record-what-was-found",
+   "values": {
+    "title": "Record what was found and what matters most",
+    "recipe": [
+     "start-selling-bought-goods-on-an-online-marketplace"
+    ],
+    "position": 5,
+    "step": "record-what-was-found",
+    "do": "Record the suppliers, the products that left a profit with their numbers, and the single product or supplier that earns the most. Keep it wherever the person keeps this pursuit's rows, in that store's own way.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At the end.",
+    "done_when": "Suppliers, profitable products and the best earner are recorded.",
+    "if_missing": "If no product is profitable, record the numbers that failed.",
+    "why": "The record makes each new product a comparison against the best one so far.",
+    "good_answer": "Best earner: a pantry staple bought wholesale, 10 profit a unit, five sales a day.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids Nwrg8Ae40yU, dFShOdo9-t8, wyeTpn1YLZU"
+    ],
+    "part_of": [
+     "workflow:start-selling-bought-goods-on-an-online-marketplace"
+    ]
+   }
+  },
+  {
+   "id": "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped--write-three-outcomes",
+   "values": {
+    "title": "Write three outcomes for the week",
+    "recipe": [
+     "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped"
+    ],
+    "position": 0,
+    "step": "write-three-outcomes",
+    "do": "Ask: it is Friday afternoon and I am driving home, what do I want checked off to feel the week went well? Write three outcomes on a note and keep it where it is seen every day.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Monday morning.",
+    "done_when": "Three outcomes are written and placed where the person looks every day.",
+    "if_missing": "If more than three come to mind, keep the three that matter most and move the rest to next week.",
+    "why": "Three outcomes are few enough to remember and enough to feel the week counted.",
+    "good_answer": "A note of three outcomes on top of the computer.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids PH9O_H_sw8U, Ugd8U30h64I, nDobjrtV4Ik"
+    ],
+    "part_of": [
+     "workflow:set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped"
+    ]
+   }
+  },
+  {
+   "id": "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped--scan-the-calendar-each-morning",
+   "values": {
+    "title": "Scan the calendar each morning against the three",
+    "recipe": [
+     "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped"
+    ],
+    "position": 1,
+    "step": "scan-the-calendar-each-morning",
+    "do": "Look at everything on the day's calendar and set the day's goals against the three outcomes.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Each morning.",
+    "done_when": "The day's goals each serve one of the three outcomes, or are marked as not.",
+    "if_missing": "If a day has none of the three, move one in or say why not.",
+    "why": "A daily check keeps the weekly choice from fading.",
+    "good_answer": "Today: write the report (outcome 1), call the supplier (outcome 2).",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids PH9O_H_sw8U, Ugd8U30h64I, nDobjrtV4Ik"
+    ],
+    "part_of": [
+     "workflow:set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped"
+    ]
+   }
+  },
+  {
+   "id": "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped--protect-an-hour-to-look-from-above",
+   "values": {
+    "title": "Protect one hour a week to look at the calendar from above",
+    "recipe": [
+     "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped"
+    ],
+    "position": 2,
+    "step": "protect-an-hour-to-look-from-above",
+    "do": "Sit alone, or with one trusted adviser, and look at the calendar from far above. Ask if the time is going to the right people, the right activities, the right thoughts and enough of the future. Change the next weeks to match.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Once a week, booked as a fixed slot.",
+    "done_when": "The hour is in the calendar as a fixed slot and a change to the next weeks is written after each one.",
+    "if_missing": "If the hour is taken by something else, move it within the same week; do not skip it.",
+    "why": "An hour spent looking at the whole week saves days of work that does not move the outcomes.",
+    "good_answer": "Moved a weekly meeting to every second week and added two hours for planning.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids PH9O_H_sw8U, Ugd8U30h64I, nDobjrtV4Ik"
+    ],
+    "part_of": [
+     "workflow:set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped"
+    ]
+   }
+  },
+  {
+   "id": "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped--run-a-power-hour-for-put-off-jobs",
+   "values": {
+    "title": "Run a weekly hour for the small jobs put off",
+    "recipe": [
+     "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped"
+    ],
+    "position": 3,
+    "step": "run-a-power-hour-for-put-off-jobs",
+    "do": "Write the small jobs that can be done at any time and so never get done: the shoe repair, the dry cleaning, putting things away. Spend one hour clearing as many as fit, and repeat every week.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Once a week, on a weekend.",
+    "done_when": "The list of put-off jobs has a count done and a count left after each hour.",
+    "if_missing": "If a job needs more than an hour, split it and take one piece each week.",
+    "why": "A little done every week adds up far more than a large block that never gets booked.",
+    "good_answer": "Four jobs done in an hour, six left.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids PH9O_H_sw8U, Ugd8U30h64I, nDobjrtV4Ik"
+    ],
+    "part_of": [
+     "workflow:set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped"
+    ]
+   }
+  },
+  {
+   "id": "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped--review-on-friday",
+   "values": {
+    "title": "Review the three outcomes on Friday",
+    "recipe": [
+     "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped"
+    ],
+    "position": 4,
+    "step": "review-on-friday",
+    "do": "Look at the three outcomes and say how each went. For any that did not happen, ask why: was the expectation off, or did something come up that could be planned for next time. Write the answer and what changes.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Friday afternoon.",
+    "done_when": "Each outcome has a result and, for each miss, a reason and a change.",
+    "if_missing": "If the week was cut short, review what was reached and carry the rest forward by name.",
+    "why": "The review is what makes the next week's planning better, not only different.",
+    "good_answer": "Outcome 2 missed because the supplier call ran over; next week book it for the morning.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids PH9O_H_sw8U, Ugd8U30h64I, nDobjrtV4Ik"
+    ],
+    "part_of": [
+     "workflow:set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped"
+    ]
+   }
+  },
+  {
+   "id": "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped--record-what-was-found",
+   "values": {
+    "title": "Record what was found and what matters most",
+    "recipe": [
+     "set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped"
+    ],
+    "position": 5,
+    "step": "record-what-was-found",
+    "do": "Record the outcomes, the results and the one habit that helped most. Keep it wherever the person keeps this pursuit's rows, in that store's own way.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At the end of each week.",
+    "done_when": "The week's outcomes, results and the most helpful habit are recorded.",
+    "if_missing": "If a week was not run, write why and the next date.",
+    "why": "A kept record shows which habit to keep when the weeks get busy.",
+    "good_answer": "Most helpful: the Friday question about why a miss happened.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator CNBC Make It, video ids PH9O_H_sw8U, Ugd8U30h64I, nDobjrtV4Ik"
+    ],
+    "part_of": [
+     "workflow:set-aside-a-recurring-hour-to-plan-and-clear-what-gets-skipped"
+    ]
+   }
+  },
+  {
+   "id": "build-an-unpaid-creator-network-around-a-product--give-creative-one-owner",
+   "values": {
+    "title": "Give the content one full-time owner",
+    "recipe": [
+     "build-an-unpaid-creator-network-around-a-product"
+    ],
+    "position": 0,
+    "step": "give-creative-one-owner",
+    "do": "Name one person whose whole job is content and ads, and one person under them who manages the creators. Each of the brand's other areas has its own owner. When content goes badly, everyone knows whose it is.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "First.",
+    "done_when": "One owner for content and one manager for creators are named, with their areas written.",
+    "if_missing": "If the work cannot yet be one person's job, name the owner and the share of the week.",
+    "why": "Content is the first thing the brand has to spend on, and shared ownership means no one fixes it.",
+    "good_answer": "One founder does product and logistics, one does growth, one does content only.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids 1Cn5ZzKcRZw, 1yEz3VwjfQM, UiOSwotsPw4, r1vGCNiRaUw, dsbVdvodoMY"
+    ],
+    "part_of": [
+     "workflow:build-an-unpaid-creator-network-around-a-product"
+    ]
+   }
+  },
+  {
+   "id": "build-an-unpaid-creator-network-around-a-product--pick-creators-who-post-daily",
+   "values": {
+    "title": "Pick creators who already post nearly every day",
+    "recipe": [
+     "build-an-unpaid-creator-network-around-a-product"
+    ],
+    "position": 1,
+    "step": "pick-creators-who-post-daily",
+    "do": "Choose people whose accounts post nearly every day on matching topics, such as a morning routine or a day in the life, and skip those who post once a month. Source in three ways: people who message the brand, people who already follow or engage, and people the manager reaches out to by message. Count how many came in each way.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "When sourcing.",
+    "done_when": "A list of creators with how each came in, and a count for each way.",
+    "if_missing": "If a creator posts rarely, do not send a pack.",
+    "why": "A daily poster is far more likely to post about a product in the next days than a rare one.",
+    "good_answer": "About three quarters of the network came from people already in the brand's messages.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids 1Cn5ZzKcRZw, 1yEz3VwjfQM, UiOSwotsPw4, r1vGCNiRaUw, dsbVdvodoMY"
+    ],
+    "part_of": [
+     "workflow:build-an-unpaid-creator-network-around-a-product"
+    ]
+   }
+  },
+  {
+   "id": "build-an-unpaid-creator-network-around-a-product--send-the-product-and-ask-for-nothing",
+   "values": {
+    "title": "Send the product, ask for nothing, and offer a share of sales",
+    "recipe": [
+     "build-an-unpaid-creator-network-around-a-product"
+    ],
+    "position": 2,
+    "step": "send-the-product-and-ask-for-nothing",
+    "do": "Send a free pack or a choice of products. Do not pay for posts and do not write scripts, so each creator makes it their own way. Offer a code or a link that pays a share of each sale. If a creator asks for a fee for a post, say no and point to the share. For a new product, send it to about a hundred creators before the launch.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After picking.",
+    "done_when": "A standard offer is written, a count of packs sent is kept and no up-front fees are paid.",
+    "if_missing": "If a creator needs a script to start, give a one-line description of the product, not a script.",
+    "why": "Many styles make the content feel real and avoid a thousand copies of one video.",
+    "good_answer": "Send to a hundred creators before launch; the next morning, dozens of posts in different styles.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids 1Cn5ZzKcRZw, 1yEz3VwjfQM, UiOSwotsPw4, r1vGCNiRaUw, dsbVdvodoMY"
+    ],
+    "part_of": [
+     "workflow:build-an-unpaid-creator-network-around-a-product"
+    ]
+   }
+  },
+  {
+   "id": "build-an-unpaid-creator-network-around-a-product--collect-every-post",
+   "values": {
+    "title": "Collect every post the creators make",
+    "recipe": [
+     "build-an-unpaid-creator-network-around-a-product"
+    ],
+    "position": 3,
+    "step": "collect-every-post",
+    "do": "Use a tool that finds every post that tags or names the brand and saves it in one place the content team can use. Do not ask the creators to send files unless the creator is professional and wants to.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Always on.",
+    "done_when": "Every public post about the brand lands in one collection and the count is known.",
+    "if_missing": "If posts are missed, check which ways of tagging are not caught.",
+    "why": "The creators' posts are the raw material for ads, so collecting them without effort for the creator keeps them flowing.",
+    "good_answer": "A new post appears in the collection the same day.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids 1Cn5ZzKcRZw, 1yEz3VwjfQM, UiOSwotsPw4, r1vGCNiRaUw, dsbVdvodoMY"
+    ],
+    "part_of": [
+     "workflow:build-an-unpaid-creator-network-around-a-product"
+    ]
+   }
+  },
+  {
+   "id": "build-an-unpaid-creator-network-around-a-product--feed-ad-results-back-weekly",
+   "values": {
+    "title": "Feed ad results back to the creators each week",
+    "recipe": [
+     "build-an-unpaid-creator-network-around-a-product"
+    ],
+    "position": 4,
+    "step": "feed-ad-results-back-weekly",
+    "do": "The person who watches ad numbers meets the content owner once a week and shows which ads are winning, which angles keep losing and which to push. The notes go to the editors, and the editors pass them to the creator manager, who passes them to the creators.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Weekly.",
+    "done_when": "A weekly note names an angle to push, an angle to drop and who received it.",
+    "if_missing": "If the numbers are thin, wait a week before dropping an angle.",
+    "why": "Creators produce more of what wins, so the network improves each week.",
+    "good_answer": "The angle about allergies works; the angle that failed three times is dropped.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids 1Cn5ZzKcRZw, 1yEz3VwjfQM, UiOSwotsPw4, r1vGCNiRaUw, dsbVdvodoMY"
+    ],
+    "part_of": [
+     "workflow:build-an-unpaid-creator-network-around-a-product"
+    ]
+   }
+  },
+  {
+   "id": "build-an-unpaid-creator-network-around-a-product--record-what-was-found",
+   "values": {
+    "title": "Record what was found and what matters most",
+    "recipe": [
+     "build-an-unpaid-creator-network-around-a-product"
+    ],
+    "position": 5,
+    "step": "record-what-was-found",
+    "do": "Record the number of creators, how they came in, the offer, the share of posts that became ads, and the single thing that brought the most good content. Keep it wherever the person keeps this pursuit's rows, in that store's own way.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At the end.",
+    "done_when": "The creator count, the intake ways, the offer and the best source of content are recorded.",
+    "if_missing": "If a number is not tracked, record that it is not.",
+    "why": "The record shows where the next hour of the manager's time should go.",
+    "good_answer": "Best source: creators already in the brand's messages who post daily.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids 1Cn5ZzKcRZw, 1yEz3VwjfQM, UiOSwotsPw4, r1vGCNiRaUw, dsbVdvodoMY"
+    ],
+    "part_of": [
+     "workflow:build-an-unpaid-creator-network-around-a-product"
+    ]
+   }
+  },
+  {
+   "id": "show-the-real-work-of-building-a-business-on-camera--name-the-reason",
+   "values": {
+    "title": "Name what sharing is for",
+    "recipe": [
+     "show-the-real-work-of-building-a-business-on-camera"
+    ],
+    "position": 0,
+    "step": "name-the-reason",
+    "do": "Write why the work will be shown: a diary to look back on, help from people who have done it, applications from people who want to join, investors, other founders to learn from. Pick the one that matters most.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "First.",
+    "done_when": "One main reason is written along with the others.",
+    "if_missing": "If the person has no reason beyond fame, say so and weigh it against the time it costs.",
+    "why": "A reason decides what gets filmed and shows whether the effort paid off.",
+    "good_answer": "To get applications from people who want to join the team.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids Dv75Z992lt4, d1e5UiUcIug, o3pt5XhI1-U"
+    ],
+    "part_of": [
+     "workflow:show-the-real-work-of-building-a-business-on-camera"
+    ]
+   }
+  },
+  {
+   "id": "show-the-real-work-of-building-a-business-on-camera--start-now-with-a-story",
+   "values": {
+    "title": "Start now, once there is a story to tell",
+    "recipe": [
+     "show-the-real-work-of-building-a-business-on-camera"
+    ],
+    "position": 1,
+    "step": "start-now-with-a-story",
+    "do": "Do not wait for a large audience or for equipment. Begin when the work has a story: the first factory visit, the first launch, a hard week. Film before the launch if possible. Use simple gear and learn what is comfortable by trying.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Whenever the person is ready.",
+    "done_when": "The first piece of work is filmed and a place to keep the footage is chosen.",
+    "if_missing": "If the person feels it is too late, start with the next real event, not a staged one.",
+    "why": "The size of an audience does not stop a start, and early footage is the part that cannot be filmed later.",
+    "good_answer": "A phone clip of the first supplier visit.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids Dv75Z992lt4, d1e5UiUcIug, o3pt5XhI1-U"
+    ],
+    "part_of": [
+     "workflow:show-the-real-work-of-building-a-business-on-camera"
+    ]
+   }
+  },
+  {
+   "id": "show-the-real-work-of-building-a-business-on-camera--show-the-long-days-not-only-the-wins",
+   "values": {
+    "title": "Show the long days, not only the results",
+    "recipe": [
+     "show-the-real-work-of-building-a-business-on-camera"
+    ],
+    "position": 2,
+    "step": "show-the-long-days-not-only-the-wins",
+    "do": "Share the real work: long days at the computer, calls, breakthroughs, early mornings and middle-of-the-night moments, not only the car and the sales. Audiences trust what they see being done.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "When publishing.",
+    "done_when": "Each piece published shows work in progress, not only a result.",
+    "if_missing": "If the work cannot be shown (private details), show the effort and the decision, not the secret.",
+    "why": "People fall in love with the success unless they also see what it takes to reach it.",
+    "good_answer": "A clip of a 15-hour day at a desk next to the result at the end.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids Dv75Z992lt4, d1e5UiUcIug, o3pt5XhI1-U"
+    ],
+    "part_of": [
+     "workflow:show-the-real-work-of-building-a-business-on-camera"
+    ]
+   }
+  },
+  {
+   "id": "show-the-real-work-of-building-a-business-on-camera--keep-the-building-first",
+   "values": {
+    "title": "Keep more time on building than on filming",
+    "recipe": [
+     "show-the-real-work-of-building-a-business-on-camera"
+    ],
+    "position": 3,
+    "step": "keep-the-building-first",
+    "do": "Record how many hours went to building the business and how many went to producing content. If content is taking more time than the work it documents, cut the filming.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Every week.",
+    "done_when": "Hours on building and hours on content are written for the week and content is the smaller number.",
+    "if_missing": "If content is larger, drop the production steps and keep only the raw clip.",
+    "why": "Documenting is only worth doing while the business is the thing being built.",
+    "good_answer": "40 hours building, 4 hours content.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids Dv75Z992lt4, d1e5UiUcIug, o3pt5XhI1-U"
+    ],
+    "part_of": [
+     "workflow:show-the-real-work-of-building-a-business-on-camera"
+    ]
+   }
+  },
+  {
+   "id": "show-the-real-work-of-building-a-business-on-camera--record-what-was-found",
+   "values": {
+    "title": "Record what came back and what matters most",
+    "recipe": [
+     "show-the-real-work-of-building-a-business-on-camera"
+    ],
+    "position": 4,
+    "step": "record-what-was-found",
+    "do": "Count the help offered, applications received, introductions and investors that came because of what was shown, and name the one piece that brought the most. Keep it wherever the person keeps this pursuit's rows, in that store's own way.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At the end of a period.",
+    "done_when": "A count of help, applications and introductions and the one piece that brought the most.",
+    "if_missing": "If nothing came back, record the reason it was tried and the next change.",
+    "why": "What came back shows if sharing is worth the hours it took.",
+    "good_answer": "One story asking for help brought about 2,000 applications.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids Dv75Z992lt4, d1e5UiUcIug, o3pt5XhI1-U"
+    ],
+    "part_of": [
+     "workflow:show-the-real-work-of-building-a-business-on-camera"
+    ]
+   }
+  },
+  {
+   "id": "judge-whether-a-product-idea-is-worth-launching--name-the-size-you-need",
+   "values": {
+    "title": "Name the size the business has to reach",
+    "recipe": [
+     "judge-whether-a-product-idea-is-worth-launching"
+    ],
+    "position": 0,
+    "step": "name-the-size-you-need",
+    "do": "Write the yearly revenue the business must reach to be worth the person's time. If a product cannot reach that size, do not start it, because the time it takes is time not spent on a better one.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "First.",
+    "done_when": "A target revenue is written, and the choice to drop any idea that cannot reach it is stated.",
+    "if_missing": "If the person has no target, choose the smallest size that pays for the time.",
+    "why": "Time is the cost; a small product takes as much of it as a large one.",
+    "good_answer": "Target: nine figures a year. Ideas that cannot reach it are not started.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids zyaddp5s7tc, MS_fE6mnh8c, b9s3kCvTLpc, q5BIoed5sBU, j53tavXon5E"
+    ],
+    "part_of": [
+     "workflow:judge-whether-a-product-idea-is-worth-launching"
+    ]
+   }
+  },
+  {
+   "id": "judge-whether-a-product-idea-is-worth-launching--check-market-size-and-growth",
+   "values": {
+    "title": "Check the market is large and growing",
+    "recipe": [
+     "judge-whether-a-product-idea-is-worth-launching"
+    ],
+    "position": 1,
+    "step": "check-market-size-and-growth",
+    "do": "Estimate the number of people who could buy and what each could spend. Prefer a market that did not exist when the person was born, because those are the growing ones. Write the size and whether it grows.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the target.",
+    "done_when": "A market size, a growth direction and a comparison with the target are written.",
+    "if_missing": "If the size cannot be found, say which number is missing and how it will be found.",
+    "why": "A large and growing market lets the same effort reach a bigger number.",
+    "good_answer": "Recovery products: a large, new market that grows each year.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids zyaddp5s7tc, MS_fE6mnh8c, b9s3kCvTLpc, q5BIoed5sBU, j53tavXon5E"
+    ],
+    "part_of": [
+     "workflow:judge-whether-a-product-idea-is-worth-launching"
+    ]
+   }
+  },
+  {
+   "id": "judge-whether-a-product-idea-is-worth-launching--check-unit-economics-can-fund-ads",
+   "values": {
+    "title": "Check unit economics can pay for the ads that will grow it",
+    "recipe": [
+     "judge-whether-a-product-idea-is-worth-launching"
+    ],
+    "position": 2,
+    "step": "check-unit-economics-can-fund-ads",
+    "do": "Work out the cost of getting one customer, the profit on each order, and how many orders a customer makes. Confirm the profit from sales can be put back into ads fast enough to reach the target. Note the order size: a product below about 35 per order is hard to grow without repeat orders.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After the market.",
+    "done_when": "Cost per customer, profit per order and orders per customer are each a number, and a yes or no on funding growth is written.",
+    "if_missing": "If any of the three numbers is a guess, say so and say how it will be measured.",
+    "why": "A product that cannot fund its own growth stops growing at a size below the target.",
+    "good_answer": "Order under 35, so growth depends on a monthly refill and a lifetime of a few months.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids zyaddp5s7tc, MS_fE6mnh8c, b9s3kCvTLpc, q5BIoed5sBU, j53tavXon5E"
+    ],
+    "part_of": [
+     "workflow:judge-whether-a-product-idea-is-worth-launching"
+    ]
+   }
+  },
+  {
+   "id": "judge-whether-a-product-idea-is-worth-launching--set-the-margin-before-launch",
+   "values": {
+    "title": "Set the margin before launch",
+    "recipe": [
+     "judge-whether-a-product-idea-is-worth-launching"
+    ],
+    "position": 3,
+    "step": "set-the-margin-before-launch",
+    "do": "Decide the margin now: pick the higher-priced, smaller part of a crowded market and write the reason the product is worth that price. A product sold at 12 with a clear reason beats one sold at 5 on every corner.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After unit economics.",
+    "done_when": "A price, a margin and a one-sentence reason it is worth it are written.",
+    "if_missing": "If no reason holds, the product is a commodity; drop it or change it.",
+    "why": "The margin can only be set once, before launch; afterwards it is set by the market.",
+    "good_answer": "Sells at 12 where the common one costs 5, because of a better material.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids zyaddp5s7tc, MS_fE6mnh8c, b9s3kCvTLpc, q5BIoed5sBU, j53tavXon5E"
+    ],
+    "part_of": [
+     "workflow:judge-whether-a-product-idea-is-worth-launching"
+    ]
+   }
+  },
+  {
+   "id": "judge-whether-a-product-idea-is-worth-launching--check-the-repeat-purchase-fit",
+   "values": {
+    "title": "Check how often the product is bought again",
+    "recipe": [
+     "judge-whether-a-product-idea-is-worth-launching"
+    ],
+    "position": 4,
+    "step": "check-the-repeat-purchase-fit",
+    "do": "Ask how long a customer uses one unit and how often they need another. Prefer a product used every day that runs out in about a month. Write the number of days between orders and the number of months a customer stays.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After margin.",
+    "done_when": "Days between orders and months of stay are numbers, and the repeat fit is written as good or poor.",
+    "if_missing": "If the product is used once, the person needs a plan for a second product to sell to the same customer.",
+    "why": "Repeat orders are what make the cost of finding a customer pay back.",
+    "good_answer": "A refill every 27 to 45 days with a habit built around it.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids zyaddp5s7tc, MS_fE6mnh8c, b9s3kCvTLpc, q5BIoed5sBU, j53tavXon5E"
+    ],
+    "part_of": [
+     "workflow:judge-whether-a-product-idea-is-worth-launching"
+    ]
+   }
+  },
+  {
+   "id": "judge-whether-a-product-idea-is-worth-launching--decide-and-record",
+   "values": {
+    "title": "Decide and record what mattered most",
+    "recipe": [
+     "judge-whether-a-product-idea-is-worth-launching"
+    ],
+    "position": 5,
+    "step": "decide-and-record",
+    "do": "State launch or do not launch. Record the numbers and the one number that decided it. Keep it wherever the person keeps this pursuit's rows, in that store's own way.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "At the end.",
+    "done_when": "A launch or do-not-launch answer is written with the numbers and the deciding one.",
+    "if_missing": "If a number is missing, the answer is: not yet, and the missing number is named.",
+    "why": "A written answer lets the next idea be judged by the same measures.",
+    "good_answer": "Do not launch: the order is low and no repeat is planned.",
+    "came_from": [
+     "the person's old kept store, table video_transcripts creator Elevator Goods, video ids zyaddp5s7tc, MS_fE6mnh8c, b9s3kCvTLpc, q5BIoed5sBU, j53tavXon5E"
+    ],
+    "part_of": [
+     "workflow:judge-whether-a-product-idea-is-worth-launching"
     ]
    }
   }
