@@ -10,7 +10,7 @@
 //   - dist/_headers lines are added to the files they name.
 // The visitor's address comes from the X-Forwarded-For the computer's own web server sets, as cf-connecting-ip.
 //
-// Settings (environment): SITE_BUNDLE (the bundle's index.js), SITE_FILES (the built folder), PORT, SITE_SETTINGS (a JSON file:
+// Settings (environment): SITE_BUNDLE (the bundle's index.js), SITE_FILES (the built folder), SOCKET or PORT, SITE_SETTINGS (a JSON file:
 // { vars, run_worker_first, email_account, kv_table }). Held values come from the unit's credentials folder
 // ($CREDENTIALS_DIRECTORY): site-database (the Postgres connection), email-sending-token (optional) and job-run-key.
 // GET /readyz answers 200 once the Worker is loaded and the database answers, 503 while this process drains (SIGTERM).
@@ -132,5 +132,12 @@ const server = createServer(async (req, res) => {
     res.end('Something broke on our side. Try again in a moment.');
   }
 });
-server.listen(Number(process.env.PORT ?? 8787), '127.0.0.1', () => console.log(JSON.stringify({ serving: Number(process.env.PORT ?? 8787) })));
-process.on('SIGTERM', () => { draining = true; setTimeout(() => server.close(() => pool.end().then(() => process.exit(0))), Number(process.env.STOP_HOLD_MS ?? 3000)); });
+// SOCKET (a comma-separated list of unix socket paths, as a computer's web server sends a site's program its requests) or PORT
+// on loopback. Every address answers the same requests.
+const servers = process.env.SOCKET
+  ? process.env.SOCKET.split(',').map(path => path.trim()).filter(Boolean).map((path, index) => (index ? createServer(server.listeners('request')[0]) : server).listen(path, () => console.log(JSON.stringify({ serving: path }))))
+  : [server.listen(Number(process.env.PORT ?? 8787), '127.0.0.1', () => console.log(JSON.stringify({ serving: Number(process.env.PORT ?? 8787) })))];
+process.on('SIGTERM', () => {
+  draining = true;
+  setTimeout(() => Promise.all(servers.map(one => new Promise(done => one.close(done)))).then(() => pool.end()).then(() => process.exit(0)), Number(process.env.STOP_HOLD_MS ?? 3000));
+});

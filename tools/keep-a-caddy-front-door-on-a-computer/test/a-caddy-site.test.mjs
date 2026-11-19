@@ -155,6 +155,7 @@ test('each name its own folder: the site file names no site, asks before each ce
   const text = files[0].text;
   assert.match(text, /on_demand_tls \{\n\t\task http:\/\/127\.0\.0\.1:5601\/\n\t\}/);
   assert.match(text, /@has_folder file \/var\/lib\/example-sites\/\{site\}\/index\.html/);
+  assert.match(text, /@has_program file \{\n\t\troot \/run\/example-sites\n\t\ttry_files \/\{site\}\/\n\t\}\n\trespond @has_program 200/, 'a name whose program answers its first page gets its certificate too');
   assert.match(text, /^192\.0\.2\.10 \{$/m);
   assert.match(text, /@program file \{\n\t\troot \/run\/example-sites\n\t\ttry_files \/\{site\}\/\n\t\}/, 'a site has a program when its folder exists under programs_root');
   assert.match(text, /reverse_proxy unix\/\/run\/example-sites\/\{site\}\/http\.sock/);
