@@ -1,7 +1,7 @@
 // tools/watch-my-sources/test/watch-sources.test.mjs (moved from Trillion-X/trillion test/watch-sources.test.mjs)
 //
-// The places a person follows, watched (read-data/watch-sources.mjs) over their lists kept as records behind a records
-// door (tools/records-door/read-data/lists-door.mjs over do-work/records-in-hand.mjs), with the network (read) and the person's model route (ask)
+// The places a person follows, watched (read-data/watch-sources.mjs) over their lists kept as records handed in
+// (read-data/lists-in-hand.mjs), with the network (read) and the person's model route (ask)
 // stubbed: RSS, Atom (YouTube's media:description), JSON and a page's change each become rows; a source's first read is
 // a baseline that hands nothing on; a later read keeps what is new, weighs it in ONE question and hands only what moves a
 // pursuit (directly or as an insight) to the arrival door; the rest is set aside; an X account without a feed, a
@@ -11,10 +11,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import data from '../read-data/watch-sources.json' with { type: 'json' };
-import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
+import { listsInHand } from '../read-data/lists-in-hand.mjs';
 import { movementOf } from '../read-data/ranked-lists.mjs';
 import { watchSources } from '../read-data/watch-sources.mjs';
-import { memoryDoor } from '../do-work/records-in-hand.mjs';
 
 const fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 // A channel's videos page as the site carries it (ytInitialData): each upload one lockupViewModel with its id and title.
@@ -59,9 +58,8 @@ const rss = items => `<?xml version="1.0"?><rss version="2.0"><channel><title>Bl
 const atom = entries => `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom" xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/"><title>Channel</title>${entries.map(entry => `<entry><id>yt:video:${entry.id}</id><title>${entry.title}</title><link rel="alternate" href="https://www.youtube.com/watch?v=${entry.id}"/><published>${entry.date ?? '2026-10-06T09:00:00+00:00'}</published><media:group><media:title>${entry.title}</media:title><media:description>${entry.description ?? ''}</media:description></media:group></entry>`).join('')}</feed>`;
 
 function setup() {
-  const door = memoryDoor();
-  const lists = listsOverDoor(door);
-  const world = { pages: new Map(), requests: [], asked: [], arrivals: [], clock: Date.parse('2026-10-07T08:00:00Z'), judge: () => ({ moves: null, how: null, format: null, why: 'Nothing here.' }), pursuits: PURSUITS, formats: FORMATS, lists, door };
+  const lists = listsInHand();
+  const world = { pages: new Map(), requests: [], asked: [], arrivals: [], clock: Date.parse('2026-10-07T08:00:00Z'), judge: () => ({ moves: null, how: null, format: null, why: 'Nothing here.' }), pursuits: PURSUITS, formats: FORMATS, lists };
   world.read = async (url, init = {}) => {
     world.requests.push({ url: String(url), headers: init.headers ?? {} });
     const page = world.pages.get(String(url));

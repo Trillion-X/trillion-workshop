@@ -6,9 +6,9 @@ Moved from Trillion-X/trillion (commit 2e57d9a49ba0eb2ff3a44fa711be1ff054e32b18)
 
 ## How it runs
 
-`tool:watch-my-sources` runs `do-work/watch-my-sources.mjs` `watchMySources` in a small container. It holds no records door and keeps nothing: the caller reads the person's lists and rows (records:list) and hands them in as `records`, and the answer's `write` is the records:write input that keeps what the run found, each record expecting the value it was handed in with (send it, then read the records again before the next run):
+`tool:watch-my-sources` runs `do-work/watch-my-sources.mjs` `watchMySources` in a small container through the plain function runner (`tools/workflows/do-work/run-a-function.mjs`). It reaches no store and keeps nothing: the caller reads the person's lists and rows from the store they keep them in and hands them in as `records`, and the answer's `keep` is what the run found, each record `{ id, type, value, expected }` expecting the value it was handed in with (put it in the store, then read the records again before the next run):
 
-- The lists are records, as a Trillion list keeps them: the list `list:<id>` (type `list`) and each row `record:<row type>:<row id>` (type `record:<row type>`), reached by `tools/records-door/read-data/lists-door.mjs` over the records handed in. A row is merged, never replaced; every record in `write` expects what was handed in, so a row changed by someone else in between refuses that write when the caller sends it.
+- The lists are records, as the person's lists keep them: the list `list:<id>` (type `list`) and each row `record:<row type>:<row id>` (type `record:<row type>`), reached by `read-data/lists-in-hand.mjs` over the records handed in with plain filters. A row is merged, never replaced; every record in `keep` expects what was handed in, so a store refuses a record someone else changed in between.
 - Pursuits are the person's `pursuit` records, handed in with the rest of `records`; content formats come in as `formats` (the caller reads them with content_formats).
 - The run asks no model and hands nothing in itself. When new items wait it answers `weigh_wanted` `{ purpose: "signal-weigh", identity, messages, max_tokens }`, the question for the oldest batch, byte for byte the same until it is answered; the AI that runs the tool answers it and runs again with `weighed` `{ identity, reply }`. A reply is used only for the question its identity names. Each item that moves a pursuit comes back in `arrivals`, each exactly what the arrival door takes (route `watch-sources`, `from_person: false`, `source_id`); the door keeps one arrival per route and source_id, so handing one in again adds nothing.
 - A source whose Take in is Whole history is named under `history_wanted` with the tool that lists it; that tool's answer comes back as `history` `{ source, answer }`.
@@ -19,20 +19,21 @@ The row holds no records right: it reads only public addresses and writes nothin
 
 | File | Purpose |
 |------|---------|
+| `read-data/lists-in-hand.mjs` | `listsInHand(records)`: the lists `watchSources` reads and changes, over the records handed in for one run; `keep()` is what the run changed, each record expecting what it was handed in with. |
 | `read-data/watch-sources.mjs` | `watchSources({ lists, read, pursuits, formats, ask, arrive, now }, input)`: one run over any `lists` (answered at once or as promises). |
 | `read-data/watch-sources.json` | The lists it makes (fields, choices, the starter places, each off), run limits, the arrival route, the weighing question, ranked-list readers, history tools and every refusal's words, as DATA. `feed_readers`: how a source of each kind is read when its address is not its feed (a YouTube channel's feeds and videos page, an X account through a given feed), one row per kind. |
 | `read-data/feed-items.mjs` | One reader for every address followed: RSS, Atom, JSON items, a YouTube channel's videos page, and the bounded conditional read (ETag, Last-Modified, 304). |
 | `read-data/ranked-lists.mjs` | A ranked list read whole by its reader row, and how an item moved between two days. |
-| `do-work/watch-my-sources.mjs` | `watchMySources(input, { read })`: the tool's run over `input.records`, with the weighing and hand-in answered for the caller and `write` for what to keep. |
+| `do-work/watch-my-sources.mjs` | `watchMySources(input, { read })`: the tool's run over `input.records`, with the weighing and hand-in answered for the caller and `keep` for what to keep. |
 | `ports/watch-sources.json` | The port contract: the Trillion sources, their BLAKE3 identities and the baseline copy. |
 | `tool-rows.json` | The Workshop row. |
 | `part.json` | Public files. |
-| `test/watch-sources.test.mjs` | The moved tests: feeds, pages, YouTube, X, 304, caps, the held question, history, ranked lists, one read and one write a run, over lists behind an in-memory door. |
-| `test/watch-my-sources.test.mjs` | The tool's run: the weighing hand-off, arrivals, pursuits from records, starter places, the answer's `write`, and the row run with no records door. |
-| `do-work/records-in-hand.mjs` | The records handed in, kept in memory for one run with the door's write conditions; `changes()` is the records:write input the run would have sent. |
+| `test/watch-sources.test.mjs` | The moved tests: feeds, pages, YouTube, X, 304, caps, the held question, history, ranked lists, one read and one write a run, over lists handed in (`read-data/lists-in-hand.mjs`). |
+| `test/watch-my-sources.test.mjs` | The tool's run: the weighing hand-off, arrivals, pursuits from records, starter places, the answer's `keep`, and the row run through the plain function runner with no records door. |
+| `do-work/records-in-hand.mjs` | Not used by this folder. An in-memory stand-in door still imported by the tests of `tools/know-who-is-in-this` and `tools/settle-amounts-and-reconcile`; it goes when those tests hand rows in instead. |
 
 ## Dependencies
 
-**Depends on:** `tools/browse-public-page` (`do-work/page-facts.mjs`: the public-address check and a page's readable text), `tools/records-door`, `tools/content-identity`, `@noble/hashes` (BLAKE3).
+**Depends on:** `tools/browse-public-page` (`do-work/page-facts.mjs`: the public-address check and a page's readable text), `tools/workflows` (`do-work/run-a-function.mjs`, the row's runner), `tools/content-identity`, `@noble/hashes` (BLAKE3).
 
 **Depended on by:** Trillion-X/trillion (its in-account run of Watch my sources, and its list filled from a feed, which reads feeds with `read-data/feed-items.mjs`).

@@ -7,8 +7,8 @@
 //   what moves a pursuit, directly or as an insight carried over from another field, is handed to their AIs through the
 //   one arrival door (the same road as anything that reaches them from outside). Nothing here names a
 //   site: a source is a row, a new kind of source is a choice in watch-sources.json. The lists are reached through
-//   whatever `lists` the caller hands in, synchronous or not: the person's own records door (do-work/watch-my-sources.mjs)
-//   or a host's own lists.
+//   whatever `lists` the caller hands in, synchronous or not: the person's records handed in for one run
+//   (read-data/lists-in-hand.mjs, used by do-work/watch-my-sources.mjs) or a host's own lists.
 //
 // Non-Negotiable Invariants
 //   1. Only public addresses are read (feed-items.mjs readFeedText, the page reader's own address check) and nothing
