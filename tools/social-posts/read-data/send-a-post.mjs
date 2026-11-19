@@ -2,7 +2,7 @@
 //
 // Purpose: send one of the person's posts to one of its destinations, once its time has come, through the publisher
 // of that place (@opencoredev/social-sdk, MIT, or a publisher shaped like one), and answer the outcome as the post to keep
-// (`keep`; this run reads the post and the connection through the records door, because the person's wake runs it at the post's time with no one to hand them in, and stores nothing). A place's row (read-data/post-places.json) says which publisher, how its options are filled and which hosts
+// (`keep`; the post and the destination's connection are handed in as `records`, and the run stores nothing). A place's row (read-data/post-places.json) says which publisher, how its options are filled and which hosts
 // a held value may go to; the destination is one of the person's connection records. One tool row (tool:send-a-post) sends to every place, and its input `place` (the place's slug) chooses the
 // variant of the row that names that place's connection kind, held fields and renewal (place-variants.mjs makes them
 // from the place rows): the engine hands this run that connection's held values on descriptors 4, 5, ... in the order the place's options name them (`heldFields`), and
@@ -19,12 +19,10 @@
 //      from the post, the account and the attempt, so a send repeated after a cut-off run is one request to the place.
 //   4. A destination that already took the post is never sent it again.
 //   5. Nothing here names a place, a vendor or a person.
-//   6. A post's file comes only from the person's own files through the run's door: a place is handed a share of it
+//   6. A post's file comes only from the person's own files, as the address the caller gives: a place is handed a share of it
 //      (a signed link that expires) or its bytes streamed a page at a time. No copy of the file is kept here.
-//   7. A post goes at its time only through the person's own wake (tool:send-each-post-at-its-time, which they
-//      switch on): a change to their posts answers one timed send per destination at the post's scheduled_for, and
-//      that send goes only while the post still carries the armed_at it was set with. Nothing here polls, and the
-//      wake's run sends nothing itself.
+//   7. A post goes at its time only through a timed run of workflow:send-each-post-at-its-time, which hands this tool the
+//      armed_at the post was set with: a post taken back, changed or set again sends nothing at the old time.
 //
 import { createHmac } from 'node:crypto';
 import { readFileSync } from 'node:fs';
@@ -43,6 +41,7 @@ import { requests } from './publisher-requests.mjs';
 import { substack } from './publisher-substack.mjs';
 import { shaped } from './post-shape.mjs';
 import { slugOf } from './place-variants.mjs';
+import { recordsIn, withKept } from './records-in.mjs';
 
 // The publishers this tool carries, bound by the names place rows use (`adapter`). A place whose adapter is not here
 // is refused in plain words.
@@ -228,18 +227,20 @@ async function mediaFor(post, place, mediaUrl, fetchMedia) {
   return { kind, mimeType: mediaType, byteSize: post.media.byte_length, source: { kind: 'https-url', url: mediaUrl } };
 }
 
-/** tool:send-a-post: sends the post to one destination once its time has come, and answers the outcome as the post to keep. Run
- *  at the post's time by its wake, it is told the armed_at the post was set with, and sends nothing once the post no
- *  longer carries it (taken back, changed, set again or gone). */
-export async function sendAPost({ post_id: postId, place: placeSlug, account_id: accountId, resend = false, armed_at: armedAt, media_url: mediaUrl } = {}, { door, now = () => new Date(), send = fetch, fetchMedia = fetch, held = null, publishers = PUBLISHERS }) {
+/** tool:send-a-post: sends the post to one destination once its time has come, and answers the outcome as the post to keep.
+ *  The post and the destination's connection are handed in as `records`; the run stores nothing and answers the post as it
+ *  ends under `keep`. Given armed_at (the timed run of workflow:send-each-post-at-its-time gives it), it sends nothing once the
+ *  post no longer carries it. */
+export async function sendAPost(input = {}, { now = () => new Date(), send = fetch, fetchMedia = fetch, held = null, publishers = PUBLISHERS } = {}) {
+  const { post_id: postId, place: placeSlug, account_id: accountId, resend = false, armed_at: armedAt, media_url: mediaUrl } = input;
   if (typeof postId !== 'string' || !postId.trim() || typeof accountId !== 'string' || !accountId.trim()) throw new Error('Give post_id and account_id (one of the post\'s destinations).');
   if (typeof placeSlug !== 'string' || !placeSlug.trim()) throw new Error('Give place (the slug of the place account_id belongs to).');
-  const original = await door.readRecord(TYPE, postId.trim());
-  let post = original?.value ?? null;
-  if (armedAt !== undefined && (!post || post.armed_at !== armedAt || !settings.at_its_time.sends_while.includes(post.status))) {
-    return { post_id: postId.trim(), status: post?.status ?? 'gone', said: settings.at_its_time.words.no_longer_set };
+  const { door, kept } = recordsIn(input);
+  let post = await door.read(TYPE, postId.trim());
+  if (!post) throw new Error(`There is no post ${postId.trim()} among the records handed in, so nothing was sent.`);
+  if (armedAt !== undefined && (post.armed_at !== armedAt || !settings.at_its_time.sends_while.includes(post.status))) {
+    return { post_id: post.post_id, status: post.status, said: settings.at_its_time.words.no_longer_set };
   }
-  if (!post) throw new Error(`There is no post ${postId}.`);
   if (!['approved', 'scheduled', 'partial', 'failed', 'posted'].includes(post.status)) throw new Error(`${post.post_id} is ${post.status}. Only an approved post is sent.`);
   if (!post.approved_at) throw new Error(`${post.post_id} was never approved, so nothing was sent.`);
   if (post.scheduled_for && Date.parse(post.scheduled_for) > now().getTime()) return { post_id: post.post_id, status: post.status, post: shaped(post), said: `Its time has not come: it goes out at ${post.scheduled_for}. Nothing was sent.` };
@@ -251,9 +252,11 @@ export async function sendAPost({ post_id: postId, place: placeSlug, account_id:
     return { post_id: post.post_id, status: post.status, post: shaped(post), said: state === 'posted' ? 'This destination already has the post.' : state === 'not known' ? fillWords(settings.not_known_words, { platform: earlier.label ?? accountId }) : 'This destination is already taking the post.' };
   }
   const connection = await door.read(settings.connection_type, `${settings.connection_prefix}${encodeURIComponent(accountId)}`);
-  const place = connection ? PLACES.find(item => item.connection_vendor === connection.vendor) ?? null : null;
-  if (place && slugOf(place) !== placeSlug.trim()) throw new Error(`${accountId} belongs to ${slugOf(place)}, not ${placeSlug.trim()}. Nothing was sent.`);
-  // The post as it ends, answered under `keep` for the caller to store.
+  if (!connection) throw new Error(`${accountId} has no connection record among the records handed in, so nothing was sent.`);
+  const place = PLACES.find(item => item.connection_vendor === connection.vendor) ?? null;
+  if (!place) throw new Error(`${accountId} is a ${connection.vendor} connection, and no place takes that, so nothing was sent.`);
+  if (slugOf(place) !== placeSlug.trim()) throw new Error(`${accountId} belongs to ${slugOf(place)}, not ${placeSlug.trim()}. Nothing was sent.`);
+  // The post as it ends, written to the rows this run keeps for the caller to store.
   const settle = () => {
     const at = now().toISOString();
     const next = { ...post, sent_at: post.sent_at ?? at, deliveries: { ...deliveries }, updated_at: at };
@@ -262,11 +265,6 @@ export async function sendAPost({ post_id: postId, place: placeSlug, account_id:
   };
   // The attempt moves on after each send, so a later retry is a new request to the place.
   const attempt = (earlier.attempt ?? 0) + (earlier.status && earlier.status !== 'not sent' ? 1 : 0);
-  if (!place) {
-    deliveries[accountId] = { ...earlier, status: 'failed', attempt, error: 'That account is no longer connected. Connect it again, then send again.' };
-    const kept = settle();
-    return { post_id: post.post_id, status: post.status, post: shaped(post), said: deliveries[accountId].error, keep: kept };
-  }
   try {
     const { social, account } = publisherFor(place, connection, { held: held ?? heldFromDescriptors(place), send, publishers });
     const media = await mediaFor(post, place, mediaUrl, fetchMedia);
@@ -287,41 +285,8 @@ export async function sendAPost({ post_id: postId, place: placeSlug, account_id:
     const beforeSending = deliveries[accountId]?.status !== 'not known' || refusedHere || error?.issues?.length || error?.retryDisposition?.kind === 'never';
     if (beforeSending) deliveries[accountId] = { platform: place.platform, label: place.label, status: 'failed', attempt, error: refusedHere?.message ?? wordsFor(place, { code: error?.code, message: error?.issues?.map(issue => issue.message).join(' ') || error?.message, retry: error?.retryDisposition?.kind }) };
   }
-  const kept = settle();
+  await door.write(settle());
   const shown = shaped(post);
   const mine = shown.destinations.find(item => item.account_id === accountId);
-  return { post_id: post.post_id, status: post.status, post: shown, said: mine.status === 'posted' ? `Posted to ${place.label}.` : mine.error ?? `${place.label}: ${mine.status}.`, keep: kept };
-}
-
-/** tool:send-each-post-at-its-time: woken when the person's posts change (the wake they switched on; its cause names
- *  the changed records). For each changed post set to go at its time, it answers one timed run of the place's send
- *  row per destination still to be sent, at the post's scheduled_for, told the post's armed_at (invariant 7). A post
- *  taken back, changed, set again or removed answers nothing new, and the runs set for it before send nothing. */
-export async function sendEachPostAtItsTime({ task = {} } = {}, { door }) {
-  const plan = settings.at_its_time;
-  const changed = [...new Set((task.cause?.detail?.changes ?? []).filter(change => change && !change.deleted && typeof change.id === 'string').map(change => change.id))];
-  const set = [];
-  const leftOut = [];
-  const wakes = [];
-  for (const postId of changed) {
-    const post = await door.read(TYPE, postId);
-    const at = Date.parse(post?.scheduled_for ?? '');
-    if (!post || post.status !== 'scheduled' || !post.approved_at || !post.armed_at || !Number.isFinite(at)) continue;
-    for (const accountId of post.destinations ?? []) {
-      if (!settings.resend_states.includes(post.deliveries?.[accountId]?.status ?? 'not sent')) continue;
-      const connection = await door.read(settings.connection_type, `${settings.connection_prefix}${encodeURIComponent(accountId)}`);
-      const place = connection ? PLACES.find(item => item.connection_vendor === connection.vendor) ?? null : null;
-      if (!place) {
-        leftOut.push({ post_id: post.post_id, account_id: accountId, said: plan.words.not_connected });
-        continue;
-      }
-      if (wakes.length >= plan.most_sends) {
-        leftOut.push({ post_id: post.post_id, account_id: accountId, said: fillWords(plan.words.too_many, { most: String(plan.most_sends) }) });
-        continue;
-      }
-      set.push({ post_id: post.post_id, account_id: accountId, tool: plan.send_tool, at: post.scheduled_for });
-      wakes.push({ wake: { tool: plan.send_tool, at_ms: at, input: { post_id: post.post_id, place: slugOf(place), account_id: accountId, armed_at: post.armed_at }, budget: plan.child_budget } });
-    }
-  }
-  return { set, left_out: leftOut, said: set.length ? fillWords(plan.words.set, { count: String(set.length) }) : plan.words.none, wake_effects: wakes };
+  return withKept({ post_id: post.post_id, status: post.status, post: shown, said: mine.status === 'posted' ? `Posted to ${place.label}.` : mine.error ?? `${place.label}: ${mine.status}.` }, kept);
 }

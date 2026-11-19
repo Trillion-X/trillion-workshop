@@ -3405,373 +3405,6 @@
       }
     },
     {
-      "address": "package::social-posts::tool::send-each-post-at-its-time",
-      "id": "package::social-posts::tool::send-each-post-at-its-time",
-      "path": [
-        "current-item",
-        "published-record"
-      ],
-      "payload": {
-        "uses_tools": [
-          "trillion-workshop/account-session",
-          "trillion-workshop/addressed-marks",
-          "trillion-workshop/agents-hub",
-          "trillion-workshop/ai-execution-history",
-          "trillion-workshop/ai-guided-work",
-          "trillion-workshop/ai-memory",
-          "trillion-workshop/ai-records-producer",
-          "trillion-workshop/ai-tool-catalog",
-          "trillion-workshop/ambience",
-          "trillion-workshop/arrange-screens-in-panes",
-          "trillion-workshop/ask-a-small-model-for-a-verdict",
-          "trillion-workshop/audio-transcription",
-          "trillion-workshop/away-summary",
-          "trillion-workshop/background-runner-control",
-          "trillion-workshop/bring-in-new-items-from-this-computer",
-          "trillion-workshop/browse-and-upload-my-files",
-          "trillion-workshop/browse-inspiration-clips",
-          "trillion-workshop/browse-public-page",
-          "trillion-workshop/build-a-screen-from-patches",
-          "trillion-workshop/build-engine-modules-for-web-hosts",
-          "trillion-workshop/calibrate-a-camera-frame",
-          "trillion-workshop/chat",
-          "trillion-workshop/check-a-packages-declared-permissions",
-          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
-          "trillion-workshop/check-bundle-package-boundaries",
-          "trillion-workshop/choose-and-publish-screen-looks",
-          "trillion-workshop/command-palette",
-          "trillion-workshop/composition-scene-renderer",
-          "trillion-workshop/computer-programs",
-          "trillion-workshop/connect-a-service-and-seal-its-key",
-          "trillion-workshop/content-identity",
-          "trillion-workshop/content-media-evidence",
-          "trillion-workshop/conversations",
-          "trillion-workshop/copy-a-site",
-          "trillion-workshop/decide-when-things-show",
-          "trillion-workshop/decide-with-a-method",
-          "trillion-workshop/delight-moments",
-          "trillion-workshop/describe-the-workshop",
-          "trillion-workshop/documents",
-          "trillion-workshop/documents-as-list-rows",
-          "trillion-workshop/draw-lists-on-a-canvas",
-          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
-          "trillion-workshop/drive-the-screen",
-          "trillion-workshop/edit-a-document-together",
-          "trillion-workshop/edit-a-site-visually",
-          "trillion-workshop/feel",
-          "trillion-workshop/file-content-renderer",
-          "trillion-workshop/find-anything-from-one-box",
-          "trillion-workshop/formula-engine",
-          "trillion-workshop/formulas",
-          "trillion-workshop/founder-growth-engine-screens",
-          "trillion-workshop/funnel-offer-graph",
-          "trillion-workshop/funnels-screen",
-          "trillion-workshop/graph-canvas",
-          "trillion-workshop/guided-overlay",
-          "trillion-workshop/hand-off-jobs-between-agents",
-          "trillion-workshop/hand-work-to-ais",
-          "trillion-workshop/headless-browser",
-          "trillion-workshop/hold-one-thing-until-done",
-          "trillion-workshop/http-client",
-          "trillion-workshop/introduce-two-people",
-          "trillion-workshop/judge-words",
-          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
-          "trillion-workshop/keep-copies-in-step",
-          "trillion-workshop/keep-lists-of-rows",
-          "trillion-workshop/keep-records-only-my-devices-can-read",
-          "trillion-workshop/know-the-projects-on-this-computer",
-          "trillion-workshop/know-who-is-in-this",
-          "trillion-workshop/learn-a-workflow-from-a-job",
-          "trillion-workshop/learn-from-everyones-results",
-          "trillion-workshop/leave-a-makers-private-starting-values-out",
-          "trillion-workshop/let-someone-look-at-my-account-read",
-          "trillion-workshop/list-tools-for-an-ai",
-          "trillion-workshop/listen-for-a-while",
-          "trillion-workshop/live-namespace",
-          "trillion-workshop/local-files",
-          "trillion-workshop/look-at-screen",
-          "trillion-workshop/make-a-video-playable-at-ingest",
-          "trillion-workshop/make-screen-layouts-and-controls",
-          "trillion-workshop/make-things-feel-good",
-          "trillion-workshop/marketplace-defaults",
-          "trillion-workshop/media-composition",
-          "trillion-workshop/media-identity",
-          "trillion-workshop/media-playback",
-          "trillion-workshop/messages-screen",
-          "trillion-workshop/move-records-through-declared-states",
-          "trillion-workshop/native-space-source-release",
-          "trillion-workshop/operation-records",
-          "trillion-workshop/organize-my-files",
-          "trillion-workshop/organize-the-sidebar",
-          "trillion-workshop/outside-conversations",
-          "trillion-workshop/paid-access",
-          "trillion-workshop/pair-unknown-senders",
-          "trillion-workshop/permission-lease",
-          "trillion-workshop/person-list",
-          "trillion-workshop/pick-a-screen-as-you-type",
-          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
-          "trillion-workshop/pin-files-by-content",
-          "trillion-workshop/process-session",
-          "trillion-workshop/query-and-change-list-rows",
-          "trillion-workshop/quote-untrusted-words",
-          "trillion-workshop/read-and-write-mail",
-          "trillion-workshop/recently-deleted-and-storage",
-          "trillion-workshop/record-audio",
-          "trillion-workshop/record-graph",
-          "trillion-workshop/record-log",
-          "trillion-workshop/record-video",
-          "trillion-workshop/record-video-with-teleprompter",
-          "trillion-workshop/record-voice-and-meetings",
-          "trillion-workshop/records-door",
-          "trillion-workshop/refuse-requests-to-private-addresses",
-          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
-          "trillion-workshop/review-what-a-list-says",
-          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
-          "trillion-workshop/run-experiments",
-          "trillion-workshop/run-on-a-persons-computer",
-          "trillion-workshop/run-tools-in-my-signed-in-browser",
-          "trillion-workshop/run-work-later-or-on-a-repeat",
-          "trillion-workshop/screen-arrangement",
-          "trillion-workshop/screen-look",
-          "trillion-workshop/screen-looks",
-          "trillion-workshop/screen-ready-records",
-          "trillion-workshop/screen-recording",
-          "trillion-workshop/sealed-records",
-          "trillion-workshop/see-a-pursuit-through-the-lens",
-          "trillion-workshop/see-what-is-being-worked-on",
-          "trillion-workshop/see-what-my-ais-did",
-          "trillion-workshop/selected-agent",
-          "trillion-workshop/send-requests-to-an-engine",
-          "trillion-workshop/send-to-trillion-from-my-browser",
-          "trillion-workshop/serialized-content",
-          "trillion-workshop/set-up-my-account",
-          "trillion-workshop/set-up-my-devices-and-cameras",
-          "trillion-workshop/settings",
-          "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/shared-code",
-          "trillion-workshop/show-any-file-as-itself",
-          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
-          "trillion-workshop/show-ideas-as-records",
-          "trillion-workshop/sidebar",
-          "trillion-workshop/slot-table",
-          "trillion-workshop/start-from-any-landing-page",
-          "trillion-workshop/starting-set",
-          "trillion-workshop/stream-an-answer-in-keyed-parts",
-          "trillion-workshop/take-pictures-out-of-a-zip-archive",
-          "trillion-workshop/tell-one-person-something-through-every-way-they",
-          "trillion-workshop/tell-the-person",
-          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
-          "trillion-workshop/tours-screen",
-          "trillion-workshop/transcript-reader",
-          "trillion-workshop/turn-a-list-column-that-holds-names-into",
-          "trillion-workshop/turn-frames-into-slides",
-          "trillion-workshop/tweak-live-controls",
-          "trillion-workshop/ui",
-          "trillion-workshop/view-as",
-          "trillion-workshop/walk-a-new-person-through-first-setup",
-          "trillion-workshop/walk-nested-input-within-limits",
-          "trillion-workshop/wall-time",
-          "trillion-workshop/watch-my-sources",
-          "trillion-workshop/what-is-waiting-on-me",
-          "trillion-workshop/where-a-person-stands",
-          "trillion-workshop/who-does-each-step",
-          "trillion-workshop/work-map",
-          "trillion-workshop/workflow-canvas",
-          "trillion-workshop/workflow-interruptions",
-          "trillion-workshop/workflows",
-          "trillion-workshop/workspace-pieces",
-          "trillion-workshop/workspace-screens",
-          "trillion-workshop/write-a-job-done-in-several-steps-have",
-          "trillion-workshop/write-a-post-for-each-place"
-        ],
-        "kind": "ai-tool-descriptor",
-        "status": "active",
-        "licence_class": "licence:maker-own",
-        "placements": [
-          "placement:small-container"
-        ],
-        "maker": "maker:social-posts",
-        "needs": {
-          "expected_seconds": 5,
-          "network_egress": false
-        },
-        "id": "tool:send-each-post-at-its-time",
-        "label": "Send each post at its time",
-        "job": "When the person's posts change, set each post that is set to go at its time to be sent then, to each of its destinations, by that place's send row",
-        "description": "Runs on its own once the person switches on its wake (at-its-time): each time their posts change, it reads the changed posts, and for each one set to go at its time (tool:set-a-post-to-go-at-its-time) it sets one run of tool:send-a-post (told the destination's place) per destination still to be sent, at the post's scheduled_for. That run sends only while the post is still set to go as it was then, so a post taken back, changed or set again sends nothing at the old time. It sends nothing itself, polls nothing and keeps nothing. It reads the person's posts and connections from the rows it is given as `stored`, writes no record, and each send answers the post it ends as `keep`. A wake that fires with no caller gives it no rows, so it finds no post; until a wake can hand a run the person's rows (a named gap), an AI runs it with them. A send it sets for a post with a file needs that file's address at the post's time, which no wake makes now (the same gap). Returns set (each post, destination, send row and time), left_out (each send not set, with why) and said.",
-        "input_schema": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "stored": {
-              "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of post, connection, as this row's `stored` lists. What is not given is not there."
-            }
-          }
-        },
-        "output_schema": {
-          "type": "object",
-          "required": [
-            "set",
-            "left_out",
-            "said"
-          ],
-          "properties": {
-            "set": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              }
-            },
-            "left_out": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              }
-            },
-            "said": {
-              "type": "string"
-            }
-          }
-        },
-        "wakes": [
-          {
-            "id": "at-its-time",
-            "on": {
-              "fact": {
-                "kind": "something-changed",
-                "from": ["run"],
-                "match": {
-                  "place": "post"
-                }
-              }
-            },
-            "budget": {
-              "steps": 33,
-              "wall_ms": 3960000
-            }
-          }
-        ],
-        "invoke": {
-          "kind": "container",
-          "files": {
-            "package_files": [
-              {
-                "package": "social-posts",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/social-posts"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": [
-                  "node_modules/@noble/hashes"
-                ],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "packages": [
-                  "node_modules/@opencoredev/social-sdk"
-                ],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "dist"
-                ],
-                "at": "/opt/node_modules/@opencoredev/social-sdk"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
-              }
-            ]
-          },
-          "workdir": "/opt/social-posts",
-          "internet": false,
-          "stdout": "json",
-          "argv": [
-            "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
-            "/opt/social-posts/read-data/send-a-post.mjs",
-            "sendEachPostAtItsTime"
-          ],
-          "stdin": {
-            "input": {
-              "fill": {
-                "from": "input"
-              }
-            },
-            "task": {
-              "fill": {
-                "from": "task"
-              }
-            }
-          }
-        },
-        "provenance": {
-          "source": "the engine's wake primitive (a record wake answering timed runs, each paid from the firing's budget under its grant), used for the person's posts in place of a self-hosted scheduler or a repeat that polls"
-        },
-        "verify": [
-          {
-            "kind": "sample-run",
-            "input": {},
-            "output_selector": "$",
-            "contains": "nothing was set"
-          }
-        ],
-        "result_selector": "$.result",
-        "stored": [
-          {
-            "kind": "post",
-            "operations": [
-              "records:read"
-            ]
-          },
-          {
-            "kind": "connection",
-            "operations": [
-              "records:read"
-            ]
-          }
-        ]
-      }
-    },
-    {
       "id": "package::social-posts::tool::use-a-snippet",
       "address": "package::social-posts::tool::use-a-snippet",
       "path": [
@@ -5326,11 +4959,15 @@
             },
             "armed_at": {
               "type": "string",
-              "description": "Given by the post's own wake (tool:send-each-post-at-its-time) when it runs this at the post's time: the armed_at the post was set with. Nothing is sent once the post no longer carries it"
+              "description": "Given by the timed run of workflow:send-each-post-at-its-time when it runs this at the post's time: the armed_at the post was set with. Nothing is sent once the post no longer carries it"
             },
-            "stored": {
-              "type": "object",
-              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of post, connection, as this row's `stored` lists. What is not given is not there."
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "type", "value"]
+              },
+              "description": "The person's rows this run reads, read by the caller from where the person keeps them (the engine keeps none): each { id, type, value } of a post (type post) and of the destination's connection (type connection), as the caller read them. What is not given is not there."
             },
             "media_url": {
               "type": "string",
@@ -5715,7 +5352,43 @@
             "input": {
               "post_id": "post:sample-1",
               "place": "x",
-              "account_id": "service_connection:x:sample"
+              "account_id": "service_connection:x:sample",
+              "records": [
+                {
+                  "id": "post:sample-1",
+                  "type": "post",
+                  "value": {
+                    "post_id": "post:sample-1",
+                    "caption": "A made-up sample post.",
+                    "caption_by_platform": {},
+                    "settings_by_platform": {},
+                    "created_at": "2026-11-01T00:00:00Z",
+                    "updated_at": "2026-11-01T00:00:00Z",
+                    "status": "scheduled",
+                    "destinations": [
+                      "service_connection:x:sample"
+                    ],
+                    "scheduled_for": "2026-11-02T12:00:00.000Z",
+                    "approved_at": "2026-11-01T00:00:00Z",
+                    "armed_at": "2026-11-01T00:00:00.000Z"
+                  }
+                },
+                {
+                  "id": "connection:service_connection%3Ax%3Asample",
+                  "type": "connection",
+                  "value": {
+                    "connection_id": "service_connection:x:sample",
+                    "vendor": "x",
+                    "account_label": "Sample account",
+                    "plain": {
+                      "user_id": "1000000000000000001"
+                    },
+                    "held": [
+                      "access_token"
+                    ]
+                  }
+                }
+              ]
             },
             "replies": [
               {
@@ -5732,60 +5405,10 @@
                 }
               }
             ],
-            "shape_read_at": "2026-11-03",
-            "records": [
-              {
-                "id": "post:sample-1",
-                "type": "post",
-                "value": {
-                  "post_id": "post:sample-1",
-                  "caption": "A made-up sample post.",
-                  "caption_by_platform": {},
-                  "settings_by_platform": {},
-                  "created_at": "2026-11-01T00:00:00Z",
-                  "updated_at": "2026-11-01T00:00:00Z",
-                  "status": "scheduled",
-                  "destinations": [
-                    "service_connection:x:sample"
-                  ],
-                  "scheduled_for": "2026-11-02T12:00:00.000Z",
-                  "approved_at": "2026-11-01T00:00:00Z",
-                  "armed_at": "2026-11-01T00:00:00.000Z"
-                }
-              },
-              {
-                "id": "connection:service_connection%3Ax%3Asample",
-                "type": "connection",
-                "value": {
-                  "connection_id": "service_connection:x:sample",
-                  "vendor": "x",
-                  "account_label": "Sample account",
-                  "plain": {
-                    "user_id": "1000000000000000001"
-                  },
-                  "held": [
-                    "access_token"
-                  ]
-                }
-              }
-            ]
+            "shape_read_at": "2026-11-03"
           }
         ],
-        "result_selector": "$.result",
-        "stored": [
-          {
-            "kind": "post",
-            "operations": [
-              "records:read"
-            ]
-          },
-          {
-            "kind": "connection",
-            "operations": [
-              "records:read"
-            ]
-          }
-        ]
+        "result_selector": "$.result"
       }
     },
     {

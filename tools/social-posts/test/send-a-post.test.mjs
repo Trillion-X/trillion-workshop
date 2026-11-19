@@ -1,19 +1,17 @@
-// The sender against the fake records door and a stand-in place: a held value reaches only the place's own host and
+// The sender against the records handed in and a stand-in place: a held value reaches only the place's own host and
 // only as the request leaves, a destination whose outcome is not known is not sent again by itself, and nothing is sent
-// twice. The door the run is given can only read: the post as it ends comes back under `keep`, and these tests store it
-// back into the stand-in's records as the caller would (`store`). Every account and value here is made up; no request
+// twice. The run is handed the post and connection records and keeps nothing: the post as it ends comes back under `keep`,
+// and these tests store it back into the records the next call is handed (`store`). Every account and value here is made up; no request
 // leaves this computer.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
-import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import places from '../read-data/post-places.json' with { type: 'json' };
 import { createHmac } from 'node:crypto';
-import { heldFetch, publisherFor, sendAPost as sendAPostRun, sendEachPostAtItsTime } from '../read-data/send-a-post.mjs';
+import { heldFetch, publisherFor, sendAPost as sendAPostRun } from '../read-data/send-a-post.mjs';
 import { publishAPostNow as publishAPostNowRun } from '../read-data/posts.mjs';
 import { approvalValues } from '../read-data/post-shape.mjs';
-import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
+import { rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import settings from '../read-data/posts.json' with { type: 'json' };
 import { heldFields } from '../read-data/posts.mjs';
 import { resolvedInvoke } from './by-input.mjs';
@@ -23,13 +21,11 @@ const VALUE = 'made-up-held-value-0123456789';
 const ACCOUNT = 'service_connection:x:second';
 const connection = { id: `connection:${encodeURIComponent(ACCOUNT)}`, type: 'connection', value: { connection_id: ACCOUNT, vendor: 'x', plain: { user_id: '1000000001' }, held: ['access_token'] } };
 const post = fields => ({ id: 'post:p1', type: 'post', value: { post_id: 'post:p1', status: 'scheduled', caption: 'A short post', destinations: [ACCOUNT], approved_at: '2026-01-01T00:00:00Z', created_at: '2026-01-01T00:00:00Z', updated_at: '2026-01-01T00:00:00Z', scheduled_for: '2026-01-02T00:00:00Z', ...fields } });
-// The run may only read: a write would be refused by the door.
-const rights = [{ kind: 'post', operations: ['records:read'] }, { kind: 'connection', operations: ['records:read', 'records:list'] }];
 
 // What the caller does with an answer: stores each row under `keep` into the records the run reads.
 let store = null;
 const keepInto = answer => { for (const row of answer.keep ?? []) store?.kept.set(row.id, { id: row.id, type: row.type, value: row.value }); return answer; };
-const sendAPost = async (input, context) => keepInto(await sendAPostRun(input, context));
+const sendAPost = async (input, context) => keepInto(await sendAPostRun({ ...input, records: [...store.kept.values()] }, context));
 const publishAPostNow = async input => keepInto(await publishAPostNowRun({ ...input, records: [...store.kept.values()] }));
 
 // A stand-in for the place: answers a created post, and keeps every request it was sent.
@@ -42,16 +38,17 @@ function place(answer = { data: { id: '9001', text: 'A short post' } }) {
   return { sent, send };
 }
 
+// The records the calls are handed, as the store holds them: `kept` is the store, written only by the caller.
 async function withDoor(records, run) {
-  const fake = await startFakeDoor({ rights, records });
+  const fake = { kept: new Map(records.map(row => [row.id, row])) };
   store = fake;
-  try { return await run(openRecordsDoor({ descriptor: fake.descriptor }), fake); } finally { await fake.close(); }
+  return run(fake);
 }
 
 test('a post whose time has come is sent once to its destination, the held value only in the place\'s own request', async () => {
   const stand = place();
-  await withDoor([post(), connection], async (door, fake) => {
-    const sent = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { door, send: stand.send, held: () => VALUE });
+  await withDoor([post(), connection], async fake => {
+    const sent = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { send: stand.send, held: () => VALUE });
     assert.equal(sent.status, 'posted', sent.said);
     assert.equal(stand.sent.length, 1);
     assert.equal(new URL(stand.sent[0].url).hostname, 'api.x.com');
@@ -62,103 +59,92 @@ test('a post whose time has come is sent once to its destination, the held value
     assert.equal(kept.deliveries[ACCOUNT].platform_post_id, '9001');
     assert.ok(!JSON.stringify([...fake.kept.values()]).includes(VALUE), 'the held value is in no record');
     // Sending again sends nothing: the destination already has the post.
-    const again = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { door, send: stand.send, held: () => VALUE });
+    const again = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { send: stand.send, held: () => VALUE });
     assert.match(again.said, /already has the post/);
     assert.equal(stand.sent.length, 1);
   });
 });
 
-test('a send answers the post as it ends under keep, through a door that can only read, and stores nothing itself', async () => {
+test('a send answers the post as it ends under keep, and stores nothing itself', async () => {
   const stand = place();
-  await withDoor([post(), connection], async (door, fake) => {
-    const answer = await sendAPostRun({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { door, send: stand.send, held: () => VALUE });
+  await withDoor([post(), connection], async fake => {
+    const answer = await sendAPostRun({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, records: [post(), connection] }, { send: stand.send, held: () => VALUE });
     assert.equal(answer.status, 'posted', answer.said);
     assert.equal(answer.keep.length, 1);
     assert.equal(answer.keep[0].id, 'post:p1');
     assert.equal(answer.keep[0].value.deliveries[ACCOUNT].platform_post_id, '9001');
     assert.equal(fake.kept.get('post:p1').value.status, 'scheduled', 'the stand-in records are as they were: the run stored nothing');
-    assert.equal(fake.calls.filter(call => call.method === 'records:write').length, 0);
   });
 });
 
-test('publish now flows through the existing wake, destination sender and post readback', async () => {
+test('publish now queues the post, and the timed send at its armed time sends it once through the place', async () => {
   const approved = post({ status: 'approved', scheduled_for: null });
   const reviewed = approvalValues(approved.value);
   const stand = place();
-  await withDoor([approved, connection], async (door, fake) => {
+  await withDoor([approved, connection], async fake => {
     const queued = await publishAPostNow({ post_id: approved.id, expected_values: reviewed });
     assert.equal(queued.status, 'scheduled');
     assert.match(queued.said, /Queued for the send wake/);
     assert.equal(stand.sent.length, 0, 'queueing performs no publish request');
-
-    const planned = await sendEachPostAtItsTime({ task: changes(approved.id) }, { door });
-    assert.deepEqual(planned.wake_effects.map(effect => [effect.wake.tool, effect.wake.input.place, effect.wake.input.account_id]), [['tool:send-a-post', 'x', ACCOUNT]]);
-    assert.ok(planned.wake_effects[0].wake.at_ms <= Date.now(), 'the wake is due now');
-
-    const sent = await sendAPost(planned.wake_effects[0].wake.input, { door, send: stand.send, held: () => VALUE });
+    const timed = { post_id: approved.id, place: 'x', account_id: ACCOUNT, armed_at: fake.kept.get(approved.id).value.armed_at };
+    const sent = await sendAPost(timed, { send: stand.send, held: () => VALUE });
     assert.equal(sent.status, 'posted', sent.said);
     assert.equal(stand.sent.length, 1);
-    const readback = await door.read('post', approved.id);
+    const readback = fake.kept.get(approved.id).value;
     assert.equal(readback.status, 'posted');
     assert.equal(readback.deliveries[ACCOUNT].status, 'posted');
     assert.equal(readback.deliveries[ACCOUNT].platform_post_id, '9001');
-
-    const repeatWake = await sendEachPostAtItsTime({ task: changes(approved.id) }, { door });
-    assert.deepEqual(repeatWake.wake_effects, [], 'a posted result is not queued again');
+    const again = await sendAPost(timed, { send: stand.send, held: () => VALUE });
+    assert.match(again.said, /already has the post/);
     assert.equal(stand.sent.length, 1);
     assert.equal(fake.kept.get(approved.id).value.deliveries[ACCOUNT].status, 'posted');
   });
 });
 
-test('publish now keeps an unknown destination outcome and the wake never resends it', async () => {
+test('publish now keeps an unknown destination outcome, and a timed send never sends it again', async () => {
   const approved = post({ status: 'approved', scheduled_for: null });
   const reviewed = approvalValues(approved.value);
   const stand = place({ data: {} });
-  await withDoor([approved, connection], async (door, fake) => {
+  await withDoor([approved, connection], async fake => {
     const queued = await publishAPostNow({ post_id: approved.id, expected_values: reviewed });
-    const planned = await sendEachPostAtItsTime({ task: changes(approved.id) }, { door });
-    const sent = await sendAPost(planned.wake_effects[0].wake.input, { door, send: stand.send, held: () => VALUE });
+    const timed = { post_id: approved.id, place: 'x', account_id: ACCOUNT, armed_at: fake.kept.get(approved.id).value.armed_at };
+    const sent = await sendAPost(timed, { send: stand.send, held: () => VALUE });
     assert.equal(sent.status, 'partial');
     assert.match(sent.said, /not known/);
     assert.equal(stand.sent.length, 1);
-
-    const readback = await door.read('post', approved.id);
-    assert.equal(readback.deliveries[ACCOUNT].status, 'not known');
-    const repeatWake = await sendEachPostAtItsTime({ task: changes(approved.id) }, { door });
-    assert.deepEqual(repeatWake.wake_effects, [], 'partial/unknown outcomes do not become automatic resend effects');
-    const repeatSend = await sendAPost(planned.wake_effects[0].wake.input, { door, send: stand.send, held: () => VALUE });
+    assert.equal(fake.kept.get(approved.id).value.deliveries[ACCOUNT].status, 'not known');
+    const repeatSend = await sendAPost(timed, { send: stand.send, held: () => VALUE });
     assert.match(repeatSend.said, /not known/);
     assert.equal(stand.sent.length, 1, 'unknown outcome remains unresolved without a second request');
-    assert.equal(fake.kept.get(approved.id).value.deliveries[ACCOUNT].status, 'not known');
     assert.equal(queued.post.approved_at, approved.value.approved_at);
   });
 });
 
 test('nothing is sent before the post\'s time, for a draft, or to an account that is not its destination', async () => {
   const stand = place();
-  await withDoor([post({ scheduled_for: '2099-01-01T00:00:00Z' }), connection], async door => {
-    const early = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { door, send: stand.send, held: () => VALUE });
+  await withDoor([post({ scheduled_for: '2099-01-01T00:00:00Z' }), connection], async () => {
+    const early = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { send: stand.send, held: () => VALUE });
     assert.match(early.said, /Its time has not come/);
   });
-  await withDoor([post({ status: 'draft' }), connection], async door => {
-    await assert.rejects(sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { door, send: stand.send, held: () => VALUE }), /Only an approved post is sent/);
+  await withDoor([post({ status: 'draft' }), connection], async () => {
+    await assert.rejects(sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { send: stand.send, held: () => VALUE }), /Only an approved post is sent/);
   });
-  await withDoor([post(), connection], async door => {
-    await assert.rejects(sendAPost({ post_id: 'post:p1', place: 'x', account_id: 'service_connection:x:other' }, { door, send: stand.send, held: () => VALUE }), /is not one of/);
+  await withDoor([post(), connection], async () => {
+    await assert.rejects(sendAPost({ post_id: 'post:p1', place: 'x', account_id: 'service_connection:x:other' }, { send: stand.send, held: () => VALUE }), /is not one of/);
   });
   assert.equal(stand.sent.length, 0);
 });
 
 test('a send whose outcome is not known is not sent again by itself, only with resend', async () => {
   const stand = place({ data: {} });
-  await withDoor([post(), connection], async (door, fake) => {
-    const first = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { door, send: stand.send, held: () => VALUE });
+  await withDoor([post(), connection], async fake => {
+    const first = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { send: stand.send, held: () => VALUE });
     assert.equal(fake.kept.get('post:p1').value.deliveries[ACCOUNT].status, 'not known');
     assert.match(first.said, /not known/);
-    const second = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { door, send: stand.send, held: () => VALUE });
+    const second = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { send: stand.send, held: () => VALUE });
     assert.match(second.said, /not known/);
     assert.equal(stand.sent.length, 1);
-    await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, resend: true }, { door, send: stand.send, held: () => VALUE });
+    await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, resend: true }, { send: stand.send, held: () => VALUE });
     assert.equal(stand.sent.length, 2);
   });
 });
@@ -182,8 +168,8 @@ const pictured = post({ media: { identity: 'sample-file', name: '/Posts/a.png', 
 test('a place that takes a file only whole is handed its bytes, streamed from the address given', async () => {
   const stand = place({ data: { id: '9001', text: 'A short post', media_id_string: '7001', media_id: '7001' }, media_id_string: '7001' });
   const held = files({ page: 256 });
-  await withDoor([pictured, connection], async door => {
-    await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, media_url: SHARE_URL }, { door, fetchMedia: held.answer, send: stand.send, held: () => VALUE });
+  await withDoor([pictured, connection], async () => {
+    await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, media_url: SHARE_URL }, { fetchMedia: held.answer, send: stand.send, held: () => VALUE });
     assert.deepEqual(held.asked, [SHARE_URL]);
     assert.ok(stand.sent.every(request => new URL(request.url).hostname === 'api.x.com'), 'the file goes only to the place');
     const upload = stand.sent.find(request => request.body instanceof FormData || (request.body && typeof request.body.get === 'function'));
@@ -198,8 +184,8 @@ test('a place that fetches a file from an address is given the address, never th
   const record = { id: `connection:${encodeURIComponent(instagram)}`, type: 'connection', value: { connection_id: instagram, vendor: 'instagram', plain: { ig_user_id: '1000000002' }, held: ['access_token'] } };
   const stand = place({ id: '17890000000000001', status_code: 'FINISHED' });
   const held = files();
-  await withDoor([post({ destinations: [instagram], media: { identity: 'sample-file', media_type: 'image/jpeg' } }), record], async door => {
-    const sent = await sendAPost({ post_id: 'post:p1', place: 'instagram', account_id: instagram, media_url: SHARE_URL }, { door, fetchMedia: held.answer, send: stand.send, held: () => VALUE });
+  await withDoor([post({ destinations: [instagram], media: { identity: 'sample-file', media_type: 'image/jpeg' } }), record], async () => {
+    const sent = await sendAPost({ post_id: 'post:p1', place: 'instagram', account_id: instagram, media_url: SHARE_URL }, { fetchMedia: held.answer, send: stand.send, held: () => VALUE });
     assert.equal(sent.status, 'posted', sent.said);
     assert.deepEqual(held.asked, [], 'the place fetches it; this run does not');
     assert.ok(stand.sent.length > 0);
@@ -210,12 +196,12 @@ test('a place that fetches a file from an address is given the address, never th
 
 test('a post whose file is gone, or that came with no address of its file, is refused before anything leaves, in plain words', async () => {
   const stand = place();
-  await withDoor([pictured, connection], async (door, fake) => {
-    const sent = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, media_url: SHARE_URL }, { door, fetchMedia: files({ gone: true }).answer, send: stand.send, held: () => VALUE });
+  await withDoor([pictured, connection], async fake => {
+    const sent = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, media_url: SHARE_URL }, { fetchMedia: files({ gone: true }).answer, send: stand.send, held: () => VALUE });
     assert.equal(stand.sent.length, 0);
     assert.equal(fake.kept.get('post:p1').value.deliveries[ACCOUNT].status, 'failed');
     assert.match(sent.said, /no longer in your files, so nothing was sent to X/);
-    const unaddressed = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { door, send: stand.send, held: () => VALUE });
+    const unaddressed = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { send: stand.send, held: () => VALUE });
     assert.equal(stand.sent.length, 0);
     assert.match(unaddressed.said, /no address of it was given, so nothing was sent to X/);
   });
@@ -223,17 +209,27 @@ test('a post whose file is gone, or that came with no address of its file, is re
 
 test('a run told one place for another place\'s account sends nothing and writes nothing', async () => {
   const stand = place();
-  await withDoor([post(), connection], async (door, fake) => {
-    await assert.rejects(sendAPost({ post_id: 'post:p1', place: 'linkedin', account_id: ACCOUNT }, { door, send: stand.send, held: () => VALUE }), /belongs to x, not linkedin/);
-    await assert.rejects(sendAPost({ post_id: 'post:p1', account_id: ACCOUNT }, { door, send: stand.send, held: () => VALUE }), /Give place/);
+  await withDoor([post(), connection], async fake => {
+    await assert.rejects(sendAPost({ post_id: 'post:p1', place: 'linkedin', account_id: ACCOUNT }, { send: stand.send, held: () => VALUE }), /belongs to x, not linkedin/);
+    await assert.rejects(sendAPost({ post_id: 'post:p1', account_id: ACCOUNT }, { send: stand.send, held: () => VALUE }), /Give place/);
     assert.equal(stand.sent.length, 0);
     assert.equal(fake.kept.get('post:p1').value.deliveries, undefined, 'the post record was not written');
   });
 });
 
+test('a send handed no post record, or no connection record for its account, is refused and sends and keeps nothing', async () => {
+  const stand = place();
+  await assert.rejects(sendAPostRun({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, records: [connection] }, { send: stand.send, held: () => VALUE }), /There is no post post:p1 among the records handed in/);
+  await assert.rejects(sendAPostRun({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, records: [post()] }, { send: stand.send, held: () => VALUE }), /has no connection record among the records handed in/);
+  assert.equal(stand.sent.length, 0);
+  const kept = await sendAPostRun({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, records: [post(), connection] }, { send: stand.send, held: () => VALUE });
+  assert.equal(kept.keep[0].value.deliveries[ACCOUNT].status, 'posted', 'the same post sends once its connection is handed in');
+});
+
 test('the send row reads none of the person\'s files: a post\'s file comes as the address the caller gives', () => {
   const row = rowOf(rows, 'tool:send-a-post');
   assert.deepEqual(rightsOf(row).filter(right => 'files' in right), []);
+  assert.doesNotMatch(JSON.stringify(row), /records:(read|write|list)/, 'the send row declares no records door right');
   assert.equal(row.input_schema.properties.media_url.type, 'string');
 });
 
@@ -270,83 +266,25 @@ test('each place\'s run is handed the connection kind, the renewal and the held 
 // set with. The wake's cause is made up the way the engine hands one (task.cause.detail.changes).
 const ARMED = '2026-01-01T00:00:05.000Z';
 const armed = fields => post({ armed_at: ARMED, ...fields });
-const changes = (...ids) => ({ cause: { kind: 'record', detail: { resource: 'own-records', changes: ids.map((id, at) => ({ id, sequence: at + 1, version: 1, deleted: false })) } } });
-const timed = rowOf(rows, 'tool:send-each-post-at-its-time');
-
-test('a post set to go at its time answers one timed send at that time, through the place\'s send row', async () => {
-  const ran = await answerOf(timed, {}, { task: changes('post:p1'), records: [armed(), connection] });
-  assert.equal(ran.status, 0, JSON.stringify(ran));
-  assert.deepEqual(ran.wake_effects, [{ wake: { tool: 'tool:send-a-post', at_ms: Date.parse('2026-01-02T00:00:00Z'), input: { post_id: 'post:p1', place: 'x', account_id: ACCOUNT, armed_at: ARMED }, budget: settings.at_its_time.child_budget } }]);
-  assert.equal(ran.result.set.length, 1);
-  assert.ok(!('wake_effects' in ran.result), 'the effects go to the engine, not into the answer');
-  assert.deepEqual(ran.kept.find(record => record.id === 'post:p1').value, armed().value, 'the wake\'s run writes nothing');
-});
-
-test('a post going to two places answers two timed sends, each naming its place', async () => {
-  const linkedin = 'service_connection:linkedin:second';
-  const record = { id: `connection:${encodeURIComponent(linkedin)}`, type: 'connection', value: { connection_id: linkedin, vendor: 'linkedin', plain: { person_urn: 'urn:li:person:made-up' }, held: ['access_token'] } };
-  const both = await sendEachPostAtItsTime({ task: changes('post:p1') }, { door: await doorOf([armed({ destinations: [ACCOUNT, linkedin] }), connection, record]) });
-  assert.deepEqual(both.wake_effects.map(effect => [effect.wake.tool, effect.wake.input.place, effect.wake.input.account_id]), [['tool:send-a-post', 'x', ACCOUNT], ['tool:send-a-post', 'linkedin', linkedin]]);
-});
-
-test('a post not set to go, removed, or already sent to a destination answers no timed send there', async () => {
-  for (const [label, records, task] of [
-    ['a draft', [armed({ status: 'draft' }), connection], changes('post:p1')],
-    ['approved but not set', [armed({ status: 'approved' }), connection], changes('post:p1')],
-    ['removed', [connection], { cause: { detail: { changes: [{ id: 'post:p1', sequence: 1, version: 2, deleted: true }] } } }],
-    ['already posted there', [armed({ deliveries: { [ACCOUNT]: { status: 'posted' } } }), connection], changes('post:p1')],
-    ['not a record cause', [armed(), connection], {}],
-  ]) {
-    const answer = await sendEachPostAtItsTime({ task }, { door: await doorOf(records) });
-    assert.deepEqual(answer.wake_effects, [], label);
-    assert.equal(answer.said, settings.at_its_time.words.none, label);
-  }
-  const gone = await sendEachPostAtItsTime({ task: changes('post:p1') }, { door: await doorOf([armed()]) });
-  assert.deepEqual(gone.left_out.map(item => item.said), [settings.at_its_time.words.not_connected], 'a destination no longer connected is named, not set');
-});
-
 test('a timed send set before the post was taken back, changed or set again sends nothing; one for its time sends', async () => {
   const stand = place();
   for (const [label, record] of [['set again', armed({ armed_at: '2026-01-01T09:00:00.000Z' })], ['taken back', armed({ status: 'draft' })], ['changed and approved again', armed({ status: 'approved' })]]) {
-    await withDoor([record, connection], async (door, fake) => {
-      const sent = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, armed_at: ARMED }, { door, send: stand.send, held: () => VALUE });
+    await withDoor([record, connection], async fake => {
+      const sent = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, armed_at: ARMED }, { send: stand.send, held: () => VALUE });
       assert.equal(sent.said, settings.at_its_time.words.no_longer_set, label);
       assert.deepEqual(fake.kept.get('post:p1').value, record.value, `${label}: nothing was written`);
     });
   }
-  await withDoor([connection], async door => {
-    const sent = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, armed_at: ARMED }, { door, send: stand.send, held: () => VALUE });
-    assert.equal(sent.status, 'gone');
+  await withDoor([connection], async () => {
+    await assert.rejects(sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, armed_at: ARMED }, { send: stand.send, held: () => VALUE }), /There is no post post:p1/);
   });
   assert.equal(stand.sent.length, 0);
-  await withDoor([armed(), connection], async door => {
-    const sent = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, armed_at: ARMED }, { door, send: stand.send, held: () => VALUE });
+  await withDoor([armed(), connection], async () => {
+    const sent = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, armed_at: ARMED }, { send: stand.send, held: () => VALUE });
     assert.equal(sent.status, 'posted', sent.said);
   });
   assert.equal(stand.sent.length, 1);
 });
-
-test('the wake is the person\'s to switch on, on their posts, and grants exactly what the sends it sets need', () => {
-  assert.deepEqual(timed.wakes.map(wake => [wake.id, wake.on]), [['at-its-time', { record: { resource: 'own-records', kind: 'post' } }]]);
-  const plan = settings.at_its_time;
-  assert.ok(timed.wakes[0].budget.steps >= 1 + plan.most_sends * plan.child_budget.steps && timed.wakes[0].budget.wall_ms >= (1 + plan.most_sends) * plan.child_budget.wall_ms, 'one firing pays for itself and every send it may set');
-  assert.equal(timed.invoke.internet, false);
-  assert.equal(timed.invoke.credential_mounts, undefined, 'the wake\'s run holds no account\'s values');
-  const sendRow = rowOf(rows, settings.at_its_time.send_tool);
-  assert.deepEqual(rightsOf(timed), rightsOf(sendRow), 'a timed send reaches only what the wake was granted');
-  assert.equal(sendRow.input_schema.properties.armed_at.type, 'string');
-  assert.ok(sendRow.input_schema.required.includes('place'), 'the one send row is told which place');
-  assert.ok(places.places.every(item => !('send_tool' in item)), 'a place row names no send tool of its own');
-});
-
-const opened = [];
-async function doorOf(records) {
-  const fake = await startFakeDoor({ rights, records });
-  store = fake;
-  opened.push(fake);
-  return openRecordsDoor({ descriptor: fake.descriptor });
-}
-test.after(async () => { for (const fake of opened) await fake.close(); });
 
 // Newsletter places written as requests in their place rows (adapter requests): beehiiv and Ghost, against stand-ins
 // that answer as each place's API does. Every key, publication and site here is made up.
@@ -372,8 +310,8 @@ function api(answers) {
 
 test('a post goes to beehiiv as the place row writes it: made with its title and HTML words, then read back', async () => {
   const stand = api({ POST: { data: { id: 'post_made_up' } }, GET: { data: { id: 'post_made_up', web_url: 'https://letters.example.test/p/a-letter' } } });
-  await withDoor([letter({ destinations: [BEEHIIV] }), ...newsletter], async (door, fake) => {
-    const sent = await sendAPost({ post_id: 'post:p1', place: 'beehiiv', account_id: BEEHIIV }, { door, send: stand.send, held: () => VALUE });
+  await withDoor([letter({ destinations: [BEEHIIV] }), ...newsletter], async fake => {
+    const sent = await sendAPost({ post_id: 'post:p1', place: 'beehiiv', account_id: BEEHIIV }, { send: stand.send, held: () => VALUE });
     assert.equal(sent.status, 'posted', sent.said);
     assert.deepEqual(stand.asked.map(item => [item.method, item.url]), [['POST', 'https://api.beehiiv.com/v2/publications/pub_made_up/posts'], ['GET', 'https://api.beehiiv.com/v2/publications/pub_made_up/posts/post_made_up']]);
     assert.ok(stand.asked.every(item => item.authorization === `Bearer ${VALUE}`));
@@ -391,8 +329,8 @@ test('a post goes to beehiiv as the place row writes it: made with its title and
 
 test('a post goes to Ghost with a five-minute token made from the held key as the request leaves, never the key', async () => {
   const stand = api({ POST: { posts: [{ id: 'ghost_made_up' }] }, GET: { posts: [{ id: 'ghost_made_up', url: `${SITE}/a-letter/` }] } });
-  await withDoor([letter({ destinations: [GHOST] }), ...newsletter], async (door, fake) => {
-    const sent = await sendAPost({ post_id: 'post:p1', place: 'ghost', account_id: GHOST }, { door, send: stand.send, held: () => GHOST_KEY });
+  await withDoor([letter({ destinations: [GHOST] }), ...newsletter], async fake => {
+    const sent = await sendAPost({ post_id: 'post:p1', place: 'ghost', account_id: GHOST }, { send: stand.send, held: () => GHOST_KEY });
     assert.equal(sent.status, 'posted', sent.said);
     assert.deepEqual(stand.asked.map(item => [item.method, item.url]), [['POST', `${SITE}/ghost/api/admin/posts/?source=html`], ['GET', `${SITE}/ghost/api/admin/posts/ghost_made_up/?formats=html`]]);
     const [made] = stand.asked[0].body.posts;
@@ -415,8 +353,8 @@ test('a post goes to Ghost with a five-minute token made from the held key as th
 
 test('a newsletter place that does not confirm the post it made leaves the send not known, and its key goes only to its own host', async () => {
   const unconfirmed = api({ POST: { data: { id: 'post_made_up' } }, GET: { data: { id: 'another_post' } } });
-  await withDoor([letter({ destinations: [BEEHIIV] }), ...newsletter], async (door, fake) => {
-    await sendAPost({ post_id: 'post:p1', place: 'beehiiv', account_id: BEEHIIV }, { door, send: unconfirmed.send, held: () => VALUE });
+  await withDoor([letter({ destinations: [BEEHIIV] }), ...newsletter], async fake => {
+    await sendAPost({ post_id: 'post:p1', place: 'beehiiv', account_id: BEEHIIV }, { send: unconfirmed.send, held: () => VALUE });
     assert.equal(fake.kept.get('post:p1').value.deliveries[BEEHIIV].status, 'not known');
   });
   const elsewhere = { ...newsletter[1], value: { ...newsletter[1].value, plain: { site_url: SITE } } };
@@ -436,7 +374,7 @@ test('each newsletter place has its send variant, mounting the one key its reque
     assert.equal(placed.adapter, 'requests');
     assert.ok(placed.media_from, `${platform} says how a file reaches it`);
     assert.deepEqual(heldFields(placed.options), [field]);
-    const invoke = resolvedInvoke(rowOf(rows, settings.at_its_time.send_tool), { place: slugOf(placed) });
+    const invoke = resolvedInvoke(rowOf(rows, 'tool:send-a-post'), { place: slugOf(placed) });
     assert.deepEqual(invoke.credential_mounts, [{ field_id: field, fd: 4 }]);
     assert.equal(invoke.connection.vendor, placed.connection_vendor);
   }

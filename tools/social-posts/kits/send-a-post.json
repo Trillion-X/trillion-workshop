@@ -3,13 +3,14 @@
   "start_here": "Say to your AI: \"Send one of the person's approved posts to one of their accounts at a place once its time has come, and answer where it went as the post to keep\", with {\"post_id\":\"post:sample-1\",\"place\":\"x\",\"account_id\":\"service_connection:x:sample\"}. It runs tool:send-a-post and answers {\"post_id\":\"post:sample-1\",\"status\":\"partial\",\"post\":{\"post_id\":\"post:sample-1\",\"status\":\"partial\",\"approval_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":\"2026-11-02T12:00:00.000Z\",\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"media\":null ...",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes its input and the rows of yours it is given (post, connection), and keeps nothing.",
-  "workflows": [],
+  "workflows": [
+    "workflow:send-each-post-at-its-time"
+  ],
   "tools": [
     "tool:send-a-post",
     "tool:draft-a-post",
     "tool:list-post-destinations",
-    "tool:read-post-calendar",
-    "tool:send-each-post-at-its-time"
+    "tool:read-post-calendar"
   ],
   "instructions": [
     "1. Say to your AI: \"Send one of the person's approved posts to one of their accounts at a place once its time has come, and answer where it went as the post to keep\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar); place (The place to send to: the slug of a row of read-data/post-places.json (its id without post-place:).); account_id (One of the post's destinations).",
