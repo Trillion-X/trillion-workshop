@@ -2,10 +2,12 @@
 // old-trillion-before-worker-retire: test/saved-examples.test.mjs (one example per post, filled from the link itself
 // and from whatever the caller knows, removed on request) and test/native-saved-example-browser-routes.test.mjs (the
 // page's routes and any AI reach the same examples, with their original identity). The owner runs over a memory store
-// first, then the row runs as the container runs it, against the fake records door with exactly its rights.
+// first. The row then runs as the engine runs it: run-a-function.mjs with the row's argv, its input on standard input,
+// the saved-example rows the caller hands in as stored.records, and the rows it hands back in keep. No records door.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerOf, rowOf, said, rightsOf } from '../../../test-helpers/run-a-row.mjs';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import rows from '../tool-rows.json' with { type: 'json' };
 import { exampleId, handleSavedExamplesRequest, makeSavedExamples } from '../do-work/answer-the-saved-examples-page.mjs';
 
@@ -102,46 +104,63 @@ test('the handler answers as the old route: unknown spellings are 404, a refused
   assert.deepEqual(await call('/saved-examples', { method: 'POST', body: JSON.stringify({ url: 'https://example.com/x', words: 'x'.repeat(200_001) }) }), { status: 400, body: { error: 'Request too large' } });
 });
 
-const row = rowOf(rows, 'tool:answer-the-saved-examples-page');
+const row = rows.records.map(record => record.payload).find(payload => payload.id === 'tool:answer-the-saved-examples-page');
+const LINK = 'https://saved-example.invalid/post';   // a name that does not resolve: the link reader finds nothing, as on a closed network
 const route = (path, method, body = {}) => ({ path, method, query: {}, body, browser: { user_agent: 'sample', origin: 'https://app.example', visitor: 'visitor-sample' } });
 
-test('the page and any AI reach the same saved-example records, with the original identity kept and removal written', async () => {
-  const saved = await answerOf(row, route('/saved-examples', 'POST', { url: 'https://example.test/post', words: 'Supplied source words', why_it_worked: 'One concrete detail', pictures: [], added_from: 'browser' }));
-  assert.equal(saved.status, 0, saved.error);
+// The row as the engine runs it: the argv of the row, with the folders of this checkout under /opt, the input on stdin.
+function runRow(input) {
+  const [, runner, file, name] = row.invoke.argv;
+  const local = file.replace('/opt/saved-examples/', fileURLToPath(new URL('../', import.meta.url)));
+  const ran = spawnSync(process.execPath, [fileURLToPath(new URL('../../workflows/do-work/run-a-function.mjs', import.meta.url)), local, name], { input: JSON.stringify(input), encoding: 'utf8' });
+  assert.ok(runner.endsWith('/do-work/run-a-function.mjs'), runner);
+  const line = ran.stdout.trim().split('\n').pop();
+  return JSON.parse(line);
+}
+const withRecords = (input, records) => ({ ...input, stored: { records } });
+
+test('the page and any AI reach the same saved-example rows: rows come in as stored, rows go back in keep', async () => {
+  const saved = runRow(route('/saved-examples', 'POST', { url: LINK, words: 'Supplied source words', why_it_worked: 'One concrete detail', pictures: [], added_from: 'browser' }));
+  assert.equal(saved.error, undefined, saved.error);
   assert.equal(saved.result.status, 200, JSON.stringify(saved.result));
   const example = saved.result.body;
   assert.equal(example.words, 'Supplied source words');
   assert.equal(example.added_from, 'browser');
-  assert.equal(example.id, exampleId('https://example.test/post'));
-  assert.deepEqual(saved.kept, [{ id: example.id, type: 'saved-example', value: example }]);
+  assert.equal(example.id, exampleId(LINK));
+  assert.deepEqual(saved.result.keep, [{ id: example.id, type: 'saved-example', value: example }]);
 
-  const kept = saved.kept;
-  const updated = await answerOf(row, route('/saved-examples', 'POST', { url: 'https://www.example.test/post/', title: 'Current title' }), { records: kept });
+  const kept = saved.result.keep;
+  const updated = runRow(withRecords(route('/saved-examples', 'POST', { url: 'https://saved-example.invalid/post/#top', title: 'Current title' }), kept));
   assert.equal(updated.result.body.id, example.id);
   assert.equal(updated.result.body.words, example.words);
   assert.equal(updated.result.body.added_at, example.added_at);
   assert.equal(updated.result.body.added_from, 'browser');
-  assert.equal(updated.unanswered?.length ?? 0, 0, 'a kept example is not read from its link again');
+  assert.deepEqual(updated.result.keep.map(record => record.id), [example.id]);
 
-  const listed = await answerOf(row, route('/saved-examples', 'GET'), { records: updated.kept });
+  const listed = runRow(withRecords(route('/saved-examples', 'GET'), updated.result.keep));
   assert.equal(listed.result.status, 200);
   assert.equal(listed.result.body.count, 1);
   assert.equal(listed.result.body.examples[0].title, 'Current title');
+  assert.deepEqual(listed.result.keep, [], 'a read keeps nothing');
 
-  const invalid = await answerOf(row, route('/saved-examples', 'POST', { url: 'file:///private/file.txt', title: 'Must not overwrite' }), { records: updated.kept });
+  const invalid = runRow(withRecords(route('/saved-examples', 'POST', { url: 'file:///private/file.txt', title: 'Must not overwrite' }), updated.result.keep));
   assert.equal(invalid.result.status, 400);
-  assert.deepEqual(invalid.kept, updated.kept);
+  assert.deepEqual(invalid.result.keep, [], 'a refused save keeps nothing');
 
-  const removed = await answerOf(row, route('/saved-examples/remove', 'POST', { id: example.id }), { records: updated.kept });
-  assert.deepEqual(said(removed.result), { status: 200, body: { id: example.id, removed: true } });
-  assert.deepEqual(removed.kept, []);
-  const again = await answerOf(row, route('/saved-examples/remove', 'POST', { id: example.id }));
+  const removed = runRow(withRecords(route('/saved-examples/remove', 'POST', { id: example.id }), updated.result.keep));
+  assert.deepEqual(removed.result.body, { id: example.id, removed: true });
+  assert.deepEqual(removed.result.keep, [{ id: example.id, type: 'saved-example', value: null }]);
+
+  const again = runRow(route('/saved-examples/remove', 'POST', { id: example.id }));
   assert.equal(again.result.status, 400);
   assert.match(again.result.body.error, /There is no saved example/);
+  assert.deepEqual(again.result.keep, []);
 });
 
-test('the route row reads and writes only saved examples, and reaches the internet only to read a link', () => {
-  assert.deepEqual(rightsOf(row), [{ kind: 'saved-example', operations: ['records:list', 'records:write'] }]);
+test('the route row names no records method and reads the internet only to read a link', () => {
+  assert.doesNotMatch(JSON.stringify(rows.records.map(record => record.payload)), /"records:(read|write|list)"/);
+  assert.deepEqual(row.stored, [{ kind: 'saved-example' }]);
   assert.equal(row.invoke.internet, true);
   assert.equal(row.needs.network_egress, true);
+  assert.doesNotMatch(row.invoke.argv.join(' '), /records-door/);
 });

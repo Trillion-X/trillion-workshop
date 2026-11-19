@@ -1,0 +1,226 @@
+{
+  "about": "workflow:keep-saved-examples: keeps the saved examples a person has kept in the person's own store, listed newest first, saved or changed and removed, each in the store's own rows (rule a-tool-is-only-what-the-store-cannot-do). It replaces tool:list-saved-examples and tool:remove-a-saved-example in tools/saved-examples, whose whole job was those reads and writes through the records door.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-saved-examples",
+        "label": "Keep saved examples",
+        "job": "Keep the saved examples a person has kept (posts, videos and pages that worked, each with its link, words, pictures and why it worked) in the person's own store: list them newest first with their count, save or change one, and remove one, each in the store's own rows. It replaces tool:list-saved-examples and tool:remove-a-saved-example in tools/saved-examples, whose whole job was those reads and writes through the records door (rule a-tool-is-only-what-the-store-cannot-do).",
+        "produces": "The store's own rows for saved-example records, proven on the example attempts in PostgreSQL (PGlite) and a JSON folder: a save or removal written only at the version read, a removal kept as a null value with the earlier versions, a removal of an example that is not there refused, and the list newest first with its count.",
+        "source": {
+          "from": "tools/saved-examples tool:list-saved-examples (list) and tool:remove-a-saved-example (removal), with read-data/saved-examples.mjs (listSavedExamples, removeASavedExample), read on trillion-workshop origin/main; both tools' rows reached saved-example records through the records door, which is retired.",
+          "note": "Only the keeping is the store's job: a row per example, its version, and a write made only at the version read. The rule of what a saved example is (one per address, what is filled from the link, the refusals of a save) stays in tools/saved-examples do-work/answer-the-saved-examples-page.mjs, which hands its rows back in keep; this recipe keeps them."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the saved examples: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "keep": {
+              "type": "array",
+              "maxItems": 256,
+              "description": "Rows to keep, as the answer route hands them back in keep: {id, type: \"saved-example\", value}. A null value removes the example."
+            },
+            "list": {
+              "type": "boolean",
+              "description": "true to answer the list of current examples, newest first, with its count"
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Operations to run this time instead, in the store's terms: keep {id, value} (value null removes), list {}, read {id}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read the saved-example rows the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read the saved-example rows already kept: each row's id (example:<32 hex>, one per post) and its value. Submit where they are kept (or null) and how many rows were read.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "rows_read"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "rows_read": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own saved-example rows, once",
+            "do": "When the look step found none, make the store's own objects in its own form: one row per example, id example:<32 hex>, holding the example as a JSON object (id, url, host, site, title, words, pictures, why_it_worked, collection, added_from, added_at, updated_at), and a version that starts at 1 and rises by one with each write. A write is made in one transaction only when the row's current version is the expected one (null: the row does not exist yet); otherwise it is a conflict and nothing changes. A removal is a write of the value null: a read of that row answers null, and the store keeps the earlier versions. Submit the names of the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the saved-example rows on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, run these operations in order, each through the store's own rows: [{\"op\": \"keep\", \"id\": \"example:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"value\": {\"id\": \"example:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"url\": \"https://example.test/a\", \"host\": \"example.test\", \"site\": null, \"title\": \"First post\", \"words\": null, \"pictures\": [], \"why_it_worked\": null, \"collection\": null, \"added_from\": \"ai\", \"added_at\": \"2026-11-19T10:00:00Z\", \"updated_at\": \"2026-11-19T10:00:00Z\"}}, {\"op\": \"keep\", \"id\": \"example:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"value\": {\"id\": \"example:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"url\": \"https://example.test/b\", \"host\": \"example.test\", \"site\": null, \"title\": \"Second post\", \"words\": null, \"pictures\": [], \"why_it_worked\": null, \"collection\": null, \"added_from\": \"ai\", \"added_at\": \"2026-11-19T10:01:00Z\", \"updated_at\": \"2026-11-19T10:01:00Z\"}}, {\"op\": \"list\"}, {\"op\": \"keep\", \"id\": \"example:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"value\": {\"id\": \"example:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"url\": \"https://example.test/a\", \"host\": \"example.test\", \"site\": null, \"title\": \"First post, revised\", \"words\": null, \"pictures\": [], \"why_it_worked\": null, \"collection\": null, \"added_from\": \"ai\", \"added_at\": \"2026-11-19T10:00:00Z\", \"updated_at\": \"2026-11-19T10:02:00Z\"}}, {\"op\": \"keep\", \"id\": \"example:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"value\": null}, {\"op\": \"list\"}, {\"op\": \"keep\", \"id\": \"example:cccccccccccccccccccccccccccccccc\", \"value\": null}, {\"op\": \"read\", \"id\": \"example:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]. A keep answers kept with the version it wrote, or refused with its reason; a list answers the ids of the current examples, newest first by added_at, and their count; a read answers the value of the example, or null when it has none. Then remove the throwaway place. Submit outcomes (one per attempt, in order) and answers (one per attempt, in order), each exactly as the intent gives them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answers"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answers": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is kept, answered or refused as the intent says: a removal of an example that is not there is refused",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "kept",
+                    "answered",
+                    "kept",
+                    "kept",
+                    "answered",
+                    "refused",
+                    "answered"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "Each attempt gives the version, the ids and count, the refusal reason or the value the intent says; a removed example reads as null and drops out of the list",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    {
+                      "version": 1
+                    },
+                    {
+                      "version": 1
+                    },
+                    {
+                      "ids": [
+                        "example:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                        "example:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                      ],
+                      "count": 2
+                    },
+                    {
+                      "version": 2
+                    },
+                    {
+                      "version": 3
+                    },
+                    {
+                      "ids": [
+                        "example:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                      ],
+                      "count": 1
+                    },
+                    {
+                      "reason": "There is no saved example example:cccccccccccccccccccccccccccccccc to remove."
+                    },
+                    null
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's saved examples",
+            "do": "Work through the keep rows the request gives, in order, each one through the store's own rows, and read the answer back. A row whose value is an object is written with its id and the value, at the version the store reads for that id now (null when there is no row yet); a conflict is refused with the reason 'changed while it was being kept' and nothing is written for it. A row whose value is null removes its example: it is written as null at the version read now, and it is refused with 'There is no saved example <id> to remove.' when no example with that id is there. A row whose id already appeared earlier in the same request is refused as a duplicate. A row whose value is not an object, or whose value's id is not its row id, is refused. Then, when the request asks for the list (list true, or a list operation), read every saved-example row whose value is not null, order them newest first by added_at, and submit their ids and their count. Submit written (how many rows were kept), refused (each with its index in the request and why), and examples (the ids and count, or null when no list was asked for).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "written",
+                "refused"
+              ],
+              "properties": {
+                "written": {
+                  "type": "integer"
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "examples": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

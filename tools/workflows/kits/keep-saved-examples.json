@@ -1,0 +1,81 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-saved-examples with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and list true.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the saved examples are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-saved-examples"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:answer-the-saved-examples-page"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-saved-examples\" with store, and list true to read the examples newest first. To save or change or remove one, pass keep: the rows tool:answer-the-saved-examples-page hands back in keep ({id, type, value}; value null removes).",
+    "3. The first run makes the store's own rows once and proves them on the example attempts: every answer must be the one the intent says, or the run stops and says which.",
+    "4. Read what came back: written, each refused row with its index and why, and examples (ids and count) when you asked for the list. A removal of an example that is not there is refused; nothing is changed for it."
+  ],
+  "worked_examples": [
+    {
+      "title": "List the saved examples, newest first",
+      "ask": "Show my saved examples.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-saved-examples",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "list": true
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-saved-examples",
+      "step": "keep",
+      "given": "The look step found one saved-example row kept in the store, for the post at example:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb (its value is a made-up saved example).",
+      "hands_back": "written 0, refused [], examples {ids: [\"example:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"], count: 1}."
+    },
+    {
+      "title": "Remove one saved example",
+      "ask": "Remove the saved example example:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-saved-examples",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "keep": [
+                {
+                  "id": "example:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "type": "saved-example",
+                  "value": null
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-saved-examples",
+      "step": "keep",
+      "given": "The store holds the row for example:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa at version 2.",
+      "hands_back": "written 1, refused [], and the row is kept as null at version 3; the earlier versions stay in the store."
+    }
+  ],
+  "drafted_from": "tool:list-saved-examples and tool:remove-a-saved-example (their rows, retired in this commit) and read-data/saved-examples.mjs; the proof is the recipe's prove step, run on PGlite and a JSON folder. The save route is tool:answer-the-saved-examples-page, which hands its rows back in keep."
+}

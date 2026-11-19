@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:answer-the-saved-examples-page's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Answer the Saved examples page: list my saved examples, save one from its link, remove one\", with {\"path\":\"/saved-examples\",\"method\":\"GET\",\"query\":{},\"body\":{}}. It runs tool:answer-the-saved-examples-page and answers {\"status\":200,\"body\":{\"examples\":[{\"id\":\"example:0123456789abcdef0123456789abcdef\",\"url\":\"https://example.com/posts/sample\",\"host\":\"example.com\",\"site\":\"Example\",\"title\":\"A sample post\",\"words\":\"Made-up words.\",\"pictures\":[],\"why_it_worked\":\"A made-up reason.\",\"collection\":null,\"added_from\":\"sample\",\"added_at\":\"2026-11-01T00:00:00.000Z\",\"updated_at\":\"2026-11-01T00:00:00.000Z\"}],\"count\":1}}",
+  "start_here": "Say to your AI: \"Answer the Saved examples page: list my saved examples, save one from its link, remove one\", with {\"path\":\"/saved-examples\",\"method\":\"GET\",\"query\":{},\"body\":{},\"stored\":{\"records\":[the saved-example rows the AI reads from your store]}}. It runs tool:answer-the-saved-examples-page and answers {\"status\":200,\"body\":{\"examples\":[{\"id\":\"example:0123456789abcdef0123456789abcdef\",\"url\":\"https://example.com/posts/sample\",\"host\":\"example.com\",\"site\":\"Example\",\"title\":\"A sample post\",\"words\":\"Made-up words.\",\"pictures\":[],\"why_it_worked\":\"A made-up reason.\",\"collection\":null,\"added_from\":\"sample\",\"added_at\":\"2026-11-01T00:00:00.000Z\",\"updated_at\":\"2026-11-01T00:00:00.000Z\"}],\"count\":1}}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (saved-example) through the records door.",
+  "no_lists_because": "It names no list of yours: the saved-example rows are read by the AI from the person's own store and handed in as stored.records, and the rows it makes are handed back in keep. It reads no store.",
   "workflows": [],
   "tools": [
     "tool:answer-the-saved-examples-page"
@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Answer the Saved examples page: list my saved examples, save one from its link, remove one\", and give it path (The page route after /work/api: /saved-examples, /saved-examples/remove); method.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:answer-the-saved-examples-page and its input (the worked example shows one).",
     "3. Read what comes back: The Saved examples page's routes (GET /saved-examples lists every example newest first with its count; POST /saved-examples saves one from { url, title?, words?, pictures?, why_it_worked?, collection?, added_from?",
-    "4. It reads and writes only its own rows through the records door: saved-example (records:list, records:write)."
+    "4. It reads no store: the saved-example rows the AI hands in as stored.records come from the person's own store, and the rows it hands back in keep are written there (a value of null removes an example). To list or remove examples without the page, use workflow:keep-saved-examples (tools/workflows)."
   ],
   "worked_examples": [
     {
@@ -28,7 +28,29 @@
               "path": "/saved-examples",
               "method": "GET",
               "query": {},
-              "body": {}
+              "body": {},
+              "stored": {
+                "records": [
+                  {
+                    "id": "example:0123456789abcdef0123456789abcdef",
+                    "type": "saved-example",
+                    "value": {
+                      "id": "example:0123456789abcdef0123456789abcdef",
+                      "url": "https://example.com/posts/sample",
+                      "host": "example.com",
+                      "site": "Example",
+                      "title": "A sample post",
+                      "words": "Made-up words.",
+                      "pictures": [],
+                      "why_it_worked": "A made-up reason.",
+                      "collection": null,
+                      "added_from": "sample",
+                      "added_at": "2026-11-01T00:00:00.000Z",
+                      "updated_at": "2026-11-01T00:00:00.000Z"
+                    }
+                  }
+                ]
+              }
             }
           }
         }
