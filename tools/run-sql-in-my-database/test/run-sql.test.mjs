@@ -1,6 +1,7 @@
 import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { randomBytes } from 'node:crypto';
 import { mkdtempSync, readFileSync } from 'node:fs';
 import net from 'node:net';
 import { tmpdir } from 'node:os';
@@ -9,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import EmbeddedPostgres from 'embedded-postgres';
 import pg from 'pg';
 import { runSql, sayWithout, shapeOf } from '../do-work/run-sql.mjs';
+import { passwordOf, verifierOf } from '../do-work/make-a-login-verifier.mjs';
 
 // A real PostgreSQL server in a temp folder (no sudo), with an owner that may make roles of its own (as set-up-postgres-role.sh
 // PG_MAKES_ROLES=yes makes it) and a SELECT-only reader.
@@ -136,6 +138,16 @@ const runCommand = (connection, input, roleConnection = '') => new Promise((reso
   child.on('close', code => resolve({ code, out, err }));
 });
 
+// The verifier maker as its keeper runs it: the kept connection string on stdin, the verifier alone on stdout.
+const makeVerifier = (kept) => new Promise((resolve) => {
+  const child = spawn(process.execPath, [fileURLToPath(new URL('../do-work/make-a-login-verifier.mjs', import.meta.url))], { stdio: ['pipe', 'pipe', 'pipe'], env: {} });
+  let out = ''; let err = '';
+  child.stdout.on('data', chunk => { out += chunk; });
+  child.stderr.on('data', chunk => { err += chunk; });
+  child.stdin.end(kept);
+  child.on('close', code => resolve({ code, out, err }));
+});
+
 test('the command reads the connection from descriptor 3 and the request from stdin', async () => {
   const ok = await runCommand(ownerConnection, { credential_name: 'own-rows-postgres-connection', sql: 'SELECT $1::text AS word', params: ['hello'] });
   assert.equal(ok.code, 0);
@@ -186,6 +198,42 @@ test('a minted member login reads, adds, changes and removes rows, of a table ma
   await runSql({ connection: ownerConnection, input: { recipe: { name: 'may-change-rows', action: 'drop', role } } });
   await runSql({ connection: ownerConnection, input: { sql: 'DROP TABLE notes' } });
   assert.deepEqual((await runSql({ connection: ownerConnection, input: { sql: 'SELECT id FROM tasks ORDER BY id' } })).rows, [{ id: 't1' }]);
+  assert.deepEqual(await roles(), []);
+});
+
+test('a login for someone else is made from the verifier they sent: they sign in with the password only they hold, the owner never sees it, and the drop takes it away', async () => {
+  const member = 'p_example_share_member';
+  const password = randomBytes(32).toString('base64url');
+  const kept = connectionFor(member, password);
+  const sent = await makeVerifier(kept);
+  assert.equal(sent.code, 0, sent.err);
+  const { password_verifier: verifier } = JSON.parse(sent.out);
+  assert.ok(!sent.out.includes(password), 'the verifier answer holds no password');
+  const made = await runSql({ connection: ownerConnection, input: { recipe: { name: 'may-change-rows', action: 'create', role: member, password_verifier: verifier } } });
+  assert.deepEqual(made.rows, [{ role: member, recipe: 'may-change-rows', action: 'create', valid_until: 'infinity' }], 'nothing is answered but the role');
+  const admin = new pg.Client({ ...ADMIN, database: 'postgres' });
+  await admin.connect();
+  assert.equal((await admin.query('SELECT rolpassword FROM pg_authid WHERE rolname = $1', [member])).rows[0].rolpassword, verifier, 'the server keeps the verifier as sent');
+  await admin.end();
+  await runSql({ connection: kept, input: { sql: "INSERT INTO tasks (id, title) VALUES ('t-kept', 'added by the password keeper')" } });
+  await runSql({ connection: kept, input: { sql: "DELETE FROM tasks WHERE id = 't-kept'" } });
+  await assert.rejects(runSql({ connection: connectionFor(member, randomBytes(32).toString('base64url')), input: { sql: 'SELECT 1' } }), /password authentication failed/);
+  await runSql({ connection: ownerConnection, input: { recipe: { name: 'may-change-rows', action: 'drop', role: member } } });
+  await assert.rejects(runSql({ connection: kept, input: { sql: 'SELECT 1' } }), /password authentication failed|does not exist/);
+  assert.deepEqual(await roles(), []);
+});
+
+test('a verifier is checked before any connection: its shape, its iterations, a role and create only, and never with a held role connection', async () => {
+  const verifier = verifierOf(randomBytes(32).toString('base64url'));
+  assert.match(verifier, /^SCRAM-SHA-256\$4096:/);
+  assert.throws(() => shapeOf({ recipe: { name: 'may-change-rows', action: 'create', role: 'r', password_verifier: 'plain-password-is-not-a-verifier' } }), /must be a SCRAM-SHA-256 verifier/);
+  assert.throws(() => shapeOf({ recipe: { name: 'may-change-rows', action: 'create', role: 'r', password_verifier: verifier.replace('$4096:', '$1000:') } }), /at least 4096 iterations/);
+  assert.throws(() => shapeOf({ recipe: { name: 'may-change-rows', action: 'drop', role: 'r', password_verifier: verifier } }), /give it with create/);
+  assert.throws(() => shapeOf({ recipe: { name: 'may-change-rows', action: 'create', password_verifier: verifier } }), /needs recipe.role/);
+  await assert.rejects(runSql({ connection: ownerConnection, roleConnection: shareConnection, input: { recipe: { name: 'may-change-rows', action: 'create', role: 'r', password_verifier: verifier } } }), /Give one of/);
+  assert.throws(() => verifierOf('short'), /at least 43 characters/);
+  assert.throws(() => verifierOf(`${'é'.repeat(43)}`), /printable ASCII/);
+  assert.equal(passwordOf(connectionFor('someone', 'p%40ss' + 'x'.repeat(40))), 'p@ss' + 'x'.repeat(40));
   assert.deepEqual(await roles(), []);
 });
 

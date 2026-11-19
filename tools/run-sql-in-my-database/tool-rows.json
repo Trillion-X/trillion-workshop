@@ -68,7 +68,7 @@
                 },
                 "valid_until": {
                   "type": "string",
-                  "description": "When a minted login stops working, as a time (2026-12-01T00:00:00Z)."
+                  "description": "When a minted login (or one made from a password_verifier) stops working, as a time (2026-12-01T00:00:00Z)."
                 },
                 "limits": {
                   "type": "object",
@@ -84,6 +84,10 @@
                       "minimum": 1
                     }
                   }
+                },
+                "password_verifier": {
+                  "type": "string",
+                  "description": "A login for someone else whose password only they hold: the SCRAM-SHA-256 verifier they made from it (do-work/make-a-login-verifier.mjs on their computer), given with create and role. The database keeps the verifier as the password; the password never comes here and nothing is answered."
                 }
               }
             }

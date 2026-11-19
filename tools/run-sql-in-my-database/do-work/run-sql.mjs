@@ -13,8 +13,9 @@
 //
 // A second shape runs a role recipe (read-data/role-recipes.json) as the connection's login: { recipe: { name, action, role?,
 // valid_until?, limits? } }. `create` with a held role connection (role_credential_name, handed on descriptor 4) makes that standing
-// login with the password the person holds; `create` with valid_until and no held one mints a login that stops working then,
-// and answers it once; `drop` takes a role away. Every value goes into the recipe's SQL through the server's own format().
+// login with the password the person holds; `create` with a password_verifier makes a login for someone else whose password
+// only they hold (they send the SCRAM verifier made from it, never the password: do-work/make-a-login-verifier.mjs); `create`
+// with valid_until and no held one mints a login that stops working then, and answers it once; `drop` takes a role away. Every value goes into the recipe's SQL through the server's own format().
 // A recipe runs in one transaction unless it says `in_one_transaction: false`: Postgres runs CREATE DATABASE and DROP
 // DATABASE only outside a transaction block, so such a recipe's statements run one by one on the same connection.
 import { randomBytes } from 'node:crypto';
@@ -27,6 +28,9 @@ const CONNECTION_DESCRIPTOR = 3;
 const ROLE_CONNECTION_DESCRIPTOR = 4;
 // 32 random bytes written as base64url are 43 characters; a standing login's password shorter than that is refused.
 const MIN_PASSWORD_LENGTH = 43;
+// A SCRAM-SHA-256 verifier as Postgres keeps one (RFC 5803): iterations, salt, StoredKey and ServerKey. The server takes it as the
+// role's password unchanged, so the password itself never reaches this computer. Fewer than 4096 iterations is refused.
+const VERIFIER = /^SCRAM-SHA-256\$(\d+):[A-Za-z0-9+/]+={0,2}\$[A-Za-z0-9+/]{43}=:[A-Za-z0-9+/]{43}=$/;
 const RECIPES = JSON.parse(readFileSync(new URL('../read-data/role-recipes.json', import.meta.url), 'utf8')).recipes;
 
 const held = descriptor => {
@@ -47,7 +51,7 @@ export function shapeOf(input) {
   const hasRecipe = Object.hasOwn(asked, 'recipe');
   if (hasSql + hasRecipe > 1) throw new Error('Give one of: sql (with params), or recipe.');
   if (hasRecipe) {
-    const { name, action, role, valid_until: validUntil, limits = {} } = asked.recipe ?? {};
+    const { name, action, role, valid_until: validUntil, password_verifier: verifier, limits = {} } = asked.recipe ?? {};
     if (!Object.hasOwn(RECIPES, name ?? '')) throw new Error(`recipe.name must be one of ${Object.keys(RECIPES).join(', ')}.`);
     if (!['create', 'drop'].includes(action)) throw new Error('recipe.action must be create or drop.');
     if (role !== undefined && (typeof role !== 'string' || role === '')) throw new Error('recipe.role must be a role name.');
@@ -59,7 +63,14 @@ export function shapeOf(input) {
       if (!(Number.isInteger(value) && value > 0)) throw new Error(`recipe.limits.${limit} must be a whole number above zero.`);
     }
     if (Object.keys(limits).length && action !== 'create') throw new Error('recipe.limits are set when a login is made: give them with create.');
-    return { kind: 'recipe', name, action, role, validUntil, limits };
+    if (verifier !== undefined) {
+      const match = typeof verifier === 'string' ? VERIFIER.exec(verifier) : null;
+      if (!match) throw new Error('recipe.password_verifier must be a SCRAM-SHA-256 verifier (SCRAM-SHA-256$iterations:salt$StoredKey:ServerKey), made from the password by whoever keeps it.');
+      if (Number(match[1]) < 4096) throw new Error('recipe.password_verifier must use at least 4096 iterations.');
+      if (action !== 'create') throw new Error('recipe.password_verifier is given when a login is made: give it with create.');
+      if (role === undefined) throw new Error('recipe.password_verifier needs recipe.role: the login name the password\'s keeper connects as.');
+    }
+    return { kind: 'recipe', name, action, role, validUntil, verifier, limits };
   }
   if (hasSql) {
     if (typeof asked.sql !== 'string' || asked.sql.trim() === '') throw new Error('sql must be a statement as text.');
@@ -76,8 +87,13 @@ const loginOf = connection => {
 };
 
 // The role a recipe makes or takes away, its password and when it stops working: a standing login is the held role
-// connection's (descriptor 4); a minted one is made up here and needs valid_until; a drop needs only the role.
+// connection's (descriptor 4); someone else's is the verifier they sent, with the role they named (and valid_until if given);
+// a minted one is made up here and needs valid_until; a drop needs only the role.
 const recipeLogin = (shape, roleConnection) => {
+  if (shape.verifier !== undefined) {
+    if (roleConnection) throw new Error('Give one of: role_credential_name (a login this computer holds) or recipe.password_verifier (one someone else holds).');
+    return { role: shape.role, password: shape.verifier, validUntil: shape.validUntil ?? 'infinity', minted: false };
+  }
   if (roleConnection) {
     const { role, password } = loginOf(roleConnection);
     if (shape.role !== undefined && shape.role !== role) throw new Error('recipe.role is not the role the held role connection names.');
