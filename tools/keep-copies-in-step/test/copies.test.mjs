@@ -78,7 +78,7 @@ test('versions no longer kept apart, or a choice not made, are refused with what
   assert.throws(() => settleTwoVersions({ id: `${KEPT_APART}:plan-7`, keep: 'one', records: PERSON }), /thing_type/);
 });
 
-test('the rows declare no records door, and the route that keeps a report through one is its own row', () => {
+test('the rows declare no records door, and the route that keeps a report through its values door is its own row', () => {
   for (const row of [SEE, HERE, SETTLE]) {
     assert.equal(row.invoke.records, undefined, row.id);
     assert.ok(row.input_schema.properties.records || row.input_schema.properties.devices, row.id);

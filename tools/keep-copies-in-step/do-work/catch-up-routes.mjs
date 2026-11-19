@@ -9,7 +9,7 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. The decisions are the moved code's (read-data/catch-up.mjs `here`): this file only reads the device rows,
-//      hands them to it and writes back what it kept, through the run's records door.
+//      hands them to it and writes back what it kept, through the run's values door (the setting rows the caller gives in stored, answered back as keep).
 //   2. The answer is the moved route's own (read-data/catch-up.mjs handleCatchUpRequest): a report answers 200
 //      { device, written }, a refused report (CatchUpError) or a body that is not JSON 400 { error }; any other path
 //      or method is 404 { error: 'Not found' }, as the old route answered a path it had no row for.

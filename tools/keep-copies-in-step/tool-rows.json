@@ -1335,11 +1335,7 @@
         "stored": [
           {
             "kind": "setting",
-            "id": "setting:catch_up_devices",
-            "operations": [
-              "records:read",
-              "records:write"
-            ]
+            "id": "setting:catch_up_devices"
           }
         ]
       }
