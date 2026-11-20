@@ -4,4 +4,3 @@ Files of old trillion whose job is this tool's. They are old trillion's bytes at
 
 | Old path | Here | Status |
 |---|---|---|
-| `src/network-profile-fill.mjs` | `src/network-profile-fill.mjs` | loads here; the quoted person's first name is a made-up one (call `made-up-quoted-person`); its field rows are DATA it is handed (old `src/network-settings.json` `profile_fill`, here `tools/introduce-two-people/src/network-settings.json`) (from 5dc302be) |

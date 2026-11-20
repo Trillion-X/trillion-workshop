@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { profileFill, handleFor } from '../from-an-older-version/src/network-profile-fill.mjs';
-import networkRules from '../../introduce-two-people/src/network-settings.json' with { type: 'json' };
+import { profileFill, handleFor } from '../src/network-profile-fill.mjs';
+import networkRules from '../src/network-settings.json' with { type: 'json' };
 
 const rules = networkRules.profile_fill;
 const empty = { name: '', handle: '', about: '', offering: '', seeking: '', contact: '' };

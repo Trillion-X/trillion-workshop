@@ -1,4 +1,7 @@
-// src/network-profile-fill.mjs
+// tools/introduce-two-people/src/network-profile-fill.mjs
+//
+// Origin: old main 5dc302be, src/network-profile-fill.mjs (receipt: tools/person-profile/moved-from.json).
+// Its field rules are DATA in src/network-settings.json (profile_fill).
 //
 // A person's Network profile is filled by Trillion from what it already knows about them, so nobody types a profile
 // Trillion could have written (Sam Example 2026-09-29: "the AI could have filled all the information out on me").
