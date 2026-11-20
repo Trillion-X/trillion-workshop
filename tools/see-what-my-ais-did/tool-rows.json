@@ -550,6 +550,704 @@
           }
         ]
       }
+    },
+    {
+      "id": "package::see-what-my-ais-did::tool::keep-an-ai-activity-row",
+      "address": "package::see-what-my-ais-did::tool::keep-an-ai-activity-row",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/run-sql-in-my-database"
+        ],
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:see-what-my-ais-did",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "id": "tool:keep-an-ai-activity-row",
+        "label": "Keep an AI activity row",
+        "job": "Keep one row of what an AI did on a person's account, in that person's own database",
+        "description": "Keeps one activity row (what the AI call left, made by the activity library) in the person's own database named by database. The tables activity_g<n>, activity_links_g<n> and activity_counts_g<n> and the views activity and activity_links are made there the first time (CREATE TABLE IF NOT EXISTS). The newest generation holds up to 5000 rows; a new one starts when it is full and the older one goes whole. Nothing is read back; the row's seq is returned.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "database",
+            "row"
+          ],
+          "properties": {
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The person's own pursuit database (such as ethos_for_who_runs_it). The computer opens it with the login its vault holds as that name and -connection. The activity tables are made there the first time."
+            },
+            "row": {
+              "type": "object",
+              "required": [
+                "tool",
+                "at"
+              ],
+              "description": "One activity row, as the activity library makes it: tool, at, app, item, title, label, uses, for, ok and reason. Only ids, short titles and the failure words are kept."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "generation",
+            "seq"
+          ],
+          "properties": {
+            "generation": {
+              "type": "integer"
+            },
+            "seq": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/see-what-my-ais-did",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/see-what-my-ais-did/do-work/activity-in-database.mjs",
+            "keep"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "see-what-my-ais-did",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/see-what-my-ais-did"
+              },
+              {
+                "package": "run-sql-in-my-database",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/run-sql-in-my-database"
+              },
+              {
+                "packages": [
+                  "pg"
+                ],
+                "at": "/opt/node_modules/pg"
+              },
+              {
+                "packages": [
+                  "pg-connection-string"
+                ],
+                "at": "/opt/node_modules/pg-connection-string"
+              },
+              {
+                "packages": [
+                  "pg-pool"
+                ],
+                "at": "/opt/node_modules/pg-pool"
+              },
+              {
+                "packages": [
+                  "pg-protocol"
+                ],
+                "at": "/opt/node_modules/pg-protocol"
+              },
+              {
+                "packages": [
+                  "pg-types"
+                ],
+                "at": "/opt/node_modules/pg-types"
+              },
+              {
+                "packages": [
+                  "pg-int8"
+                ],
+                "at": "/opt/node_modules/pg-int8"
+              },
+              {
+                "packages": [
+                  "postgres-array"
+                ],
+                "at": "/opt/node_modules/postgres-array"
+              },
+              {
+                "packages": [
+                  "postgres-bytea"
+                ],
+                "at": "/opt/node_modules/postgres-bytea"
+              },
+              {
+                "packages": [
+                  "postgres-date"
+                ],
+                "at": "/opt/node_modules/postgres-date"
+              },
+              {
+                "packages": [
+                  "postgres-interval"
+                ],
+                "at": "/opt/node_modules/postgres-interval"
+              },
+              {
+                "packages": [
+                  "xtend"
+                ],
+                "at": "/opt/node_modules/xtend"
+              },
+              {
+                "packages": [
+                  "pgpass"
+                ],
+                "at": "/opt/node_modules/pgpass"
+              },
+              {
+                "packages": [
+                  "split2"
+                ],
+                "at": "/opt/node_modules/split2"
+              }
+            ]
+          },
+          "packages": {
+            "pg": {
+              "version": "8.23.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+                }
+              }
+            },
+            "pg-connection-string": {
+              "version": "2.14.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+                }
+              }
+            },
+            "pg-pool": {
+              "version": "3.14.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+                }
+              }
+            },
+            "pg-protocol": {
+              "version": "1.16.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+                }
+              }
+            },
+            "pg-types": {
+              "version": "2.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+                }
+              }
+            },
+            "pg-int8": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+                }
+              }
+            },
+            "postgres-array": {
+              "version": "2.0.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+                }
+              }
+            },
+            "postgres-bytea": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+                }
+              }
+            },
+            "postgres-date": {
+              "version": "1.0.7",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+                }
+              }
+            },
+            "postgres-interval": {
+              "version": "1.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+                }
+              }
+            },
+            "xtend": {
+              "version": "4.0.2",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+                }
+              }
+            },
+            "pgpass": {
+              "version": "1.0.5",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+                }
+              }
+            },
+            "split2": {
+              "version": "4.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+                }
+              }
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_database": "database",
+              "fd": 3,
+              "only_when": {
+                "input": "database",
+                "present": true
+              }
+            }
+          ]
+        },
+        "provenance": {
+          "source": "the activity library's keepActivity (tools/shared-code/src/activity.mjs), ported to the person's own Postgres database with this tool's own tables"
+        },
+        "verify": [],
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "id": "package::see-what-my-ais-did::tool::read-ai-activity",
+      "address": "package::see-what-my-ais-did::tool::read-ai-activity",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/run-sql-in-my-database"
+        ],
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:see-what-my-ais-did",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "id": "tool:read-ai-activity",
+        "label": "Read AI activity",
+        "job": "Read what an AI did on a person's account, newest first, or trace one item",
+        "description": "Reads the activity kept in the person's own database named by database: the newest rows (narrow by app, by the id a call was done for, or to the calls that did not work), or, with item, how that item came about and what came of it. Each step is one kept row with its link (made, used or for). Reads the newest two generations only.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "database"
+          ],
+          "properties": {
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The person's own pursuit database (such as ethos_for_who_runs_it). The computer opens it with the login its vault holds as that name and -connection. The activity tables are made there the first time."
+            },
+            "before": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "The seq of the last row already read."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            },
+            "app": {
+              "type": "string",
+              "maxLength": 120
+            },
+            "for": {
+              "description": "One id, or a list of ids: the calls done for any of them.",
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "failed": {
+              "type": "boolean"
+            },
+            "item": {
+              "type": "string",
+              "description": "Give item to trace how it came about and what came of it (the steps) instead of the list."
+            },
+            "depth": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 8
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Either { items, next_before } (the list) or { item, steps, coverage } (the trace)."
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/see-what-my-ais-did",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/see-what-my-ais-did/do-work/activity-in-database.mjs",
+            "read"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "see-what-my-ais-did",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/see-what-my-ais-did"
+              },
+              {
+                "package": "run-sql-in-my-database",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/run-sql-in-my-database"
+              },
+              {
+                "packages": [
+                  "pg"
+                ],
+                "at": "/opt/node_modules/pg"
+              },
+              {
+                "packages": [
+                  "pg-connection-string"
+                ],
+                "at": "/opt/node_modules/pg-connection-string"
+              },
+              {
+                "packages": [
+                  "pg-pool"
+                ],
+                "at": "/opt/node_modules/pg-pool"
+              },
+              {
+                "packages": [
+                  "pg-protocol"
+                ],
+                "at": "/opt/node_modules/pg-protocol"
+              },
+              {
+                "packages": [
+                  "pg-types"
+                ],
+                "at": "/opt/node_modules/pg-types"
+              },
+              {
+                "packages": [
+                  "pg-int8"
+                ],
+                "at": "/opt/node_modules/pg-int8"
+              },
+              {
+                "packages": [
+                  "postgres-array"
+                ],
+                "at": "/opt/node_modules/postgres-array"
+              },
+              {
+                "packages": [
+                  "postgres-bytea"
+                ],
+                "at": "/opt/node_modules/postgres-bytea"
+              },
+              {
+                "packages": [
+                  "postgres-date"
+                ],
+                "at": "/opt/node_modules/postgres-date"
+              },
+              {
+                "packages": [
+                  "postgres-interval"
+                ],
+                "at": "/opt/node_modules/postgres-interval"
+              },
+              {
+                "packages": [
+                  "xtend"
+                ],
+                "at": "/opt/node_modules/xtend"
+              },
+              {
+                "packages": [
+                  "pgpass"
+                ],
+                "at": "/opt/node_modules/pgpass"
+              },
+              {
+                "packages": [
+                  "split2"
+                ],
+                "at": "/opt/node_modules/split2"
+              }
+            ]
+          },
+          "packages": {
+            "pg": {
+              "version": "8.23.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+                }
+              }
+            },
+            "pg-connection-string": {
+              "version": "2.14.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+                }
+              }
+            },
+            "pg-pool": {
+              "version": "3.14.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+                }
+              }
+            },
+            "pg-protocol": {
+              "version": "1.16.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+                }
+              }
+            },
+            "pg-types": {
+              "version": "2.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+                }
+              }
+            },
+            "pg-int8": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+                }
+              }
+            },
+            "postgres-array": {
+              "version": "2.0.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+                }
+              }
+            },
+            "postgres-bytea": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+                }
+              }
+            },
+            "postgres-date": {
+              "version": "1.0.7",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+                }
+              }
+            },
+            "postgres-interval": {
+              "version": "1.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+                }
+              }
+            },
+            "xtend": {
+              "version": "4.0.2",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+                }
+              }
+            },
+            "pgpass": {
+              "version": "1.0.5",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+                }
+              }
+            },
+            "split2": {
+              "version": "4.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+                }
+              }
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_database": "database",
+              "fd": 3,
+              "only_when": {
+                "input": "database",
+                "present": true
+              }
+            }
+          ]
+        },
+        "provenance": {
+          "source": "the activity library's readActivity and traceActivity (tools/shared-code/src/activity.mjs), ported to the person's own Postgres database"
+        },
+        "verify": [],
+        "result_selector": "$.result"
+      }
     }
   ]
 }

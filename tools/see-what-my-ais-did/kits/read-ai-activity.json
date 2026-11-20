@@ -1,0 +1,40 @@
+{
+  "drafted_from": "tool:read-ai-activity's own row (its words, input schema and steps) from the activity library, tools/shared-code/src/activity.mjs (readActivity, traceActivity); read it before relying on it",
+  "start_here": "Say to your AI: \"Show what my AI did, or how one thing came about\", with the database it needs.",
+  "lists": [],
+  "no_lists_because": "It reads AI activity rows from the person's own database, named by the database given; it names no list of yours.",
+  "workflows": [],
+  "tools": [
+    "tool:read-ai-activity"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Show what my AI did\", and give it database. To see how one item came about, give item too.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-ai-activity and its input (the worked example shows one).",
+    "3. Read what comes back: the newest rows as items with next_before to page on, or with item the steps of its trace."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the newest made-up activity",
+      "ask": "Show what my AI did",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-ai-activity",
+            "input": {
+              "database": "proofs_for_who_runs_it",
+              "limit": 10
+            }
+          }
+        }
+      },
+      "given": {
+        "database": "proofs_for_who_runs_it",
+        "limit": 10
+      },
+      "hands_back": "It answered {\"items\":[{\"seq\":1,\"tool\":\"tool:sample-tool\",\"item\":\"file:sample-note\"}],\"next_before\":null} (run on the test's in-memory store; not yet run on a real database)."
+    }
+  ]
+}

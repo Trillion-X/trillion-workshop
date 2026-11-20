@@ -1,0 +1,64 @@
+{
+  "drafted_from": "tool:keep-an-ai-activity-row's own row (its words, input schema and steps) from the activity library, tools/shared-code/src/activity.mjs (keepActivity); read it before relying on it",
+  "start_here": "Say to your AI: \"Keep what my AI did in my own database\", with the database and the row it needs.",
+  "lists": [],
+  "no_lists_because": "It keeps AI activity rows in the person's own database, named by the database given; it names no list of yours.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-an-ai-activity-row"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Keep what my AI did in my own database\", and give it database (the person's own pursuit database, such as ethos_for_who_runs_it) and the row one AI call left.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:keep-an-ai-activity-row and its input (the worked example shows one).",
+    "3. Read what comes back: it answers the generation and seq the row was kept at. The tables are made in that database the first time."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep one made-up activity row",
+      "ask": "Keep what my AI did in my own database",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-an-ai-activity-row",
+            "input": {
+              "database": "proofs_for_who_runs_it",
+              "row": {
+                "tool": "tool:sample-tool",
+                "at": "2026-11-20T04:30:00-06:00",
+                "app": "sample-app",
+                "item": "file:sample-note",
+                "title": "A made-up note",
+                "label": "Made a note",
+                "uses": [],
+                "for": [
+                  "goal:sample"
+                ],
+                "ok": true
+              }
+            }
+          }
+        }
+      },
+      "given": {
+        "database": "proofs_for_who_runs_it",
+        "row": {
+          "tool": "tool:sample-tool",
+          "at": "2026-11-20T04:30:00-06:00",
+          "app": "sample-app",
+          "item": "file:sample-note",
+          "title": "A made-up note",
+          "label": "Made a note",
+          "uses": [],
+          "for": [
+            "goal:sample"
+          ],
+          "ok": true
+        }
+      },
+      "hands_back": "It answered {\"generation\":1,\"seq\":1} (run on the test's in-memory store; not yet run on a real database)."
+    }
+  ]
+}
