@@ -856,7 +856,7 @@
                   "kind": "return",
                   "config": {
                     "value": {
-                      "skipped": "the voice scorer did not run"
+                      "said": "not scored: no voice scorer answered on this computer"
                     }
                   }
                 },
@@ -903,7 +903,7 @@
                   "kind": "return",
                   "config": {
                     "value": {
-                      "skipped": "the phrase rules were not checked"
+                      "said": "not checked: no phrase rules were given, or the check could not run"
                     }
                   }
                 },
@@ -1079,15 +1079,32 @@
                                   {
                                     "$kind": "binding",
                                     "select": {
-                                      "from": "steps",
-                                      "key": "score-the-voice",
-                                      "path": "output.result.body_min"
+                                      "from": "literal",
+                                      "value": 0
                                     },
                                     "transform": [
                                       {
-                                        "op": "op:core.if_null",
+                                        "op": "op:core.coalesce",
                                         "args": {
-                                          "value": "none"
+                                          "values": [
+                                            {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "from": "steps",
+                                                "key": "score-the-voice",
+                                                "path": "output.result.body_min"
+                                              }
+                                            },
+                                            {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "from": "steps",
+                                                "key": "no-voice-score",
+                                                "path": "output.said"
+                                              }
+                                            },
+                                            "none"
+                                          ]
                                         }
                                       },
                                       {
@@ -1095,20 +1112,40 @@
                                       }
                                     ]
                                   },
-                                  ". Phrase findings: ",
+                                  ". Phrase rules: ",
                                   {
                                     "$kind": "binding",
                                     "select": {
-                                      "from": "steps",
-                                      "key": "check-the-phrases",
-                                      "path": "output.findings"
+                                      "from": "literal",
+                                      "value": 0
                                     },
                                     "transform": [
                                       {
-                                        "op": "op:core.stringify",
+                                        "op": "op:core.coalesce",
                                         "args": {
-                                          "format": "json"
+                                          "values": [
+                                            {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "from": "steps",
+                                                "key": "no-phrase-check",
+                                                "path": "output.said"
+                                              }
+                                            },
+                                            {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "from": "steps",
+                                                "key": "check-the-phrases",
+                                                "path": "output.said"
+                                              }
+                                            },
+                                            "none"
+                                          ]
                                         }
+                                      },
+                                      {
+                                        "op": "op:core.to_string"
                                       }
                                     ]
                                   },
@@ -1355,15 +1392,32 @@
                                   {
                                     "$kind": "binding",
                                     "select": {
-                                      "from": "steps",
-                                      "key": "score-the-voice",
-                                      "path": "output.result.body_min"
+                                      "from": "literal",
+                                      "value": 0
                                     },
                                     "transform": [
                                       {
-                                        "op": "op:core.if_null",
+                                        "op": "op:core.coalesce",
                                         "args": {
-                                          "value": "not scored"
+                                          "values": [
+                                            {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "from": "steps",
+                                                "key": "score-the-voice",
+                                                "path": "output.result.body_min"
+                                              }
+                                            },
+                                            {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "from": "steps",
+                                                "key": "no-voice-score",
+                                                "path": "output.said"
+                                              }
+                                            },
+                                            "none"
+                                          ]
                                         }
                                       },
                                       {
@@ -1371,26 +1425,40 @@
                                       }
                                     ]
                                   },
-                                  ". Phrase findings: ",
+                                  ". Phrase rules: ",
                                   {
                                     "$kind": "binding",
                                     "select": {
-                                      "from": "steps",
-                                      "key": "check-the-phrases",
-                                      "path": "output.findings"
+                                      "from": "literal",
+                                      "value": 0
                                     },
                                     "transform": [
                                       {
-                                        "op": "op:core.if_null",
+                                        "op": "op:core.coalesce",
                                         "args": {
-                                          "value": "not checked"
+                                          "values": [
+                                            {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "from": "steps",
+                                                "key": "no-phrase-check",
+                                                "path": "output.said"
+                                              }
+                                            },
+                                            {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "from": "steps",
+                                                "key": "check-the-phrases",
+                                                "path": "output.said"
+                                              }
+                                            },
+                                            "none"
+                                          ]
                                         }
                                       },
                                       {
-                                        "op": "op:core.stringify",
-                                        "args": {
-                                          "format": "json"
-                                        }
+                                        "op": "op:core.to_string"
                                       }
                                     ]
                                   },

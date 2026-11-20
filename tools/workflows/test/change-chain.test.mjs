@@ -148,7 +148,7 @@ test('a settled person is told once: a checked draft to the address used last, i
   assert.equal(notice.credential_name, 'my-notices-connection');
   assert.equal(notice.kind, 'needs-you');
   assert.match(notice.title, /draft to .* is in your mailbox: moved the call/);
-  assert.match(notice.body, /sending it is your yes\. Voice score \(lowest paragraph\): 0\.8\. Phrase findings: \[\]\. Draft id: draft-1/);
+  assert.match(notice.body, /sending it is your yes\. Voice score \(lowest paragraph\): 0\.8\. Phrase rules: clean\. Draft id: draft-1/);
 });
 
 test('a next call sooner than soon_minutes is a call to make now, with no draft', async () => {
@@ -171,6 +171,8 @@ test('a draft is made from the history when mail, calendar, voice or phrase step
     assert.ok(asked(d).includes('tool:ask-a-model'), failing);
     assert.deepEqual(asked(d).slice(-2), ['tool:save-a-mail-draft', 'notice'], failing);
     assert.match(noticeOf(d.calls.at(-1)).title, /draft to .* is in your mailbox/, failing);
+    if (failing === 'tool:score-writing-with-a-voice-adapter') assert.match(noticeOf(d.calls.at(-1)).body, /Voice score \(lowest paragraph\): not scored: no voice scorer answered on this computer\. Phrase rules: clean\./);
+    if (failing === 'tool:judge-against-rules') assert.match(noticeOf(d.calls.at(-1)).body, /Voice score \(lowest paragraph\): 0\.8\. Phrase rules: not checked: no phrase rules were given, or the check could not run\./);
   }
   const noMailbox = tellDoor({ rows: [due(false)], fail: 'tool:save-a-mail-draft' });
   assert.equal((await tellRun(noMailbox)).status, 'completed');
