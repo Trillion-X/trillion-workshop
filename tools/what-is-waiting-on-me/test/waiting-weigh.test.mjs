@@ -5,7 +5,7 @@
 // his AIs opened from his own words were all on his list.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { readCardSections } from '../../browse-inspiration-clips/card-sections.mjs';
+import { readCardSections } from '../../workspace-screens/web/src/card-sections.mjs';
 import settings from '../../keep-and-wake-ai-sessions-on-this-computer/src/waiting-on-you.json' with { type: 'json' };
 import { whoDoesEachStep } from '../../say-for-each-step-of-a-plan-who-should-do/src/who-does-it.mjs';
 import who from '../../shared-code/src/who-does-it.json' with { type: 'json' };

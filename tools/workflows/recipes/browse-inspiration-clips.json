@@ -152,13 +152,15 @@
           {
             "id": "keep",
             "title": "Answer the browse",
-            "do": "For each section of the DATA (or the layout's rows), read its source from the store, pass each item through the section's tests, keep one card per distinct value of the section's distinct field, cut the row at its limit, and map each card's fields by the DATA's card paths (the first path holding a value wins). Mark a clip with its edit flag true when the section's test says so. Submit rows (each with its name, its cards, and each card's id, title and actions), layout used, and empty (the rows with no cards, named with the DATA's empty words).",
+            "do": "Read each source the DATA names once, however many rows read it. For each section in the DATA's order: take the source's items (its items path), keep those passing every `where` test of the section (equals, not, one_of, none_of, at_least, at_most, present, each on the field the test names), order them by the section's `newest` path, newest first, keep one card per distinct value of the section's `distinct` path, and cut the row at its `limit`. Map each card's fields by the source's `card` paths (the first path holding a value wins). A card's id is the source name, a colon, then the card's id (or its title when it has none). A card's opens is the source's opens: a screen with its input read from the card, or a link. A card's edit is true only when the source's edit is true AND the card has a duration. A source that cannot be read marks only its own rows failed, with the reason, and no other row. Submit rows (each with its name, its cards with each card's id, title, opens, edit and actions, and failed when it failed), layout used, empty (the names of the rows with no cards), empty_words (the DATA's empty title and description), and said: the DATA's said.some sentence with {sections} and {rows} filled from the rows that have cards, or said.none when every row is empty.",
             "submit": {
               "type": "object",
               "required": [
                 "rows",
                 "layout",
-                "empty"
+                "empty",
+                "empty_words",
+                "said"
               ],
               "properties": {
                 "rows": {
@@ -173,10 +175,38 @@
                       "row": {
                         "type": "string"
                       },
+                      "failed": {
+                        "type": "string"
+                      },
                       "cards": {
                         "type": "array",
                         "items": {
-                          "type": "object"
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "title",
+                            "opens"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "opens": {
+                              "type": "object"
+                            },
+                            "edit": {
+                              "type": "boolean"
+                            },
+                            "actions": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          }
                         }
                       }
                     }
@@ -190,6 +220,23 @@
                   "items": {
                     "type": "string"
                   }
+                },
+                "empty_words": {
+                  "type": "object",
+                  "required": [
+                    "title"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "said": {
+                  "type": "string"
                 }
               }
             },

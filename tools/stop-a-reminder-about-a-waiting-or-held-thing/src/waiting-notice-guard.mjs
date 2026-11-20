@@ -18,7 +18,7 @@
 //     owner.closedByRule(id) → Promise<check | null>  settles the rules; the check that closed the row now, else null
 //     owner.source(name) → async reader       one source of Waiting on you (src/card-sections.mjs readCardSections)
 //     owner.done() → Set<card id>             the cards the person marked done
-import { readCardSections } from '../../browse-inspiration-clips/card-sections.mjs';
+import { readCardSections } from '../../workspace-screens/web/src/card-sections.mjs';
 import { doneWords } from './done-when.mjs';
 import waitingOnYouSettings from '../../keep-and-wake-ai-sessions-on-this-computer/src/waiting-on-you.json' with { type: 'json' };
 
