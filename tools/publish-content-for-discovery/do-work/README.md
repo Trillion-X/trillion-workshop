@@ -20,3 +20,10 @@ inputs after review. Client approval fields are rejected. Its result remains
 `render-review-required` and cannot select a public page. The hosted publication
 owner must render and review those exact bytes before changing the served
 archive.
+
+`read-published-documents.mjs` reads the publication view as data. The view
+row names the selectors, the visibility rules, the order, the route key (with
+its address prefixes) and the artifact field names. `readPublishedModel` returns
+the visible documents in that order with their route; `readArtifactRecord` names
+the artifact fields the view gives. Pure, and nothing calls it live: no route
+serves it.

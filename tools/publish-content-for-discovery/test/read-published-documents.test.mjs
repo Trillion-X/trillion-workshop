@@ -3,7 +3,7 @@
 // the FAQ pairs and sources are read as the document's own lists.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readPublishedModel } from '../do-work/read-published-documents.mjs';
+import { readArtifactRecord, readPublishedModel } from '../do-work/read-published-documents.mjs';
 
 const rows = payloads => payloads.map((payload, index) => ({ address: `record:${index}`, payload }));
 
@@ -67,4 +67,41 @@ test('the site config row is read when present', () => {
   assert.equal(model.config.basePath, '/docs');
   assert.equal(model.config.llmsTxt, true);
   assert.deepEqual(model.config.sameAs, ['https://example.com/x']);
+});
+
+test('the route key comes from the view selector, with the address prefixes the view names', () => {
+  const view = {
+    route_key: { selector: 'links.path', artifact_address_prefix: 'package::site::artifact::', route_address_prefix: 'package::site::route::' },
+  };
+  const model = readPublishedModel(rows([
+    { id: 'a', title: 'A', slug: 'a', links: { path: 'hello' } },
+    { id: 'b', title: 'B', slug: 'b', links: { path: '  ' } },
+    { id: 'c', title: 'C', slug: 'c' },
+  ]), [], view);
+  const [withKey, emptyKey, missingKey] = model.documents;
+  assert.deepEqual(withKey.route, { key: 'hello', routeAddress: 'package::site::route::hello', artifactAddress: 'package::site::artifact::hello' });
+  assert.equal(emptyKey.route, null);
+  assert.equal(missingKey.route, null);
+  assert.deepEqual(model.documents.map(document => document.id), ['a', 'b', 'c']);
+});
+
+test('a view without route_key gives documents no route, and missing prefixes give null addresses', () => {
+  const plain = readPublishedModel(rows([{ id: 'a', title: 'A', slug: 'a' }]), []);
+  assert.equal(plain.documents[0].route, null);
+  const noPrefix = readPublishedModel(rows([{ id: 'a', title: 'A', slug: 'a' }]), [], { route_key: { selector: 'slug' } });
+  assert.deepEqual(noPrefix.documents[0].route, { key: 'a', routeAddress: null, artifactAddress: null });
+});
+
+test('the artifact record fields are named by the view, and each missing one reads as null', () => {
+  const view = {
+    artifact_records: {
+      content_address_field: 'bytes.address',
+      integrity_field: 'integrity_hash',
+      media_type_field: 'media_type',
+      source_record_field: 'source',
+    },
+  };
+  const artifact = readArtifactRecord({ bytes: { address: 'content:1' }, integrity_hash: 'b3:abc', media_type: 42, source: 'record:9' }, view);
+  assert.deepEqual(artifact, { content_address: 'content:1', integrity: 'b3:abc', media_type: null, source_record: 'record:9' });
+  assert.deepEqual(readArtifactRecord({}, {}), {});
 });

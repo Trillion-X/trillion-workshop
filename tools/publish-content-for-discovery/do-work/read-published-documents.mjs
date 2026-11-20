@@ -1,7 +1,7 @@
 // tools/publish-content-for-discovery: the read model of a public document site, as data. Pure: the caller passes the
-// document rows, the site config rows and the publication view (which fields are which, what makes a row visible, and
-// how the rows are ordered), and gets back the documents a visitor may see, in order, with their FAQ pairs and sources.
-// Nothing here serves a page or reads a store. Ported from the older package read-data/read-public-document-site.ts
+// document rows, the site config rows and the publication view (which fields are which, what makes a row visible, how
+// the rows are ordered, the route key and the artifact field names), and gets back the documents a visitor may see, in
+// order, with their route, FAQ pairs and sources. Nothing here serves a page or reads a store. Ported from the older package read-data/read-public-document-site.ts
 // (bitfield-packages commit d926b7adb8), with its two test cases kept as test/read-published-documents.test.mjs.
 
 const DEFAULT_SELECTORS = {
@@ -63,6 +63,20 @@ function valueMatchesRule(value, rule) {
 
 const visibleByRules = (row, rules) => (rules ?? []).every(rule => valueMatchesRule(readSelector(row, rule.selector), rule));
 
+// The route key is the value of the view's route_key selector; its address prefixes (when the view names them) give the
+// route and artifact addresses. A view without route_key, or a row whose key is empty, has no route.
+function readRoute(payload, view) {
+  const routeKey = view.route_key;
+  if (!isRecord(routeKey)) return null;
+  const key = readText(readSelector(payload, routeKey.selector));
+  if (!key) return null;
+  return {
+    key,
+    routeAddress: typeof routeKey.route_address_prefix === 'string' ? `${routeKey.route_address_prefix}${key}` : null,
+    artifactAddress: typeof routeKey.artifact_address_prefix === 'string' ? `${routeKey.artifact_address_prefix}${key}` : null,
+  };
+}
+
 function readDocument(payload, view) {
   const selectors = { ...DEFAULT_SELECTORS, ...(view.selectors ?? {}) };
   const id = readText(readSelector(payload, selectors.id));
@@ -74,6 +88,7 @@ function readDocument(payload, view) {
     id,
     title,
     slug,
+    route: readRoute(payload, view),
     blocks: readList(readSelector(payload, selectors.blocks), isRecord),
     faqPairs: readList(readSelector(payload, selectors.faq_pairs), isRecord),
     authorRef: readText(readSelector(payload, selectors.author_ref)) ?? undefined,
@@ -118,4 +133,15 @@ export function readPublishedModel(documentRows, configRows, publicationView = {
     .sort((a, b) => compareByOrder(a, b, view));
   const configPayload = payloadRows(configRows)[0];
   return { documents, config: configPayload ? readConfig(configPayload) : null };
+}
+
+// An artifact record's fields, named by the view's artifact_records: each entry maps a field of the artifact row
+// (content_address_field, integrity_field, ...) to the row's own field name. The result is keyed by the entry name
+// without its _field suffix, each value read as text or null.
+export function readArtifactRecord(record, publicationView = {}) {
+  const view = readViewConfig(publicationView);
+  const fields = isRecord(view.artifact_records) ? view.artifact_records : {};
+  return Object.fromEntries(
+    Object.entries(fields).map(([entry, selector]) => [entry.replace(/_field$/, ''), readText(readSelector(record, selector))]),
+  );
 }
