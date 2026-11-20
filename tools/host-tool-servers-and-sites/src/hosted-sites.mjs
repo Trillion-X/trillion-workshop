@@ -1,7 +1,12 @@
-// Hosted sites as DATA (see src/hosted-service.mjs for the container that runs one): which site a request's host
-// names, the environment its service is started with, how its state is packed, and the rows the deploy stored.
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex } from '@noble/hashes/utils.js';
+// Hosted sites as DATA (the hosted-site and hosted-service rows a site is made from): which site a request's host names,
+// the environment its service is started with, how its state is packed, which paths the public may never reach, and the
+// first-run set-up that claims a site for one account. Each function takes its rows or storage as input and reads nothing
+// else, so a site on a person's own computer uses the same functions as any other host.
+//
+// Retired with the Cloudflare host (the Worker and its Durable Object classes, ruled out Nov 17 2026, commit 2026c5f21 in
+// in the Workshop's history): the binding and class names (hostedBindingOf, hostedClassOf), the container stubs (hostedStubFor,
+// setUpSiteStubs), the stored-rows identity read (loadHostedRows) and the request routing (handleHostedSite). The container
+// lifecycle that used them (wake, save and restore state, sleep when idle) is not in this folder; see the tool's README.
 
 export const RESTORED_MARK = '/tmp/.hosted-service-restored';
 
@@ -27,26 +32,10 @@ export function packScript(state) {
 // The start command waits until the state is restored, then runs the service's own start.
 export const gatedStart = startArgv => ['sh', '-c', `while [ ! -e ${RESTORED_MARK} ]; do sleep 0.2; done; exec "$@"`, 'sh', ...startArgv];
 
-// Each service row names the Durable Object binding and class its sites run in (`binding`, `class_name`; Ghost's
-// row names neither and keeps HOSTED_SERVICE / HostedService), so a second image is a second class, never a second
-// image in one. The container's image is the row's `image`, or built from `build.dockerfile_lines` by the deploy.
-export const hostedBindingOf = service => service?.binding ?? 'HOSTED_SERVICE';
-export const hostedClassOf = service => service?.class_name ?? 'HostedService';
-export const hostedBound = env => Boolean(env.HOSTED_SERVICE || env.HOSTED_IDENTITY);
-
-// One site's container object, in the namespace its service's row names.
-export function hostedStubFor(env, siteId, service) {
-  const namespace = env[hostedBindingOf(service)];
-  if (!namespace) throw new Error(`${service?.id ?? 'The service'} is not bound in this deploy (${hostedBindingOf(service)}).`);
-  return namespace.get(namespace.idFromName(siteId));
-}
-
-// The container objects of the sites an account sets up (their service has a first-run setup), with their ids.
-export function setUpSiteStubs(env, rows) {
-  return rows.filter(row => row.kind === 'hosted-site').flatMap(site => {
-    const service = rows.find(row => row.kind === 'hosted-service' && row.id === site.service);
-    return service?.setup && env[hostedBindingOf(service)] ? [{ id: site.id, stub: hostedStubFor(env, site.id, service) }] : [];
-  });
+// A path the public may never reach (for example a first-run owner setup that anyone could claim): true when the
+// request's pathname starts with one of the service's `blocked_paths`.
+export function isBlockedPath(service, pathname) {
+  return (service?.blocked_paths ?? []).some(path => pathname.startsWith(path));
 }
 
 export function hostedSiteFor(rows, host) {
@@ -56,31 +45,11 @@ export function hostedSiteFor(rows, host) {
   return service ? { site, service } : null;
 }
 
-// The hosted rows the deploy stored under their BLAKE3 identity (HOSTED_IDENTITY), read once per isolate.
-let hostedRows = null;
-export function loadHostedRows(env, readParts) {
-  if (!env.HOSTED_IDENTITY) return Promise.resolve([]);
-  hostedRows ??= (async () => {
-    const bytes = await readParts(env, `hosted:rows:${env.HOSTED_IDENTITY}`);
-    if (!bytes || bytesToHex(blake3(new Uint8Array(bytes))) !== env.HOSTED_IDENTITY) throw new Error('The site list is not available yet. Please try again in a minute.');
-    return JSON.parse(new TextDecoder().decode(bytes));
-  })().catch(error => { hostedRows = null; throw error; });
-  return hostedRows;
-}
-
-// A request whose host is a hosted site goes to that site's container; any other request is not this file's.
-export async function handleHostedSite(request, env, readParts) {
-  if (!hostedBound(env)) return null;
-  const found = hostedSiteFor(await loadHostedRows(env, readParts), new URL(request.url).hostname);
-  if (!found || !env[hostedBindingOf(found.service)]) return null;
-  return hostedStubFor(env, found.site.id, found.service).serve(request, found);
-}
-
-// The Workshop executor for hosted sites. `set-up` runs the service's own first-run setup inside the site's
-// container (a path the public can never reach), then hands what it made (for example the site's address and an
-// admin key) straight to this account's connect, so the key goes into the locked box and is never returned.
-// rows(): the hosted rows; siteFor(id, service): the site's container object; connect(args): the connect executor;
-// claimant: this account's opaque identity, so only the account that set a site up can be handed its key again.
+// The Workshop executor for hosted sites. `set-up` runs the service's own first-run setup inside the site (a path the
+// public can never reach), then hands what it made (for example the site's address and an admin key) straight to this
+// account's connect, so the key goes into the locked box and is never returned.
+// rows(): the hosted rows; siteFor(id, service): the site's runner, with setUp(found, argv, claimant) → { code, stdout, stderr };
+// connect(args): the connect executor; claimant: this account's opaque identity.
 export function hostedSiteExecutor({ rows, siteFor, connect, claimant }) {
   return async ({ invocation, input }) => {
     if (invocation.operation !== 'set-up') throw new Error(`A hosted site has no operation "${invocation.operation}".`);
@@ -112,4 +81,12 @@ export async function claimAndSetUp({ storage, claimant, run, argv, handOverArgv
     if (again.code === 0) return { ...again, handed_over: true };
   }
   return { ...(await run(argv)), handed_over: false };
+}
+
+// Hands a site's claim from one account to another. Only the account that holds the claim now may hand it on; any other
+// asker gets false and the claim stays where it was.
+export async function reassignClaim({ storage, from, to }) {
+  if ((await storage.get('claimed_by')) !== from) return false;
+  await storage.put('claimed_by', to);
+  return true;
 }
