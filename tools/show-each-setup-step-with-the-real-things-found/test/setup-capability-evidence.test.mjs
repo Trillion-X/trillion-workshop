@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { activityRow } from '../../shared-code/src/activity.mjs';
 import { hookKeptHarnessRecords, hostToolEvidence, localHarnessReport, nativeSourceReturn, setupCapabilityEvidence } from '../do-work/setup-capability-evidence.mjs';
 import { workResults } from '../../see-what-my-ais-did/do-work/work-results.mjs';
+import { readSetupReference, verifySetupEvidence } from '../../set-up-my-account/do-work/setup-runtime.mjs';
 import { settings, runConfiguredHook, setup } from '../../keep-and-wake-ai-sessions-on-this-computer/harness/setup.mjs';
 
 const at = delta => new Date(Date.parse('2026-10-08T12:00:00Z') + delta).toISOString();
@@ -86,8 +87,7 @@ test('current inspector output needs each retained hook execution; optional back
   row.harness_scopes = []; assert.equal(setupCapabilityEvidence({ definition: { evidence: { kind: 'local-harness-report' } }, original: { harness_scopes: [pair] }, row, references }).verified, false);
 });
 
-// BLOCKED: needs verifySetupEvidence from set-up-my-account's held runtime (walk-a-new-person-through-first-setup/from-an-older-version/src/setup-runtime.mjs.held).
-test.skip('an applicable empty discovery can gain a configured harness only with its actual retained-hook proof', async t => {
+test('an applicable empty discovery can gain a configured harness only with its actual retained-hook proof', async t => {
   const { report } = await observedInspector(t);
   const message = messageFor(report);
   const references = new Map([[message.ref, message], [pair.scope_id, kept(pair.scope_id, 'computer-sources', { computer_id: 'test-computer' })]]);
@@ -208,8 +208,7 @@ test('hook-kept harness proof refuses a prompt or receipt the hook did not keep 
   for (const [name, change] of Object.entries(changes)) { const fixture = hookKept(); change(fixture); assert.equal(fixture.inspect().verified, false, name); }
 });
 
-// BLOCKED: needs readSetupReference and verifySetupEvidence from the same held runtime.
-test.skip('the hook’s kept records resolve through the account’s own record owner in a configured setup', () => {
+test('the hook’s kept records resolve through the account’s own record owner in a configured setup', () => {
   const fixture = hookKept();
   const records = new Map([...fixture.references.values()].map(ref => [ref.ref, { kind: ref.kind, value: ref.value }]));
   records.set(pair.scope_id, { kind: 'computer-sources', value: { computer_id: 'test-computer', reported_at: at(0) } });
