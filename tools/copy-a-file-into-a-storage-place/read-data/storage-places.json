@@ -1,0 +1,41 @@
+{
+  "_what": "The storage places a file can be copied into, as DATA: for each kind, the request that asks whether this account may add a file to the folder (`check`, and the JSON Pointer of its yes in the answer, `may_add_at`), the request that opens a resumable upload (`open`: its answer's header `session_header` is the session's own address, which takes the bytes with no other credential), and how pieces are sent to that address (`piece`: a multiple of `multiple_of` bytes, `Content-Range` bytes from-to/length, `more` the statuses that ask for the next piece, `done` the statuses of the last, `id_at` the JSON Pointer of the new file's id). `{field}` is filled from the copy's own values: folder, name, media_type, byte_length. A new kind is a new entry and no code change. A place whose pieces each need the account's own credential (Dropbox's upload sessions, S3 multipart) does not fit this shape and is not listed.",
+  "google-drive": {
+    "words": "Google Drive",
+    "check": {
+      "method": "GET",
+      "url": "https://www.googleapis.com/drive/v3/files/{folder}",
+      "query": { "fields": "name,capabilities(canAddChildren)", "supportsAllDrives": "true" },
+      "may_add_at": "/capabilities/canAddChildren",
+      "name_at": "/name"
+    },
+    "open": {
+      "method": "POST",
+      "url": "https://www.googleapis.com/upload/drive/v3/files",
+      "query": { "uploadType": "resumable", "supportsAllDrives": "true" },
+      "headers": { "X-Upload-Content-Type": "{media_type}", "X-Upload-Content-Length": "{byte_length}" },
+      "body": { "name": "{name}", "parents": ["{folder}"] },
+      "session_header": "location"
+    },
+    "piece": { "multiple_of": 262144, "more": [308], "done": [200, 201], "id_at": "/id" }
+  },
+  "onedrive": {
+    "words": "OneDrive",
+    "check": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/me/drive/items/{folder}",
+      "query": { "select": "name,folder" },
+      "may_add_at": "/folder",
+      "name_at": "/name"
+    },
+    "open": {
+      "method": "POST",
+      "url": "https://graph.microsoft.com/v1.0/me/drive/items/{folder}:/{name}:/createUploadSession",
+      "query": {},
+      "headers": {},
+      "body": { "item": { "@microsoft.graph.conflictBehavior": "rename" } },
+      "session_at": "/uploadUrl"
+    },
+    "piece": { "multiple_of": 327680, "more": [202], "done": [200, 201], "id_at": "/id" }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "drafted_from": "tool row in tools/copy-a-file-into-a-storage-place/tool-rows.json, do-work/copy-a-file-into-a-storage-place.mjs and test/copy-a-file-into-a-storage-place.test.mjs",
+  "start_here": "Say to your AI: \"Copy /Shared/clips/clip-1080p.mp4 into the Google Drive folder 1AbCdEfGh my friend shared with me.\" It shares the file to itself for an hour, runs tool:copy-a-file-into-a-storage-place with that link, and hands back the new file's id, or says plainly that you may not add files to that folder.",
+  "lists": [],
+  "no_lists_because": "It keeps no list: it copies one file and answers what the storage place made.",
+  "workflows": [],
+  "tools": [
+    "tool:copy-a-file-into-a-storage-place",
+    "tool:your-files"
+  ],
+  "instructions": [
+    "1. Make an address the copy can read the file from: share_file the file (tool:your-files) for an hour and keep its url and byte_length.",
+    "2. Run tool:copy-a-file-into-a-storage-place with from {url, byte_length}, to {place: google-drive, folder: the folder's id, name, media_type} and via (composio with account, or google-account with connection).",
+    "3. Read copied: true with the new file's id, or copied: false with said, such as \"You may not add files to \\\"ATX\\\" in Google Drive\"; then ask the folder's owner to give you the right to add, or copy into a folder of your own.",
+    "4. Stop the hour's share with stop_share when the copy is done."
+  ],
+  "worked_examples": [
+    {
+      "title": "A clip copied into a Drive folder by pieces",
+      "ask": "Copy clip.mp4 into my Drive folder f1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:copy-a-file-into-a-storage-place",
+            "input": {
+              "from": { "url": "https://files.example.test/share/id/key", "byte_length": 700000 },
+              "to": { "place": "google-drive", "folder": "f1", "name": "clip.mp4", "media_type": "video/mp4" },
+              "via": "composio",
+              "account": "ca_example"
+            }
+          }
+        }
+      },
+      "given": "From test/copy-a-file-into-a-storage-place.test.mjs: a 700000-byte file and a folder the account may add to, sent in pieces of 262144 bytes.",
+      "hands_back": "{\"copied\":true,\"folder\":\"Clips for Ana\",\"name\":\"clip.mp4\",\"id\":\"new-file-id\",\"byte_length\":700000,\"pieces\":3,\"said\":\"Copied clip.mp4 (700000 bytes) into \\\"Clips for Ana\\\" in Google Drive.\"}"
+    },
+    {
+      "title": "A folder shared with view rights only",
+      "ask": "Put clip.mp4 in the folder my friend shared.",
+      "mcp": { "server": "{cli}", "tool": "do_one_thing_in_my_account", "input": { "method": "tools:run", "input": { "tool": "tool:copy-a-file-into-a-storage-place", "input": { "from": { "url": "https://files.example.test/share/id/key", "byte_length": 700000 }, "to": { "place": "google-drive", "folder": "f1", "name": "clip.mp4" }, "via": "composio", "account": "ca_example" } } } },
+      "given": "The folder answers canAddChildren false for this account.",
+      "hands_back": "{\"copied\":false,\"folder\":\"Clips for Ana\",\"said\":\"You may not add files to \\\"Clips for Ana\\\" in Google Drive: its owner has not given this account the right to add to it. Nothing was copied.\"}"
+    }
+  ]
+}

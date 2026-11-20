@@ -199,24 +199,24 @@
             "live-namespace": {
               "fetch": {
                 "macos-aarch64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.9-t9/live-namespace-0.1.9-t9-macos-aarch64.tar.gz",
-                  "version": "0.1.9-t9",
-                  "blake3": "5483b39ae9662d5d249b648ae99d696a1379384fb96ef8d95ef5613605a76dd7",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.10-share/live-namespace-0.1.10-share-macos-aarch64.tar.gz",
+                  "version": "0.1.10-share",
+                  "blake3": "375b1a45c306f829249eeb87bc170a56a30b5c2ae75adfeee7e9eecaf2d10568",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.9-t9/live-namespace-0.1.9-t9-macos-aarch64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.10-share/live-namespace-0.1.10-share-macos-aarch64.tar.gz.b3"
                 },
                 "macos-x86_64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.9-t9)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.10-share)."
                 },
                 "linux-x86_64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.9-t9/live-namespace-0.1.9-t9-linux-x86_64.tar.gz",
-                  "version": "0.1.9-t9",
-                  "blake3": "8c41d817aef803e85f517eb0bfe5bac8c3fe62240dd357d82e68540286df3e6b",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.10-share/live-namespace-0.1.10-share-linux-x86_64.tar.gz",
+                  "version": "0.1.10-share",
+                  "blake3": "fde5dcce804ad7a8ce012901ae0d3a3ec14c5218bb662e3a753a1dd41162d49d",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.9-t9/live-namespace-0.1.9-t9-linux-x86_64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.10-share/live-namespace-0.1.10-share-linux-x86_64.tar.gz.b3"
                 },
                 "linux-aarch64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.9-t9)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.10-share)."
                 }
               },
               "search": "live-namespace"
@@ -482,24 +482,24 @@
             "live-namespace": {
               "fetch": {
                 "macos-aarch64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.9-t9/live-namespace-0.1.9-t9-macos-aarch64.tar.gz",
-                  "version": "0.1.9-t9",
-                  "blake3": "5483b39ae9662d5d249b648ae99d696a1379384fb96ef8d95ef5613605a76dd7",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.10-share/live-namespace-0.1.10-share-macos-aarch64.tar.gz",
+                  "version": "0.1.10-share",
+                  "blake3": "375b1a45c306f829249eeb87bc170a56a30b5c2ae75adfeee7e9eecaf2d10568",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.9-t9/live-namespace-0.1.9-t9-macos-aarch64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.10-share/live-namespace-0.1.10-share-macos-aarch64.tar.gz.b3"
                 },
                 "macos-x86_64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.9-t9)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.10-share)."
                 },
                 "linux-x86_64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.9-t9/live-namespace-0.1.9-t9-linux-x86_64.tar.gz",
-                  "version": "0.1.9-t9",
-                  "blake3": "8c41d817aef803e85f517eb0bfe5bac8c3fe62240dd357d82e68540286df3e6b",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.10-share/live-namespace-0.1.10-share-linux-x86_64.tar.gz",
+                  "version": "0.1.10-share",
+                  "blake3": "fde5dcce804ad7a8ce012901ae0d3a3ec14c5218bb662e3a753a1dd41162d49d",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.9-t9/live-namespace-0.1.9-t9-linux-x86_64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.10-share/live-namespace-0.1.10-share-linux-x86_64.tar.gz.b3"
                 },
                 "linux-aarch64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.9-t9)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.10-share)."
                 }
               },
               "search": "live-namespace"

@@ -15,7 +15,8 @@
 // environment or the answer.
 //
 // usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | apply REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | remove LEASE_FILE
-import { differences, renderWhatItRuns, dropInName, withPrepared, withSlots } from './render-what-a-computer-runs.mjs';
+import { differences, renderWhatItRuns, dropInName, withPrepared, withSlots, publishedFile } from './render-what-a-computer-runs.mjs';
+import { addressesOfName, dnsClient, keepHealthyRecords } from '../../move-the-public-door/do-work/portable-dns-cutover.mjs';
 import { fill } from './fill-fields.mjs';
 import { readFileSync, readdirSync, statSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, relative, resolve as resolvePath } from 'node:path';
@@ -243,7 +244,9 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   const absent = (path, input) => run(machine, `${path} || exit 3`, input).then(() => false, error => { if (error.code === 3) return true; throw error; });
   const nodes = [...new Set(runs.units.map(unit => unit.node_bin).filter(Boolean))];
   const nodeMissing = (await Promise.all(nodes.map(bin => absent(`test -x ${q(`${bin}/node`)}`)))).includes(true);
-  const foldersMissing = (await Promise.all(runs.units.flatMap(unit => (unit.folders ?? []).map(folder => absent(`test -d ${q(folder)}`))))).includes(true);
+  // A unit's own state and builds folders are made by set-up like the folders it names: a new unit for an account the computer
+  // already has (a second route run by the same user) would otherwise start with no state folder, which systemd refuses (226).
+  const foldersMissing = (await Promise.all(runs.units.flatMap(unit => [unit.state, unit.builds, ...(unit.folders ?? [])].filter(Boolean).map(folder => absent(`test -d ${q(folder)}`))))).includes(true);
   const missing = [];
   // A credential the computer does not hold is sealed from the value handed under its vault name; one it holds that differs from the
   // value now handed (the vault is the original, so a changed value is the one to run) is sealed again, and its unit restarts to load it.
@@ -524,13 +527,52 @@ export function readPages(request) {
 
 /** Apply a computer's row to the computer the request names (`machine.address`, `ssh`), already running: the same
  * apply a start does, with the values its units name by vault name (`held`). */
-export async function applyAComputerRow(request, { held = {}, run = onMachine } = {}) {
-  return applyWhatItRuns({ ssh: request.ssh, address: request.machine.address }, runsOf(request), run, held, { pages: readPages(request) });
+export async function applyAComputerRow(request, { held = {}, run = onMachine, fetchImpl = fetch } = {}) {
+  const applied = await applyWhatItRuns({ ssh: request.ssh, address: request.machine.address }, runsOf(request), run, held, { pages: readPages(request) });
+  const names = await keepTheNames(request, { held, fetchImpl, apply: true });
+  return names.length ? { ...applied, names } : applied;
 }
 
-/** What the computer the request names runs that its row does not render: [] when it matches. */
-export async function computerRowDifferences(request, { run = onMachine } = {}) {
-  return { differences: await runsDifferences({ ssh: request.ssh, address: request.machine.address }, runsOf(request), run, { pages: readPages(request) }) };
+/** What the computer the request names runs that its row does not render: [] when it matches. A name of the row that does not
+ * answer with the row's address alone is one difference (its provider's key on descriptor 5, as for apply). */
+export async function computerRowDifferences(request, { run = onMachine, held = {}, fetchImpl = fetch } = {}) {
+  const units = await runsDifferences({ ssh: request.ssh, address: request.machine.address }, runsOf(request), run, { pages: readPages(request) });
+  const names = (await keepTheNames(request, { held, fetchImpl, apply: false })).filter(name => !name.matches)
+    .map(name => ({ path: name.host_name, reason: `answers ${name.answers.join(', ') || 'no address'}; its row says ${name.address}` }));
+  return { differences: [...units, ...names] };
+}
+
+/** The names a computer's row says answer at its address (`runs.names`): each `{ host_name, provider, adopt? }`, where
+ * `provider` is the DNS provider description (an absolute path of the person's own file, or one published in this Workshop such
+ * under this tool's providers/) and its key is the value descriptor 5 holds under the description's
+ * `vault_key`. The name is kept answering with the row's `address` alone (tools/move-the-public-door keepHealthyRecords): the
+ * address is added when missing, records this row made for other addresses are removed, and a record nobody marked is left
+ * untouched and refused unless the row says `adopt` (the name is the row's). Nothing here names a provider or a domain. */
+export function namesOf(request) {
+  const row = request.computer_row ?? {}, names = row.runs?.names ?? [];
+  if (!Array.isArray(names)) throw refused('runs.names is a list of { host_name, provider, adopt? }.');
+  return names.map((name, n) => {
+    if (typeof name?.host_name !== 'string' || typeof name.provider !== 'string') throw refused(`runs.names[${n}] names its host_name and its DNS provider description (provider).`);
+    return { host_name: name.host_name.toLowerCase(), provider: readProvider(publishedFile(name.provider, `runs.names[${n}] provider`)), adopt: name.adopt === true, address: row.address };
+  });
+}
+
+/** Each name of the row read (apply false: { matches, answers }) or kept (apply true: what changed), with its provider's key. */
+export async function keepTheNames(request, { held = {}, fetchImpl = fetch, apply }) {
+  const kept = [];
+  for (const name of namesOf(request)) {
+    const key = held[name.provider.vault_key];
+    if (typeof key !== 'string' || !key) throw refused(`${name.host_name} is kept through ${name.provider.name} with the key held under the vault name ${name.provider.vault_key}: hand it on descriptor 5 as {"${name.provider.vault_key}": value}, read from the person's vault.`);
+    const dns = dnsClient(key, { fetchImpl, provider: name.provider });
+    if (!apply) {
+      const answers = await addressesOfName({ hostname: name.host_name, request: dns, provider: name.provider });
+      kept.push({ host_name: name.host_name, address: name.address, answers, matches: answers.length === 1 && answers[0] === name.address });
+      continue;
+    }
+    const answer = await keepHealthyRecords({ hostname: name.host_name, candidates: [{ address: name.address }], check: () => true, request: dns, provider: name.provider, adopt: name.adopt });
+    kept.push({ host_name: name.host_name, address: name.address, added: answer.added.map(row => row.address), removed: answer.removed.map(row => row.address) });
+  }
+  return kept;
 }
 
 /** A request read from its file, each of its paths resolved against the file's own folder. */
@@ -616,8 +658,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (operation === 'apply' || operation === 'differences') {
       if (!first || second) throw Object.assign(new Error(usage), { exit: 2 });
       const request = json(first), runs = await withPrepared(runsOf(request), { pages: readPages(request) });
-      const held = operation === 'apply' && runs.units.some(needsHeld) ? heldValues(await pipe(5)) : {};
-      const answer = operation === 'apply' ? await applyAComputerRow(request, { held }) : await computerRowDifferences(request);
+      const named = (request.computer_row?.runs?.names ?? []).length > 0;
+      const held = (operation === 'apply' && runs.units.some(needsHeld)) || named ? heldValues(await pipe(5)) : {};
+      const answer = operation === 'apply' ? await applyAComputerRow(request, { held }) : await computerRowDifferences(request, { held });
       process.stdout.write(`${JSON.stringify(answer)}\n`);
       process.exit(0);
     }

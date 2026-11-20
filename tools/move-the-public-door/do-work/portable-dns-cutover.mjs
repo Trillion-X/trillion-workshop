@@ -190,6 +190,12 @@ async function changeManagedBinding(c, { request, provider, save, receipt, rollb
   receipt.state = rollback ? 'rolled-back' : 'active'; return save();
 }
 
+/** The addresses `hostname` answers with now, sorted; reads only. */
+export async function addressesOfName({ hostname, request, provider }) {
+  checked({ hostname, address: '192.0.2.1' });
+  return addressRows(provider, await snapshot({ hostname }, request, provider), hostname).map(row => contentOf(provider, row)).sort();
+}
+
 /** One health probe: an HTTPS GET of `path` at `address`, with the hostname as the name asked for (its certificate and
  * Host), answers true on HTTP 200. `requestImpl` is for tests. */
 export function probeHealthy({ hostname, address, path = '/', timeoutMs = 10000, requestImpl = https.request }) {

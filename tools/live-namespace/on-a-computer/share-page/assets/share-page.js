@@ -1,5 +1,5 @@
 // The share's page, one thing at a time: the item shown, and under it a strip of every item to pick from. Without this script every
-// item is shown in order and each still plays; with it, picking an item pauses the others and the address keeps which one (#item-<n>).
+// item is shown in order and each still plays (asking for its bytes only when played); with it, picking an item pauses the others and the address keeps which one (#item-<n>).
 (() => {
   const main = document.querySelector('.share-items');
   const items = [...document.querySelectorAll('.share-item')];
@@ -11,9 +11,9 @@
   const buttons = items.map(item => {
     const button = document.createElement('button');
     button.type = 'button';
-    const thumb = document.createElement('span');
+    const thumb = document.createElement(item.dataset.poster ? 'img' : 'span');
     thumb.className = 'thumb';
-    if (item.dataset.poster) thumb.style.backgroundImage = `url("${item.dataset.poster}")`;
+    if (item.dataset.poster) Object.assign(thumb, { src: item.dataset.poster, alt: '', loading: 'lazy', decoding: 'async' });
     const label = document.createElement('span');
     label.className = 'label';
     label.textContent = item.dataset.name || '';
@@ -28,7 +28,8 @@
       const shown = at === n;
       item.classList.toggle('is-shown', shown);
       buttons[at].setAttribute('aria-current', shown ? 'true' : 'false');
-      if (!shown) item.querySelectorAll('video,audio').forEach(media => media.pause());
+      // Only the item shown asks for its media's first bytes; the others ask for nothing until they are picked.
+      item.querySelectorAll('video,audio').forEach(media => { if (shown) { if (media.preload === 'none') media.preload = 'metadata'; } else media.pause(); });
     });
     if (chosen) {
       history.replaceState(null, '', `#item-${n}`);

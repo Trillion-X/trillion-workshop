@@ -8748,6 +8748,23 @@
   }
  ],
  "tool:connect-an-ai-app-on-this-computer-to-my-account": [],
+ "tool:copy-a-file-into-a-storage-place": [
+  {
+   "package": "copy-a-file-into-a-storage-place",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/copy-a-file-into-a-storage-place"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:copy-a-site": [
   {
    "package": "copy-a-site",
