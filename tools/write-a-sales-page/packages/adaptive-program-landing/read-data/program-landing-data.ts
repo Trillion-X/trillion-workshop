@@ -75,6 +75,14 @@ export function assertProgramLandingData(value: unknown): asserts value is Progr
   for (const key of ['brand', 'routes', 'config', 'recalculate', 'pricing', 'systemVisuals', 'demoScenario', 'community', 'guidedMedia', 'strategySequence', 'comparisonLibrary', 'presentation']) {
     if (!data[key] || typeof data[key] !== 'object' || Array.isArray(data[key])) throw new Error(`program landing DATA is missing ${key}`);
   }
+  // The price cards: one list of offer ids, and a card of words for each (the card's next step is its offer's price option).
+  const pricing = data.pricing as Record<string, unknown>;
+  if (!Array.isArray(pricing.offers) || !pricing.offers.every((id) => typeof id === 'string' && id)) throw new Error('program landing DATA pricing.offers must list offer ids');
+  const cards = pricing.cards as Record<string, unknown> | undefined;
+  for (const id of pricing.offers as string[]) {
+    if (!cards || !cards[id] || typeof cards[id] !== 'object') throw new Error(`program landing DATA pricing.cards has no card for ${id}`);
+  }
+  if (typeof pricing.membership !== 'string' || !(pricing.offers as string[]).includes(pricing.membership)) throw new Error('program landing DATA pricing.membership must be one of pricing.offers');
   for (const key of ['heroLead', 'sections', 'testimonials', 'marqueeTestimonials', 'faq', 'comparisons', 'libraryNames', 'libraryPreviews', 'pageBlocks']) {
     if (!Array.isArray(data[key])) throw new Error(`program landing DATA is missing ${key}`);
   }

@@ -231,8 +231,8 @@ export async function buildArticlePricingIsland({ packageSet, assetsDir }) {
     "const mount = document.getElementById('shared-pricing-island');",
     'const offer = window.__inlineCheckoutOfferForThisPage__?.offer;',
     'const price = offer?.price_options?.find((candidate) => candidate?.voluntary_amount_policy);',
-    'if (mount && offer && price && offer.id === data.pricing.patron.offerId) {',
-    '  window.__programPatronPolicyForThisPage__ = { status: "ready", offerId: offer.id, priceOptionId: price.id, policy: price.voluntary_amount_policy };',
+    'if (mount && offer && price && offer.id === data.pricing.membership) {',
+    '  window.__programOffersForThisPage__ = { [offer.id]: { offer_id: offer.id, price_option_id: price.id, policy: price.voluntary_amount_policy } };',
     '  window.__programStartCheckout__ = async (request) => {',
     "    const response = await fetch('/target/checkout.start-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request) });",
     '    const text = await response.text();',
@@ -241,7 +241,7 @@ export async function buildArticlePricingIsland({ packageSet, assetsDir }) {
     "    if (!response.ok || result.error) throw new Error(result.error || 'Checkout could not start. Please try again.');",
     '    return result;',
     '  };',
-    '  createRoot(mount).render(React.createElement(ProgramLandingDataProvider, { data }, React.createElement(React.Fragment, null, React.createElement("style", null, MARKETING_PAGE_LAYOUT_CSS), React.createElement(ProgramPricingSection, { embedded: true, instanceId: "article-pricing" }))));',
+    '  createRoot(mount).render(React.createElement(ProgramLandingDataProvider, { data }, React.createElement(React.Fragment, null, React.createElement("style", null, MARKETING_PAGE_LAYOUT_CSS), React.createElement(ProgramPricingSection, { embedded: true, instanceId: "article-pricing", offerIds: [data.pricing.membership] }))));',
     '}',
   ].join('\n');
   const outdir = path.join(assetsDir, 'program-landing');

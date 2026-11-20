@@ -5,33 +5,26 @@ export type PatronAmountState =
   | { kind: 'above-max'; amountCents: number }
   | { kind: 'valid'; amountCents: number };
 
-export type PatronPolicy = {
+export type VoluntaryPolicy = {
   allowCustom: boolean;
   currency: string;
   highlightedCents: number | null;
   highlightLabel: string | null;
   maxCents: number | null;
   minCents: number;
-  offerId: string;
-  priceOptionId: string;
   suggestedCents: number[];
 };
 
-export type SystemOffer = {
-  amountCents: number;
-  currency: string;
-  offerId: string;
-  postPurchaseRoutePath: string;
-  priceOptionId: string;
-};
+// The page's next step for one listed offer, read from the offer's own price option (the card the host reports for it):
+// a voluntary amount the buyer picks, a fixed checkout, or a booking address. Anything else is no next step at all.
+export type OfferNextStep =
+  | { kind: 'voluntary'; offerId: string; priceOptionId: string; policy: VoluntaryPolicy }
+  | { kind: 'checkout'; offerId: string; priceOptionId: string; amountCents: number; currency: string }
+  | { kind: 'booking'; offerId: string; priceOptionId: string; bookingUrl: string };
 
-export function readPatronPolicy(envelope: unknown, expectedOfferId: string): PatronPolicy | null {
-  if (!envelope || typeof envelope !== 'object') return null;
-  const candidate = envelope as { status?: unknown; offerId?: unknown; policy?: unknown; priceOptionId?: unknown };
-  if (candidate.status !== 'ready' || candidate.offerId !== expectedOfferId) return null;
-  if (typeof candidate.priceOptionId !== 'string' || !candidate.priceOptionId) return null;
-  if (!candidate.policy || typeof candidate.policy !== 'object') return null;
-  const policy = candidate.policy as Record<string, unknown>;
+function readVoluntaryPolicy(value: unknown): VoluntaryPolicy | null {
+  if (!value || typeof value !== 'object') return null;
+  const policy = value as Record<string, unknown>;
   const currency = typeof policy.currency === 'string' ? policy.currency.toLowerCase() : '';
   const minCents = policy.min_cents;
   const rawMaxCents = policy.max_cents;
@@ -67,32 +60,28 @@ export function readPatronPolicy(envelope: unknown, expectedOfferId: string): Pa
     highlightLabel: hasHighlightLabel ? highlightLabel : null,
     maxCents,
     minCents: Number(minCents),
-    offerId: expectedOfferId,
-    priceOptionId: candidate.priceOptionId,
     suggestedCents: [...suggestedCents] as number[],
   };
 }
 
-export function readSystemOffer(envelope: unknown, expectedOfferId: string): SystemOffer | null {
-  if (!envelope || typeof envelope !== 'object') return null;
-  const candidate = envelope as Record<string, unknown>;
-  const currency = typeof candidate.currency === 'string' ? candidate.currency.toLowerCase() : '';
-  if (candidate.status !== 'ready'
-    || candidate.offerId !== expectedOfferId
-    || typeof candidate.priceOptionId !== 'string'
-    || !candidate.priceOptionId
-    || !Number.isSafeInteger(candidate.amountCents)
-    || Number(candidate.amountCents) <= 0
-    || !/^[a-z]{3}$/.test(currency)
-    || typeof candidate.postPurchaseRoutePath !== 'string'
-    || !candidate.postPurchaseRoutePath.startsWith('/')) return null;
-  return {
-    amountCents: Number(candidate.amountCents),
-    currency,
-    offerId: expectedOfferId,
-    postPurchaseRoutePath: candidate.postPurchaseRoutePath,
-    priceOptionId: candidate.priceOptionId,
-  };
+// `card` is one entry of the host's offers-for-this-page answer: the offer's own price option, with the field that says how it is bought.
+export function readOfferNextStep(card: unknown, expectedOfferId: string): OfferNextStep | null {
+  if (!card || typeof card !== 'object') return null;
+  const row = card as Record<string, unknown>;
+  if (row.offer_id !== expectedOfferId || typeof row.price_option_id !== 'string' || !row.price_option_id) return null;
+  const priceOptionId = row.price_option_id;
+  if (row.policy !== undefined) {
+    const policy = readVoluntaryPolicy(row.policy);
+    return policy ? { kind: 'voluntary', offerId: expectedOfferId, priceOptionId, policy } : null;
+  }
+  if (typeof row.booking_url === 'string') {
+    return /^https:\/\//.test(row.booking_url)
+      ? { kind: 'booking', offerId: expectedOfferId, priceOptionId, bookingUrl: row.booking_url }
+      : null;
+  }
+  const currency = typeof row.currency === 'string' ? row.currency.toLowerCase() : '';
+  if (!Number.isSafeInteger(row.amount_cents) || Number(row.amount_cents) <= 0 || !/^[a-z]{3}$/.test(currency)) return null;
+  return { kind: 'checkout', offerId: expectedOfferId, priceOptionId, amountCents: Number(row.amount_cents), currency };
 }
 
 export function parsePatronAmount(rawValue: string, minCents: number, maxCents: number | null): PatronAmountState {
@@ -105,21 +94,4 @@ export function parsePatronAmount(rawValue: string, minCents: number, maxCents: 
   if (amountCents < minCents) return { kind: 'below-min', amountCents };
   if (maxCents != null && amountCents > maxCents) return { kind: 'above-max', amountCents };
   return { kind: 'valid', amountCents };
-}
-
-export type BookingOffer = {
-  bookingUrl: string;
-  offerId: string;
-  priceOptionId: string;
-};
-
-// A booking offer's next step is the address its row names (price option `booking_url`). The page reads that address
-// from the host's envelope for the offer the page names, and draws nothing it cannot prove came from that row.
-export function readBookingOffer(envelope: unknown, expectedOfferId: string | undefined): BookingOffer | null {
-  if (!expectedOfferId || !envelope || typeof envelope !== 'object') return null;
-  const candidate = envelope as Record<string, unknown>;
-  if (candidate.status !== 'ready' || candidate.offerId !== expectedOfferId) return null;
-  if (typeof candidate.priceOptionId !== 'string' || !candidate.priceOptionId) return null;
-  if (typeof candidate.bookingUrl !== 'string' || !/^https:\/\//.test(candidate.bookingUrl)) return null;
-  return { bookingUrl: candidate.bookingUrl, offerId: expectedOfferId, priceOptionId: candidate.priceOptionId };
 }

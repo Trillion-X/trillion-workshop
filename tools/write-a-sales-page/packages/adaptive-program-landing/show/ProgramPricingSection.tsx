@@ -1,8 +1,8 @@
 'use client';
 
-// The patron contribution card uses the checkout chooser's interaction pattern
-// inside the existing FounderPricingSection visual language. The live offer
-// policy is primary, with an honest unavailable state during boot.
+// The page's price cards: ONE list of the page's shown offers (DATA `pricing.offers`, in that order), each drawn by ONE card
+// renderer. A card's next step comes from its offer's own price option, as the host reports it: a voluntary amount the buyer
+// picks, a fixed checkout, or a booking address. Words, features and the look are DATA (`pricing.cards`) and this file.
 
 import React from 'react';
 import { SectionShell, TextColumn } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
@@ -12,9 +12,8 @@ import { PROGRAM_HERO_ENGRAVED_HEADING_STYLE } from './programHeroTypography';
 import { useProgramLandingData } from './ProgramLandingData';
 import {
   parsePatronAmount,
-  readBookingOffer,
-  readPatronPolicy,
-  readSystemOffer,
+  readOfferNextStep,
+  type OfferNextStep,
   type PatronAmountState,
 } from '../read-data/program-pricing-policy';
 
@@ -42,35 +41,25 @@ declare global {
     // Told once per page when a price has been on screen, with the offers shown.
     // A host that counts who reached a price supplies it; otherwise it is absent.
     __programReachedPrice__?: (offerIds: string[]) => void;
+    // The host's answer for the offers the page names, keyed by offer id: each one's own price option (see readOfferNextStep).
+    __programOffersForThisPage__?: Record<string, unknown>;
   }
 }
 
-type PatronPolicyEnvelope =
-  | { status: 'ready'; offerId: string; policy: unknown; priceOptionId: string }
-  | { status: 'unavailable'; reason?: string };
+type OfferFeature = { id: string; label: string; showcase: React.ComponentProps<typeof ShowcaseStrip>['items'] };
 
-type SystemOfferEnvelope =
-  | {
-      status: 'ready';
-      offerId: string;
-      priceOptionId: string;
-      amountCents: number;
-      currency: string;
-      postPurchaseRoutePath: string;
-    }
-  | { status: 'unavailable'; reason?: string };
+export type OfferCopy = {
+  cadence?: string;
+  ctaLabel?: string;
+  features: OfferFeature[];
+  featured?: boolean;
+  footnote?: string;
+  minimumLabel?: string;
+  modelNote: string;
+  planName: string;
+};
 
-type BookingOfferEnvelope =
-  | { status: 'ready'; offerId: string; priceOptionId: string; bookingUrl: string }
-  | { status: 'unavailable'; reason?: string };
-
-declare global {
-  interface Window {
-    __programPatronPolicyForThisPage__?: PatronPolicyEnvelope;
-    __programSystemOfferForThisPage__?: SystemOfferEnvelope;
-    __programBookingForThisPage__?: BookingOfferEnvelope;
-  }
-}
+type ProgramPricing = { heading: string; offers: string[]; cards: Record<string, OfferCopy> };
 
 function formatMoneyCents(amountCents: number, currency: string) {
   return new Intl.NumberFormat('en-US', {
@@ -93,33 +82,17 @@ function formatEditableDecimal(amountCents: number, currency: string) {
 // `instanceId` exists because this section appears TWICE on the page: once
 // early, so a reader who is already sold never has to scroll for the price,
 // and once at the end after the full argument. Two renders of one component
-// would otherwise put the same element id in the document twice, which breaks
-// every `aria-labelledby` pointing at it and silently gives a screen reader
-// the wrong plan name. The anchor is the same reason: the nav and every call
-// to action point at the canonical `#pricing`, so only the instance that
-// claims that name carries it, and the second is addressed by its own id.
-export function ProgramPricingSection({ flatSurfaces, instanceId, embedded = false }: { flatSurfaces?: boolean; instanceId?: string; embedded?: boolean }) {
-  const plan = useProgramLandingData().pricing;
+// would otherwise put the same element id in the document twice. The anchor is
+// the same reason: the nav and every call to action point at the canonical
+// `#pricing`, so only the instance that claims that name carries it.
+// `offerIds` lets a page draw a subset of the listed offers (an article draws its one membership card).
+export function ProgramPricingSection({ flatSurfaces, instanceId, embedded = false, offerIds }: { flatSurfaces?: boolean; instanceId?: string; embedded?: boolean; offerIds?: string[] }) {
+  const pricing = useProgramLandingData().pricing as ProgramPricing;
+  const listed = offerIds ?? pricing.offers;
   const anchorId = instanceId ?? LANDING_PRICING_SECTION_ID;
-  const scoped = (name: string) => (instanceId ? `${name}-${instanceId}` : name);
-  const policy = typeof window === 'undefined'
-    ? null
-    : readPatronPolicy(window.__programPatronPolicyForThisPage__, plan.patron.offerId);
-  const systemOffer = typeof window === 'undefined'
-    ? null
-    : readSystemOffer(window.__programSystemOfferForThisPage__, plan.system.offerId);
-  const bookingPlan = plan.booking && plan.booking.shown !== false ? plan.booking : null;
-  const bookingOffer = typeof window === 'undefined'
-    ? null
-    : readBookingOffer(window.__programBookingForThisPage__, bookingPlan?.offerId);
-  const [customEditing, setCustomEditing] = React.useState(false);
-  const [showMoreAmounts, setShowMoreAmounts] = React.useState(false);
-  const [customValue, setCustomValue] = React.useState('');
-  const [selectedCents, setSelectedCents] = React.useState<number | null>(
-    policy?.minCents ?? null,
-  );
-  const [openingCard, setOpeningCard] = React.useState<null | 'system' | 'patron'>(null);
-  const [checkoutError, setCheckoutError] = React.useState<null | { card: 'system' | 'patron'; message: string }>(null);
+  const idSuffix = instanceId ? `-${instanceId}` : '';
+  const pageOffers = typeof window === 'undefined' ? {} : window.__programOffersForThisPage__ ?? {};
+  const listedKey = listed.join('|');
 
   // Someone who had the price on screen and did not buy is what moves a
   // discovered price down, so the host is told once, when at least 40% of the
@@ -128,94 +101,14 @@ export function ProgramPricingSection({ flatSurfaces, instanceId, embedded = fal
     const report = window.__programReachedPrice__;
     const section = document.getElementById(anchorId);
     if (!report || !section || typeof IntersectionObserver === 'undefined') return;
-    const shownOfferIds = [plan.patron, plan.system, plan.booking].filter((card) => card && card.shown !== false).map((card) => card.offerId);
     const observer = new IntersectionObserver((entries) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       observer.disconnect();
-      report(shownOfferIds);
+      report(listedKey.split('|'));
     }, { threshold: 0.4 });
     observer.observe(section);
     return () => observer.disconnect();
-  }, [anchorId, plan.patron, plan.system, plan.booking]);
-
-  // The direct no-friction pay path: pay click -> start-checkout -> the provider's
-  // own hosted page. NO interstitial form ever sits between intent and Stripe
-  // (Stripe collects the buyer's email/name; consent is asserted by the labeled
-  // pay click itself). Failure renders inline on the card; the button returns.
-  async function startDirectCheckout(card: 'system' | 'patron', selection: { offerId: string; priceOptionId: string; customerSelectedAmountCents?: number }) {
-    const sender = window.__programStartCheckout__ ?? startCheckoutThroughThisHost;
-    if (openingCard) return;
-    setCheckoutError(null);
-    setOpeningCard(card);
-    try {
-      const result = await sender({
-        checkoutAttemptId: typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : `program-${Date.now()}`,
-        checkoutStartedAt: new Date().toISOString(),
-        consent: { billing: true, legal: true },
-        ...(selection.customerSelectedAmountCents == null ? {} : { customerSelectedAmountCents: selection.customerSelectedAmountCents }),
-        offerId: selection.offerId,
-        priceOptionId: selection.priceOptionId,
-        returnUrlBase: window.location.origin,
-      });
-      if (!result.redirectUrl || !/^https:\/\/checkout\.stripe\.com\//.test(result.redirectUrl)) {
-        throw new Error('Checkout did not return a valid payment destination. Please try again.');
-      }
-      window.location.assign(result.redirectUrl);
-    } catch (caught) {
-      setCheckoutError({
-        card,
-        message: caught instanceof Error ? caught.message : 'Checkout could not start. Please try again.',
-      });
-      setOpeningCard(null);
-    }
-  }
-
-  const customState = !policy
-    ? { kind: 'editing' } satisfies PatronAmountState
-    : customEditing
-      ? parsePatronAmount(customValue, policy.minCents, policy.maxCents)
-      : selectedCents == null
-        ? { kind: 'editing' } satisfies PatronAmountState
-        : { kind: 'valid', amountCents: selectedCents } satisfies PatronAmountState;
-  const validAmountCents = customState.kind === 'valid' ? customState.amountCents : null;
-  const invalidAmount = customState.kind === 'invalid'
-    || customState.kind === 'below-min'
-    || customState.kind === 'above-max';
-  const amountMessage = customState.kind === 'editing'
-    ? 'Enter an amount to continue.'
-    : customState.kind === 'invalid'
-      ? `Membership starts at ${formatMoneyCents(policy?.minCents ?? 0, policy?.currency ?? 'usd')} per month.`
-      : customState.kind === 'below-min'
-        ? `Membership starts at ${formatMoneyCents(policy?.minCents ?? 0, policy?.currency ?? 'usd')} per month.`
-        : customState.kind === 'above-max' && policy?.maxCents != null
-          ? `The maximum contribution is ${formatMoneyCents(policy.maxCents, policy.currency)}.`
-          : `You selected ${formatMoneyCents(customState.amountCents, policy?.currency ?? 'usd')}.`;
-  const ctaText = validAmountCents == null
-    ? 'Enter an amount'
-    : `Checkout · ${formatMoneyCents(validAmountCents, policy?.currency ?? 'usd')}${plan.patron.cadence}`;
-
-  function chooseSuggestedAmount(amountCents: number) {
-    setCustomEditing(false);
-    setSelectedCents(amountCents);
-  }
-
-  function toggleMoreAmounts() {
-    if (showMoreAmounts && customEditing) {
-      setSelectedCents(validAmountCents ?? policy?.minCents ?? null);
-      setCustomEditing(false);
-    }
-    setShowMoreAmounts((shown) => !shown);
-  }
-
-  function startPatronCheckout() {
-    if (validAmountCents == null) return;
-    if (!policy) return;
-    void startDirectCheckout('patron', {
-      customerSelectedAmountCents: validAmountCents,
-      offerId: policy.offerId,
-      priceOptionId: policy.priceOptionId,
-    });
-  }
+  }, [anchorId, listedKey]);
 
   return (
     <SectionShell size="default" paddingY={embedded ? 'compact' : 'default'} id={anchorId} style={embedded ? { padding: 0 } : undefined}>
@@ -308,16 +201,9 @@ export function ProgramPricingSection({ flatSurfaces, instanceId, embedded = fal
           variant="heading-2xl"
           data-testid="program-pricing-conviction"
         >
-          {plan.heading}
+          {pricing.heading}
         </Text>
       </TextColumn> : null}
-      {/* Which offer comes first, and which one is featured, is DATA
-          (`order`, `featured` on each plan). The first card is the one a
-          reader assumes is "the" price, so it is a business decision, not a
-          layout detail: buyers who came for the lessons were paying for the
-          software pre-order because it sat first and featured. `shown: false`
-          keeps an offer sellable elsewhere while this page does not offer it;
-          a lone card sits centred rather than in half of a two-column grid. */}
       <Container
         layout="grid"
         gap="xl"
@@ -326,111 +212,184 @@ export function ProgramPricingSection({ flatSurfaces, instanceId, embedded = fal
         className="mx-auto program-pricing-grid"
         alignItems="stretch"
       >
-        {plan.system.shown === false ? null : (
-        <article
-          aria-labelledby={scoped("program-system-plan-name")}
-          className="program-pricing-card"
-          data-featured={plan.system.featured ? 'true' : undefined}
-          data-offer-card="system"
-          data-post-purchase-path={systemOffer?.postPurchaseRoutePath}
-          style={{ order: plan.system.order ?? 0 }}
-        >
-          <div className="program-pricing-name-row">
-            <span className="program-pricing-name" id={scoped("program-system-plan-name")}>{plan.system.planName}</span>
-            <span className="program-pricing-price-row"><span className="program-pricing-price">{systemOffer ? formatMoneyCents(systemOffer.amountCents, systemOffer.currency) : 'Unavailable'}</span>{systemOffer ? <span className="program-pricing-cadence">{plan.system.cadence}</span> : null}</span>
-          </div>
-          <p className="program-pricing-model">{plan.system.modelNote}</p>
-          {!systemOffer ? (
-            <div className="grid gap-3" role="alert">
-              <p className="m-0 text-[15px] leading-[1.5]">Live System pricing is unavailable right now.</p>
-              <Button flat={flatSurfaces} onClick={() => window.location.reload()} size="md" type="button" variant="hardware">
-                Try again
-              </Button>
-            </div>
-          ) : null}
-          <ul className="program-pricing-features" aria-label={`${plan.system.planName} includes`} data-testid="program-pricing-bullets">
-            {plan.system.features.map((feature) => (
-              <li key={feature.id}>
-                <span className="program-pricing-bit" aria-hidden="true">✓</span>
-                <div className="min-w-0">
-                  <Text as="span" variant="body" className="program-pricing-feature-label">
-                    {feature.label}
-                  </Text>
-                </div>
-                <div className="program-pricing-showcase"><ShowcaseStrip ariaLabel={`${feature.label} showcase`} items={feature.showcase} /></div>
-              </li>
-            ))}
-          </ul>
-          <Button
-            variant="hardware"
-            size="lg"
-            flat={flatSurfaces}
-            fullWidth
-            disabled={!systemOffer || openingCard !== null}
-            onClick={() => {
-              if (!systemOffer) return;
-              void startDirectCheckout('system', {
-                offerId: systemOffer.offerId,
-                priceOptionId: systemOffer.priceOptionId,
-              });
-            }}
-            type="button"
-          >
-            {openingCard === 'system' ? 'Opening checkout...' : systemOffer ? `${plan.system.ctaLabel} ${formatMoneyCents(systemOffer.amountCents, systemOffer.currency)} ${plan.system.cadence}` : 'Live price unavailable'}
-          </Button>
-          {checkoutError?.card === 'system' ? (
-            <p className="m-0 rounded-xl border border-red-700/25 bg-red-50 p-3 text-[15px] leading-[1.5] text-red-800" role="alert">
-              {checkoutError.message}
-            </p>
-          ) : null}
-          <Text as="p" variant="body" color="muted" className="program-pricing-footnote" style={{ fontSize: 15, lineHeight: 1.5 }}>
-            {plan.system.footnote}
-          </Text>
-        </article>
-        )}
+        {listed.map((offerId) => (
+          <OfferCard
+            key={offerId}
+            card={pageOffers[offerId]}
+            copy={pricing.cards[offerId]}
+            flatSurfaces={flatSurfaces}
+            idSuffix={idSuffix}
+            offerId={offerId}
+          />
+        ))}
+      </Container>
+    </SectionShell>
+  );
+}
 
-        {plan.patron.shown === false ? null : (
-        <article
-          aria-labelledby={scoped("program-patron-plan-name")}
-          className="program-pricing-card"
-          data-featured={plan.patron.featured ? 'true' : undefined}
-          data-offer-card="patron"
-          style={{ order: plan.patron.order ?? 0 }}
-        >
-          <div className="program-pricing-name-row">
-            <span className="program-pricing-name" id={scoped("program-patron-plan-name")}>{plan.patron.planName}</span>
-            <span className="program-pricing-price-row"><span className="program-pricing-price">{validAmountCents == null ? 'Choose amount' : formatMoneyCents(validAmountCents, policy?.currency ?? 'usd')}</span>{validAmountCents == null ? null : <span className="program-pricing-cadence">{plan.patron.cadence}</span>}</span>
-          </div>
-          <p className="program-pricing-model">{plan.patron.modelNote}</p>
-          {!policy ? (
-            <div className="grid gap-3" role="alert">
-              <p className="m-0 text-[15px] leading-[1.5]">Live contribution options are unavailable right now.</p>
-              <Button flat={flatSurfaces} onClick={() => window.location.reload()} size="md" type="button" variant="hardware">
-                Try again
-              </Button>
-            </div>
-          ) : <div className="program-pricing-more">
-            <p className="m-0 text-[15px] leading-[1.5]">Membership starts at {formatMoneyCents(policy.minCents, policy.currency)} {plan.patron.cadence}. You can pay more if you like.</p>
-            <Button
-              aria-controls={showMoreAmounts ? scoped('program-pricing-more-amounts') : undefined}
-              aria-expanded={showMoreAmounts}
-              className="program-pricing-more-toggle"
-              flat={flatSurfaces}
-              onClick={toggleMoreAmounts}
-              size="md"
-              type="button"
-              variant="ghost"
-            >
-              {showMoreAmounts ? 'Hide other amounts' : 'Want to contribute more?'}
-            </Button>
-            {showMoreAmounts ? <fieldset className="program-pricing-choices grid gap-3 text-left text-[15px] leading-[1.5]" id={scoped('program-pricing-more-amounts')}>
+// The one price card. Its next step is read from the offer's price option; the words come from `pricing.cards[offerId]`.
+function OfferCard({ offerId, copy, card, idSuffix, flatSurfaces }: {
+  card: unknown;
+  copy: OfferCopy;
+  flatSurfaces?: boolean;
+  idSuffix: string;
+  offerId: string;
+}) {
+  const next: OfferNextStep | null = readOfferNextStep(card, offerId);
+  const policy = next?.kind === 'voluntary' ? next.policy : null;
+  const nameId = `program-offer-${offerId.replace(/[^a-zA-Z0-9]+/g, '-')}-name${idSuffix}`;
+  const [customEditing, setCustomEditing] = React.useState(false);
+  const [showMoreAmounts, setShowMoreAmounts] = React.useState(false);
+  const [customValue, setCustomValue] = React.useState('');
+  const [selectedCents, setSelectedCents] = React.useState<number | null>(policy?.minCents ?? null);
+  const [opening, setOpening] = React.useState(false);
+  const [checkoutError, setCheckoutError] = React.useState<string | null>(null);
+
+  // The direct no-friction pay path: pay click -> start-checkout -> the provider's
+  // own hosted page. NO interstitial form ever sits between intent and Stripe
+  // (Stripe collects the buyer's email/name; consent is asserted by the labeled
+  // pay click itself). Failure renders inline on the card; the button returns.
+  async function startCheckout(selection: { priceOptionId: string; customerSelectedAmountCents?: number }) {
+    const sender = window.__programStartCheckout__ ?? startCheckoutThroughThisHost;
+    if (opening) return;
+    setCheckoutError(null);
+    setOpening(true);
+    try {
+      const result = await sender({
+        checkoutAttemptId: typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : `program-${Date.now()}`,
+        checkoutStartedAt: new Date().toISOString(),
+        consent: { billing: true, legal: true },
+        ...(selection.customerSelectedAmountCents == null ? {} : { customerSelectedAmountCents: selection.customerSelectedAmountCents }),
+        offerId,
+        priceOptionId: selection.priceOptionId,
+        returnUrlBase: window.location.origin,
+      });
+      if (!result.redirectUrl || !/^https:\/\/checkout\.stripe\.com\//.test(result.redirectUrl)) {
+        throw new Error('Checkout did not return a valid payment destination. Please try again.');
+      }
+      window.location.assign(result.redirectUrl);
+    } catch (caught) {
+      setCheckoutError(caught instanceof Error ? caught.message : 'Checkout could not start. Please try again.');
+      setOpening(false);
+    }
+  }
+
+  const customState: PatronAmountState | null = !policy
+    ? null
+    : customEditing
+      ? parsePatronAmount(customValue, policy.minCents, policy.maxCents)
+      : selectedCents == null
+        ? { kind: 'editing' }
+        : { kind: 'valid', amountCents: selectedCents };
+  const validAmountCents = customState?.kind === 'valid' ? customState.amountCents : null;
+  const invalidAmount = customState?.kind === 'invalid'
+    || customState?.kind === 'below-min'
+    || customState?.kind === 'above-max';
+  const currency = policy?.currency ?? (next?.kind === 'checkout' ? next.currency : 'usd');
+  const shownAmountCents = next?.kind === 'checkout' ? next.amountCents : validAmountCents;
+  const amountMessage = !policy || !customState
+    ? ''
+    : customState.kind === 'editing'
+      ? 'Enter an amount to continue.'
+      : customState.kind === 'invalid' || customState.kind === 'below-min'
+        ? `${copy.minimumLabel ?? 'Starts at'} ${formatMoneyCents(policy.minCents, policy.currency)}${copy.cadence ?? ''}.`
+        : customState.kind === 'above-max' && policy.maxCents != null
+          ? `The maximum contribution is ${formatMoneyCents(policy.maxCents, policy.currency)}.`
+          : `You selected ${formatMoneyCents(customState.amountCents, policy.currency)}.`;
+  const ctaText = validAmountCents == null
+    ? 'Enter an amount'
+    : `Checkout · ${formatMoneyCents(validAmountCents, currency)}${copy.cadence ?? ''}`;
+
+  function chooseSuggestedAmount(amountCents: number) {
+    setCustomEditing(false);
+    setSelectedCents(amountCents);
+  }
+
+  function toggleMoreAmounts() {
+    if (showMoreAmounts && customEditing) {
+      setSelectedCents(validAmountCents ?? policy?.minCents ?? null);
+      setCustomEditing(false);
+    }
+    setShowMoreAmounts((shown) => !shown);
+  }
+
+  function startPayment() {
+    if (!next) return;
+    if (next.kind === 'checkout') {
+      void startCheckout({ priceOptionId: next.priceOptionId });
+      return;
+    }
+    if (next.kind === 'voluntary' && validAmountCents != null) {
+      void startCheckout({ customerSelectedAmountCents: validAmountCents, priceOptionId: next.priceOptionId });
+    }
+  }
+
+  const payDisabled = next?.kind === 'voluntary' ? validAmountCents == null || opening : !next || opening;
+  const payButton = (
+    <Button
+      variant="hardware"
+      size="lg"
+      flat={flatSurfaces}
+      fullWidth
+      disabled={payDisabled}
+      onClick={startPayment}
+      type="button"
+    >
+      {opening ? 'Opening checkout...' : next?.kind === 'voluntary' ? ctaText : `${copy.ctaLabel ?? 'Checkout'}${shownAmountCents == null ? '' : ` ${formatMoneyCents(shownAmountCents, currency)}${copy.cadence ?? ''}`}`}
+    </Button>
+  );
+
+  return (
+    <article
+      aria-labelledby={nameId}
+      className="program-pricing-card"
+      data-featured={copy.featured ? 'true' : undefined}
+      data-offer-card={offerId}
+      data-next-step={next?.kind ?? 'none'}
+    >
+      <div className="program-pricing-name-row">
+        <span className="program-pricing-name" id={nameId}>{copy.planName}</span>
+        {next?.kind === 'booking' ? null : (
+          <span className="program-pricing-price-row">
+            <span className="program-pricing-price">
+              {next == null ? 'Unavailable' : shownAmountCents == null ? 'Choose amount' : formatMoneyCents(shownAmountCents, currency)}
+            </span>
+            {next == null || shownAmountCents == null ? null : <span className="program-pricing-cadence">{copy.cadence}</span>}
+          </span>
+        )}
+      </div>
+      <p className="program-pricing-model">{copy.modelNote}</p>
+      {next == null ? (
+        <div className="grid gap-3" role="alert">
+          <p className="m-0 text-[15px] leading-[1.5]">Live pricing for this offer is unavailable right now.</p>
+          <Button flat={flatSurfaces} onClick={() => window.location.reload()} size="md" type="button" variant="hardware">
+            Try again
+          </Button>
+        </div>
+      ) : null}
+      {next?.kind === 'voluntary' ? (
+        <div className="program-pricing-more">
+          <p className="m-0 text-[15px] leading-[1.5]">{copy.minimumLabel ?? 'Starts at'} {formatMoneyCents(policy!.minCents, policy!.currency)}{copy.cadence ?? ''}. You can pay more if you like.</p>
+          <Button
+            aria-controls={showMoreAmounts ? `program-pricing-more-amounts-${offerId.replace(/[^a-zA-Z0-9]+/g, '-')}${idSuffix}` : undefined}
+            aria-expanded={showMoreAmounts}
+            className="program-pricing-more-toggle"
+            flat={flatSurfaces}
+            onClick={toggleMoreAmounts}
+            size="md"
+            type="button"
+            variant="ghost"
+          >
+            {showMoreAmounts ? 'Hide other amounts' : 'Want to contribute more?'}
+          </Button>
+          {showMoreAmounts ? <fieldset className="program-pricing-choices grid gap-3 text-left text-[15px] leading-[1.5]" id={`program-pricing-more-amounts-${offerId.replace(/[^a-zA-Z0-9]+/g, '-')}${idSuffix}`}>
             <legend className="font-bold text-[15px] leading-[1.5]">Choose your monthly amount</legend>
             <div aria-label="Suggested contribution amounts" className="program-pricing-tier-rail">
-              {[policy.minCents, ...policy.suggestedCents.filter((amountCents) => amountCents > policy.minCents)].map((amountCents) => (
+              {[policy!.minCents, ...policy!.suggestedCents.filter((amountCents) => amountCents > policy!.minCents)].map((amountCents) => (
                 <Button
                   aria-pressed={!customEditing && selectedCents === amountCents}
                   className="program-pricing-tier"
-                  data-highlighted={policy.highlightedCents === amountCents ? 'true' : undefined}
+                  data-highlighted={policy!.highlightedCents === amountCents ? 'true' : undefined}
                   flat={flatSurfaces}
                   key={amountCents}
                   onClick={() => chooseSuggestedAmount(amountCents)}
@@ -439,24 +398,24 @@ export function ProgramPricingSection({ flatSurfaces, instanceId, embedded = fal
                   variant="hardware"
                 >
                   {!customEditing && selectedCents === amountCents ? '✓ ' : ''}
-                  {formatMoneyCents(amountCents, policy.currency)}
-                  {policy.highlightedCents === amountCents && policy.highlightLabel ? (
-                    <span className="program-pricing-tier-badge">{policy.highlightLabel}</span>
+                  {formatMoneyCents(amountCents, policy!.currency)}
+                  {policy!.highlightedCents === amountCents && policy!.highlightLabel ? (
+                    <span className="program-pricing-tier-badge">{policy!.highlightLabel}</span>
                   ) : null}
                 </Button>
               ))}
             </div>
-            {policy.allowCustom ? <label className="program-pricing-custom">
+            {policy!.allowCustom ? <label className="program-pricing-custom">
               <span>Custom amount</span>
               <span className="program-pricing-custom-input-row">
-                <span aria-hidden="true" className="program-pricing-currency">{policy.currency}</span>
+                <span aria-hidden="true" className="program-pricing-currency">{policy!.currency}</span>
                 <input
-                  aria-describedby={scoped("program-pricing-amount-message")}
+                  aria-describedby={`program-pricing-amount-message-${offerId.replace(/[^a-zA-Z0-9]+/g, '-')}${idSuffix}`}
                   aria-invalid={invalidAmount}
                   autoComplete="off"
                   className="program-pricing-custom-input"
                   inputMode="decimal"
-                  min={policy ? String(policy.minCents / 100) : undefined}
+                  min={String(policy!.minCents / 100)}
                   name="programPatronAmount"
                   onChange={(event) => {
                     setCustomEditing(true);
@@ -465,87 +424,49 @@ export function ProgramPricingSection({ flatSurfaces, instanceId, embedded = fal
                   onFocus={(event) => { if (!customEditing) event.currentTarget.select(); }}
                   step="0.01"
                   type="text"
-                  value={customEditing ? customValue : formatEditableDecimal(selectedCents ?? policy.minCents, policy.currency)}
+                  value={customEditing ? customValue : formatEditableDecimal(selectedCents ?? policy!.minCents, policy!.currency)}
                 />
               </span>
             </label> : null}
             <p
               className="m-0 text-[15px] leading-[1.5]"
-              id={scoped("program-pricing-amount-message")}
+              id={`program-pricing-amount-message-${offerId.replace(/[^a-zA-Z0-9]+/g, '-')}${idSuffix}`}
               role={invalidAmount ? 'alert' : 'status'}
             >
               {amountMessage}
             </p>
           </fieldset> : null}
-            <Button
-              variant="hardware"
-              size="lg"
-              flat={flatSurfaces}
-              fullWidth
-              disabled={validAmountCents == null || openingCard !== null}
-              onClick={startPatronCheckout}
-              type="button"
-            >
-              {openingCard === 'patron' ? 'Opening checkout...' : ctaText}
-            </Button>
-            {checkoutError?.card === 'patron' ? (
-              <p className="m-0 rounded-xl border border-red-700/25 bg-red-50 p-3 text-[15px] leading-[1.5] text-red-800" role="alert">{checkoutError.message}</p>
-            ) : null}
-          </div>}
-          <ul className="program-pricing-features" aria-label={`${plan.patron.planName} includes`}>
-            {plan.patron.features.map((feature) => (
-              <li key={feature.id}>
-                <span className="program-pricing-bit" aria-hidden="true">✓</span>
-                <div className="min-w-0">
-                  <Text as="span" variant="body" className="program-pricing-feature-label">
-                    {feature.label}
-                  </Text>
-                </div>
-                <div className="program-pricing-showcase"><ShowcaseStrip ariaLabel={`${feature.label} showcase`} items={feature.showcase} /></div>
-              </li>
-            ))}
-          </ul>
-          <Button
-            variant="hardware"
-            size="lg"
-            flat={flatSurfaces}
-            fullWidth
-            disabled={validAmountCents == null || openingCard !== null}
-            onClick={startPatronCheckout}
-            type="button"
-          >
-            {openingCard === 'patron' ? 'Opening checkout...' : ctaText}
-          </Button>
-        </article>
-        )}
-
-        {bookingPlan === null ? null : (
-        <article
-          aria-labelledby={scoped("program-booking-plan-name")}
-          className="program-pricing-card"
-          data-offer-card="booking"
-          style={{ order: bookingPlan.order ?? 0 }}
-        >
-          <div className="program-pricing-name-row">
-            <span className="program-pricing-name" id={scoped("program-booking-plan-name")}>{bookingPlan.planName}</span>
-          </div>
-          <p className="program-pricing-model">{bookingPlan.modelNote}</p>
-          {bookingOffer ? (
-            <CtaButton href={bookingOffer.bookingUrl} label={bookingPlan.ctaLabel} />
-          ) : (
-            <div className="grid gap-3" role="alert">
-              <p className="m-0 text-[15px] leading-[1.5]">Booking is unavailable right now.</p>
-              <Button flat={flatSurfaces} onClick={() => window.location.reload()} size="md" type="button" variant="hardware">
-                Try again
-              </Button>
-            </div>
-          )}
-          <Text as="p" variant="body" color="muted" className="program-pricing-footnote" style={{ fontSize: 15, lineHeight: 1.5 }}>
-            {bookingPlan.footnote}
-          </Text>
-        </article>
-        )}
-      </Container>
-    </SectionShell>
+          {payButton}
+        </div>
+      ) : null}
+      {copy.features.length === 0 ? null : (
+        <ul className="program-pricing-features" aria-label={`${copy.planName} includes`}>
+          {copy.features.map((feature) => (
+            <li key={feature.id}>
+              <span className="program-pricing-bit" aria-hidden="true">✓</span>
+              <div className="min-w-0">
+                <Text as="span" variant="body" className="program-pricing-feature-label">
+                  {feature.label}
+                </Text>
+              </div>
+              <div className="program-pricing-showcase"><ShowcaseStrip ariaLabel={`${feature.label} showcase`} items={feature.showcase} /></div>
+            </li>
+          ))}
+        </ul>
+      )}
+      {next?.kind === 'voluntary' ? payButton : null}
+      {next?.kind === 'checkout' ? payButton : null}
+      {next?.kind === 'booking' ? <CtaButton href={next.bookingUrl} label={copy.ctaLabel ?? 'Book a call'} /> : null}
+      {checkoutError ? (
+        <p className="m-0 rounded-xl border border-red-700/25 bg-red-50 p-3 text-[15px] leading-[1.5] text-red-800" role="alert">
+          {checkoutError}
+        </p>
+      ) : null}
+      {copy.footnote ? (
+        <Text as="p" variant="body" color="muted" className="program-pricing-footnote" style={{ fontSize: 15, lineHeight: 1.5 }}>
+          {copy.footnote}
+        </Text>
+      ) : null}
+    </article>
   );
 }
