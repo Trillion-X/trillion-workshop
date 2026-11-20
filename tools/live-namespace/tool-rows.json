@@ -204,24 +204,24 @@
             "live-namespace": {
               "fetch": {
                 "macos-aarch64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.13-calls/live-namespace-0.1.13-calls-macos-aarch64.tar.gz",
-                  "version": "0.1.13-calls",
-                  "blake3": "f6df44d8ea1851c453c16291bd53e856d9ee9542a4db7cb9d8f6a53ad697e078",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.14-preview/live-namespace-0.1.14-preview-macos-aarch64.tar.gz",
+                  "version": "0.1.14-preview",
+                  "blake3": "0aa5e42f0ab0c5233a444f24a9631faeaff17d4dca9cf78fc77d696707130f4b",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.13-calls/live-namespace-0.1.13-calls-macos-aarch64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.14-preview/live-namespace-0.1.14-preview-macos-aarch64.tar.gz.b3"
                 },
                 "macos-x86_64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.13-calls)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.14-preview)."
                 },
                 "linux-x86_64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.13-calls/live-namespace-0.1.13-calls-linux-x86_64.tar.gz",
-                  "version": "0.1.13-calls",
-                  "blake3": "e2ca60b9f259057b016a6edb52348d69d9729e5928d334da3985427d89c06317",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.14-preview/live-namespace-0.1.14-preview-linux-x86_64.tar.gz",
+                  "version": "0.1.14-preview",
+                  "blake3": "d385fe507e79658619429adb91779c41296b1f14e5ceaabd31a354c20c3784c9",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.13-calls/live-namespace-0.1.13-calls-linux-x86_64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.14-preview/live-namespace-0.1.14-preview-linux-x86_64.tar.gz.b3"
                 },
                 "linux-aarch64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.13-calls)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.14-preview)."
                 }
               },
               "search": "live-namespace"
@@ -492,24 +492,24 @@
             "live-namespace": {
               "fetch": {
                 "macos-aarch64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.13-calls/live-namespace-0.1.13-calls-macos-aarch64.tar.gz",
-                  "version": "0.1.13-calls",
-                  "blake3": "f6df44d8ea1851c453c16291bd53e856d9ee9542a4db7cb9d8f6a53ad697e078",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.14-preview/live-namespace-0.1.14-preview-macos-aarch64.tar.gz",
+                  "version": "0.1.14-preview",
+                  "blake3": "0aa5e42f0ab0c5233a444f24a9631faeaff17d4dca9cf78fc77d696707130f4b",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.13-calls/live-namespace-0.1.13-calls-macos-aarch64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.14-preview/live-namespace-0.1.14-preview-macos-aarch64.tar.gz.b3"
                 },
                 "macos-x86_64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.13-calls)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.14-preview)."
                 },
                 "linux-x86_64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.13-calls/live-namespace-0.1.13-calls-linux-x86_64.tar.gz",
-                  "version": "0.1.13-calls",
-                  "blake3": "e2ca60b9f259057b016a6edb52348d69d9729e5928d334da3985427d89c06317",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.14-preview/live-namespace-0.1.14-preview-linux-x86_64.tar.gz",
+                  "version": "0.1.14-preview",
+                  "blake3": "d385fe507e79658619429adb91779c41296b1f14e5ceaabd31a354c20c3784c9",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.13-calls/live-namespace-0.1.13-calls-linux-x86_64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.14-preview/live-namespace-0.1.14-preview-linux-x86_64.tar.gz.b3"
                 },
                 "linux-aarch64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.13-calls)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.14-preview)."
                 }
               },
               "search": "live-namespace"
