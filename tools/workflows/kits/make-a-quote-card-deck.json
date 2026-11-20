@@ -1,0 +1,66 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:make-a-quote-card-deck for my deck deck:the-greats-tennis in my database, sections Cues, Mindset, Pressure, Presence, Work, topic tennis in the players' own words, and draw it to /work/deck-out.\"",
+  "lists": [],
+  "no_lists_because": "The deck, its sections and its cards are rows the workflow makes in your own database (card_decks, card_sections, cards); no list of yours is needed.",
+  "workflows": [
+    "workflow:make-a-quote-card-deck"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database",
+    "tool:check-words-appear-in-a-source",
+    "tool:draw-pages-in-a-layout"
+  ],
+  "instructions": [
+    "1. Name your database's login (its vault name), the deck (id, title, curated_by and its layout: CSS with the page width and height), the sections in order, the topic, who finds the quotes (a researcher's record id) and a folder for the pages.",
+    "2. Run the workflow: it makes the three tables when they are missing, keeps the deck and its sections, and asks the researcher for candidates, each with the exact words, the page that shows them and the speaker's label when the page has one.",
+    "3. The check step runs tool:check-words-appear-in-a-source on every candidate; only verified ones are kept as cards, each with its source, check time and the speaker label seen.",
+    "4. The last steps write the page text from the rows and draw it with tool:draw-pages-in-a-layout: cover, contents, a page per section, a page per card, then the sources. Set sample_only to true to draw only the cards marked in_sample."
+  ],
+  "worked_examples": [
+    {
+      "title": "Two candidates, one kept and one refused",
+      "ask": "Add these two quotes to my deck and draw it.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:make-a-quote-card-deck",
+              "input": {
+                "store": {
+                  "credential_name": "my-own-database-connection"
+                },
+                "deck": {
+                  "id": "deck:made-up",
+                  "title": "Made Up",
+                  "curated_by": "A Person",
+                  "layout": {
+                    "css": "li{font-size:50px}",
+                    "width": 825,
+                    "height": 1125
+                  }
+                },
+                "sections": [
+                  "Mindset"
+                ],
+                "topic": "a made-up sport",
+                "researcher": "ai:my-research-ai",
+                "batch": 2,
+                "sample_only": false,
+                "folder": "/work/deck-out"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:make-a-quote-card-deck",
+      "step": "check",
+      "given": "Candidate 1's words are on its transcript page after the label ALEX MORGAN:, as named; candidate 2's words are on the same page after SAM REED:, but name ALEX MORGAN.",
+      "hands_back": "checks [{id 0, verified true, speaker_seen \"ALEX MORGAN\"}, {id 1, found true, verified false, speaker_seen \"SAM REED\"}]; one card row is kept and the drawn folder holds 6 pages."
+    }
+  ],
+  "drafted_from": "workflow:make-a-quote-card-deck steps make-decks through draw, and tool:check-words-appear-in-a-source's tests"
+}

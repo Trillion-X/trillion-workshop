@@ -1,0 +1,665 @@
+{
+ "_what": "A deck of quote cards whose every card is checked word for word on its cited page (and under its speaker when the page labels speakers) before it is kept, drawn from the rows in the deck's own layout. Nov 20 2026: the first deck (The Greats, tennis) found that one quote a search attributed to Billie Jean King was said by Emma Stone in the same transcript; the speaker check refuses such a card.",
+ "records": [
+  {
+   "payload": {
+    "kind": "workflow-recipe",
+    "id": "workflow:make-a-quote-card-deck",
+    "label": "Make a deck of quote cards, every quote checked on its source",
+    "job": "Keep a deck of quote cards (a title, sections, and one card per quote: who said it, their exact words, and the page that shows it) in the pursuit's own database, add only candidates whose exact words are found on their cited page under the named speaker, and draw the deck's pages from its rows in the deck's own layout, the same for screen and print.",
+    "produces": "card_decks, card_sections and cards rows in the person's store; only checked cards are kept, each with its source, check time and the speaker label seen; the drawn pages (one per card, plus cover, contents, section and source pages) in the folder given.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "store",
+      "deck",
+      "sections",
+      "topic",
+      "researcher",
+      "folder"
+     ],
+     "properties": {
+      "store": {
+       "type": "object",
+       "required": [
+        "credential_name"
+       ],
+       "properties": {
+        "credential_name": {
+         "type": "string",
+         "description": "The vault name of the login to the pursuit's own database, where the deck's rows are kept"
+        }
+       }
+      },
+      "deck": {
+       "type": "object",
+       "required": [
+        "id",
+        "title",
+        "curated_by",
+        "layout"
+       ],
+       "description": "The deck row: id, title, subtitle, curated_by, about, layout {css, width, height, print?} (the page size is data, so screen and print are drawn alike)"
+      },
+      "sections": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "The section titles, in order"
+      },
+      "topic": {
+       "type": "string",
+       "description": "What the quotes are about, in the person's words"
+      },
+      "researcher": {
+       "type": "string",
+       "description": "The record id of who finds candidates (an AI or a person); never left to whoever runs the workflow"
+      },
+      "batch": {
+       "type": "integer",
+       "minimum": 1,
+       "description": "The most candidates one run looks for"
+      },
+      "sample_only": {
+       "type": "boolean",
+       "description": "Draw only the cards marked in_sample (a free sample), else the whole deck"
+      },
+      "folder": {
+       "type": "string",
+       "description": "An absolute folder for the drawn pages"
+      }
+     }
+    },
+    "fires_when": [
+     {
+      "label": "a part asks for a deck of quote cards or more cards for one",
+      "condition": {
+       "fields": [
+        {
+         "id": "kinds",
+         "kind": "tags",
+         "path": [
+          "kinds"
+         ]
+        }
+       ],
+       "tree": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+         {
+          "kind": "rule",
+          "field": "kinds",
+          "operator": "has_any_of",
+          "params": {
+           "values": [
+            "quote-deck-request"
+           ]
+          }
+         }
+        ]
+       }
+      },
+      "made_by": "fires_when",
+      "state": "On",
+      "evidence": "Written Nov 20 2026 from the workflow's own job."
+     }
+    ],
+    "source": {
+     "from": "the person's request on Nov 20 2026 for a deck of quote cards; gauntlet research_files quote-card-decks-e2e-2026-11-20",
+     "note": "Names no pursuit, topic or speaker; a tennis deck was the first it made."
+    },
+    "definition": {
+     "id": "workflow:make-a-quote-card-deck",
+     "kind": "workflow",
+     "name": "Make a deck of quote cards whose every quote is checked on its source",
+     "is_active": true,
+     "version": 1,
+     "steps": [
+      {
+       "id": "make-decks",
+       "kind": "ask",
+       "config": {
+        "name": "tool:run-sql-in-my-database",
+        "input": {
+         "credential_name": {
+          "$kind": "binding",
+          "select": {
+           "from": "input",
+           "path": "store.credential_name"
+          }
+         },
+         "sql": "create table if not exists card_decks (id text primary key, title text not null, subtitle text, curated_by text, about text, layout jsonb not null, made_at timestamptz not null default now(), changed_at timestamptz not null default now())"
+        },
+        "context": {
+         "step_id": "make-decks"
+        }
+       }
+      },
+      {
+       "id": "make-sections",
+       "kind": "ask",
+       "config": {
+        "name": "tool:run-sql-in-my-database",
+        "input": {
+         "credential_name": {
+          "$kind": "binding",
+          "select": {
+           "from": "input",
+           "path": "store.credential_name"
+          }
+         },
+         "sql": "create table if not exists card_sections (id text primary key, deck_id text not null references card_decks(id) on delete cascade, position int not null, title text not null, about text, unique (deck_id, position))"
+        },
+        "context": {
+         "step_id": "make-sections"
+        }
+       }
+      },
+      {
+       "id": "make-cards",
+       "kind": "ask",
+       "config": {
+        "name": "tool:run-sql-in-my-database",
+        "input": {
+         "credential_name": {
+          "$kind": "binding",
+          "select": {
+           "from": "input",
+           "path": "store.credential_name"
+          }
+         },
+         "sql": "create table if not exists cards (id text primary key, deck_id text not null references card_decks(id) on delete cascade, section_id text not null references card_sections(id) on delete cascade, position int not null, speaker text not null, words text not null, source jsonb not null, in_sample boolean not null default false, made_at timestamptz not null default now(), unique (section_id, position))"
+        },
+        "context": {
+         "step_id": "make-cards"
+        }
+       }
+      },
+      {
+       "id": "one-card-per-words",
+       "kind": "ask",
+       "config": {
+        "name": "tool:run-sql-in-my-database",
+        "input": {
+         "credential_name": {
+          "$kind": "binding",
+          "select": {
+           "from": "input",
+           "path": "store.credential_name"
+          }
+         },
+         "sql": "create unique index if not exists cards_one_per_words on cards (deck_id, speaker, words)"
+        },
+        "context": {
+         "step_id": "one-card-per-words"
+        }
+       }
+      },
+      {
+       "id": "keep-deck",
+       "kind": "ask",
+       "config": {
+        "name": "tool:run-sql-in-my-database",
+        "input": {
+         "credential_name": {
+          "$kind": "binding",
+          "select": {
+           "from": "input",
+           "path": "store.credential_name"
+          }
+         },
+         "sql": "insert into card_decks (id, title, subtitle, curated_by, about, layout) values ($1, $2, $3, $4, $5, $6::jsonb) on conflict (id) do update set title = excluded.title, subtitle = excluded.subtitle, curated_by = excluded.curated_by, about = excluded.about, layout = excluded.layout, changed_at = now()",
+         "params": [
+          {
+           "$kind": "binding",
+           "select": {
+            "from": "input",
+            "path": "deck.id"
+           }
+          },
+          {
+           "$kind": "binding",
+           "select": {
+            "from": "input",
+            "path": "deck.title"
+           }
+          },
+          {
+           "$kind": "binding",
+           "select": {
+            "from": "input",
+            "path": "deck.subtitle"
+           }
+          },
+          {
+           "$kind": "binding",
+           "select": {
+            "from": "input",
+            "path": "deck.curated_by"
+           }
+          },
+          {
+           "$kind": "binding",
+           "select": {
+            "from": "input",
+            "path": "deck.about"
+           }
+          },
+          {
+           "$kind": "binding",
+           "select": {
+            "from": "input",
+            "path": "deck.layout"
+           },
+           "transform": [
+            {
+             "op": "op:core.stringify",
+             "args": {
+              "format": "json"
+             }
+            }
+           ]
+          }
+         ]
+        },
+        "context": {
+         "step_id": "keep-deck"
+        }
+       }
+      },
+      {
+       "id": "keep-sections",
+       "kind": "ask",
+       "config": {
+        "name": "tool:run-sql-in-my-database",
+        "input": {
+         "credential_name": {
+          "$kind": "binding",
+          "select": {
+           "from": "input",
+           "path": "store.credential_name"
+          }
+         },
+         "sql": "insert into card_sections (id, deck_id, position, title) select $1 || ':section:' || lower(regexp_replace(t, '[^A-Za-z0-9]+', '-', 'g')), $1, n, t from jsonb_array_elements_text($2::jsonb) with ordinality as s(t, n) on conflict (id) do update set position = excluded.position, title = excluded.title",
+         "params": [
+          {
+           "$kind": "binding",
+           "select": {
+            "from": "input",
+            "path": "deck.id"
+           }
+          },
+          {
+           "$kind": "binding",
+           "select": {
+            "from": "input",
+            "path": "sections"
+           },
+           "transform": [
+            {
+             "op": "op:core.stringify",
+             "args": {
+              "format": "json"
+             }
+            }
+           ]
+          }
+         ]
+        },
+        "context": {
+         "step_id": "keep-sections"
+        }
+       }
+      },
+      {
+       "id": "read-deck",
+       "kind": "ask",
+       "config": {
+        "name": "tool:run-sql-in-my-database",
+        "input": {
+         "credential_name": {
+          "$kind": "binding",
+          "select": {
+           "from": "input",
+           "path": "store.credential_name"
+          }
+         },
+         "sql": "select coalesce(json_agg(json_build_object('section', s.title, 'speaker', c.speaker, 'words', c.words, 'url', c.source->>'url') order by s.position, c.position), '[]') as cards from card_sections s left join cards c on c.section_id = s.id where s.deck_id = $1",
+         "params": [
+          {
+           "$kind": "binding",
+           "select": {
+            "from": "input",
+            "path": "deck.id"
+           }
+          }
+         ]
+        },
+        "context": {
+         "step_id": "read-deck"
+        }
+       }
+      },
+      {
+       "id": "find",
+       "kind": "ask",
+       "config": {
+        "name": {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "researcher"
+         }
+        },
+        "input": {
+         "do": "Find real quotes for this deck: the topic is input.topic, the sections are input.sections, the deck already holds steps.read-deck (do not repeat a card). For each candidate, open a primary source anyone can open (a speech or press-conference transcript, an interview transcript, the speaker's own writing) and copy the words exactly as that page shows them, never a paraphrase, never from a quote collection. Give the page's address, a short source title and, when the page labels speakers in capitals (NAME:), that label. Up to input.batch candidates.",
+         "submit": {
+          "type": "object",
+          "required": [
+           "candidates"
+          ],
+          "properties": {
+           "candidates": {
+            "type": "array",
+            "items": {
+             "type": "object",
+             "required": [
+              "section",
+              "speaker",
+              "words",
+              "url",
+              "source_title"
+             ],
+             "properties": {
+              "section": {
+               "type": "string"
+              },
+              "speaker": {
+               "type": "string"
+              },
+              "words": {
+               "type": "string",
+               "minLength": 3
+              },
+              "url": {
+               "type": "string"
+              },
+              "source_title": {
+               "type": "string"
+              },
+              "source_kind": {
+               "type": "string"
+              },
+              "speaker_label": {
+               "type": "string"
+              },
+              "in_sample": {
+               "type": "boolean"
+              }
+             }
+            }
+           }
+          }
+         },
+         "deck": {
+          "$kind": "binding",
+          "select": {
+           "from": "steps",
+           "key": "read-deck",
+           "path": "output.rows.0.cards"
+          }
+         }
+        },
+        "context": {
+         "step_id": "find"
+        }
+       }
+      },
+      {
+       "id": "check",
+       "kind": "ask",
+       "config": {
+        "name": "tool:check-words-appear-in-a-source",
+        "input": {
+         "checks": {
+          "$kind": "binding",
+          "select": {
+           "from": "steps",
+           "key": "find",
+           "path": "output.candidates"
+          }
+         }
+        },
+        "context": {
+         "step_id": "check"
+        }
+       }
+      },
+      {
+       "id": "keep-checked",
+       "kind": "ask",
+       "config": {
+        "name": "tool:run-sql-in-my-database",
+        "input": {
+         "credential_name": {
+          "$kind": "binding",
+          "select": {
+           "from": "input",
+           "path": "store.credential_name"
+          }
+         },
+         "sql": "insert into cards (id, deck_id, section_id, position, speaker, words, source, in_sample) select $1 || ':card:' || gen_random_uuid(), $1, s.id, coalesce((select max(position) from cards x where x.section_id = s.id), 0) + row_number() over (partition by s.id order by c.n), c.v->>'speaker', c.v->>'words', jsonb_build_object('kind', c.v->>'source_kind', 'title', c.v->>'source_title', 'url', c.v->>'url', 'speaker_label', c.v->>'speaker_label', 'verified', true, 'verified_at', k.r->>'checked_at', 'speaker_seen', k.r->>'speaker_seen'), coalesce((c.v->>'in_sample')::boolean, false) from jsonb_array_elements($2::jsonb) with ordinality c(v, n) join jsonb_array_elements($3::jsonb) with ordinality k(r, m) on m = n join card_sections s on s.deck_id = $1 and lower(s.title) = lower(c.v->>'section') where (k.r->>'verified')::boolean on conflict (deck_id, speaker, words) do nothing returning id",
+         "params": [
+          {
+           "$kind": "binding",
+           "select": {
+            "from": "input",
+            "path": "deck.id"
+           }
+          },
+          {
+           "$kind": "binding",
+           "select": {
+            "from": "steps",
+            "key": "find",
+            "path": "output.candidates"
+           },
+           "transform": [
+            {
+             "op": "op:core.stringify",
+             "args": {
+              "format": "json"
+             }
+            }
+           ]
+          },
+          {
+           "$kind": "binding",
+           "select": {
+            "from": "steps",
+            "key": "check",
+            "path": "output.checks"
+           },
+           "transform": [
+            {
+             "op": "op:core.stringify",
+             "args": {
+              "format": "json"
+             }
+            }
+           ]
+          }
+         ]
+        },
+        "context": {
+         "step_id": "keep-checked"
+        }
+       }
+      },
+      {
+       "id": "write-pages",
+       "kind": "ask",
+       "config": {
+        "name": "tool:run-sql-in-my-database",
+        "input": {
+         "credential_name": {
+          "$kind": "binding",
+          "select": {
+           "from": "input",
+           "path": "store.credential_name"
+          }
+         },
+         "sql": "with used as (select s.*, dense_rank() over (order by s.position) as nth from card_sections s where s.deck_id = $1 and exists (select 1 from cards c where c.section_id = s.id and (c.source->>'verified')::boolean and (c.in_sample or not $2::boolean))), picked as (select c.* from cards c join used u on u.id = c.section_id where (c.source->>'verified')::boolean and (c.in_sample or not $2::boolean)), srcs as (select title, (row_number() over (order by title) - 1) / 3 as chunk from (select distinct source->>'title' as title from picked) t), pages as (select 0::numeric as o, d.title || E'\\n' || coalesce(d.subtitle, d.title) || E'\\n- Curated by ' || d.curated_by as body from card_decks d where d.id = $1 union all select 1, 'Contents' || E'\\n' || string_agg('- ' || title, E'\\n' order by position) from used union all select 10 + u.nth * 1000, 'Section ' || u.nth || E'\\n- ' || u.title from used u union all select 10 + u.nth * 1000 + c.position, c.speaker || E'\\n- ' || c.words from picked c join used u on u.id = c.section_id union all select 1e9 + chunk, 'Sources' || E'\\n' || string_agg('- ' || title, E'\\n' order by title) from srcs group by chunk) select string_agg('PAGE ' || n || E'\\n' || body, E'\\n' order by o) as text from (select o, body, row_number() over (order by o) as n from pages) p",
+         "params": [
+          {
+           "$kind": "binding",
+           "select": {
+            "from": "input",
+            "path": "deck.id"
+           }
+          },
+          {
+           "$kind": "binding",
+           "select": {
+            "from": "input",
+            "path": "sample_only"
+           }
+          }
+         ]
+        },
+        "context": {
+         "step_id": "write-pages"
+        }
+       }
+      },
+      {
+       "id": "draw",
+       "kind": "ask",
+       "config": {
+        "name": "tool:draw-pages-in-a-layout",
+        "input": {
+         "pages": {
+          "$kind": "binding",
+          "select": {
+           "from": "steps",
+           "key": "write-pages",
+           "path": "output.rows.0.text"
+          }
+         },
+         "layout": {
+          "$kind": "binding",
+          "select": {
+           "from": "input",
+           "path": "deck.layout"
+          }
+         },
+         "folder": {
+          "$kind": "binding",
+          "select": {
+           "from": "input",
+           "path": "folder"
+          }
+         }
+        },
+        "context": {
+         "step_id": "draw"
+        }
+       }
+      }
+     ],
+     "edges": [
+      {
+       "from": "make-decks",
+       "to": "make-sections",
+       "kind": "always"
+      },
+      {
+       "from": "make-sections",
+       "to": "make-cards",
+       "kind": "always"
+      },
+      {
+       "from": "make-cards",
+       "to": "one-card-per-words",
+       "kind": "always"
+      },
+      {
+       "from": "one-card-per-words",
+       "to": "keep-deck",
+       "kind": "always"
+      },
+      {
+       "from": "keep-deck",
+       "to": "keep-sections",
+       "kind": "always"
+      },
+      {
+       "from": "keep-sections",
+       "to": "read-deck",
+       "kind": "always"
+      },
+      {
+       "from": "read-deck",
+       "to": "find",
+       "kind": "always"
+      },
+      {
+       "from": "find",
+       "to": "check",
+       "kind": "always"
+      },
+      {
+       "from": "check",
+       "to": "keep-checked",
+       "kind": "always"
+      },
+      {
+       "from": "keep-checked",
+       "to": "write-pages",
+       "kind": "always"
+      },
+      {
+       "from": "write-pages",
+       "to": "draw",
+       "kind": "always"
+      }
+     ]
+    },
+    "wakes": [
+     {
+      "id": "chosen--a-part-asks-for-a-deck-of-quote-cards-or-more-cards-for-one",
+      "on": {
+       "fact": {
+        "kind": "workflow-chosen",
+        "from": [
+         "run"
+        ],
+        "match": {
+         "workflow": "workflow:make-a-quote-card-deck",
+         "condition": "a part asks for a deck of quote cards or more cards for one"
+        }
+       }
+      },
+      "budget": {
+       "steps": 10,
+       "wall_ms": 900000
+      },
+      "input": {
+       "start_at": "make-decks"
+      }
+     }
+    ],
+    "records": {
+     "runs": [
+      "tool:check-words-appear-in-a-source",
+      "tool:draw-pages-in-a-layout",
+      "tool:run-sql-in-my-database"
+     ]
+    }
+   }
+  }
+ ]
+}

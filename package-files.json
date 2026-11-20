@@ -8977,6 +8977,7 @@
   }
  ],
  "tool:check-words-against-a-word-template": [],
+ "tool:check-words-appear-in-a-source": [],
  "tool:check-writing-against-its-recipe": [
   {
    "package": "write-from-a-recipe",

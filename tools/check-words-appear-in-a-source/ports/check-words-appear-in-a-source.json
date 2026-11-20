@@ -1,0 +1,65 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CHECK-WORDS-APPEAR-IN-A-SOURCE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "trillion-workshop lane check-words-appear-in-a-source, 2026-11-20: the check step of workflow:make-a-quote-card-deck",
+    "quote": "Move /tmp/greats-work out of /tmp: the scripts become a Workshop workflow ... It finds candidate quotes, fetches each primary source, verifies the exact words and the speaker, and writes card rows"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "check that exact words appear on a source page under the named speaker",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/check-words-appear-in-a-source/do-work/check_words.py"
+    }
+  ],
+  "preserve": [],
+  "allowed_deltas": [],
+  "banned_substitutions": [
+    "A check that passes a paraphrase or shortened words.",
+    "A check that passes words another speaker said on the same page."
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-every-claim-against-its-facts-and-sources/do-work/check_claims.py",
+      "why": "Checks a film's spoken and on-screen claims against world rows and their sources at a transcript second or file line; its request is shots, lanes and a world folder, it reads no web page and has no speaker-label rule."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/read-a-public-web-link-whole-its-card",
+      "why": "Reads a public link's card, pictures and words; it checks no words and names no speaker, and has no tool row."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/quote-untrusted-words",
+      "why": "Wraps untrusted words for safe display; it does not look for them on a source."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "check exact words appear on a source page",
+        "verify a quote against its source",
+        "speaker label transcript quote check"
+      ],
+      "capability_rows": [],
+      "code_patterns": [
+        "speaker_label",
+        "exact words"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "ab87ccc78"
+        }
+      ]
+    },
+    "test_refs": [
+      "tools/check-words-appear-in-a-source/test/test_check_words.py",
+      "tools/check-words-appear-in-a-source/test/check-words-appear-in-a-source.test.mjs"
+    ]
+  }
+}

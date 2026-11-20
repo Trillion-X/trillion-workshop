@@ -1,0 +1,51 @@
+{
+ "drafted_from": "tool:check-words-appear-in-a-source's own row, do-work/check_words.py and test/test_check_words.py",
+ "start_here": "Say to your AI: \"Before you quote anyone for me, check the exact words are on the page you cite, said by that person.\" It writes the request, runs tool:check-words-appear-in-a-source on your computer and keeps only the quotes it verified.",
+ "lists": [],
+ "no_lists_because": "It keeps no row: the quotes and their sources come in the request, and the answer is the check.",
+ "workflows": [
+  "workflow:make-a-quote-card-deck"
+ ],
+ "tools": [
+  "tool:check-words-appear-in-a-source"
+ ],
+ "instructions": [
+  "1. For each quote, copy the words exactly as the source page shows them.",
+  "2. Give the page's address (or a file) and, when the page labels speakers in capitals (NAME:), that label.",
+  "3. Run the tool with the request's path as {request}.",
+  "4. Keep only checks with verified true; a found but unverified check means another speaker said those words on that page."
+ ],
+ "worked_examples": [
+  {
+   "title": "One quote is kept and one is refused",
+   "ask": "Check these two quotes against the transcript before they go on cards.",
+   "mcp": {
+    "server": "{cli}",
+    "tool": "do_one_thing_in_my_account",
+    "input": {
+     "address": "@tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:check-words-appear-in-a-source",
+      "input": {
+       "checks": [
+        {
+         "words": "You play the ball, you don't play the opponent.",
+         "file": "/work/transcript.html",
+         "speaker_label": "ALEX MORGAN"
+        },
+        {
+         "words": "Just watch the ball - nothing else.",
+         "file": "/work/transcript.html",
+         "speaker_label": "ALEX MORGAN"
+        }
+       ]
+      }
+     }
+    }
+   },
+   "given": "A transcript where ALEX MORGAN said the first line and SAM REED the second.",
+   "hands_back": "{\"checks\": [{\"id\": 0, \"verified\": true, \"speaker_seen\": \"ALEX MORGAN\"}, {\"id\": 1, \"found\": true, \"verified\": false, \"speaker_seen\": \"SAM REED\"}]}"
+  }
+ ]
+}

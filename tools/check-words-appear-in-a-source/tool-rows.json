@@ -1,0 +1,80 @@
+{
+ "kind": "tool-rows",
+ "record_set": "check-words-appear-in-a-source-tool-rows",
+ "what_this_is": "The Workshop row for the check-words-appear-in-a-source folder: a script the person's AI runs on the person's own computer to check that exact words appear on a source page, under the named speaker when the page labels its speakers.",
+ "records": [
+  {
+   "id": "package::check-words-appear-in-a-source::tool::check-words-appear-in-a-source",
+   "address": "package::check-words-appear-in-a-source::tool::check-words-appear-in-a-source",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-words-appear-in-a-source",
+    "label": "Check that exact words appear on their source page, under the named speaker (runs on your computer)",
+    "status": "active",
+    "job": "Check that the exact words I am about to quote are on the page I cite, said by the person I name",
+    "description": "Reads each source (a web address or a file), takes the words a reader sees (scripts, styles and tags removed, entities read, curly quotes, dashes and spaces made one form) and looks for the exact words. When the page labels its speakers in capitals (NAME:), the last label before the words must be the speaker named, so words someone else said on the same page are refused. A page that cannot be read is a failed check, said in its own words. Each page is read once per request. Nothing is kept: the answer is the record of the check.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "request"
+     ],
+     "properties": {
+      "request": {
+       "type": "string",
+       "description": "A JSON file on the person's computer, put where {request} is in the command: {checks: [{id?, words, url or file, speaker_label?}]}. Other fields of a check are ignored, so a list of candidates can be passed as it is; a check with no id takes its index."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "description": "The last line: {\"result\": {\"checks\": [{id, found, speaker_seen, verified, bytes, checked_at, error?}]}} in request order, or {\"error\": what to change}.",
+     "properties": {
+      "result": {
+       "type": "object",
+       "properties": {
+        "checks": {
+         "type": "array",
+         "items": {
+          "type": "object"
+         }
+        }
+       },
+       "required": [
+        "checks"
+       ]
+      },
+      "error": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": [
+      "clone the Workshop repository (package.json repository.url)",
+      "python 3.9 or newer (no packages)"
+     ],
+     "run": "python3 tools/check-words-appear-in-a-source/do-work/check_words.py {request}",
+     "needs": [
+      "python",
+      "network"
+     ],
+     "say": "This runs on the person's own computer, from the root of the Workshop checkout. Put each quote's exact words, its source address or file and, for a transcript that labels speakers in capitals, the speaker's label in the request; pass its path as {request}. Keep only the quotes whose check says verified true; never shorten, fix or reword a quote to make it pass."
+    },
+    "result_selector": "$.result",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:check-words-appear-in-a-source",
+    "provenance": {
+     "source": "Written for the Workshop on Nov 20 2026 from the deck lane's checker for The Greats quote cards, where a search had given Billie Jean King words that Emma Stone said in the same transcript."
+    }
+   }
+  }
+ ]
+}
