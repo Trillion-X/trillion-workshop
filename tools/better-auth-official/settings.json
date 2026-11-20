@@ -183,5 +183,8 @@
     "_what": "A stop never drops a call (stop-without-dropping.mjs): /readyz answers 503 and the listeners keep taking calls for hold_ms (over two of the front door's 1 s health checks), then the calls held get up to grace_ms (longer than this tool's longest call, an email send bounded by its own email timeout) before the rest are ended.",
     "hold_ms": 3000,
     "grace_ms": 30000
+  },
+  "web_link": {
+    "expires_in_seconds": 60
   }
 }
