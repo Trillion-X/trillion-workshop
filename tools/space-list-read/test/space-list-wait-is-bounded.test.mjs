@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readSpaceForList } from '../../keep-a-shared-spaces-posts-files-and-tasks/from-an-older-version/src/space-list-read.mjs';
+import { readSpaceForList } from '../src/space-list-read.mjs';
 import wait from '../src/space-list-read.json' with { type: 'json' };
 import { spaceMountingIn } from '../../shared-code/src/failure.mjs';
 
