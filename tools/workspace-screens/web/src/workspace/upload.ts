@@ -8,8 +8,8 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. A file is read by slices; it is never held whole in memory.
-//   2. A chosen file goes in through the person's own files door on their computer (files-door.mjs: write_file_start,
-//      its pieces in order, write_file_finish at /work/api/files/<operation>), the same operations an AI's key asks;
+//   2. A chosen file goes in through the person's files operations (api.ts `files`: write_file_start, its pieces in
+//      order, write_file_finish, files-door.mjs putFile), the same operations an AI asks;
 //      the door names the file by the identity it works out itself. Every piece is sent (the door keeps a piece it
 //      already holds once, but the page no longer skips sending it).
 //   3. The account itself is reached only through this page's signed-in session (/work/api/...). The growing files and

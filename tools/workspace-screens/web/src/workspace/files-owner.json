@@ -1,0 +1,4 @@
+{
+  "_what": "Who keeps the person's files (api.ts `files`): the tool whose session answers the files operations (list_files, find_file, read_file, write_file_start and the rest), called as tools:run {tool, call: {name, arguments}} at the account's door. The engine's own files door these operations once went to is retired.",
+  "tool": "tool:your-files"
+}

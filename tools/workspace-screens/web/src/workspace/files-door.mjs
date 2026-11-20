@@ -1,31 +1,18 @@
 // src/workspace/files-door.mjs
 //
 // PURPOSE
-//   The person's own page reaching their files on their computer: the engine's account files door at
-//   /work/api/files/<operation> (trillion-rust src/server/owner-routes.json, the row whose family is the files door's
-//   resource; src/account_files/door.rs AccountFilesDoor::page_call). The page asks the same operations, with the same
-//   inputs and answers, an AI's key asks at that door: list_files, find_file, read_file, write_file,
-//   write_file_start / _piece / _finish / _cancel, set_aside, recent_files, record_file_use, set_file_facts and the
-//   rest of trillion-rust src/account_files/account-files-door.json `operations`.
+//   What the page does over the person's files operations (api.ts `files`: the operations of the tool that keeps the
+//   person's files, files-owner.json): putting a file in piece by piece, reading a whole small file window by window,
+//   and the results worked out about files. The operations and their inputs and answers are that tool's (list_files,
+//   find_file, read_file, write_file_start / _piece / _finish / _cancel, set_aside, recent_files and the rest).
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. A read (the door's `page.reads`) is GET with its input as the one `input` query field; every other operation is
-//      POST with its input as the JSON body. The page's own signed-in session admits both; no key or lease is held here.
-//   2. A file larger than one piece goes in by write_file_start, write_file_piece in order from offset 0 and
-//      write_file_finish; the file is read one piece at a time, never whole. The door works out the identity itself.
-//   3. A refused piece ends the upload with write_file_cancel, and the refusal reaches the caller unchanged.
+//   1. A file larger than one piece goes in by write_file_start, write_file_piece in order from offset 0 and
+//      write_file_finish; the file is read one piece at a time, never whole. The owner works out the identity itself.
+//   2. A refused piece ends the upload with write_file_cancel, and the refusal reaches the caller unchanged.
 
 /** The door's largest piece (trillion-rust src/account_files/write.rs: 1 to 32768 bytes a piece). */
 export const PIECE_BYTES = 32 * 1024;
-
-/** The two ways the page calls the door, over `ask(path, init)` (the page's own fetch of its JSON answer). */
-export function filesDoor(ask) {
-  const read = (operation, input = {}) =>
-    ask(`/work/api/files/${encodeURIComponent(operation)}?input=${encodeURIComponent(JSON.stringify(input))}`, {});
-  const change = (operation, input = {}) =>
-    ask(`/work/api/files/${encodeURIComponent(operation)}`, { method: 'POST', body: JSON.stringify(input) });
-  return { read, change };
-}
 
 /**
  * What was worked out about files (trillion-rust src/account_files/results.rs, the port of old trillion's

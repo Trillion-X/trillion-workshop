@@ -3,7 +3,7 @@
 // PURPOSE
 //   The one way a workspace screen takes files out of view and gives them back: Files and Media offer one action per
 //   state in src/namespace-set-aside.json ("Delete", "Archive"), each sending the chosen files, folders or recordings to
-//   the person's files door on their computer (files-door.mjs: set_aside {name} at /work/api/files, every page of a
+//   the person's files operations (api.ts `files`: set_aside {name}, every page of a
 //   folder until no next_after is left; a recording by its identity is every name find_file gives it), then saying
 //   where they went with a Put back (put_back {name}, the same pages) on the same notice. The Recently Deleted screen
 //   puts back through `putBack` here too, by name. The door keeps one set-aside tree: every state's action sends there,

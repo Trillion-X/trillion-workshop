@@ -20,7 +20,7 @@
 //   before a change this page sent is never answered. A copy the page brings from the edge (`data-page-copy`, kept for
 //   this sign-in by src/first-answers-copy.mjs) is drawn the same way when this computer kept none.
 
-import { fileResultsOf, filesDoor, readFileJson as readFileJsonOf, readFileText as readFileTextOf, readWholeFile } from './files-door.mjs';
+import { fileResultsOf, readFileJson as readFileJsonOf, readFileText as readFileTextOf, readWholeFile } from './files-door.mjs';
 import { pageRequests } from './request-classes.ts';
 import pageAccountSettings from '../page-account.json' with { type: 'json' };
 import {withNativeCollectionContinuation,nativeCollectionContinuation,nativeCollectionCoverage} from '../native-collection-continuation.mjs';
@@ -29,6 +29,7 @@ import { sayAskedAgain } from '../../../../ui/show/still-working/still-working.t
 import { retryQuietly } from '../../../../ui/show/request/quiet-retry.ts';
 import { signInAddress } from './addresses.mjs';
 import { sanitizeErrorText, errorWords } from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';
+import filesOwner from './files-owner.json' with { type: 'json' };
 import failureWords from './failure-words.json' with { type: 'json' };
 import firstAnswers from './first-answers.json' with { type: 'json' };
 import recordScope from '../record-scope.json' with { type: 'json' };
@@ -521,9 +522,19 @@ export const readItemJson = <T>(path: string) => readJson<T>(path, {}, false, { 
 export const postJson = <T>(path: string, value: unknown) => readJson<T>(path, { method: 'POST', body: JSON.stringify(value) });
 
 
-// The person's files on their computer: the engine's files door at /work/api/files/<operation> (files-door.mjs), the
-// same operations an AI's key reaches there. A read is a GET, so its answer is not focused onto another address.
-export const files = filesDoor((path: string, init: RequestInit) => init.method ? readJson(path, init) : readItemJson(path));
+// The person's files: the operations of the tool that keeps them (files-owner.json), the same operations an AI calls,
+// asked as one tools:run of that tool's session at the account's door ({tool, call: {name, arguments}}). Its answer is
+// the operation's own (result.structuredContent); a refusal is thrown in its own words.
+const filesCall = async (name: string, args: unknown = {}) => {
+  const ran = await readJson<{ result?: { isError?: boolean; structuredContent?: unknown; content?: { text?: string }[] } }>('/work/api/door/tools:run', {
+    method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': `files:${crypto.randomUUID()}` },
+    body: JSON.stringify({ tool: filesOwner.tool, call: { name, arguments: args } }),
+  }, true);
+  const result = ran.result ?? {};
+  if (result.isError) throw new Error(sanitizeErrorText(String((result.structuredContent as { message?: string } | undefined)?.message ?? result.content?.[0]?.text ?? ''), failureWords.refused));
+  return result.structuredContent;
+};
+export const files = { read: filesCall, change: filesCall };
 
 // One file by its name or any identity (the door's find_file: {identity, media_type, byte_length, names, aliases, ...}).
 export const readFileLookup = <T>(ref: string) => files.read('find_file', { name_or_identity: ref }) as Promise<T>;
