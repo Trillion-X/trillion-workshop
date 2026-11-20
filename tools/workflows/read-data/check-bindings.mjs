@@ -294,7 +294,7 @@ export function wordOnly(step) {
  * (run after withCorrections):
  *   - S#model asks tool:ask-a-model (job do-a-task-step: the computer's own models, an answer as one JSON object) with
  *     S's words, its answer shape and the values S is handed; S's incoming edges now reach S#model.
- *   - S#parse reads that answer as JSON, and S#parse#checks judges it: each field the shape requires is present, and
+ *   - S#parse reads the object in that answer as JSON (a fence or words around it are left out), and S#parse#checks judges it: each field the shape requires is present, and
  *     S's own rules hold.
  *   - When the model does not answer, its answer is not JSON or the checks refuse it, S is asked as it is today (with
  *     its own checks and correction round); when they hold, S is never asked.
@@ -322,10 +322,12 @@ export function withModelFirst(definition) {
     const said = { $kind: 'binding', select: { from: 'literal', value: 0 }, resolve_nested_bindings: true,
       transform: [op('concat', { values: [`${words}\n\nInput:\n`, ...values, '}'] })] };
     const ask = { id: model, kind: 'ask', config: { name: MODEL_TOOL, input: { job: MODEL_JOB, messages: [
-      { role: 'system', content: `Do the task. Answer with one JSON object only, matching this JSON schema: ${JSON.stringify(submit ?? { type: 'object' })}` },
+      { role: 'system', content: `Do the task. Answer with one JSON object only: an object holding the fields this JSON schema describes, never the schema itself. ${JSON.stringify(submit ?? { type: 'object' })}` },
       { role: 'user', content: said },
     ] }, context: { step_id: model, title: `${context.title ?? subject}: asked of this computer's own model first`, model_first_for: subject } } };
-    const read = { id: parse, kind: 'return', config: { value: binding({ from: 'steps', key: model, path: 'output.choices.0.message.content' }, [op('json_parse')]) } };
+    // The object in the reply, also when a model wraps it in a fence or words.
+    const read = { id: parse, kind: 'return', config: { value: binding({ from: 'steps', key: model, path: 'output.choices.0.message.content' },
+      [op('regex_extract', { pattern: '(?s)\\{.*\\}' }), op('first'), op('json_parse')]) } };
     const required = Array.isArray(submit?.required) ? submit.required : [];
     const rules = [
       ...(required.length ? [{ kind: 'fields-present', path: ['this'], fields: required, says: 'The answer has every field its shape requires' }] : []),

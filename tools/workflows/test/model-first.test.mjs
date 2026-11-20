@@ -62,8 +62,15 @@ test('a model answer that holds goes straight on, and the ask is never put to an
   assert.deepEqual(done.waiting[0].input.items.map(item => item.id), ['apples', 'pears', 'plums']);
 });
 
+test('an answer in a fence or with words around it is read as the object in it', async () => {
+  const fenced = await run(compiled().definition, { ...read, 'list#model': said(`Here you go:\n\`\`\`json\n${JSON.stringify(items('a', 'b', 'c'))}\n\`\`\``) });
+  assert.deepEqual(fenced.waiting.map(item => item.step_id), ['use']);
+  assert.deepEqual(fenced.waiting[0].input.items.map(item => item.id), ['a', 'b', 'c']);
+});
+
 test('a model answer that is refused, not JSON or short of a field makes the ask the task it is today', async () => {
-  for (const content of [JSON.stringify(items('apples', 'apples', 'apples')), 'Here are the items: apples, pears', JSON.stringify({ list: ['apples'] }), null]) {
+  const schema = JSON.stringify({ type: 'object', required: ['items'], properties: { items: 'apples, pears and plums' } });
+  for (const content of [JSON.stringify(items('apples', 'apples', 'apples')), 'Here are the items: apples, pears', JSON.stringify({ list: ['apples'] }), `\`\`\`json\n${schema}\n\`\`\``, null]) {
     const fallen = await run(compiled().definition, { ...read, 'list#model': content === null ? { error: 'No model on this computer answered.' } : said(content) });
     assert.deepEqual(fallen.waiting.map(item => item.step_id), ['list'], String(content));
   }
