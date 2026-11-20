@@ -19,7 +19,10 @@ export function mountSettingsScreen(element: HTMLElement, props: { surfaceInput?
   const items: Item[] = data.groups.flatMap(group => group.items);
   const pages = items.filter(item => !item.action);
   const requested = props.surfaceInput?.page;
-  const initial = pages.some(item => item.id === requested) ? String(requested) : data.default;
+  // The page opened first is the one asked for, else the DATA default, else the first page: a default that names an item
+  // leaving Settings (Account, once it became the sign-in tool's page) never opens an empty panel.
+  const isPage = (id: unknown) => pages.some(item => item.id === id);
+  const initial = isPage(requested) ? String(requested) : isPage(data.default) ? data.default : pages[0]!.id;
   const leave = (item: Item) => { if (item.action === 'navigate' && item.href) window.location.assign(item.href); };
   // Asked for `alone` (an address's query, `?page=menubar&alone=1`, as the Mac menu bar panel opens its own settings),
   // the page is drawn by itself, with no rail and no shell.

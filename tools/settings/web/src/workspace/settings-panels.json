@@ -6,7 +6,7 @@
     "previous": "Previous",
     "next": "Next"
   },
-  "default": "account",
+  "default": "appearance",
   "groups": [
     {
       "id": "personal",
