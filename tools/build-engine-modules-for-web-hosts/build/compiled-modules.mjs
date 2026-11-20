@@ -1,7 +1,7 @@
 import { withSharedCargoTargetLock } from './shared-cargo-target.mjs';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -221,7 +221,24 @@ export function compiledModuleFiles() {
   });
 }
 
-/** Source identity and required files must both be current. Failed/partial builds refuse. */
+/** The BLAKE3 of each compiled file in `folder` (the published one by default), by its path below it, as fingerprint.json
+ *  records them (`files`). */
+export async function compiledFileIdentities(folder = BUILT_CRATES_FOLDER) {
+  const { readFileSync } = await import('node:fs');
+  const { blake3 } = await import('@noble/hashes/blake3.js');
+  const { bytesToHex } = await import('@noble/hashes/utils.js');
+  return Object.fromEntries(compiledModuleFiles().map(file => relative(BUILT_CRATES_FOLDER, file))
+    .map(file => [file, bytesToHex(blake3(readFileSync(join(folder, file))))]));
+}
+
+/** Whether a crate workspace the modules are built from lies outside this Workshop and is not beside it (a Workshop
+ *  exported alone, as a computer's apply runs it): then its sources cannot be read here. */
+const siblingAway = crateDirs => crateDirs.some(dir => dir.startsWith('../') && !existsSync(join(TOOLS, dirname(dir))));
+
+/** Source identity and required files must both be current. Failed/partial builds refuse. Where a sibling crate workspace
+ *  is not beside this Workshop, the sources cannot be read, so the modules are admitted by their own bytes instead: each
+ *  file's BLAKE3 must be the one the build recorded where both repositories were, when it matched them to their sources.
+ *  A byte that differs, or a record with no file identities, is refused. */
 async function currentCommittedModules(expectedCrateDirs = null, expectedSourceFiles = null) {
   const { readFileSync, statSync } = await import('node:fs');
   let built;
@@ -232,8 +249,16 @@ async function currentCommittedModules(expectedCrateDirs = null, expectedSourceF
   const sourceFiles = Object.hasOwn(built, 'source_files') ? built.source_files : [];
   if (!Array.isArray(sourceFiles) || sourceFiles.some(file => typeof file !== 'string') || new Set(sourceFiles).size !== sourceFiles.length ||
       expectedSourceFiles !== null && (!Array.isArray(expectedSourceFiles) || expectedSourceFiles.some(file => typeof file !== 'string') || JSON.stringify([...sourceFiles].sort()) !== JSON.stringify([...expectedSourceFiles].sort()))) return null;
-  try { if (await crateSourceFingerprint(built.crate_dirs, sourceFiles, built.workspace_commits ?? {}) !== built.fingerprint) return null; }
-  catch { return null; }
+  if (siblingAway(built.crate_dirs)) {
+    const recorded = built.files;
+    if (!recorded || typeof recorded !== 'object' || Array.isArray(recorded)) return null;
+    let now;
+    try { now = await compiledFileIdentities(); } catch { return null; }
+    if (JSON.stringify(Object.entries(now).sort()) !== JSON.stringify(Object.entries(recorded).sort())) return null;
+  } else {
+    try { if (await crateSourceFingerprint(built.crate_dirs, sourceFiles, built.workspace_commits ?? {}) !== built.fingerprint) return null; }
+    catch { return null; }
+  }
   if (!compiledModuleFiles().every(file => {
     try { return statSync(file).isFile(); } catch { return false; }
   })) return null;
@@ -341,6 +366,11 @@ export async function withCommittedModules(read) {
   });
   let result = await attempt();
   if (result.current) return result.value;
+  // Where a sibling crate workspace is not beside this Workshop nothing here can build the modules again: refused bytes stop.
+  const recorded = (() => { try { return JSON.parse(readFileSync(`${BUILT_CRATES_FOLDER}/fingerprint.json`, 'utf8')); } catch { return null; } })();
+  if (Array.isArray(recorded?.crate_dirs) && siblingAway(recorded.crate_dirs)) {
+    throw new Error(`The compiled modules in ${BUILT_CRATES_FOLDER} are not the bytes their fingerprint.json records, and their crates are not beside this Workshop to build them again. Build them where both repositories are (node ${BUILD_COMMAND}) and land the result.`);
+  }
   if (process.env.WORKERS_CI) {
     process.stderr.write(`\nBUILD STOPPED: a compiled module is missing or its crate sources changed, and ${BUILT_CRATES_FOLDER} was not rebuilt. Run node ${BUILD_COMMAND} and commit ${BUILT_CRATES_FOLDER}.\n`);
     process.exit(1);

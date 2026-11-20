@@ -100,7 +100,9 @@ const pageBuild = (extraEntries = {}, extraPlugins = [], write = true) => build(
   absWorkingDir: root,
   // The screen view an AI app draws (src/workspace/screen-view.tsx) is an entry of the same build, so it mounts the very
   // screens the page does, from the same files.
-  entryPoints: { workspace: 'src/workspace/main.tsx', 'screen-view': 'src/workspace/screen-view.tsx', ...extraEntries },
+  // The signed-in workspace as files any computer serves (src/workspace/account-workspace.ts) is an entry of the same
+  // build too, so it mounts the same screens from the same files.
+  entryPoints: { workspace: 'src/workspace/main.tsx', 'screen-view': 'src/workspace/screen-view.tsx', 'account-workspace': 'src/workspace/account-workspace.ts', ...extraEntries },
   // Each screen main.tsx fetches with import() becomes its own file; code two screens share becomes a file both fetch.
   bundle: true, format: 'esm', splitting: true, platform: 'browser', target: 'es2022', minify: true, jsx: 'automatic',
   outdir: named, entryNames: '[name]-[hash]', chunkNames: '[name]-[hash]', assetNames: '[name]-[hash]', publicPath: PUBLIC_NAMED,
@@ -298,6 +300,31 @@ writeFileSync(join(out, 'files.json'), `${JSON.stringify({
   screens: screenFiles,
   import_map: screenImportMap,
 }, null, 2)}\n`);
+// The page of the signed-in workspace any computer serves as files (src/workspace/account-workspace.ts): /workspace and its
+// sign-in callback are the same page. Its client document (CIMD, src/workspace/account-pass.json) names the page's own
+// origin, so it is written for the origin the build is given (WORKSPACE_ORIGIN, the public name a front door serves it at);
+// a build given none writes no client document, and that page cannot sign in. The page's name is the site's own
+// (WORKSPACE_NAME, from the brand row of the site that serves it), else its host name.
+const accountOutput = Object.entries(bundled.metafile.outputs).find(([, output]) => output.entryPoint === 'src/workspace/account-workspace.ts');
+const accountFiles = [...staticClosure(accountOutput[0])].filter(file => file !== accountOutput[0]).map(addressOf);
+const siteOrigin = process.env.WORKSPACE_ORIGIN ? new URL(process.env.WORKSPACE_ORIGIN).origin : null;
+const siteName = process.env.WORKSPACE_NAME || (siteOrigin ? new URL(siteOrigin).hostname : '');
+const escapeHtml = text => text.replace(/[&<>"]/g, mark => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[mark]);
+const accountPage = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(siteName)}</title>`
+  + `<link rel="stylesheet" href="${PUBLIC_NAMED}${stylesheetName}"><script type="importmap">${JSON.stringify(screenImportMap)}</script>`
+  + accountFiles.map(file => `<link rel="modulepreload" href="${file}">`).join('')
+  + `</head><body><script type="module" src="${addressOf(accountOutput[0])}"></script></body></html>\n`;
+const accountPass = JSON.parse(readFileSync(join(root, 'src/workspace/account-pass.json'), 'utf8'));
+writeFileSync(resolve(out, '..', `${accountPass.home.slice(1)}.html`), accountPage);
+writeFileSync(resolve(out, '..', `${accountPass.callback.slice(1)}.html`), accountPage);
+if (siteOrigin) {
+  const origin = siteOrigin;
+  writeFileSync(resolve(out, '..', accountPass.client_document.slice(1)), `${JSON.stringify({
+    client_id: `${origin}${accountPass.client_document}`, client_name: siteName, client_uri: origin,
+    redirect_uris: [`${origin}${accountPass.callback}`], grant_types: ['authorization_code', 'refresh_token'], response_types: ['code'],
+    token_endpoint_auth_method: 'none', scope: accountPass.scope,
+  }, null, 2)}\n`);
+}
 // Each screen module's bundle, for the deploy to keep in the namespace and name in its tool's row (scripts/tool-bundles.mjs).
 writeScreenModules(resolve(out, '..', '..'), toolScreens.modules);
 // The faces the looks name (fonts.css), served beside the stylesheet; fonts.css itself too, so a page drawn by the

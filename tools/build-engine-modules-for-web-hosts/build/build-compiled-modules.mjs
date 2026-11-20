@@ -20,7 +20,7 @@ import { execFileSync } from 'node:child_process';
 import { copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { crateWorkspaces, withCrateBuilds, workspaceOf } from './build-crate-for-a-web-host.mjs';
-import { BUILT_CRATES_FOLDER, COMPILED_MODULES, ENGINE_COMPONENTS, PAGE_COMPILED_MODULES, TOOLS, WORKSHOP, committedModulesCurrent, crateSourceFingerprint, recoverCompiledModulePublication } from './compiled-modules.mjs';
+import { BUILT_CRATES_FOLDER, COMPILED_MODULES, ENGINE_COMPONENTS, PAGE_COMPILED_MODULES, TOOLS, WORKSHOP, committedModulesCurrent, compiledFileIdentities, crateSourceFingerprint, recoverCompiledModulePublication } from './compiled-modules.mjs';
 
 // One existing target ownership scope covers source validation, every crate and
 // publication. A caller that waited for an identical build rechecks only after
@@ -110,7 +110,9 @@ await withCrateBuilds(async builds => {
     if (await crateSourceFingerprint(crateDirs, sourceFiles, workspace_commits) !== fingerprint) {
       throw new Error('Crate sources changed during compilation; the published modules were left untouched');
     }
-    writeFileSync(join(next, 'fingerprint.json'), `${JSON.stringify({ crate_dirs: crateDirs, source_files: sourceFiles, fingerprint, workspace_commits }, null, 2)}\n`);
+    // The BLAKE3 of each file built, so a Workshop exported without the crates beside it admits these bytes and no others.
+    const files = await compiledFileIdentities(next);
+    writeFileSync(join(next, 'fingerprint.json'), `${JSON.stringify({ crate_dirs: crateDirs, source_files: sourceFiles, fingerprint, workspace_commits, files }, null, 2)}\n`);
     const hadPrevious = existsSync(BUILT_CRATES_FOLDER);
     // Write recovery facts before retiring the current tree. Process exit at
     // either rename leaves enough information for the ordinary next owner.

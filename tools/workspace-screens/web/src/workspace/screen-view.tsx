@@ -64,7 +64,7 @@ import { screens } from './screen-mounts';
 import { installScreenRunner, mountScreen } from './screen-runner';
 import { preserveScreenInputs } from './lazy-screen';
 import { focusedSurfaceHost } from '../../../../ui/show/focused-surface-host/focused-surface-host.mjs';
-import { mountWorkspace, openScreens, type Workspace } from './mount-workspace';
+import { mountWorkspace, newWorkspaceRoot, openScreens, type Workspace } from './mount-workspace';
 import surfaces from './surfaces.json';
 import { answerTargets } from './targets';
 import { installResourcePresentationHost, requestResourcePresentationHost } from './resource-presentation-host.mjs';
@@ -377,8 +377,7 @@ function openWhole(screen: Asked) {
   if (whole) { if (wanted.length) openScreens(wanted); fit(); return; }
   frame.dataset.whole = 'true';
   host.dataset.trillionScreen = 'workspace';
-  const root = document.createElement('div');
-  root.className = 'trillion-workspace';
+  const root = newWorkspaceRoot();
   workspaceRoot = root;
   host.append(root);
   whole = mountWorkspace(root, offered, { catalogComplete: catalog?.state().complete ?? false });

@@ -48,7 +48,7 @@ type Entry = { key: string; kind: 'kept' | 'screen'; screen: string; input: Reco
 type Pick = { entry: Entry; score: number; matched: [number, number][] };
 type Ranked = { text: string; picks: Pick[] };
 type Memory = { shown: Pick | null; challenger: { key: string; wins: number } | null; forced: string | null };
-type Described = { descriptor: { input_schema?: ToolInputSchema; screen?: { inputs?: Record<string, { choices?: { value: string; label: string }[] }> } } };
+type Described = { input_schema?: ToolInputSchema; screen?: { inputs?: Record<string, { choices?: { value: string; label: string }[] }> } };
 
 const settings = INSTANT_SCREENS;
 const NONE: Record<string, unknown> = {};
@@ -118,8 +118,8 @@ function useFilled(pick: Pick | null, row: OfferedScreen | undefined, typed: str
   const kept = React.useMemo(() => filledInputs(pick?.entry.input ?? {}), [pick?.entry.input]);
   const parsed = React.useMemo(() => {
     if (!pick || !described) return {};
-    const choices = Object.fromEntries(Object.entries(described.descriptor.screen?.inputs ?? {}).map(([name, shown]) => [name, shown?.choices ?? []]));
-    return fillInputs(described.descriptor.input_schema, typed, { used: pick.matched, choices }).values as Record<string, unknown>;
+    const choices = Object.fromEntries(Object.entries(described.screen?.inputs ?? {}).map(([name, shown]) => [name, shown?.choices ?? []]));
+    return fillInputs(described.input_schema, typed, { used: pick.matched, choices }).values as Record<string, unknown>;
   }, [pick, described, typed]);
   const [provided, setProvided] = React.useState<{ key: string; words: string; values: Record<string, unknown> } | null>(null);
   const sequence = React.useRef(0);
@@ -129,7 +129,7 @@ function useFilled(pick: Pick | null, row: OfferedScreen | undefined, typed: str
   React.useEffect(() => {
     const id = ++sequence.current;
     const provider = settings.fill.provider as string | null;
-    const schema = described?.descriptor.input_schema;
+    const schema = described?.input_schema;
     const unfilled = Object.keys(schema?.properties ?? {}).filter(name => !(name in parsed));
     if (!provider || !schema || !unfilled.length) return undefined;
     const abort = new AbortController();

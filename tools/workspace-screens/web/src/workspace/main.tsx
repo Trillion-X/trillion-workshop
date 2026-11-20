@@ -56,7 +56,7 @@ import { publishQuitQuestion } from './quit-question';
 import { failedState } from './failure';
 import { screens } from './screen-mounts';
 import { goTo } from './open-screen';
-import { mountWorkspace, openScreens, openSurface } from './mount-workspace';
+import { mountWorkspace, newWorkspaceRoot, openScreens, openSurface } from './mount-workspace';
 import { installScreenRunner, type Around } from './screen-runner';
 import surfaces, { screenOpenedEvent } from './screens.mjs';
 import { replaceWorkspaceAddress, screenAt, screensAtAddress } from './addresses.mjs';
@@ -219,8 +219,7 @@ async function start() {
   const mountPersonalHold = holdModule ? (beneath: HTMLElement) => holdModule.mountNeedsYouHold(beneath, initialHold) : undefined;
   const alone = aloneRow(offered, location.pathname, location.search);
   if (alone) { dropOpeningNote(); await startAlone(alone, offered, mountPersonalHold); return; }
-  const root = document.createElement('div');
-  root.className = 'trillion-workspace';
+  const root = newWorkspaceRoot();
   root.hidden = Boolean(initialHold);
   dropOpeningNote();
   // The tours (src/workspace/walkthroughs/*.json) run over every screen; their host draws nothing until one starts.

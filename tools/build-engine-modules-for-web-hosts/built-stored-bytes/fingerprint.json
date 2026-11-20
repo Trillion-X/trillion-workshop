@@ -21,8 +21,20 @@
     "workflows/crates/workflow-engine"
   ],
   "source_files": [],
-  "fingerprint": "6525fab6c6d8e9f867f04f4739c8f7720901e33c9715cd1a0dbcb223f534d478",
+  "fingerprint": "b5654460be5530448ec470efe591d46eec0e0a731b5bd49ce30042c5a769ff14",
   "workspace_commits": {
     "../../trillion-rust/crates": "f622fd79433ed720dfe4203471926ae92acd5c22"
+  },
+  "files": {
+    "held-values/http_client.js": "b943aae9882afe502dc46d8c135ccddb649512a49e6af0849e3428b8184ecb83",
+    "held-values/http_client_bg.wasm": "a37e3961dd4887a3030fe08a8b659f3a9f9c5d9052425c8c0b1262267758d912",
+    "workflow-engine/workflow_engine.js": "49ff0519f8a92f4e2c417b531befbe5c556700fe8d9c5eff013aa95fbce18e8f",
+    "workflow-engine/workflow_engine_bg.wasm": "6d2b3a73753ed62ad84b91f659da1f71b563d5d457460d525eb38756f5b71590",
+    "screen-arrangement/screen_arrangement.js": "fdba8dd41246d911f133d038775ae1a564d22dac551e6ba54db757bdc3e1e573",
+    "screen-arrangement/screen_arrangement_bg.wasm": "fe021c7de8ab0c6db1c8c9256b92e921f1cff8a9a7c261cdae6c0a6c09835ead",
+    "composition-engine/composition_engine.wasm": "2728e0cf7c9baef044932d6064c811136d6ba0df7b681e310d4305d997003762",
+    "composition-engine/composition_engine.js": "e77c96be89e4b4c3286febf0c83952300200a89b103b953153c773ae41c462f4",
+    "composition-engine/composition_engine_bg.wasm": "ce250548a051749897f86484997e59e0663438cf79325b4ae9dca3626c076d1c",
+    "workflow-component/workflow_component.wasm": "cb621c0aba6c1509541c3a8611abc2778aa6a0d8e0fc052b937ab942c3236c3a"
   }
 }

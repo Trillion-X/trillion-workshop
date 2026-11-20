@@ -11,7 +11,7 @@
 //   GET /work/api/workshop/tool/<id>    one tool: its card, what it does, what it needs, and its runs
 //   GET /work/api/workshop/run/<id>     one run: its state, its result as labelled lines, its files, what was said
 //   POST /work/api/workshop/run/<id>/result  keep the signed-in person's outcome report ({ result, summary, request_key })
-//   GET /work/api/workshop/describe/<id>  one tool's whole descriptor, which its own screen is drawn from
+//   a tool's whole descriptor, which its own screen is drawn from, is the door's tools:list of that tool (tool-screen-requests.mjs)
 //   GET /work/api/workshop/for-thing?type=&name=&carries=  what a thing's ⋯ menu and a file's card offer: every tool
 //                                           this person can use whose screen marks an input as taking a file of that
 //                                           kind, every screen that opens on one, and every tool whose required inputs

@@ -1,0 +1,6 @@
+{
+  "_what": "The account's one door as this page reaches it (account-door.ts): the MCP route on this page's own origin and its one tool. An address of the door's own form, `form`, is one call of that tool; any other address was a retired Worker's route and is answered as no owner (api.ts failure_code no-owner).",
+  "route": "/mcp",
+  "tool": "do_one_thing_in_my_account",
+  "form": "/work/api/door/"
+}

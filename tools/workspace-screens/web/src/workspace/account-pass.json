@@ -1,0 +1,13 @@
+{
+  "_what": "How this page gets its pass to the account's one door (account-pass.ts): the sign-in tool's OAuth code flow with PKCE, this page being the client its own client document names (CIMD; scripts/build-workspace.mjs writes the document at `client_document` for each origin it is built for). `scope` is the words the page asks for, each one the authorization server offers. `kept` is the sessionStorage name the code verifier and the state wait under across the one redirect. `renew_before_ms`: a pass that ends sooner than this is renewed before a call.",
+  "authorize": "/api/auth/oauth2/authorize",
+  "token": "/api/auth/oauth2/token",
+  "client_document": "/workspace/client.json",
+  "callback": "/workspace/callback",
+  "home": "/workspace",
+  "resource": "/mcp",
+  "scope": "openid profile email offline_access tools:list tools:*",
+  "kept": "workspace-sign-in",
+  "renew_before_ms": 30000,
+  "refused": "Signing in did not finish. Sign in again."
+}

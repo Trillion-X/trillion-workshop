@@ -31,7 +31,8 @@ export function useLookRule(place: string | null = null): string | null {
   const rules = useMemo(() => readLookRules(record), [record]);
   const [filter, setFilter] = useState<Filter | null>(null);
   const [turn, setTurn] = useState(0);
-  useEffect(() => { void loadRowFilterNow().then(setFilter).catch(error => console.error('Look rules could not load', error)); }, []);
+  // A function handed to a state setter is called as an updater, so the filter is set through one that returns it.
+  useEffect(() => { void loadRowFilterNow().then(next => setFilter(() => next)).catch(error => console.error('Look rules could not load', error)); }, []);
   const facts = useMemo(() => readPageLookFacts(place), [place]);
   const answer = useMemo(() => {
     if (!filter || !rules.length) return null;

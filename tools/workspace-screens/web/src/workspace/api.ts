@@ -73,7 +73,7 @@ export class PlanNeeded extends Error {
  *  for that answer instead of asking; an answer the page ends without is asked for. After the opening, or once the page
  *  has sent any change, they are gone and every read asks the Worker again, except the reads of the item the address
  *  names, each kept until its screen reads it (or a change is sent). */
-type PageAnswer = { status: number; body: unknown; next_before?: string; collection_coverage?: Record<string, unknown> };
+export type PageAnswer = { status: number; body: unknown; next_before?: string; collection_coverage?: Record<string, unknown> };
 const OPENING_MS = 3000;
 let pageAnswers: Map<string, Promise<PageAnswer | undefined>> | null = null;
 /** The copies the page brought beside its answers (`data-page-copy`, src/first-answers-copy.mjs): kept at the edge from
@@ -152,7 +152,16 @@ function heldFingerprint(path: string): string | null {
 }
 const heldHeader = (path: string): Record<string, string> => { const have = heldFingerprint(path); return have ? { [readFingerprint.request_header]: have } : {}; };
 
+/** Where a page no Worker serves has its reads answered (account-workspace.ts mounts the account's one door,
+ *  account-door.ts). Mounted once at the page's entry; a request that never reached it is refused in plain words. */
+let pageDoor: ((path: string, init: RequestInit) => Promise<PageAnswer>) | null = null;
+export function setPageDoor(door: (path: string, init: RequestInit) => Promise<PageAnswer>): void { pageDoor = door; }
+
 async function fetchAnswer(path: string, init: RequestInit): Promise<PageAnswer> {
+  if (pageDoor) return pageDoor(path, init).catch((error: unknown) => {
+    if ((error as { name?: string } | null)?.name === 'AbortError') throw error;
+    throw Object.assign(new TypeError(failureWords.unreached), { status: 0, unreached: true });
+  });
   // Every read carries the viewer's time zone, so a screen that shows times shows them in the person's own zone
   // without its address naming it (an address with no zone in it can be read ahead and kept).
   const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;

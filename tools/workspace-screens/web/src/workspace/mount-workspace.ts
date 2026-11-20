@@ -72,6 +72,14 @@ export type Workspace = {
   reoffer(offered: Row[], options?: { catalogComplete?: boolean }): void;
 };
 
+/** The element a whole workspace is drawn into, with the class workspace.css lays it out by: one owner for every host
+ *  (the signed-in page, an AI app's view, the page any computer serves). */
+export function newWorkspaceRoot(): HTMLDivElement {
+  const root = document.createElement('div');
+  root.className = 'trillion-workspace';
+  return root;
+}
+
 /** Draws the whole workspace into `root` for the screens `offered` (offered-screens.ts, already started as records). */
 export function mountWorkspace(root: HTMLElement, offered: Row[], options: { catalogComplete?: boolean } = {}): Workspace {
   // The catalog arrives in pages. A saved row never offered here is unknown until all sources answer; a row

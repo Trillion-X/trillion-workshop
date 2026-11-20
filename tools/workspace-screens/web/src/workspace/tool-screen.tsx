@@ -287,9 +287,9 @@ export function mountToolScreen(element: HTMLElement, props: Props, screens: Rec
   // when the store describes it differently.
   let path = toolScreenRequest(id, props.surfaceInput, 'describe').path;
   // A company tool is described through its current grant, never a personal fallback.
-  const draw = (read: Promise<{ descriptor: Descriptor }>) => {
+  const draw = (read: Promise<Descriptor>) => {
     const thisRead = ++readNumber;
-    return read.then(async ({ descriptor }) => {
+    return read.then(async descriptor => {
       if (gone || thisRead !== readNumber) return;
       let resolvedProps = latestProps;
       let nextSavedInput = savedInput;
@@ -310,7 +310,7 @@ export function mountToolScreen(element: HTMLElement, props: Props, screens: Rec
       if (signature === shownDescriptor) { openingUpdatedScreen = false; unmount.pending?.(null); return; }
       if (shownDescriptor && shownScreenKind === 'module' && !openingUpdatedScreen) {
         unmount.pending?.({ title: 'This saved screen has changed', description: 'Your work is still here. Finish it before opening the updated screen.', action: {
-          label: 'Open updated screen', run: () => { openingUpdatedScreen = true; void draw(readJson<{ descriptor: Descriptor }>(path)); },
+          label: 'Open updated screen', run: () => { openingUpdatedScreen = true; void draw(readJson<Descriptor>(path)); },
         } });
         return;
       }
@@ -330,7 +330,7 @@ export function mountToolScreen(element: HTMLElement, props: Props, screens: Rec
       openingUpdatedScreen = false;
       if (shownDescriptor && shownScreenKind === 'module' && !error?.upgrade_needed && ![401, 403, 404, 410].includes(error?.status)) {
         unmount.pending?.({ title: 'Could not check this saved screen', description: 'Your work is still here. Try again when the connection is available.', action: {
-          label: 'Try again', run: () => { void draw(readJson<{ descriptor: Descriptor }>(path)); },
+          label: 'Try again', run: () => { void draw(readJson<Descriptor>(path)); },
         } });
         return;
       }
@@ -338,15 +338,15 @@ export function mountToolScreen(element: HTMLElement, props: Props, screens: Rec
       shownScreenKind = '';
       savedInput = {};
       unmount();
-      mountScreenState(element, failedState(error, () => { mountScreenState(element, { status: 'loading', label: 'Loading the tool', layout: 'rows' }); draw(readJson<{ descriptor: Descriptor }>(path)); }, 'The tool could not open'));
+      mountScreenState(element, failedState(error, () => { mountScreenState(element, { status: 'loading', label: 'Loading the tool', layout: 'rows' }); draw(readJson<Descriptor>(path)); }, 'The tool could not open'));
       unmount = letGo(element);
     });
   };
-  draw(readWithKeptAnswers(() => readJson<{ descriptor: Descriptor }>(path)));
-  const replaced = onKeptAnswerReplaced(changed => { if (changed === path) draw(readJson<{ descriptor: Descriptor }>(path)); });
+  draw(readWithKeptAnswers(() => readJson<Descriptor>(path)));
+  const replaced = onKeptAnswerReplaced(changed => { if (changed === path) draw(readJson<Descriptor>(path)); });
   // Save, publish, and removal may happen in another tab or through an AI. The account's live revision makes this
   // exact descriptor read current while the tool remains open; stale reads cannot repaint a newer version.
-  const changed = onStoreChange(() => draw(readJson<{ descriptor: Descriptor }>(path)));
+  const changed = onStoreChange(() => draw(readJson<Descriptor>(path)));
   const dispose: Unmount = () => { gone = true; changed(); replaced(); unmount(); };
   dispose.update = next => {
     const changedInputs = !sameInput(latestProps.surfaceInput, next.surfaceInput);
@@ -365,7 +365,7 @@ export function mountToolScreen(element: HTMLElement, props: Props, screens: Rec
       unmount();
       mountScreenState(element, { status: 'loading', label: 'Loading the tool', layout: 'rows' });
       unmount = letGo(element);
-      draw(readJson<{ descriptor: Descriptor }>(path));
+      draw(readJson<Descriptor>(path));
       return;
     }
     const { screen_context_id: _contextId, ...given } = next.surfaceInput ?? {};
