@@ -335,10 +335,6 @@ export const auth = betterAuth({
       // The scopes a client may ask for and the /mcp resource allows (settings DATA); the resource row follows the settings.
       ...(settings.mcp.scopes ? { scopes: settings.mcp.scopes } : {}),
       ...(settings.mcp.resource_scopes ? { resources: [{ identifier: settings.mcp.resource, allowedScopes: settings.mcp.resource_scopes }], resourceSeedMode: 'merge' } : {}),
-      // An MCP client that brings no Client ID Metadata Document registers itself (RFC 7591, the MCP authorization spec's other road) when the
-      // settings open registration (settings.mcp.open_registration): the client is only named by it; every person still signs in and
-      // consents to it, and the consent page shows it as an app it does not know. Closed when the settings leave it out.
-      ...(settings.mcp.open_registration ? { allowDynamicClientRegistration: true, allowUnauthenticatedClientRegistration: true } : {}),
       // How long an AI's access token stands (settings.mcp.access_token_seconds): also how long a person taken out of a team is still admitted by the pass they hold.
       ...(settings.mcp.access_token_seconds ? { accessTokenExpiresIn: settings.mcp.access_token_seconds } : {}),
       // The person's email and whether it is verified (OIDC's `email`, `email_verified`), so a door can tell a proven inbox from a typed one, and the ids of their teams.
