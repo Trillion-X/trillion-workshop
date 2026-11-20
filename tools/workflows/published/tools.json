@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:c49676dcd0b55155d142a9a2fd2e5e17e8a3898f708c3e9664329f66c9c2aa36"
+  "blake3": "1f:e868052dfb7992c2311fdd92cbe0b99229b2479736f105f7cef3756bc0e3533b"
  },
  "fields": [
   {
@@ -6681,25 +6681,6 @@
      "placement:small-container"
     ],
     "folder": "practice-and-review"
-   }
-  },
-  {
-   "id": "tool:list-what-my-ais-did",
-   "values": {
-    "title": "List what my AIs did",
-    "job": "Turn the tool calls an AI made on a person's account into the activity rows the AI activity screen lists: what it did, the item it made or touched, whether it worked and why not, newest first",
-    "description": "Give calls ([{ tool, at, input?, result?, error?, app?, description? }]), one tool call each in the order they happened. Each becomes the row activity.mjs's activityRow makes from activity-marks.json (a call whose tool has no mark leaves a row only with an execution receipt or work it was done for), is read through recordableActivityRow and keptActivityRow (access, the person's access names, decides which linked ids are kept), and is kept with keepActivity in an in-memory SQLite database laid out by activityTable. Then readActivity reads them back newest first (read: { limit?, app?, failed? }). Answers kept, left (each call that left no row, and why), items (seq, at, app, tool, label, item, title, uses, for, ok, reason), next_before and coverage. Nothing is kept after the run, no file is written and nothing is sent. Refuses no calls, more than 50 calls, and a call without a tool or an at. The screen also traces one item through the calls that made and used it and draws each app by its sign-in picture; this run does neither.",
-    "status": "active",
-    "maker": "maker:see-what-my-ais-did",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "listed_on": "2026-11-04T00:00:00Z",
-    "folder": "see-what-my-ais-did",
-    "flags": [
-     "read-only"
-    ]
    }
   },
   {
