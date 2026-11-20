@@ -49,9 +49,11 @@ impl Reader for Files {
     }
 }
 
+/// The route's numbers for a test, with the shipped settings' types by name ending (settings.json `share_bytes.types_by_ending`).
 fn config(window_bytes: u64) -> Config {
+    let shipped: Value = serde_json::from_str(include_str!("../settings.json")).unwrap();
     serde_json::from_value(json!({"_what": "t", "listen": "127.0.0.1:1", "window_bytes": window_bytes, "recheck_seconds": 0,
-        "inline_types": ["video/", "application/pdf"]})).unwrap()
+        "inline_types": ["video/", "application/pdf", "text/html"], "types_by_ending": shipped["share_bytes"]["types_by_ending"]})).unwrap()
 }
 
 struct Served {
@@ -379,4 +381,30 @@ fn the_route_listens_on_a_unix_socket_a_front_door_sends_a_names_requests_to() {
     let at = answer.windows(4).position(|w| w == b"\r\n\r\n").unwrap();
     assert!(answer.starts_with(b"HTTP/1.1 206"), "{}", String::from_utf8_lossy(&answer[..at]));
     assert_eq!(&answer[at + 4..], &bytes[100..200]);
+}
+
+/// A file whose stored type says nothing (a camera's `C9066.MP4` brought in from the old index as `application/octet-stream`) is served
+/// as its name's ending says, shown in the browser; a stored type with parameters (`text/html; charset=utf-8`) is served whole and shown
+/// as its bare type says, under a sandbox that runs no script; a name no ending names stays a download of `application/octet-stream`.
+#[test]
+fn a_share_is_served_as_its_stored_type_says_else_as_its_name_ends() {
+    let cases = [
+        ("/Recordings/C9066.MP4", "application/octet-stream", "video/mp4", "inline"),
+        ("/Recordings/C9067.mov", "", "video/quicktime", "inline"),
+        ("/Shared/page.html", "text/html; charset=utf-8", "text/html; charset=utf-8", "inline"),
+        ("/Shared/notes.mp4", "text/plain", "text/plain", "attachment"),
+        ("/Shared/blob.qqq", "application/octet-stream", "application/octet-stream", "attachment"),
+        ("/Shared/bad.mp4", "video/mp4\r\nX-Injected: 1", "video/mp4", "inline"),
+    ];
+    for (name, stored, served_as, shown) in cases {
+        let (mut files, _, _) = account_files();
+        write(&mut files, name, &pattern(64));
+        let served = serve(files, name, stored, 1024);
+        let answer = ask(&served, "GET", &own(&served), None);
+        assert_eq!(answer.status, 200, "{name}");
+        assert_eq!(answer.headers["content-type"], served_as, "{name} stored as {stored:?}");
+        assert!(answer.headers["content-disposition"].starts_with(shown), "{name}: {:?}", answer.headers["content-disposition"]);
+        assert!(answer.headers["content-security-policy"].starts_with("sandbox;"), "{name}");
+        assert!(!answer.headers.contains_key("x-injected"), "{name}");
+    }
 }

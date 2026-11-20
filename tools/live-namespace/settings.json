@@ -37,7 +37,7 @@
     }
   ],
   "share_bytes": {
-    "_what": "The public byte route of a share (`serve-shares`, src/share_bytes): `listen` is the loopback address it answers on (a front door's route for /share/* reaches it); `window_bytes` the most one read of the store answers a body with (a body is read a window at a time, so memory holds one window); `recheck_seconds` how often a long body reads the person's share again, so a share stopped mid-play ends the body; `inline_types` the media types shown in the browser (a whole type, or a prefix ending in a slash), every other is offered as a download.",
+    "_what": "The public byte route of a share (`serve-shares`, src/share_bytes): `listen` is the loopback address it answers on (a front door's route for /share/* reaches it); `window_bytes` the most one read of the store answers a body with (a body is read a window at a time, so memory holds one window); `recheck_seconds` how often a long body reads the person's share again, so a share stopped mid-play ends the body; `inline_types` the media types shown in the browser (a whole type, or a prefix ending in a slash), every other is offered as a download (a page shows under a sandbox that runs no script); `types_by_ending` the media type of a file whose stored type says nothing (none, or application/octet-stream), by the ending of its name.",
     "listen": "127.0.0.1:7421",
     "window_bytes": 1048576,
     "recheck_seconds": 5,
@@ -48,7 +48,32 @@
       "image/jpeg",
       "image/gif",
       "image/webp",
-      "application/pdf"
-    ]
+      "application/pdf",
+      "text/plain",
+      "text/html"
+    ],
+    "types_by_ending": {
+      ".mp4": "video/mp4",
+      ".m4v": "video/mp4",
+      ".mov": "video/quicktime",
+      ".webm": "video/webm",
+      ".mkv": "video/x-matroska",
+      ".mp3": "audio/mpeg",
+      ".m4a": "audio/mp4",
+      ".wav": "audio/wav",
+      ".aac": "audio/aac",
+      ".ogg": "audio/ogg",
+      ".flac": "audio/flac",
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".png": "image/png",
+      ".gif": "image/gif",
+      ".webp": "image/webp",
+      ".heic": "image/heic",
+      ".pdf": "application/pdf",
+      ".txt": "text/plain",
+      ".html": "text/html",
+      ".htm": "text/html"
+    }
   }
 }

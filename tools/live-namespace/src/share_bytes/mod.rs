@@ -24,8 +24,12 @@
 // - `router`: the axum router over both; `admit`: the whole decision about one request.
 //
 // Security Considerations:
-// - Content is served `no-store`, `nosniff` and under `sandbox`; only the media types `inline_types` names display in the browser, every
-//   other is an attachment, so a shared page can never run on the person's own address.
+// - Content is served `no-store`, `nosniff` and under `sandbox` (no script, an origin of its own); only the media types `inline_types`
+//   names display in the browser, every other is an attachment. A shared page that displays (`text/html` in `inline_types`) can show
+//   its words, its own styles and the images and media of the same address, and can never run on the person's own address.
+// - The media type a share is served as is its file's stored type, without its parameters for the inline decision. A stored type that
+//   says nothing (none, or `application/octet-stream`, as files brought in from the old index or from a camera often carry) is read
+//   from the name's ending through `types_by_ending` (DATA); a name it does not know stays `application/octet-stream`.
 //
 // AI Assistant Directive:
 // The extensive documentation in this codebase is a critical design feature.
@@ -42,7 +46,7 @@ use axum::{
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 use serde_json::Value;
-use std::{sync::Arc, time::{Duration, Instant}};
+use std::{collections::BTreeMap, sync::Arc, time::{Duration, Instant}};
 
 /// The kind of a share row (`account_files::FILE_SHARE_KIND`).
 pub use crate::account_files::FILE_SHARE_KIND;
@@ -67,6 +71,10 @@ pub struct Config {
     pub recheck_seconds: u64,
     /// The media types (a whole type, or a prefix ending in `/`) shown in the browser; every other is offered as a download.
     pub inline_types: Vec<String>,
+    /// The media type of a file whose stored type says nothing, by the ending of its name (`.mp4` → `video/mp4`), matched without
+    /// regard to case. Absent, no type is read from a name.
+    #[serde(default)]
+    pub types_by_ending: BTreeMap<String, String>,
 }
 
 impl Config {
@@ -88,7 +96,30 @@ impl Config {
         if self.inline_types.iter().any(|kind| kind.is_empty() || kind.chars().any(|c| c.is_control() || c.is_whitespace())) {
             return Err("an inline type is plain text with no space");
         }
+        if self.types_by_ending.iter().any(|(ending, kind)| {
+            !ending.starts_with('.') || ending.len() < 2 || ending.chars().any(|c| c.is_control() || c.is_whitespace() || c == '/')
+                || !plain_type(kind)
+        }) {
+            return Err("a type by ending maps a name ending such as .mp4 to a plain media type such as video/mp4");
+        }
         Ok(())
+    }
+
+    /// The media type a file named `name` and stored as `stored` is served as: the stored type when it says something (its whole
+    /// value, and its type without parameters for the inline decision), else the type of the name's ending, else
+    /// `application/octet-stream`. Answers (the header value, the bare type).
+    pub fn served_type(&self, name: &str, stored: &str) -> (String, String) {
+        const UNKNOWN: &str = "application/octet-stream";
+        let bare = stored.split(';').next().unwrap_or_default().trim().to_ascii_lowercase();
+        if plain_type(&bare) && bare != UNKNOWN {
+            let whole = if stored.chars().all(|c| c.is_ascii() && !c.is_ascii_control()) { stored.trim().to_owned() } else { bare.clone() };
+            return (whole, bare);
+        }
+        let leaf = name.rsplit('/').next().unwrap_or_default().to_ascii_lowercase();
+        let named = self.types_by_ending.iter().filter(|(ending, _)| leaf.ends_with(&ending.to_ascii_lowercase()))
+            .max_by_key(|(ending, _)| ending.len()).map(|(_, kind)| kind.to_ascii_lowercase());
+        let bare = named.unwrap_or_else(|| UNKNOWN.to_owned());
+        (bare.clone(), bare)
     }
 }
 
@@ -272,8 +303,8 @@ async fn serve(State(route): State<Arc<Route>>, Path((id, key)): Path<(String, S
         }
     };
     let size = if length == 0 { 0 } else { to - from + 1 };
-    let media_type = if plain_type(&file.media_type) { file.media_type.as_str() } else { "application/octet-stream" };
-    let inline = route.config.inline_types.iter().any(|kind| if kind.ends_with('/') { media_type.starts_with(kind.as_str()) } else { media_type == kind });
+    let (header_type, media_type) = route.config.served_type(&file.name, &file.media_type);
+    let inline = route.config.inline_types.iter().any(|kind| if kind.ends_with('/') { media_type.starts_with(kind.as_str()) } else { media_type == *kind });
     let mut response = Response::new(if size == 0 {
         Body::empty()
     } else {
@@ -286,12 +317,13 @@ async fn serve(State(route): State<Arc<Route>>, Path((id, key)): Path<(String, S
             out.insert(name, value);
         }
     };
-    put(header::CONTENT_TYPE, media_type.to_owned());
+    put(header::CONTENT_TYPE, header_type);
     put(header::CONTENT_LENGTH, size.to_string());
     put(header::ACCEPT_RANGES, "bytes".into());
     put(header::CACHE_CONTROL, "no-store".into());
     put(header::X_CONTENT_TYPE_OPTIONS, "nosniff".into());
-    put(header::CONTENT_SECURITY_POLICY, "sandbox; default-src 'none'; media-src 'self'".into());
+    // A shared page shows its own styles and the images and media of this address; the sandbox lets no script run.
+    put(header::CONTENT_SECURITY_POLICY, "sandbox; default-src 'none'; media-src 'self'; img-src 'self' data:; style-src 'unsafe-inline'".into());
     put(header::CONTENT_DISPOSITION, format!("{}; filename=\"{}\"", if inline { "inline" } else { "attachment" }, download_name(&file.name)));
     if status == StatusCode::PARTIAL_CONTENT {
         put(header::CONTENT_RANGE, format!("bytes {from}-{to}/{length}"));

@@ -63,8 +63,10 @@ address the share opens at) and is refused without it. Nothing else is needed: n
 
 `live-namespace serve-shares --state FOLDER` (`src/share_bytes`, `src/serve/shares.rs`) answers `GET` and `HEAD` at `/share/<id>/<key>` on the
 loopback address `settings.json` `share_bytes.listen` names: the file's bytes, whole (200) or by one byte range (206; `bytes=a-b`, `a-`, `-n`; 416
-past the end), `Accept-Ranges`, `Content-Range`, the file's media type, `Cache-Control: no-store`, `nosniff`, a `sandbox` content policy, and
-`inline` only for the types `inline_types` names (every other is a download). On every request it reads the one share row with one `get` of the person's own store, and serves only when the row's `key_blake3` is the BLAKE3
+past the end), `Accept-Ranges`, `Content-Range`, the file's media type, `Cache-Control: no-store`, `nosniff`, a `sandbox` content policy (no
+script runs; a page shows its own styles and the images and media of the same address), and `inline` only for the types `inline_types` names
+(every other is a download). The media type is the file's stored type (its bare type decides `inline`); a stored type that says nothing (none,
+or `application/octet-stream`, as camera files from the old index carry) is read from the name's ending through `share_bytes.types_by_ending`. On every request it reads the one share row with one `get` of the person's own store, and serves only when the row's `key_blake3` is the BLAKE3
 of the key (compared in constant time), it is published, not revoked, not expired and lets `view`; a long body reads the row again each
 `recheck_seconds`. Nothing about a share is cached, so a share stopped with `stop_share` refuses the next request. Every refusal of a key, id or share
 is the same 404; a store that does not answer is 503. Bytes are read a
@@ -120,7 +122,7 @@ shares).
 | `src/host/tool_runs.rs` | The computer under the program, for the usage counts' pending file. |
 | `tests/account_files_common/mod.rs` | The account files over rows and a byte port in memory. |
 | `tests/account_files_folder.rs`, `store_changes.rs`, `rows_in_both/` | What a native folder asks (changes, items, compare-and-set, pins, make_folder, bounds, thumbnails) and the store's change order, each in SQLite and in a real Postgres the tests start. |
-| `tests/share_bytes.rs` | The route over a real loopback socket: whole, ranges, 416, HEAD, a file in several pieces, every refusal the same 404, a share stopped between two requests. |
+| `tests/share_bytes.rs` | The route over a real loopback socket: whole, ranges, 416, HEAD, a file in several pieces, every refusal the same 404, a share stopped between two requests, the type a share is served as (stored, else by its name's ending). |
 | `tests/account_files_release.rs`, `account_files_results.rs`, `account_files_route.rs`, `account_files_share.rs` | The moved tests of release, results, the tool contract and shares. |
 
 ## Key Types / Functions
