@@ -1,7 +1,7 @@
 // tools/run-work-later-or-on-a-repeat/do-work/timed-action-in-a-page.mjs
 //
-// Purpose: the Rust timed-action engine for a bundle with no Node (a page, a classic-script view, a Worker). The
-// Workshop's package.json `browser` field answers every browser bundle's import of ./timed-action.mjs (which reads the
+// Purpose: the Rust timed-action engine for a bundle with no Node (a page, a classic-script view, a Worker). This
+// folder's package.json `browser` field answers every browser bundle's import of ./timed-action.mjs (which reads the
 // bytes from disk) with this file, so a module a page and a computer share calls the same engine in both.
 //
 // Non-Negotiable Invariants:

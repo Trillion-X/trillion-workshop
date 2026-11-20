@@ -3,7 +3,8 @@
 // Purpose: the Rust timed-action engine (../crates/timed-action, built into ../built-stored-bytes/timed-action) loaded
 // once for a Node tool or test, and every engine function handed out as it is. Each function takes one object (the
 // request shapes are in ../crates/timed-action/README.md) and answers a plain value; a refusal is thrown with the
-// engine's words. A page loads the same module itself (tools/workspace-screens/web/src/workspace/timed-action-in-the-page.ts).
+// engine's words. A browser bundle (a page, a classic-script view, a Worker) gets ./timed-action-in-a-page.mjs instead:
+// this folder's package.json `browser` field says so, and it travels with any copy of tools/.
 //
 // Non-Negotiable Invariants:
 //   1. This file decides nothing: it loads the engine and re-exports it.

@@ -11,7 +11,7 @@ Scheduled work as DATA: recurring schedules in any IANA time zone (daylight-savi
 | `kits/when-to-run-next.json`, `kits/plan-recurring-windows.json` | Their kits, drafted by `tools/workflows/read-data/draft-a-kit.mjs` from each row and its real sample answer. |
 | `crates/timed-action/` | The engine, in Rust: wall time in a named zone (`timeZoneName`, `instantAt`, `wallTimeOf` and the civil date steps), recurring windows, one-off due actions, fleet spread, quiet hours, zone drift and the scheduled-action writes. Its zones are jiff's bundled tz database (2026e), so every computer and page answers the same. See its README for each request's shape. |
 | `built-stored-bytes/` | The engine built two ways: `timed-action/` (the wasm-bindgen module pages and Node tools call) and `component/timed-action.wasm` (the WASI component the tool rows run). Regenerate with `tools/build-engine-modules-for-web-hosts/build/build-timed-action.mjs`; never edit. |
-| `do-work/timed-action.mjs` | The engine loaded once for a Node tool or test, every function re-exported. A page loads it with `tools/workspace-screens/web/src/workspace/timed-action-in-the-page.mjs` instead (the page build swaps it in). |
+| `do-work/timed-action.mjs` | The engine loaded once for a Node tool or test, every function re-exported. A browser bundle gets `do-work/timed-action-in-a-page.mjs` instead (the bytes ride in the bundle), by the `browser` field of `do-work/package.json`. |
 | `do-work/quiet-hours.json` | Quiet-hours modes (DATA, read into the engine at build time and by the pages that name a mode). |
 | `test/` | The TypeScript-era tests, run against the engine through `do-work/timed-action.mjs` with the same assertions. |
 

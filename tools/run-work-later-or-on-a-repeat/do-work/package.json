@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "browser": {
+    "./timed-action.mjs": "./timed-action-in-a-page.mjs"
+  }
+}

@@ -22,9 +22,6 @@
     "./test-helpers/import-source-for-tests.mjs": "./test-helpers/import-source-for-tests.mjs",
     "./test-helpers/sign-in-methods.json": "./test-helpers/sign-in-methods.json"
   },
-  "browser": {
-    "./tools/run-work-later-or-on-a-repeat/do-work/timed-action.mjs": "./tools/run-work-later-or-on-a-repeat/do-work/timed-action-in-a-page.mjs"
-  },
   "files": [
     "tools",
     "licence-classes.json",
