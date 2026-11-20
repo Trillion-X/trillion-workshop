@@ -985,7 +985,7 @@ export function accountCaller(origin, key, { backoff_seconds = readSettings().bu
   call.resource = async (address, method, input, request_key = randomUUID()) => {
     const message = { jsonrpc: '2.0', id: request_key, method: 'tools/call', params: { name: 'do_one_thing_in_my_account', arguments: { address, method, input, request_key } } };
     for (let attempt = 0; ; attempt += 1) {
-      const response = await send(`${origin.replace(/\/$/, '')}/mcp`, { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json', authorization: `Bearer ${key}` }, body: JSON.stringify(message) });
+      const response = await send(`${origin.replace(/\/$/, '')}/mcp`, { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream', authorization: `Bearer ${key}` }, body: JSON.stringify(message) });
       const reply = await response.json().catch(() => null);
       if (!response.ok || reply?.error) {
         const after = Number(response.headers.get('retry-after') ?? NaN);
