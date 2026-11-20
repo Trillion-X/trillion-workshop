@@ -3,8 +3,8 @@
   "retry": "Try again",
   "reload": "Reload page",
   "reasons": {
-    "unreached": { "why": "Trillion could not be reached", "then": "Check your connection, then try again." },
-    "replaced": { "why": "Trillion was updated", "then": "Save your work, then reload the page to open this." },
+    "unreached": { "why": "The site could not be reached", "then": "Check your connection, then try again." },
+    "replaced": { "why": "This page was updated", "then": "Save your work, then reload the page to open this." },
     "stuck": { "why": "Some of this page's code did not arrive", "then": "Save your work, then reload the page to fetch it." },
     "broken": { "why": "This code stopped while starting", "then": "Save your work, then reload the page to fetch it anew." }
   }

@@ -4,26 +4,29 @@
 // With `choices`, the host offers several sets of work (pursuits, teams): their list is asked of `choices.url`
 // ([{ id, label }], in the host's order), the page draws them as one control above Now and History (with `every`, one
 // more choice that means all of them), the chosen ids are kept in the address (?<param>=) and every data ask names them
-// (dataUrl?<param>=a,b). What a choice means is the host's: this file names no pursuit.
+// (dataUrl?<param>=a,b). What a choice means is the host's: this file names no pursuit. `ask` is how the host asks one of
+// those addresses (its text, or a refusal); by default a same-origin fetch. A host that answers through calls passes its own.
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { Data } from '../read-data/task-rows';
 import { TaskPage, type Choice } from './task-page';
 
 export type Choices = { url: string; param: string; ariaLabel: string; every?: string };
-export type TaskPageProps = { dataUrl: string; intervalMs?: number; seenKey?: string; choices?: Choices };
+export type Ask = (url: string) => Promise<string>;
+export type TaskPageProps = { dataUrl: string; intervalMs?: number; seenKey?: string; choices?: Choices; ask?: Ask };
 const EVERY = '*';
 
 const DEFAULT_INTERVAL_MS = 5000;
 const DEFAULT_SEEN_KEY = 'task-page-last-seen-change';
+const fetchText: Ask = url => fetch(url, { cache: 'no-store', credentials: 'same-origin' }).then(reply => (reply.ok ? reply.text() : Promise.reject(new Error(String(reply.status)))));
 
-function Live({ dataUrl, intervalMs, seenKey, choices }: Required<Omit<TaskPageProps, 'choices'>> & { choices?: Choices }) {
+function Live({ dataUrl, intervalMs, seenKey, choices, ask }: Required<Omit<TaskPageProps, 'choices'>> & { choices?: Choices }) {
   const [data, setData] = useState<Data | null>(null);
   const [items, setItems] = useState<{ id: string; label: string }[] | null>(choices ? null : []);
   const [chosen, setChosen] = useState(() => (choices ? new URLSearchParams(location.search).get(choices.param) ?? '' : ''));
   useEffect(() => {
     if (!choices) return;
-    fetch(choices.url, { cache: 'no-store', credentials: 'same-origin' }).then(reply => reply.json()).then(setItems).catch(() => setItems([]));
+    ask(choices.url).then(text => setItems(JSON.parse(text))).catch(() => setItems([]));
   }, [choices?.url]);
   const ids = items?.map(item => item.id) ?? [];
   const value = chosen === EVERY && choices?.every ? EVERY : ids.includes(chosen) ? chosen : ids[0] ?? '';
@@ -43,8 +46,7 @@ function Live({ dataUrl, intervalMs, seenKey, choices }: Required<Omit<TaskPageP
     let last = '';
     let timer: number | undefined;
     const read = () => {
-      fetch(asked, { cache: 'no-store', credentials: 'same-origin' })
-        .then(reply => (reply.ok ? reply.text() : Promise.reject(new Error(String(reply.status)))))
+      ask(asked)
         .then(text => { if (text === last) return; last = text; setData(JSON.parse(text)); })
         .catch(() => {});
     };
@@ -54,7 +56,7 @@ function Live({ dataUrl, intervalMs, seenKey, choices }: Required<Omit<TaskPageP
     onVisibility();
     document.addEventListener('visibilitychange', onVisibility);
     return () => { stop(); document.removeEventListener('visibilitychange', onVisibility); };
-  }, [asked, intervalMs]);
+  }, [asked, intervalMs, ask]);
   if (!data) return null;
   return data.changes.length
     ? <TaskPage key={value} data={data} seenKey={key} seenBefore={seenBefore} choice={choice} />
@@ -64,6 +66,6 @@ function Live({ dataUrl, intervalMs, seenKey, choices }: Required<Omit<TaskPageP
 export function mount(element: HTMLElement, props: TaskPageProps) {
   element.classList.add('page-view');
   const root = createRoot(element);
-  root.render(<Live dataUrl={props.dataUrl} intervalMs={props.intervalMs ?? DEFAULT_INTERVAL_MS} seenKey={props.seenKey ?? DEFAULT_SEEN_KEY} choices={props.choices} />);
+  root.render(<Live dataUrl={props.dataUrl} intervalMs={props.intervalMs ?? DEFAULT_INTERVAL_MS} seenKey={props.seenKey ?? DEFAULT_SEEN_KEY} choices={props.choices} ask={props.ask ?? fetchText} />);
   return () => root.unmount();
 }

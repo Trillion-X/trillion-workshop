@@ -13,10 +13,10 @@
 import React from 'react';
 import { accountKey } from '../page-storage/page-storage';
 
-const STORAGE = (key: string) => `trillion.choice.${key}`;
-/** The cookie a server page reads a remembered choice from (src/ask-your-ai.mjs reads `trillion_choice_ai`). */
-export const choiceCookie = (key: string) => `trillion_choice_${key}`;
-const CHANGED = 'trillion:remembered-choice';
+const STORAGE = (key: string) => `choice.${key}`;
+/** The cookie a server page reads a remembered choice from (src/ask-your-ai.mjs reads `choice_ai`). */
+export const choiceCookie = (key: string) => `choice_${key}`;
+const CHANGED = 'remembered-choice';
 const YEAR_SECONDS = 365 * 24 * 60 * 60;
 const held = new Map<string, string>();
 

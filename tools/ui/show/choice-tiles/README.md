@@ -7,7 +7,7 @@ choice remembered across every place that offers it.
 |---|---|
 | `ChoiceTiles.tsx` | Equal bordered tiles in a wrapping grid, each a logo or icon and a name, the chosen one ringed; as a tablist (the guide's "Pick the AI you use") or as buttons. A tile may copy its words when picked and say Copied on itself. |
 | `OpenChoice.tsx` | A button that opens the remembered choice's address in a new tab ("Ask Claude"), a small button beside it to choose another; before any choice it opens the tiles. A choice whose address takes no words copies them first. |
-| `remembered-choice.ts` | The choice kept in this browser's storage and in a cookie a server page reads (`trillion_choice_<key>`); one event keeps every place on the page current. |
+| `remembered-choice.ts` | The choice kept in this browser's storage and in a cookie a server page reads (`choice_<key>`); one event keeps every place on the page current. |
 | `index.ts` | Public barrel. |
 
 | Name | Signature / Shape | Role |

@@ -1,7 +1,7 @@
 //
 // NO PRIOR: searched tools/ui/show for words that change while a wait runs ("press-work" says one pending label for
 // as long as the work runs, "loading-mark" draws the needle and thread with no words, "screen-state" says a screen's
-// loading label only to a screen reader, "live-check" says when Trillion last looked at one thing); none says that a
+// loading label only to a screen reader, "live-check" says when the page last looked at one thing); none says that a
 // long wait is still going, how long it has been, or that it was asked again.
 //
 // PURPOSE
@@ -29,7 +29,7 @@ export type StillWorkingStep = { after_seconds: number; words: string };
 export type StillWorkingWords = { steps: StillWorkingStep[]; again: string };
 
 /** The window event a road sends when it asks again by itself (a busy answer sent again). */
-export const ASKED_AGAIN_EVENT = 'trillion:asked-again';
+export const ASKED_AGAIN_EVENT = 'asked-again';
 
 let chosen: StillWorkingWords | null = null;
 

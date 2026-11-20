@@ -11,7 +11,7 @@
 // place that failure mode is handled — never inline the fallback literal again.
 //
 // A defined token can fail the same way: a look whose --glass-bg-popover equals its
-// page colour draws a popover that reads as having no background (Trillion's own
+// page colour draws a popover that reads as having no background (the shared
 // looks did until 2026-10-01). That case is caught per look by
 // test/floating-surfaces-stand-apart.test.mjs; tooltips wear the look's ink instead
 // (Card variant `tooltip`).

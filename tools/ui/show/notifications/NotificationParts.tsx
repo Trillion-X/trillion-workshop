@@ -10,7 +10,7 @@
 // a ring on the tile while it runs); and its own buttons, except the action that
 // is the row's own press, which makes the whole row open it. The stacked toast and the notification center both
 // draw it, so a notification reads the same everywhere and the same way as every
-// other thing Trillion shows at a glance.
+// other thing the page shows at a glance.
 //
 // NON-NEGOTIABLE INVARIANTS
 // 1. Kind -> icon/tone and tone -> glance tone are DATA (notification-kinds.json

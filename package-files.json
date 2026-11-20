@@ -3315,6 +3315,7 @@
    "paths": [
     "read-data/hear-here.mjs",
     "read-data/hear-link-flow.mjs",
+    "read-data/hear-with-programs.mjs",
     "read-data/read-link-captions.mjs"
    ],
    "at": "/opt/audio-transcription"
@@ -4699,6 +4700,7 @@
    "paths": [
     "read-data/hear-here.mjs",
     "read-data/hear-link-flow.mjs",
+    "read-data/hear-with-programs.mjs",
     "read-data/read-link-captions.mjs"
    ],
    "at": "/opt/audio-transcription"
@@ -20556,6 +20558,16 @@
    "at": "/opt/what-runs-on-its-own"
   }
  ],
+ "tool:list-my-connected-accounts": [
+  {
+   "package": "composio-connection",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/composio-connection"
+  }
+ ],
  "tool:list-my-conversations-newest-first": [
   {
    "package": "messages-screen",
@@ -25342,6 +25354,7 @@
    "paths": [
     "read-data/hear-here.mjs",
     "read-data/hear-link-flow.mjs",
+    "read-data/hear-with-programs.mjs",
     "read-data/read-link-captions.mjs"
    ],
    "at": "/opt/audio-transcription"
@@ -26006,6 +26019,7 @@
   {
    "package": "bring-in-new-items-from-this-computer",
    "paths": [
+    "computer/connections/imessage.mjs",
     "computer/connections/incoming-items.mjs",
     "computer/connections/whatsapp.mjs"
    ],
@@ -43377,6 +43391,101 @@
   }
  ],
  "tool:send-to-a-webhook": [],
+ "tool:serve-the-task-pages": [
+  {
+   "package": "see-what-is-being-worked-on",
+   "paths": [
+    "task-page/do-work/serve-task-pages.mjs",
+    "task-page/read-data/read-task-page.mjs"
+   ],
+   "at": "/opt/see-what-is-being-worked-on"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  }
+ ],
  "tool:set-a-customer-target": [
   {
    "package": "customer-follow-up",
@@ -50541,15 +50650,5 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": [],
- "tool:list-my-connected-accounts": [
-  {
-   "package": "composio-connection",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/composio-connection"
-  }
- ]
+ "tool:your-files-names": []
 }

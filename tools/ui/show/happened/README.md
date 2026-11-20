@@ -11,7 +11,7 @@ The one channel a screen uses to say that something happened for the person; any
 
 | Function | Signature | Role |
 |---|---|---|
-| `HAPPENED_EVENT` | `'trillion:happened'` | The window event name. |
+| `HAPPENED_EVENT` | `'happened'` | The window event name. |
 | `sayHappened` | `(detail: { event_kind: string, ...fields }) → void` | Fire and forget. |
 | `onHappened` | `(listen) → stop` | Listen to every happened event. |
 | `observeHandling` | `(root?) → stop` | Say what the person's hands did anywhere under `root`. |

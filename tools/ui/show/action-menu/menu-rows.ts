@@ -30,7 +30,7 @@ export interface MenuRowSource {
   act(thing: MenuThing, id: string): Promise<string | void> | string | void;
 }
 
-const GLOBAL_KEY = '__trillionMenuRows';
+const GLOBAL_KEY = '__menuRows';
 type Shared = { source: MenuRowSource | null; listeners: Set<() => void> };
 function shared(): Shared {
   const scope = globalThis as unknown as Record<string, Shared | undefined>;

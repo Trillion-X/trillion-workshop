@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:6e634221f03d91f52e77a2e6a9fb991385d39bb7b04468ea804cf6be53378836"
+  "blake3": "1f:e5e8c1ff25b1469e278f14753fc76d432e6eedb205b891ae0e30600d45f13f5d"
  },
  "fields": [
   {
@@ -12494,6 +12494,22 @@
     ],
     "listed_on": "2026-10-20T00:00:00Z",
     "folder": "send-to-a-place"
+   }
+  },
+  {
+   "id": "tool:serve-the-task-pages",
+   "values": {
+    "title": "Serve my task pages on this computer",
+    "job": "Show my pursuits' task pages on this computer, read from their own databases each time the page asks",
+    "description": "A kept session this computer's own door serves as a page on its loopback address (invoke.pages: the page folder, task-page/pages, built by task-page/do-work/build-served-page.mjs). The page signs the person in with their own sign-in and calls this session through the door: `pursuits` {dbs, pages_database} answers [{id, label}], the rows of task_pages (pursuit, label, database, tables, place) whose database the session holds; `data` {dbs, pages_database, p} answers those pursuits' task pages joined (the task page's own read-only SELECT, read-data/read-task-page.mjs). Start input dbs is [{database}]: each database's login is handed by name for the owner alone (secret_name_from_database), element i on descriptor 3 + i, and each is opened once and kept. Nothing is written, copied or kept; the page's address names the databases (?dbs=a,b&pages=a).",
+    "status": "active",
+    "maker": "maker:see-what-is-being-worked-on",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-19T00:00:00Z",
+    "folder": "see-what-is-being-worked-on"
    }
   },
   {

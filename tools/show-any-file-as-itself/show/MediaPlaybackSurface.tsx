@@ -18,7 +18,7 @@ import type { MediaEmbedControl, MediaSourceRecord } from '../read-data/read-med
 import { privateObjectControl, privateObjectView } from '../read-data/private-object-request';
 import type { PrivateObjectCopy, PrivateObjectReply } from '../read-data/private-object-request';
 
-/** The one play mark every player in Trillion draws over a still or a paused picture: a frosted dark disc with a white
+/** The one play mark every player draws over a still or a paused picture: a frosted dark disc with a white
  *  glyph (the icon's own box is the disc), drawn the same for a browser video, an embedded one and a paused one. */
 function PlayDisc() {
   return <Play aria-hidden="true" className="pointer-events-none size-16 rounded-full [corner-shape:round] border border-white/20 bg-black/45 py-[18px] pl-[21px] pr-[15px] text-white shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-md" fill="currentColor" />;

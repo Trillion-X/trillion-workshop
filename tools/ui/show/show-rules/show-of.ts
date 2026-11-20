@@ -61,7 +61,7 @@ export interface ShowAnswerer {
 }
 
 const SHOWS: ShowAnswer = {hidden: false, silenced: false, until: null, rules: []};
-const GLOBAL_KEY = '__trillionShowAnswerer';
+const GLOBAL_KEY = '__showAnswerer';
 type SpaceMembership = { member: boolean; stamp: string };
 type Shared = {answerer: ShowAnswerer | null; listeners: Set<() => void>; spaceMembershipListeners: Set<() => void>; verifiedSpaceMembers: Map<string, Set<SpaceMembership>>};
 type AuthenticatedSpaceContext = { space_id: string; members: { you?: boolean; role?: string | null }[]; member_types?: { id: string; inherits?: string[] }[] };

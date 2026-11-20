@@ -8,7 +8,7 @@
 //   1. CSS and SVG only; no script runs per frame. The motion is screen-look's loading-mark.css.
 //   2. It never flashes: it appears only once the wait has lasted about 300 ms.
 //   3. Reduced motion shows the stitched thread and the needle standing still.
-//   4. Its colours are the look's roles: the thread is the accent (the logo's red on the Trillion look), the needle is
+//   4. Its colours are the look's roles: the thread is the accent (the logo's red on the default look), the needle is
 //      the text colour, so it reads on paper and on midnight alike.
 //
 // PROVENANCE

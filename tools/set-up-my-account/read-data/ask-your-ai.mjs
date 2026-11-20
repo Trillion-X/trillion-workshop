@@ -21,7 +21,7 @@ import { logoOf } from './site-icon-url.mjs';
 /** The name the person's chosen AI app is remembered under (tools/ui/show/ai-picker remembered choice), and the cookie
  *  a server page reads it from. */
 export const CHOSEN_AI = 'ai';
-export const CHOSEN_AI_COOKIE = 'trillion_choice_ai';
+export const CHOSEN_AI_COOKIE = 'choice_ai';
 
 /** What opening one app holds and where it goes: when connecting, the app's own `connect_words` (a terminal app is
  *  given its add line, not the general message; `fill` fills it), and its address with the words in it, or its bare address with the words to copy when the app's

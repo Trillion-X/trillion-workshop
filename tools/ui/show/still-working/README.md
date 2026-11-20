@@ -19,7 +19,7 @@ A long wait says it is still working, in words that change as time passes, and s
 | `chooseStillWorkingWords` | `(words: StillWorkingWords \| null) => void` | The owner chooses the words once as the page starts; with none, nothing extra is said. |
 | `stillWorkingAt` | `(label, seconds, tries, words?) => string \| null` | What a wait says now, or null while its own words stand. |
 | `sayAskedAgain` / `onAskedAgain` | `({ path?, attempt }) => void` / `(listen) => stop` | A road that sends a busy answer again says so; every running wait counts it. |
-| `ASKED_AGAIN_EVENT` | `'trillion:asked-again'` | The window event. |
+| `ASKED_AGAIN_EVENT` | `'asked-again'` | The window event. |
 | `useStillWorking` | `(running: boolean, label: string) => string \| null` | The React hook the pressed button and the loading rows use. |
 
 ## Dependencies

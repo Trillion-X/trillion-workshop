@@ -14,7 +14,7 @@
 // or removing it.
 
 /** The window event every happened event travels on. */
-export const HAPPENED_EVENT = 'trillion:happened';
+export const HAPPENED_EVENT = 'happened';
 
 /** Something that happened: its kind and whatever fields describe it. */
 export type Happened = { event_kind: string } & Record<string, unknown>;

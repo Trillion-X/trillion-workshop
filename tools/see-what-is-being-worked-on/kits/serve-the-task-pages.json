@@ -1,0 +1,63 @@
+{
+  "start_here": "Say to your AI: \"Show my task pages on this computer\". It opens http://127.0.0.1:<this computer's door port>/pages/tool:serve-the-task-pages/index.html?dbs=<the database whose task_pages names your pursuits>,<each pursuit's database>&pages=<the first>, you sign in once with your own sign-in, and the page shows Now and History for the pursuits you pick, read from their databases each time it asks.",
+  "lists": [],
+  "no_lists_because": "It reads your databases' task tables (task_pages and each pursuit's calendar_tasks, task_changes, task_statuses, task_shows, task_facts, task_fact_kinds) and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:serve-the-task-pages"
+  ],
+  "instructions": [
+    "1. Each pursuit with a task page is a row of task_pages (pursuit, label, database, tables, place) in one of your databases.",
+    "2. Open the page at this computer's door: /pages/tool:serve-the-task-pages/index.html?dbs=<names>&pages=<the task_pages database>. The door serves it on its loopback address only.",
+    "3. Sign in when it asks; the page then calls this tool through the door (do_one_thing_in_my_account, method tools:run, with call pursuits or data and input {dbs}) every few seconds while its tab is visible."
+  ],
+  "worked_examples": [
+    {
+      "title": "The pursuits that have a page",
+      "ask": "Which pursuits have a task page?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:serve-the-task-pages",
+            "input": {
+              "dbs": [
+                {
+                  "database": "pages_db"
+                },
+                {
+                  "database": "bakery_db"
+                }
+              ]
+            },
+            "call": {
+              "name": "pursuits",
+              "arguments": {
+                "dbs": [
+                  {
+                    "database": "pages_db"
+                  },
+                  {
+                    "database": "bakery_db"
+                  }
+                ],
+                "pages_database": "pages_db"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "It answered {\"items\":[{\"id\":\"bakery\",\"label\":\"The bakery\"}]}: the one task_pages row in pages_db whose database (bakery_db) this session holds.",
+      "answers": {
+        "items": [
+          {
+            "id": "bakery",
+            "label": "The bakery"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -15,7 +15,7 @@
 //   (whenOnline), and Try again asks at once.
 // - The file is asked again first. Only when that ask fails is its address checked without the browser's copy (HEAD,
 //   no-store), so a page that may not make that check (a frame that blocks fetch) still heals: gone (404 or 410)
-//   means a newer Trillion replaced it, which no retry mends, so the answer is `replaced`.
+//   means a newer release replaced it, which no retry mends, so the answer is `replaced`.
 // - Code that arrived and then failed while running is `broken`, and so is a module without the value `pick` takes:
 //   asking again cannot change it.
 // - A failure the page cannot mend in place is `stuck`: only reloading the page fetches it again. That is a file the

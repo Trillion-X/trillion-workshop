@@ -29,4 +29,4 @@ Moved byte for byte from the web client (`moved-from.json` names each file's sou
 
 ## Task page
 
-`task-page/` draws a pursuit's task page (Now and History) from that pursuit's own task tables, read on each request by `readTaskPage(runSql)`; its mount is `task-page/show/mount-task-page.tsx`. See `task-page/README.md`.
+`task-page/` draws a pursuit's task page (Now and History) from that pursuit's own task tables, read on each request by `readTaskPage(runSql)`; its mount is `task-page/show/mount-task-page.tsx`. `tool:serve-the-task-pages` shows those pages on this computer: a kept session the door serves as a page on its loopback address, signed in with the person's own sign-in. See `task-page/README.md`.
