@@ -7,7 +7,7 @@
 // conditions keep which parts. Nothing here names a workflow, a branch or a tag: a workflow added, or a kit installed,
 // is a candidate at once.
 //
-//   chooseTheWorkflowsThatFire({ parts, own?: [{ id, value: { recipe?, title, fires_when, definition? } }], operators?, within?, installed? })
+//   chooseTheWorkflowsThatFire({ parts, own?: [{ id, value: { recipe?, title, fires_when, definition? } }], operators?, within?, installed?, over_installed? })
 //     -> { workflows, own, catalog_only, chosen: [{ workflow, label, part, condition, made_by, from, input, definition? }],
 //          unfinished: [{ workflow, condition, incomplete }], unconditioned: [{ workflow, label }], unmatched_parts,
 //          within: [{ workflow, part, condition }] }
@@ -17,7 +17,8 @@
 // named in within instead of being dropped unseen.
 //
 // installed: false leaves the installed recipes out, and with them every own row whose id an installed recipe holds: the
-// candidates are only the person's rows that exist nowhere else (while another caller still chooses the installed ones).
+// candidates are only the person's rows that exist nowhere else (while another caller still chooses the installed ones),
+// and the ids over_installed lists, whose own rows are candidates even though an installed recipe holds them too.
 // A chosen own row that carries its definition hands it on, so whoever starts the run starts it from the row.
 //
 // A condition that is Off, unfinished (a rule the engine cannot evaluate) or has no rule at all chooses nothing; the
@@ -92,14 +93,15 @@ function metKeys(condition, part, operators) {
 }
 
 export async function chooseTheWorkflowsThatFire(input = {}) {
-  const { parts, own: ownRows = [], operators, within = [], installed = true } = input;
+  const { parts, own: ownRows = [], operators, within = [], installed = true, over_installed: overInstalled = [] } = input;
   if (typeof installed !== 'boolean') throw new Error('installed must be true or false.');
+  if (!Array.isArray(overInstalled) || !overInstalled.every(id => typeof id === 'string')) throw new Error('over_installed must be a list of workflow ids.');
   if (!Array.isArray(within) || !within.every(id => typeof id === 'string')) throw new Error('within must be a list of workflow ids.');
   if (!Array.isArray(parts) || !parts.length || !parts.every(object)) throw new Error('parts must be a list of the seed\'s parts, each an object of its typed fields.');
   const shipped = catalogRecipes();
   const catalog = installed ? shipped : new Map();
   const own = ownWorkflows(ownRows);
-  if (!installed) for (const id of [...own.keys()]) if (shipped.has(id)) own.delete(id);
+  if (!installed) for (const id of [...own.keys()]) if (shipped.has(id) && !overInstalled.includes(id)) own.delete(id);
   const ids = [...new Set([...own.keys(), ...catalog.keys()])].sort();
   const matches = [], unfinished = [], unconditioned = [];
   // How many workflows hold each rule key, over every live condition: the rarer a key, the more a match on it says.

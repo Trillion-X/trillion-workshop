@@ -145,6 +145,10 @@ test('installed false leaves out the installed recipes and every own row that sh
   assert.equal(only.workflows, 1);
   assert.equal(both.chosen.find(item => item.workflow === shipped.id).definition, undefined, 'a row with no definition hands none on');
   await assert.rejects(chooseTheWorkflowsThatFire({ parts, installed: 'no' }), /installed must be true or false/);
+  const moved = await chooseTheWorkflowsThatFire({ parts, ...handedIn([mine, copy]), installed: false, over_installed: [shipped.id] });
+  assert.deepEqual(moved.chosen.map(item => item.workflow).sort(), ['workflow:greet-a-new-member', shipped.id].sort(), 'a listed id is chosen from its own row');
+  assert.equal(moved.chosen.find(item => item.workflow === shipped.id).from, 'own');
+  await assert.rejects(chooseTheWorkflowsThatFire({ parts, installed: false, over_installed: 'x' }), /over_installed must be a list/);
 });
 
 test('parts are required', async () => {

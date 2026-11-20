@@ -246,6 +246,13 @@
             "installed": {
               "type": "boolean",
               "description": "false leaves the installed recipes out, and every own row whose id an installed recipe holds: only the person's rows that exist nowhere else are candidates. Left out, true"
+            },
+            "over_installed": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "With installed false: workflow ids whose own rows are candidates even though an installed recipe holds the same id (the person's list of workflows moved to their own rows ahead of the rest)"
             }
           }
         },
