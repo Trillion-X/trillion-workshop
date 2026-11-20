@@ -137361,6 +137361,114 @@
           }
         ],
         "definition": {
+          "edges": [
+            {
+              "to": "inventory#checks",
+              "from": "inventory",
+              "kind": "always"
+            },
+            {
+              "to": "inventory#wrong",
+              "from": "inventory#checks",
+              "kind": "on_result",
+              "config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "output.held"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.array_contains",
+                    "args": {
+                      "value": false
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "to": "inventory#refused",
+              "from": "inventory#wrong",
+              "kind": "always"
+            },
+            {
+              "to": "check",
+              "from": "inventory#checks",
+              "kind": "on_result",
+              "config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "output.held"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.array_contains",
+                    "args": {
+                      "value": false
+                    }
+                  },
+                  {
+                    "op": "op:core.not"
+                  }
+                ]
+              }
+            },
+            {
+              "to": "check#checks",
+              "from": "check",
+              "kind": "always"
+            },
+            {
+              "to": "check#wrong",
+              "from": "check#checks",
+              "kind": "on_result",
+              "config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "output.held"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.array_contains",
+                    "args": {
+                      "value": false
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "to": "check#refused",
+              "from": "check#wrong",
+              "kind": "always"
+            },
+            {
+              "to": "restore",
+              "from": "check#checks",
+              "kind": "on_result",
+              "config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "output.held"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.array_contains",
+                    "args": {
+                      "value": false
+                    }
+                  },
+                  {
+                    "op": "op:core.not"
+                  }
+                ]
+              }
+            }
+          ],
           "steps": [
             {
               "id": "inventory",
@@ -137368,28 +137476,31 @@
               "config": {
                 "name": "ai",
                 "input": {
-                  "do": "If the input has old and new, use them. If it has a fact instead, read fact.after (JSON text: moves as old -> new paths, removed paths, counts). Then use the old one yourself (or read its source) and list every action, piece of information, layout and way in it offered, including what only shows on hover, selection or right-click.",
-                  "old": {
-                    "$kind": "binding",
-                    "values": [
-                      "input",
-                      "old"
-                    ]
-                  },
+                  "do": "Use the old one yourself (or read its source) and list every action, piece of information, layout and way in it offered, including what only shows on hover, selection or right-click.",
                   "new": {
                     "$kind": "binding",
-                    "values": [
-                      "input",
-                      "new"
-                    ]
+                    "select": {
+                      "from": "input",
+                      "path": "new"
+                    }
+                  },
+                  "old": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "old"
+                    }
                   },
                   "fact": {
                     "$kind": "binding",
-                    "values": [
-                      "input",
-                      "fact"
-                    ]
+                    "select": {
+                      "from": "input",
+                      "path": "fact"
+                    }
                   },
+                  "checks": [
+                    "At least three separate capabilities are listed"
+                  ],
                   "submit": {
                     "type": "object",
                     "required": [
@@ -137398,7 +137509,6 @@
                     "properties": {
                       "capabilities": {
                         "type": "array",
-                        "minItems": 3,
                         "items": {
                           "type": "object",
                           "required": [
@@ -137420,13 +137530,31 @@
                               "minLength": 3
                             }
                           }
-                        }
+                        },
+                        "minItems": 3
                       }
                     }
                   }
                 },
                 "context": {
+                  "do": "Use the old one yourself (or read its source) and list every action, piece of information, layout and way in it offered, including what only shows on hover, selection or right-click.",
+                  "flags": [
+                    "public"
+                  ],
                   "title": "List everything the old one does",
+                  "checks": [
+                    {
+                      "kind": "distinct-at-least",
+                      "path": [
+                        "this",
+                        "capabilities",
+                        "*",
+                        "id"
+                      ],
+                      "says": "At least three separate capabilities are listed",
+                      "count": 3
+                    }
+                  ],
                   "submit": {
                     "type": "object",
                     "required": [
@@ -137435,7 +137563,6 @@
                     "properties": {
                       "capabilities": {
                         "type": "array",
-                        "minItems": 3,
                         "items": {
                           "type": "object",
                           "required": [
@@ -137457,10 +137584,298 @@
                               "minLength": 3
                             }
                           }
-                        }
+                        },
+                        "minItems": 3
                       }
                     }
-                  }
+                  },
+                  "step_id": "inventory"
+                }
+              }
+            },
+            {
+              "id": "inventory#checks",
+              "kind": "return",
+              "config": {
+                "value": {
+                  "held": [
+                    {
+                      "take": "all",
+                      "$kind": "binding",
+                      "values": [
+                        "steps",
+                        "inventory",
+                        "capabilities",
+                        "*",
+                        "id"
+                      ],
+                      "transform": [
+                        {
+                          "op": "op:core.map_to_nodes",
+                          "args": {
+                            "item_var": "$v",
+                            "template": {
+                              "$kind": "binding",
+                              "select": {
+                                "key": "$v",
+                                "from": "vars"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.type_of"
+                                },
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": "string"
+                                  }
+                                },
+                                {
+                                  "op": "op:core.if",
+                                  "args": {
+                                    "else": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "key": "$v",
+                                        "from": "vars"
+                                      }
+                                    },
+                                    "then": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "key": "$v",
+                                        "from": "vars"
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.to_string"
+                                        },
+                                        {
+                                          "op": "op:core.trim"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "op": "op:core.array_unique"
+                        },
+                        {
+                          "op": "op:core.array_length"
+                        },
+                        {
+                          "op": "op:core.ge",
+                          "args": {
+                            "value": 3
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "inventory#wrong",
+              "kind": "return",
+              "config": {
+                "value": {
+                  "problems": [
+                    {
+                      "held": {
+                        "$kind": "binding",
+                        "select": {
+                          "key": "inventory#checks",
+                          "from": "steps",
+                          "path": "output.held.0"
+                        }
+                      },
+                      "says": "At least three separate capabilities are listed",
+                      "wrong": {
+                        "take": "all",
+                        "$kind": "binding",
+                        "values": [
+                          "steps",
+                          "inventory",
+                          "capabilities",
+                          "*",
+                          "id"
+                        ],
+                        "transform": [
+                          {
+                            "op": "op:core.map_to_nodes",
+                            "args": {
+                              "item_var": "$v",
+                              "template": {
+                                "$kind": "binding",
+                                "select": {
+                                  "key": "$v",
+                                  "from": "vars"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.type_of"
+                                  },
+                                  {
+                                    "op": "op:core.equals",
+                                    "args": {
+                                      "value": "string"
+                                    }
+                                  },
+                                  {
+                                    "op": "op:core.if",
+                                    "args": {
+                                      "else": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "key": "$v",
+                                          "from": "vars"
+                                        }
+                                      },
+                                      "then": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "key": "$v",
+                                          "from": "vars"
+                                        },
+                                        "transform": [
+                                          {
+                                            "op": "op:core.to_string"
+                                          },
+                                          {
+                                            "op": "op:core.trim"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "op": "op:core.array_unique"
+                          },
+                          {
+                            "op": "op:core.take",
+                            "args": {
+                              "count": 8
+                            }
+                          },
+                          {
+                            "op": "op:core.map_to_nodes",
+                            "args": {
+                              "item_var": "$value",
+                              "template": {
+                                "$kind": "binding",
+                                "select": {
+                                  "key": "$value",
+                                  "from": "vars"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.stringify",
+                                    "args": {
+                                      "format": "json"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "inventory#refused",
+              "kind": "fail",
+              "config": {
+                "error": {
+                  "$kind": "binding",
+                  "select": {
+                    "key": "inventory#wrong",
+                    "from": "steps",
+                    "path": "output.problems"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.filter_where",
+                      "args": {
+                        "predicate": [
+                          {
+                            "op": "op:core.get_path",
+                            "args": {
+                              "path": "held"
+                            }
+                          },
+                          {
+                            "op": "op:core.not"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "op": "op:core.map_to_nodes",
+                      "args": {
+                        "template": {
+                          "$kind": "binding",
+                          "select": {
+                            "key": "$item",
+                            "from": "vars"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "key": "$item",
+                                      "from": "vars",
+                                      "path": "says"
+                                    }
+                                  },
+                                  " (",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "key": "$item",
+                                      "from": "vars",
+                                      "path": "wrong"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.join",
+                                        "args": {
+                                          "delimiter": "; "
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  ")"
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "op": "op:core.join",
+                      "args": {
+                        "delimiter": "; "
+                      }
+                    }
+                  ]
                 }
               }
             },
@@ -137471,28 +137886,9 @@
                 "name": "ai",
                 "input": {
                   "do": "For each capability, try it in the new home the way a person would. Say whether it is there, missing, or worse.",
-                  "capabilities": {
-                    "$kind": "binding",
-                    "values": [
-                      "steps",
-                      "inventory",
-                      "capabilities"
-                    ]
-                  },
-                  "old": {
-                    "$kind": "binding",
-                    "values": [
-                      "input",
-                      "old"
-                    ]
-                  },
-                  "new": {
-                    "$kind": "binding",
-                    "values": [
-                      "input",
-                      "new"
-                    ]
-                  },
+                  "checks": [
+                    "Every capability was checked"
+                  ],
                   "submit": {
                     "type": "object",
                     "required": [
@@ -137501,7 +137897,6 @@
                     "properties": {
                       "checked": {
                         "type": "array",
-                        "minItems": 1,
                         "items": {
                           "type": "object",
                           "required": [
@@ -137509,25 +137904,49 @@
                             "state"
                           ],
                           "properties": {
-                            "capability": {
-                              "type": "string",
-                              "minLength": 1
-                            },
                             "state": {
                               "enum": [
                                 "there",
                                 "missing",
                                 "worse"
                               ]
+                            },
+                            "capability": {
+                              "type": "string",
+                              "minLength": 1
                             }
                           }
-                        }
+                        },
+                        "minItems": 1
                       }
                     }
                   }
                 },
                 "context": {
+                  "do": "For each capability, try it in the new home the way a person would. Say whether it is there, missing, or worse.",
+                  "flags": [
+                    "public"
+                  ],
                   "title": "Check each in the new home",
+                  "checks": [
+                    {
+                      "of": [
+                        "steps",
+                        "inventory",
+                        "capabilities",
+                        "*",
+                        "id"
+                      ],
+                      "kind": "covers",
+                      "path": [
+                        "this",
+                        "checked",
+                        "*",
+                        "capability"
+                      ],
+                      "says": "Every capability was checked"
+                    }
+                  ],
                   "submit": {
                     "type": "object",
                     "required": [
@@ -137536,7 +137955,6 @@
                     "properties": {
                       "checked": {
                         "type": "array",
-                        "minItems": 1,
                         "items": {
                           "type": "object",
                           "required": [
@@ -137544,22 +137962,527 @@
                             "state"
                           ],
                           "properties": {
-                            "capability": {
-                              "type": "string",
-                              "minLength": 1
-                            },
                             "state": {
                               "enum": [
                                 "there",
                                 "missing",
                                 "worse"
                               ]
+                            },
+                            "capability": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        },
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  "step_id": "check"
+                }
+              }
+            },
+            {
+              "id": "check#checks",
+              "kind": "return",
+              "config": {
+                "value": {
+                  "held": [
+                    {
+                      "take": "all",
+                      "$kind": "binding",
+                      "values": [
+                        "steps",
+                        "check",
+                        "checked",
+                        "*",
+                        "capability"
+                      ],
+                      "transform": [
+                        {
+                          "op": "op:core.map_to_nodes",
+                          "args": {
+                            "item_var": "$v",
+                            "template": {
+                              "$kind": "binding",
+                              "select": {
+                                "key": "$v",
+                                "from": "vars"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.type_of"
+                                },
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": "string"
+                                  }
+                                },
+                                {
+                                  "op": "op:core.if",
+                                  "args": {
+                                    "else": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "key": "$v",
+                                        "from": "vars"
+                                      }
+                                    },
+                                    "then": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "key": "$v",
+                                        "from": "vars"
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.to_string"
+                                        },
+                                        {
+                                          "op": "op:core.trim"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "op": "op:core.concat_arrays",
+                          "args": {
+                            "value": {
+                              "take": "all",
+                              "$kind": "binding",
+                              "values": [
+                                "steps",
+                                "inventory",
+                                "capabilities",
+                                "*",
+                                "id"
+                              ],
+                              "transform": [
+                                {
+                                  "op": "op:core.map_to_nodes",
+                                  "args": {
+                                    "item_var": "$v",
+                                    "template": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "key": "$v",
+                                        "from": "vars"
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.type_of"
+                                        },
+                                        {
+                                          "op": "op:core.equals",
+                                          "args": {
+                                            "value": "string"
+                                          }
+                                        },
+                                        {
+                                          "op": "op:core.if",
+                                          "args": {
+                                            "else": {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "key": "$v",
+                                                "from": "vars"
+                                              }
+                                            },
+                                            "then": {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "key": "$v",
+                                                "from": "vars"
+                                              },
+                                              "transform": [
+                                                {
+                                                  "op": "op:core.to_string"
+                                                },
+                                                {
+                                                  "op": "op:core.trim"
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "op": "op:core.array_unique"
+                        },
+                        {
+                          "op": "op:core.array_length"
+                        },
+                        {
+                          "op": "op:core.eq",
+                          "args": {
+                            "value": {
+                              "take": "all",
+                              "$kind": "binding",
+                              "values": [
+                                "steps",
+                                "check",
+                                "checked",
+                                "*",
+                                "capability"
+                              ],
+                              "transform": [
+                                {
+                                  "op": "op:core.map_to_nodes",
+                                  "args": {
+                                    "item_var": "$v",
+                                    "template": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "key": "$v",
+                                        "from": "vars"
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.type_of"
+                                        },
+                                        {
+                                          "op": "op:core.equals",
+                                          "args": {
+                                            "value": "string"
+                                          }
+                                        },
+                                        {
+                                          "op": "op:core.if",
+                                          "args": {
+                                            "else": {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "key": "$v",
+                                                "from": "vars"
+                                              }
+                                            },
+                                            "then": {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "key": "$v",
+                                                "from": "vars"
+                                              },
+                                              "transform": [
+                                                {
+                                                  "op": "op:core.to_string"
+                                                },
+                                                {
+                                                  "op": "op:core.trim"
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                {
+                                  "op": "op:core.array_unique"
+                                },
+                                {
+                                  "op": "op:core.array_length"
+                                }
+                              ]
                             }
                           }
                         }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "check#wrong",
+              "kind": "return",
+              "config": {
+                "value": {
+                  "problems": [
+                    {
+                      "held": {
+                        "$kind": "binding",
+                        "select": {
+                          "key": "check#checks",
+                          "from": "steps",
+                          "path": "output.held.0"
+                        }
+                      },
+                      "says": "Every capability was checked",
+                      "wrong": {
+                        "take": "all",
+                        "$kind": "binding",
+                        "values": [
+                          "steps",
+                          "inventory",
+                          "capabilities",
+                          "*",
+                          "id"
+                        ],
+                        "transform": [
+                          {
+                            "op": "op:core.map_to_nodes",
+                            "args": {
+                              "item_var": "$v",
+                              "template": {
+                                "$kind": "binding",
+                                "select": {
+                                  "key": "$v",
+                                  "from": "vars"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.type_of"
+                                  },
+                                  {
+                                    "op": "op:core.equals",
+                                    "args": {
+                                      "value": "string"
+                                    }
+                                  },
+                                  {
+                                    "op": "op:core.if",
+                                    "args": {
+                                      "else": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "key": "$v",
+                                          "from": "vars"
+                                        }
+                                      },
+                                      "then": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "key": "$v",
+                                          "from": "vars"
+                                        },
+                                        "transform": [
+                                          {
+                                            "op": "op:core.to_string"
+                                          },
+                                          {
+                                            "op": "op:core.trim"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "op": "op:core.filter_where",
+                            "args": {
+                              "predicate": [
+                                {
+                                  "op": "op:core.in_list",
+                                  "args": {
+                                    "values": {
+                                      "take": "all",
+                                      "$kind": "binding",
+                                      "values": [
+                                        "steps",
+                                        "check",
+                                        "checked",
+                                        "*",
+                                        "capability"
+                                      ],
+                                      "transform": [
+                                        {
+                                          "op": "op:core.map_to_nodes",
+                                          "args": {
+                                            "item_var": "$v",
+                                            "template": {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "key": "$v",
+                                                "from": "vars"
+                                              },
+                                              "transform": [
+                                                {
+                                                  "op": "op:core.type_of"
+                                                },
+                                                {
+                                                  "op": "op:core.equals",
+                                                  "args": {
+                                                    "value": "string"
+                                                  }
+                                                },
+                                                {
+                                                  "op": "op:core.if",
+                                                  "args": {
+                                                    "else": {
+                                                      "$kind": "binding",
+                                                      "select": {
+                                                        "key": "$v",
+                                                        "from": "vars"
+                                                      }
+                                                    },
+                                                    "then": {
+                                                      "$kind": "binding",
+                                                      "select": {
+                                                        "key": "$v",
+                                                        "from": "vars"
+                                                      },
+                                                      "transform": [
+                                                        {
+                                                          "op": "op:core.to_string"
+                                                        },
+                                                        {
+                                                          "op": "op:core.trim"
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                {
+                                  "op": "op:core.not"
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "op": "op:core.array_unique"
+                          },
+                          {
+                            "op": "op:core.take",
+                            "args": {
+                              "count": 8
+                            }
+                          },
+                          {
+                            "op": "op:core.map_to_nodes",
+                            "args": {
+                              "item_var": "$value",
+                              "template": {
+                                "$kind": "binding",
+                                "select": {
+                                  "key": "$value",
+                                  "from": "vars"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.stringify",
+                                    "args": {
+                                      "format": "json"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        ]
                       }
                     }
-                  }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "check#refused",
+              "kind": "fail",
+              "config": {
+                "error": {
+                  "$kind": "binding",
+                  "select": {
+                    "key": "check#wrong",
+                    "from": "steps",
+                    "path": "output.problems"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.filter_where",
+                      "args": {
+                        "predicate": [
+                          {
+                            "op": "op:core.get_path",
+                            "args": {
+                              "path": "held"
+                            }
+                          },
+                          {
+                            "op": "op:core.not"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "op": "op:core.map_to_nodes",
+                      "args": {
+                        "template": {
+                          "$kind": "binding",
+                          "select": {
+                            "key": "$item",
+                            "from": "vars"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "key": "$item",
+                                      "from": "vars",
+                                      "path": "says"
+                                    }
+                                  },
+                                  " (",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "key": "$item",
+                                      "from": "vars",
+                                      "path": "wrong"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.join",
+                                        "args": {
+                                          "delimiter": "; "
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  ")"
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "op": "op:core.join",
+                      "args": {
+                        "delimiter": "; "
+                      }
+                    }
+                  ]
                 }
               }
             },
@@ -137570,28 +138493,7 @@
                 "name": "ai",
                 "input": {
                   "do": "Bring back every missing or worse capability in the new home, through its shared parts rather than a one-off copy, and take before and after pictures of the old and new.",
-                  "checked": {
-                    "$kind": "binding",
-                    "values": [
-                      "steps",
-                      "check",
-                      "checked"
-                    ]
-                  },
-                  "old": {
-                    "$kind": "binding",
-                    "values": [
-                      "input",
-                      "old"
-                    ]
-                  },
-                  "new": {
-                    "$kind": "binding",
-                    "values": [
-                      "input",
-                      "new"
-                    ]
-                  },
+                  "checks": [],
                   "submit": {
                     "type": "object",
                     "required": [
@@ -137599,9 +138501,16 @@
                       "pictures"
                     ],
                     "properties": {
+                      "pictures": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 3
+                        },
+                        "minItems": 1
+                      },
                       "restored": {
                         "type": "array",
-                        "minItems": 0,
                         "items": {
                           "type": "object",
                           "required": [
@@ -137609,30 +138518,28 @@
                             "where"
                           ],
                           "properties": {
-                            "capability": {
-                              "type": "string",
-                              "minLength": 1
-                            },
                             "where": {
                               "type": "string",
                               "minLength": 3
+                            },
+                            "capability": {
+                              "type": "string",
+                              "minLength": 1
                             }
                           }
-                        }
-                      },
-                      "pictures": {
-                        "type": "array",
-                        "minItems": 1,
-                        "items": {
-                          "type": "string",
-                          "minLength": 3
-                        }
+                        },
+                        "minItems": 0
                       }
                     }
                   }
                 },
                 "context": {
+                  "do": "Bring back every missing or worse capability in the new home, through its shared parts rather than a one-off copy, and take before and after pictures of the old and new.",
+                  "flags": [
+                    "public"
+                  ],
                   "title": "Bring back what is missing",
+                  "checks": [],
                   "submit": {
                     "type": "object",
                     "required": [
@@ -137640,9 +138547,16 @@
                       "pictures"
                     ],
                     "properties": {
+                      "pictures": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 3
+                        },
+                        "minItems": 1
+                      },
                       "restored": {
                         "type": "array",
-                        "minItems": 0,
                         "items": {
                           "type": "object",
                           "required": [
@@ -137650,41 +138564,23 @@
                             "where"
                           ],
                           "properties": {
-                            "capability": {
-                              "type": "string",
-                              "minLength": 1
-                            },
                             "where": {
                               "type": "string",
                               "minLength": 3
+                            },
+                            "capability": {
+                              "type": "string",
+                              "minLength": 1
                             }
                           }
-                        }
-                      },
-                      "pictures": {
-                        "type": "array",
-                        "minItems": 1,
-                        "items": {
-                          "type": "string",
-                          "minLength": 3
-                        }
+                        },
+                        "minItems": 0
                       }
                     }
-                  }
+                  },
+                  "step_id": "restore"
                 }
               }
-            }
-          ],
-          "edges": [
-            {
-              "from": "inventory",
-              "to": "check",
-              "kind": "always"
-            },
-            {
-              "from": "check",
-              "to": "restore",
-              "kind": "always"
             }
           ]
         }
