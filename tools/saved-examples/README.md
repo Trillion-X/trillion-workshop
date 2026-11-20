@@ -14,7 +14,7 @@ records back; it reads and writes no store itself, and no row names the records 
 
 The list and the removal moved to the recipe `workflow:keep-saved-examples` (`tools/workflows/recipes/keep-saved-examples.json`, kit `tools/workflows/kits/keep-saved-examples.json`): the person's store keeps the rows, list them newest first with the count, and write a removal as a null value, proven on PGlite and a JSON folder. `tool:list-saved-examples` and `tool:remove-a-saved-example` are retired (their reader `read-data/saved-examples.mjs` and kits went with them).
 
-Saving an example as an AI tool (`tool:save-an-example`) moves with the public-fetch rows; the page's save is `tool:answer-the-saved-examples-page`, which reads the link through `tools/read-a-public-web-link-whole-its-card`.
+`tool:save-an-example` is ported here as a pure function, `saveAnExampleOf` in `do-work/save-an-example.mjs`, and is not wired: no tool row or route calls it yet. The old record is `records/workshop-saved-example-tool-records.json` at commit b6ae0ebf815f (the old repository's tag before worker retire).
 
 ## Files
 
