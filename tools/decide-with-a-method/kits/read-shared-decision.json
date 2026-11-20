@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tool:read-shared-decision's own row (its words, input schema and the sample run read from the made-up share in test/read-shared-decision.test.mjs); the share it reads is tool:share-a-decision's. It sits beside tool:share-a-decision, which keeps the entry it reads.",
+  "start_here": "Say to your AI: \"Read the anonymous version of this decision that I shared\", with its decision_id and its records. It runs tool:read-shared-decision and answers the five shared fields with the review identity it was checked under, and nothing else.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes the decision, the message, the source chat and the handoff as input and keeps only the decision's own rows (decision, decision-history and the decision records it changes).",
+  "workflows": [],
+  "tools": [
+    "tool:read-shared-decision",
+    "tool:share-a-decision"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Read the anonymous version of this decision that I shared\", and give it decision_id.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-shared-decision and its input (the worked example shows one).",
+    "3. Read what comes back: the shared entry, its review identity and when it was shared; a decision never shared is refused."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read back a made-up shared decision",
+      "ask": "Read the anonymous version of this decision that I shared",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-shared-decision",
+            "input": {
+              "decision_id": "source:bWVzc2FnZTpzYW1wbGUtcGVyc29uLTE"
+            }
+          }
+        }
+      },
+      "given": "A made-up decision (option a) shared with a checked rewrite; its records handed in as records.",
+      "hands_back": "It answered {\"case_id\":\"source:b3dlZDpzYW1wbGUtc2hhcmUtMQ\",\"shared\":{\"entry\":{\"situation\":\"Choosing between two plans\",\"options\":[\"a cheaper plan\",\"a dearer plan\"],\"chosen\":\"the cheaper plan\",\"why\":\"it costs less\",\"measured_by\":\"payment made\"},\"review_identity\":\"blake3:20743a6d8be43334ea799e2cd4960c69ef6a6bcfab7f246a002d2f2b84a0bae5\",\"at\":\"2026-11-20T07:59:21.485Z\"}}."
+    }
+  ]
+}

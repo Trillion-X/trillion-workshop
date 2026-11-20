@@ -966,6 +966,40 @@
           }
         }
       }
+    },
+    "tool:read-shared-decision": {
+      "type": "object",
+      "required": [
+        "decision_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "records": {
+          "type": "array",
+          "description": "The records the caller read from its own store for this call, each { id, type, value }: every record the tool reads (the decision's own records, its method and the rows it names, the pursuits and messages it cites). Nothing else is read, and the run writes no store: what it writes comes back as keep.",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "type",
+              "value"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "value": {}
+            }
+          }
+        }
+      }
     }
   },
   "records": {
