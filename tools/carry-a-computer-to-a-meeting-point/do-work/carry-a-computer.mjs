@@ -174,18 +174,26 @@ export async function serveCarrier(given, { credential, state, have = here(), sp
       // (`gives`) is first told once the client has held its port for `settle_seconds`, and a refused one ends the client: a
       // computer is never announced at a port it does not hold.
       let carried = false;
+      const timers = [];
+      // A client is asked to end, and made to end `end_seconds` later if it has not (one whose forward stopped passing
+      // anything on ignored the ask for twenty minutes on Nov 19 2026).
+      let exited = false;
+      const end = () => {
+        if (exited) return;
+        child.kill('SIGTERM');
+        timers.push(setTimeout(() => { if (!exited) child.kill('SIGKILL'); }, (config.end_seconds ?? 10) * 1000));
+      };
       const announce = () => {
         if (!gives) { spawnImpl(config.announce.argv[0], announceArgv(true).slice(1), { stdio: 'ignore' }).on?.('error', () => {}); return; }
-        answerOf(spawnImpl, announceArgv(true)).then(answer => { if (answer) carried = true; else child.kill('SIGTERM'); });
+        answerOf(spawnImpl, announceArgv(true)).then(answer => { if (answer) carried = true; else end(); });
       };
-      const timers = [];
       if (config.announce) {
         const every = () => timers.push(setInterval(announce, config.announce.every_seconds * 1000));
         if (gives) timers.push(setTimeout(() => { announce(); every(); }, (config.announce.settle_seconds ?? 3) * 1000));
         else { announce(); every(); }
       }
-      child.once('exit', () => timers.forEach(timer => clearInterval(timer)));
-      const abort = () => child.kill('SIGTERM');
+      child.once('exit', () => { exited = true; timers.forEach(timer => clearInterval(timer)); });
+      const abort = end;
       signal?.addEventListener('abort', abort, { once: true });
       let said = '';
       child.stderr.on('data', bytes => { if (said.length < 4096) said += bytes.toString().slice(0, 4096 - said.length); });

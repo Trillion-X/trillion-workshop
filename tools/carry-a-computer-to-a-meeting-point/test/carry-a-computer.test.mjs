@@ -245,6 +245,28 @@ test('a carrier the meeting point gives a port and a certificate asks first, the
   assert.equal(written[0], `${answer.certificate}\n`);
 });
 
+test('a client that ignores the ask to end is made to end end_seconds later', async t => {
+  const state = folder(t);
+  const answer = { port: 31337, seconds: 120, certificate: 'CERTIFICATE port-31337' };
+  const config = { way: way('ssh-certificate'), relay_host: relayHost, computer_id: 'mac-1', local_port: 9000, values: { public_key: 'ssh-ed25519 AAAAPUB carrier' }, end_seconds: 0.05,
+    announce: { argv: ['/bin/announce', '{"carried": {carried}}'], every_seconds: 10, settle_seconds: 0.01, gives: { remote_port: 'port', certificate: 'certificate' } } };
+  const controller = new AbortController();
+  const answers = [answer, null];
+  const signals = [];
+  const spawnImpl = exe => {
+    const child = new EventEmitter(); child.stderr = new PassThrough(); child.stdout = new PassThrough(); child.kill = () => {};
+    if (exe === '/bin/announce') {
+      const given = answers.shift();
+      setTimeout(() => { child.stdout.end(given ? JSON.stringify(given) : ''); child.emit('exit', given ? 0 : 1); }, 5);
+      return child;
+    }
+    child.kill = signal => { signals.push(signal); if (signal === 'SIGKILL') setTimeout(() => { child.emit('exit', null); controller.abort(); }, 1); };
+    return child;
+  };
+  await serveCarrier(config, { credential: async () => 'PRIVATE', state, spawnImpl, wait: async () => {}, signal: controller.signal });
+  assert.deepEqual(signals, ['SIGTERM', 'SIGKILL'], 'a refused renewal asks the client to end, then makes it');
+});
+
 test('the certificate meeting point is one user and one sshd file, the same for every computer, and sshd accepts it', t => {
   const rendered = renderMeetingPoint({ way: way('ssh-certificate'), relay_host: relayHost, computers: [], values: { ca_public_file: '/var/lib/example/meeting-ca.key.pub', port_min: 20000, port_max: 59999 } });
   const file = rendered.steps.find(step => step.file).file;
