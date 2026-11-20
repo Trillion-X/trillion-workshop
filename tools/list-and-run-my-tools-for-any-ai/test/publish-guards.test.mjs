@@ -52,7 +52,7 @@ test('caller-only: a licence the catalogue does not know, a placement not reacha
   assert.equal(refuseCallerOnly({ ...descriptor, licence_class: 'licence:unknown' }, facts), 'tool:echo-test has no known licence class, so it cannot run anywhere yet.');
   assert.match(refuseCallerOnly(descriptor, { ...facts, host: 'host:elsewhere' }), /none of those can be reached from this service/);
   assert.match(refuseCallerOnly(descriptor, { host: 'host:test' }), /were not given/);
-  assert.match(refuseCallerOnly({ ...descriptor, licence_class: undefined }, facts), /has no known licence class/);
+  assert.match(refuseCallerOnly({ ...descriptor, licence_class: 'licence:unknown' }, facts), /has no known licence class/);
 });
 
 test('publishTool refuses a caller-only tool and writes no listing', async () => {
@@ -66,6 +66,16 @@ test('publishTool refuses a release this host is too old for, and writes no list
   const db = savedAndListedDatabase({ saved: [{ id: 'tool:echo-test', descriptor: { ...descriptor, minimum_host_version: '2026.12.1' }, fingerprint: '1f:aa', files }] });
   await assert.rejects(publishTool({ ...facts, tool_id: 'tool:echo-test', maker: 'person:ana' }, db.client), /needs version 2026.12.1/);
   assert.equal(db.listings.length, 0);
+});
+
+test('a tool that names neither a licence class nor a minimum publishes with no facts, exactly as before the guards', async () => {
+  const plain = { ...descriptor };
+  delete plain.licence_class;
+  delete plain.placements;
+  const db = savedAndListedDatabase({ saved: [{ id: 'tool:echo-test', descriptor: plain, fingerprint: '1f:aa', files }] });
+  const { listing } = await publishTool({ tool_id: 'tool:echo-test', maker: 'person:ana' }, db.client);
+  assert.equal(listing.status, 'published');
+  assert.equal(db.listings.length, 1);
 });
 
 test('publishTool publishes a deployed tool when the facts are given', async () => {

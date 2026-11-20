@@ -80,8 +80,10 @@ export function refuseHostVersion(descriptor, hostVersion) {
   return `${descriptor.id} says it needs version ${descriptor.minimum_host_version} or newer, and the host publishing it is ${hostVersion}, so its sample cannot be checked here.`;
 }
 
-/** Why this host cannot offer the tool to everyone, or null (the old choosePlacement, then the caller refusal). */
+/** Why this host cannot offer the tool to everyone, or null (the old choosePlacement, then the caller refusal). A tool that names no
+ *  licence class is not checked, so it publishes as it did before the guard. */
 export function refuseCallerOnly(descriptor, { licences, placements, host } = {}) {
+  if (!nonempty(descriptor.licence_class)) return null;
   if (!licences || !placements || !nonempty(host)) return `${descriptor.id}: where it runs is checked from the licence classes, the placements and this host, and they were not given.`;
   const licence = nonempty(descriptor.licence_class) ? licences[descriptor.licence_class] : null;
   if (!licence) return `${descriptor.id} has no known licence class, so it cannot run anywhere yet.`;
