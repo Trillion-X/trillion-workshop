@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Find the Claude Cloud accounts already signed in on my server, list their existing sessions, then inspect the unfinished ones before sending each a continuation brief.\" Do not launch replacements for work with an active owner.",
+  "lists": [],
+  "no_lists_because": "The existing Claude Cloud sessions live with the authenticated Claude account, not in a new Trillion list. This operation reads and resumes them in place without copying their credentials.",
+  "workflows": [],
+  "tools": [
+    "tool:manage-claude-cloud-sessions"
+  ],
+  "instructions": [
+    "1. Find the owner computer with authenticated Claude Code config folders already present; call accounts to discover those names, not credentials.",
+    "2. Call list for each config folder, then read for candidate sessions to identify the exact unfinished task, last commit, existing session id and any blocked questions.",
+    "3. Check that the existing session is not still actively writing and that no other agent owns the same work before sending a continuation. For a proposed new session, use dry_run first and verify no existing owner.",
+    "4. Call resume for the exact config folder and session id with the next verified instruction; never use start as an automatic fallback on errors.",
+    "5. Read the session again and verify a new message was accepted and real work progressed. A successful tool call alone does not prove task completion."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read an existing Claude Cloud session without restarting anything",
+      "ask": "Read session session_existing in my already-signed-in .claude-account1 account.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:manage-claude-cloud-sessions",
+            "call": {
+              "name": "manage-claude-cloud-sessions",
+              "arguments": {
+                "action": "read",
+                "config_folder": ".claude-account1",
+                "session_id": "session_existing"
+              }
+            }
+          }
+        }
+      },
+      "given": "The account folder and existing session id returned by the prior account and session listing.",
+      "hands_back": "{\"id\":\"session_existing\",\"title\":\"Verify the release\",\"session_status\":\"completed\",\"first_task\":\"Fix tests and report the result.\",\"final_messages\":[{\"text\":\"One failing test remains.\"}]}"
+    }
+  ]
+}
