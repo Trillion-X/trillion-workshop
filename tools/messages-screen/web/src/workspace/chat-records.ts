@@ -41,6 +41,8 @@ import { resolveBundle } from '../live-protocol.mjs';
 import { shareOutbox } from './share-outbox';
 import { pendingLines, pendingKeyOf } from './pending-lines';
 import pendingWords from './pending-sends.json';
+import { runWorkshopTool } from './workshop-tool-api';
+import owner from './messages-owner.json';
 
 type Message = { id: string; app: string; conversation_id: string; speaker: string; text: string; at: string; authored_at?: string; attachments?: { identity: string; name?: string; media_type?: string }[] };
 type Thread = { id: string; app: string; conversation_id: string; latest: Message };
@@ -120,6 +122,43 @@ const linksOf = (text: string, previews?: Previews) => {
   return found.length ? { links: found } : {};
 };
 
+// The person's conversations: each store in messages-owner.json answers its newest conversations and one
+// conversation's lines in one shape, read through the SQL tool with the store's own connection. A conversation is
+// named `<store>|<source>` and its chat, so its lines are read again from the store that listed it.
+type Store = { id: string; label: string; credential_name?: string; credential_suffix?: string; list: string; page: string };
+type Chat = { source: string; chat: string; last: string; name: string | null; words: string | null; mine: boolean | null; sender: string | null };
+type Said = { id: string; at: string; words: string | null; mine: boolean | null; author: string | null };
+const stores = owner.stores as Store[];
+const storeApps = new Map<string, { store: Store; source: string }>();
+/** Each store's newest message time, as its list answered it (null when it answered none). */
+export const storeNewest = new Map<string, { label: string; at: string | null }>();
+const storeRows = <T,>(store: Store, sql: string, params: unknown[]) =>
+  runWorkshopTool<{ rows?: T[] }>(owner.tool, { credential_name: store.credential_name, sql, params }).then(ran => {
+    if (!Array.isArray(ran.result?.rows)) throw new Error('Your messages could not be read.');
+    return ran.result.rows;
+  });
+/** Each store with its connection: a named one as it is, a suffix once for each connection the vault names with it. */
+async function storesWithConnections(): Promise<Store[]> {
+  if (!stores.some(store => store.credential_suffix)) return stores;
+  const names = await postJson<{ names?: unknown }>(owner.names_method, {}).then(answer => (Array.isArray(answer?.names) ? answer.names as string[] : []), () => [] as string[]);
+  return stores.flatMap(store => (store.credential_suffix
+    ? names.filter(name => name.endsWith(store.credential_suffix!)).sort().map(name => ({ ...store, id: `${store.id}@${name}`, credential_name: name }))
+    : [store]));
+}
+/** Every store's newest conversations; a store that cannot be read (or has no such tables) is left out, the others still list. */
+const readStoreChats = async () => (await Promise.all((await storesWithConnections()).map(store => storeRows<Chat>(store, store.list, [owner.most_conversations]).then(
+  chats => { storeNewest.set(store.id, { label: store.label, at: chats[0]?.last ?? null }); return chats.map(chat => ({ store, chat })); },
+  () => [] as { store: Store; chat: Chat }[])))).flat();
+async function readStorePage(context: { app: string; conversation_id: string }, before?: string): Promise<Page> {
+  const { store, source } = storeApps.get(context.app)!;
+  const rows = await storeRows<Said>(store, store.page, [source, context.conversation_id, before ?? null, owner.page]);
+  return {
+    next: rows.length === owner.page ? rows.at(-1)!.at : null,
+    lines: oldestFirst(rows.map(said => ({ type: 'text' as const, role: said.mine ? 'human' as const : 'assistant' as const,
+      atomRef: `${store.id}:${said.id}`, content: said.words ?? '', timestamp: said.at, ...(said.author ? { author: said.author } : {}) }))),
+  };
+}
+
 async function readOnePage(context: Context, before?: string, messageId?: string): Promise<Page> {
   const query = new URLSearchParams({ limit: PAGE, ...(before ? { before } : {}) });
   if (context.kind === 'space') {
@@ -137,6 +176,10 @@ async function readOnePage(context: Context, before?: string, messageId?: string
         };
       })),
     };
+  }
+  if (storeApps.has(context.app)) {
+    if (messageId) throw Object.assign(new Error('This message link could not be read. Open the conversation to find its message.'), { status: 400 });
+    return readStorePage(context, before);
   }
   query.set('app', context.app);
   query.set('conversation_id', context.conversation_id);
@@ -309,10 +352,13 @@ function conversationRecords() {
 
 /** Every conversation in the person's work contexts, as the chat's session window. */
 async function readConversations() {
-  const [threads, agents, spaces] = await Promise.all([
-    readCollectionJson<{ conversations: Thread[]; backfill_pending?: boolean }>(`${API}/threads?limit=50`),
+  // The conversations with people are the person's own told messages (messages-owner.json); the AI threads, agents and
+  // Spaces have no owner answering in this version, so each is read as none rather than failing the list.
+  const [threads, agents, spaces, chats] = await Promise.all([
+    readCollectionJson<{ conversations: Thread[]; backfill_pending?: boolean }>(`${API}/threads?limit=50`).catch(() => ({ conversations: [] as Thread[], backfill_pending: false })),
     readAgents().catch(() => ({ agents: [] as Agent[] })),
     readJson<{ spaces: Space[] }>('/work/api/spaces').catch(() => ({ spaces: [] as Space[] })),
+    readStoreChats(),
   ]);
   const rows = [];
   let everyone = false;
@@ -330,10 +376,28 @@ async function readConversations() {
     rows.push(row({ kind: 'ai', app: agent.name, conversation_id: `trillion:${agent.agent_id}`, agent_id: agent.agent_id }, agent.name, null));
   }
   for (const space of spaces.spaces) rows.push(row({ kind: 'space', space_id: space.space_id }, space.title, space.last_activity_at));
+  for (const { store, chat } of chats) {
+    const app = `${store.id}|${chat.source}`;
+    storeApps.set(app, { store, source: chat.source });
+    rows.push(row({ kind: 'ai', app, conversation_id: chat.chat }, chat.name || chat.sender || chat.source, chat.last,
+      chat.words !== null ? { text: chat.words, mine: chat.mine === true } : undefined));
+  }
+  rows.sort((a, b) => (Date.parse(b.lastActivityAt) || 0) - (Date.parse(a.lastActivityAt) || 0));
   listedRows = rows;
   showRecords(conversationRecords());
   return threads.backfill_pending === true;
 }
+
+/** Every conversation the list holds, newest first, for choosing one (its id, name and last activity). */
+export async function conversationChoices(): Promise<{ id: string; label: string; at: string }[]> {
+  await readConversations();
+  return listedRows.map(one => ({ id: one.recordId, label: one.lastActivityAt ? `${one.title} · ${dayOf(one.lastActivityAt)}` : one.title, at: one.lastActivityAt }));
+}
+
+const dayOf = (at: string) => { const time = Date.parse(at); return Number.isFinite(time) ? new Date(time).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : at; };
+/** How recent each store is, in words (messages-owner.json `newest`), so a store that stopped being written shows it. */
+export const storeNewestWords = (): string[] => [...storeNewest.values()].filter(one => one.at)
+  .map(one => owner.newest.replace('{label}', one.label).replace('{date}', dayOf(one.at!)));
 
 /** `@Name` in the words, resolved against what this context lets the person mention. */
 async function mentionsIn(text: string, space?: string) {
@@ -354,6 +418,7 @@ async function mentionsIn(text: string, space?: string) {
 async function send(recordId: string, text: string) {
   const context = contexts.get(recordId);
   if (!context) throw new Error('This conversation is not open any more.');
+  if (context.kind === 'ai' && storeApps.has(context.app)) throw new Error(owner.no_reply.replace('{source}', storeApps.get(context.app)!.source));
   if (context.kind === 'space') {
     const space = `/work/api/spaces/${encodeURIComponent(context.space_id)}`;
     const { mentions, kinds } = await mentionsIn(text, context.space_id);

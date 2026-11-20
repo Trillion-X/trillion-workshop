@@ -14,7 +14,7 @@
 // (the one said before it); words written in a view that takes them go through the conversation's own front door.
 
 import React from 'react';
-import { Container, Text, notify } from '../../../../ui';
+import { Container, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, notify } from '../../../../ui';
 import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { canRetainAfterReadFailure, ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
 import { RecordViews, type FieldDescriptor, type RecordNesting, type RecordView } from '../../../../ui/show/record-views/record-views';
@@ -26,7 +26,7 @@ import pendingWords from './pending-sends.json';
 import { aiPresenceWords, conversationPresence, presenceWords, type Person } from './conversation-presence';
 import { contextOfRecordId } from './conversation-navigation-rows.mjs';
 import { pendingKeyOf } from './pending-lines';
-import { CONVERSATIONS_ADDRESS, aiPresenceOf, cancelPending, correctInConversation, resendPending, canonicalConversationId, everyoneConversationId, openConversation, sendInConversation, windowAddressOf, type Line } from './chat-records';
+import { CONVERSATIONS_ADDRESS, aiPresenceOf, cancelPending, correctInConversation, resendPending, canonicalConversationId, conversationChoices, everyoneConversationId, storeNewestWords, openConversation, sendInConversation, windowAddressOf, type Line } from './chat-records';
 import { readRecordAt, showRecords, subscribeRecordLabel } from './records';
 import { recordFilter } from './record-filter';
 import { refusal } from './failure';
@@ -219,6 +219,37 @@ function MessagesLoad({ focus, message }: { focus: string; message?: string }) {
   );
 }
 
+// The conversation shown, and a choice of every other above it. With none named, the newest conversation the person's
+// owners hold opens (messages-owner.json); while the list is read, or when it cannot be, the named or shared one opens.
+function MessagesChooser({ given, message }: { given?: string; message?: string }) {
+  const [choices, setChoices] = React.useState<{ id: string; label: string; at: string }[]>([]);
+  const [chosen, setChosen] = React.useState<string | null>(given ? canonicalConversationId(given) : null);
+  React.useEffect(() => {
+    let live = true;
+    conversationChoices().then(list => {
+      if (!live) return;
+      setChoices(list);
+      setChosen(current => current ?? list.find(one => one.at)?.id ?? everyoneConversationId);
+    }, () => { if (live) setChosen(current => current ?? everyoneConversationId); });
+    return () => { live = false; };
+  }, []);
+  if (!chosen) return <ScreenState state={{ status: 'loading', label: 'Loading your messages', layout: 'rows' }} />;
+  return (
+    <Container layout="vertical" height="full" minHeight="0">
+      {choices.length > 1 ? (
+        <Container layout="horizontal" padding="sm" gap="sm" alignItems="center">
+          <Select items={choices.map(one => ({ value: one.id, label: one.label }))} value={chosen} onValueChange={next => { if (typeof next === 'string') setChosen(next); }}>
+            <SelectTrigger size="sm" aria-label="Conversation"><SelectValue /></SelectTrigger>
+            <SelectPopup>{choices.map(one => <SelectItem key={one.id} value={one.id}>{one.label}</SelectItem>)}</SelectPopup>
+          </Select>
+          {storeNewestWords().map(words => <Text key={words} as="span" variant="caption" color="secondary">{words}</Text>)}
+        </Container>
+      ) : null}
+      <MessagesLoad key={chosen} focus={chosen} message={chosen === given ? message : undefined} />
+    </Container>
+  );
+}
+
 export function mountMessagesScreen(element: HTMLElement, props?: { surfaceInput?: { conversation?: string; message?: string } }): () => void {
-  return mountReactSurface(element, <MessagesLoad focus={messagesFocus(props)} message={props?.surfaceInput?.message} />);
+  return mountReactSurface(element, <MessagesChooser given={props?.surfaceInput?.conversation} message={props?.surfaceInput?.message} />);
 }
