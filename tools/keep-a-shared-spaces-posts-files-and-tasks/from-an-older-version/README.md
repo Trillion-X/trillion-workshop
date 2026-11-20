@@ -9,7 +9,6 @@ Files of old trillion whose job is this tool's (keep a shared space's posts, fil
 | `src/space-content-directory.mjs` | `src/space-content-directory.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/shared-native-dependency-command.mjs (at the tag, not moved here yet), src/resource-host.mjs (at the tag, not moved here yet) |
 | `src/space-content-policy.mjs` | `src/space-content-policy.mjs` | loads here |
 | `src/space-content-shards.mjs` | `src/space-content-shards.mjs` | loads here |
-| `src/space-list-read.mjs` | `src/space-list-read.mjs` | loads here |
 | `src/space-page-size.mjs` | `src/space-page-size.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/space-settings.json (at the tag, not moved here yet) |
 | `src/space-shard-routing.mjs` | `src/space-shard-routing.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/native-shared-source-query.mjs (at the tag, not moved here yet), src/shared-native-dependency-command.mjs (at the tag, not moved here yet), src/community-activity.mjs (at the tag, not moved here yet) |
 | `test/space-commit-context.test.mjs` | `test/space-commit-context.test.mjs` | runs here: 5/5 pass |
