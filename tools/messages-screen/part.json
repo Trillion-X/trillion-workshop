@@ -15,8 +15,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "messages",
+        "kind": "module",
+        "module": {
+          "package": "messages-screen",
+          "entry": "web/src/workspace/messages-screen-mount.tsx"
+        },
         "icon": "MessagesSquare",
         "surface": {
           "id": "trillion.messages",
