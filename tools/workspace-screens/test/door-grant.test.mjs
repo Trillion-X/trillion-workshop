@@ -5,7 +5,7 @@
 // and last use, who, and refusals read as their own words.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { KEEP, LIST, WITHDRAW, doorPath, doorRequest, endsWords, isKept, lastUsedWords, problemOf, refusalWords, requestOf, whoWords, withdrawInput } from '../web/src/workspace/door-grant.mjs';
+import { APPROVAL_SCOPE, APPROVAL_SQL, approvalParams, autoOf, KEEP, LIST, WITHDRAW, doorPath, doorRequest, endsWords, isKept, lastUsedWords, problemOf, refusalWords, requestOf, whoWords, withdrawInput } from '../web/src/workspace/door-grant.mjs';
 
 const digest = 'a'.repeat(64);
 const grant = (overrides = {}) => ({
@@ -118,4 +118,19 @@ test('is kept is read from the engine list by its label', () => {
   assert.equal(isKept(list, 'b'), true);
   assert.equal(isKept(list, 'c'), false);
   assert.equal(isKept({}, 'a'), false);
+});
+
+test('the approval check reads the scope own setting, else the master scope, and writes a decision only for auto', () => {
+  assert.equal(APPROVAL_SCOPE, 'door-grant');
+  assert.match(APPROVAL_SQL, /FROM approval_setting[\s\S]*scope IN \(\$1, '\*'\)[\s\S]*ORDER BY scope = \$1 DESC/);
+  assert.match(APPROVAL_SQL, /INSERT INTO approval_decision[\s\S]*'auto-setting'[\s\S]*WHERE mode = 'auto'/);
+  assert.deepEqual(approvalParams('Sam'), ['door-grant', 'grant:Sam']);
+});
+
+test('an auto setting with its decision row is an auto decision; anything else asks the person', () => {
+  assert.deepEqual(autoOf([{ person: 'p', scope: 'door-grant', mode: 'auto', decision_id: 'd1', set_by: 'p' }]), { decision_id: 'd1', setting_id: 'approval_setting:p:door-grant', mode: 'auto' });
+  assert.equal(autoOf([{ person: 'p', scope: '*', mode: 'ask', decision_id: null }]), null, 'a non-auto mode asks');
+  assert.equal(autoOf([{ person: 'p', scope: 'door-grant', mode: 'auto', decision_id: null }]), null, 'auto with no decision row asks');
+  assert.equal(autoOf([]), null, 'no setting asks');
+  assert.equal(autoOf(undefined), null, 'an unreadable answer asks');
 });

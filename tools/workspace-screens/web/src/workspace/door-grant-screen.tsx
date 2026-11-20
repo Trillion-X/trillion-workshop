@@ -18,6 +18,7 @@ import { Button, Card, Container, Text } from '../../../../ui';
 import { loadScreen } from '../../../../ui/show/screen-state';
 import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { readJson } from './api';
+import { autoDecisionFor } from './door-grant-approval';
 import { refusal } from './failure';
 import words from './door-grant-words.json';
 import { KEEP, LIST, WITHDRAW, doorRequest, endsWords, isKept, lastUsedWords, refusalWords, requestOf, whoWords, withdrawInput } from './door-grant.mjs';
@@ -51,7 +52,7 @@ function GrantRow({ grant, busy, stop }: { grant: Grant; busy: boolean; stop: (l
   );
 }
 
-function RequestCard({ request, busy, onKeep }: { request: Asked; busy: boolean; onKeep: () => void }) {
+function RequestCard({ request, busy, checking, onKeep }: { request: Asked; busy: boolean; checking: boolean; onKeep: () => void }) {
   const grant = request.sharing.grant;
   return (
     <Card variant="nested" padding="md">
@@ -63,9 +64,11 @@ function RequestCard({ request, busy, onKeep }: { request: Asked; busy: boolean;
         <Text variant="body" color="muted">{words.identity}: {words.identity_words[grant.identity as 'none' | 'self']}</Text>
         <Text variant="body" color="muted">{words.journal}: {words.journal_words[grant.journal as 'input' | 'none']}</Text>
         <Text variant="body" color="muted">{words.ends}: {endsWords(request.sharing.ends)}</Text>
-        <Container layout="horizontal" justifyContent="end">
-          <Button disabled={busy} onClick={onKeep}>{busy ? words.keeping : words.keep}</Button>
-        </Container>
+        {checking ? <Text variant="body" color="muted">{words.checking}</Text> : (
+          <Container layout="horizontal" justifyContent="end">
+            <Button disabled={busy} onClick={onKeep}>{busy ? words.allowing : words.allow}</Button>
+          </Container>
+        )}
       </Container>
     </Card>
   );
@@ -75,6 +78,9 @@ function DoorGrant({ first, computer, request }: { first: Grants; computer: stri
   const [grants, setGrants] = React.useState<Grant[]>(first.grants);
   const [busy, setBusy] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState<string | null>(null);
+  // A grant someone asks for is kept without a press only when the person's master setting says so (door-grant-approval.ts).
+  const [checking, setChecking] = React.useState(Boolean(request?.ok && computer));
+  const checked = React.useRef(false);
 
   // The engine's own list of this computer, read again after every change.
   const reread = async () => {
@@ -88,18 +94,29 @@ function DoorGrant({ first, computer, request }: { first: Grants; computer: stri
     return readJson<unknown>(path, init, true);
   };
 
-  const keep = async (input: Asked) => {
+  const keep = async (input: Asked, auto = false) => {
     setBusy('keep'); setMessage(null);
     try {
       await call(KEEP, input, crypto.randomUUID());
       const list = await reread();
-      setMessage(isKept(list, input.label) ? words.kept : words.not_listed_yet);
+      setMessage(isKept(list, input.label) ? (auto ? words.auto_kept : words.kept) : words.not_listed_yet);
     } catch (error) {
       setMessage(refusalWords(codeOf(error)));
     } finally {
       setBusy(null);
     }
   };
+
+  // Once per opened request: the setting for this kind of grant decides whether it is kept now or the person presses Allow.
+  React.useEffect(() => {
+    if (!request?.ok || !computer || checked.current) return;
+    checked.current = true;
+    const asked = request.input;
+    void autoDecisionFor(asked.label).then(auto => {
+      setChecking(false);
+      if (auto) void keep(asked, true);
+    });
+  }, []);
 
   const stop = async (label: string) => {
     setBusy(label); setMessage(null);
@@ -120,7 +137,7 @@ function DoorGrant({ first, computer, request }: { first: Grants; computer: stri
       <Text variant="title">{words.title}</Text>
       {request && !request.ok ? <Text variant="body" color="muted">{words.problems[request.reason as keyof typeof words.problems] ?? words.problems.invalid}</Text> : null}
       {requestNeedsComputer ? <Text variant="body" color="muted">{words.problems.computer}</Text> : null}
-      {request?.ok && computer ? <RequestCard request={request.input} busy={busy === 'keep'} onKeep={() => void keep(request.input)} /> : null}
+      {request?.ok && computer ? <RequestCard request={request.input} busy={busy === 'keep'} checking={checking} onKeep={() => void keep(request.input)} /> : null}
       {message ? <Text variant="body">{message}</Text> : null}
       <Text variant="heading-xs">{words.list_heading}</Text>
       {grants.length === 0 ? <Text variant="body" color="muted">{words.none_kept}</Text> : null}
