@@ -1,0 +1,31 @@
+{
+  "_what": "Posts (pieces-screen.tsx): the pieces each pursuit is making, read from that pursuit's own database. A pursuit's database is any connection the vault names with `database_suffix` (secrets:names at the account's door), so a new pursuit shows here with no change; one whose database has no `table` shows nothing. `columns` are read by `tool`; `order` is the stages in the order a piece is shown (a stage not named comes after them). `ask_first` stages are the ones waiting on the person. A piece's slides are its `script` when that is a list of slides ([{head, body}]) or pages ({pages: [{sections: [{h, b}]}]}); its pictures are the files `extra.files` names, read through the files owner; a file kept only as a path on one computer cannot be read here and says so.",
+  "tool": "tool:run-sql-in-my-database",
+  "names_method": "/work/api/door/secrets:names",
+  "database_suffix": "_for_who_uses_it-connection",
+  "table": "content_pieces",
+  "columns": ["id", "kind", "state", "title", "why", "next_step", "script", "draft", "goes_to", "goes_out", "extra", "came_from"],
+  "order": ["Needs your voice", "Needs you to approve", "Waits for voice check", "Being made", "Idea", "Posted", "Deleted"],
+  "ask_first": ["Needs your voice", "Needs you to approve"],
+  "words": {
+    "title": "Posts",
+    "body": "What each of your pursuits is making, where it stands and what it waits on.",
+    "pursuits": "Pursuit",
+    "reading": "Reading your posts",
+    "failed": "Your posts could not be read.",
+    "retry": "Try again",
+    "none": "No pursuit has posts yet.",
+    "empty": "Nothing is being made here yet.",
+    "untitled": "Not named yet",
+    "why": "Why",
+    "next": "What it waits on",
+    "goes_to": "Goes to",
+    "caption": "Words",
+    "slides": "Slides",
+    "slide": "Slide",
+    "pictures": "Pictures",
+    "picture_elsewhere": "These pictures are kept only on the computer that made them, so they cannot be shown here.",
+    "picture_failed": "This picture could not be read.",
+    "posted_at": "Where it went"
+  }
+}
