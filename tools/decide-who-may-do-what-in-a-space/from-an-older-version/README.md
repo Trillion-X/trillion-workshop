@@ -4,8 +4,8 @@ Files of old trillion whose job is this tool's (decide who may do what in a spac
 
 | Old path | Here | Status |
 |---|---|---|
-| `src/space-member-types.mjs` | `src/space-member-types.mjs` | loads here |
+| `src/space-member-types.mjs` | (removed) | ported to `read-data/space-member-types-core.mjs` (tested by test/space-permissions.test.mjs, 14 pass) |
 | `src/space-membership-kinds.mjs` | `src/space-membership-kinds.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/community.mjs (at the tag, not moved here yet), src/plan-comparison.mjs (at the tag, not moved here yet), src/account-policy-name.mjs (at the tag, not moved here yet) |
-| `src/space-permissions.mjs` | `src/space-permissions.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/shared-native-execution-context.mjs (at the tag, not moved here yet), tools/formula-engine/rules/rule-operators.json (already gone at the tag), tools/formula-engine/rules/compile-rules.mjs (already gone at the tag), src/record-sharing.json (at the tag, not moved here yet) and 2 more |
+| `src/space-permissions.mjs` | (removed) | held: ERR_MODULE_NOT_FOUND; imports src/shared-native-execution-context.mjs (at the tag, not moved here yet), tools/formula-engine/rules/rule-operators.json (already gone at the tag), tools/formula-engine/rules/compile-rules.mjs (already gone at the tag), src/record-sharing.json (at the tag, not moved here yet) and 2 more |
 | `test/space-member-types-read-through.test.mjs` | `test/space-member-types-read-through.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/workspace/show-rules.mjs (at the tag, not moved here yet) |
 | `test/space-member-types.test.mjs` | `test/space-member-types.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/local-store.mjs (at the tag, not moved here yet), test/source-imports-for-tests.mjs (at the tag, not moved here yet), src/person-spaces.mjs (at the tag, not moved here yet), test/import-source-for-tests.mjs (at the tag, not moved here yet) and 4 more |
