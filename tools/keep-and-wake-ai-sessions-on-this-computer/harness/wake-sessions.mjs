@@ -397,6 +397,13 @@ async function keyFromStdin() {
   return text.split('\n')[0].trim();
 }
 
+// The account key a sealed credential holds (systemd hands it to the unit's credentials folder): read from that file only,
+// never from the command line or a shell pipe.
+export function keyFromCredential(name, folder = process.env.CREDENTIALS_DIRECTORY) {
+  if (!folder || !name) throw new Error('No credential folder or name was given.');
+  return readFileSync(join(folder, name), 'utf8').trim();
+}
+
 const isEntryScript = () => {
   try {
     return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
@@ -418,7 +425,10 @@ if (isEntryScript()) {
   if (process.argv.includes('--keep-running') || process.argv.includes('--stop-running')) { process.stdout.write(`${keepRunning(process.argv.includes('--keep-running'))}\n`); process.exit(0); }
   const skipped = process.argv.flatMap((arg, at) => (arg === '--skip' && process.argv[at + 1] ? [process.argv[at + 1]] : []));
   const handlerRules = { ...settings, handlers: settings.handlers.filter(path => !skipped.includes(path)) };
-  const accountKey = process.argv.includes('--key-stdin') ? await keyFromStdin() : keychainKey(settings.keychain_item);
+  const credential = process.argv.indexOf('--key-credential');
+  const accountKey = process.argv.includes('--key-stdin') ? await keyFromStdin()
+    : credential > 0 ? keyFromCredential(process.argv[credential + 1])
+      : keychainKey(settings.keychain_item);
   if (!accountKey) { process.stderr.write('No account key was given on standard input.\n'); process.exit(1); }
   // Started by the app: ends with it, so a replaced app never leaves this helper polling beside the new one.
   if (process.argv.includes('--key-stdin')) endWithTheApp();
