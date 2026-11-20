@@ -50,6 +50,12 @@ function requireCurrentReview(expected, post) {
   if (!completeApprovalValues(expected)) throw new Error('Give the complete approval_values from the review as expected_values.');
   if (contentOf(expected) !== contentOf(post)) throw new Error('The post changed after it was reviewed. Read and review its current approval_values before continuing.');
 }
+// A post that reaches someone (its reaches list, or an @handle in any place's words) is approved only by the person on their
+// own Posts screen. The host sets by_person; a caller's input never can (the old native owner's rule, src/social-posts.mjs invariant 7).
+function reachesSomeone(post) {
+  const words = [post.caption, ...Object.values(post.caption_by_platform ?? {})];
+  return (post.reaches ?? []).length > 0 || words.some(word => /@[A-Za-z0-9_.]+/.test(String(word ?? '')));
+}
 function sameReviewExceptSchedule(expected, post) {
   return completeApprovalValues(expected) && contentOf({ ...expected, scheduled_for: null }) === contentOf({ ...post, scheduled_for: null });
 }
@@ -268,7 +274,7 @@ export async function checkAPost(input = {}) {
 }
 
 /** tool:approve-a-post: approves the post exactly as it was reviewed. */
-export async function approveAPost(input = {}, { now = () => new Date() } = {}) {
+export async function approveAPost(input = {}, { now = () => new Date(), by_person: byPerson = false } = {}) {
   const { post_id: postId, expected_values: expected, approved_by: approvedBy } = input;
   const { records, kept } = recordsIn(input);
   const current = readPostRecord(records, postId);
@@ -280,6 +286,7 @@ export async function approveAPost(input = {}, { now = () => new Date() } = {}) 
   if (post.status === 'approved') return { post: shaped(post), said: 'The post was already approved.' };
   if (post.status !== 'draft') throw new Error(`${post.post_id} is ${post.status}, so there is nothing to approve.`);
   if (!post.destinations?.length) throw nowhere(post);
+  if (reachesSomeone(post) && byPerson !== true) throw new Error(`${post.post_id} reaches someone, so only the person can approve it, on their Posts screen.`);
   const at = now().toISOString();
   const by = text(approvedBy, 100);
   const approved = keep(kept, { ...post, status: 'approved', approved_at: at, ...(by ? { approved_by: by } : {}), updated_at: at });

@@ -180,7 +180,7 @@ test('a post with no time ahead, or not ready for a place, is not set to go', as
 });
 
 test('an AI can approve a named post exactly as reviewed under its row grant, without claiming page origin', async () => {
-  const draft = await step('draft-a-post', { caption: 'Thanks @someone for the idea', destinations: ['service_connection:x:second'] }, accounts);
+  const draft = await step('draft-a-post', { caption: 'Thanks for the idea', destinations: ['service_connection:x:second'] }, accounts);
   const { post_id: postId, approval_values: reviewed } = draft.result.post;
   const approve = row('approve-a-post');
   assert.equal(approve.input_schema.additionalProperties, false);

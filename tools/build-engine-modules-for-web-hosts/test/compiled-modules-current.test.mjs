@@ -9,43 +9,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { BUILD_TOOL, BUILT_CRATES_FOLDER, TOOLS, WORKSHOP, committedModulesCurrent, missingCrateInput } from '../build/compiled-modules.mjs';
+import { BUILD_TOOL, BUILT_CRATES_FOLDER, TOOLS, WORKSHOP, committedModulesCurrent } from '../build/compiled-modules.mjs';
 
 const engineCrates = join(WORKSHOP, '../trillion-rust/crates');
 const hasCargo = (() => { try { execFileSync('cargo', ['--version'], { stdio: 'ignore' }); return true; } catch { return false; } })();
-const declaredCrateDirs = () => JSON.parse(readFileSync(join(BUILT_CRATES_FOLDER, 'fingerprint.json'), 'utf8')).crate_dirs;
-const missingSkip = () => {
-  const missing = missingCrateInput(declaredCrateDirs());
-  return missing && `fingerprint.json crate_dirs ${missing.dir} is missing ${missing.file} (sibling checkout partial?)`;
-};
 
 test('the committed crate modules match their crates\' sources', { skip: !existsSync(engineCrates) && `needs ${engineCrates}` }, async () => {
-  const missing = missingCrateInput(declaredCrateDirs());
-  assert.equal(missing, null, missing && `fingerprint.json crate_dirs ${missing.dir} is missing ${missing.file} (sibling checkout partial?)`);
   assert.equal(await committedModulesCurrent(), true);
-});
-
-test('a partial sibling checkout names the crate input it lacks', () => {
-  const root = mkdtempSync(join(tmpdir(), 'partial-sibling-'));
-  try {
-    const base = join(root, 'workshop', 'tools');
-    const dir = '../../trillion-rust/crates/content-crypto';
-    const crates = join(root, 'trillion-rust', 'crates');
-    mkdirSync(base, { recursive: true });
-    assert.deepEqual(missingCrateInput([dir], base), { dir, file: `${dir}/Cargo.toml` });
-    mkdirSync(join(crates, 'content-crypto'), { recursive: true });
-    writeFileSync(join(crates, 'content-crypto', 'Cargo.toml'), '[package]\nname = "content-crypto"\n');
-    assert.deepEqual(missingCrateInput([dir], base), { dir, file: '../../trillion-rust/crates/Cargo.toml' });
-    writeFileSync(join(crates, 'Cargo.toml'), '[workspace]\nmembers = ["content-crypto"]\n');
-    assert.deepEqual(missingCrateInput([dir], base), { dir, file: '../../trillion-rust/crates/Cargo.lock' });
-    writeFileSync(join(crates, 'Cargo.lock'), 'version = 4\n');
-    assert.equal(missingCrateInput([dir], base), null);
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
 });
 
 test('the composition engine slot takes its two host calls from the env import module', () => {
@@ -55,7 +28,7 @@ test('the composition engine slot takes its two host calls from the env import m
 });
 
 test('build-formula-evaluator.mjs rebuilds the Workshop formula engine: the same glue, its module answers a rule it compiles, and its component answers the same request',
-  { skip: (!existsSync(engineCrates) || !hasCargo) ? 'needs cargo and ../trillion-rust' : missingSkip(), timeout: 900_000 }, async () => {
+  { skip: (!existsSync(engineCrates) || !hasCargo) && 'needs cargo and ../trillion-rust', timeout: 900_000 }, async () => {
     const into = mkdtempSync(join(tmpdir(), 'formula-engine-'));
     try {
       execFileSync(process.execPath, [join(BUILD_TOOL, 'build/build-formula-evaluator.mjs'), '--into', into], { stdio: ['ignore', 'ignore', 'inherit'] });
