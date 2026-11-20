@@ -1,7 +1,8 @@
 // tools/better-auth-official/test/loopback-cors.test.mjs
 //
 // A page on a person's own loopback address exchanges its code at the token endpoint by its own fetch: the endpoint names exactly that
-// loopback origin, never with credentials, and names no other origin or path. Against the real Better Auth, a code exchange sent from such
+// loopback origin, never with credentials, and names no other origin or path; the metadata document that names that endpoint does the
+// same for GET. Against the real Better Auth, a code exchange sent from such
 // a page (its loopback Origin, no cookie) is answered with a token.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -33,7 +34,20 @@ test('only an exact loopback origin with a port is named, and only at the token 
   for (const path of [`${settings.base_path}/oauth2/authorize`, `${settings.base_path}/oauth2/consent`, `${settings.base_path}/get-session`, `${TOKEN}/x`, '/oauth2/token']) {
     assert.equal(loopbackCorsHeaders(asked(path, 'http://127.0.0.1:8788'), settings), null, path);
   }
-  assert.ok(loopbackCorsHeaders(asked(`${TOKEN}?x=1`, 'http://127.0.0.1:8788'), settings), 'a query does not change the path');
+  assert.ok(loopbackCorsHeaders(asked(`${TOKEN}?x=1`, 'http://127.0.0.1:8788'), settings), 'a query does not change the path');});
+
+test('the authorization server metadata names a loopback origin for GET, in both its forms', () => {
+  for (const path of ['/.well-known/oauth-authorization-server', `/.well-known/oauth-authorization-server${settings.base_path}`]) {
+    const headers = loopbackCorsHeaders(asked(path, 'http://127.0.0.1:8788'), settings);
+    assert.equal(headers['access-control-allow-origin'], 'http://127.0.0.1:8788', path);
+    assert.equal(headers['access-control-allow-methods'], 'GET');
+    assert.equal(headers['access-control-allow-credentials'], undefined);
+    assert.equal(loopbackCorsHeaders(asked(path, 'https://evil.example'), settings), null, path);
+  }
+  for (const path of ['/.well-known/oauth-authorization-serverx', '/.well-known/openid-configuration/x', '/.well-known/webauthn']) {
+    assert.equal(loopbackCorsHeaders(asked(path, 'http://127.0.0.1:8788'), settings), null, path);
+  }
+  assert.equal(loopbackCorsHeaders(asked(TOKEN, 'http://127.0.0.1:8788'), settings)['access-control-allow-methods'], 'POST');
 });
 
 test('a code exchange sent from a loopback page with no cookie is answered with a token', async () => {
