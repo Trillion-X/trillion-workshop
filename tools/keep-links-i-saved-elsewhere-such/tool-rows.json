@@ -237,6 +237,21 @@
             }
           },
           "internet": false,
+          "records": {
+            "fd": 3,
+            "runs": [
+              "tool:read-a-page-in-my-browser"
+            ],
+            "rights": [
+              {
+                "at": "@secrets",
+                "id": "browser-relay-key",
+                "operations": [
+                  "secrets:sign"
+                ]
+              }
+            ]
+          },
           "files": {
             "package_files": [
               {
@@ -1215,6 +1230,21 @@
             }
           },
           "internet": false,
+          "records": {
+            "fd": 3,
+            "runs": [
+              "tool:read-a-page-in-my-browser"
+            ],
+            "rights": [
+              {
+                "at": "@secrets",
+                "id": "browser-relay-key",
+                "operations": [
+                  "secrets:sign"
+                ]
+              }
+            ]
+          },
           "files": {
             "package_files": [
               {
