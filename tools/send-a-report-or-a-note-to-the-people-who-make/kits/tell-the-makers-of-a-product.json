@@ -1,0 +1,40 @@
+{
+ "drafted_from": "tool:tell-the-makers-of-a-product (this folder's tool-rows.json) and the caller's own insert-only makers login",
+ "start_here": "Say to your AI: \"Tell the makers of this product about this: a bug, friction, feedback or an idea, with your own words\", and give it kind, note and your login's name. It writes one row to the makers' calendar_tasks; the owner's feedback workflow takes it from there. A second send of the same note is refused as already taken.",
+ "lists": [],
+ "no_lists_because": "It keeps no list of yours: it writes one row to the makers' calendar_tasks through the login you name.",
+ "workflows": [],
+ "tools": [
+  "tool:tell-the-makers-of-a-product"
+ ],
+ "instructions": [
+  "1. Say to your AI what kind of note it is (a bug report, friction, feedback or an idea), the note in your own words, and the name of your makers login.",
+  "2. The AI calls tool:tell-the-makers-of-a-product with credential_name, kind and note (and things, screen, browser, picture, where when it has them).",
+  "3. The row is written with the server's fields. Nothing is sent back to you."
+ ],
+ "worked_examples": [
+  {
+   "title": "Send one piece of feedback in your own words",
+   "ask": "Tell the makers of this product that the export button does nothing on the files screen, as feedback",
+   "mcp": {
+    "server": "{cli}",
+    "tool": "do_one_thing_in_my_account",
+    "input": {
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:tell-the-makers-of-a-product",
+      "input": {
+       "credential_name": "your-makers-login",
+       "kind": "feedback",
+       "note": "The export button does nothing on the files screen.",
+       "where": "my workspace",
+       "screen": "https://example.com/files"
+      }
+     }
+    }
+   },
+   "given": "The input above; the login writes one row.",
+   "hands_back": "It answered {\"id\":\"record:calendar-task:feedback-<64 hex>\",\"row_count\":1}. The same note sent again is refused as already taken."
+  }
+ ]
+}
