@@ -26,3 +26,16 @@ export function grantRefusal(message, quote) {
   if (!squeezed(message.text).includes(words)) return 'grant_quote_missing';
   return null;
 }
+
+/**
+ * The gate before a saved login is read for an AI (read_saved_login): the login is read only when the person's own kept
+ * message grants it (grantRefusal is null). `read(login)` is the sealed store's reader, passed in, never named here, and it
+ * is not called when the grant is refused. → { refused: key } or { value } from `read`.
+ * Ported from the older Workshop copy's read gate (commit b6ae0ebf81). Its caller is not wired: reading sealed logins is live.
+ */
+export async function readSavedLoginWithGrant({ login, grant_message, quote, read }) {
+  if (typeof read !== 'function') throw new Error('readSavedLoginWithGrant needs the sealed store reader; nothing is read without it.');
+  const refused = grantRefusal(grant_message, quote);
+  if (refused) return { refused };
+  return { value: await read(login) };
+}

@@ -30,3 +30,19 @@ test('the older refusals still come first: an AI speaker, a corrected source, sh
   assert.equal(grantRefusal({ ...road, speaker: 'person', text: SAID }, 'any AI'), 'grant_quote_short');
   assert.equal(grantRefusal({ ...road, speaker: 'person', text: SAID }, 'any AI may read my bank'), 'grant_quote_missing');
 });
+
+test('a granted read reads the login once; an ungranted one is refused and the store is never asked', async () => {
+  const { readSavedLoginWithGrant } = await import('../src/grant-rules.mjs');
+  const granted = { speaker: 'person', text: SAID, captured_road: 'carrier_door' };
+  const asked = [];
+  const read = async login => { asked.push(login); return { password: 'sample-value' }; };
+  assert.deepEqual(await readSavedLoginWithGrant({ login: 'login_1', grant_message: granted, quote: QUOTE, read }), { value: { password: 'sample-value' } });
+  assert.deepEqual(asked, ['login_1']);
+
+  const typedByAi = { speaker: 'person', text: SAID, captured_road: 'record_messages' };
+  const refused = await readSavedLoginWithGrant({ login: 'login_1', grant_message: typedByAi, quote: QUOTE, read });
+  assert.deepEqual(refused, { refused: 'grant_not_captured' });
+  assert.deepEqual(asked, ['login_1'], 'the refused read never reached the store');
+  assert.deepEqual(await readSavedLoginWithGrant({ login: 'login_1', grant_message: granted, quote: 'any AI', read }), { refused: 'grant_quote_short' });
+  await assert.rejects(readSavedLoginWithGrant({ login: 'login_1', grant_message: granted, quote: QUOTE }), /sealed store reader/);
+});
