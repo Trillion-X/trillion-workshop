@@ -127,7 +127,7 @@ export async function startingComponent(kind, id, options) {
     if (!row) return null;
     let version;
     if (kind === 'tool') version = (await import('../../../keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs')).workshopToolVersion(row);
-    else if (kind === 'workflow') version = (await import('../../../write-a-job-done-in-several-steps-have/from-an-older-version/src/workflows.mjs.held')).workflowRecipeIdentity(row);
+    else if (kind === 'workflow') version = (await import('../../../write-a-job-done-in-several-steps-have/read-data/workflows.mjs')).workflowRecipeIdentity(row);
     else if (kind === 'rule') {
       const [{startingRuleData},{defaultAutomationOf}]=await Promise.all([import('./starting-rules.mjs'),import('./automations.mjs')]);
       const rule=(await startingRuleData(options.env,options)).every_account.map(defaultAutomationOf).find(item=>item.id===id);

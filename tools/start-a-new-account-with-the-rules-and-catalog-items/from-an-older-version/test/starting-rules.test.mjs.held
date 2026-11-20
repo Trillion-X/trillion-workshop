@@ -13,7 +13,7 @@ import { overlayFacts, overlayRecords } from '../src/shipped-defaults.mjs';
 import { messages } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
 import { inbound } from '../src/inbound.mjs';
 import { keptAsChanges, shippedAutomations, shippedEventRules, startingRules } from '../src/starting-rules.mjs';
-import { recipeProblems } from '../../../write-a-job-done-in-several-steps-have/from-an-older-version/src/workflows.mjs.held';
+import { recipeProblems } from '../../../write-a-job-done-in-several-steps-have/read-data/workflows.mjs';
 import { readToolData } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs';
 import { sharedWorkshopPayloads } from '../scripts/workshop-rows.mjs';
 import startingRuleRows from '../records/starting-rules.json' with { type: 'json' };

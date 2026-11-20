@@ -25,4 +25,8 @@ node --test tools/write-a-job-done-in-several-steps-have/test/run-a-workflow.tes
 
 ## The older version's files
 
-The rest of the older version's files for this job are in `from-an-older-version/`: the bytes of commit b6ae0ebf81, under their old paths. `from-an-older-version/README.md` says which load here and which are held until what they import is here.
+The older version (commit b6ae0ebf81 of the older repository: `src/workflows.mjs` and its two test files) is adapted into `read-data/workflows.mjs`, and its checks are ported as tests in `test/`. Its bytes are removed from this folder. They stay in Workshop history at a6b9518c1 and in the older repository at b6ae0ebf81. The judgement, with file and line evidence, is the research row `verify-every-port/write-a-job-done-in-several-steps-have`:
+
+- Kept: recipe validity and check refusals (`recipeProblems`), one-call runs, tool asks, waiting asks, and the web route table.
+- Retired: the `agent:<id>` ask (commit 0f995f919, Nov 19 2026), and the saved-recipe store layer (commit 951b17e9a, Nov 18 2026, rule K6).
+- Not carried here yet, each a calendar task under `record:calendar-task:verify-every-port-write-a-job-done-in-several-steps-have`: persisted runs (resume, stop, snapshot), action checks at save and answer, the saved-workflow catalogue, skill-repository sources, the MCP workflow names that AIs are told to call, and the reader header name.
