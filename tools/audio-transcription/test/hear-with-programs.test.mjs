@@ -64,3 +64,14 @@ test('tool:hear-sources refuses a source whose bytes were not handed in', async 
     /was not handed in: its bytes come in as stored.files/,
   );
 });
+
+test('tool:hear-sources refuses a recording over the most bytes one run takes, and takes one at the limit', async () => {
+  const bytes = Buffer.from('12345');
+  const call = (most_bytes, name) => hearSourcesTool(
+    { sources: [{ source: 'microphone', path: name }], stored: { files: { [name]: { base64: bytes.toString('base64') } } }, model_path: '/m.bin', whisper_cli: fakeWhisper, ffmpeg: fakeFfmpeg },
+    { settings: sourcesSettings(), scratch: folder, file: path.join(folder, 'limit-sessions.json'), most_bytes },
+  );
+  await assert.rejects(call(4, 'over.m4a'), /5 bytes, more than one run takes \(4\)/);
+  const { words } = await call(5, 'at-limit.m4a');
+  assert.equal(words.length, 2);
+});
