@@ -27,13 +27,19 @@
 #   same directory and imported by name (composition, not fusion).
 import base64
 import importlib
+import importlib.util
 import json
 import os
 import pathlib
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from bitfield_crypto import content_hash as multihash_hex
+# The BLAKE3 identity is the one owner's (tools/conversations/read-data/content_identity.py), loaded from there, never copied.
+_OWNER = pathlib.Path(__file__).resolve().parents[5] / "conversations" / "read-data" / "content_identity.py"
+_spec = importlib.util.spec_from_file_location("content_identity", _OWNER)
+_content_identity = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_content_identity)
+multihash_hex = _content_identity.content_hash
 
 DEFAULT_PER_SOURCE = 25
 

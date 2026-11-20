@@ -51,11 +51,14 @@ import json
 import pathlib
 import sys
 
-# The declared process job mounts the shared hashing owner beside this script.
-# Isolated Python does not add the script directory to sys.path, so declare the
-# local module boundary explicitly rather than relying on the caller's cwd.
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from bitfield_crypto import content_hash as multihash_hex
+# The BLAKE3 identity is the one owner's (tools/conversations/read-data/content_identity.py), loaded from there at its
+# declared path, never copied beside this script.
+import importlib.util
+_OWNER = pathlib.Path(__file__).resolve().parents[5] / "conversations" / "read-data" / "content_identity.py"
+_spec = importlib.util.spec_from_file_location("content_identity", _OWNER)
+_content_identity = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_content_identity)
+multihash_hex = _content_identity.content_hash
 
 PREVIEW_CHARS = 240
 
