@@ -2,7 +2,8 @@
 vector for a face in a picture. The CAM++ voice model and the YuNet and SFace face models are the ones
 tools/media-composition already holds (find-recurring-voices.py, blur-faces-not-agreed.py); this file loads those
 scripts and calls them, so the models and their preparation exist once. The container mounts media-composition's
-do-work folder at /opt/media-composition/do-work; MEDIA_COMPOSITION_WORK names another place for running by hand.
+do-work folder beside this tool's folder (the same two levels up that audio-transcription is found by); MEDIA_COMPOSITION_WORK
+names another place for running by hand.
 """
 
 from __future__ import annotations
@@ -17,7 +18,7 @@ import wave
 import numpy as np
 from PIL import Image
 
-WORK = os.environ.get("MEDIA_COMPOSITION_WORK", "/opt/media-composition/do-work")
+WORK = os.environ.get("MEDIA_COMPOSITION_WORK", os.path.join(os.path.dirname(__file__), "..", "..", "media-composition", "do-work"))
 RATE = 16000
 
 
