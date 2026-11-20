@@ -38,7 +38,7 @@ test('a cause the engine does not take, two causes, an unknown field and an extr
   assert.match(wakeProblems([{ ...weekly, on: { time: { every_ms: 3600000 } } }], context)[0], /exactly one cause/, 'the engine keeps no clock: a time comes as a due-time fact');
   assert.match(wakeProblems([{ ...weekly, on: { running: {}, arrival: { source: 'x' } } }], context)[0], /exactly one cause/);
   assert.match(wakeProblems([{ ...weekly, on: { fact: { kind: 'due-time', from: ['run'], weekday: 'monday' } } }], context)[0], /^wakes\[0\]\.on\.fact\.weekday is not a field of a fact cause; it takes /);
-  assert.deepEqual(wakeProblems([{ ...weekly, starts: 'weekly' }], context), ['wakes[0].starts is not part of a wake; it takes id, on, budget, input, retry, skip_unchanged, rate, needs_input, replay.']);
+  assert.deepEqual(wakeProblems([{ ...weekly, starts: 'weekly' }], context), ['wakes[0].starts is not part of a wake; it takes id, on, budget, input, retry, skip_unchanged, rate, on_failure, needs_input, replay.']);
 });
 
 test('a fact names a kind and who may tell it, from the engine\'s tellers only', () => {
@@ -88,6 +88,8 @@ test('the settings of a wake are what the engine takes: retry, skip_unchanged, r
   assert.deepEqual(wakeProblems([{ id: 'keep', on: { running: {} }, budget: { steps: 1, wall_ms: 120000 }, input: { start_at: 'first' }, needs_input: ['credential_name'] }], context), [], 'needs_input on any wake');
   assert.deepEqual(wakeProblems([{ id: 'keep', on: { running: {} }, budget: { steps: 1, wall_ms: 120000 }, input: { start_at: 'first' }, retry: { attempts: 5, first_ms: 30000 } }], context), [], 'retry on a running wake starts a failed start again');
   assert.deepEqual(wakeProblems(set({ needs_input: [] }), context), ['wakes[0].needs_input must be texts.']);
+  assert.deepEqual(wakeProblems(set({ on_failure: { tool: 'tool:run-sql-in-my-database', input: { sql: 'select 1' }, from_input: { credential_name: 'store.credential_name' } } }), context), []);
+  assert.deepEqual(wakeProblems(set({ on_failure: { input: {} } }), context), ['wakes[0].on_failure.tool is required.']);
 });
 
 test('a repeated wake id and an empty list are refused', () => {
