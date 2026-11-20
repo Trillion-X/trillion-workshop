@@ -30,9 +30,19 @@ function callOf(path: string, init: RequestInit): Call | null {
 
 const ask = async (call: Call, signal?: AbortSignal | null) => fetch(door.route, {
   method: 'POST', signal: signal ?? null,
-  headers: { authorization: `Bearer ${await pass()}`, 'content-type': 'application/json', accept: 'application/json' },
+  // MCP over HTTP refuses (406) a caller that does not take both: the door may answer as one event (2025-06-18 transports).
+  headers: { authorization: `Bearer ${await pass()}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
   body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: door.tool, arguments: call } }),
 });
+
+// The reply is JSON, or an event stream whose message with this call's id is the reply (WHATWG HTML 9.2: `data:` lines).
+async function replyOf(response: Response): Promise<unknown> {
+  const text = await response.text();
+  if (!/text\/event-stream/i.test(response.headers.get('content-type') ?? '')) return JSON.parse(text);
+  const messages = text.split(/\r?\n\r?\n/).map(event => event.split(/\r?\n/).filter(line => line.startsWith('data:')).map(line => line.slice(5).replace(/^ /, '')).join('\n'))
+    .filter(Boolean).map(data => JSON.parse(data) as { id?: unknown });
+  return messages.find(message => message.id === 1) ?? null;
+}
 
 /** The door's answer to one read, in the shape every read of the page takes (api.ts PageAnswer). */
 export async function answerAtTheDoor(path: string, init: RequestInit): Promise<PageAnswer> {
@@ -40,7 +50,7 @@ export async function answerAtTheDoor(path: string, init: RequestInit): Promise<
   if (!call) return { status: 404, body: { failure_code: 'no-owner' } };
   let response = await ask(call, init.signal);
   if (response.status === 401) { passRefused(); response = await ask(call, init.signal); }
-  const reply = await response.json().catch(() => null) as { result?: { isError?: boolean; structuredContent?: Record<string, unknown>; content?: { text?: string }[] }; error?: { message?: string } } | null;
+  const reply = await replyOf(response).catch(() => null) as { result?: { isError?: boolean; structuredContent?: Record<string, unknown>; content?: { text?: string }[] }; error?: { message?: string } } | null;
   if (!response.ok || !reply) return { status: response.status || 503, body: null };
   if (reply.error) return { status: 400, body: { error: reply.error.message } };
   const result = reply.result ?? {};
