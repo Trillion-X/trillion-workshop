@@ -1040,21 +1040,6 @@
    }
   },
   {
-   "id": "tool:business",
-   "values": {
-    "title": "Business",
-    "job": "Show what this account's business took in this month",
-    "description": "A screen: this month's money in, fees, refunds, net and payments on each payment service this account connected, or the way to connect one; the operator also sees Trillion's price tests, paid plans and how people use Trillion. Its one read, tool:read-business (tools/see-what-my-business-took-in-this-month), gathers the facts; the screen host draws this layout from them (GET /work/api/screens/business).",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "folder": "show-my-screens-from-a-catalogue-of-reads-and-layouts",
-    "flags": [
-     "has-a-screen"
-    ]
-   }
-  },
-  {
    "id": "tool:calibrate-a-camera-frame",
    "values": {
     "title": "Calibrate a camera frame",
@@ -4488,21 +4473,6 @@
     ],
     "listed_on": "2026-10-05T22:00:00Z",
     "folder": "models-on-this-computer"
-   }
-  },
-  {
-   "id": "tool:get-started",
-   "values": {
-    "title": "Get started",
-    "job": "Show the setup steps this account still has to finish",
-    "description": "A screen: the required setup steps with their live checked progress, the way to connect an AI, and what is left before the rest of Trillion opens. Its one read, tool:read-setup, gathers this account's setup facts for the asking browser (the account files door's setup_facts, its own show rules and setup context, and its account id) and draws the steps with tool:see-what-is-left-to-set-up; the screen host answers what that read drew (GET /work/api/screens/get-started).",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "folder": "show-my-screens-from-a-catalogue-of-reads-and-layouts",
-    "flags": [
-     "has-a-screen"
-    ]
    }
   },
   {

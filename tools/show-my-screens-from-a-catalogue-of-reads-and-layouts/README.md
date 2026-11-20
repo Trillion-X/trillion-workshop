@@ -2,7 +2,7 @@
 
 Show my screens from a catalogue of reads and layouts, page by page, each drawn from the facts its reads answered.
 
-Its rows are catalogue screens the engine's generic screen host answers (`GET /work/api/screens/<id>`): `tool:look` (reads nothing) and `tool:get-started` (one read, `tool:read-setup` in tools/set-up-my-account, for the asking browser and the page's own account; its layout is what that read answered) and `tool:business` (one read, `tool:read-business` in tools/see-what-my-business-took-in-this-month; its layout is old trillion's Business layout, unchanged, drawn from that read's facts; its test and golden are in that folder). Tests: `test/catalogue-screen-look.test.mjs`, `test/catalogue-screen-get-started.test.mjs`.
+Its one row is a catalogue screen the engine's generic screen host answers (`GET /work/api/screens/<id>`): `tool:look` (reads nothing; its Panes and Feel sections have no reader yet, see its To do row). Retired: `tool:get-started`, whose one read `tool:read-setup` (tools/set-up-my-account) draws the setup steps (a missing step is a tool the AI uses, never a setup screen, Nov 18), and `tool:business`, whose reads are `tool:read-business` (tools/see-what-my-business-took-in-this-month) and `tool:add-up-revenue` (tools/revenue-ledger). Test: `test/catalogue-screen-look.test.mjs`.
 
 Before those rows it had none. Its old Trillion files are in `from-an-older-version/`: the bytes of tag `old-trillion-before-worker-retire`, under their old paths. `from-an-older-version/README.md` says which load here and which are held until what they import is here. Wiring them into a row is adapting them, in a commit that names `moved-from.json`.
 
