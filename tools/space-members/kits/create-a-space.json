@@ -1,0 +1,41 @@
+{
+  "drafted_from": "tool:create-a-space's own row (its words, input schema, sample run and steps) and what its sample run answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Start a shared space with this person as its owner and first member, for the caller to store\", with {\"space\":\"sample-hike\",\"subject\":\"owner@example.com\",\"title\":\"Sample hike\",\"label\":\"group\",\"records\":[]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers the rows to keep, and keeps no row itself.",
+  "workflows": [],
+  "tools": [
+    "tool:create-a-space",
+    "tool:join-a-space"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Start a shared space with this person as its owner and first member, for the caller to store\", and give it space (the new space's id, the last part of its record:space row id); subject (this person, the way they are named); title (what the space is); label (group, project, event, one-to-one or stay; group when left out); join (the join rows, as in tool:join-a-space; left out, the space is joined by invitation only); records (the records the ask reads: none for a new space).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:create-a-space and its input (the worked example shows one).",
+    "3. Read what comes back: the answer says created and the owner's state; its keep lists the record:space row and the owner's record:space-member row, which the caller stores."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start a space on its own sample",
+      "ask": "Start a shared space with this person as its owner and first member, for the caller to store",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:create-a-space",
+            "input": {
+              "space": "sample-hike",
+              "subject": "owner@example.com",
+              "title": "Sample hike",
+              "label": "group",
+              "records": []
+            }
+          }
+        }
+      },
+      "given": "The input {\"space\":\"sample-hike\",\"subject\":\"owner@example.com\",\"title\":\"Sample hike\",\"label\":\"group\",\"records\":[]}.",
+      "hands_back": "It answered {\"space\":\"sample-hike\",\"subject\":\"owner@example.com\",\"created\":true,\"label\":\"group\",\"state\":\"member\",\"member_type\":\"owner\",\"keep\":[{\"id\":\"record:space:sample-hike\",\"type\":\"record:space\",\"value\":{\"title\":\"Sample hike\",\"owner\":\"owner@example.com\",\"label\":\"group\",\"config\":{\"join\":[]}},\"expected\":null},{\"id\":\"record:space-member:sample-hike:owner%40example.com\",\"type\":\"record:space-member\",\"value\":{\"space\":\"sample-hike\",\"subject\":\"owner@example.com\",\"member_type\":\"owner\",\"state\":\"member\",\"how\":\"owner\",\"joined_at\":\"2026-11-20T07:27:13.292Z\"},\"expected\":null}]}."
+    }
+  ]
+}

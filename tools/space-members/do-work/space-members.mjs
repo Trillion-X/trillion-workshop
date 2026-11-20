@@ -7,12 +7,15 @@
 // ([{ id, type, value }]: the space's row, the member rows, and the payment events, offers, grants, rules and lifecycle a join by
 // access reads), and each row a call would change comes back under `keep` ([{ id, type, value, expected }]) for the caller to
 // store. A store refuses a keep whose `expected` record has moved since it was read.
-import { keepRow, prefixOf, readMember, readSpace, recordsIn, refuse, rowId, rowsWithPrefix, words } from '../read-data/space-rows.mjs';
-import { admission, howToJoin, memberNow, wordsFor } from '../read-data/member-now.mjs';
+import { KINDS, keepRow, prefixOf, readMember, readSpace, recordOf, recordsIn, refuse, rowId, rowsWithPrefix, words } from '../read-data/space-rows.mjs';
+import { admission, howToJoin, joinRowProblems, memberNow, wordsFor } from '../read-data/member-now.mjs';
 import { asksForAccess, heldAccessOf, heldAccessReader } from '../read-data/held-access.mjs';
 import { joinsAs, memberTypesOf } from '../read-data/member-types.mjs';
 
 const NAME_MOST = 80;
+const TITLE_MOST = 120;
+// The labels a space can start with here (DATA: tools/space-member-types). A community is joined by its own rules, not made here.
+const MADE_LABELS = ['group', 'project', 'event', 'one-to-one', 'stay'];
 
 /** The answer, with the rows a call would change under `keep` (none when it changes nothing). */
 function answered(result, ...keeps) {
@@ -59,6 +62,30 @@ export function leaveASpace(input) {
   if (subject === space.owner) refuse('The person who runs a space cannot leave it: hand it over first.');
   const value = { ...existing, state: 'left', ended_at: new Date(Date.now()).toISOString() };
   return answered({ space: id, subject, left: true, state: 'left' }, keepRow('member', rowId('member', id, subject), value, handed));
+}
+
+/** tool:create-a-space (the old create_membership): a person starts a shared space with themselves as its owner and first member.
+ * The space row and the owner's member row come back under `keep`; nothing is read from a store. An id already in the records is refused. */
+export function createASpace(input) {
+  const records = recordsIn(input);
+  const subject = subjectOf(input);
+  const id = words(input?.space);
+  if (!id) refuse('space must name the new space: its id, the last part of its record:space row id.');
+  if (recordOf(records, KINDS.space, rowId('space', id))) refuse('A space with this id already exists; choose another id.');
+  const title = words(input?.title)?.slice(0, TITLE_MOST);
+  if (!title) refuse('title must say what the space is.');
+  const label = input?.label === undefined ? 'group' : words(input.label);
+  if (!MADE_LABELS.includes(label)) refuse(`label must be one of ${MADE_LABELS.join(', ')}.`);
+  const join = input?.join === undefined ? [] : input.join;
+  if (!Array.isArray(join)) refuse('join must be a list of join rows.');
+  if (join.length) {
+    const problems = joinRowProblems(join);
+    if (problems.length) refuse(problems[0]);
+  }
+  const space = { title, owner: subject, label, config: { join } };
+  const member = { space: id, subject, member_type: 'owner', state: 'member', how: 'owner', joined_at: new Date(Date.now()).toISOString() };
+  return answered({ space: id, subject, created: true, label, state: 'member', member_type: member.member_type },
+    keepRow('space', rowId('space', id), space, null), keepRow('member', rowId('member', id, subject), member, null));
 }
 
 /** tool:check-someone-is-in-a-space: the one answer to "is this person a member now", with how they came in and their type. */
