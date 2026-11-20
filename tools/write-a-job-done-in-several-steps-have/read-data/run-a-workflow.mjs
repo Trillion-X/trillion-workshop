@@ -181,5 +181,10 @@ export async function runAsTheTool({ run = {}, woken_by = null } = {}, host = nu
     const named = waiting.map(({ step_id, asks, why }) => `${step_id} (asks ${asks}${why ? `: ${why}` : ''})`).join('; ');
     throw Object.assign(new Error(`This run was woken by a fact and stopped waiting on ${named || 'an ask no one can answer here'}; no one answers a woken run, so it did not finish.`), { waiting });
   }
+  // A woken run whose workflow failed fails too, in the workflow's own words. Answered as a run that ended, its wake said
+  // it ran, so no retry ran, no wake-failed fact was kept and no alarm heard of it (workflow:check-the-wake-alarm's
+  // a-wake-that-fails, Nov 19 2026 9:03 PM CST: its step's database answered that the table does not exist, and the
+  // wake said ran).
+  if (ran?.status === 'failed') throw new Error(ran.error_message || 'The workflow failed.');
   return ran;
 }

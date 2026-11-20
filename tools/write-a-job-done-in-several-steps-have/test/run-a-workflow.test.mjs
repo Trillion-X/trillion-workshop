@@ -174,6 +174,23 @@ test('(y) a woken run is given the fact that woke it as input.fact and its event
   assert.equal(direct.waiting?.[0]?.input?.fact_id ?? null, null);
 });
 
+// A woken run whose workflow failed fails, so its wake retries it, turns failed and tells the person; a direct call
+// still gets the failed run back to read.
+test('(y2) a woken run whose step failed fails in the workflow\'s own words; a direct call returns the failed run', async () => {
+  const definition = {
+    id: 'workflow:made-up-read', name: 'Read', kind: 'workflow', is_active: true, version: 1, edges: [],
+    steps: [{ id: 'read', kind: 'ask', config: { name: 'tool:made-up-read', input: {}, context: { step_id: 'read' } } }],
+  };
+  // A tool that ran and failed: host-actions.mjs answers it as an error whose work may be done (committed), which fails the step.
+  const host = { async run() { throw Object.assign(new Error('tool:made-up-read did not finish: relation "a_table_kept_nowhere" does not exist'), { outcome: 'committed' }); } };
+  const run = { definitions: [definition], workflow_id: definition.id, input: {} };
+  const detail = { kind: 'check-the-wake-alarm', from: 'sender', event_id: 'e:1', payload: {}, coalesced: 0 };
+  await assert.rejects(runAsTheTool({ run, woken_by: detail }, host), /a_table_kept_nowhere" does not exist/);
+  const direct = await runAsTheTool({ run }, host);
+  assert.equal(direct.status, 'failed');
+  assert.match(direct.error_message, /a_table_kept_nowhere" does not exist/);
+});
+
 // A tool ask runs through the run's door in the same call; an answer given wins; a tool the run may not start waits.
 test('(z) a tool ask runs through the host, keyed by step and what it asks; other asks wait; a refused tool waits with why', async () => {
   const bind = path => ({ $kind: 'binding', select: { from: 'input', path } });
