@@ -7,12 +7,15 @@
 //   node tools/workflows/do-work/rebuild-recipes.mjs           writes recipes/workflows.json
 //   node tools/workflows/do-work/rebuild-recipes.mjs --check   exit 1 when the file on disk is not what the two published files make
 //   node tools/workflows/do-work/rebuild-recipes.mjs --row-updates FILE  applies explicit pending local row DATA to the saved views, then rebuilds recipes/
+//
+// Every write is refused while the checkout's HEAD is not origin/main (read-data/committed-tree.mjs staleCheckout).
 
 import { readFileSync, writeFileSync, realpathSync } from 'node:fs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { applyWorkflowRowUpdates, recipesFromViews } from '../read-data/recipe-rows.mjs';
 import { withDerivedRecords } from '../read-data/derived-records.mjs';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { staleCheckout } from '../read-data/committed-tree.mjs';
 
 const PUBLISHED = new URL('../published/', import.meta.url);
 const TARGET = new URL('../recipes/workflows.json', import.meta.url);
@@ -174,6 +177,8 @@ if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.ar
   if (process.argv.includes('--account-readback') && !readbackPath) { console.error('Give the account JSONL readback file after --account-readback.'); process.exit(2); }
   if (updatePath && readbackPath) { console.error('Use either --row-updates or --account-readback, not both.'); process.exit(2); }
   if ((updatePath || readbackPath) && process.argv.includes('--check')) { console.error('Projection update modes write published views; do not combine them with --check.'); process.exit(2); }
+  const stale = process.argv.includes('--check') ? null : staleCheckout(fileURLToPath(new URL('../../../', import.meta.url)));
+  if (stale) { console.error(stale); process.exit(1); }
   if (updatePath) {
     const updates = JSON.parse(readFileSync(updatePath, 'utf8'));
     const readView = name => JSON.parse(readFileSync(new URL(name, PUBLISHED), 'utf8'));

@@ -8,11 +8,12 @@
 //   node tools/workflows/do-work/publish-tool-catalog.mjs TOOLS_FOLDER --git-tree FULL_TREE --stdout
 //     emits only catalogue JSON from that immutable tree, without changing the published file
 //
-// TOOLS_FOLDER is the Workshop's tools folder (the one holding every tools/<name>/tool-rows.json).
+// TOOLS_FOLDER is the Workshop's tools folder (the one holding every tools/<name>/tool-rows.json). A write from the
+// working tree is refused while the checkout's HEAD is not origin/main (read-data/committed-tree.mjs staleCheckout).
 
 import { readFileSync, writeFileSync, realpathSync } from 'node:fs';
 import { catalogText } from '../read-data/tool-catalog.mjs';
-import { committedTree, immutableTree } from '../read-data/committed-tree.mjs';
+import { committedTree, immutableTree, staleCheckout } from '../read-data/committed-tree.mjs';
 import { resolve, dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -36,5 +37,9 @@ if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.ar
   if (stdout) process.stdout.write(text);
   else if (check) {
     if (readFileSync(TARGET, 'utf8') !== text) { console.error('published/tools.json is not what the tool rows make: run publish-tool-catalog.mjs.'); process.exit(1); }
-  } else writeFileSync(TARGET, text);
+  } else {
+    const stale = reader ? null : staleCheckout(repository);
+    if (stale) { console.error(stale); process.exit(1); }
+    writeFileSync(TARGET, text);
+  }
 }

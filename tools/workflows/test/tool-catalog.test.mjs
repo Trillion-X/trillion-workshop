@@ -8,6 +8,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { catalogDocument, catalogText, toolCatalog } from '../read-data/tool-catalog.mjs';
 import { workshopRows } from '../read-data/workshop-tool-ids.mjs';
+import { staleCheckout } from '../read-data/committed-tree.mjs';
+import { execFileSync } from 'node:child_process';
 
 const tools = join(dirname(fileURLToPath(import.meta.resolve('trillion-workshop/package.json'))), 'tools');
 
@@ -58,4 +60,20 @@ test('the key is the content identity of the canonical fields and rows', () => {
   assert.equal(empty.source.blake3, '1f:d1b1d2c19093ed68deca7ee82393cf00962212c0918b6c7197239ccda6868fc1');
   const folders = { a: [tool('one')], b: [tool('two')] };
   assert.equal(catalogDocument(toolsFolder(folders)).source.blake3, catalogDocument(toolsFolder({ b: folders.b, a: folders.a })).source.blake3, 'the order the folders are read in does not change the key');
+});
+
+test('a generated file is never written from a checkout behind origin/main: the reason is said, and a current or remoteless checkout may write', () => {
+  const repo = mkdtempSync(join(tmpdir(), 'stale-checkout-'));
+  const git = (...args) => execFileSync('git', ['-C', repo, '-c', 'user.name=t', '-c', 'user.email=t@example.test', ...args], { encoding: 'utf8', env: { PATH: process.env.PATH } }).trim();
+  git('init', '-q');
+  writeFileSync(join(repo, 'a'), '1');
+  git('add', 'a'); git('commit', '-qm', 'one');
+  const older = git('rev-parse', 'HEAD');
+  assert.equal(staleCheckout(repo), null, 'no origin/main: nothing newer to undo');
+  writeFileSync(join(repo, 'a'), '2');
+  git('commit', '-qam', 'two');
+  git('update-ref', 'refs/remotes/origin/main', 'HEAD');
+  assert.equal(staleCheckout(repo), null, 'HEAD is origin/main');
+  git('checkout', '-q', older);
+  assert.match(staleCheckout(repo), /not origin\/main .*can undo newer work/);
 });

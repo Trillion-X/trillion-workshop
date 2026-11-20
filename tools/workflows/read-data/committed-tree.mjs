@@ -4,6 +4,19 @@ import path from 'node:path';
 
 const gitIn = repository => args => execFileSync('git', ['-C', repository, ...args], { encoding: 'utf8', timeout: 30_000, maxBuffer: 16 * 1024 * 1024 });
 
+// Why a generated file must not be written from this checkout's working tree, or null when it may: the checkout's HEAD
+// is not origin/main, so what it holds can be older than what is published and a write would undo newer work. A
+// repository with no origin/main has nothing newer to undo.
+export function staleCheckout(repository) {
+  const git = gitIn(repository);
+  let upstream;
+  try { upstream = git(['rev-parse', '--verify', '--quiet', 'refs/remotes/origin/main']).trim(); } catch { return null; }
+  if (!upstream) return null;
+  const head = git(['rev-parse', '--verify', 'HEAD']).trim();
+  return head === upstream ? null
+    : `This checkout is at ${head.slice(0, 10)}, not origin/main ${upstream.slice(0, 10)}: a file generated from its working tree can undo newer work. Bring it to origin/main first, or generate from a commit with --git-ref.`;
+}
+
 export function committedTree(repository, ref) {
   const git = gitIn(repository);
   const commit = git(['rev-parse', '--verify', '--end-of-options', `${ref}^{commit}`]).trim();
