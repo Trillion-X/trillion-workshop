@@ -97,6 +97,24 @@ function searchFileNames(given, { question, limit }) {
 }
 
 // `{ question, type?, limit?, records?, files? }` in; `{ question, terms, results, unavailable, pending, sat_out }` out.
+// The Workshop tools handed in (`tools`: [{id, title, job, kit}], read by the caller from the Workshop's tool rows and kits): each tool
+// scored by how many of the asked words start a word of its title, job or kit text. No all-words rule: a tool that holds some of the
+// job's words is a hit, and the most words held ranks first. Answers `find_tool_for_job` (tools/list-and-run-my-tools-for-any-ai).
+function searchTools(tools, { question, limit }) {
+  const terms = [...new Set(words(question).filter(word => word.length >= config.min_word_length))];
+  if (!terms.length || !Array.isArray(tools)) return [];
+  const hits = [];
+  for (const tool of tools) {
+    if (!tool || typeof tool !== 'object' || typeof tool.id !== 'string') continue;
+    const toolWords = words([tool.title, tool.job, tool.kit].filter(text => typeof text === 'string').join(' '));
+    const matched = terms.filter(term => toolWords.some(word => word.startsWith(term)));
+    if (!matched.length) continue;
+    hits.push({ id: tool.id, type: 'tool', found_in: ['written'], said: typeof tool.job === 'string' ? tool.job.slice(0, 200) : null,
+      score: matched.length / terms.length, address: { id: tool.id, type: 'tool' } });
+  }
+  return hits.sort((a, b) => b.score - a.score || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)).slice(0, Number.isInteger(limit) ? limit : config.limit);
+}
+
 // `records` are the person's records the caller read from its own store ({ id, type, value }); `files` maps each of the
 // person's file names to its text or { base64 }. This run reads no store: what is not handed in is not there, and a lane
 // that was not handed its input is named `unavailable`. `query_vectors` are the picture queries the caller made with the
@@ -113,6 +131,8 @@ export async function searchEverything(input, host = {}) {
       if (fields.records === undefined) throw Object.assign(new Error('No records were handed in.'), { code: 'no_records' });
       return searchRecords(given, { question, type: fields.type, limit: fields.limit }).map(hit => ({ start: 0, end: 0, ...hit, source: lane.source, key: hit.id, lane: { ...lane, id: `${lane.id}:${hit.type}` } }));
     },
+    // The Workshop tools handed in, searched by job words (searchTools).
+    tools: async (lane, { question }) => searchTools(fields.tools, { question, limit: fields.limit }).map(hit => ({ start: 0, end: 0, ...hit, source: lane.source, key: hit.id, lane: { ...lane } })),
     // The file names handed in, searched here.
     files: async (lane, { question }) => {
       if (fields.files === undefined) throw Object.assign(new Error('No files were handed in.'), { code: 'no_files' });
@@ -124,7 +144,8 @@ export async function searchEverything(input, host = {}) {
   async function finish(question, { type = null, places = null, sources = null, matches = null, limit = config.limit } = {}, partial = null) {
     question = String(question ?? '').trim().slice(0, 500);
     const terms = [...new Set(words(question).filter(word => word.length >= config.min_word_length))];
-    const lanes = planned(type, { places, sources, matches });
+    // The tools lane runs only when tools are handed in: a search without them answers exactly as before.
+    const lanes = planned(type, { places, sources, matches }).filter(lane => lane.match !== 'tools' || fields.tools !== undefined);
     const given = partial ?? { answered: lanes.map(() => null), unavailable: [], pending: [], still_reading: Object.fromEntries(lanes.filter(lane => INDEX_MATCHES.has(lane.match)).map(lane => [lane.id, 1])) };
     const unavailable = [...given.unavailable], pending = [...given.pending];
     const participated = new Map(Object.entries(given.participated ?? {}));

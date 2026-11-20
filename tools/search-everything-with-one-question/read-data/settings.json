@@ -71,6 +71,13 @@
       "place": "written",
       "source": "files",
       "rank": 1
+    },
+    {
+      "id": "tools",
+      "match": "tools",
+      "place": "written",
+      "source": "workshop",
+      "rank": 1
     }
   ]
 }
