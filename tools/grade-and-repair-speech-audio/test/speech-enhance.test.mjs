@@ -8,7 +8,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import toolRows from '../tool-rows.json' with { type: 'json' };
-import { budgetAsked, budgetOf, commandFor, enhanceSettings, enhanceSpeech, selectTier, settingsFor, speechPlaces } from '../read-data/speech-enhance.mjs';
+import { budgetAsked, budgetOf, commandFor, enhance, enhanceSettings, enhanceSpeech, filtersHere, selectTier, settingsFor, speechPlaces } from '../read-data/speech-enhance.mjs';
 
 const settings = enhanceSettings();
 const all = ['highpass', 'afftdn', 'agate', 'arnndn'];
@@ -95,4 +95,21 @@ test('a real recording on this computer is cleaned with the real ffmpeg and its 
   assert.ok(readFileSync(path.join(outputFolder, settings.keep.name)).length > 1000);
   assert.equal(done.speech.length, 1, JSON.stringify(done.speech));
   assert.ok(done.speech[0].start > 0.8 && done.speech[0].start < 1.4 && done.speech[0].end > 2.6 && done.speech[0].end < 3.2, JSON.stringify(done.speech));
+});
+
+// The old test's real-ffmpeg lines (the old app repository, b7dc53d08a test/speech-enhance.test.mjs:44, 51-53): the filter list is read from the
+// ffmpeg here, and with no tier at all the recording is left alone (tier null, no output) while its speech places are still found.
+test('the real ffmpeg\'s filter list is read, and with no tier the recording is untouched yet its speech is found', { skip: !ffmpeg }, async () => {
+  const wav = execFileSync(ffmpeg, ['-v', 'error', '-f', 'lavfi', '-i', 'anullsrc=r=16000:cl=mono:d=1', '-f', 'lavfi', '-i', 'sine=f=300:d=2,volume=0.5', '-f', 'lavfi', '-i', 'anullsrc=r=16000:cl=mono:d=1',
+    '-filter_complex', '[0][1][2]concat=n=3:v=0:a=1', '-ac', '1', '-ar', '16000', '-f', 'wav', '-']);
+  const input = fileOf('no-tier.wav', wav);
+  const here = settingsFor({ ffmpeg });
+  assert.ok((await filtersHere(here)).includes('afftdn'));
+  const untouched = await enhance({ input, output: path.join(folder, 'no-tier-out.wav'), settings: { ...here, tiers: [] }, budget: 1 });
+  assert.equal(untouched.tier, null);
+  assert.equal(untouched.output, null);
+  assert.match(untouched.why, /every tier costs more/);
+  assert.equal(existsSync(path.join(folder, 'no-tier-out.wav')), false);
+  assert.equal(untouched.speech.length, 1, JSON.stringify(untouched.speech));
+  assert.ok(untouched.speech[0].start > 0.8 && untouched.speech[0].start < 1.4 && untouched.speech[0].end > 2.6 && untouched.speech[0].end < 3.2, JSON.stringify(untouched.speech));
 });
