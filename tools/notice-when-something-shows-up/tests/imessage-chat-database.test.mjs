@@ -5,13 +5,13 @@
 // owns, and the dates as nanosecond text past 2^53. Numbers are the reserved fiction ranges (555-01xx).
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { rmSync } from 'node:fs';
+import { chmodSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 import {
-  CARRIED_BYTES, accessChange, afterOf, appleNanos, changesSince, describeMechanism, readDatabase, readSettings, watchEach, watchForTransitions,
+  CARRIED_BYTES, accessChange, afterOf, appleNanos, changesSince, describeMechanism, openCopy, readDatabase, readSettings, watchEach, watchForTransitions,
 } from '../do-work/mechanisms/imessage-chat-database.mjs';
 
 const FRIEND = '+15555550101';
@@ -220,4 +220,30 @@ test('each file is watched on its own; a missing file or a failed watch is no cr
   assert.equal(made.at(-1).file, '/m/chat.db-wal', 'and watched again at the next wake');
   watching.close();
   assert.throws(() => watchEach(['/m/none'], () => {}, { watchFile: () => { throw Object.assign(new Error('x'), { code: 'ENOENT' }); } }), /could be watched/);
+});
+
+// Messages keeps its newest writes in the -wal file until a checkpoint. A read of the copy must still see them, and a
+// read-only folder (where SQLite cannot create -shm) must not stop it.
+test('the copy read sees the newest rows that are only in the -wal file, even from a read-only folder', (t) => {
+  const folder = tempFolder(path.join(tmpdir(), 'imessage-wal-'));
+  t.after(() => { chmodSync(folder, 0o755); rmSync(folder, { recursive: true, force: true }); });
+  const file = path.join(folder, 'chat.db');
+  const writer = new DatabaseSync(file);
+  t.after(() => writer.close());
+  writer.exec(`PRAGMA journal_mode=WAL; PRAGMA wal_autocheckpoint=0;
+    CREATE TABLE message (ROWID INTEGER PRIMARY KEY, guid TEXT);
+    INSERT INTO message VALUES (1, 'older');`);
+  writer.exec('PRAGMA wal_checkpoint(TRUNCATE);');
+  writer.exec("INSERT INTO message VALUES (2, 'newest-only-in-wal');");
+  assert.ok(statSync(`${file}-wal`).size > 0);
+  chmodSync(folder, 0o555);
+
+  const reader = openCopy(file);
+  try {
+    const newest = reader.prepare('SELECT max(ROWID) AS row, group_concat(guid) AS guids FROM message').get();
+    assert.equal(newest.row, 2);
+    assert.equal(newest.guids, 'older,newest-only-in-wal');
+  } finally {
+    reader.close();
+  }
 });

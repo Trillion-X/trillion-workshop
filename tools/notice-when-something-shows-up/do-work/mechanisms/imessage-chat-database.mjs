@@ -45,8 +45,8 @@
  *   settle_ms        how long a burst of writes settles before one read (default 250)
  */
 import { createHash } from "node:crypto";
-import { watch } from "node:fs";
-import { userInfo } from "node:os";
+import { copyFileSync, existsSync, mkdtempSync, rmSync, watch } from "node:fs";
+import { tmpdir, userInfo } from "node:os";
 import path from "node:path";
 import { appleTime, textFromAttributedBody } from "../../../bring-in-new-items-from-this-computer/computer/connections/imessage.mjs";
 
@@ -247,9 +247,29 @@ function homeFolder() {
   try { return userInfo().homedir; } catch { return process.env.HOME ?? "/"; }
 }
 
-function openReadOnly(file) {
+/**
+ * Open a private copy of the database. Messages' -wal file holds the newest writes until a checkpoint, and a read-only folder
+ * cannot create the -shm file SQLite needs to read a WAL database, so the leaf copies the database with its -wal (and -shm
+ * when present) into its own temp folder and reads that copy. Closing the copy removes the folder.
+ */
+export function openCopy(file) {
   const { DatabaseSync } = process.getBuiltinModule("node:sqlite");
-  return new DatabaseSync(file, { readOnly: true });
+  const folder = mkdtempSync(path.join(tmpdir(), "imessage-copy-"));
+  const copy = path.join(folder, path.basename(file));
+  try {
+    copyFileSync(file, copy);
+    for (const side of ["-wal", "-shm"]) if (existsSync(`${file}${side}`)) copyFileSync(`${file}${side}`, `${copy}${side}`);
+    const db = new DatabaseSync(copy, { readOnly: true });
+    const close = db.close.bind(db);
+    db.close = () => {
+      close();
+      rmSync(folder, { recursive: true, force: true });
+    };
+    return db;
+  } catch (error) {
+    rmSync(folder, { recursive: true, force: true });
+    throw error;
+  }
 }
 
 /**
@@ -295,7 +315,7 @@ export async function watchForTransitions(settings, handlers) {
   const signal = handlers.signal;
   const now = handlers.now ?? (() => Date.now());
   const file = path.isAbsolute(own.database) ? own.database : path.join(handlers.home ?? homeFolder(), own.database);
-  const open = handlers.open ?? openReadOnly;
+  const open = handlers.open ?? openCopy;
   const watchFiles = handlers.watchFiles ?? watchEach;
 
   let state = handlers.state && Number.isInteger(handlers.state.last_row) ? { told: [], ...handlers.state } : null;
