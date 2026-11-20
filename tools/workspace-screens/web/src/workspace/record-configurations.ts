@@ -11,7 +11,21 @@ type ShareRead = {configuration: ConfigurationRecord; can?: string[]};
 const shared = (code: string, answer: ShareRead): ShareRead => ({...answer, configuration: {...answer.configuration,
   share_code: code, readOnly: !(answer.can ?? []).includes('edit')}});
 
+// Whether this page keeps saved configurations on the Workshop (its /work/api/configurations). A host without them (the members
+// page) answers from here: no saved views, nothing asked and nothing saved; a saved view that was opened by its address says so.
+let savedViewsOffered = true;
+export function setSavedViewsOffered(offered: boolean): void { savedViewsOffered = offered; }
+const NOT_KEPT = 'Saved views are not kept on this page.';
+const notKept = async (): Promise<never> => { throw new Error(NOT_KEPT); };
+
 export function recordConfigurationSource({accessCode}: {accessCode?: string} = {}): ConfigurationSource {
+  if (!savedViewsOffered) return {
+    context: {resolveTimeBound: async () => null},
+    list: async () => ({configurations: [], next_before: null}),
+    listShared: async () => ({configurations: [], next_before: null}),
+    read: notKept, readOffer: notKept, readShared: notKept, save: notKept, editShared: notKept, remove: notKept,
+    share: notKept, copyLink: notKept,
+  } as unknown as ConfigurationSource;
   const sharePath = (code: string) => `${ROOT}/shared/${encodeURIComponent(code)}${accessCode ? `?access_code=${encodeURIComponent(accessCode)}` : ''}`;
   return {
     context: {resolveTimeBound: async (point, now) => (await post<{value: number | null}>(`${ROOT}/context/time-bound`, {point, now})).value},

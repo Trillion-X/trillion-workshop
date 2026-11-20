@@ -79,6 +79,10 @@ const writing = new Map<string, number>();
 const waitingForWrite = new Map<string, Set<() => Promise<void> | void>>();
 // The screens a narrow change asked to read again, gathered with the rest (invariant 2).
 const narrowly = new Set<() => Promise<void> | void>();
+// Whether this page has a live channel (the Worker's /work/live). A host without one (the members page) turns it off, so no
+// socket is asked for and no reconnect is tried.
+let liveOffered = true;
+export function setLiveChangesOffered(offered: boolean): void { liveOffered = offered; }
 let listening = false;
 // Changes arrive in bursts (a computer uploading files changes the store many times a second), so the open screens
 // reload at most once every few seconds, one reload at a time, and only while the tab is shown; a hidden tab reloads
@@ -297,7 +301,7 @@ function stopListening() {
   leaving?.close(1000);
 }
 function listenForStoreChanges() {
-  if (listening || !storeChanged.size || typeof WebSocket === 'undefined') return;
+  if (!liveOffered || listening || !storeChanged.size || typeof WebSocket === 'undefined') return;
   listening = true;
   const generation = ++listenGeneration;
   if (typeof BroadcastChannel !== 'undefined' && canShareTabs()) {

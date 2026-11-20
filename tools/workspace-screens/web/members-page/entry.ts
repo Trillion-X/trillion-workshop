@@ -24,10 +24,16 @@ import mountArrangement from '../../../screen-arrangement/show/mount-screen-arra
 import { SCREEN_MODULES } from 'members-screen-registry';
 import { doorTransport, readHostConfig, recordsTransport, subjectOf } from './host';
 import { screenInputOf } from './rows.mjs';
+import { setLiveChangesOffered } from '../src/workspace/store-changes';
+import { setSavedViewsOffered } from '../src/workspace/record-configurations';
 
 type ScreenModule = { mount: (element: HTMLElement, props: Record<string, unknown>) => ReturnType<WarmMount> };
 
 const host = readHostConfig();
+// The members page has no Worker: no live channel (/work/live) and no saved configurations (/work/api/configurations), so it asks for
+// neither. Its screens keep what they show from the host's answers.
+setLiveChangesOffered(false);
+setSavedViewsOffered(false);
 const hostValues = await subjectOf(host);
 const LIST = `placeable-surface-list::${host.placement}`;
 
