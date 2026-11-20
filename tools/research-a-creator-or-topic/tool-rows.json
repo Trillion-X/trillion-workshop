@@ -251,7 +251,7 @@
     },
     "invoke": {
      "kind": "container",
-     "internet": true,
+     "internet": true, "public_read": true,
      "workdir": "/work",
      "stdout": "json",
      "argv": [
@@ -560,7 +560,7 @@
     },
     "invoke": {
      "kind": "container",
-     "internet": true,
+     "internet": true, "hosts": ["duckduckgo.com"],
      "workdir": "/work",
      "stdout": "json",
      "argv": [
@@ -2135,7 +2135,7 @@
     },
     "invoke": {
      "kind": "container",
-     "internet": true,
+     "internet": true, "public_read": true,
      "workdir": "/opt/research-a-creator-or-topic",
      "stdout": "json",
      "argv": [
@@ -2581,7 +2581,7 @@
     },
     "invoke": {
      "kind": "container",
-     "internet": true,
+     "internet": true, "hosts": ["api.fxtwitter.com"],
      "workdir": "/opt/research-a-creator-or-topic",
      "stdout": "json",
      "argv": [
@@ -2977,7 +2977,7 @@
     },
     "invoke": {
      "kind": "container",
-     "internet": true,
+     "internet": true, "hosts": ["arctic-shift.photon-reddit.com"],
      "workdir": "/opt/research-a-creator-or-topic",
      "stdout": "json",
      "argv": [

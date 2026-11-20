@@ -342,7 +342,7 @@
       ]
      },
      "workdir": "/opt/saved-examples",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",

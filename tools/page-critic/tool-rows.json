@@ -297,7 +297,7 @@
       ]
      },
      "workdir": "/opt/page-critic",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",

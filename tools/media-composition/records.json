@@ -131,7 +131,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",
@@ -335,7 +335,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",
@@ -488,7 +488,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",
@@ -636,7 +636,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",
@@ -780,7 +780,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",
@@ -1007,7 +1007,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "programs": {
       "ffmpeg": {
@@ -1323,7 +1323,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",
@@ -1745,7 +1745,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "programs": {
       "ffmpeg": {
@@ -2223,7 +2223,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "programs": {
       "ffmpeg": {
@@ -2533,7 +2533,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",
@@ -2807,7 +2807,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "programs": {
       "ffmpeg": {
@@ -3018,7 +3018,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",
@@ -3187,7 +3187,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",
@@ -3561,7 +3561,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "programs": {
       "ffmpeg": {
        "fetch": {
@@ -3795,7 +3795,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "python3",
@@ -4601,7 +4601,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",
@@ -4895,7 +4895,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",
@@ -5211,7 +5211,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",
@@ -5516,7 +5516,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",
@@ -5883,7 +5883,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",

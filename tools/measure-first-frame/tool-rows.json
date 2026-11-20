@@ -256,7 +256,7 @@
             "start-a-program"
           ],
           "workdir": "/opt/measure-first-frame",
-          "internet": true,
+          "internet": true, "public_read": true,
           "stdout": "json",
           "argv": [
             "node",

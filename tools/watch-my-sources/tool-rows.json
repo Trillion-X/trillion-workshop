@@ -401,7 +401,7 @@
     },
     "invoke": {
      "kind": "container",
-     "internet": true,
+     "internet": true, "public_read": true,
      "workdir": "/opt/watch-my-sources",
      "stdout": "json",
      "argv": [

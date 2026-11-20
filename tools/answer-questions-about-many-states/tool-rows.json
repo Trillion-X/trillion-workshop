@@ -232,7 +232,7 @@
             "start-a-program"
           ],
           "workdir": "/opt/answer-questions-about-many-states",
-          "internet": true,
+          "internet": true, "hosts": ["huggingface.co", "hf.co"],
           "stdout": "json",
           "argv": [
             "node",

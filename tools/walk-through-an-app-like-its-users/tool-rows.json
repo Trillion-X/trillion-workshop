@@ -85,7 +85,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": true, "public_read": true,
           "workdir": "/opt/walk-through-an-app-like-its-users",
           "stdout": "json",
           "argv": ["node", "/opt/walk-through-an-app-like-its-users/do-work/walk-through-an-app.mjs", "walk"],
@@ -152,7 +152,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": true, "public_read": true,
           "workdir": "/opt/walk-through-an-app-like-its-users",
           "stdout": "json",
           "argv": ["node", "/opt/walk-through-an-app-like-its-users/do-work/walk-through-an-app.mjs", "map"],
@@ -233,7 +233,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": true, "public_read": true,
           "workdir": "/opt/walk-through-an-app-like-its-users",
           "stdout": "json",
           "argv": ["node", "/opt/walk-through-an-app-like-its-users/do-work/walk-through-an-app.mjs", "observe"],

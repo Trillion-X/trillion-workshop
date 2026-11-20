@@ -108,7 +108,7 @@
             }
           },
           "workdir": "/opt/keep-the-last-good-answer",
-          "internet": true,
+          "internet": true, "public_read": true,
           "stdout": "json",
           "argv": [
             "node",

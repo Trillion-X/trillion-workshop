@@ -240,7 +240,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": true, "hosts": ["gamma-api.polymarket.com"],
           "workdir": "/opt/live-market-prices",
           "stdout": "json",
           "argv": ["python3", "/opt/live-market-prices/do-work/read-market-prices.py", "markets"],
@@ -535,7 +535,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": true, "hosts": ["clob.polymarket.com"],
           "workdir": "/opt/live-market-prices",
           "stdout": "json",
           "argv": ["python3", "/opt/live-market-prices/do-work/read-market-prices.py", "book"],

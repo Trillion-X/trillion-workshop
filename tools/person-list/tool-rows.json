@@ -94,7 +94,7 @@
       }
      },
      "workdir": "/opt/person-list",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",

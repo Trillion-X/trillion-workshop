@@ -341,7 +341,7 @@
               }
             ]
           },
-          "internet": true
+          "internet": true, "public_read": true
         },
         "result_selector": "$.result",
         "verify": [

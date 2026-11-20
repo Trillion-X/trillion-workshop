@@ -193,7 +193,7 @@
       }
      },
      "workdir": "/opt/get-there",
-     "internet": true,
+     "internet": true, "hosts": ["nominatim.openstreetmap.org", "overpass-api.de", "overpass.private.coffee", "maps.mail.ru"],
      "stdout": "json",
      "argv": [
       "node",

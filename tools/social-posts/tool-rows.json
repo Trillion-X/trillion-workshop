@@ -5418,7 +5418,7 @@
             ]
           },
           "workdir": "/opt/social-posts",
-          "internet": true,
+          "internet": true, "public_read": true,
           "stdout": "json",
           "argv": [
             "node",

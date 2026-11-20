@@ -1006,7 +1006,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": true, "public_read": true,
           "stdout": "json",
           "workdir": "/opt/ai-tool-catalog",
           "argv": [
@@ -1435,7 +1435,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": true, "public_read": true,
           "stdout": "json",
           "workdir": "/opt/ai-tool-catalog",
           "argv": [

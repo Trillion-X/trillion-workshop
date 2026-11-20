@@ -327,7 +327,7 @@
             "change-a-folder"
           ],
           "workdir": "/opt/free-what-the-list-says-can-be-got-back",
-          "internet": true,
+          "internet": true, "public_read": true,
           "stdout": "json",
           "parent_actions": {
             "fd": 3

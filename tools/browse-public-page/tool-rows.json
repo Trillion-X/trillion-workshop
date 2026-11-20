@@ -371,7 +371,7 @@
     "result_selector": "$",
     "invoke": {
      "kind": "container",
-     "internet": true,
+     "internet": true, "public_read": true,
      "workdir": "/work",
      "stdout": "json",
      "argv": [
@@ -729,7 +729,7 @@
     },
     "invoke": {
      "kind": "container",
-     "internet": true,
+     "internet": true, "public_read": true,
      "workdir": "/work",
      "stdout": "json",
      "argv": [
@@ -1031,7 +1031,7 @@
     },
     "invoke": {
      "kind": "container",
-     "internet": true,
+     "internet": true, "public_read": true,
      "workdir": "/opt/browse-public-page",
      "stdout": "json",
      "argv": [

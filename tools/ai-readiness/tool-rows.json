@@ -118,7 +118,7 @@
     "result_selector": "$",
     "invoke": {
      "kind": "container",
-     "internet": true,
+     "internet": true, "public_read": true,
      "workdir": "/work",
      "stdout": "json",
      "argv": [

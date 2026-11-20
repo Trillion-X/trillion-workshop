@@ -300,7 +300,7 @@
       ]
      },
      "workdir": "/opt/customer-follow-up",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",

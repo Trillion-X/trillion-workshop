@@ -4188,7 +4188,7 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [],
-          "internet": true,
+          "internet": true, "hosts": ["signal.org"],
           "kept_folder": true,
           "programs": {
             "signal-cli": {
@@ -4603,7 +4603,7 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [],
-          "internet": true,
+          "internet": true, "hosts": ["signal.org"],
           "kept_folder": true,
           "programs": {
             "signal-cli": {

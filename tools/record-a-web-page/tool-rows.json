@@ -479,7 +479,7 @@
       ]
      },
      "workdir": "/opt/record-a-web-page",
-     "internet": true,
+     "internet": true, "public_read": true,
      "stdout": "json",
      "argv": [
       "node",
