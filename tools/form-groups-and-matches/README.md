@@ -15,6 +15,9 @@ Keeps groups of anything in a person's records (lists, collections, folders, boa
 | `read-data/select-groups.mjs` | Groups formed by expected value with prepared introductions and their send gate. |
 | `read-data/select-configurations.mjs` | Which options go ahead together; only a shared collision ref makes two compete. |
 | `read-data/capacity-assignment.mjs` | Helpers assigned within their capacity, from pair answers or from scored candidates; also the row's command (`executeAssignmentOperation`). |
+| `read-data/interaction-program-fold.mjs` | The `interaction-program` descriptor reader: a payload as an object or JSON text into a program (unknown fields kept on `extra`), programs by id, and a program's per-day context sequence in day order. Not wired to a row yet. |
+| `read-data/console-selectors.mjs` | The community console's pure models: role matrix, permission toggles, measures, sequences, surfaces, programs, setup items and formed matches. Not wired yet. |
+| `read-data/feed-selectors.mjs` | The member feed's pure models: posts newest first, relative time, monograms. Not wired yet. |
 | `do-work/my-groups.mjs` | The commands of `tool:read-my-groups` and `tool:change-my-groups`: the group records the caller hands in as `records`, read or changed in memory; a change answers the changed records as `keep` (each with the value it expected). No records door. |
 | `do-work/regroup-a-tree.mjs` | The command of `tool:regroup-a-tree`. |
 | `do-work/form-matches.mjs` | The command of `tool:form-matches`: shortlists or candidates in, groups, introductions and connections out. |
@@ -31,6 +34,7 @@ Keeps groups of anything in a person's records (lists, collections, folders, boa
 | `test/tree-to-groups.test.mjs` | The tree bridge (twelve cases) and regrouping by intent (ten cases), on a made-up bakery's folders. |
 | `test/match-fixtures.mjs` | A made-up bakers' circle: three factors, two scope fields, candidates and consents. |
 | `test/select-groups.test.mjs`, `test/expected-value.test.mjs`, `test/match-evidence.test.mjs`, `test/matchmaker-gauntlet.test.mjs`, `test/capacity-assignment.test.mjs`, `test/select-configurations.test.mjs` | The original package's matching tests, on the made-up program. |
+| `test/interaction-program-fold.test.mjs`, `test/console-selectors.test.mjs`, `test/feed-selectors.test.mjs` | The ported descriptor, console and feed readers, on made-up rows: the original assertions (JSON text, unknown fields, latest wins, the role matrix and its deletion test, measures, sequences, posts, monograms). |
 | `test/rows.test.mjs` | Every row run as the container runs it, against its sample; the matchmaker rows reach only its own kinds. |
 | `test/community-fixtures.mjs` | A made-up woodworkers' guild: its own three factors, two scope fields, six questions and every word it says. |
 | `test/community-matchmaker.test.mjs` | The original matchmaker's cases on the guild: default on and off, jobs per round, uncited scores, a pair introduced and talking, double opt-in, an AI's yes refused, a changed introduction, a no, expiry, a switch turned off, the clock, two yeses at once, discover, ties, experiments, erasure, follow-ups, and the bound on shortlist work. |
@@ -84,21 +88,24 @@ Keeps groups of anything in a person's records (lists, collections, folders, boa
 
 **Members on other accounts:** a member answers and reads at the holder's door through the community's act grant (`sharing:LABEL` with `tools: [tool:answer-in-a-community, tool:read-my-community-matches]`, `identity: self`): the engine sets `grant_person` to that member, and both rows refuse any other `person`. Their To do tasks and `wake_at` come with their view, so nothing is written into their account. **What the engine does not give yet:** a member's page at their own account cannot yet carry its page stamp to the holder's door, so a member on another account says yes only once that carry exists; their AI's no works now.
 
-**Not carried:** the old group read and write targets' engine framing (identity-text read-current frames, write batches, host partition labels, producer requests), the interaction-program descriptor fold with its ten references to old packages, the subject-participant hosted join doorway (access-rule admission, signed owner events, engine CAS writes: joining a group is `add-member` here), the board surfaces and screens (screens), and the group package's board features (layouts, connectors, exports and imports, board analytics), which belong to a board tool.
+**Not carried:** the old group read and write targets' engine framing (identity-text read-current frames, write batches, host partition labels, producer requests), the interaction-program storage key and its ten ref addresses (retired, see below), the interaction-program screens and process mounts (see below), the subject-participant hosted join doorway (access-rule admission, signed owner events, engine CAS writes: joining a group is `add-member` here), the board surfaces and screens (screens), and the group package's board features (layouts, connectors, exports and imports, board analytics), which belong to a board tool.
 
 **Depended on by:** Trillion, which reads `tool-rows.json` when it deploys.
 
 ## Carried from interaction-program
 
-The package `interaction-program` is carried whole where this folder had not: `from-bitfield-packages/interaction-program/` holds its files under the package's own paths, byte for byte, with `moved-from.json` (source commit and both identities of each file). Only import paths differ, set to where this repository keeps the matching leaves.
+The pure readers of the `interaction-program` package are ported here with their tests, and no tool row or caller reaches them yet (not wired):
 
-| Carried file | What it is |
+| Ported file | What it is |
 |---|---|
-| `show/mount-community-console.tsx`, `show/mount-community-feed.tsx` | The community console (roles matrix, points, pages, community setup, matchmaking, matches) and the community feed screens. Their data layer still calls the old package runtime (`useBitfieldData`, `sendRequestToBitfieldTarget`), so they open no screen until that is swapped for the records door. |
-| `read-data/console-selectors.mjs`, `read-data/feed-selectors.mjs` | The pure models behind those screens (role matrix, permission toggles, measure, sequence, surface, program and setup models; post models, relative time). |
-| `read-data/interaction-program-fold.mjs` | The one place that knows the `interaction-program` descriptor shape: raw records into typed programs, and the ten references each program names. |
-| `do-work/process-scripts/select-pairs-cli.mjs`, `render-tribe-matches.mjs` | The compute.process mount that turns retrieval shortlists, grouping DATA and consent records into groups, introductions and relationship writes, and the page that shows the matches. |
-| `things-to-store-and-run.json` | The package's records: five `interaction-program` descriptors, the `run-match-cycle` workflow definition, the owner-authored seed DATA, input descriptors and record contracts. Not wired to a row. |
-| `read-data/*.test.mjs`, `tests/contract.test.mjs` | The package's tests: console selectors, feed selectors and the descriptor fold run and pass here (`node --test`); the other tests are held (names end in `.held` or the file reads source by package path), with each reason in `moved-from.json` under `held`. |
+| `read-data/interaction-program-fold.mjs` | `foldInteractionProgram`: an object or JSON-text payload into `{ id, label, pairing, extra }`, with fields it does not know kept on `extra`. `foldInteractionPrograms`: programs by id, the later record wins. `readDailySequence`: a program's per-day context sequence, days in day order. |
+| `read-data/console-selectors.mjs` | The community console's models: role matrix and permission toggle, measure, sequence, surface, program, setup item and formed match. |
+| `read-data/feed-selectors.mjs` | The member feed's models: post models (newest first; operator or member from the post's own data), relative time, monogram. |
+
+Their tests are `test/interaction-program-fold.test.mjs`, `test/console-selectors.test.mjs` and `test/feed-selectors.test.mjs`. The original assertions run on made-up rows, because the package's seed rows are not in this folder.
+
+Retired, not ported (the lead's ruling for this port, Nov 20 2026): the descriptor's storage key (`package::interaction-program::program::<id>`) and the ten Envelope-address refs it named. A program's ref fields are plain data here, kept on `extra` and read by the code that owns each one.
+
+Not carried: the community console and feed screens (`show/mount-community-console.tsx`, `show/mount-community-feed.tsx`; their data layer still calls the old package runtime), the compute process mounts (`do-work/process-scripts/`), the package's seed records (`things-to-store-and-run.json`, with its `run-match-cycle` definition) and its held tests. The original files are in Workshop history at commit 352331c28 under `tools/form-groups-and-matches/from-bitfield-packages/interaction-program/`. That folder was removed from this tree by commit 332230b33, and its bytes are kept in the private repository at commit 2ffc5af.
 
 The grouping, configuration, capacity and intake-evidence leaves of the package are in `tools/community-logic-match/` and `tools/match-community-members/` (vendored from the package with import paths changed); `read-data/select-groups.mjs`, `expected-value.mjs`, `select-configurations.mjs`, `capacity-assignment.mjs` and `match-evidence.mjs` here are a second implementation of the same jobs and stay until their rows are pointed at the vendored originals.
