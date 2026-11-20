@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Button, Container, errorWords, Input, Spinner, Text, Textarea } from '../../ui';
-import { buildImportedDocument, compareImportedPages, documentImportFormat, importDocumentText } from '../do-work/imported-document.mjs';
+import { buildImportedDocument, compareImportedPages, documentImportFormat, importDocumentText } from '../../documents/do-work/imported-document.mjs';
 import type { SceneNode } from '../../documents/read-data/documents';
 import { sceneStyleToCss } from '../../ui/show/composition-scene-style';
 import { FloatingPanel } from '../../screen-arrangement/show/FloatingPanel';

@@ -36,5 +36,5 @@ export { encodeInlineLinkOpen, safeInlineLinkUrl, applyInlineLinkToText, selecte
 export type { InlineMark, Ref, Run } from './read-data/inline-tokens.ts';
 export { pageReferencesToCheck } from '../documents/read-data/page-references.ts';
 // A document's pages from plain sections of words (each `{ text, heading?, level? }`), the shape Write keeps.
-export { sectionsToContent } from './do-work/imported-document.mjs';
+export { sectionsToContent } from '../documents/do-work/imported-document.mjs';
 export type { PageReference, ReferenceResolution } from '../documents/read-data/page-references.ts';

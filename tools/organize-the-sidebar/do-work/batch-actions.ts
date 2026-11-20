@@ -22,7 +22,7 @@
 // =============================================================================
 
 import type { BatchActionCapability, BatchRunContext, NodeRef, NodeActionCapability } from '../../ui/show/node-actions';
-import type { VisualLayerStackRecord } from '../../ui/show/visual-layer-stack/visual-layer-types';
+import type { VisualLayerStackRecord } from '../../turn-frames-into-slides/read-data/visual-layer-types';
 import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
 import { reorderMember } from '../../ui/show/group/group-graph';
 import { readItems, patchItem, patchItems, setMemberOrder, itemIsConnector, itemIsLocked, placeItem, removeItem, itemRef, assignGroupId, groupIdOf, releaseGroupId } from '../read-data/group-board-model.ts';

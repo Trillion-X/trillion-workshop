@@ -17,7 +17,7 @@ import { sceneNodeReferenceOptions, sceneNodeReferenceSource } from '../read-dat
 import { checkPageReferences, referenceKey, type ReferenceOwnerCheck } from '../read-data/check-page-references';
 import { readDocumentIndex } from '../read-data/document-index';
 import { emitPlaceableSurfaceIntent } from '../../ui/show/placeable-surface-intent/placeable-surface-intent';
-import { sameImportedPage, revisionHashFor, planImportedPageReplacement, importedSceneIdentityConflicts, importDocumentText } from '../do-work/imported-document.mjs';
+import { sameImportedPage, revisionHashFor, planImportedPageReplacement, importedSceneIdentityConflicts, importDocumentText } from '../../documents/do-work/imported-document.mjs';
 import { ChevronDown, ChevronRight, FileText, MoreHorizontal, Plus, Sparkles, X } from 'lucide-react';
 import { CanvasMinimap } from '../../ui/show/canvas-minimap';
 import type { CanvasMinimapFrame } from '../../ui/show/canvas-minimap';

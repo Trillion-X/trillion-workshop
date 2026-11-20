@@ -4,7 +4,7 @@
 //   The recency group a row falls in on the Notes list (Today, Last week, Previous 30 days, Past). Boundaries and words
 //   are DATA in note-list-menu.json; nothing here names a group.
 
-import words from './note-list-menu.json' with { type: 'json' };
+import words from '../../../../workspace-screens/web/src/workspace/note-list-menu.json' with { type: 'json' };
 const recency = words.recency;
 
 const DAY_MS = 86400000;

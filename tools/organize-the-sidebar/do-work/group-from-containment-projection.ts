@@ -30,7 +30,7 @@
 // Pure. No filesystem, network, process, or clock access. Every operation returns
 // a new graph, so a caller cannot mutate a graph it does not own.
 
-import type { AddressRef } from '../../ui/show/visual-layer-stack/visual-layer-types';
+import type { AddressRef } from '../../turn-frames-into-slides/read-data/visual-layer-types';
 import {
   addMember,
   emptyGraph,

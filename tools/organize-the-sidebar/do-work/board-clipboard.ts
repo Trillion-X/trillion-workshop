@@ -19,7 +19,7 @@
 
 import type { BoardItem } from '../read-data/group-board-model.ts';
 import type { CapsuleBoard } from '../read-data/share-capsule.ts';
-import type { VisualLayerStackRecord } from '../../ui/show/visual-layer-stack/visual-layer-types';
+import type { VisualLayerStackRecord } from '../../turn-frames-into-slides/read-data/visual-layer-types';
 import { finiteCoord } from '../read-data/finite-coord.ts';
 
 /** The most items a single paste/import will materialize. A crafted clipboard/capsule payload can carry

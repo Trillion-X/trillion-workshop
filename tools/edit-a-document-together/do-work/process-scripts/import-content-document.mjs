@@ -21,7 +21,7 @@
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { buildImportedDocument } from '../imported-document.mjs';
+import { buildImportedDocument } from '../../../documents/do-work/imported-document.mjs';
 export {
   buildImportedDocument,
   verifyImportedDocument,
@@ -30,7 +30,7 @@ export {
   importDocumentText,
   COMPOSITION_DOCUMENT_INTERCHANGE_FORMAT,
   COMPOSITION_FRAGMENT_FORMAT,
-} from '../imported-document.mjs';
+} from '../../../documents/do-work/imported-document.mjs';
 
 function main() {
   const args = process.argv.slice(2);

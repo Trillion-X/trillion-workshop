@@ -23,9 +23,9 @@ import { Text } from '../../../../../ui/show/text';
 import { ScreenState } from '../../../../../ui/show/screen-state';
 import { MediaPreview } from '../../../../../ui/show/media-preview';
 import { layerProblems, layersToEdit, soundFromMusicBed } from '../../../../../media-composition/read-data/layers-to-edit.mjs';
-import { readJson } from '../api';
-import { askSearch, type SearchAnswer } from '../search-results';
-import { failedState } from '../failure';
+import { readJson } from '../../../../../workspace-screens/web/src/workspace/api';
+import { askSearch, type SearchAnswer } from '../../../../../workspace-screens/web/src/workspace/search-results';
+import { failedState } from '../../../../../workspace-screens/web/src/workspace/failure';
 import presets from './layer-presets.json';
 import { definePanel, type MediaEditLayer, type MediaEditLayerChange, type MediaEditPanelContext, type MediaEditPanelProps } from './panel-types';
 

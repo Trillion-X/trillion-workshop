@@ -4,7 +4,7 @@
 import React from 'react';
 import { Button, Container, Text } from '../../ui/index.ts';
 import type { SavedBundle } from '../do-work/attribute-bundle-palette.ts';
-import type { VisualLayerStackRecord } from '../../ui/show/visual-layer-stack/visual-layer-types';
+import type { VisualLayerStackRecord } from '../../turn-frames-into-slides/read-data/visual-layer-types';
 import { FRAME_ASPECTS, type FrameAspect } from './frame-aspects.ts';
 
 export interface SavedPresetsRowProps {

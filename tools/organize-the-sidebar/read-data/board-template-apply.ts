@@ -20,7 +20,7 @@
 // =============================================================================
 
 import type { GroupGraph } from '../../ui/show/group/group-graph.ts';
-import type { AddressRef } from '../../ui/show/visual-layer-stack/visual-layer-types';
+import type { AddressRef } from '../../turn-frames-into-slides/read-data/visual-layer-types';
 import { addBoard, boardRootRef, itemRef, placeItem, placeSection, sectionRef, setBoardBackground, setBoardAppearanceKey } from './group-board-model.ts';
 
 /** One descriptor in a template. Self-describing DATA (L090) — the applier reads

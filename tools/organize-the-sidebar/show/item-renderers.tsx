@@ -9,7 +9,7 @@
 // L065: visuals via ui/ components only (Card/Text/Container/Icon/MediaFrame).
 
 import React from 'react';
-import { isRelationAddress } from '../../content-media-evidence/read-data/content-media-evidence';
+import { isRelationAddress } from '../../record-voice-and-meetings/read-data/content-media-evidence';
 import { Button, Card, Container, Icon, Spinner, Text, AnchoredOverlay, Input } from '../../ui/index.ts';
 import { CanvasFrame } from '../../ui/show/canvas-frame/CanvasFrame';
 import { CanvasShape } from '../../ui/show/canvas-shape';

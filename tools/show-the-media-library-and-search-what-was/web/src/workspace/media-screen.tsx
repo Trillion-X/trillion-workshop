@@ -24,7 +24,7 @@
 //      with every name it has out of view into Recently Deleted or Archived; the library leaves it out until put back.
 //   5. Every control is a shared component (record views, NextStepCard, notifications, loading and failed states).
 
-import { fileTab as openingFile } from './open-screen';
+import { fileTab as openingFile } from '../../../../workspace-screens/web/src/workspace/open-screen';
 import { mountRecordViews, type FieldDescriptor } from '../../../../ui/show/record-views/record-views';
 import { Button } from '../../../../ui';
 import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
@@ -36,26 +36,26 @@ import type { NextStepMedia } from '../../../../ui/show/next-step-card';
 import { primeSavedPreview, readOrMakePreview, settledPreview, type MadePreview } from '../../../../ui/show/media-preview';
 import { PLACEABLE_SURFACE_MIME, setPlaceableSurfaceDragData } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import timelineLevels from '../../../../ui/show/record-views/timeline-zoom-levels.json';
-import { recordFilter } from './record-filter';
-import noteList from './note-list-menu.json' with { type: 'json' };
+import { recordFilter } from '../../../../workspace-screens/web/src/workspace/record-filter';
+import noteList from '../../../../workspace-screens/web/src/workspace/note-list-menu.json' with { type: 'json' };
 import { downloadTranscriptPdf } from './note-list';
 import { recencyGroup, recencyValues } from './recency-group.mjs';
-import { previewStore } from './made-previews';
-import { contentTypeOf, filePicture } from './file-picture';
-import { readJson, fileResults } from './api';
+import { previewStore } from '../../../../workspace-screens/web/src/workspace/made-previews';
+import { contentTypeOf, filePicture } from '../../../../workspace-screens/web/src/workspace/file-picture';
+import { readJson, fileResults } from '../../../../workspace-screens/web/src/workspace/api';
 import { readMediaLibrary } from './media-library-read';
 import { mountSharedContent } from '../../../../ui/show/coss/shared-content';
 import { releaseNode } from '../../../../ui/show/one-owner-per-node';
-import { DockedComposer } from './global-composer';
-import { refusal } from './failure';
-import { askSearch, type SearchAnswer } from './search-results';
-import { setAsideActions } from './set-aside';
-import { canTranscribe, transcribeRecordings } from './media-transcribe';
-import { editedFact, factFields, findFactField, personFieldKinds } from './file-facts.mjs';
-import { addPersonField, personFields, readFactsFromFiles, setFacts } from './file-facts-store';
-import { copyPublicLink, openShareVia, shareAction } from './sharing-sheet';
-import { addSelectedToTrayAction } from './tray';
-import { observedMediaKind, observedMediaType } from '../file-type.mjs';
+import { DockedComposer } from '../../../../workspace-screens/web/src/workspace/global-composer';
+import { refusal } from '../../../../workspace-screens/web/src/workspace/failure';
+import { askSearch, type SearchAnswer } from '../../../../workspace-screens/web/src/workspace/search-results';
+import { setAsideActions } from '../../../../workspace-screens/web/src/workspace/set-aside';
+import { canTranscribe, transcribeRecordings } from '../../../../workspace-screens/web/src/workspace/media-transcribe';
+import { editedFact, factFields, findFactField, personFieldKinds } from '../../../../workspace-screens/web/src/workspace/file-facts.mjs';
+import { addPersonField, personFields, readFactsFromFiles, setFacts } from '../../../../workspace-screens/web/src/workspace/file-facts-store';
+import { copyPublicLink, openShareVia, shareAction } from '../../../../workspace-screens/web/src/workspace/sharing-sheet';
+import { addSelectedToTrayAction } from '../../../../workspace-screens/web/src/workspace/tray';
+import { observedMediaKind, observedMediaType } from '../../../../workspace-screens/web/src/file-type.mjs';
 
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 type Row = { identity: string; file: string | null; origin: string; name: string; title: string | null; path: string | null; media_kind: string | null; media_type: string | null; stored: boolean; bytes: string | null; captured_ms: number | null; duration: number | null; facts: Record<string, unknown> | null; edits: number | null; words: number | null; preview?: MadePreview };

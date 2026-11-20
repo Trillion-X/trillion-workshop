@@ -12,15 +12,15 @@
 //      store changes and only an accepted, saved Filmcraft project offers Open. Retries reuse the same press.
 //   4. Every control is a shared part (Container, Text, Button, Select, Input, Dropzone).
 
-import { openFile } from '../open-screen';
+import { openFile } from '../../../../../workspace-screens/web/src/workspace/open-screen';
 import React from 'react';
 import { Button, Container, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, downloadBlob } from '../../../../../ui';
 import { LazyDropzone as Dropzone, LazyDropzoneEmptyState as DropzoneEmptyState } from '../../../../../ui/show/kibo/LazyDropzone';
-import handoff from '../../editor-handoff.json';
-import { postJson, readFileBytes, readJson } from '../api';
-import { uploadFiles } from '../upload';
+import handoff from '../../../../../workspace-screens/web/src/editor-handoff.json';
+import { postJson, readFileBytes, readJson } from '../../../../../workspace-screens/web/src/workspace/api';
+import { uploadFiles } from '../../../../../workspace-screens/web/src/workspace/upload';
 import type { MediaEditPanelProps } from './panel-types';
-import { AI_WORK, onStoreChange } from '../store-changes';
+import { AI_WORK, onStoreChange } from '../../../../../workspace-screens/web/src/workspace/store-changes';
 
 import { errorWords } from '../../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 export type Choices = { editor: string; frameRate: number };

@@ -8,11 +8,11 @@
 //   1. Words are DATA (note-list-menu.json).
 //   2. A PDF is only the transcript the Files owner kept; no transcript means no PDF, said in words.
 
-import words from './note-list-menu.json';
-import { fileResults } from './api';
+import words from '../../../../workspace-screens/web/src/workspace/note-list-menu.json';
+import { fileResults } from '../../../../workspace-screens/web/src/workspace/api';
 import { notify } from '../../../../ui/show/coss/notifications';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
-import { saveNotePdf } from './note-actions';
+import { saveNotePdf } from '../../../../workspace-screens/web/src/workspace/note-actions';
 
 /** Saves one recording's kept transcript as a PDF named after it. Says in words why it could not. */
 export async function downloadTranscriptPdf(identity: string, title: string): Promise<boolean> {

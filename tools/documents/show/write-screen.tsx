@@ -30,8 +30,8 @@ import { partManifestFeeds } from '#workspace/part-records.ts';
 import { showMissing } from '#workspace-records';
 import settings from 'trillion-workshop/tools/edit-a-document-together/show/write-screen.json';
 import { writeScreenInput } from 'trillion-workshop/tools/edit-a-document-together/show/write-screen-input.mjs';
-import { yourFiles, readNamespaceText } from '../../../src/workspace/your-files';
-import { uploadFiles } from '../../../src/workspace/upload';
+import { yourFiles, readNamespaceText } from '../../workspace-screens/web/src/workspace/your-files';
+import { uploadFiles } from '../../workspace-screens/web/src/workspace/upload';
 // Ask AI hands what the person asks to their own AI and places its answer (#workspace/ask-my-ai.ts answers the
 // surface's `ask-my-ai:` dispatch).
 import '#workspace/ask-my-ai.ts';

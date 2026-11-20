@@ -25,7 +25,7 @@ import {
   authoredNoteSurfaceAddress,
   writeCompositionRecord,
 } from '../../documents/do-work/publish-authored-thing';
-import { exportCompositionFragment, exportDocumentMarkdown } from './imported-document.mjs';
+import { exportCompositionFragment, exportDocumentMarkdown } from '../../documents/do-work/imported-document.mjs';
 import {
   buildTaskAttachmentAppend,
   noteAttachmentRefs,

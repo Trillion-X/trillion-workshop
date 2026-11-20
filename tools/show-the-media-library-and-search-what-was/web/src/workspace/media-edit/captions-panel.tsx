@@ -25,7 +25,7 @@ import { StyleChoices, type SampleRun, type StyleChoice } from '../../../../../u
 import { mountTimedTextEditor } from '../../../../../ui/show/selection/timed-text-editor.mjs';
 import { CAPTION_MEASURED_AT, CAPTION_STYLES, CAPTION_STYLE_SETTINGS, DEFAULT_CAPTION_STYLE, captionAss, resolveCaptionStyle } from '../../../../../media-composition/read-data/caption-styles.mjs';
 import { captionLinesForEdit, groupWordsIntoCaptionLines, wordsOf } from '../../../../../media-composition/read-data/caption-lines';
-import { fileResults } from '../api';
+import { fileResults } from '../../../../../workspace-screens/web/src/workspace/api';
 import { definePanel, type MediaEditCaption, type MediaEditPanelProps } from './panel-types';
 
 import { errorWords } from '../../../../../ui/show/safe-error-card/sanitize-error-text.ts';

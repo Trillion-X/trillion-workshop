@@ -23,9 +23,9 @@ import { Text } from '../../../../../ui/show/text';
 import { ScreenState } from '../../../../../ui/show/screen-state';
 import { MediaPreview } from '../../../../../ui/show/media-preview';
 import makeRows from '../../../../../media-composition/do-work/make-pictures-and-sounds.json';
-import { runWorkshopTool } from '../workshop-tool-api';
-import { failedState } from '../failure';
-import { baseName, bytesAddress } from '../file-picture';
+import { runWorkshopTool } from '../../../../../workspace-screens/web/src/workspace/workshop-tool-api';
+import { failedState } from '../../../../../workspace-screens/web/src/workspace/failure';
+import { baseName, bytesAddress } from '../../../../../workspace-screens/web/src/workspace/file-picture';
 import { definePanel, type MediaEditPanelProps } from './panel-types';
 import { PLACEABLE_SURFACE_MIME } from '../../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 

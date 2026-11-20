@@ -474,7 +474,8 @@
         "package": "media-composition",
         "paths": [
          "read-data",
-         "do-work/author-karaoke-captions.mjs"
+         "do-work/author-karaoke-captions.mjs",
+         "do-work/karaoke-captions-cli.mjs"
         ],
         "at": "/opt/media-composition"
        },

@@ -3,14 +3,14 @@
 // Media edits open from the clip data already on the tab. The shared player
 // previews a selected stretch; the same ordered clip list is saved and rendered.
 
-import { openFile } from './open-screen';
+import { openFile } from '../../../../workspace-screens/web/src/workspace/open-screen';
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { Button, Container, ExpandableTabs, Input, NamedIcon, SegmentedControl } from '../../../../ui';
 import { loadScreen } from '../../../../ui/show/screen-state';
-import { PlanNeeded, files, postJson, readFileJson, readJson } from './api';
-import { planNeededTitle, refusal } from './failure';
+import { PlanNeeded, files, postJson, readFileJson, readJson } from '../../../../workspace-screens/web/src/workspace/api';
+import { planNeededTitle, refusal } from '../../../../workspace-screens/web/src/workspace/failure';
 import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import { HoverPreview } from '../../../../ui/show/hover-preview';
 import { MediaPreview } from '../../../../ui/show/media-preview';
@@ -20,7 +20,7 @@ import { CutPlayer, type CutPlayerScope } from './media-edit/cut-player';
 import { CutTimeline, type TimelineAction } from './media-edit/cut-timeline';
 import { clipAt, cutComposition, cutOffsets, laneClipId, moveTo, readLaneClipId, removeRange, splitAt } from './media-edit/cut-list';
 import { useMeasuredLengths } from './media-edit/use-measured-lengths';
-import { readRecordAt, subscribeRecordLabel } from './records';
+import { readRecordAt, subscribeRecordLabel } from '../../../../workspace-screens/web/src/workspace/records';
 
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 type ClipInput = {

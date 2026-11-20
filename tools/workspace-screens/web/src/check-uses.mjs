@@ -8,7 +8,7 @@
 // A decision's current outcome is the latest observation or person report about its current generation. A later
 // failure or uncertainty is never hidden behind an earlier check; historical evidence stays in its original owner.
 import words from 'trillion-workshop/tools/decide-with-a-method/read-data/what-helped-words.json' with { type: 'json' };
-import handling from '../records/outcome-handling.json' with { type: 'json' };
+import handling from '../../../keep-and-wake-ai-sessions-on-this-computer/records/outcome-handling.json' with { type: 'json' };
 import precedence from './outcome-precedence.json' with { type: 'json' };
 import * as outcome from 'trillion-workshop/tools/decide-with-a-method/read-data/decision-outcome.mjs';
 

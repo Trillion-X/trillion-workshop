@@ -10,7 +10,7 @@
 
 import React from 'react';
 import { measureMediaLength } from '../../../../../show-any-file-as-itself/read-data/measure-media-length';
-import { fileResults } from '../api';
+import { fileResults } from '../../../../../workspace-screens/web/src/workspace/api';
 import type { MediaEditClip } from './panel-types';
 
 export function useMeasuredLengths(clips: readonly MediaEditClip[], apply: (identity: string, seconds: number) => void, tell: (text: string) => void): boolean {

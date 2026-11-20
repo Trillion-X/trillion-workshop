@@ -32,7 +32,7 @@ import { readSelectionOps } from '../../documents/read-data/selection-ops';
 import { readCursorCommands } from '../../documents/read-data/cursor-commands';
 import { normalizeFeedRows } from '../read-data/feed-rows';
 import { readSidebarSettings } from '../../sidebar/read-data/sidebar-settings';
-import { documentCollaborationView } from '../read-data/collaboration-view';
+import { documentCollaborationView } from '../../documents/read-data/collaboration-view';
 import type { FileFieldSource } from '../../ui/show/file-field';
 
 export function createMountedDocumentsScenePatch(

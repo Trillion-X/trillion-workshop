@@ -13,7 +13,7 @@ import {
   type DocumentsSceneTargetDependencies,
 } from './scene-target-runtime';
 import { buildEngineReadCurrentRequestFromLabels, decodeEngineReadCurrentReply, makeHashCodeHexFromBytes } from '#workspace-records';
-import { buildImportedDocument, verifyImportedDocument } from './imported-document.mjs';
+import { buildImportedDocument, verifyImportedDocument } from '../../documents/do-work/imported-document.mjs';
 
 export type DocumentsSceneReadRequest = {
   document_ref?: string;
