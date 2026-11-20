@@ -4,18 +4,7 @@
 // order, with their route, FAQ pairs and sources. Nothing here serves a page or reads a store. Ported from the older package read-data/read-public-document-site.ts
 // (bitfield-packages commit d926b7adb8), with its two test cases kept as test/read-published-documents.test.mjs.
 
-const DEFAULT_SELECTORS = {
-  id: 'id',
-  title: 'title',
-  slug: 'slug',
-  blocks: 'blocks',
-  faq_pairs: 'faq_pairs',
-  author_ref: 'author_ref',
-  schema_type: 'schema_type',
-  jsonld_fragments: 'jsonld_fragments',
-  sources: 'sources',
-  state: 'publish_state',
-};
+import defaultView from '../read-data/publication-view-default.json' with { type: 'json' };
 
 const isRecord = value => !!value && typeof value === 'object' && !Array.isArray(value);
 const pathParts = path => (Array.isArray(path) ? path : String(path).split('.').filter(Boolean));
@@ -44,9 +33,12 @@ function payloadRows(raw) {
   return raw.map(row => (isRecord(row) && isRecord(row.payload) ? row.payload : row)).filter(isRecord);
 }
 
+// The view row the caller passes, over the default view row's DATA: a field the row does not name (its selectors, say) is
+// the default row's, so a view with no selectors reads the document fields as the default row names them.
 const readViewConfig = raw => {
   const payload = payloadRows(raw)[0] ?? raw;
-  return isRecord(payload) ? payload : {};
+  const view = isRecord(payload) ? payload : {};
+  return { ...defaultView, ...view, selectors: { ...defaultView.selectors, ...(isRecord(view.selectors) ? view.selectors : {}) } };
 };
 
 // One visibility rule: op is equals (the default), not_equals, in, not_in, exists or missing.
@@ -78,7 +70,7 @@ function readRoute(payload, view) {
 }
 
 function readDocument(payload, view) {
-  const selectors = { ...DEFAULT_SELECTORS, ...(view.selectors ?? {}) };
+  const selectors = view.selectors;
   const id = readText(readSelector(payload, selectors.id));
   const title = readText(readSelector(payload, selectors.title));
   const slug = readText(readSelector(payload, selectors.slug));

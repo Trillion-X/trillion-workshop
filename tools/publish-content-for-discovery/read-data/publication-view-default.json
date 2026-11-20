@@ -1,0 +1,16 @@
+{
+  "id": "publication-view::default",
+  "why": "The publication view a document site reads when its own view row names no selector: which document field is which. The owner's DATA; the code keeps no field names. Ported from the older package's publication-view::default row (bitfield-packages commit d926b7adb8, things-to-store-and-run.json:350).",
+  "selectors": {
+    "id": "id",
+    "title": "title",
+    "slug": "slug",
+    "blocks": "blocks",
+    "faq_pairs": "faq_pairs",
+    "author_ref": "author_ref",
+    "schema_type": "schema_type",
+    "jsonld_fragments": "jsonld_fragments",
+    "sources": "sources",
+    "state": "publish_state"
+  }
+}

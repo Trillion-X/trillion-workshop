@@ -105,3 +105,21 @@ test('the artifact record fields are named by the view, and each missing one rea
   assert.deepEqual(artifact, { content_address: 'content:1', integrity: 'b3:abc', media_type: null, source_record: 'record:9' });
   assert.deepEqual(readArtifactRecord({}, {}), {});
 });
+
+test('a view row with no selectors reads the document fields as the default view row names them', () => {
+  const model = readPublishedModel(rows([
+    { id: 'b', title: 'Beta', slug: 'beta', publish_state: 'live', blocks: [] },
+    { id: 'a', title: 'Alpha', slug: 'alpha', publish_state: 'draft', blocks: [] },
+  ]), [], { visibility_rules: [{ selector: 'publish_state', value: 'live' }] });
+  assert.deepEqual(model.documents.map(document => document.id), ['b']);
+  assert.equal(model.documents[0].state, 'live');
+  assert.equal(model.documents[0].slug, 'beta');
+});
+
+test('a view row that names one selector keeps the default row for the rest', () => {
+  const model = readPublishedModel(rows([
+    { id: 'a', headline: 'Alpha', slug: 'alpha', publish_state: 'live', blocks: [] },
+  ]), [], { selectors: { title: 'headline' } });
+  assert.equal(model.documents[0].title, 'Alpha');
+  assert.equal(model.documents[0].state, 'live');
+});
