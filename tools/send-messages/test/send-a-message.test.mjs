@@ -124,12 +124,14 @@ describe('email through Resend (carried from the email sender)', () => {
 describe('text through Twilio and email through Amazon SES (carried adapters)', () => {
   it('admits the sign-in code delivery fields and sends only the SMS body', async () => {
     // account/sign_in/ways.rs adds these delivery fields to the account's fixed provider input.
-    const input = { from: '+15550199', account_sid: 'AC0000example', to: '+15550100',
+    const input = { provider: 'twilio-sms', from: '+15550199', account_sid: 'AC0000example', to: '+15550100',
       kind: 'sign-in-code', subject: 'Your sign-in code', text: 'Your code is 123456', idempotencyKey: 'sign-in:synthetic-code' };
     const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records
-      .map(record => record.payload).find(item => item.id === 'tool:send-a-text-with-twilio');
+      .map(record => record.payload).find(item => item.id === 'tool:send-a-text');
     assert.equal(row.input_schema.additionalProperties, false);
-    assert.equal(row.output_schema.properties.sent.items.properties.messageId.pattern, '^(SM|MM)[0-9a-fA-F]{32}$');
+    // The row is provider-generic (its vendor-named twin was removed Nov 14 2026, commit 169ecdb26), so the Twilio
+    // SID form is checked where Twilio's answer is read, in the sender tests above, not on the shared row.
+    assert.deepEqual(row.output_schema.properties.sent.items.properties.messageId.type, 'string');
     for (const field of Object.keys(input)) {
       assert.equal(row.input_schema.properties[field]?.type, 'string', `the sign-in field ${field} is declared`);
     }
