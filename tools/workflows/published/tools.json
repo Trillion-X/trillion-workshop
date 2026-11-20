@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:0fe3014b08229f5f867ed21b9c2d2cb0e554da07319190b0161aee1d359c9c92"
+  "blake3": "1f:29048a9987e281c3f22e2acb2a0945c2985e872c89b53654b066f9acf7c59d23"
  },
  "fields": [
   {
@@ -11008,7 +11008,7 @@
    "values": {
     "title": "Run a workflow on the workflow engine, one step at a time",
     "job": "Run one of my workflows from its definition: walk its steps with the answers held so far, start the tool each next step names, tell every other step as waiting, and run again when an answer is told",
-    "description": "The workflow engine as one WebAssembly component (tools/workflows/crates/workflow-component), run with no network, no secret and no door. A run is handed its definition by whatever started it, from where the person keeps their workflows: in its input, in its wake's switch input, or in the fact that woke it (definition and start_at). The engine walks it from the start with the answers held. A step that names a tool starts that tool as a wake effect, whose result (or why it failed) is told back as the fact workflow-step-answered, which runs this again with the answer. Any other step is told as the fact workflow-step-waiting with what it asks, whom, and told_as, the envelope its answer comes back in; the person's own wakes decide what it becomes. A step that asks wake:arrive, the engine's own operation, is answered at once and told as the fact it gives ({kind, event_id?, payload}) when the run ends; a step inside a loop or a used workflow waits under its place in the run, so each item is a step of its own. Nothing is kept here and no store or tool is named. A walk that failed ends the run failed, in the engine's words.",
+    "description": "The workflow engine as one WebAssembly component (tools/workflows/crates/workflow-component), run with no network, no secret and no door. A run is handed its definition by whatever started it, from where the person keeps their workflows: in its input, in its wake's switch input, or in the fact that woke it (definition and start_at). The engine walks it from the start with the answers held. A step that names a tool starts that tool as a wake effect, whose result (or why it failed) is told back as the fact workflow-step-answered, which runs this again with the answer. Any other step is told as the fact workflow-step-waiting with what it asks, whom, and told_as, the envelope its answer comes back in; the person's own wakes decide what it becomes (its wake a-step-is-waiting runs the definition its switch input carries, such as one that gives the step to its answerer as a task). A step that asks wake:arrive, the engine's own operation, is answered at once and told as the fact it gives ({kind, event_id?, payload}) when the run ends; a step inside a loop or a used workflow waits under its place in the run, so each item is a step of its own. Nothing is kept here and no store or tool is named. A walk that failed ends the run failed, in the engine's words.",
     "status": "active",
     "maker": "maker:workflows",
     "licence_class": "licence:maker-own",
