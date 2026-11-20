@@ -83,6 +83,19 @@ export const permissions = {
   },
 };
 
+/** Whether a view-as look still stands (invariant 3), decided from the owner's copy: the account is not retired or being
+ *  deleted, not disconnected after the look was issued, still at the browser generation the look was issued under, its
+ *  sign-in not ended, and the permission for its viewer still in `let_look` (the owner's permission rows, `permissions`).
+ *  Ported from the old app repository's src/account-policy-source.mjs lookStands at b6ae0ebf815f (the same checks, the same shape). */
+export const lookStands = ({ account, sign_in_row, let_look }, look, now = Date.now()) => {
+  const { lifecycle } = account;
+  if (lifecycle.retired_into || lifecycle.deleting_since) return false;
+  if (lifecycle.disconnected_at && !(typeof look.issued_at === 'string' && look.issued_at > lifecycle.disconnected_at)) return false;
+  if (look.browser_generation !== lifecycle.browser_session_generation) return false;
+  if (sign_in_row?.ended_until_ms >= now) return false;
+  return permissions.of(let_look, look.grant, now)?.viewer === look.viewer;
+};
+
 export class ViewAsError extends Error {}
 
 const daysOf = days => {
