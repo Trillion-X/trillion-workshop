@@ -133,7 +133,7 @@ No copy of a key or session is kept: the answer is read from Better Auth's own r
 Every name a live account attached signs in with no settings change. `trustedOrigins` is a function
 (attached-origins.mjs): the home `trusted_origins`, and a request's own `Origin` when it is https with no port and
 `attached_origins.ask_url?domain=<host>` (the front door's certificate ask) answers 200; each answer is kept `cache_ms`.
-Passkeys keep one `rp_id` (the plugin has one) and use WebAuthn Related Origin Requests: `GET /.well-known/webauthn`
+A native app may use the passkeys in its own window when the app's associated domains name the `rp_id` host and that host answers `GET /.well-known/apple-app-site-association` with the app: `settings.apps.webcredentials` lists them (`<team id>.<bundle id>` each), served by server.mjs and routed with the webauthn document (on-a-computer/caddy-route-better-auth-webauthn.caddy); an empty list serves nothing. Passkeys keep one `rp_id` (the plugin has one) and use WebAuthn Related Origin Requests: `GET /.well-known/webauthn`
 answers `{origins}`, the home origins plus `related_url`'s list, and the plugin takes a reported origin that
 `trustedOrigins` names because `passkey` sets no `origin`. Browsers without related origins (Firefox), and names past the fifth distinct
 registrable domain in that list (the clients' limit), make passkeys only on the home name. Start-a-computer's `every_name_routes: ["better-auth"]`

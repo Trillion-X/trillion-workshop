@@ -24,6 +24,12 @@ const server = createServer(async (request, response) => {
   if (url === '/.well-known/webauthn' && request.method === 'GET') {
     return relatedOrigins(settings).then(body => response.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'max-age=300' }).end(JSON.stringify(body)));
   }
+  // The apps that may use this sign-in's passkeys (`settings.apps.webcredentials`: "<team id>.<bundle id>" each), as Apple's associated
+  // domains file on the passkey's own host; an app whose entitlement names this host then offers the passkey in its own window.
+  if (url === '/.well-known/apple-app-site-association' && request.method === 'GET' && settings.apps?.webcredentials?.length) {
+    return response.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'max-age=300' })
+      .end(JSON.stringify({ webcredentials: { apps: settings.apps.webcredentials } }));
+  }
   // The token endpoint answers a page on a person's own loopback address (loopback-cors.mjs): its preflight here, its POST with the headers.
   const cors = loopbackCorsHeaders(request, settings);
   if (cors && request.method === 'OPTIONS') return response.writeHead(204, cors).end();

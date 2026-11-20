@@ -1,3 +1,4 @@
-	handle /.well-known/webauthn {
+	@passkey_documents path /.well-known/webauthn /.well-known/apple-app-site-association
+	handle @passkey_documents {
 		{auth_proxy}
 	}
