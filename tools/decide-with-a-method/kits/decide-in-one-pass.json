@@ -1,0 +1,75 @@
+{
+  "drafted_from": "tool:decide-in-one-pass's own row (its words, input schema and sample run); it composes tool:start-a-decision, tool:record-method-answers and tool:make-the-decision, which each keep their own checks.",
+  "start_here": "Say to your AI: \"Decide this in one go: open it, answer every row of its method, and make the decision\", with the source, goal, evidence, options, answers and decision, and the records it read. It answers the decision and keeps what changed, or refuses and keeps nothing.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes the decision, the message, the source chat and the handoff as input and keeps only the decision's own rows (decision, decision-history and the decision records it changes).",
+  "workflows": [],
+  "tools": [
+    "tool:decide-in-one-pass",
+    "tool:start-a-decision",
+    "tool:record-method-answers",
+    "tool:make-the-decision"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Decide this in one go\", and give it the source, goal, evidence, options, answers (one per method row) and decision.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:decide-in-one-pass and its input (the worked example shows one).",
+    "3. Read what comes back: the decision and the records it keeps; a refusal keeps nothing."
+  ],
+  "worked_examples": [
+    {
+      "title": "Decide a made-up choice in one go",
+      "ask": "Decide this in one go: open it, answer every row of its method, and make the decision",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:decide-in-one-pass",
+            "input": {
+              "source_id": "owed:sample-one-pass-1",
+              "goal": "Choose a plan",
+              "evidence": [
+                {
+                  "ref": "e1",
+                  "claim": "The person asked to compare two plans"
+                }
+              ],
+              "options": [
+                {
+                  "id": "a",
+                  "label": "Plan A"
+                },
+                {
+                  "id": "b",
+                  "label": "Plan B"
+                }
+              ],
+              "answers": [
+                {
+                  "row": "record:method-row:universal-steps~%2Fscope",
+                  "answer": "A made-up answer to scope in its own words",
+                  "evidence_refs": [
+                    "e1"
+                  ]
+                }
+              ],
+              "decision": {
+                "option_id": "a",
+                "reason": "Plan A is cheaper.",
+                "evidence_refs": [
+                  "e1"
+                ],
+                "next_action": "Sign up",
+                "success_measure": "Paid",
+                "move": "Review in a month"
+              }
+            }
+          }
+        }
+      },
+      "given": "A made-up goal with its evidence and two options, answering every row of the method and deciding with the first option; the records it read are handed in.",
+      "hands_back": "It answered {\"case_id\":\"source:b3dlZDpzYW1wbGUtb25lLXBhc3MtMQ\",\"method\":\"list-view:method-rows:the-universal-steps\",\"decision\":{\"option_id\":\"a\",\"reason\":\"Plan A is cheaper.\",\"status\":\"needs_outcome\"}} with 7 records kept (the decision root, its evidence, its answered steps and their summaries)."
+    }
+  ]
+}
