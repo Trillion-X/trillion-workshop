@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tool:edit-saved-page's row in tools/keep-links-i-saved-elsewhere-such/tool-rows.json, do-work/saved-pages.mjs and test/saved-pages-tools.test.mjs",
+  "start_here": "Say to your AI: \"Refresh this saved page every N hours\" or change its title. It runs tool:edit-saved-page and answers what it made.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each saved page is a file in the person's Files, with one index file the tools keep in step.",
+  "workflows": [],
+  "tools": [
+    "tool:edit-saved-page"
+  ],
+  "instructions": [
+    "1. Say what to save or read: an http or https address of a web page, or the key the saved page answered with.",
+    "2. Say to your AI: \"Change the saved page https://example.com/a to refresh every 6 hours.\" It calls tool:edit-saved-page at @tools with the input.",
+    "3. Read the answer, or the reason it was refused: a page with no text is not saved, and a link no provider handles names the ones it knows."
+  ],
+  "worked_examples": [
+    {
+      "title": "Change the saved page https://example.com/a to refresh every 6 hours.",
+      "ask": "Change the saved page https://example.com/a to refresh every 6 hours.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:edit-saved-page",
+            "input": {
+              "url": "https://example.com/a",
+              "refresh_every_hours": 6
+            }
+          }
+        }
+      },
+      "given": "From test/saved-pages-tools.test.mjs ('editing the refresh policy keeps the page and its text').",
+      "hands_back": "The page with refresh_every_hours 6 and its text kept (First text)."
+    }
+  ]
+}

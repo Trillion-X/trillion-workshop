@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tool:refresh-saved-pages's row in tools/keep-links-i-saved-elsewhere-such/tool-rows.json, do-work/saved-pages.mjs and test/saved-pages-tools.test.mjs",
+  "start_here": "Say to your AI: \"Refresh my saved pages that are due\"; put the call on a schedule to keep clips current. It runs tool:refresh-saved-pages and answers what it made.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each saved page is a file in the person's Files, with one index file the tools keep in step.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-page-in-my-browser",
+    "tool:refresh-saved-pages"
+  ],
+  "instructions": [
+    "1. Say what to save or read: an http or https address of a web page, or the key the saved page answered with.",
+    "2. Say to your AI: \"Refresh the saved page https://example.com/a now.\" It calls tool:refresh-saved-pages at @tools with the input.",
+    "3. Read the answer, or the reason it was refused: a page with no text is not saved, and a link no provider handles names the ones it knows."
+  ],
+  "worked_examples": [
+    {
+      "title": "Refresh the saved page https://example.com/a now.",
+      "ask": "Refresh the saved page https://example.com/a now.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:refresh-saved-pages",
+            "input": {
+              "url": "https://example.com/a"
+            }
+          }
+        }
+      },
+      "given": "From test/saved-pages-tools.test.mjs ('a failed refresh keeps the last good text and records why').",
+      "hands_back": "{\"refreshed\":[{\"key\":\"<key>\",\"url\":\"https://example.com/a\",\"state\":\"failed\",\"last_error\":\"the page did not load\"}],\"due\":1,\"total\":1}"
+    }
+  ]
+}

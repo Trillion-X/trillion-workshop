@@ -1,0 +1,734 @@
+{
+  "records": [
+    {
+      "id": "package::keep-links-i-saved-elsewhere-such::tool::save-page",
+      "address": "package::keep-links-i-saved-elsewhere-such::tool::save-page",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [
+          "tool:read-a-page-in-my-browser"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:save-page",
+        "label": "Save a web page as a clip",
+        "status": "active",
+        "job": "Save a web page in the person's Files as a clip: its address, title, text, a snapshot picture when the page-reading tool draws one, and a refresh policy",
+        "description": "Reads the page with tool:read-a-page-in-my-browser and keeps it as one file in the person's Files under /Saved pages, with an index row. Saving the same address again replaces its record. Returns the record and its file.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "url"
+          ],
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The http or https address of the page"
+            },
+            "refresh_every_hours": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1,
+              "maximum": 8760,
+              "description": "Whole hours between refreshes; null for no refresh"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/keep-links-i-saved-elsewhere-such",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/keep-links-i-saved-elsewhere-such/do-work/saved-pages.mjs",
+            "savePage"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "internet": false,
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-links-i-saved-elsewhere-such",
+                "paths": [
+                  "do-work",
+                  "src"
+                ],
+                "at": "/opt/keep-links-i-saved-elsewhere-such"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/saved-links.json"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "package": "connect-a-service-and-seal-its-key",
+                "paths": [
+                  "records.json"
+                ],
+                "at": "/opt/connect-a-service-and-seal-its-key"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs",
+                  "read-data/host-actions.mjs",
+                  "read-data/whole-file.mjs",
+                  "read-data/large-file.json"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "do-work",
+                  "built-stored-bytes",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "stored": [
+            {
+              "files": "/",
+              "operations": [
+                "find_file",
+                "read_file",
+                "write_file_start",
+                "write_file_piece",
+                "write_file_finish"
+              ]
+            }
+          ]
+        },
+        "needs": {
+          "expected_seconds": 120,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:keep-links-i-saved-elsewhere-such",
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "id": "package::keep-links-i-saved-elsewhere-such::tool::read-saved-page",
+      "address": "package::keep-links-i-saved-elsewhere-such::tool::read-saved-page",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-saved-page",
+        "label": "Read a saved web page",
+        "status": "active",
+        "job": "Read one saved web page by address or key, or list every saved page",
+        "description": "With neither url nor key, lists every saved page from the index. Changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The http or https address of the page"
+            },
+            "key": {
+              "type": "string",
+              "description": "The saved page key from read-saved-page, instead of its address"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/keep-links-i-saved-elsewhere-such",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/keep-links-i-saved-elsewhere-such/do-work/saved-pages.mjs",
+            "readSavedPage"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "internet": false,
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-links-i-saved-elsewhere-such",
+                "paths": [
+                  "do-work",
+                  "src"
+                ],
+                "at": "/opt/keep-links-i-saved-elsewhere-such"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/saved-links.json"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "package": "connect-a-service-and-seal-its-key",
+                "paths": [
+                  "records.json"
+                ],
+                "at": "/opt/connect-a-service-and-seal-its-key"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs",
+                  "read-data/host-actions.mjs",
+                  "read-data/whole-file.mjs",
+                  "read-data/large-file.json"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "do-work",
+                  "built-stored-bytes",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "stored": [
+            {
+              "files": "/",
+              "operations": [
+                "find_file",
+                "read_file"
+              ]
+            }
+          ]
+        },
+        "needs": {
+          "expected_seconds": 120,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:keep-links-i-saved-elsewhere-such",
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "id": "package::keep-links-i-saved-elsewhere-such::tool::edit-saved-page",
+      "address": "package::keep-links-i-saved-elsewhere-such::tool::edit-saved-page",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:edit-saved-page",
+        "label": "Edit a saved web page",
+        "status": "active",
+        "job": "Change a saved page's refresh policy or title",
+        "description": "Changes only refresh_every_hours or title; the text and snapshot are kept.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The http or https address of the page"
+            },
+            "key": {
+              "type": "string",
+              "description": "The saved page key from read-saved-page, instead of its address"
+            },
+            "refresh_every_hours": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1,
+              "maximum": 8760,
+              "description": "Whole hours between refreshes; null for no refresh"
+            },
+            "title": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/keep-links-i-saved-elsewhere-such",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/keep-links-i-saved-elsewhere-such/do-work/saved-pages.mjs",
+            "editSavedPage"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "internet": false,
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-links-i-saved-elsewhere-such",
+                "paths": [
+                  "do-work",
+                  "src"
+                ],
+                "at": "/opt/keep-links-i-saved-elsewhere-such"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/saved-links.json"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "package": "connect-a-service-and-seal-its-key",
+                "paths": [
+                  "records.json"
+                ],
+                "at": "/opt/connect-a-service-and-seal-its-key"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs",
+                  "read-data/host-actions.mjs",
+                  "read-data/whole-file.mjs",
+                  "read-data/large-file.json"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "do-work",
+                  "built-stored-bytes",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "stored": [
+            {
+              "files": "/",
+              "operations": [
+                "find_file",
+                "read_file",
+                "write_file_start",
+                "write_file_piece",
+                "write_file_finish"
+              ]
+            }
+          ]
+        },
+        "needs": {
+          "expected_seconds": 120,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:keep-links-i-saved-elsewhere-such",
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "id": "package::keep-links-i-saved-elsewhere-such::tool::refresh-saved-pages",
+      "address": "package::keep-links-i-saved-elsewhere-such::tool::refresh-saved-pages",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [
+          "tool:read-a-page-in-my-browser"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:refresh-saved-pages",
+        "label": "Refresh saved web pages",
+        "status": "active",
+        "job": "Read again the saved pages whose refresh time has come, or the one asked for",
+        "description": "A page that fails keeps its last good text and title and records why. Put it on a schedule to keep clips current. Uses tool:read-a-page-in-my-browser for each page read.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The http or https address of the page"
+            },
+            "key": {
+              "type": "string",
+              "description": "The saved page key from read-saved-page, instead of its address"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/keep-links-i-saved-elsewhere-such",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/keep-links-i-saved-elsewhere-such/do-work/saved-pages.mjs",
+            "refreshSavedPages"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "internet": false,
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-links-i-saved-elsewhere-such",
+                "paths": [
+                  "do-work",
+                  "src"
+                ],
+                "at": "/opt/keep-links-i-saved-elsewhere-such"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/saved-links.json"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "package": "connect-a-service-and-seal-its-key",
+                "paths": [
+                  "records.json"
+                ],
+                "at": "/opt/connect-a-service-and-seal-its-key"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs",
+                  "read-data/host-actions.mjs",
+                  "read-data/whole-file.mjs",
+                  "read-data/large-file.json"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "do-work",
+                  "built-stored-bytes",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "stored": [
+            {
+              "files": "/",
+              "operations": [
+                "find_file",
+                "read_file",
+                "write_file_start",
+                "write_file_piece",
+                "write_file_finish"
+              ]
+            }
+          ]
+        },
+        "needs": {
+          "expected_seconds": 120,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:keep-links-i-saved-elsewhere-such",
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "id": "package::keep-links-i-saved-elsewhere-such::tool::find-link-provider",
+      "address": "package::keep-links-i-saved-elsewhere-such::tool::find-link-provider",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-link-provider",
+        "label": "Find a link's provider",
+        "status": "active",
+        "job": "Say which registered provider a pasted address belongs to",
+        "description": "Names the provider by the address's host, the saved lists it feeds and the names of the values its sign-in uses, never the values. An address no provider handles is refused, naming the registered ones.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "url"
+          ],
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The http or https address of the page"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/keep-links-i-saved-elsewhere-such",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/keep-links-i-saved-elsewhere-such/do-work/saved-pages.mjs",
+            "findLinkProvider"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "internet": false,
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-links-i-saved-elsewhere-such",
+                "paths": [
+                  "do-work",
+                  "src"
+                ],
+                "at": "/opt/keep-links-i-saved-elsewhere-such"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/saved-links.json"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "package": "connect-a-service-and-seal-its-key",
+                "paths": [
+                  "records.json"
+                ],
+                "at": "/opt/connect-a-service-and-seal-its-key"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs",
+                  "read-data/host-actions.mjs",
+                  "read-data/whole-file.mjs",
+                  "read-data/large-file.json"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "do-work",
+                  "built-stored-bytes",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "stored": []
+        },
+        "needs": {
+          "expected_seconds": 120,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:keep-links-i-saved-elsewhere-such",
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "url": "https://x.com/someone/status/1"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

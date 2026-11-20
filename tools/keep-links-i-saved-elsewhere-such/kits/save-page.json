@@ -1,0 +1,38 @@
+{
+  "drafted_from": "tool:save-page's row in tools/keep-links-i-saved-elsewhere-such/tool-rows.json, do-work/saved-pages.mjs and test/saved-pages-tools.test.mjs",
+  "start_here": "Say to your AI: \"Save this page as a clip\" with its http or https address. It runs tool:save-page and answers what it made.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each saved page is a file in the person's Files, with one index file the tools keep in step.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-page-in-my-browser",
+    "tool:save-page"
+  ],
+  "instructions": [
+    "1. Say what to save or read: an http or https address of a web page, or the key the saved page answered with.",
+    "2. Say to your AI: \"Save https://example.com/a as a clip, refresh it every 6 hours.\" It calls tool:save-page at @tools with the input.",
+    "3. Read the answer, or the reason it was refused: a page with no text is not saved, and a link no provider handles names the ones it knows."
+  ],
+  "worked_examples": [
+    {
+      "title": "Save https://example.com/a as a clip, refresh it every 6 hours.",
+      "ask": "Save https://example.com/a as a clip, refresh it every 6 hours.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:save-page",
+            "input": {
+              "url": "https://example.com/a",
+              "refresh_every_hours": 6
+            }
+          }
+        }
+      },
+      "given": "From test/saved-pages-tools.test.mjs ('save, read, and list a saved page through the Files right'): a made-up page titled Alpha with the text First text.",
+      "hands_back": "The saved record: key, url https://example.com/a, title Alpha, file /Saved pages/<key>.json, refresh_every_hours 6, state ok."
+    }
+  ]
+}
