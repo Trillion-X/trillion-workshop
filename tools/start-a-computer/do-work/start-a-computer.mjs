@@ -24,6 +24,7 @@ import { readFileSync, readdirSync, statSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, relative, resolve as resolvePath } from 'node:path';
 import { spawn, execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { zstdCompressSync, constants as zlibConstants } from 'node:zlib';
 import { homedir } from 'node:os';
 import { promisify } from 'node:util';
 
@@ -265,9 +266,13 @@ export async function placePrebuilt(machine, { user, builds, commit, program, cu
   const at = `${builds}/${commit}`, path = `${at}/${program}`;
   const link = `runuser -u ${q(user)} -- sh -c 'ln -sfn "$0" "$1/$2.new" && mv -T "$1/$2.new" "$1/$2"' ${q(commit)} ${q(builds)} ${q(current)}`;
   const placed = await run(machine, `[ -x ${q(path)} ] && [ "$(sha256sum ${q(path)} | cut -c1-64)" = ${q(sha256)} ] || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; });
-  if (!placed) await run(machine, `set -e; install -d -o ${q(user)} -g ${q(user)} -m 0755 ${q(at)}; cat > ${q(`${path}.new`)}; ` +
+  // The bytes travel compressed (zstd, about a quarter of an engine's size) when the computer can unpack them: on Nov 20 2026,
+  // 3:36-3:45 PM CST, a 44 MB engine sent whole over the applying computer's phone hotspot choked the link and the apply failed.
+  const unpacks = !placed && await run(machine, 'command -v zstd >/dev/null || exit 3').then(() => true, error => { if (error.code === 3) return false; throw error; });
+  const sent = unpacks ? zstdCompressSync(bytes, { params: { [zlibConstants.ZSTD_c_compressionLevel]: 19 } }) : bytes;
+  if (!placed) await run(machine, `set -e; install -d -o ${q(user)} -g ${q(user)} -m 0755 ${q(at)}; ${unpacks ? 'zstd -dcq' : 'cat'} > ${q(`${path}.new`)}; ` +
     `[ "$(sha256sum ${q(`${path}.new`)} | cut -c1-64)" = ${q(sha256)} ] || { rm -f ${q(`${path}.new`)}; echo 'the program arrived cut off' >&2; exit 1; }; ` +
-    `chown ${q(user)}:${q(user)} ${q(`${path}.new`)}; chmod 0755 ${q(`${path}.new`)}; mv -f ${q(`${path}.new`)} ${q(path)}`, bytes);
+    `chown ${q(user)}:${q(user)} ${q(`${path}.new`)}; chmod 0755 ${q(`${path}.new`)}; mv -f ${q(`${path}.new`)} ${q(path)}`, sent);
   await run(machine, link);
   return commit;
 }
