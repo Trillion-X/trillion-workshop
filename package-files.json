@@ -42783,6 +42783,14 @@
     "dist/index.mjs"
    ],
    "at": "/opt/node_modules/uqr"
+  },
+  {
+   "package": "walk-a-new-person-through-first-setup",
+   "paths": [
+    "swaps/starter-swaps.json",
+    "toolkits/starter-toolkits.json"
+   ],
+   "at": "/opt/walk-a-new-person-through-first-setup"
   }
  ],
  "tool:step-through-a-guided-tour": [
@@ -45628,6 +45636,14 @@
     "dist/index.mjs"
    ],
    "at": "/opt/node_modules/uqr"
+  },
+  {
+   "package": "walk-a-new-person-through-first-setup",
+   "paths": [
+    "swaps/starter-swaps.json",
+    "toolkits/starter-toolkits.json"
+   ],
+   "at": "/opt/walk-a-new-person-through-first-setup"
   }
  ],
  "tool:walk-through-an-app-like-its-users": [

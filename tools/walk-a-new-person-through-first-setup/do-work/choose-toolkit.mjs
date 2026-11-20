@@ -13,16 +13,39 @@
 //   known_tools   optional: every tool id the caller can install; an added id outside it is refused
 
 import { readStack, readToolkitStack } from './toolkit-stack.mjs';
+import starterToolkits from '../toolkits/starter-toolkits.json' with { type: 'json' };
+import starterSwaps from '../swaps/starter-swaps.json' with { type: 'json' };
 
 const TOOL_ID = /^tool:\S+$/;
 const TOOLKIT_TYPE = 'record:toolkit';
 
-/** The one read that finds the toolkit rows: every list is read with records:list at the person's own records. */
-export const TOOLKITS_READ = { address: '@own-records', method: 'records:list', input: { type: TOOLKIT_TYPE } };
+const SWAP_TYPE = 'record:toolkit-swap';
+const SWAP_ID = /^toolkit-swap:[a-z0-9-]+$/;
 
-/** The read that finds swap rows (type record:toolkit-swap, swaps/): parts a person swaps into any toolkit's cart. A swap row's
- *  value.swap is handed in as choice.swap as it stands, so a way of setting up is picked apart from the toolkit. */
-export const TOOLKIT_SWAPS_READ = { address: '@own-records', method: 'records:list', input: { type: 'record:toolkit-swap' } };
+// The starter rows this tool ships (toolkits/ and swaps/, listed by its row sources) travel with it, so it reads them itself:
+// no store is asked for them. The person's own rows are handed in from wherever they keep them, in the same shape.
+const asRow = type => ({ payload }) => ({ id: payload.id, type, value: payload });
+export const STARTER_TOOLKITS = starterToolkits.records.map(asRow(TOOLKIT_TYPE));
+export const STARTER_SWAPS = starterSwaps.records.map(asRow(SWAP_TYPE));
+
+/** The person's rows, then each starter row they hold no row of that id for: a person's copy of a starter stands in its place.
+ *  When a row of theirs is marked default, a starter's default stands down, so one toolkit is still the default. */
+export function withStarters(own, starters) {
+  if (!Array.isArray(own)) throw new Error('Hand in the rows the person keeps as a list ([] when they keep none).');
+  const held = new Set(own.map(row => row?.id));
+  const theirsIsDefault = own.some(row => row?.value?.default === true);
+  const kept = starters.filter(row => !held.has(row.id)).map(row => (theirsIsDefault && row.value.default ? { ...row, value: { ...row.value, default: undefined } } : row));
+  return [...own, ...kept];
+}
+
+/** A choice's swap as pointers: a swap row's id is that row's value.swap, from the person's swap rows or the starters. */
+export function swapOf(swap, swapRows) {
+  if (typeof swap !== 'string') return swap;
+  if (!SWAP_ID.test(swap)) throw new Error(`swap is { slot: [pointer] } or the id of a swap row (toolkit-swap: then the id), not ${JSON.stringify(swap)}.`);
+  const row = swapRows.find(candidate => candidate?.id === swap && candidate.type === SWAP_TYPE);
+  if (!row) throw new Error(`swap ${swap} is not offered; the offered swaps are ${swapRows.map(candidate => candidate.id).join(', ') || 'none'}.`);
+  return row.value.swap;
+}
 
 const idList = (value, name) => {
   if (value === undefined) return [];

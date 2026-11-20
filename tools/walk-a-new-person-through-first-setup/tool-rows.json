@@ -240,11 +240,19 @@
       },
       "toolkits": {
        "type": "array",
-       "description": "The account's toolkit rows as records:list returns them (type record:toolkit), each { id, type, value: { title?, description?, tools: [tool ids], default?, stack?: { slot: [pointer] } } }; read_toolkits_call in the plan names that read; first setup offers them, and fills the cart (toolkits.cart) from the picked toolkit, else from the one marked default"
+       "description": "The toolkit rows the person keeps, read from wherever they keep them, each { id, type: record:toolkit, value: { title?, description?, tools: [tool ids], default?, stack?: { slot: [pointer] } } } ([] when they keep none). The starter toolkits this tool ships (toolkits/) are offered with them, a row of the person's with a starter's id standing in its place; first setup offers them all and fills the cart (toolkits.cart) from the picked toolkit, else from the one marked default"
+      },
+      "toolkit_swaps": {
+       "type": "array",
+       "description": "The swap rows the person keeps, each { id: toolkit-swap:..., type: record:toolkit-swap, value: { title?, description?, swap: { slot: [pointer] } } }; the starter swaps this tool ships (swaps/) are offered with them as toolkits.swaps"
+      },
+      "row": {
+       "type": "string",
+       "description": "Set when this tool runs as a listed starter row: the row's id is the pick (a toolkit, or a swap into the default toolkit), unless toolkit_choice is given"
       },
       "toolkit_choice": {
        "type": "object",
-       "description": "The person's pick over the toolkit rows: { toolkit, drop?, add?, swap? }, the id of one offered toolkit, tool ids to drop from it, tool ids to add, and swap { slot: [pointer] }: parts that replace the toolkit's own in those slots (a slot it lacks is added), as a swap row read with read_toolkit_swaps_call (type record:toolkit-swap) carries them in value.swap"
+       "description": "The person's pick: { toolkit?, drop?, add?, swap? }, the id of one offered toolkit (left out: the default one), tool ids to drop from it, tool ids to add, and swap: { slot: [pointer] }, parts that replace the toolkit's own in those slots (a slot it lacks is added), or the id of one of toolkits.swaps"
       },
       "known_tools": {
        "type": "array",

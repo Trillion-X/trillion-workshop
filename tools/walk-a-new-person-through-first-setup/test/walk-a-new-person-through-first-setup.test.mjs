@@ -71,10 +71,39 @@ const toolkits = [
   { id: 'toolkit:sample-maker', type: 'record:toolkit', value: { tools: ['tool:sample-cut'] } },
 ];
 
-test('the plan names the one read that finds the toolkit rows: records:list of type record:toolkit at the person\'s own records', () => {
+const STARTERS = ['toolkit:answer-your-audience', 'toolkit:launch-and-sell-a-product', 'toolkit:keep-your-work-in-order'];
+
+test('the plan names no store to read toolkits from: the starters travel with the tool, the person\'s own rows are handed in', () => {
   const plan = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted });
-  assert.deepEqual(plan.read_toolkits_call, { address: '@own-records', method: 'records:list', input: { type: 'record:toolkit' } });
-  assert.deepEqual(plan.read_toolkit_swaps_call, { address: '@own-records', method: 'records:list', input: { type: 'record:toolkit-swap' } });
+  assert.equal(plan.read_toolkits_call, undefined);
+  assert.equal(plan.toolkits, undefined, 'no toolkits are offered until they are asked for');
+  const offered = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkits: [] }).toolkits;
+  assert.deepEqual(offered.offered.map(row => row.id), STARTERS);
+  assert.deepEqual(offered.swaps.map(swap => swap.id), ['toolkit-swap:my-own-domain-and-sign-in', 'toolkit-swap:no-domain-of-my-own', 'toolkit-swap:a-machine-i-already-run']);
+  assert.equal(offered.cart.toolkit, STARTERS[0]);
+});
+
+test('a person\'s row with a starter\'s id stands in its place, and their own default makes the starter default stand down', () => {
+  const mine = { id: STARTERS[1], type: 'record:toolkit', value: { title: 'Mine', tools: ['tool:sample-cut'], default: true } };
+  const { offered, cart } = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkits: [mine] }).toolkits;
+  assert.deepEqual(offered.map(row => row.id), [STARTERS[1], STARTERS[0], STARTERS[2]]);
+  assert.equal(offered[0].title, 'Mine');
+  assert.deepEqual(offered.filter(row => row.default).map(row => row.id), [STARTERS[1]]);
+  assert.deepEqual(cart.tools, ['tool:sample-cut']);
+});
+
+test('a swap is picked by its row id, into the named toolkit or the default one, and run as a listed row by its id', () => {
+  const into = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkit_choice: { toolkit: STARTERS[1], swap: 'toolkit-swap:no-domain-of-my-own' } }).toolkits.cart;
+  assert.equal(into.toolkit, STARTERS[1]);
+  assert.deepEqual(into.swapped, ['domain']);
+  assert.equal(into.stack.domain[0].label, 'tool:name_site');
+  const byRow = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, row: 'toolkit-swap:a-machine-i-already-run' }).toolkits.cart;
+  assert.equal(byRow.toolkit, STARTERS[0]);
+  assert.equal(byRow.stack.hosting[0].id, 'adopt-my-machine');
+  assert.equal(walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, row: STARTERS[2] }).toolkits.cart.toolkit, STARTERS[2]);
+  const mine = { id: 'toolkit-swap:my-own', type: 'record:toolkit-swap', value: { swap: { files: [{ id: 'sample-files', door: 'file:mine', speaks: 'files' }] } } };
+  assert.equal(walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkit_swaps: [mine], toolkit_choice: { swap: 'toolkit-swap:my-own' } }).toolkits.cart.stack.files[0].id, 'sample-files');
+  assert.throws(() => walkAPersonThroughFirstSetup({ origin: ORIGIN, runtime: notStarted, toolkit_choice: { swap: 'toolkit-swap:nope' } }), /not offered/);
 });
 
 test('a row that is not a toolkit row, or has no value, is refused', () => {
@@ -86,10 +115,9 @@ test('a row that is not a toolkit row, or has no value, is refused', () => {
 
 test('first setup offers the toolkit rows the caller hands in, each tool id once, and no choice until one is made', () => {
   const plan = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkits });
-  assert.deepEqual(plan.toolkits.offered.map(row => row.id), ['toolkit:sample-writer', 'toolkit:sample-maker']);
+  assert.deepEqual(plan.toolkits.offered.map(row => row.id), ['toolkit:sample-writer', 'toolkit:sample-maker', ...STARTERS]);
   assert.deepEqual(plan.toolkits.offered[0].tools, ['tool:sample-draft', 'tool:sample-edit']);
   assert.equal(plan.toolkits.choice, undefined);
-  assert.equal(walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted }).toolkits, undefined);
 });
 
 test('the person picks a toolkit, drops one tool id and adds another: the answer is the ids to install', () => {
@@ -111,7 +139,7 @@ test('a choice the toolkit rows cannot honour is refused with the reason', () =>
   assert.throws(ask({ toolkit: 'toolkit:sample-maker', drop: ['tool:sample-draft'] }), /does not list it/);
   assert.throws(ask({ toolkit: 'toolkit:sample-writer', drop: ['tool:sample-edit'], add: ['tool:sample-edit'] }), /both dropped and added/);
   assert.throws(ask({ toolkit: 'toolkit:sample-writer', add: ['sample-cut'] }), /tool ids/);
-  assert.throws(() => walkAPersonThroughFirstSetup({ origin: ORIGIN, runtime: notStarted, toolkit_choice: { toolkit: 'toolkit:sample-maker' } }), /hand in toolkits/);
+  assert.throws(() => walkAPersonThroughFirstSetup({ origin: ORIGIN, runtime: notStarted, toolkit_choice: { toolkit: 'toolkit:sample-maker' } }), /not offered/);
 });
 
 test('an added tool id outside the installable list is refused when the caller hands that list in', () => {

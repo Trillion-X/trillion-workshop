@@ -63,13 +63,14 @@ test('a pick fills the cart from the picked toolkit with its stack', () => {
   assert.deepEqual(cart.stack.data.map(pointer => pointer.id), ['sample-server', 'sample-file']);
 });
 
-test('first setup carries the cart in the plan, and the tools-only plan carries none', () => {
+test('first setup carries the cart in the plan; with no default of the person\'s, it is the starter default', () => {
   const toolkits = [row('toolkit:a', { ...withStack(), default: true })];
   const plan = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkits });
   assert.equal(plan.toolkits.cart.toolkit, 'toolkit:a');
   assert.equal(plan.toolkits.choice, undefined);
   const plain = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkits: [row('toolkit:a', { tools: ['tool:sample-cut'] })] });
-  assert.equal(plain.toolkits.cart, undefined);
+  assert.equal(plain.toolkits.cart.toolkit, 'toolkit:answer-your-audience');
+  assert.equal(plain.toolkits.cart.picked, false);
 });
 
 const shipped = shippedRows().filter(({ payload }) => payload.kind === 'toolkit').map(({ payload }) => ({ id: payload.id, type: 'record:toolkit', value: payload }));

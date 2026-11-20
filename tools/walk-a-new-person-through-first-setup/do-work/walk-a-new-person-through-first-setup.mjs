@@ -16,6 +16,10 @@
 //   native         { computers, cards, truncated? } the account's computer inventory and their tool cards
 //   lens           the person's pursuit lens ({ opening, parts, closing, rows }) read from their lists
 //   entry          the entry point id the person started from; came_from is the page recorded when they joined
+//   toolkits, toolkit_swaps   the toolkit and swap rows the person keeps ({ id, type, value }); the starters this tool ships
+//                  are offered with them
+//   toolkit_choice { toolkit?, drop?, add?, swap? }: swap is { slot: [pointer] } or a swap row's id; no toolkit is the default
+//   row            set when this runs as a listed starter row: that row's id is the pick
 import { readFileSync } from 'node:fs';
 import { setupPlan } from './setup-plan.mjs';
 import { entryPointForSetup } from '../../start-from-any-landing-page/src/entry-points.mjs';
@@ -24,7 +28,12 @@ import { entryPointForSetup } from '../../start-from-any-landing-page/src/entry-
 export function walkAPersonThroughFirstSetup(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Send one JSON object: { origin, view?, runtime?, prerequisites?, known?, native?, lens?, entry?, came_from? }.');
   if (typeof input.origin !== 'string' || !input.origin) throw new Error('origin is the service address the setup files are served from.');
-  const { entry, came_from: cameFrom, ...facts } = input;
+  const { entry, came_from: cameFrom, row, ...facts } = input;
+  // Run as a listed starter row (its row source's invoke_with), the row's id is the pick: a toolkit, or a swap into the default.
+  if (row !== undefined && facts.toolkit_choice === undefined) {
+    if (typeof row !== 'string') throw new Error('row is the id of a toolkit or swap row.');
+    facts.toolkit_choice = row.startsWith('toolkit-swap:') ? { swap: row } : { toolkit: row };
+  }
   const plan = setupPlan(facts);
   const entryPoint = entryPointForSetup(entry, cameFrom ?? null);
   return entryPoint ? { ...plan, entry_point: entryPoint } : plan;
