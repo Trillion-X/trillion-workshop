@@ -8,7 +8,7 @@
 // its own names.
 //
 // The column names are the shape a pursuit's task tables keep: tasks (id, title, plain_title, plain_detail, parent_id,
-// status, waiting_on, made_at, changed_at, and evidence when the table has it: what shows the status is true, read as
+// status, waiting_on, made_at, changed_at, and evidence, assignees (who may do it) and taken_by (who is doing it) when the table has them: what shows the status is true, read as
 // text and absent when the table has no such column); changes (task_id, at, kind, status, title, id); statuses (name, mark, tone,
 // counts_as_done, closed, place); shows (task_id, ref, label, made_at). A show is a thing a task produced that the page
 // draws inline: `ref` is any address the shower can open (an https address, or a file the host can reach), `label` says
@@ -27,7 +27,7 @@ export function taskPageSql(tables = DEFAULT_TASK_TABLES) {
     if (typeof name !== 'string' || !IDENTIFIER.test(name)) throw new Error(`A task table name must be a plain identifier, got ${JSON.stringify(name)}.`);
   }
   return 'select json_build_object('
-    + `'tasks', (select json_agg(json_build_object('id', id, 'title', title, 'plain_title', plain_title, 'plain_detail', plain_detail, 'parent', coalesce(parent_id->>0, parent_id#>>'{}'), 'status', status, 'waiting_on', waiting_on, 'evidence', to_jsonb(${tasks})->>'evidence') order by coalesce(made_at, changed_at), id) from ${tasks}), `
+    + `'tasks', (select json_agg(json_build_object('id', id, 'title', title, 'plain_title', plain_title, 'plain_detail', plain_detail, 'parent', coalesce(parent_id->>0, parent_id#>>'{}'), 'status', status, 'waiting_on', waiting_on, 'evidence', to_jsonb(${tasks})->>'evidence', 'assignees', to_jsonb(${tasks})->'assignees', 'taken_by', to_jsonb(${tasks})->>'taken_by') order by coalesce(made_at, changed_at), id) from ${tasks}), `
     + `'statuses', (select json_agg(json_build_object('name', name, 'mark', mark, 'tone', tone, 'counts_as_done', counts_as_done, 'closed', closed, 'place', place) order by place) from ${statuses}), `
     + `'shows', (select json_agg(json_build_object('task', task_id, 'ref', ref, 'label', label, 'made_at', made_at) order by made_at, task_id, ref) from ${shows}), `
     + `'facts', (select json_agg(json_build_object('task', task_id, 'kind', kind, 'said', said, 'number', number, 'of_number', of_number, 'at', at) order by at, id) from ${facts}), `
@@ -53,6 +53,8 @@ export function taskPageFrom(rows) {
       status: text(task.status) ?? '',
       waiting_on: text(task.waiting_on),
       evidence: text(task.evidence),
+      assignees: list(task.assignees).filter(id => typeof id === 'string' && id !== ''),
+      taken_by: text(task.taken_by),
     })),
     statuses: list(data.statuses).map(status => ({
       name: String(status.name),

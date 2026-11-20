@@ -88,13 +88,16 @@ export const Facts = ({ groups }: { groups: { kind: FactKind; facts: Fact[] }[] 
 /** An opened row: its plain detail as one paragraph, then its facts laid out by kind. The record behind it (the evidence
  *  the status rests on, and the exact task as it was written) says the same again in working terms, so it waits behind one
  *  "How we know" link, in the same type. A row with neither detail nor facts shows its evidence as the paragraph. */
-export const Detail = ({ id, detail, evidence, title, shows, facts = [] }: { id: string; detail?: string | null; evidence?: string | null; look?: Status; title: string; shows: Show[]; facts?: { kind: FactKind; facts: Fact[] }[] }) => {
+export const Detail = ({ id, detail, evidence, title, shows, facts = [], assignees = [], takenBy = null }: { id: string; detail?: string | null; evidence?: string | null; look?: Status; title: string; shows: Show[]; facts?: { kind: FactKind; facts: Fact[] }[]; assignees?: string[]; takenBy?: string | null }) => {
   const [record, setRecord] = React.useState(false);
+  // Who: the one doing it, else whoever it is for (anyone, when it names no one). A person, an AI or anything else is an id.
+  const who = takenBy ? `Being done by ${takenBy}` : assignees.length ? `For ${assignees.join(', ')}` : null;
   const said = detail ?? (facts.length ? null : evidence) ?? null;
   const behind = [said === evidence ? null : evidence, title !== said ? title : null].filter((text): text is string => !!text);
   return (
     <>
       <div id={id} className="flex flex-col gap-3 pb-3 pl-8 pr-6">
+        {who && <p className="m-0 text-[13px] leading-5" style={{ color: muted }}>{who}</p>}
         {said && <p className="m-0 text-[14px] leading-[1.55]" style={{ textWrap: 'pretty' }}>{said}</p>}
         {facts.length > 0 && <Facts groups={facts} />}
         {behind.length > 0 && (
