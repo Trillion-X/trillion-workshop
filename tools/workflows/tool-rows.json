@@ -2251,6 +2251,129 @@
           "source": "tools/workflows/crates/workflow-component: workflow-core through workflow-engine, built for wasm32-wasip2 by tools/build-engine-modules-for-web-hosts (ENGINE_COMPONENTS)"
         }
       }
+    },
+    {
+      "payload": {
+        "uses_tools": [],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:resolve-citations",
+        "label": "Judge cited code lines against their repositories at the cited commit",
+        "status": "active",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "job": "Check each citation (root/path:line-line@commit) against its repository: the line, or range, holds the quoted text, read at the commit the citation names, or at the root's ref when it names none. One verdict per citation, with the reason when refused.",
+        "description": "The citation resolver (read-data/citation-resolvers.mjs with citation-resolvers.json) as a tool, so a workflow check can refuse a wrong citation with its reason. It reads only the repositories the resolver names, through git in their checkouts on this computer; a repository not here answers ok null, never true. The answer is { result: [{ cite, ok, why, against }] }.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "items"
+          ],
+          "properties": {
+            "resolver": {
+              "type": "string",
+              "description": "The resolver row to use; code-line for code citations"
+            },
+            "items": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "cite"
+                ],
+                "properties": {
+                  "cite": {
+                    "type": "string",
+                    "description": "root/path:line or root/path:line-line, with @commit to read at that commit"
+                  },
+                  "quote": {
+                    "type": "string",
+                    "description": "The text the cited line or range has to hold"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "result"
+          ],
+          "properties": {
+            "result": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "cite",
+                  "ok"
+                ],
+                "properties": {
+                  "cite": {
+                    "type": "string"
+                  },
+                  "ok": {
+                    "type": [
+                      "boolean",
+                      "null"
+                    ]
+                  },
+                  "why": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "against": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "use-git-in-a-folder",
+            "read-a-folder"
+          ],
+          "workdir": "/opt/workflows",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/workflows/read-data/resolve-citations.mjs",
+            "resolveCitations"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "result_selector": "$.result",
+          "files": {
+            "package_files": [
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs",
+                  "read-data/resolve-citations.mjs",
+                  "read-data/citation-resolvers.mjs",
+                  "citation-resolvers.json"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          }
+        }
+      }
     }
   ]
 }

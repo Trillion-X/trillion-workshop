@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b9e033de472effdc71e0185b8042fc14243a6343ed3cf744a40b91959fc5c736"
+  "blake3": "1f:ce71a3c9731def6cce69eda4160b71f475dd32c1432b919bbdde1aa2b61c76ba"
  },
  "fields": [
   {
@@ -10880,6 +10880,21 @@
    }
   },
   {
+   "id": "tool:record-an-introduction-state",
+   "values": {
+    "title": "Record an introduction state",
+    "job": "Record one introduction's state (proposed, sent, accepted, declined, passed, expired, and the rest) in the person's own database, with the consent it was shown.",
+    "description": "Records one introduction's state move in the person's own database named by `database`: a move the lifecycle allows, from the state it is in now, and a move to sent or one_yes only with the consent the introduction was shown. It records states only: it sends nothing to any person and sets no route, wake or notice. Live sending waits for the owner's word.",
+    "status": "active",
+    "maker": "maker:build-and-send-a-sales-contract",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "introduce-two-people"
+   }
+  },
+  {
    "id": "tool:record-checklist-gate-changes",
    "values": {
     "title": "Record a checklist answer or run its checked steps (runs on your computer)",
@@ -11428,6 +11443,19 @@
      "placement:your-computer"
     ],
     "folder": "screen-looks"
+   }
+  },
+  {
+   "id": "tool:resolve-citations",
+   "values": {
+    "title": "Judge cited code lines against their repositories at the cited commit",
+    "job": "Check each citation (root/path:line-line@commit) against its repository: the line, or range, holds the quoted text, read at the commit the citation names, or at the root's ref when it names none. One verdict per citation, with the reason when refused.",
+    "description": "The citation resolver (read-data/citation-resolvers.mjs with citation-resolvers.json) as a tool, so a workflow check can refuse a wrong citation with its reason. It reads only the repositories the resolver names, through git in their checkouts on this computer; a repository not here answers ok null, never true. The answer is { result: [{ cite, ok, why, against }] }.",
+    "status": "active",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "workflows"
    }
   },
   {

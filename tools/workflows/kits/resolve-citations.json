@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Check these citations against their repositories: trillion-workshop/tools/git-changes/show/mount-git-worktree.tsx:21@434ee11fd0 with the quote mountReactSurface.\" It answers ok true, or ok false with why it was refused, for each citation.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads the repositories named in citation-resolvers.json through git on this computer and answers each citation in the run.",
+  "workflows": [],
+  "tools": [
+    "tool:resolve-citations"
+  ],
+  "instructions": [
+    "1. Give the citations as the input: {\"items\": [{\"cite\": \"trillion-workshop/tools/git-changes/show/mount-git-worktree.tsx:21@434ee11fd0\", \"quote\": \"mountReactSurface\"}]}, one item per citation. A citation is root/path:line, root/path:line-line for a range, and @commit to read the file as that commit holds it.",
+    "2. Run tool:resolve-citations with that input on this computer. It answers {\"result\": [{\"cite\", \"ok\", \"why\", \"against\"}]}, one verdict per citation.",
+    "3. Read each verdict: ok true means the cited line or range holds the quote at the commit named (or at the root's current ref when it names none); ok false gives why; ok null means a repository is not on this computer, so the citation was not judged.",
+    "4. Refuse any citation with ok false, and fix it with the line it names before the next step relies on it."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check one new-home citation against the commit it names",
+      "ask": "Check the citation trillion-workshop/tools/git-changes/show/mount-git-worktree.tsx:21@434ee11fd0, quote mountReactSurface.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:resolve-citations",
+            "input": {
+              "items": [
+                {
+                  "cite": "trillion-workshop/tools/git-changes/show/mount-git-worktree.tsx:21@434ee11fd0",
+                  "quote": "mountReactSurface"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expect": "result[0].ok is true, against names trillion-workshop at commit 434ee11fd0",
+      "hands_back": "result[0] says ok true for the citation, and against names trillion-workshop at commit 434ee11fd0, the commit the citation names."
+    }
+  ],
+  "drafted_from": "tool:resolve-citations' own row (tools/workflows/tool-rows.json) and its function (read-data/resolve-citations.mjs), run through the runner on the citations of commit 14c689357's direct tests"
+}

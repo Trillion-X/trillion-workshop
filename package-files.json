@@ -53844,5 +53844,17 @@
    ],
    "at": "/opt/node_modules/split2"
   }
- ]
+ ],
+  "tool:resolve-citations": [
+    {
+      "package": "workflows",
+      "paths": [
+        "do-work/run-a-function.mjs",
+        "read-data/resolve-citations.mjs",
+        "read-data/citation-resolvers.mjs",
+        "citation-resolvers.json"
+      ],
+      "at": "/opt/workflows"
+    }
+  ]
 }
