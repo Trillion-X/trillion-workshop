@@ -10,7 +10,7 @@ import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 import {
-  CARRIED_BYTES, accessChange, afterOf, appleNanos, changesSince, describeMechanism, readDatabase, readSettings, watchForTransitions,
+  CARRIED_BYTES, accessChange, afterOf, appleNanos, changesSince, describeMechanism, readDatabase, readSettings, watchEach, watchForTransitions,
 } from '../do-work/mechanisms/imessage-chat-database.mjs';
 
 const FRIEND = '+15555550101';
@@ -133,7 +133,7 @@ function run(t, d, { state = null, settings = {}, open } = {}) {
   const done = watchForTransitions({ database: d.file, history_since: BASE, settle_ms: 1, ...settings }, {
     signal: controller.signal, state, now: () => Date.parse(plus(30)),
     open: open ?? ((file) => new DatabaseSync(file, { readOnly: true })),
-    watchFolder: (folder, onWake) => { assert.equal(folder, d.folder); wake = onWake; return { close() {} }; },
+    watchFiles: (files, onWake) => { assert.deepEqual(files, [d.file, `${d.file}-wal`]); wake = onWake; return { close() {} }; },
     keepState: async (value) => kept.push(value),
     onTransition: async (transition) => { facts.push(transition); return true; },
   });
@@ -194,4 +194,29 @@ test('a refused database is told once at place "access" with the setting to chan
   await new Promise((resolve) => setTimeout(resolve, 20));
   assert.equal(finished, false, 'it waits instead of failing or spinning');
   assert.equal(accessChange(own, new Error('x'), BASE, '/opt/node').event_key, 'access:refused');
+});
+
+test('each file is watched on its own; a missing file or a failed watch is no crash, and the other file rewatches it', () => {
+  const made = [];
+  let walThere = false;
+  const fake = (file, options, onChange) => {
+    if (file.endsWith('-wal') && !walThere) { const error = new Error('no file'); error.code = 'ENOENT'; throw error; }
+    const handlers = {};
+    const watcher = { file, onChange, close() { this.closed = true; }, on(event, handler) { handlers[event] = handler; }, fail(error) { handlers.error?.(error); } };
+    made.push(watcher);
+    return watcher;
+  };
+  let wakes = 0;
+  const watching = watchEach(['/m/chat.db', '/m/chat.db-wal'], () => { wakes += 1; }, { watchFile: fake });
+  assert.deepEqual(made.map((m) => m.file), ['/m/chat.db'], 'the -wal file that is not there yet is skipped');
+  walThere = true;
+  made[0].onChange();
+  assert.equal(wakes, 1);
+  assert.deepEqual(made.map((m) => m.file), ['/m/chat.db', '/m/chat.db-wal'], 'a wake watches the -wal file once it is there');
+  made[1].fail(Object.assign(new Error('too many'), { code: 'EMFILE' }));
+  assert.equal(made[1].closed, true, 'a failed watch is closed, not thrown');
+  made[0].onChange();
+  assert.equal(made.at(-1).file, '/m/chat.db-wal', 'and watched again at the next wake');
+  watching.close();
+  assert.throws(() => watchEach(['/m/none'], () => {}, { watchFile: () => { throw Object.assign(new Error('x'), { code: 'ENOENT' }); } }), /could be watched/);
 });

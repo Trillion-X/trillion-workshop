@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cc017aa7707ce3d71947897b9f34d5ff223ad0bfdfc5ab9102134946f5f128e9"
+  "blake3": "1f:5e6062e5856d3841bc23c254894eea891148a81bd373ba30d5dd207e62512288"
  },
  "fields": [
   {
@@ -5938,6 +5938,21 @@
    }
   },
   {
+   "id": "tool:list-a-spaces-posts",
+   "values": {
+    "title": "List a space's posts",
+    "job": "Read the posts a member who counts there now sees in a shared space, newest first",
+    "description": "Answers the space's item rows (record:space-item) the caller handed in, newest first. Only a person who counts as a member of the space now may read them; anyone else is refused in words. It replaces the old read-items of create_group_post.",
+    "status": "active",
+    "maker": "maker:space-members",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "space-members"
+   }
+  },
+  {
    "id": "tool:list-clips-that-are-parts-of-a-series",
    "values": {
     "title": "List the clips that say they are part of a series (runs on your computer)",
@@ -6163,6 +6178,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:list-my-spaces-and-events",
+   "values": {
+    "title": "List my spaces and events",
+    "job": "Show a person the spaces they count in now, and the events in them between two times, soonest first",
+    "description": "Answers the spaces this person counts in now, with their type, and the events in those spaces: posts whose fields hold a starts_at, between from and to when given. Nothing is decided here: the member rows answer whether a person counts. It replaces the old community reader and my_events.",
+    "status": "active",
+    "maker": "maker:space-members",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "space-members"
    }
   },
   {
@@ -8594,6 +8624,21 @@
     ],
     "listed_on": "2026-11-03T16:00:00Z",
     "folder": "settle-amounts-and-reconcile"
+   }
+  },
+  {
+   "id": "tool:post-in-a-space",
+   "values": {
+    "title": "Post in a space",
+    "job": "Share one item into a shared space as a member who counts there now, as its space item row, for the caller to store",
+    "description": "Answers the new record:space-item row under `keep` for the caller to store. Only a person who counts as a member of the space now may post. Asking again with the same idempotency_ref answers the post already there and keeps nothing. The fields hold what the post says; author, space, time and revision are set by the run. It replaces the old create_group_post.",
+    "status": "active",
+    "maker": "maker:space-members",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "space-members"
    }
   },
   {

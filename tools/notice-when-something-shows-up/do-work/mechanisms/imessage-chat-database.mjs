@@ -6,8 +6,8 @@
  *   and report each iMessage or text message the moment Messages writes it: a new
  *   message (added), an edit (changed) and an unsend (removed), in a chat with one
  *   person or in a group, whatever it carries (words, a photo, a video, a voice
- *   note, a file). Nothing is read on a timer: the leaf watches the database's
- *   folder, and each write Messages makes there wakes one read of what is new.
+ *   note, a file). Nothing is read on a timer: the leaf watches the database and
+ *   its -wal file, and each write Messages makes wakes one read of what is new.
  *
  * Non-negotiable invariants
  *   - Read only. The database opens read-only on every read and closes after it;
@@ -252,6 +252,33 @@ function openReadOnly(file) {
   return new DatabaseSync(file, { readOnly: true });
 }
 
+/**
+ * Watch each file on its own (one descriptor each), never the folder: a folder watch inside a Mac sandbox failed with EMFILE
+ * at every start (Nov 20 2026, 2:54 AM CST). A file that is not there yet, or a watch that fails later, is watched again at
+ * the next wake from the other file, so a failure is never a crash and never a timer.
+ */
+export function watchEach(files, wake, { watchFile = watch } = {}) {
+  const watchers = new Map();
+  const start = (one) => {
+    if (watchers.has(one)) return;
+    try {
+      const watcher = watchFile(one, { persistent: true }, () => { ensure(); wake(); });
+      watcher.on?.("error", (error) => {
+        process.stderr.write(`${JSON.stringify({ imessage: "watch_failed", file: path.basename(one), error: String(error?.code ?? error?.message ?? error) })}\n`);
+        watcher.close?.();
+        watchers.delete(one);
+      });
+      watchers.set(one, watcher);
+    } catch (error) {
+      if (error?.code !== "ENOENT") process.stderr.write(`${JSON.stringify({ imessage: "watch_failed", file: path.basename(one), error: String(error?.code ?? error?.message ?? error) })}\n`);
+    }
+  };
+  const ensure = () => { for (const one of files) start(one); };
+  ensure();
+  if (!watchers.size) throw Object.assign(new Error("No Messages database file could be watched."), { reason: "nothing-to-watch" });
+  return { close() { for (const watcher of watchers.values()) watcher.close?.(); watchers.clear(); } };
+}
+
 const waitForAbort = (signal) => new Promise((resolve) => {
   if (!signal || signal.aborted) return resolve();
   signal.addEventListener("abort", resolve, { once: true });
@@ -261,7 +288,7 @@ const waitForAbort = (signal) => new Promise((resolve) => {
  * Watch the Messages database and report each message change as Messages writes it.
  * @param {object} settings the descriptor row's mechanism_settings
  * @param {object} handlers onTransition, signal, state ({last_row, edited_mark, retracted_mark, started_at, told}), keepState,
- *   and for tests: open (path → a read-only database), watchFolder ((folder, wake) → {close}), now, home
+ *   and for tests: open (path → a read-only database), watchFiles ((files, wake) → {close}), now, home
  */
 export async function watchForTransitions(settings, handlers) {
   const own = readSettings(settings);
@@ -269,7 +296,7 @@ export async function watchForTransitions(settings, handlers) {
   const now = handlers.now ?? (() => Date.now());
   const file = path.isAbsolute(own.database) ? own.database : path.join(handlers.home ?? homeFolder(), own.database);
   const open = handlers.open ?? openReadOnly;
-  const watchFolder = handlers.watchFolder ?? ((folder, wake) => watch(folder, { persistent: true }, wake));
+  const watchFiles = handlers.watchFiles ?? watchEach;
 
   let state = handlers.state && Number.isInteger(handlers.state.last_row) ? { told: [], ...handlers.state } : null;
   let told = new Set(state?.told ?? []);
@@ -326,13 +353,13 @@ export async function watchForTransitions(settings, handlers) {
     return;
   }
 
-  // Messages writes the database's -wal file on each message; any write in the folder wakes one read once the burst settles.
+  // Messages writes the database and its -wal file on each message; a write to either wakes one read once the burst settles.
   let timer = null;
   const wake = () => {
     if (timer) return;
     timer = setTimeout(() => { timer = null; void read(); }, own.settle_ms);
   };
-  const watcher = watchFolder(path.dirname(file), wake);
+  const watcher = watchFiles([file, `${file}-wal`], wake);
   try {
     await waitForAbort(signal);
   } finally {
