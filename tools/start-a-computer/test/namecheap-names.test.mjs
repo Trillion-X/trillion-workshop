@@ -49,3 +49,23 @@ test('the computer row names its engine call once as DATA, so a request with non
   const kept = await keepTheNames(fromRow, { call: w.call, apply: true });
   assert.deepEqual(kept, [{ host_name: 'files.example.org', address: ROW, added: [ROW], removed: [] }]);
 });
+
+test('a DNS provider that does not answer is asked again, and one still silent leaves the name unanswered, never a failed apply', async () => {
+  const w = namecheapWorld([]);
+  let silent = 2;
+  const flaky = async run => { if (silent > 0) { silent -= 1; throw Error('engine down'); } return w.call(run); };
+  const kept = await keepTheNames(request(names), { call: flaky, apply: true, waits: [1, 1] });
+  assert.deepEqual(kept, [{ host_name: 'files.example.org', address: ROW, added: [ROW], removed: [] }], 'two silences, then an answer');
+  const never = async () => { throw Error('engine down'); };
+  const applied = await keepTheNames(request(names), { call: never, apply: true, waits: [1, 1] });
+  assert.equal(applied.length, 1);
+  assert.match(applied[0].unanswered, /did not answer/);
+  const read = await keepTheNames(request(names), { call: never, apply: false, waits: [1] });
+  assert.equal(read[0].matches, false);
+  assert.match(read[0].unanswered, /did not answer/);
+});
+
+test('a refusal that is not silence still ends the apply', async () => {
+  const w = namecheapWorld([{ type: 'A', name: 'files', address: OLD, ttl: 60 }]);
+  await assert.rejects(keepTheNames(request(names), { call: w.call, apply: true, waits: [1] }), /does not own/);
+});

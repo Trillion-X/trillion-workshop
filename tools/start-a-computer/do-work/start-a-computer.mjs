@@ -588,7 +588,7 @@ export async function applyAComputerRow(request, { held = {}, run = onMachine, f
 export async function computerRowDifferences(request, { run = onMachine, held = {}, fetchImpl = fetch } = {}) {
   const units = await runsDifferences({ ssh: request.ssh, address: request.machine.address }, runsOf(request), run, { pages: readPages(request) });
   const names = (await keepTheNames(request, { held, fetchImpl, apply: false })).filter(name => !name.matches)
-    .map(name => ({ path: name.host_name, reason: `answers ${name.answers.join(', ') || 'no address'}; its row says ${name.address}` }));
+    .map(name => ({ path: name.host_name, reason: name.unanswered ? `not known: ${name.unanswered}` : `answers ${name.answers.join(', ') || 'no address'}; its row says ${name.address}` }));
   return { differences: [...units, ...names] };
 }
 
@@ -630,7 +630,7 @@ export function engineCallOf(command) {
  * provider needs an engine call: the request's `engine_call` when it gives one, else the row's own `runs.engine_call` (named once as DATA
  * on the computer row, so every apply and differences of the row keeps its names with nothing more), checked for every name before any
  * call is sent; `call` is the engine call (tests give a fake; default: engineCallOf of that command line). A name through a held-key provider needs its key under its vault name. */
-export async function keepTheNames(request, { held = {}, fetchImpl = fetch, apply, call }) {
+export async function keepTheNames(request, { held = {}, fetchImpl = fetch, apply, call, waits = [3000, 10000] }) {
   const named = namesOf(request);
   const engineCall = request.engine_call ?? request.computer_row?.runs?.engine_call;
   for (const name of named) if (name.provider.transport === 'engine' && !engineCall) throw refused(`${name.host_name} is kept through ${name.provider.name} by the engine: the computer row names its runs.engine_call (or the request its engine_call).`);
@@ -643,13 +643,27 @@ export async function keepTheNames(request, { held = {}, fetchImpl = fetch, appl
       if (typeof key !== 'string' || !key) throw refused(`${name.host_name} is kept through ${name.provider.name} with the key held under the vault name ${name.provider.vault_key}: hand it on descriptor 5 as {"${name.provider.vault_key}": value}, read from the person's vault.`);
       dns = dnsClient(key, { fetchImpl, provider: name.provider });
     }
-    if (!apply) {
-      const answers = await addressesOfName({ hostname: name.host_name, request: dns, provider: name.provider });
-      kept.push({ host_name: name.host_name, address: name.address, answers, matches: answers.length === 1 && answers[0] === name.address });
-      continue;
+    // A provider that does not answer is asked again after each of `waits`; one still silent after that leaves the name as it is
+    // and is reported as `unanswered`, never as a failed apply: the units are already applied, and nothing was changed at the name.
+    // Every other refusal (a record this row does not own, a name that is not one A record) still ends the apply.
+    let outcome;
+    for (let attempt = 0; ; attempt++) {
+      try {
+        if (!apply) {
+          const answers = await addressesOfName({ hostname: name.host_name, request: dns, provider: name.provider });
+          outcome = { host_name: name.host_name, address: name.address, answers, matches: answers.length === 1 && answers[0] === name.address };
+        } else {
+          const answer = await keepHealthyRecords({ hostname: name.host_name, candidates: [{ address: name.address }], check: () => true, request: dns, provider: name.provider, adopt: name.adopt });
+          outcome = { host_name: name.host_name, address: name.address, added: answer.added.map(row => row.address), removed: answer.removed.map(row => row.address) };
+        }
+        break;
+      } catch (error) {
+        if (!/did not answer/.test(error.message)) throw error;
+        if (attempt >= waits.length) { outcome = { host_name: name.host_name, address: name.address, unanswered: error.message, ...(apply ? {} : { matches: false }) }; break; }
+        await new Promise(resolve => setTimeout(resolve, waits[attempt]));
+      }
     }
-    const answer = await keepHealthyRecords({ hostname: name.host_name, candidates: [{ address: name.address }], check: () => true, request: dns, provider: name.provider, adopt: name.adopt });
-    kept.push({ host_name: name.host_name, address: name.address, added: answer.added.map(row => row.address), removed: answer.removed.map(row => row.address) });
+    kept.push(outcome);
   }
   return kept;
 }
@@ -741,7 +755,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       const held = (operation === 'apply' && runs.units.some(needsHeld)) || named ? heldValues(await pipe(5)) : {};
       const answer = operation === 'apply' ? await applyAComputerRow(request, { held }) : await computerRowDifferences(request, { held });
       process.stdout.write(`${JSON.stringify(answer)}\n`);
-      process.exit(0);
+      // 4: the units are applied and a name's DNS provider did not answer, so that name was left as it was (1 stays a failed apply).
+      process.exit(operation === 'apply' && (answer.names ?? []).some(name => name.unanswered) ? 4 : 0);
     }
     if (!first || third || !['price', 'rent', 'start', 'status', 'unit', 'remove'].includes(operation) || (operation === 'unit') !== Boolean(second)) throw Object.assign(new Error(usage), { exit: 2 });
     const asked = ['price', 'rent', 'start'].includes(operation), lease = asked ? null : await readLease(fileStore(resolvePath(first)));
