@@ -65,6 +65,7 @@ import { offeredScreens, startScreenRecords, type ScreenRow as Row } from './off
 import { onPartsChange, partsOf } from './pursuit-parts';
 import { createScreenCatalog, pursuitRowsOf, SCREEN_CATALOG_CONVERSATIONS_EVERY_MS, screenCatalogWords } from './screen-catalog.mjs';
 import { aloneRow, startAlone } from './alone-page';
+import { leaveHost, standForHost } from './host-channel';
 import { AI_MESSAGES, onStoreChange } from './store-changes';
 import { addressLabelForInput, readStartupRecords, showRecords, takeStartupRecords } from './records';
 import { startupRecordsPath } from './startup-records.mjs';
@@ -472,11 +473,13 @@ else {
   // Once the cover has dissolved, what moves behind the whole page may show (tools/ui/show/page-backdrop): the two
   // never change the window at the same moment.
   const opening = coverLifting({ mostMs: COVER_OVERALL_MS, now: () => performance.now(), lift: liftCover, markOpen: markPageOpen, showNote: showOpeningNote, hideNote: dropOpeningNote });
+  standForHost();
   start().then(
     // A page framing this one (a live showcase on a landing, tools/ui/show/live-frame) swaps its picture for this page
     // only once the screens show real content.
     () => whenScreensPainted().then(() => { if (screensPainted()) tellFramingPageReady(); return opening.opened(); }),
     error => {
+      leaveHost();
       // The API is navigating to sign in with the full return address.
       if (error?.status === 401) return;
       dropOpeningNote();

@@ -71,7 +71,7 @@ import { PANEL_SHORTCUT_EVENT } from './panel-shortcut';
 import { PANEL_SETTINGS_EVENT } from './panel-settings';
 import { askPanelSettings, panelSettingValue, panelSettingsState } from './panel-settings.mjs';
 import { PANEL_PERMISSIONS_EVENT, PANEL_PLACEMENT_EVENT } from './panel-setup';
-import { hostChannel, tellHost } from './host-channel';
+import { answerHost, hostChannel, tellHost } from './host-channel';
 import { deviceIdOf, keepNotices } from './alone-notices.mjs';
 import { keptAccount } from '../../../../ui/show/page-storage/page-storage';
 
@@ -248,7 +248,7 @@ export async function startAlone(first: Routed, offered: ScreenRow[], mountPerso
   });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') notices.wake(); });
   void notices.readNew();
-  (window as unknown as { trillionAlone: unknown }).trillionAlone = { back, open: openHere, host: (message: unknown) => notices.host(message), tell, shortcut, placement, permissions, panelSettings };
+  answerHost({ back, open: openHere, host: (message: unknown) => notices.host(message), tell, shortcut, placement, permissions, panelSettings });
 
   // The host's window is as tall as the page (up to what the host allows), told whenever that changes.
   new ResizeObserver(() => tellHost({ kind: 'size', height: Math.ceil(page.scrollHeight) })).observe(page);
