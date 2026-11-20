@@ -1,8 +1,9 @@
 // The workflow engine (workflow-core) as one WebAssembly component the engine runs on any computer.
 // In, on standard input: { "input": <the run>, "cause": <the cause the engine handed the run>, "context": <the task's context> }.
 // The run is the tool's input: its `definition` (or `definitions`, the first the one to run), handed in by whatever
-// started it from where the person keeps their workflows (their own database); this reads no file and no store, so no
-// person's workflows depend on a shared folder. Every other field is the workflow's own input; `answers` (by step id),
+// started it from where the person keeps their workflows (their own database): in the input, or in the fact that woke
+// it (the router's workflow-chosen carries the chosen row's `definition` and `start_at`). This reads no file and no
+// store, so no person's workflows depend on a shared folder. Every other field is the workflow's own input; `answers` (by step id),
 // `start_at` (a step to start at), `started_at` and `run` are kept with it.
 // Out, on standard output: { "result": { "status", "workflow", "run", "steps", "waiting" }, "wake_effects": [...] }.
 // The engine replays the definition from the start with the answers held. A step whose answer is held is answered with
@@ -70,6 +71,15 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
         _ => input.iter().filter(|(field, _)| !KEPT.contains(&field.as_str())).map(|(k, v)| (k.clone(), v.clone())).collect(),
     };
     if let Some(fact) = detail["payload"].as_object() {
+        // A fact that chose a workflow (the router's) carries the chosen row's definition and the step to start at; they
+        // are the run's, and the rest of the fact is the workflow's input as `fact`.
+        let mut fact = fact.clone();
+        for field in ["definition", "start_at"] {
+            if let Some(value) = fact.remove(field) {
+                run.entry(field.to_string()).or_insert(value);
+            }
+        }
+        let fact = &fact;
         own.insert("fact".into(), Value::Object(fact.clone()));
         own.insert("fact_id".into(), detail["event_id"].clone());
         if detail["coalesced"].as_u64().is_some_and(|n| n > 0) {
