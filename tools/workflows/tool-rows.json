@@ -2169,6 +2169,21 @@
             }
           },
           {
+            "id": "a-thing-showed-up",
+            "on": {
+              "fact": {
+                "kind": "something-showed-up",
+                "from": [
+                  "run"
+                ]
+              }
+            },
+            "budget": {
+              "steps": 40,
+              "wall_ms": 2400000
+            }
+          },
+          {
             "id": "a-workflow-was-picked",
             "on": {
               "fact": {
