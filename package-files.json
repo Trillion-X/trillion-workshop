@@ -12402,6 +12402,7 @@
    "at": "/opt/node_modules/@opencoredev/social-sdk"
   }
  ],
+ "tool:draw-pages-in-a-layout": [],
  "tool:drive-my-browser": [
   {
    "package": "run-tools-in-my-signed-in-browser",

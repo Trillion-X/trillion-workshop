@@ -1,0 +1,85 @@
+{
+ "kind": "tool-rows",
+ "record_set": "draw-pages-in-a-layout-tool-rows",
+ "what_this_is": "The Workshop row for the draw-pages-in-a-layout folder: a script the person's AI runs on the person's own computer to draw a deck's pages as 1080x1350 JPEGs from the exact page text that was judged.",
+ "records": [
+  {
+   "id": "package::draw-pages-in-a-layout::tool::draw-pages-in-a-layout",
+   "address": "package::draw-pages-in-a-layout::tool::draw-pages-in-a-layout",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:draw-pages-in-a-layout",
+    "label": "Draw a deck's pages as JPEGs from the judged text, in a layout (runs on your computer)",
+    "status": "active",
+    "job": "Draw each page of a carousel as a 1080x1350 JPEG from exactly the words that were judged, in the layout my format row gives",
+    "description": "Takes the judged page text in its line form (PAGE n, a title on page 1, headings and bullets) and a layout (CSS as data, with its width and height). Each page is written as NN.html, NN.png and NN.jpg in the folder given. A line that is not a title, a heading or a bullet is refused by name, and a page whose words run past the page is refused with how many pixels over it is. The tool adds no words, no footer and no brand: every word drawn is a word of the input.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "request"
+     ],
+     "properties": {
+      "request": {
+       "type": "string",
+       "description": "A JSON file on the person's computer holding the request, put where {request} is in the command: pages (the judged line form, a string), layout {css, width?, height?} (the CSS from the person's format row; width and height default to 1080 and 1350), and folder (an absolute path, made when missing)."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "description": "The last line: {\"result\": {\"files\": [absolute NN.jpg paths in page order], \"pages\": N}} or {\"error\": what to change}.",
+     "properties": {
+      "result": {
+       "type": "object",
+       "properties": {
+        "files": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "pages": {
+         "type": "integer"
+        }
+       },
+       "required": [
+        "files",
+        "pages"
+       ]
+      },
+      "error": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": [
+      "clone the Workshop repository (package.json repository.url)",
+      "python3 -m pip install -U pillow",
+      "install a headless Chromium (chrome-headless-shell, for example npx playwright install chromium-headless-shell) or set CHROME to one"
+     ],
+     "run": "python3 tools/draw-pages-in-a-layout/do-work/draw_pages.py {request}",
+     "needs": [
+      "python",
+      "chromium"
+     ],
+     "say": "This runs on the person's own computer, from the root of the Workshop checkout. Read the person's judged page text and their format row's layout CSS, put them in the request with an absolute folder, pass the request's path as {request}, then name the JPEG files written or say what the error asks to change. Do not add words the judged text does not hold. If you cannot run commands, give them these steps."
+    },
+    "result_selector": "$.result",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:draw-pages-in-a-layout",
+    "provenance": {
+     "source": "Written for the Workshop from a scratch notes-page renderer: its page CSS (without any footer rules) is the example layout in the tests, and its headless Chromium screenshot and JPEG steps are the drawing steps"
+    }
+   }
+  }
+ ]
+}

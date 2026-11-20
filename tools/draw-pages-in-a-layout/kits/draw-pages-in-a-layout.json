@@ -1,0 +1,44 @@
+{
+ "drafted_from": "tool:draw-pages-in-a-layout's own row (its words, input schema and output schema), do-work/draw_pages.py and test/test_draw_pages.py",
+ "start_here": "Say to your AI: \"Draw the two pages of my deck as JPEGs in ./deck-out, from the judged text in the layout of my format row.\" It writes the request with the judged text and the layout CSS, runs tool:draw-pages-in-a-layout on your computer, and names the two JPEG files it drew.",
+ "lists": [],
+ "no_lists_because": "It keeps no row and names no list: the judged text and the layout are handed in with the request, and the tool answers with the files it drew.",
+ "workflows": [],
+ "tools": [
+  "tool:draw-pages-in-a-layout"
+ ],
+ "instructions": [
+  "1. Judge the page text in its line form: PAGE 1, then the title on the next line, then headings (a line a bullet follows) and bullets that start with \"- \".",
+  "2. Take the layout CSS from the person's format row, with its width and height when they differ from 1080 and 1350.",
+  "3. Write the request as JSON: pages (the judged text), layout {css, width, height} and folder (an absolute path), and pass its path as {request} in the run command.",
+  "4. Read the answer: the files list holds one JPEG per page in order; an error names the line that is not a title, heading or bullet, or the page that runs past the page and by how many pixels."
+ ],
+ "worked_examples": [
+  {
+   "title": "A two-page deck is drawn as two JPEGs",
+   "ask": "Draw my two judged pages in the layout from my format row.",
+   "mcp": {
+    "server": "{cli}",
+    "tool": "do_one_thing_in_my_account",
+    "input": {
+     "address": "@tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:draw-pages-in-a-layout",
+      "input": {
+       "pages": "PAGE 1\nA player on how to *stay calm*\nBreathe before the serve\n- Count two breaths before each point\nPAGE 2\nReset between points\n- Walk to the back line",
+       "layout": {
+        "css": "h2{font-size:43px;font-weight:700;margin:0 0 22px}",
+        "width": 1080,
+        "height": 1350
+       },
+       "folder": "/work/deck-out"
+      }
+     }
+    }
+   },
+   "given": "Two judged pages, the title on page 1 with the words \"stay calm\" marked.",
+   "hands_back": "{\"files\": [\"/work/deck-out/01.jpg\", \"/work/deck-out/02.jpg\"], \"pages\": 2}"
+  }
+ ]
+}

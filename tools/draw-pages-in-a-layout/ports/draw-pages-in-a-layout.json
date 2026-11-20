@@ -1,0 +1,70 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-DRAW-PAGES-IN-A-LAYOUT",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "trillion-workshop lane draw-pages-in-a-layout, 2026-11-20: the judged-text drawing step of the carousel workflow",
+    "message_multihash": "1f:19b25cf270a53054f444f1173ce7a107b5d7453e76717128720a3c2edb0fb7dc",
+    "quote": "Build and land ONE new Workshop tool, tool:draw-pages-in-a-layout: it draws a carousel's pages as 1080x1350 JPEGs from the exact judged page text, in a layout given as DATA, so nothing can be drawn that was not judged."
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "draw a deck's pages as JPEGs from the judged page text in a layout",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/draw-pages-in-a-layout/do-work/draw_pages.py"
+    }
+  ],
+  "preserve": [],
+  "allowed_deltas": [],
+  "banned_substitutions": [
+    "A NO_PRIOR_OWNER claim for a renderer that draws words the judged text does not hold.",
+    "A footer, brand line or handle drawn by the tool."
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/browser-pool/do-work/browser-pool.mjs",
+      "why": "Runs and pools browser sessions for scripted page work; it opens pages and takes no judged words, lays out no pages and writes no JPEG."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/headless-browser/devtools.mjs",
+      "why": "Drives a headless browser over DevTools for page inspection; it reads and acts on live pages, it does not draw a fixed-size deck from text."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/walk-through-an-app-like-its-users/do-work/browser.mjs",
+      "why": "Walks an app through a browser as a user would; it screenshots an app's screens, not text laid out on pages of a deck."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/compose-thumbnails-from-layout-templates/do-work/compose_thumbnails.py",
+      "why": "Composes 1280x720 thumbnails from video frames with fixed templates and Pillow text; it draws no HTML, takes no line-form page text and has no overflow check."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "draw a deck's pages as JPEGs from the judged page text in a layout",
+        "pages as JPEG from the judged text"
+      ],
+      "capability_rows": [],
+      "code_patterns": [
+        "judged page",
+        "pages as jpeg"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "9daa8241473ba802a7d1c17e35b1e2873470743a"
+        }
+      ]
+    },
+    "test_refs": [
+      "tools/draw-pages-in-a-layout/test/test_draw_pages.py",
+      "tools/draw-pages-in-a-layout/test/draw-pages-in-a-layout.test.mjs"
+    ]
+  }
+}
