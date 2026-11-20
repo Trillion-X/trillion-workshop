@@ -263,9 +263,18 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   for (const unit of runs.units.filter(row => /\.(timer|path)$/.test(row.unit))) if (await absent(`systemctl is-active --quiet ${q(unit.unit)}`)) triggersOff.push(unit.unit);
   // The packages and programs the set-up data names (settings.json `machine` with the row's own over it) are made by set-up too.
   const machineData = { ...SETTINGS.machine, ...runs.machine };
+  // A program is in place when its path runs and, for a program the row pins by its bytes (`binary_sha256` of this computer's kind),
+  // when the bytes there are the pinned ones: a row that pins a new release is set up again (set-up installs it over the old one),
+  // where a path that merely runs used to keep the old program while the units started with the new release's settings.
+  const downloadInPlace = ({ path, install, files = {} }) => {
+    const pinned = install ? [] : Object.entries(files).filter(([, file]) => /^[0-9a-f]{64}$/.test(file?.binary_sha256 ?? ''));
+    if (!pinned.length) return `test -x ${q(path)}`;
+    const kinds = pinned.map(([kind, file]) => `${q(kind)}) [ "$(sha256sum ${q(path)} | cut -c1-64)" = ${q(file.binary_sha256)} ] ;;`).join(' ');
+    return `test -x ${q(path)} && case "$(uname -m)" in ${kinds} *) true ;; esac`;
+  };
   const programsMissing = (await Promise.all([
     ...(machineData.packages ?? []).map(name => absent(`dpkg -s ${q(name)} >/dev/null 2>&1`)),
-    ...(machineData.downloads ?? []).map(({ path }) => absent(`test -x ${q(path)}`)),
+    ...(machineData.downloads ?? []).map(download => absent(downloadInPlace(download))),
   ])).includes(true);
   // A unit with slots switches to its other slot when it is behind (`reason`), or when a file it reads changed or a credential
   // it loads is sealed anew: its running slot read them at its start, so the other slot starts with them.

@@ -256,6 +256,33 @@ test('a computer missing a package or program its row names is set up, and one t
   assert.ok(!had.commands.some(({ command }) => command.startsWith('sh -s')), 'nothing missing, no set-up');
 });
 
+test('a program the row pins by its bytes is set up again when the bytes in place are not the pinned ones', async () => {
+  const pinned = 'b'.repeat(64);
+  const data = { ...runs, machine: { downloads: [{ path: '/usr/local/bin/example-tool', files: { x86_64: { url: 'https://downloads.example.test/t.tar.gz', sha256: 'c'.repeat(64), member: 't/example-tool', binary_sha256: pinned } } }] } };
+  const live = Object.fromEntries(renderWhatItRuns(data).map(({ path, text }) => [path, text]));
+  const changed = { ...data, units: [{ ...data.units[0], description: 'Example place again' }] };
+  const onComputer = (bytes) => {
+    const box = computer(live);
+    const run = async (m, command, input) => {
+      if (command.startsWith('test -x')) {
+        box.commands.push({ command });
+        const matches = command.includes(`= '${bytes}'`) || command.includes(`= ${bytes} `);
+        assert.match(command, /sha256sum '\/usr\/local\/bin\/example-tool'/, 'the bytes in place are compared');
+        if (!matches) throw Object.assign(new Error('other bytes'), { code: 3 });
+        return '';
+      }
+      return box.run(m, command, input);
+    };
+    return { box, run };
+  };
+  const older = onComputer('d'.repeat(64));
+  await applyWhatItRuns(machine, changed, older.run);
+  assert.ok(older.box.commands.some(({ command }) => command.startsWith('sh -s')), 'an older release in place runs set-up, which installs the pinned one');
+  const same = onComputer(pinned);
+  await applyWhatItRuns(machine, changed, same.run);
+  assert.ok(!same.box.commands.some(({ command }) => command.startsWith('sh -s')), 'the pinned bytes in place: no set-up');
+});
+
 test('the node release is the computer row\'s own data: a computer that names none is set up without node', async () => {
   const setUpOf = async row => {
     const { run, commands } = computer({});
