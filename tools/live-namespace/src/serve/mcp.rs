@@ -104,7 +104,9 @@ fn serve_calls(listed: &Tools, call: impl Fn(&Tools, &Arc<AtomicBool>, Value, &V
         }
         if line.len() > MAX_MESSAGE_BYTES {
             skip_rest_of_line(&mut input, &line)?;
-            write(&error(Value::Null, -32600, "The message is longer than one MCP message."))?;
+            // Answered under the message's own id when its first bytes name one, so the caller waiting on that id is told now
+            // (a reply with no id answered no one: the engine waited for its call until the call's deadline).
+            write(&error(id_of_start(&line), -32600, "The message is longer than one MCP message: send the bytes as the row's byte argument (a raw upload), not inside the call."))?;
             continue;
         }
         if line.trim().is_empty() {
@@ -167,6 +169,52 @@ fn write_line(output: &mut impl Write, value: &Value) -> Result<(), String> {
     let mut bytes = serde_json::to_vec(value).map_err(|error| error.to_string())?;
     bytes.push(b'\n');
     output.write_all(&bytes).and_then(|()| output.flush()).map_err(|error| error.to_string())
+}
+
+/// The `id` of a JSON-RPC message from its first bytes alone (a message cut at the bound): the value of the top-level key `id`,
+/// a number or a string, when it is whole before the cut; else null. A key named `id` inside `params` is never read: only the
+/// object's own keys are, by depth, outside strings.
+fn id_of_start(start: &str) -> Value {
+    let mut depth = 0usize;
+    let mut at = 0usize;
+    while at < start.len() {
+        match start.as_bytes()[at] {
+            b'{' | b'[' => depth += 1,
+            b'}' | b']' => depth = depth.saturating_sub(1),
+            b'"' => {
+                let Some(close) = string_end_of(&start[at..]).map(|close| at + close) else { return Value::Null };
+                let rest = start[close + 1..].trim_start();
+                if depth == 1 && &start[at + 1..close] == "id" && rest.starts_with(':') {
+                    let value = rest[1..].trim_start();
+                    let token = if value.starts_with('"') {
+                        string_end_of(value).map(|close| &value[..=close])
+                    } else {
+                        value.find([',', '}']).map(|stop| value[..stop].trim_end())
+                    };
+                    return token.and_then(|token| serde_json::from_str::<Value>(token).ok())
+                        .filter(|id| id.is_number() || id.is_string()).unwrap_or(Value::Null);
+                }
+                at = close;
+            }
+            _ => {}
+        }
+        at += 1;
+    }
+    Value::Null
+}
+
+/// Where the string that `text` starts with ends (the index of its closing quote).
+fn string_end_of(text: &str) -> Option<usize> {
+    let bytes = text.as_bytes();
+    let mut index = 1;
+    while index < bytes.len() {
+        match bytes[index] {
+            b'\\' => index += 2,
+            b'"' => return Some(index),
+            _ => index += 1,
+        }
+    }
+    None
 }
 
 fn error(id: Value, code: i32, message: &str) -> Value {
@@ -291,5 +339,27 @@ mod tests {
         assert!(at(2) < at(1), "{order:?}");
         assert_eq!(order.iter().find(|answer| answer["id"] == 1).map(|answer| answer["result"]["waited"].clone()), Some(json!(true)));
         assert_eq!(ids.len(), 3, "{order:?}");
+    }
+
+    #[test]
+    fn a_message_longer_than_the_bound_is_refused_under_its_own_id() {
+        let listed = Tools { _what: String::new(), left_out: Vec::new(), tools: Vec::new().into() };
+        let (answers, heard) = mpsc::channel();
+        let big = "x".repeat(MAX_MESSAGE_BYTES + 10);
+        let input = [
+            format!("{{\"id\":7,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{{\"arguments\":{{\"content_base64\":\"{big}\"}}}}}}"),
+            format!("{{\"jsonrpc\":\"2.0\",\"params\":{{\"id\":99,\"blob\":\"{big}\"}},\"id\":8}}"),
+            format!("{{\"id\":\"call-9\",\"params\":{{\"blob\":\"{big}\"}}}}"),
+            json!({"jsonrpc": "2.0", "id": 10, "method": "ping"}).to_string(),
+        ].join("\n") + "\n";
+        serve_calls(&listed, |_: &Tools, _: &Arc<AtomicBool>, id: Value, _: &Value, _: &ReplyNow| json!({"id": id}), Cursor::new(input), Answers(answers)).unwrap();
+        let order: Vec<Value> = heard.try_iter().collect();
+        let ids: Vec<Value> = order.iter().map(|answer| answer["id"].clone()).collect();
+        assert_eq!(ids, [json!(7), Value::Null, json!("call-9"), json!(10)], "{order:?}");
+        assert!(order[..3].iter().all(|answer| answer["error"]["code"] == -32600), "{order:?}");
+        assert_eq!(id_of_start(r#"{"jsonrpc":"2.0","id": 12 ,"#), json!(12));
+        assert_eq!(id_of_start(r#"{"params":{"id":5},"#), Value::Null, "a key named id inside params is not the message's");
+        assert_eq!(id_of_start(r#"{"note":"a \\"id\\": 3","id":4"#), Value::Null, "an id cut off before its end is not read");
+        assert_eq!(id_of_start(r#"{"note":"a \\"id\\": 3","id":4,"#), json!(4), "a quoted id inside a string is not the key");
     }
 }
