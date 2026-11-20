@@ -75,7 +75,8 @@ async function clearWhatWasNotProven(ctx) {
 //   scope is added, so the consent page says so ("Stay connected while you keep using it").
 // - Every connect goes to /consent (prompt=consent), even for an AI the person already allowed: that page is where a remembered AI is
 //   shown "Connecting..." with an Undo, and where an address the AI is not known by needs the person to type it. Better Auth takes
-//   the prompt out again when consent is answered.
+//   the prompt out again when consent is answered. The product's own programs (settings.mcp.first_party_clients) are not sent there once
+//   allowed: the page answers for them with no screen anyway, and the extra page cost the Mac app's first open about 2.6 s (Nov 20 2026).
 function shapeAuthorize(ctx) {
   const scope = ctx.query?.scope;
   if (typeof scope === 'string' && scope.trim() && settings.mcp.always_offline_access && !scope.split(' ').includes('offline_access')) ctx.query.scope = `${scope} offline_access`;
@@ -86,7 +87,7 @@ function shapeAuthorize(ctx) {
   if (variants.length && ctx.request?.method === 'GET') ctx.query.scope = [...asked, ...variants].join(' ');
   // Only the AI's own request (a GET): Better Auth runs authorize again inside its consent and sign-in answers, and that run must not ask again.
   const prompt = (ctx.query?.prompt ?? '').split(' ').filter(Boolean);
-  if (ctx.request?.method === 'GET' && !prompt.includes('consent')) ctx.query.prompt = [...prompt, 'consent'].join(' ');
+  if (ctx.request?.method === 'GET' && !prompt.includes('consent') && !firstPartyIds().includes(ctx.query?.client_id)) ctx.query.prompt = [...prompt, 'consent'].join(' ');
 }
 
 // Read only is a switch on the consent screen, off for the person's own AI. Off, what is granted is what the AI asked for (the read-only variants
@@ -231,10 +232,11 @@ const webLink = () => ({
 
 // Whether a client document address is one of the product's own programs (settings.mcp.first_party_clients, set where the tool is run): the
 // consent page answers for those itself, so a person's own program goes from sign-in straight back with no screen.
+const firstPartyIds = () => settings.mcp.first_party_clients ?? [];
 const firstParty = () => ({
   id: 'first-party',
   endpoints: {
-    isFirstParty: createAuthEndpoint('/first-party', { method: 'GET' }, async ctx => ctx.json({ first_party: (settings.mcp.first_party_clients ?? []).includes(ctx.query?.client_id) })),
+    isFirstParty: createAuthEndpoint('/first-party', { method: 'GET' }, async ctx => ctx.json({ first_party: firstPartyIds().includes(ctx.query?.client_id) })),
   },
 });
 
