@@ -59,8 +59,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "record",
+        "kind": "module",
+        "module": {
+          "package": "record-voice-and-meetings",
+          "entry": "show/record-screen-mount.tsx"
+        },
         "icon": "Mic",
         "surface": {
           "id": "trillion.record",

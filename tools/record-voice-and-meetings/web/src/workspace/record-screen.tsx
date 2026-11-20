@@ -69,7 +69,7 @@ import { deviceAccount, PlanNeeded, postJson, readFileJson, readJson } from './a
 import { planNeededTitle, refusal, reasonOf } from './failure';
 import { goTo } from './open-screen';
 import { useWorkspacePreference, writeWorkspacePreference } from './records';
-import surfaces from './screens.mjs';
+import ownPart from '../../../part.json' with { type: 'json' };
 import { growingFiles, keepText, removeNames, uploadFiles } from './upload';
 import {
   calendarRecordingContext, correctedTranscriptJob, cutFrom, editedName, editLength, follow, heardWords, insertInto, isWholeRecording, keptNames, liveStretch, liveWorkJob, meetingTurns, recordingJob, scriptFor,
@@ -81,9 +81,11 @@ import { useWriteWithMyAI } from './write-with-my-ai';
 import settings from './recording.json';
 
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
-// Record's own row: its address, and the query field that opens it joined to a meeting (its `route_query` names the
-// field whose input is `meeting`), so a meeting link opens this screen joined wherever it is opened.
-const RECORD_ROW = surfaces.surfaces.find(row => row.id === 'trillion.record') as { route_paths: string[]; route_query: Record<string, string> };
+// Record's own row, read from this tool's own offer (part.json tool:screen-record): its address, and the query field
+// that opens it joined to a meeting (its `route_query` names the field whose input is `meeting`), so a meeting link
+// opens this screen joined wherever it is opened. The page's built-in screen list no longer holds this row once the
+// screen is offered by its tool, so it is never read from there.
+const RECORD_ROW = (ownPart.offers.find(offer => offer.id === 'tool:screen-record')?.screen?.surface ?? { route_paths: ['/record'], route_query: {} }) as { route_paths: string[]; route_query: Record<string, string> };
 const MEETING_FIELD = Object.keys(RECORD_ROW.route_query).find(field => RECORD_ROW.route_query[field] === 'meeting') as string;
 
 // The live picture, the recording made and the timeline are fetched the first time they show, never with the screen.
