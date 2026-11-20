@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "keep-the-shared-checkout-current-tool-rows",
-  "what_this_is": "The Workshop row that keeps one shared checkout of the Workshop on origin/main every five minutes, at the Mac that holds it, without losing anyone's work. The checkout is granted as the change-a-folder folder; the pass is do-work/keep-the-shared-checkout-current.mjs, the same file the tests run.",
+  "what_this_is": "The Workshop row that keeps one shared checkout of the Workshop on origin/main every five minutes, at the Mac that holds it, without losing anyone's work. The checkout is granted as the use-git-in-a-folder folder (the switch input names it under computer.use-git-in-a-folder); the pass is do-work/keep-the-shared-checkout-current.mjs, the same file the tests run.",
   "records": [
     {
       "payload": {
@@ -39,7 +39,7 @@
         },
         "invoke": {
           "kind": "computer",
-          "capabilities": ["start-a-program", "change-a-folder"],
+          "capabilities": ["use-git-in-a-folder"],
           "workdir": "/opt/keep-the-shared-checkout-current",
           "internet": true,
           "stdout": "json",
@@ -48,7 +48,7 @@
             "--no-warnings",
             "/opt/keep-the-shared-checkout-current/do-work/keep-the-shared-checkout-current.mjs",
             "--root",
-            { "fill": { "from": "task", "field": "grants.change-a-folder.folder" } }
+            { "fill": { "from": "task", "field": "grants.use-git-in-a-folder.folder" } }
           ],
           "stdin": { "fill": { "from": "input" } },
           "files": {
