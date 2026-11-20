@@ -1,0 +1,110 @@
+{
+  "what_this_is": "A provider description for tools/start-a-computer and tools/move-the-public-door: DNS records at Namecheap, reached through the engine's own call of Namecheap's MCP server (transport \"engine\"). Each request names one MCP tool in its body_template as { name, arguments }; the DNS client sends it as the engine's tools:run of <host>/<name> at `base`, and reads the tool's structured result. No credential is held for this provider: the engine signs in to the person's Namecheap connection and refreshes it. The legacy REST setHosts call is not used: it replaces the whole zone.",
+  "id": "namecheap",
+  "name": "Namecheap DNS (MCP)",
+  "base": "https://mcp.namecheap.com/mcp",
+  "transport": "engine",
+  "lease_label_key": "place-lease",
+  "requests": {
+    "find_zone": {
+      "notes": "The one domain of the account with this exact name, or none (items []). Reads only.",
+      "url": "https://mcp.namecheap.com/mcp",
+      "method": "POST",
+      "body_template": {
+        "name": "domains_list",
+        "arguments": {
+          "domain": "{zone}"
+        }
+      }
+    },
+    "list_records": {
+      "notes": "The DNS records of one domain, a page at a time. Reads only.",
+      "url": "https://mcp.namecheap.com/mcp",
+      "method": "POST",
+      "body_template": {
+        "name": "dns_records_get",
+        "arguments": {
+          "domainName": "{zone_id}",
+          "skip": "{skip}",
+          "take": "{take}"
+        }
+      }
+    },
+    "create_record": {
+      "notes": "Point one name at the address, as one A record with the shortest TTL the provider takes.",
+      "url": "https://mcp.namecheap.com/mcp",
+      "method": "POST",
+      "body_template": {
+        "name": "dns_records_save",
+        "arguments": {
+          "domainName": "{zone_id}",
+          "records": [
+            {
+              "type": "A",
+              "name": "{host_label}",
+              "address": "{address}",
+              "ttl": 60
+            }
+          ]
+        }
+      }
+    },
+    "remove_record": {
+      "notes": "Remove one record, matched by its type, name and address (the provider keeps no ids).",
+      "url": "https://mcp.namecheap.com/mcp",
+      "method": "POST",
+      "body_template": {
+        "name": "dns_records_delete",
+        "arguments": {
+          "domainName": "{zone_id}",
+          "records": [
+            "{record_body}"
+          ]
+        }
+      }
+    }
+  },
+  "zone": {
+    "find": "find_zone",
+    "list_at": "items",
+    "id_is": "zone_id",
+    "id_pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}$",
+    "id_at": "name",
+    "name_relative": true
+  },
+  "record": {
+    "list": "list_records",
+    "list_at": "items",
+    "page_size": 100,
+    "remove": "remove_record",
+    "id_is_fields": [
+      "type",
+      "name",
+      "address"
+    ],
+    "create": "create_record",
+    "created_at": "",
+    "name_at": "name",
+    "type_at": "type",
+    "content_at": "address",
+    "address_types": [
+      "A"
+    ],
+    "editable_types": [
+      "A"
+    ],
+    "fields": [
+      "type",
+      "name",
+      "address",
+      "ttl"
+    ],
+    "desired": {
+      "type": "A",
+      "name": "{host_name}",
+      "address": "{address}",
+      "ttl": 60
+    },
+    "owner_by": "address"
+  }
+}

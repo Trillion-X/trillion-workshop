@@ -13,18 +13,64 @@
 //   binding { list, list_at, id_is, id_pattern, host_at, fields, restore_fields, require?, create (restore), remove }
 //           an optional provider-held binding that owns a read-only record (a name served by a hosted program); the
 //           cutover removes it, makes the plain record, and puts the binding back on rollback
+//   Two more shapes a provider may take, both optional:
+//   transport "engine"  the provider is an MCP server reached through the engine: each request's body_template is { name,
+//                     arguments } naming one of its tools; it is sent as the engine's tools:run of `<host>/<name>` at the
+//                     description's base (the engine signs in and refreshes the connection, so no credential is held here).
+//                     The result is the tool's structuredContent (or its text, parsed as JSON); an error or isError refuses.
+//   zone.name_relative  the zone id is the zone's domain name and records name hosts relative to it ('@' is the apex): a
+//                     record's name is read back as the full hostname, and `{host_label}` in a body is the relative name.
+//   record.id_is_fields  the provider keeps no record ids: a record is removed by the keys named (its record body), and
+//                     record.owner_by "address" makes a record this set owns when its address is one of the candidates.
+//                     The owner mark (owner_at / owner_is) is kept for providers that have one.
+//   record.page_size  a list is read a page at a time by skip and take ({skip}, {take} in the request), until a page is short.
 // Nothing here names a provider. The receipt is held in the run (read-data/door-receipts.mjs keptReceipts) and answered; it
 // is saved before every mutation.
 import { isIP } from 'node:net';
 import https from 'node:https';
 import { at, fill, ask, providerClient } from '../../start-a-computer/do-work/rent-a-machine.mjs';
 
-/** provider: the DNS provider description whose base and auth header this uses. */
-export function dnsClient(token, { fetchImpl = fetch, provider }) {
-  if (!provider?.base || !provider.auth) throw Error('The DNS client needs its DNS provider description.');
+/** provider: the DNS provider description. A `transport: "engine"` description holds no credential: each request is sent as one
+ * engine tools:run through `call(run)` (run is { address, tool, input }, the engine's own input), which answers the engine's
+ * answer; any other description sends the held token with its base and auth header. */
+export function dnsClient(token, { fetchImpl = fetch, provider, call }) {
+  if (!provider?.base) throw Error('The DNS client needs its DNS provider description.');
+  if (provider.transport === 'engine') {
+    if (typeof call !== 'function') throw Error(`${provider.name} is reached through the engine: the DNS client needs the engine call.`);
+    return engineClient({ provider, call });
+  }
+  if (!provider.auth) throw Error('The DNS client needs its DNS provider description.');
   if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{20,256}$/.test(token)) throw Error('The held DNS credential was refused.');
   return providerClient(provider, token, { fetchImpl, timeoutMs: 30000 });
 }
+
+/** An engine client for an MCP provider: `request(POST, '', { name, arguments })` names one tool the description declares, sent
+ * as the engine's tools:run of `<host>/<name>` at the provider's address (the engine signs in and refreshes the connection). The
+ * tool's structured result is read, or its text parsed as JSON. A refusal names the tool, never the answer. */
+function engineClient({ provider, call }) {
+  const declared = new Set(Object.values(provider.requests).map(asked => asked.body_template?.name));
+  const host = new URL(provider.base).host;
+  return async function request(method, path, body) {
+    if (method !== 'POST' || path !== '' || !declared.has(body?.name)) throw Error(`The ${provider.name} operation was refused.`);
+    let answer;
+    try { answer = await call({ address: provider.base, tool: `${host}/${body.name}`, input: body.arguments ?? {} }); } catch { throw Error(`${provider.name} did not answer ${body.name}.`); }
+    const result = answer?.result;
+    if (!result || result.isError) throw Error(`${provider.name} refused ${body.name}.`);
+    if (result.structuredContent !== undefined) return result.structuredContent;
+    try { return JSON.parse(result.content?.[0]?.text ?? 'null'); } catch { throw Error(`${provider.name} answered ${body.name} without JSON.`); }
+  };
+}
+
+/** The relative name a record of `zone` takes for `hostname` ('@' for the apex); the hostname itself when the zone names full hosts. */
+const labelOf = (provider, zone, hostname) => !provider.zone?.name_relative ? hostname : hostname === zone ? '@' : hostname.slice(0, -(zone.length + 1));
+/** The record body a provider removes a record by (its id_is_fields), the name as the zone names it. */
+const bodyOf = (provider, zone, row) => Object.fromEntries(provider.record.id_is_fields.map(key => [key, key === provider.record.name_at ? labelOf(provider, zone, nameOf(provider, row)) : at(row, key)]));
+/** Remove one record: by its id, or by its body where the provider keeps no ids. */
+const removeRow = (request, provider, zone, row) => provider.record.id_is_fields
+  ? ask(request, provider, provider.record, 'remove', { zone_id: zone, record_body: bodyOf(provider, zone, row) })
+  : ask(request, provider, provider.record, 'remove', { zone_id: zone }, idOf(provider.record, row));
+/** The name a record of `zone` takes in full: the zone's own name for '@', else the label joined to the zone. */
+const fullNameOf = (zone, name) => name === '@' ? zone : `${name}.${zone}`;
 
 const checked = c => {
   if (!/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/.test(c.hostname) || isIP(c.address) !== 4) throw Error('The exact DNS placement was refused.');
@@ -44,9 +90,10 @@ const addressRows = (provider, state, hostname) => state.records.filter(row => n
 async function pages(request, provider, ctx) {
   const part = provider.record, result = [];
   for (let page = 1; ; page += 1) {
-    const answer = await ask(request, provider, part, 'list', { ...ctx, page });
-    result.push(...at(answer, part.list_at));
-    if (!part.pages_at || page >= (at(answer, part.pages_at) ?? 1)) return result;
+    const size = part.page_size, answer = await ask(request, provider, part, 'list', { ...ctx, page, skip: size ? (page - 1) * size : undefined, take: size });
+    const rows = at(answer, part.list_at);
+    result.push(...rows);
+    if (size ? rows.length < size : !part.pages_at || page >= (at(answer, part.pages_at) ?? 1)) return result;
   }
 }
 async function snapshot(c, request, provider, zone, account) {
@@ -62,7 +109,9 @@ async function snapshot(c, request, provider, zone, account) {
   const guards = [];
   for (const guard of z.guards ?? []) guards.push(at(await ask(request, provider, guard, 'request', ctx), guard.list_at));
   const bindings = provider.binding ? at(await ask(request, provider, provider.binding, 'list', ctx), provider.binding.list_at) : [];
-  return { zone, account, records: await pages(request, provider, ctx), guards, bindings };
+  const listed = await pages(request, provider, ctx);
+  const records = z.name_relative ? listed.map(row => ({ ...row, [provider.record.name_at ?? 'name']: fullNameOf(zone, at(row, provider.record.name_at ?? 'name')) })) : listed;
+  return { zone, account, records, guards, bindings };
 }
 
 /** The cutover receipt `file` names, or an error saying none is kept under that name. */
@@ -128,7 +177,7 @@ async function changeNewRecord(c, { request, provider, save, receipt, rollback }
     if (here.length) {
       if (here.length !== 1 || !has(here[0], receipt.desired) || (receipt.afterTarget && idOf(p, here[0]) !== idOf(p, receipt.afterTarget))) throw Error('The placed DNS record changed; rollback refused.');
       receipt.state = 'rollback-removing-address'; await save();
-      await ask(request, provider, p, 'remove', { zone_id: before.zone }, idOf(p, here[0]));
+      await removeRow(request, provider, before.zone, here[0]);
     }
   } else if (!here.length) {
     receipt.state = 'creating-address'; await save();
@@ -159,7 +208,7 @@ async function changeManagedBinding(c, { request, provider, save, receipt, rollb
     if (target.length && !binding) {
       if (target.length !== 1 || !has(target[0], receipt.desired) || (receipt.afterTarget && !equal(provider, target[0], receipt.afterTarget))) throw Error('The direct DNS record changed; rollback refused.');
       receipt.state = 'rollback-removing-address'; await save();
-      await ask(request, provider, p, 'remove', { zone_id: before.zone }, idOf(p, target[0]));
+      await removeRow(request, provider, before.zone, target[0]);
     }
     if (!binding) {
       receipt.state = 'rollback-attaching-binding'; await save();
@@ -220,7 +269,7 @@ export async function keepHealthyRecords({ hostname, candidates, check, request,
   const healthy = health.filter(x => x.healthy).map(x => x.candidate.address);
   if (!healthy.length) throw Error('No front-door computer is healthy; the name was left as it is.');
   const state = await snapshot({ hostname }, request, provider), here = addressRows(provider, state, hostname);
-  const ownedHere = row => adopt || (p.owner_at && at(row, p.owner_at) === fill(p.owner_is, owner));
+  const ownedHere = row => adopt || (p.owner_at ? at(row, p.owner_at) === fill(p.owner_is, owner) : p.owner_by === 'address' && candidates.some(x => x.address === contentOf(provider, row)));
   const foreign = here.filter(row => !ownedHere(row));
   if (foreign.length) throw Error(`${hostname} already holds ${foreign.length} address record(s) this set does not own; they were left untouched (adopt them to take the name over).`);
   const sameType = row => typeOf(provider, row) === 'A';
@@ -229,11 +278,11 @@ export async function keepHealthyRecords({ hostname, candidates, check, request,
   const have = new Set(mine.map(row => contentOf(provider, row)));
   const added = [], removed = [];
   for (const address of healthy) if (!have.has(address)) {
-    const answer = await ask(request, provider, p, 'create', { zone_id: state.zone, host_name: hostname, address, ...owner });
+    const answer = await ask(request, provider, p, 'create', { zone_id: state.zone, host_name: hostname, host_label: labelOf(provider, state.zone, hostname), address, ...owner });
     added.push({ address, id: idOf(p, at(answer, p.created_at ?? 'result')) });
   }
   for (const row of mine) if (!healthy.includes(contentOf(provider, row))) {
-    await ask(request, provider, p, 'remove', { zone_id: state.zone }, idOf(p, row));
+    await removeRow(request, provider, state.zone, row);
     removed.push({ address: contentOf(provider, row), id: idOf(p, row) });
   }
   const after = addressRows(provider, await snapshot({ hostname }, request, provider, state.zone, state.account), hostname).map(row => contentOf(provider, row)).sort();

@@ -469,3 +469,23 @@ test('a changed file in a folder a unit owns whole keeps no copy beside it, so t
   assert.deepEqual(answer.written, ['/var/lib/example-pages/kept.html']);
   assert.ok(!commands.some(command => command.startsWith("cp -p '/var/lib/example-pages/kept.html'")), 'no copy is kept in the owned folder');
 });
+
+test('a unit that runs a downloaded program is restarted when its process runs the file replaced under it, and left alone when it runs that file', async () => {
+  const PROGRAM = '/usr/local/bin/x';
+  const downloaded = { ...runs, machine: { downloads: [{ path: PROGRAM, install: true }] }, units: runs.units.map(unit => ({ ...unit, program: PROGRAM })) };
+  const live = Object.fromEntries(renderWhatItRuns(downloaded).map(({ path, text }) => [path, text]));
+  const stale = { path: 'example-place.service', reason: `is not running ${PROGRAM}, the program its row names` };
+  for (const [exe, restarted] of [[`${PROGRAM} (deleted)`, ['example-place.service']], [PROGRAM, []]]) {
+    const base = computer(live);
+    const run = async (m, command, input) => {
+      if (command.startsWith('pid=$(systemctl show') && command.includes('/proc/$pid/exe')) {
+        assert.match(command, new RegExp(`readlink -f '${PROGRAM}'`), 'the running executable is compared with the file the row names');
+        if (exe === PROGRAM) return '';
+        throw Object.assign(new Error('another file runs'), { code: 3 });
+      }
+      return base.run(m, command, input);
+    };
+    assert.deepEqual(await runsDifferences(machine, downloaded, run), exe === PROGRAM ? [] : [stale]);
+    assert.deepEqual((await applyWhatItRuns(machine, downloaded, run)).restarted, restarted);
+  }
+});

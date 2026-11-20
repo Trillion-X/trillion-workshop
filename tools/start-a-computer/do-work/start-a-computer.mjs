@@ -21,7 +21,10 @@ import { fill } from './fill-fields.mjs';
 import { keyState, keyDifferences, sealTheKeys, removeThePlainKeys } from './keep-the-key-sealed.mjs';
 import { readFileSync, readdirSync, statSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, relative, resolve as resolvePath } from 'node:path';
-import { spawn } from 'node:child_process';
+import { spawn, execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const execFileAsync = promisify(execFile);
 import { fileURLToPath } from 'node:url';
 import {
   readProvider, providerClient, rentMachine, readMachine, releaseMachine, readPrice, pointName,
@@ -148,18 +151,27 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
   const isActive = name => run(machine, `systemctl is-active --quiet ${q(name)} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; });
   // A program run by an interpreter (`interpreter`: node, say) is not the process's own executable: it runs `current`'s build
   // when its process started after `current` last moved (the link's own change time).
-  const runsLink = async (unit, program) => run(machine, unit.interpreter
-    ? `pid=$(systemctl show -p MainPID --value ${q(unit.unit)}); [ "$pid" != 0 ] && [ "$(stat -c %Y /proc/$pid)" -ge "$(stat -c %Z ${q(`${unit.builds}/${unit.current ?? 'current'}`)})" ] || exit 3`
-    : `pid=$(systemctl show -p MainPID --value ${q(unit.unit)}); [ "$pid" != 0 ] && [ "$(readlink -f /proc/$pid/exe)" = "$(readlink -f ${q(`${unit.builds}/${unit.current ?? 'current'}/${program}`)})" ] || exit 3`)
+  // The process a unit runs is that file: its executable is the file, not a replaced one ("PATH (deleted)" once replaced under it).
+  const runsFile = (unit, path) => run(machine, `pid=$(systemctl show -p MainPID --value ${q(unit.unit)}); [ "$pid" != 0 ] && [ "$(readlink -f /proc/$pid/exe)" = "$(readlink -f ${q(path)})" ] || exit 3`)
     .then(() => true, error => { if (error.code === 3) return false; throw error; });
+  const runsLink = async (unit, program) => unit.interpreter
+    ? run(machine, `pid=$(systemctl show -p MainPID --value ${q(unit.unit)}); [ "$pid" != 0 ] && [ "$(stat -c %Y /proc/$pid)" -ge "$(stat -c %Z ${q(`${unit.builds}/${unit.current ?? 'current'}`)})" ] || exit 3`)
+      .then(() => true, error => { if (error.code === 3) return false; throw error; })
+    : runsFile(unit, `${unit.builds}/${unit.current ?? 'current'}/${program}`);
   for (const unit of units.filter(row => row.source && !row.slot)) {
     const { commit, program } = sourceOf(unit);
     const from = (await run(machine, `readlink ${q(`${unit.builds}/current`)} || true`)).trim();
     if (from !== commit) { builds.push({ unit, from }); continue; }
-    if (!await runsLink(unit, program)) stale.push(unit);
+    if (!await runsLink(unit, program)) stale.push({ unit, reason: `is not running ${unit.builds}/current, the build its row names` });
+  }
+  // A unit with no source that runs a program the computer downloads (its `program` is a download's `path`) is behind when its
+  // running process is not that file: a file replaced under a running program is restarted, as a stale source unit is.
+  const downloads = new Set(({ ...SETTINGS.machine, ...runs.machine }.downloads ?? []).map(download => download.path));
+  for (const unit of units.filter(row => !row.source && !row.slot && downloads.has(row.program))) {
+    if (!await runsFile(unit, unit.program)) stale.push({ unit, reason: `is not running ${unit.program}, the program its row names` });
   }
   found.push(...builds.map(({ unit, from }) => ({ path: `${unit.builds}/current`, reason: `runs ${from || 'no program'}; its row builds ${unit.source.commit}` })));
-  found.push(...stale.map(unit => ({ path: unit.unit, reason: `is not running ${unit.builds}/current, the build its row names` })));
+  found.push(...stale.map(({ unit, reason }) => ({ path: unit.unit, reason })));
   // A unit with slots runs one slot at a time. It is behind when no slot runs, or the slot that runs is not running the
   // commit its row builds; the apply then starts the release in the other slot and stops the one that ran (`switchSlots`).
   const switches = [];
@@ -335,7 +347,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     if (check) await run(machine, `${write} ${q(`${path}.new`)} && ${check.map(word => q(word.replaceAll('{file}', `${path}.new`))).join(' ')} >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`, text);
     else await run(machine, `${write} ${q(path)}`, text);
   }
-  const builtUnits = [...builds.map(({ unit }) => unit.unit), ...stale.map(unit => unit.unit)];
+  const builtUnits = [...builds.map(({ unit }) => unit.unit), ...stale.map(({ unit }) => unit.unit)];
   const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...keysOwed, ...triggersOff, ...builtUnits].filter(Boolean))]
     .filter(unit => !slotted.has(unit));
   // A unit whose file or drop-in was there before is restarted. A new drop-in changes how a running unit starts, so it restarts
@@ -575,13 +587,40 @@ export function namesOf(request) {
   });
 }
 
-/** Each name of the row read (apply false: { matches, answers }) or kept (apply true: what changed), with its provider's key. */
-export async function keepTheNames(request, { held = {}, fetchImpl = fetch, apply }) {
+/** The engine call a `transport: "engine"` DNS provider is sent through: the request's `engine_call`, the command line of the
+ * engine that holds the person's connections (its program and every argument, one of them exactly `{run}`, where the run's JSON
+ * goes), run with no shell and its answer read as JSON. This tool names no engine: whoever applies says which one answers. The run
+ * carries no credential: the engine holds it and refreshes it. */
+export function engineCallOf(command) {
+  if (!Array.isArray(command) || command.length < 2 || !command.every(part => typeof part === 'string' && part.length > 0)
+    || command.filter(part => part === '{run}').length !== 1 || command[0] === '{run}') {
+    throw refused('The engine call needs engine_call: the engine\'s command line, its program first and one argument exactly {run}.');
+  }
+  return async run => {
+    const argv = command.slice(1).map(part => (part === '{run}' ? JSON.stringify(run) : part));
+    let stdout;
+    try {
+      ({ stdout } = await execFileAsync(command[0], argv, { maxBuffer: 16 * 1024 * 1024, timeout: 150000 }));
+    } catch (error) { throw refused(`The engine call to ${run.tool} failed (exit ${error.code ?? 'none'}).`); }
+    try { return JSON.parse(stdout); } catch { throw refused(`The engine call to ${run.tool} answered without JSON.`); }
+  };
+}
+
+/** Each name of the row read (apply false: { matches, answers }) or kept (apply true: what changed). A name kept through an engine
+ * provider needs the request's `engine_call`, checked for every name before any call is sent; `call` is the engine call (tests give
+ * a fake; default: engineCallOf(engine_call)). A name through a held-key provider needs its key under its vault name. */
+export async function keepTheNames(request, { held = {}, fetchImpl = fetch, apply, call }) {
+  const named = namesOf(request);
+  for (const name of named) if (name.provider.transport === 'engine' && !request.engine_call) throw refused(`${name.host_name} is kept through ${name.provider.name} by the engine: the request names its engine_call.`);
   const kept = [];
-  for (const name of namesOf(request)) {
-    const key = held[name.provider.vault_key];
-    if (typeof key !== 'string' || !key) throw refused(`${name.host_name} is kept through ${name.provider.name} with the key held under the vault name ${name.provider.vault_key}: hand it on descriptor 5 as {"${name.provider.vault_key}": value}, read from the person's vault.`);
-    const dns = dnsClient(key, { fetchImpl, provider: name.provider });
+  for (const name of named) {
+    let dns;
+    if (name.provider.transport === 'engine') dns = dnsClient(null, { provider: name.provider, call: call ?? engineCallOf(request.engine_call) });
+    else {
+      const key = held[name.provider.vault_key];
+      if (typeof key !== 'string' || !key) throw refused(`${name.host_name} is kept through ${name.provider.name} with the key held under the vault name ${name.provider.vault_key}: hand it on descriptor 5 as {"${name.provider.vault_key}": value}, read from the person's vault.`);
+      dns = dnsClient(key, { fetchImpl, provider: name.provider });
+    }
     if (!apply) {
       const answers = await addressesOfName({ hostname: name.host_name, request: dns, provider: name.provider });
       kept.push({ host_name: name.host_name, address: name.address, answers, matches: answers.length === 1 && answers[0] === name.address });
