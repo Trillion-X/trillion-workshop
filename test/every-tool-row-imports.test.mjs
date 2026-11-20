@@ -9,27 +9,13 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { packageFilesByRow, toolRowFindings } from '../test-helpers/tool-row-imports.mjs';
 import { PINNED_FILES } from '../test-helpers/pinned-files.mjs';
+import { judgedTree, withEnv } from '../test-helpers/judged-tree.mjs';
 
 const repo = resolve(import.meta.dirname, '..');
 
-// The check tree of a landing is an export with no .git of its own. The gate reads git objects, so such a tree is committed into
-// a throwaway git folder (its work tree is the export) and judged there; a checkout is judged at its own HEAD.
-function judgedTree() {
-  if (existsSync(join(repo, '.git'))) return { env: {}, ref: 'HEAD' };
-  const gitDir = mkdtempSync(join(tmpdir(), 'tool-row-imports-git-'));
-  const env = { GIT_DIR: gitDir, GIT_WORK_TREE: repo, GIT_INDEX_FILE: join(gitDir, 'index'), GIT_AUTHOR_NAME: 'check', GIT_AUTHOR_EMAIL: 'check@example.test', GIT_COMMITTER_NAME: 'check', GIT_COMMITTER_EMAIL: 'check@example.test' };
-  const git = args => execFileSync('git', args, { env: { ...process.env, ...env }, maxBuffer: 2 ** 30 }).toString().trim();
-  git(['init', '-q']);
-  git(['add', '-A', '-f', '.']);
-  return { env, ref: git(['commit-tree', git(['write-tree']), '-m', 'check tree']) };
-}
-
 test('every tool row packs every file its entry program reaches through a relative import, and names its entry program', () => {
-  const { env, ref } = judgedTree();
-  const saved = { ...process.env };
-  Object.assign(process.env, env);
-  let results;
-  try { ({ results } = toolRowFindings({ repo, ref })); } finally { for (const key of Object.keys(env)) { if (key in saved) process.env[key] = saved[key]; else delete process.env[key]; } }
+  const { env, ref } = judgedTree(repo);
+  const { results } = withEnv(env, () => toolRowFindings({ repo, ref }));
   const gaps = results.flatMap(row => (row.findings || [])
     .filter(f => f.kind === 'missing-relative-import' || f.kind === 'argv-not-declared')
     .map(f => `${row.row_file} ${row.id}: ${f.kind} ${f.spec ?? f.target ?? ''} ${f.needs ?? ''}`.trim()));
@@ -37,11 +23,8 @@ test('every tool row packs every file its entry program reaches through a relati
 });
 
 test('every package a tool row\'s package_files names is one the Workshop\'s pinned files pin, and each is placed once under its lockfile folder', () => {
-  const { env, ref } = judgedTree();
-  const saved = { ...process.env };
-  Object.assign(process.env, env);
-  let byRow;
-  try { byRow = packageFilesByRow({ repo, ref }); } finally { for (const key of Object.keys(env)) { if (key in saved) process.env[key] = saved[key]; else delete process.env[key]; } }
+  const { env, ref } = judgedTree(repo);
+  const byRow = withEnv(env, () => packageFilesByRow({ repo, ref }));
   const pinned = JSON.parse(readFileSync(join(repo, PINNED_FILES), 'utf8')).packages;
   const unpinned = [];
   for (const [id, items] of Object.entries(byRow)) {

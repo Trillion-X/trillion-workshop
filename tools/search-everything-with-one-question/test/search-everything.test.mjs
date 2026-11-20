@@ -5,8 +5,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { readdirSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { searchEverything } from '../do-work/search-everything.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
+import { packageFilesByRow } from '../../../test-helpers/tool-row-imports.mjs';
+import { judgedTree, withEnv } from '../../../test-helpers/judged-tree.mjs';
+
+const repo = resolve(import.meta.dirname, '../../..');
 
 const RECORDS = [
   { id: 'c1', type: 'sample-contacts', value: { title: 'Sample contact', notes: 'met the merlinfalcon keeper' } },
@@ -61,6 +66,9 @@ test('a search over 10,000 rows in three lists answers row 9731 first, in well u
 });
 
 test('the rows declare the records and files they are handed, no store right, no door, and the sample input the runner test runs', () => {
+  // What each row packs when it runs (its own entry program's reach, found by the tool-row walker), not the folder's uses_tools.
+  const { env, ref } = judgedTree(repo);
+  const reached = withEnv(env, () => packageFilesByRow({ repo, ref }));
   for (const id of ['tool:search-everything-with-one-question', 'tool:search-everything-in-a-small-container', 'tool:search-one-of-my-lists', 'tool:answer-the-search-page-route']) {
     const row = rowOf(id);
     assert.equal(row.stored, undefined, `${id} declares no store right`);
@@ -77,7 +85,7 @@ test('the rows declare the records and files they are handed, no store right, no
       assert.equal(row.invoke.records, undefined, `${id} is handed no door`);
       assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs', `${id} runs the function runner`);
       assert.ok(row.invoke.files.package_files.every(files => files.package !== 'records-door'), `${id} does not pack the records door`);
-      assert.ok(!row.uses_tools.includes('trillion-workshop/records-door'), `${id} does not use the records door`);
+      assert.ok(!(reached[id] ?? []).some(item => item.package === 'records-door'), `${id} does not reach the records door when it runs`);
     }
   }
   const sample = rowOf('tool:search-everything-with-one-question').verify.find(check => check.kind === 'sample-run');
