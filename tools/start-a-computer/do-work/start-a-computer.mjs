@@ -195,7 +195,7 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
     switches.push(group);
     if (reason) found.push({ path: group.of, reason });
   }
-  return { runs, rendered, live, found, present, usersPresent, portsClosed, builds, stale, switches, keys };
+  return { runs, rendered, live, found, present, strays, usersPresent, portsClosed, builds, stale, switches, keys };
 }
 
 /** A unit's `source` with its fields filled from the unit: the git `repository` address the computer fetches from (any host;
@@ -256,7 +256,7 @@ const needsHeld = unit => secretsOf(unit).length > 0 || Boolean(unit.source?.cre
  * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
  * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
 export async function applyWhatItRuns(machine, given, run = onMachine, held = {}, deps = {}) {
-  const { runs, rendered, live, present, usersPresent, portsClosed, builds, stale, switches, keys } = await runsState(machine, given, run, deps);
+  const { runs, rendered, live, present, strays, usersPresent, portsClosed, builds, stale, switches, keys } = await runsState(machine, given, run, deps);
   // A sealed key the computer lacks is made, and a plain key it still holds is removed once its unit runs from the sealed one: that unit restarts.
   const keysOwed = keys.filter(({ sealed, plain }) => !sealed || plain).map(({ unit }) => unit.unit);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
@@ -333,7 +333,8 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // What the row says is absent goes only now, once every build is made, so a unit it replaces stops for the least time.
   // A unit file the row says is absent is a unit the computer must not run: it is stopped and disabled, and its drop-ins go
   // with its file. A folder the row says is absent (a program an old set-up left) goes with everything in it.
-  for (const path of present) {
+  // A stray in a folder a unit owns whole goes only after the new files are written (below): a page served now may still name it.
+  for (const path of present.filter(path => !strays.includes(path))) {
     const unit = path.match(/^\/etc\/systemd\/system\/([A-Za-z0-9@._-]+\.(?:service|timer|path|socket))$/)?.[1];
     if (unit) await run(machine, `systemctl disable --now ${q(unit)} && rm -rf -- ${q(`${path}.d`)}`);
     await run(machine, `rm -rf -- ${q(path)}`);
@@ -358,6 +359,10 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     if (check) await run(machine, `${write} ${q(`${path}.new`)} && ${check.map(word => q(word.replaceAll('{file}', `${path}.new`))).join(' ')} >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`, text);
     else await run(machine, `${write} ${q(path)}`, text);
   }
+  // The strays of the owned folders go now, in one command: the pages written above no longer name them, and a page served
+  // before this apply could load one until its replacement was in place (Nov 20 2026: old workspace bundles were removed one by
+  // one, before the new pages, so a page loading then could miss its own scripts).
+  if (strays.length) await run(machine, 'while IFS= read -r p; do rm -f -- "$p"; done', `${strays.join('\n')}\n`);
   const builtUnits = [...builds.map(({ unit }) => unit.unit), ...stale.map(({ unit }) => unit.unit)];
   const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...keysOwed, ...triggersOff, ...builtUnits].filter(Boolean))]
     .filter(unit => !slotted.has(unit));

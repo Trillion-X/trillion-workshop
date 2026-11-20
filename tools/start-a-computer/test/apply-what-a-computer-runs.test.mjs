@@ -29,7 +29,7 @@ const computer = live => {
   const commands = [];
   const run = async (_machine, command, input) => {
     commands.push({ command, input });
-    if (command.startsWith('while IFS= read -r p')) return hashesOf(live, input);
+    if (command.includes('sha256sum')) return hashesOf(live, input);
     if (command.startsWith('if [ -f ')) {
       const path = command.match(/if \[ -f '([^']+)' \]/)[1];
       if (live[path] === undefined) throw Object.assign(new Error('absent'), { code: 3 });
@@ -427,10 +427,11 @@ test('a folder a unit owns whole keeps only the files the row renders: a stray i
   const owner = { ...runs.units[0], owned_folders: ['/var/lib/example-pages'], files: [{ path: '/var/lib/example-pages/kept.html', text: 'kept\n', then: [] }] };
   const row = { ...runs, units: [owner] };
   const live = Object.fromEntries(renderWhatItRuns(row).map(({ path, text }) => [path, text]));
-  const commands = [];
+  const commands = [], removals = [];
   const run = async (_machine, command, input) => {
     commands.push(command);
-    if (command.startsWith('while IFS= read -r p')) return hashesOf(live, input);
+    if (command.includes('rm -f')) removals.push(input);
+    if (command.includes('sha256sum')) return hashesOf(live, input);
     if (command.startsWith('if [ -f ')) { const p = command.match(/if \[ -f '([^']+)' \]/)[1]; if (live[p] === undefined) throw Object.assign(new Error('absent'), { code: 3 }); return live[p]; }
     if (command.startsWith("if [ -d '/var/lib/example-pages' ]")) return '/var/lib/example-pages/kept.html\n/var/lib/example-pages/old/left.html\n';
     if (command.includes('curl')) return '200';
@@ -441,8 +442,17 @@ test('a folder a unit owns whole keeps only the files the row renders: a stray i
   assert.deepEqual(found.map(item => item.path), ['/var/lib/example-pages/old/left.html']);
   const answer = await applyWhatItRuns(machine, row, run);
   assert.deepEqual(answer.removed, ['/var/lib/example-pages/old/left.html']);
-  assert.ok(commands.includes("rm -rf -- '/var/lib/example-pages/old/left.html'"));
-  assert.ok(!commands.some(command => command.includes("rm -rf -- '/var/lib/example-pages/kept.html'")));
+  const removal = commands.findIndex(command => command.startsWith('while IFS= read -r p; do rm -f'));
+  assert.ok(removal >= 0, 'the strays go in one command');
+  // Changed again: the new page is written before the stray it no longer names goes.
+  live['/var/lib/example-pages/kept.html'] = 'old\n';
+  commands.length = 0; removals.length = 0;
+  await applyWhatItRuns(machine, row, run);
+  const wrote = commands.findIndex(command => command.includes('tar -x -f - -C /'));
+  const gone = commands.findIndex(command => command.startsWith('while IFS= read -r p; do rm -f'));
+  assert.ok(wrote >= 0 && gone > wrote, `the stray goes after the new page is written (${wrote}, ${gone})`);
+  assert.deepEqual(removals, ['/var/lib/example-pages/old/left.html\n'], 'only the stray, never a rendered file');
+  assert.ok(!commands.some(command => command.includes("rm -rf -- '/var/lib/example-pages")), 'no stray goes one by one');
 });
 
 test('a port the row admits that the firewall does not is a difference, and the apply runs set-up, which admits it', async () => {
@@ -466,7 +476,7 @@ test('a changed file in a folder a unit owns whole keeps no copy beside it, so t
   const commands = [];
   const run = async (_machine, command, input) => {
     commands.push(command);
-    if (command.startsWith('while IFS= read -r p')) return hashesOf(live, input);
+    if (command.includes('sha256sum')) return hashesOf(live, input);
     if (command.startsWith('if [ -f ')) { const p = command.match(/if \[ -f '([^']+)' \]/)[1]; if (live[p] === undefined) throw Object.assign(new Error('absent'), { code: 3 }); return live[p]; }
     if (command.startsWith("if [ -d '/var/lib/example-pages' ]")) return '/var/lib/example-pages/kept.html\n';
     if (command.includes('curl')) return '200';
