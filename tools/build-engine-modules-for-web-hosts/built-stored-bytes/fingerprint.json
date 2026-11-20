@@ -24,7 +24,7 @@
     "workflows/crates/workflow-engine"
   ],
   "source_files": [],
-  "fingerprint": "dfb539ea49dc6000b902a3abb0052636f3c399cda2c604aa020ef48e9c8bdcf0",
+  "fingerprint": "53e80f216cc5edbb8ea5408ee447760db55b7f668ebfbe5e88123e8e969d0edc",
   "workspace_commits": {
     "../../trillion-rust/crates": "f622fd79433ed720dfe4203471926ae92acd5c22"
   }

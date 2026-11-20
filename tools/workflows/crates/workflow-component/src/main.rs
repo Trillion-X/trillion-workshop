@@ -12,7 +12,10 @@
 // step's input and tells its result back as the fact `workflow-step-answered` (wake's `reply`), which runs this again
 // with that answer. Any other name is told as the fact `workflow-step-waiting`, carrying what it asks, whom, and the
 // envelope its answer is told back in (`told_as`); whatever the person's own wakes do with it (none, one or many) ends by
-// telling `workflow-step-answered` with that envelope and the answer. This keeps nothing and names no store or tool:
+// telling `workflow-step-answered` with that envelope and the answer. A step that asks `wake:arrive` (the engine's own
+// operation) is answered at once and told as the fact it gives ({kind, event_id?, payload}) when the run ends. A step
+// inside a loop or a used workflow is waited on under its place in the run, so each item is a step of its own.
+// This keeps nothing and names no store or tool:
 // it starts what the engine can start and tells everything else. Nothing here knows what a step is for.
 use std::{collections::{BTreeMap, BTreeSet}, io::Read, sync::{Arc, Mutex}};
 use serde_json::{json, Map, Value};
@@ -20,19 +23,48 @@ use workflow_engine::Host;
 
 const ANSWERED: &str = "workflow-step-answered";
 const WAITING: &str = "workflow-step-waiting";
+/// The engine's own operation for telling a fact: a step that asks it is told as that fact when the run ends.
+const TELL: &str = "wake:arrive";
 /// The fields of a run that are the run's own, not the workflow's input.
 const KEPT: [&str; 8] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused"];
 
-struct Held { answers: BTreeMap<String, Value>, refused: BTreeMap<String, String>, waiting: Mutex<Vec<Value>> }
+struct Held { run: String, answers: BTreeMap<String, Value>, refused: BTreeMap<String, String>, waiting: Mutex<Vec<Value>>, told: Mutex<Vec<(String, Value, Value)>> }
+
+/// The step an ask is answered under: its place in the run (`_runtime_identity`, which the engine makes distinct for
+/// each loop iteration and nested workflow, and the same on every replay) when it is nested, else its own step id. So
+/// each item of a loop waits, and is answered, as a step of its own.
+fn step_of(context: &Value) -> String {
+    let own = context["step_id"].as_str();
+    let Some(path) = context["_runtime_identity"].as_array().filter(|path| !path.is_empty()) else { return own.unwrap_or_default().to_string() };
+    let place = |part: &Value| {
+        let text = part.as_str().unwrap_or_default();
+        serde_json::from_str::<Value>(text).ok()
+            .and_then(|at| at["iteration"].as_str().or(at["action"].as_str()).map(str::to_owned))
+            .unwrap_or_else(|| text.to_string())
+    };
+    let mut parts: Vec<String> = path[..path.len() - 1].iter().map(place).collect();
+    parts.push(own.map(str::to_owned).unwrap_or_else(|| place(&path[path.len() - 1])));
+    parts.join("/")
+}
 
 #[async_trait::async_trait]
 impl Host for Held {
     async fn ask(&self, name: &str, payload: Vec<u8>, context: Option<Vec<u8>>) -> Result<Vec<u8>, String> {
         let context: Value = serde_json::from_slice(&context.unwrap_or_default()).unwrap_or(Value::Null);
-        let step = context["step_id"].as_str().unwrap_or_default().to_string();
+        let step = step_of(&context);
         if let Some(why) = self.refused.get(&step) { return Err(why.clone()); }
         if let Some(answer) = self.answers.get(&step) { return Ok(serde_json::to_vec(answer).unwrap()); }
         let input: Value = serde_json::from_slice(&payload).unwrap_or(Value::Null);
+        // A step that asks the engine to tell a fact is answered at once: the fact is told when this run ends, and its
+        // answer is held with the run, so a later pass replays it without telling it again.
+        if name == TELL {
+            let kind = input["kind"].as_str().filter(|kind| !kind.is_empty()).ok_or("a told fact names no kind")?;
+            let event_id = input["event_id"].as_str().map(str::to_owned).unwrap_or_else(|| format!("{}:{step}", self.run));
+            let answer = json!({ "told": true, "kind": kind, "event_id": event_id });
+            let fact = json!({ "arrive": { "source": kind, "event_id": event_id, "payload": input.get("payload").cloned().unwrap_or(json!({})) } });
+            self.told.lock().unwrap().push((step, answer.clone(), fact));
+            return Ok(serde_json::to_vec(&answer).unwrap());
+        }
         self.waiting.lock().unwrap().push(json!({ "step": step, "for": name, "asks": input }));
         Ok(serde_json::to_vec(&json!({ "$kind": workflow_core::executor::context::NOT_ANSWERED_YET, "step_id": step, "asked": name })).unwrap())
     }
@@ -138,7 +170,8 @@ fn main() {
         .map(|definition| serde_json::from_value(definition).unwrap_or_else(|error| fail(format!("a definition does not decode: {error}")))).collect();
     let id = definitions[0].id.clone();
     let answers: BTreeMap<String, Value> = serde_json::from_value(run.get("answers").cloned().unwrap_or(json!({}))).unwrap_or_default();
-    let host = Arc::new(Held { answers, refused: refused.clone(), waiting: Mutex::new(vec![]) });
+    let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run").to_string();
+    let host = Arc::new(Held { run: run_id.clone(), answers, refused: refused.clone(), waiting: Mutex::new(vec![]), told: Mutex::new(vec![]) });
     // Who the run acts for: the task's actor, else its account; what a step no tool runs names as its answerer.
     let actor = given["context"]["actor"].as_str().or(given["context"]["account_id"].as_str()).or(run.get("actor").and_then(Value::as_str)).unwrap_or("person").to_string();
     run.insert("actor".into(), json!(actor));
@@ -152,7 +185,9 @@ fn main() {
         definitions, &id, run.get("input").cloned().unwrap_or(json!({})), &actor, &product_word, &started, host.clone()))
         .unwrap_or_else(|error| fail(error));
     if !refused.is_empty() { run.insert("refused".into(), json!(refused)); }
-    let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run").to_string();
+    // What this pass told is held as answered, so the next pass replays it and tells nothing again.
+    let told = host.told.lock().unwrap().clone();
+    for (step, answer, _) in &told { run.entry("answers").or_insert_with(|| json!({}))[step] = answer.clone(); }
     let steps: BTreeMap<String, Value> = walked["execution_context"]["steps"].as_object()
         .map(|all| all.iter().map(|(k, v)| (k.clone(), json!({ "status": v["status"], "output": v["output"], "error": v["error"] }))).collect()).unwrap_or_default();
     let waiting = host.waiting.lock().unwrap().clone();
@@ -161,7 +196,8 @@ fn main() {
     let told_as = |step: &Value, name: &Value| json!({ "source": ANSWERED, "event_id": format!("{run_id}:{}", step.as_str().unwrap_or_default()),
         "payload": { "workflow": id, "run": run, "step": step, "for": name } });
     // A name the engine can start (a tool id) is started with a reply; every other ask is told as a fact.
-    let effects: Vec<Value> = waiting.iter().map(|w| {
+    let mut effects: Vec<Value> = told.into_iter().map(|(_, _, fact)| fact).collect();
+    effects.extend(waiting.iter().map(|w| {
         let told = told_as(&w["step"], &w["for"]);
         if w["for"].as_str().is_some_and(|name| name.starts_with("tool:")) {
             // A step whose input is exactly the door's call shape asks the tool's session one question (wake's `call`).
@@ -172,7 +208,7 @@ fn main() {
         } else {
             json!({ "arrive": { "source": WAITING, "event_id": told["event_id"], "payload": { "workflow": id, "step": w["step"], "for": w["for"], "asks": w["asks"], "told_as": told } } })
         }
-    }).collect();
+    }));
     let waiting: Vec<Value> = waiting.into_iter().map(|mut w| { w["told_as"] = told_as(&w["step"], &w["for"]); w }).collect();
     let result = json!({ "status": walked["status"], "workflow": id, "run": run_id, "steps": steps, "waiting": waiting });
     // A walk that failed is a failed run: it ends with exit 1 and the engine's words, so the wake that started it is
