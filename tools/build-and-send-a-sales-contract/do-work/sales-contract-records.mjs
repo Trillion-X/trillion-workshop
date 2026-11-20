@@ -1,4 +1,5 @@
-// Sales contracts as records in the person's own Trillion account.
+// tools/build-and-send-a-sales-contract/do-work/sales-contract-records.mjs
+// Sales contracts as records in the person's own Trillion account (moved from from-an-older-version/src/sales-contracts.mjs).
 // The Workshop is the AI entry point; the existing contract-builder screen is the human entry point.
 // Contract terms are caller supplied data. This owner deliberately has no default price or fixed billing period.
 

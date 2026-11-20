@@ -16,16 +16,18 @@
     {
       "from": "src/sales-contracts.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/build-and-send-a-sales-contract/from-an-older-version/src/sales-contracts.mjs",
+      "to": "tools/build-and-send-a-sales-contract/do-work/sales-contract-records.mjs",
       "source_identity": "1f:22c4b476f7384fbb193e2830a27f0b4dc168ad0a04ac8634cc43400b2c506bdd",
-      "identity": "1f:22c4b476f7384fbb193e2830a27f0b4dc168ad0a04ac8634cc43400b2c506bdd"
+      "identity": "1f:bc387735bc67b3f3c097f5e349b2eaf8deb9259c5c24f2ef808dfb61fc7a183a",
+      "reorganized": "L07: the store is a real part at do-work/sales-contract-records.mjs (header line changed); its test runs green"
     },
     {
       "from": "test/sales-contracts.test.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/build-and-send-a-sales-contract/from-an-older-version/test/sales-contracts.test.mjs",
+      "to": "tools/build-and-send-a-sales-contract/test/manage-sales-contracts-descriptor.test.mjs.held",
       "source_identity": "1f:9a0abd7940ccc01317f88708e1140004eba80179f2548c83ccda89f7fd817846",
-      "identity": "1f:59ec78a17fe8cfce1bd84f1c1680e3e21cfb71d67d9719d88191a15efeca41cc"
+      "identity": "1f:59ec78a17fe8cfce1bd84f1c1680e3e21cfb71d67d9719d88191a15efeca41cc",
+      "held": "L07: the descriptor test needs its record fixtures, which are not in the tree; the bytes are held here"
     },
     {
       "from": "web/src/workspace/sales-contract-builder-screen.tsx",
