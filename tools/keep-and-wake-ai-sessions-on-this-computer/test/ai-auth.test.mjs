@@ -86,6 +86,24 @@ test('a Codex run gets a private CODEX_HOME with the login, and an unchanged log
   } finally { f.cleanup(); }
 });
 
+test('Codex takes the first free login from a pool, and each login is written back under its own name', () => {
+  const f = fixture({ values: { 'codex-subscription-auth-1': '{"n":"one"}', 'codex-subscription-auth-2': '{"n":"two"}' } });
+  try {
+    const vault = vaultOf(f);
+    const pool = { codex_logins: ['codex-subscription-auth-1', 'codex-subscription-auth-2'] };
+    const first = acquireAiAuth(pool, { folder: f.state, runId: 'p1', vault, staleMs: 60000 });
+    assert.equal(readFileSync(join(first.env.CODEX_HOME, 'auth.json'), 'utf8'), '{"n":"one"}');
+    const second = acquireAiAuth(pool, { folder: f.state, runId: 'p2', vault, staleMs: 60000 });
+    assert.equal(readFileSync(join(second.env.CODEX_HOME, 'auth.json'), 'utf8'), '{"n":"two"}');
+    assert.equal(acquireAiAuth(pool, { folder: f.state, runId: 'p3', vault, staleMs: 60000 }), null, 'both logins in use');
+    writeFileSync(join(second.env.CODEX_HOME, 'auth.json'), '{"n":"two-refreshed"}');
+    second.done();
+    assert.equal(readFileSync(join(f.store, 'codex-subscription-auth-2'), 'utf8'), '{"n":"two-refreshed"}');
+    assert.equal(readFileSync(join(f.store, 'codex-subscription-auth-1'), 'utf8'), '{"n":"one"}', 'the other login is untouched');
+    first.done();
+  } finally { f.cleanup(); }
+});
+
 test('a refreshed Codex login is written back to the vault before its lock is released', () => {
   const f = fixture({ values: { 'codex-subscription-auth-1': '{"tokens":{"refresh_token":"old"}}' } });
   try {

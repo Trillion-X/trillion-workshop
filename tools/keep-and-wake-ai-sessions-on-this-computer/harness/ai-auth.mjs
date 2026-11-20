@@ -2,8 +2,9 @@
 //
 // Purpose
 //   The logins one AI run uses on this computer, as take-open-work.json `ai_auth` names them for that AI: a pool of
-//   Claude subscription tokens (one token per run, the first free one) or one Codex login (its own private CODEX_HOME
-//   for the run, written back to the vault when the run refreshed it). Every login is one lock: a login is used by one
+//   Claude subscription tokens (one token per run, the first free one) or a pool of Codex logins (`codex_logins`, the
+//   first free one; its own private CODEX_HOME for the run, written back to the vault under its own name when the run
+//   refreshed it). `codex_login` names a single login. Every login is one lock: a login is used by one
 //   run at a time, so two runs never refresh the same single-use token. An AI with no `ai_auth` row uses its own
 //   sign-in and nothing here runs.
 //
@@ -51,10 +52,12 @@ export function acquireAiAuth(auth, { folder, runId, vault, staleMs }) {
     }
     return null;
   }
-  if (typeof auth.codex_login === 'string') {
-    const name = auth.codex_login;
+  const logins = Array.isArray(auth.codex_logins) ? auth.codex_logins : typeof auth.codex_login === 'string' ? [auth.codex_login] : null;
+  if (logins) {
+    // The first login no other run holds: one login per run, and a refreshed login goes back under its own name.
+    const name = logins.find(login => takeLock(join(locks, lockName(login)), staleMs));
+    if (!name) return null;
     const lock = join(locks, lockName(name));
-    if (!takeLock(lock, staleMs)) return null;
     const home = join(folder, 'codex-homes', runId);
     const file = join(home, 'auth.json');
     let before;
@@ -79,5 +82,5 @@ export function acquireAiAuth(auth, { folder, runId, vault, staleMs }) {
       },
     };
   }
-  throw new Error('The AI names no login the runner knows (claude_token_names or codex_login).');
+  throw new Error('The AI names no login the runner knows (claude_token_names, or codex_logins / codex_login).');
 }
