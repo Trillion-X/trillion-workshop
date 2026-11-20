@@ -184,3 +184,13 @@ test('the container tool answers an address that is not a web page with why, bef
     assert.match(JSON.parse(ran.stdout).error, said);
   }
 });
+
+test('the reader sends the link-preview name the old reader sent', async () => {
+  const sent = [];
+  const fetchPage = async (address, init) => {
+    sent.push(init.headers['user-agent']);
+    return new Response('<html><head><title>Named</title></head><body>Words</body></html>', { headers: { 'content-type': 'text/html' } });
+  };
+  await readLinkCard('https://kitchen.test/cake', { fetchPage });
+  assert.deepEqual(sent, ['facebookexternalhit/1.1']);
+});

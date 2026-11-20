@@ -186,3 +186,14 @@ test('readLinkCard judges every redirect hop again: a public page that redirects
   assert.equal(card.unread, 'The link leads somewhere that is not a public page.');
   assert.equal(card.title, null);
 });
+
+test('a read with no name given sends the link-preview name the old reader always sent', async () => {
+  const sent = [];
+  const fetchPage = async (address, init) => {
+    sent.push(init.headers['user-agent']);
+    return new Response('<html><head><title>Named</title></head><body>Words</body></html>', { headers: { 'content-type': 'text/html' } });
+  };
+  await readLinkCard('https://kitchen.test/cake', { fetchPage });
+  await readLinkCard('https://kitchen.test/cake', { fetchPage, userAgent: 'Named/1.0' });
+  assert.deepEqual(sent, ['facebookexternalhit/1.1', 'Named/1.0']);
+});

@@ -23,6 +23,8 @@ import { checkedUrl, extractPage, fileFacts } from './page-facts.mjs';
 const READ_BYTES = 2_000_000;
 const WAIT_MS = 6000;
 const PAGE_TYPES = ['text/html', 'application/xhtml+xml', 'text/plain'];
+// The name the reader sends: the link-preview name the old reader always sent (b6ae0ebf815f, src/read-link.mjs).
+const READER_NAME = 'facebookexternalhit/1.1';
 
 export class ReadLinkError extends Error {}
 
@@ -49,7 +51,7 @@ export async function readLinkCard(input, { fetchPage = fetch, waitMs = WAIT_MS 
   try {
     response = await beforeDeadline(fetchPage(address.href, {
       signal: controller.signal,
-      headers: { accept: 'text/html,application/xhtml+xml,text/plain;q=0.9', 'user-agent': 'facebookexternalhit/1.1' },
+      headers: { accept: 'text/html,application/xhtml+xml,text/plain;q=0.9', 'user-agent': READER_NAME },
     }));
   } catch {
     stopDeadline();

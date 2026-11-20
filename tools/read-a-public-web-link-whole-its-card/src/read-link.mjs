@@ -28,13 +28,15 @@ import { checkedUrl, extractPage, fileFacts } from '../../browse-public-page/do-
 const READ_BYTES = 2_000_000;
 const WAIT_MS = 6000;
 const PAGE_TYPES = ['text/html', 'application/xhtml+xml', 'text/plain'];
+// The name the reader sends when the caller names none: the link-preview name the old reader always sent (b6ae0ebf815f).
+const READER_NAME = 'facebookexternalhit/1.1';
 
 export class ReadLinkError extends Error {}
 
 const hostOf = url => url.hostname.toLowerCase().replace(/^www\./, '');
 
 /** The card for one public link. Throws ReadLinkError only when the address itself is not a public web address. */
-/** `userAgent`: the name the caller's deployment gives its page reads (a page may show a different card to a named reader); none given, none is sent. */
+/** `userAgent`: the name the page reads are sent under (a page may show a different card to a named reader); none given, READER_NAME is sent. */
 export async function readLinkCard(input, { fetchPage = fetch, waitMs = WAIT_MS, userAgent = null } = {}) {
   let address;
   try { address = checkedUrl(typeof input === 'string' ? input.trim() : input); } catch (error) { throw new ReadLinkError(error.message); }
@@ -55,7 +57,7 @@ export async function readLinkCard(input, { fetchPage = fetch, waitMs = WAIT_MS,
   try {
     response = await beforeDeadline(fetchPublic(address.href, {
       signal: controller.signal,
-      headers: { accept: 'text/html,application/xhtml+xml,text/plain;q=0.9', ...(userAgent ? { 'user-agent': userAgent } : {}) },
+      headers: { accept: 'text/html,application/xhtml+xml,text/plain;q=0.9', 'user-agent': userAgent || READER_NAME },
     }, { fetchImpl: fetchPage, schemes: ['https:', 'http:'] }));
   } catch (error) {
     stopDeadline();
