@@ -9,4 +9,4 @@ Turn a person's own agent skills into workflows their AI can find, read and run.
 
 Ported from old Trillion's `scripts/skills-to-workflows.mjs`, `src/skill-rows.mjs` and `records/skill-import-rules.json` (commit 99651cea06). One change from the original, because the destination changed: the old rule "a skill ships only when its maker may share it" guarded a public shelf; these rows stay in the person's own account, so a skill's licence rides on the row's `source` and is not a gate. The secret, path, address, phone and private-word screens are the original's.
 
-`from-an-older-version/` holds the original script's bytes (tag `old-trillion-before-worker-retire`), kept as the receipt `moved-from.json` names; it is not run.
+The original script's bytes are at tag `old-trillion-before-worker-retire` (b6ae0ebf81), named by the receipt `moved-from.json`; no copy is kept in this folder. Its unit tests: 9 pass (`test/skills-into-workflows.test.mjs`).
