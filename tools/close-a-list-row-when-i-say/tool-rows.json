@@ -1,0 +1,131 @@
+{
+  "kind": "tool-rows",
+  "record_set": "close-a-list-row-when-i-say-tool-rows",
+  "what_this_is": "The Workshop rows for the tools in tools/close-a-list-row-when-i-say: what each tool does, what it takes and gives back, and how it runs.",
+  "records": [
+    {
+      "type": "record",
+      "id": "package::close-a-list-row-when-i-say::tool-row-source::close-a-list-row-when-i-say-tools",
+      "address": "package::close-a-list-row-when-i-say::tool-row-source::close-a-list-row-when-i-say-tools",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-row-source",
+        "id": "source:close-a-list-row-when-i-say-tools",
+        "label": "Close a list row when the person says it is done",
+        "list": {
+          "records": {
+            "package": "close-a-list-row-when-i-say",
+            "kind": "ai-tool-descriptor"
+          }
+        },
+        "entry": {
+          "id": "id",
+          "label": "label",
+          "job": "job",
+          "description": "description",
+          "status": "status",
+          "input_schema": "input_schema",
+          "output_schema": "output_schema",
+          "invoke": "invoke",
+          "needs": "needs",
+          "licence_class": "licence_class",
+          "placements": "placements",
+          "maker": "maker",
+          "verify": "verify",
+          "result_selector": "result_selector",
+          "provenance": "provenance"
+        },
+        "id_prefix": "tool:",
+        "row": {
+          "label": {
+            "fill": {
+              "from": "entry",
+              "field": "label"
+            }
+          },
+          "job": {
+            "fill": {
+              "from": "entry",
+              "field": "job"
+            }
+          },
+          "description": {
+            "fill": {
+              "from": "entry",
+              "field": "description"
+            }
+          },
+          "status": {
+            "fill": {
+              "from": "entry",
+              "field": "status"
+            }
+          },
+          "input_schema": {
+            "fill": {
+              "from": "entry",
+              "field": "input_schema"
+            }
+          },
+          "output_schema": {
+            "fill": {
+              "from": "entry",
+              "field": "output_schema"
+            }
+          },
+          "invoke": {
+            "fill": {
+              "from": "entry",
+              "field": "invoke"
+            }
+          },
+          "needs": {
+            "fill": {
+              "from": "entry",
+              "field": "needs"
+            }
+          },
+          "licence_class": {
+            "fill": {
+              "from": "entry",
+              "field": "licence_class"
+            }
+          },
+          "placements": {
+            "fill": {
+              "from": "entry",
+              "field": "placements"
+            }
+          },
+          "maker": {
+            "fill": {
+              "from": "entry",
+              "field": "maker"
+            }
+          },
+          "verify": {
+            "fill": {
+              "from": "entry",
+              "field": "verify"
+            }
+          },
+          "result_selector": {
+            "fill": {
+              "from": "entry",
+              "field": "result_selector"
+            }
+          },
+          "provenance": {
+            "fill": {
+              "from": "entry",
+              "field": "provenance"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

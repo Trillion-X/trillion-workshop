@@ -1,0 +1,65 @@
+{
+  "drafted_from": "tools/close-a-list-row-when-i-say/records.json (tool:decide-what-a-said-done-answer-means) and src/said-done.mjs saidDoneVerdict; thresholds from src/said-done.json",
+  "start_here": "Say to your AI: \"Settle my row if I already said it is done, and hand it to my AIs if you are unsure.\" The workflow asks the classifier, then this tool says what the answer means.",
+  "lists": [],
+  "no_lists_because": "It settles nothing and keeps nothing: the workflow takes the settle values or the hand-off job it returns and calls the lists road and the hand-off tool, so no list of its own is kept.",
+  "workflows": [],
+  "tools": [
+    "tool:decide-what-a-said-done-answer-means"
+  ],
+  "instructions": [
+    "1. Give one ask from the name step, the classifier's probability (0 to 1, or null when no computer answered), and the message.",
+    "2. A verdict of done carries the settle values; take them to the lists road.",
+    "3. A verdict of unsure or no_classifier carries the hand-off job; take it to the person's AIs, once per message and row.",
+    "4. A verdict of not_said changes nothing."
+  ],
+  "worked_examples": [
+    {
+      "title": "A clear yes settles the row",
+      "ask": "The classifier says 0.92 that the person says it is done.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:decide-what-a-said-done-answer-means",
+            "input": {
+              "ask": {
+                "record_id": "record:chores:plugin",
+                "row_id": "plugin",
+                "list_id": "chores",
+                "title": "Upload the plugin",
+                "values": {
+                  "status": "Done"
+                },
+                "filled": {
+                  "app": "Claude Code",
+                  "message_id": "message:1",
+                  "record_id": "record:chores:plugin",
+                  "row_id": "plugin",
+                  "list_id": "chores",
+                  "title": "Upload the plugin",
+                  "text": "I uploaded the plugin already",
+                  "detail": "",
+                  "conversation_id": "",
+                  "values": "{}",
+                  "why": ""
+                }
+              },
+              "probability": 0.92,
+              "message": {
+                "id": "message:1"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:say-a-list-row-is-done",
+      "step": "decide-what-a-said-done-answer-means",
+      "given": "The person says the plugin is done and the classifier is sure.",
+      "hands_back": "A verdict \"done\" at probability 0.92, carrying the settle values with status \"Done\", to take to the lists road."
+    }
+  ]
+}

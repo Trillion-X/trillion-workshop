@@ -1,0 +1,86 @@
+{
+  "drafted_from": "tools/close-a-list-row-when-i-say/records.json (tool:name-the-open-rows-a-message-names) and src/said-done.mjs saidDoneAsks; no live call was made",
+  "start_here": "Say to your AI: \"When I tell you a list row is already done, check it.\" The workflow reads the rows my message names, and this tool says which of them the question is about.",
+  "lists": [],
+  "no_lists_because": "It reads no list itself: the workflow passes in the open rows it read, and the tool only makes the questions for them, so no list of its own is kept.",
+  "workflows": [],
+  "tools": [
+    "tool:name-the-open-rows-a-message-names"
+  ],
+  "instructions": [
+    "1. Give the message as { id, app, text, speaker } and the open rows it names, each with its list, its settling field and its values.",
+    "2. Give names.finish: the words of the list choice that says the AIs did it.",
+    "3. Set brought_in to true when the words are history brought in long after they were said; nothing is asked then.",
+    "4. Take each ask's question to the classifier and keep the ask, so the verdict step can use its values."
+  ],
+  "worked_examples": [
+    {
+      "title": "A named row gets its question",
+      "ask": "I uploaded the plugin already, in the Claude Code app, about the row Upload the plugin.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:name-the-open-rows-a-message-names",
+            "input": {
+              "message": {
+                "id": "message:1",
+                "app": "Claude Code",
+                "text": "I uploaded the plugin already",
+                "speaker": "person"
+              },
+              "rows": [
+                {
+                  "record_id": "record:chores:plugin",
+                  "row_id": "plugin",
+                  "list": {
+                    "id": "chores",
+                    "row_type": "chores",
+                    "title_field": "what",
+                    "fields": [
+                      {
+                        "id": "what",
+                        "kind": "text"
+                      },
+                      {
+                        "id": "status",
+                        "kind": "choice",
+                        "choices": [
+                          "Waiting",
+                          "Done"
+                        ],
+                        "settles": [
+                          "Done"
+                        ]
+                      }
+                    ]
+                  },
+                  "field": {
+                    "id": "status",
+                    "settles": [
+                      "Done"
+                    ]
+                  },
+                  "values": {
+                    "what": "Upload the plugin",
+                    "status": "Waiting"
+                  }
+                }
+              ],
+              "names": {
+                "finish": "Tell the AIs"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:say-a-list-row-is-done",
+      "step": "name-the-open-rows",
+      "given": "The person says the plugin is done; the row Upload the plugin is named.",
+      "hands_back": "One ask: its question says \"I uploaded the plugin already\" and names the row \"Upload the plugin\"; its settle values set status to \"Done\"."
+    }
+  ]
+}

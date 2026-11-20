@@ -1,0 +1,347 @@
+{
+  "package": "close-a-list-row-when-i-say",
+  "things": [
+    {
+      "type": "record",
+      "id": "package::close-a-list-row-when-i-say::tool::name-the-open-rows-a-message-names",
+      "address": "package::close-a-list-row-when-i-say::tool::name-the-open-rows-a-message-names",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:name-the-open-rows-a-message-names",
+        "label": "Name the open rows a message names",
+        "status": "active",
+        "job": "Given the person's own message and the open list rows it names, make the classifier question for each row, with the settle values and the hand-off words",
+        "description": "Pure. Takes the message and the open rows the caller read (each with its list and settling field). Refuses AI words, someone else's words and history brought in (brought_in true) by returning no asks. Each ask carries its question (state and questions for the classifier), the values a settle would write, and the words a hand-off needs. It asks nothing and settles nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "message",
+            "rows",
+            "names"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "message": {
+              "type": "object",
+              "required": [
+                "id",
+                "text",
+                "speaker"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "app": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "speaker": {
+                  "type": "string"
+                },
+                "origin": {
+                  "type": "string"
+                },
+                "conversation_id": {
+                  "type": "string"
+                }
+              }
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "record_id",
+                  "row_id",
+                  "list",
+                  "field",
+                  "values"
+                ]
+              },
+              "description": "The open rows the message names, read by the caller: { record_id, row_id, list: { id, label?, row_type, title_field, fields }, field: the settling field, values, mention? }"
+            },
+            "names": {
+              "type": "object",
+              "required": [
+                "finish"
+              ],
+              "properties": {
+                "finish": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The words of the list choice that says the AIs did it"
+                }
+              }
+            },
+            "brought_in": {
+              "type": "boolean",
+              "description": "True when the words are history brought in long after they were said (the caller's broughtIn owner)"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "asks"
+          ],
+          "properties": {
+            "asks": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": {
+              "package": "close-a-list-row-when-i-say",
+              "paths": [
+                "do-work",
+                "src"
+              ],
+              "at": "/opt/parts/close-a-list-row-when-i-say"
+            }
+          },
+          "workdir": "/opt/parts/close-a-list-row-when-i-say",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "do-work/name-the-open-rows.mjs",
+            {
+              "fill": {
+                "from": "input"
+              }
+            }
+          ]
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:deployed-container"
+        ],
+        "maker": "maker:close-a-list-row-when-i-say",
+        "result_selector": "$",
+        "provenance": {
+          "source": "the old app repository src/said-done.mjs at b6ae0ebf8 (ported Nov 2026)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "message": {
+                "id": "message:1",
+                "app": "Claude Code",
+                "text": "I uploaded the plugin already",
+                "speaker": "person"
+              },
+              "rows": [
+                {
+                  "record_id": "record:chores:plugin",
+                  "row_id": "plugin",
+                  "list": {
+                    "id": "chores",
+                    "row_type": "chores",
+                    "title_field": "what",
+                    "fields": [
+                      {
+                        "id": "what",
+                        "kind": "text"
+                      },
+                      {
+                        "id": "done_when",
+                        "kind": "text"
+                      },
+                      {
+                        "id": "status",
+                        "kind": "choice",
+                        "choices": [
+                          "Waiting",
+                          "Done"
+                        ],
+                        "settles": [
+                          "Done"
+                        ]
+                      }
+                    ]
+                  },
+                  "field": {
+                    "id": "status",
+                    "settles": [
+                      "Done"
+                    ]
+                  },
+                  "values": {
+                    "what": "Upload the plugin",
+                    "done_when": "The plugin is listed in the store",
+                    "status": "Waiting"
+                  }
+                }
+              ],
+              "names": {
+                "finish": "Tell the AIs"
+              }
+            },
+            "expect": {
+              "asks_count": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "id": "package::close-a-list-row-when-i-say::tool::decide-what-a-said-done-answer-means",
+      "address": "package::close-a-list-row-when-i-say::tool::decide-what-a-said-done-answer-means",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:decide-what-a-said-done-answer-means",
+        "label": "Decide what a said-done answer means",
+        "status": "active",
+        "job": "Given one ask and the classifier's answer, say whether the row is settled, left alone, or handed to the AIs",
+        "description": "Pure. probability at or above 0.7 gives verdict done with the settle values; below 0.35 gives not_said and nothing else; between them, or with no answer (null), gives unsure or no_classifier with the hand-off job, once per message and row. The thresholds are DATA in src/said-done.json. It settles and hands off nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "ask",
+            "probability"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ask": {
+              "type": "object",
+              "description": "One item from the name step's asks"
+            },
+            "probability": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 1,
+              "description": "The classifier's 0 to 1 yes, or null when no computer answered"
+            },
+            "message": {
+              "type": "object",
+              "description": "The message { id, ... }"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "verdict"
+          ],
+          "properties": {
+            "verdict": {
+              "type": "string",
+              "enum": [
+                "done",
+                "not_said",
+                "unsure",
+                "no_classifier"
+              ]
+            },
+            "probability": {
+              "type": "number"
+            },
+            "settle": {
+              "type": "object"
+            },
+            "hand": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": {
+              "package": "close-a-list-row-when-i-say",
+              "paths": [
+                "do-work",
+                "src"
+              ],
+              "at": "/opt/parts/close-a-list-row-when-i-say"
+            }
+          },
+          "workdir": "/opt/parts/close-a-list-row-when-i-say",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "do-work/decide-said-done.mjs",
+            {
+              "fill": {
+                "from": "input"
+              }
+            }
+          ]
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:deployed-container"
+        ],
+        "maker": "maker:close-a-list-row-when-i-say",
+        "result_selector": "$",
+        "provenance": {
+          "source": "the old app repository src/said-done.mjs at b6ae0ebf8 (ported Nov 2026)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "ask": {
+                "record_id": "record:chores:plugin",
+                "row_id": "plugin",
+                "list_id": "chores",
+                "title": "Upload the plugin",
+                "values": {
+                  "status": "Done"
+                },
+                "filled": {
+                  "app": "Claude Code",
+                  "message_id": "message:1",
+                  "record_id": "record:chores:plugin",
+                  "row_id": "plugin",
+                  "list_id": "chores",
+                  "title": "Upload the plugin",
+                  "text": "I uploaded the plugin already",
+                  "detail": "",
+                  "conversation_id": "",
+                  "values": "{}",
+                  "why": ""
+                }
+              },
+              "probability": 0.92,
+              "message": {
+                "id": "message:1"
+              }
+            },
+            "expect": {
+              "verdict": "done"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
