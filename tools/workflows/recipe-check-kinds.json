@@ -67,7 +67,37 @@
     },
     {
       "catalog": "tool",
-      "meaning": "A tool the host offers."
+      "meaning": "A tool the host offers.",
+      "reader": {
+        "name": "tools:list",
+        "input": {
+          "tool": {
+            "$kind": "binding",
+            "select": {
+              "from": "loop",
+              "path": "item"
+            },
+            "transform": [
+              {
+                "op": "op:core.to_string"
+              }
+            ]
+          }
+        },
+        "found": {
+          "$kind": "binding",
+          "select": {
+            "from": "steps",
+            "key": "read",
+            "path": "output.id"
+          },
+          "transform": [
+            {
+              "op": "op:core.is_not_null"
+            }
+          ]
+        }
+      }
     },
     {
       "catalog": "list-row",
