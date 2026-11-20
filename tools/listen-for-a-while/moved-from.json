@@ -7,7 +7,7 @@
     {
       "from": "records/workshop-listening-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/listen-for-a-while/from-an-older-version/records/workshop-listening-tool-records.json",
+      "to": "tools/listen-for-a-while/records/workshop-listening-tool-records.json",
       "source_identity": "1f:1e4957f2a625b30d4c29217c213aa6343ad30233efc22f8cedb4942a8dc806f9",
       "identity": "1f:1e4957f2a625b30d4c29217c213aa6343ad30233efc22f8cedb4942a8dc806f9"
     }

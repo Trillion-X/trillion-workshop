@@ -10,7 +10,7 @@ const one = id => {
   return found[0];
 };
 const former = (file, id) => json(join(tools, file)).records.find(row => row.payload.id === id).payload;
-const listening = 'listen-for-a-while/from-an-older-version/records/workshop-listening-tool-records.json';
+const listening = 'listen-for-a-while/records/workshop-listening-tool-records.json';
 const harness = 'keep-and-wake-ai-sessions-on-this-computer/from-an-older-version/records/workshop-harness-setup-tool-records.json';
 
 for (const [id, folder, file] of [

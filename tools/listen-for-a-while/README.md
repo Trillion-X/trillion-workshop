@@ -33,6 +33,10 @@ Listens to the microphone until an end time the person gives, and answers each t
 | `read-data/what-was-said.mjs`, `read-data/what-was-said.json` | What is done with `heard` rows handed in, all from the request to the answer: `nameHeardVoice` (`tool:name-a-heard-voice`: turns still under `Someone (voice-N)` take the enrolled person's name, the former label kept as `renamed_from`; the answer holds the renamed rows), captions (`reduceCaptions`, `applyCaptions`, `tool:caption-what-is-heard`, F-0792; the answer holds the new captions state), the transcriber role (`roleHolder`, `mayTranscribe`, F-0793; the role is `{ device, until }` in the request) and the transcript cursor (`turnsAfter`, F-0297); `askWhatWasSaid` (`tool:ask-what-was-said`) answers the turns after the cursor handed in, with the captions applied, and the cursor to hand in next. Every number and word is the JSON. |
 | `ports/what-was-said.json` | Its NO_PRIOR_OWNER contract: the old code of F-0792, F-0793 and F-0297 was deleted from old trillion (dc79bb0a); every file the code search finds is named with why it is a different job. |
 | `test/what-was-said.test.mjs` | Renaming in one listening only (the answer holds the renamed rows, the rows handed in are untouched); caption ops and the captions state carried by the answer; the role let go to and taken from another device; an ask that gives each conversation each turn once from the cursor it hands in. Every tool runs with no records door. |
+| `read-data/hearing-sources.mjs`, `read-data/hearing-sources.json` | One hearing pass per source (the microphone and the Mac's sound are never mixed before they are heard), words back in time order labelled by their source row, `me` from the row, and a session record with a BLAKE3 content id that refuses secret-looking flags and keeps the last `most_sessions`. Ported from the old `computer/hearing-sources.mjs` (`b7dc53d08a`). |
+| `test/hearing-sources.test.mjs` | The three old assertions of `hearing-sources`, against the ported module. |
+| `records/workshop-listening-tool-records.json` | The old listening records (kept as they were). Ten of its tool ids have owners in other tools; `people-listening-can-name`, `voice-for` and `speak` have no current tool row yet. |
+| `records/from-the-older-repository.moved-from.json` | Where the old listening files came from (source commit and the deleting commit). |
 | `part.json` | Nothing here is imported by other code. |
 
 ## How a run goes
@@ -63,6 +67,7 @@ Listens to the microphone until an end time the person gives, and answers each t
 - A turn that crosses two pieces becomes two rows. Text Whisper makes up out of silence is not filtered.
 - A turn that crosses two pieces becomes two rows.
 - `jobState` is carried with the ledger but nothing here calls it yet: a run has no notes job.
+- The old `hear` method of `hearing-sources` (picks a hearing program from `computer-sources.json` rows, then hears each source) is not ported. It needs `hearWith` from `keep-drive-files.mjs`, which is not on origin/main, and a choice of which local transcriber runs it: the current hearer is `hearFile` in `tools/audio-transcription/read-data/hear-here.mjs:63`.
 - Two devices handed a free transcriber role at the same moment both hear one piece; the person's AI hands the role to one.
 
 ## Port contract

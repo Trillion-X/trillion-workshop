@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, statSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { hearSources, recordSession, sourcesSettings } from '../computer/hearing-sources.mjs';
+import { hearSources, recordSession, sourcesSettings } from '../read-data/hearing-sources.mjs';
 
 const settings = sourcesSettings();
 const files = {

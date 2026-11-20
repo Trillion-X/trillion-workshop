@@ -2,7 +2,7 @@
 //
 // Purpose
 //   Hears the separate recordings of one call (microphone, system sound) each on its own and puts the words back in time
-//   order labelled by their source, with a record of how the session was heard. tool:hear-sources runs it.
+//   order labelled by their source, with a record of how the session was heard. The old hearing method (picked a hearing program from computer-sources.json rows) is not ported yet; the README says why.
 //
 // Non-negotiable invariants
 //   1. One hearing pass per source; two sources are never mixed before they are heard.
@@ -58,17 +58,3 @@ export function recordSession({ program, flags = {}, sources, at = Date.now() },
   return record;
 }
 
-export const hearingSourceTools = {
-  /** { sources: [{ source, path }], at?, flags? } -> { words, session } */
-  async hear(input) {
-    const settings = sourcesSettings();
-    const { hearingHere } = await import('../../../computer-programs/read-data/program-here.mjs');
-    const { hearWith } = await import('./keep-drive-files.mjs');
-    const rows = JSON.parse(readFileSync(path.join(HERE, 'computer-sources.json'), 'utf8'));
-    const program = hearingHere(rows.hearing ?? []);
-    if (!program) throw fail(settings.words.no_hearing);
-    const words = await hearSources((input.sources ?? []).map(entry => ({ source: entry.source, path: expand(entry.path) })), { hear: file => hearWith(program, file), settings, at: input.at ? Date.parse(input.at) : 0 });
-    const session = recordSession({ program: program.id ?? program.produced_by, flags: input.flags ?? {}, sources: [...new Set(words.map(word => word.source))] }, { settings });
-    return { words, session };
-  },
-};
