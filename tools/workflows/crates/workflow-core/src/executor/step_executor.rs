@@ -763,11 +763,16 @@ impl StepExecutor {
     }
 
     /// The SQL tool's use, as the recipe row declares it (config.context.use = {purpose, surface}). The engine sets it on every
-    /// call the step sends, over any use the input or an AI's answer carried. A step that declares none runs as "manage", the
-    /// owner's own work. Only the recipe row can change it.
+    /// call the step sends, over any use the input or an AI's answer carried. A step that declares none sends no use: any use
+    /// in its input is stripped, and the pursuit's own default applies in the database, not here.
     fn bind_declared_use(step_id: &str, step: &Step, payload: &mut Value) -> Result<(), WorkflowError> {
         let declared = match step.context().get("use") {
-            None | Some(Value::Null) => serde_json::json!({ "purpose": "manage", "surface": "" }),
+            None | Some(Value::Null) => {
+                if let Value::Object(fields) = payload {
+                    fields.remove("use");
+                }
+                return Ok(());
+            }
             Some(value) => value.clone(),
         };
         let well_formed = declared.as_object().is_some_and(|fields| {
@@ -786,7 +791,6 @@ impl StepExecutor {
             Value::Object(fields) => {
                 fields.insert("use".to_string(), declared);
             }
-            Value::Null => *payload = serde_json::json!({ "use": declared }),
             _ => {
                 return Err(WorkflowError::InvalidStep {
                     step_id: step_id.to_string(),
@@ -2397,9 +2401,10 @@ mod tests {
         assert_eq!(sent["sql"], json!("select 1"));
     }
 
-    /// A step that declares no use runs as "manage", and an AI-supplied use does not survive.
+    /// A step that declares no use sends no use: a use its input carries (an AI's answer) is stripped, so the pursuit's own
+    /// default applies in the database.
     #[tokio::test]
-    async fn test_run_sql_step_without_declared_use_runs_as_manage() {
+    async fn test_run_sql_step_without_declared_use_strips_input_use() {
         let dispatcher = sql_tool_dispatcher();
         let deps = sql_tool_deps(dispatcher.clone());
         let mut exec_ctx = test_exec_context();
@@ -2414,7 +2419,29 @@ mod tests {
 
         assert!(result.is_ok(), "sql step should run: {:?}", result.err());
         let sent = dispatcher.last_input.lock().unwrap().clone().unwrap();
-        assert_eq!(sent["use"], json!({"purpose": "manage", "surface": ""}));
+        assert!(sent.get("use").is_none(), "an undeclared use must be stripped, got {}", sent);
+        assert_eq!(sent["sql"], json!("select 1"));
+    }
+
+    /// A declared use overwrites an AI-supplied use in the same input.
+    #[tokio::test]
+    async fn test_run_sql_step_declared_use_overwrites_input_use() {
+        let dispatcher = sql_tool_dispatcher();
+        let deps = sql_tool_deps(dispatcher.clone());
+        let mut exec_ctx = test_exec_context();
+        let actor = test_actor();
+        let mut step = Step::ask(
+            "tool:run-sql-in-my-database",
+            json!({"sql": "select 1", "use": {"purpose": "publish", "surface": "social/instagram"}}),
+        );
+        step.config["context"] = json!({"use": {"purpose": "coach/review", "surface": ""}});
+
+        let result =
+            StepExecutor::execute_step(&step, "sql", &mut exec_ctx, &deps, &actor, None).await;
+
+        assert!(result.is_ok(), "sql step should run: {:?}", result.err());
+        let sent = dispatcher.last_input.lock().unwrap().clone().unwrap();
+        assert_eq!(sent["use"], json!({"purpose": "coach/review", "surface": ""}));
     }
 
     /// A declared use that is not {purpose, surface} as text fails the step, and nothing is sent.
