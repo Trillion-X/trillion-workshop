@@ -1,0 +1,10 @@
+{
+  "what_this_is": "Which descriptor row kind fills which key of a configured record workspace's descriptor set. read-data/configured-record-workspace.ts reads the kinds table; a row whose kind is not listed there is not a descriptor and is skipped. `set` is the DescriptorSet key; `list` is the payload array that holds the descriptors.",
+  "kinds": {
+    "configured-record-workspace.field-descriptors": { "set": "fields", "list": "descriptors" },
+    "configured-record-workspace.relationship-descriptors": { "set": "relationships", "list": "descriptors" },
+    "configured-record-workspace.record-view": { "set": "views", "list": "views" },
+    "configured-record-workspace.action-descriptors": { "set": "actions", "list": "actions" },
+    "configured-record-workspace.rule-descriptors": { "set": "rules", "list": "rules" }
+  }
+}

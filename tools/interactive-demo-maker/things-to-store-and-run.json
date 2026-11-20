@@ -1,0 +1,520 @@
+{
+  "package": "interactive-demo-maker",
+  "things": [
+    {
+      "type": "record_from_matching_records",
+      "address": "package::interactive-demo-maker::published-records",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "columns": [
+          {
+            "column": 0,
+            "source": {
+              "path": [
+                "record",
+                "address"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 1,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "json_text"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::interactive-demo-maker::factflow::surface",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "package": "interactive-demo-maker",
+        "reads": [
+          {
+            "address": "package::interactive-demo-maker::input::workspace-records",
+            "role": "configured addressed records"
+          },
+          {
+            "address": "package::interactive-demo-maker::fields::workspace",
+            "role": "open typed fields"
+          },
+          {
+            "address": "package::interactive-demo-maker::relationships::workspace",
+            "role": "ordered relationships"
+          },
+          {
+            "address": "package::interactive-demo-maker::actions::workspace",
+            "role": "owner action descriptors"
+          },
+          {
+            "address": "package::interactive-demo-maker::rules::workspace",
+            "role": "validation rules"
+          },
+          {
+            "address": "package::interactive-demo-maker::process-profiles::workspace",
+            "role": "structured process proposal profiles"
+          }
+        ],
+        "writes": [
+          {
+            "address": "package::interactive-demo-maker::target::workspace-action",
+            "role": "descriptor-routed owner actions"
+          }
+        ],
+        "execution_locus": "slot::workflow",
+        "new_slot": false
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::interactive-demo-maker::entry::workspace-action",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "interactive-demo-maker",
+        "entries",
+        "workspace-action"
+      ],
+      "payload": {
+        "entry_name": "workspace-action",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/configured-record-workspace-actions.ts",
+        "export_name": "buildConfiguredRecordWorkspaceActionRequest",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-workspace-action"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::interactive-demo-maker::target::workspace-action",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "interactive-demo-maker",
+        "targets",
+        "workspace-action"
+      ],
+      "payload": {
+        "entry_name": "workspace-action",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/configured-record-workspace-actions.ts",
+        "export_name": "buildConfiguredRecordWorkspaceActionRequest"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::interactive-demo-maker::capability::configured-record-workspace",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:interactive-demo-maker.configured-record-workspace",
+        "package": "interactive-demo-maker",
+        "label": "Build an interactive demo",
+        "description": "Configures generic records, ordered relationships, owner actions, process proposals, and address handoffs without owning recording, analysis, composition, publishing, or contact systems.",
+        "owned_record_kinds": [
+          "configured-record-workspace.record",
+          "configured-record-workspace.field",
+          "configured-record-workspace.relationship",
+          "configured-record-workspace.action",
+          "configured-record-workspace.rule",
+          "configured-record-workspace.proposal",
+          "configured-record-workspace.handoff"
+        ],
+        "reuses": [
+          "record-video",
+          "audio-transcription",
+          "media-analysis",
+          "media-composition",
+          "content-media-evidence",
+          "workflow",
+          "process-session",
+          "stored_bytes",
+          "record_from_matching_records"
+        ],
+        "new_slot": false
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::interactive-demo-maker::input::workspace-records",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "workspace-records",
+        "is_default": true,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "interactive-demo-maker.workspace-records"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::interactive-demo-maker::fields::workspace",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "configured-record-workspace.field-descriptors",
+        "descriptors": [
+          {
+            "id": "title",
+            "label": "Title",
+            "value_kind": "text",
+            "role": "primary-label",
+            "paths": [
+              [
+                "title"
+              ],
+              [
+                "field_values",
+                "title"
+              ]
+            ]
+          },
+          {
+            "id": "viewer-instruction",
+            "label": "Instruction",
+            "value_kind": "text",
+            "role": "viewer-copy",
+            "paths": [
+              [
+                "field_values",
+                "viewer_instruction"
+              ],
+              [
+                "field_values",
+                "instruction"
+              ]
+            ]
+          },
+          {
+            "id": "target-region",
+            "label": "Target",
+            "value_kind": "json",
+            "role": "selected-region",
+            "paths": [
+              [
+                "field_values",
+                "target_region"
+              ]
+            ]
+          },
+          {
+            "id": "source-ref",
+            "label": "Source",
+            "value_kind": "address-list",
+            "role": "source-addresses",
+            "paths": [
+              [
+                "source_refs"
+              ],
+              [
+                "field_values",
+                "source_refs"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::interactive-demo-maker::relationships::workspace",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "configured-record-workspace.relationship-descriptors",
+        "descriptors": [
+          {
+            "id": "workspace-items",
+            "label": "Steps",
+            "role": "ordered-items",
+            "from_role": "workspace",
+            "to_role": "item",
+            "order_key": "position"
+          },
+          {
+            "id": "source-material",
+            "label": "Sources",
+            "role": "source-attachments",
+            "from_role": "record",
+            "to_role": "source"
+          },
+          {
+            "id": "publish-handoff",
+            "label": "Share",
+            "role": "address-handoff",
+            "from_role": "record",
+            "to_role": "owner-target"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::interactive-demo-maker::record-view::workspace",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "configured-record-workspace.record-view",
+        "views": [
+          {
+            "id": "workspace",
+            "label": "Interactive demo maker",
+            "empty": {
+              "title": "No demos yet",
+              "actions": [
+                "start-recording",
+                "use-existing-source",
+                "start-from-screenshots"
+              ]
+            },
+            "dense_at": 30,
+            "sections": [
+              {
+                "id": "source",
+                "label": "Source"
+              },
+              {
+                "id": "ordered-items",
+                "label": "Steps"
+              },
+              {
+                "id": "preview",
+                "label": "Preview"
+              },
+              {
+                "id": "handoff",
+                "label": "Share"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::interactive-demo-maker::actions::workspace",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "configured-record-workspace.action-descriptors",
+        "actions": [
+          {
+            "id": "create-workspace-record",
+            "label": "New interactive demo",
+            "operation": "record.write-batch",
+            "target": "engine.operation.write-batch",
+            "display_role": "primary-create",
+            "input": {
+              "record_kind": "configured-record-workspace.record"
+            }
+          },
+          {
+            "id": "start-recording",
+            "label": "Record now",
+            "operation": "execute_definition",
+            "target": "slot::workflow",
+            "definition_id": "record-video.start-source-recording",
+            "display_role": "source-capture"
+          },
+          {
+            "id": "use-existing-source",
+            "label": "Use existing recording",
+            "operation": "record.link-source",
+            "target": "engine.operation.write-batch",
+            "display_role": "source-attach"
+          },
+          {
+            "id": "start-from-screenshots",
+            "label": "Start from screenshots",
+            "operation": "record.link-source",
+            "target": "engine.operation.write-batch",
+            "display_role": "source-attach"
+          },
+          {
+            "id": "request-structured-proposals",
+            "label": "Build steps",
+            "operation": "execute_definition",
+            "target": "slot::workflow",
+            "definition_id": "content-media-evidence.request-structured-record-proposals",
+            "display_role": "process-request",
+            "input": {
+              "process_profile_ref": "package::interactive-demo-maker::process-profiles::workspace"
+            }
+          },
+          {
+            "id": "accept-proposal",
+            "label": "Save draft",
+            "operation": "record.write-batch",
+            "target": "engine.operation.write-batch",
+            "display_role": "proposal-accept"
+          },
+          {
+            "id": "preview-workspace",
+            "label": "Preview",
+            "operation": "record.read-projection",
+            "target": "configured-record-workspace.projection",
+            "display_role": "preview"
+          },
+          {
+            "id": "publish-handoff",
+            "label": "Publish",
+            "operation": "record.write-batch",
+            "target": "engine.operation.write-batch",
+            "display_role": "address-handoff"
+          },
+          {
+            "id": "share-handoff",
+            "label": "Share",
+            "operation": "record.write-batch",
+            "target": "engine.operation.write-batch",
+            "display_role": "address-handoff"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::interactive-demo-maker::rules::workspace",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "configured-record-workspace.rule-descriptors",
+        "rules": [
+          {
+            "id": "has-viewer-visible-item",
+            "label": "Add at least one viewer-visible step before publishing.",
+            "severity": "blocking",
+            "when": {
+              "operation": "address-handoff",
+              "missing_relationship_role": "ordered-items"
+            }
+          },
+          {
+            "id": "source-is-present",
+            "label": "Choose source material before analysis.",
+            "severity": "blocking",
+            "when": {
+              "operation": "process-request",
+              "missing_relationship_role": "source-attachments"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::interactive-demo-maker::process-profiles::workspace",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "configured-record-workspace.process-profiles",
+        "profiles": [
+          {
+            "id": "structured-record-proposals",
+            "target": "compute.process_session",
+            "output_contract": {
+              "rows": "configured-record-workspace.proposal-row",
+              "fields": [
+                "record_ref",
+                "field_values",
+                "relationships",
+                "source_refs",
+                "confidence",
+                "rule_ref",
+                "profile_ref"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::interactive-demo-maker::projection::workspace",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "configured-record-workspace.projection",
+        "source": "addressed-records",
+        "reader_keys": [
+          "browser",
+          "desktop",
+          "ios-jscore"
+        ],
+        "includes": [
+          "source-summary",
+          "ordered-records",
+          "selected-detail",
+          "action-descriptors",
+          "rule-state",
+          "process-state",
+          "proposal-state",
+          "handoff-records"
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-workspace-action",
+      "source_path": "built-stored-bytes/entry-bytes-workspace-action",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-workspace-action.source-closure.json"
+    }
+  ]
+}
