@@ -1016,4 +1016,42 @@ mod tests {
         assert_ne!(waiting["status"], "failed", "an ask not answered yet is not checked: {waiting}");
     }
 
+    /// A used workflow ending `held` then `refused` (the branch not taken): `held` ran, so it answers.
+    fn held_or_refused(id: &str, good: bool) -> serde_json::Value {
+        serde_json::json!({ "id": id, "name": id, "kind": "action", "is_active": true, "version": 1,
+            "steps": [
+                { "id": "decide", "kind": "return", "config": { "value": { "good": good } } },
+                { "id": "held", "kind": "return", "config": { "value": { "pages": "PAGE 1\nkept" } } },
+                { "id": "refused", "kind": "fail", "config": { "error": "not good" } } ],
+            "edges": [
+                { "from": "decide", "to": "held", "kind": "on_result", "config": { "$kind": "binding", "select": { "from": "input", "path": "output.good" } } },
+                { "from": "decide", "to": "refused", "kind": "on_result", "config": { "$kind": "binding", "select": { "from": "input", "path": "output.good" }, "transform": [{ "op": "op:core.not" }] } } ] })
+    }
+
+    #[tokio::test]
+    async fn a_used_workflow_answers_with_the_step_that_ran_not_the_last_one_listed() {
+        // Nov 20 2026: the owner's voice step (held, then refused) answered null after held ran, so a carousel got no pages.
+        let main: Definition = serde_json::from_value(serde_json::json!({ "id": "main", "name": "Main", "kind": "workflow", "is_active": true, "version": 1,
+            "steps": [
+                { "id": "voice", "kind": "action", "config": { "definition_id": "voice", "inputs": {} } },
+                { "id": "each", "kind": "loop", "config": { "source": { "$kind": "binding", "select": { "from": "literal", "value": [1, 2] } }, "item_var": "item", "max_iterations": 5, "definition_id": "voice" } },
+                { "id": "out", "kind": "return", "config": { "value": {
+                    "voice": { "$kind": "binding", "select": { "key": "voice", "from": "steps", "path": "output.pages" } },
+                    "each": { "$kind": "binding", "select": { "key": "each", "from": "steps", "path": "output" } } } } } ],
+            "edges": [ { "from": "voice", "to": "each", "kind": "always" }, { "from": "each", "to": "out", "kind": "always" } ] })).expect("main");
+        let voice: Definition = serde_json::from_value(held_or_refused("voice", true)).expect("voice");
+        let run = run_definition(vec![main, voice], "main", serde_json::json!({}), "person:test", "example",
+            Arc::new(Unreachable { answers: Default::default(), unreachable: None })).await.expect("runs");
+        assert_eq!(run["status"], "completed", "{run}");
+        let out = &run["execution_context"]["steps"]["out"]["output"];
+        assert_eq!(out["voice"], "PAGE 1\nkept", "an action answers with held, which ran: {out}");
+        assert_eq!(out["each"], serde_json::json!([{ "pages": "PAGE 1\nkept" }, { "pages": "PAGE 1\nkept" }]), "each loop item too: {out}");
+        let refused: Definition = serde_json::from_value(held_or_refused("voice", false)).expect("refusing voice");
+        let main_again: Definition = serde_json::from_value(serde_json::json!({ "id": "m2", "name": "M2", "kind": "workflow", "is_active": true, "version": 1,
+            "steps": [ { "id": "voice", "kind": "action", "config": { "definition_id": "voice", "inputs": {} } } ], "edges": [] })).expect("m2");
+        let failed = run_definition(vec![main_again, refused], "m2", serde_json::json!({}), "person:test", "example",
+            Arc::new(Unreachable { answers: Default::default(), unreachable: None })).await.expect("runs");
+        assert_eq!(failed["status"], "failed", "when refused is the branch taken, the action fails: {failed}");
+    }
+
 }

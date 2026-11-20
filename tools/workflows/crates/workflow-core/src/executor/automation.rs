@@ -1554,12 +1554,6 @@ async fn execute_cached_definition_in_current_workflow(
         None
     };
 
-    let final_step_key = action
-        .steps
-        .iter()
-        .enumerate()
-        .next_back()
-        .map(|(index, step)| canonical_step_id(step, index));
 
     // Build a sub-Definition from the action's resolved steps + edges.
     // Compile it and execute via the SAME concurrent walker (L088 — one physics).
@@ -1580,15 +1574,7 @@ async fn execute_cached_definition_in_current_workflow(
     let execution =
         execute_dag_concurrent(compiled, exec_ctx, deps_arc, actor, &RetryPolicy::default()).await;
 
-    let last_output = if execution.is_ok() {
-        final_step_key
-            .as_ref()
-            .and_then(|key| exec_ctx.step_output(key))
-            .map(|output| output.output.clone())
-            .unwrap_or(Value::Null)
-    } else {
-        Value::Null
-    };
+    let last_output = if execution.is_ok() { action_answer(action.as_ref(), exec_ctx) } else { Value::Null };
     exec_ctx.pop_scope();
     exec_ctx.runtime_path.truncate(runtime_path_len);
 
@@ -1605,6 +1591,27 @@ async fn execute_cached_definition_in_current_workflow(
         error: None,
         duration_ms: start.elapsed().as_millis() as i64,
     })
+}
+
+/// What a used workflow (an action, or one loop iteration) answers: the output of the last step that actually ran,
+/// preferring a step nothing follows. A branch that was not taken is recorded as completed with no output and a
+/// "Skipped" error, so taking the last listed step answered nothing whenever that step was a skipped branch: a
+/// workflow that ends `held` then `refused` answered null after `held` ran (Nov 20 2026: the owner's voice step handed
+/// a carousel null pages, and the format judge's verdict reached its queue empty).
+fn action_answer(action: &Definition, exec_ctx: &ExecutionContext) -> Value {
+    let followed: std::collections::HashSet<&str> = action.edges.iter().map(|edge| edge.from.as_str()).collect();
+    let ran = |index: usize, step: &crate::domain::types::Step| {
+        exec_ctx
+            .step_output(&canonical_step_id(step, index))
+            .filter(|output| !output.error.as_deref().is_some_and(|error| error.starts_with("Skipped")))
+            .map(|output| output.output.clone())
+    };
+    let steps = || action.steps.iter().enumerate().rev();
+    steps()
+        .filter(|(_, step)| !followed.contains(step.id.as_str()))
+        .find_map(|(index, step)| ran(index, step))
+        .or_else(|| steps().find_map(|(index, step)| ran(index, step)))
+        .unwrap_or(Value::Null)
 }
 
 /// Evaluate the truthiness of a JSON value.
@@ -2229,12 +2236,6 @@ async fn execute_action_step_inner(
         None
     };
 
-    let final_step_key = action
-        .steps
-        .iter()
-        .enumerate()
-        .next_back()
-        .map(|(index, step)| canonical_step_id(step, index));
 
     // Build sub-Definition and execute via recursive concurrent walker (L088 — one physics).
     // Same execution model at every nesting level: compile → concurrent DAG walker.
@@ -2250,15 +2251,7 @@ async fn execute_action_step_inner(
     let execution =
         execute_dag_concurrent(compiled, exec_ctx, deps_arc, actor, &RetryPolicy::default()).await;
 
-    let last_output = if execution.is_ok() {
-        final_step_key
-            .as_ref()
-            .and_then(|key| exec_ctx.step_output(key))
-            .map(|output| output.output.clone())
-            .unwrap_or(Value::Null)
-    } else {
-        Value::Null
-    };
+    let last_output = if execution.is_ok() { action_answer(action.as_ref(), exec_ctx) } else { Value::Null };
     exec_ctx.pop_scope();
     exec_ctx.runtime_path.truncate(runtime_path_len);
 
