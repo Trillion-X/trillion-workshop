@@ -155,3 +155,37 @@ test('an index.lock present makes the pass a no-op', () => {
   assert.equal(git(env.shared, ['rev-parse', 'HEAD']), head);
   assert.equal(read(env, 'b.txt'), 'b one\n');
 });
+
+const rescueRefs = (env) => git(env.shared, ['for-each-ref', '--format=%(refname)', 'refs/rescue/']).split('\n').filter(Boolean);
+
+test('the same dirty state makes one rescue ref, not one per pass', () => {
+  const env = setup();
+  write(env.shared, { 'a.txt': 'a mine\n' });
+  const first = keepCurrent(env.shared, { trashRoot: env.trashRoot });
+  const second = keepCurrent(env.shared, { trashRoot: env.trashRoot });
+  assert.ok(first.rescue_ref);
+  assert.equal(second.rescue_ref, first.rescue_ref);
+  assert.equal(rescueRefs(env).length, 1);
+});
+
+test('a changed dirty state makes a new rescue ref, and a ref with bytes of its own is kept', () => {
+  const env = setup();
+  write(env.shared, { 'a.txt': 'a mine\n' });
+  const first = keepCurrent(env.shared, { trashRoot: env.trashRoot });
+  write(env.shared, { 'a.txt': 'a mine again\n' });
+  const second = keepCurrent(env.shared, { trashRoot: env.trashRoot, now: LATER() });
+  assert.notEqual(second.rescue_ref, first.rescue_ref);
+  assert.equal(rescueRefs(env).length, 2);
+  assert.equal(git(env.shared, ['show', `${first.rescue_ref}:a.txt`]), 'a mine');
+});
+
+test('an older rescue ref whose files a newer one holds is removed; the newest is kept', () => {
+  const env = setup();
+  write(env.shared, { 'a.txt': 'a mine\n' });
+  const first = keepCurrent(env.shared, { trashRoot: env.trashRoot });
+  write(env.shared, { 'b.txt': 'b mine\n' });
+  const second = keepCurrent(env.shared, { trashRoot: env.trashRoot, now: LATER() });
+  assert.deepEqual(rescueRefs(env), [second.rescue_ref]);
+  assert.notEqual(second.rescue_ref, first.rescue_ref);
+  assert.equal(git(env.shared, ['show', `${second.rescue_ref}:a.txt`]), 'a mine');
+});

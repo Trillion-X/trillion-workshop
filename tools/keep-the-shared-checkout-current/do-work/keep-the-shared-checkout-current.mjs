@@ -48,6 +48,31 @@ function readMarker(stateFile) {
   }
 }
 
+// Rescue refs, newest first.
+function rescueRefs(root) {
+  return git(root, ['for-each-ref', '--sort=-committerdate', '--format=%(refname)', 'refs/rescue/']).split('\n').filter((ref) => ref.startsWith(RESCUE_PREFIX));
+}
+
+// A rescue ref goes only when its commit is origin's own tip plus itself (no commit of its own that origin lacks), and
+// every file it holds is already on origin or in a newer rescue ref that is kept. The newest ref is never removed.
+// Removing a ref moves no bytes: git keeps the objects until a gc, and nothing here runs one.
+function pruneRescueRefs(root, origin) {
+  const refs = rescueRefs(root);
+  if (refs.length === 0) return;
+  const known = new Set(blobsAt(root, origin).values());
+  refs.forEach((ref, index) => {
+    const blobs = [...new Set(blobsAt(root, ref).values())];
+    if (index === 0) {
+      blobs.forEach((oid) => known.add(oid));
+      return;
+    }
+    const ownCommits = git(root, ['rev-list', ref, '--not', origin]).split('\n').filter(Boolean);
+    const removable = ownCommits.length === 1 && blobs.every((oid) => known.has(oid));
+    if (removable) git(root, ['update-ref', '-d', ref]);
+    else blobs.forEach((oid) => known.add(oid));
+  });
+}
+
 // The whole pass. Refusals and a moved HEAD return before anything in the working tree is written.
 export function keepCurrent(root, { trashRoot = join(homedir(), '.Trash'), now = new Date(), beforeReset = () => {} } = {}) {
   const gitPath = (name) => gitPathIn(root, name);
@@ -67,22 +92,29 @@ export function keepCurrent(root, { trashRoot = join(homedir(), '.Trash'), now =
   result.behind_before = Number(git(root, ['rev-list', '--count', 'HEAD..origin/main']).trim());
   result.local_commits = git(root, ['rev-list', 'origin/main..HEAD']).split('\n').filter(Boolean);
 
-  // Step 1: the whole working state, as a local ref only. Working bytes win over the real index.
+  // Step 1: the whole working state, as a local ref, only when it differs from the newest rescue ref. Working bytes win
+  // over the real index. Rescue refs that hold nothing the others and origin lack are removed; the newest is always kept.
   const dirty = dirtyPaths(root);
   const privateIndex = { GIT_INDEX_FILE: gitPath(INDEX_FILE) };
   if (dirty.length || result.local_commits.length) {
-    const ref = `${RESCUE_PREFIX}${stampFile(now)}`;
-    if (gitOrNull(root, ['rev-parse', '--verify', '-q', ref]) !== null) return refuse(`${ref} already exists; a second pass in the same second is refused`);
     copyFileSync(gitPath('index'), privateIndex.GIT_INDEX_FILE);
     git(root, ['add', '-A', '--', '.'], { env: privateIndex });
     const tree = git(root, ['write-tree'], { env: privateIndex }).trim();
     if (tree !== git(root, ['rev-parse', `${head}^{tree}`]).trim() || result.local_commits.length) {
-      const message = `Rescue of the shared checkout at ${result.at}: its uncommitted and untracked files, and any commits not on origin/main. Local only.`;
-      const commit = git(root, ['commit-tree', tree, '-p', head, '-m', message], { env: GIT_AUTHOR }).trim();
-      git(root, ['update-ref', ref, commit]);
-      result.rescue_ref = ref;
+      const newest = rescueRefs(root)[0] ?? null;
+      if (newest !== null && git(root, ['rev-parse', `${newest}^{tree}`]).trim() === tree && gitOrNull(root, ['merge-base', '--is-ancestor', head, newest]) !== null) {
+        result.rescue_ref = newest;
+      } else {
+        const ref = `${RESCUE_PREFIX}${stampFile(now)}`;
+        if (gitOrNull(root, ['rev-parse', '--verify', '-q', ref]) !== null) return refuse(`${ref} already exists; a second pass in the same second is refused`);
+        const message = `Rescue of the shared checkout at ${result.at}: its uncommitted and untracked files, and any commits not on origin/main. Local only.`;
+        const commit = git(root, ['commit-tree', tree, '-p', head, '-m', message], { env: GIT_AUTHOR }).trim();
+        git(root, ['update-ref', ref, commit]);
+        result.rescue_ref = ref;
+      }
     }
   }
+  pruneRescueRefs(root, origin);
 
   // Step 2: classify every path that differs between HEAD, origin, the disk, or a skipped path from the last pass.
   const headBlobs = blobsAt(root, head);
