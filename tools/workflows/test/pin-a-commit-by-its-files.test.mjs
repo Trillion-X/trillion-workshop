@@ -3,12 +3,12 @@
 // commit at an https address is pinned.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { duplicateLayouts, pinOf } from '../do-work/pin-a-commit-by-its-files.mjs';
+import { duplicateLayouts, layoutReport, pinOf, tarFiles } from '../do-work/pin-a-commit-by-its-files.mjs';
 
 test('a commit is pinned by exactly its archived files, in the engine\'s identity', () => {
   const repository = mkdtempSync(join(tmpdir(), 'pin-a-commit-'));
@@ -124,4 +124,36 @@ test('a container tool row that names package files needs its key in package-fil
   assert.equal(pinOf(withKey.repository, withKey.commit, address).files, 3, 'a row with its key is pinned');
   const noPackageFiles = commitOf('no-package-files', { ...base, 'tools/kit/tool-rows.json': container('tool:plain', undefined) });
   assert.equal(pinOf(noPackageFiles.repository, noPackageFiles.commit, address).files, 2, 'a container row that names no package files needs no key');
+});
+
+test('a landing is judged by the problems its commit adds against its parent: an origin problem is existing, a new keyless row is added', () => {
+  const repository = mkdtempSync(join(tmpdir(), 'pin-a-report-'));
+  const git = (...args) => execFileSync('git', ['-C', repository, ...args], { encoding: 'utf8' }).trim();
+  git('init', '-q');
+  const container = id => JSON.stringify({ records: [{ payload: { kind: 'ai-tool-descriptor', id,
+    invoke: { kind: 'container', files: { package_files: [{ package: 'kit', paths: ['do-work/run.mjs'], at: '/opt/kit' }] } } } }] });
+  const commit = (name, files) => {
+    for (const [path, text] of Object.entries(files)) { mkdirSync(join(repository, path, '..'), { recursive: true }); writeFileSync(join(repository, path), text); }
+    git('add', '-A');
+    git('-c', 'user.name=Example', '-c', 'user.email=maker@example.com', 'commit', '-q', '--allow-empty', '-m', name);
+    return git('rev-parse', 'HEAD');
+  };
+  const base = { 'tools/kit/do-work/run.mjs': 'export {}', 'package-files.json': '{}' };
+  const parent = commit('origin', { ...base, 'tools/kit/tool-rows.json': container('tool:already-there') });
+  const child = commit('lane', { 'tools/other/tool-rows.json': container('tool:new-one') });
+  const archive = (c) => tarFiles(execFileSync('git', ['-C', repository, 'archive', '--format=tar', c], { maxBuffer: 1 << 30 }));
+  const origin = 'tool:already-there is a container tool that names package files, and package-files.json has no key for it';
+  const added = 'tool:new-one is a container tool that names package files, and package-files.json has no key for it';
+  assert.deepEqual(layoutReport(archive(parent)), { added: [origin], existing: [] }, 'with no parent, every problem is added');
+  assert.deepEqual(layoutReport(archive(child), archive(parent)), { added: [added], existing: [origin] }, 'the origin problem is existing, the new row is added');
+  assert.deepEqual(layoutReport(archive(parent), archive(parent)), { added: [], existing: [origin] }, 'an unchanged origin problem is not counted as new');
+  const cli = (c) => spawnSync(process.execPath, [new URL('../do-work/pin-a-commit-by-its-files.mjs', import.meta.url).pathname, repository, c, 'https://archives.example.com/{commit}.tar.gz'], { encoding: 'utf8' });
+  const addedRun = cli(child);
+  assert.equal(addedRun.status, 1, 'a commit that adds a problem fails the check');
+  assert.match(addedRun.stderr, /new in this commit: 1; already on origin: 1/);
+  git('checkout', '-q', '--detach', parent);
+  const sibling = commit('sibling', { 'README.md': 'a sibling of the lane, adding no problem' });
+  const existingRun = cli(sibling);
+  assert.equal(existingRun.status, 0, 'an origin-only problem does not fail the lane check');
+  assert.match(existingRun.stderr, /new in this commit: 0; already on origin: 1/);
 });

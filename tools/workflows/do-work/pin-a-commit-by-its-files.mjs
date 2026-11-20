@@ -161,13 +161,25 @@ export function layoutProblems(files) {
   return problems;
 }
 
+/** The files of `commit` in `repository`, read from git's archive in memory (none when the commit has no parent, for its parent). */
+function archiveFiles(repository, commit) {
+  return tarFiles(execFileSync('git', ['-C', repository, 'archive', '--format=tar', commit], { maxBuffer: 1 << 30 }));
+}
+
+/** What a commit adds against its parent: `added` are the problems its files have and its parent's do not, `existing` the ones
+ *  its parent already has (the same text on both). A landing is judged by `added` only. */
+export function layoutReport(files, parentFiles = []) {
+  const parent = new Set(layoutProblems(parentFiles));
+  const problems = layoutProblems(files);
+  return { added: problems.filter(problem => !parent.has(problem)), existing: problems.filter(problem => parent.has(problem)) };
+}
+
 /** The pin of `commit` in `repository`, served at `address` (`{commit}` stands for the commit): what tools:update takes. */
 export function pinOf(repository, commit, address) {
   if (!/^[a-f0-9]{40}$/.test(commit)) throw new Error('Give the full commit identity (40 hex): a branch or a short name moves.');
   const at = String(address ?? '').replaceAll('{commit}', commit);
   if (!/^https:\/\/[^/\s]+\/\S*$/.test(at)) throw new Error('Give the https address of the commit\'s archive, with {commit} where the commit goes.');
-  const archive = execFileSync('git', ['-C', repository, 'archive', '--format=tar', commit], { maxBuffer: 1 << 30 });
-  const files = tarFiles(archive);
+  const files = archiveFiles(repository, commit);
   const problems = layoutProblems(files);
   if (problems.length) throw Object.assign(new Error(`Not pinned: ${commit} would stop runs, because the engine refuses a run whose layout names a missing file or places one package twice.\n${problems.join('\n')}`), { problems });
   return { address: at, files_blake3: manifestIdentity(files), files: files.length };
@@ -176,5 +188,13 @@ export function pinOf(repository, commit, address) {
 if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const [repository, commit, address] = process.argv.slice(2);
   if (!repository || !commit || !address) { console.error('Give the repository folder, the full commit and the archive address: node pin-a-commit-by-its-files.mjs REPOSITORY COMMIT ADDRESS'); process.exit(2); }
+  // The landing check: the commit's problems judged against its parent's. Exit 1 only for a problem the commit adds.
+  const parentFiles = (() => { try { return archiveFiles(repository, `${commit}^`); } catch { return []; } })();
+  const report = layoutReport(archiveFiles(repository, commit), parentFiles);
+  console.error(`new in this commit: ${report.added.length}; already on origin: ${report.existing.length}`);
+  for (const problem of report.added) console.error(`  new: ${problem}`);
+  for (const problem of report.existing) console.error(`  already on origin: ${problem}`);
+  if (report.added.length) process.exit(1);
+  if (report.existing.length) { console.error('No pin written: the parent already has problems, so the commit cannot be pinned until they are fixed.'); process.exit(0); }
   process.stdout.write(`${JSON.stringify(pinOf(repository, commit, address))}\n`);
 }
