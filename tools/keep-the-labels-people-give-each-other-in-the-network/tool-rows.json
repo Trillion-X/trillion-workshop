@@ -251,7 +251,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": false,
+          "internet": true,
           "workdir": "/opt/keep-the-labels-people-give-each-other-in-the-network",
           "stdout": "json",
           "argv": [
