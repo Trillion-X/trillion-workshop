@@ -105,21 +105,24 @@
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/assemble-and-publish-an-app-project/packages/project-preview/show/mount-project-preview-controls.tsx",
       "source_identity": "1f:ef5bed784b1175516376200600c77741234b7e5df72742cf5db85dff2fd9a57c",
-      "identity": "1f:ef5bed784b1175516376200600c77741234b7e5df72742cf5db85dff2fd9a57c"
+      "identity": "1f:e9d23c8df63cce90a109f564a9c44635e5392aa6cc3d4aab2e72dbde8157e2e2",
+      "edited": "Nov 20 2026 (L06): identity updated to the bytes here; 8d0879bc5 changed the import paths, and the recorded identity was stale. source_identity unchanged"
     },
     {
       "from": "packages/project-preview/show/ProjectPreviewButton.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/assemble-and-publish-an-app-project/packages/project-preview/show/ProjectPreviewButton.tsx",
       "source_identity": "1f:197b714ce980b9cd935d7614b265bef00b518e3b43b2b41cb0941838aaa4951d",
-      "identity": "1f:197b714ce980b9cd935d7614b265bef00b518e3b43b2b41cb0941838aaa4951d"
+      "identity": "1f:2a205ec2e0bae8e2564f9cc49f1ac54441f53640122e2ee7c3f6548fb63631aa",
+      "edited": "Nov 20 2026 (L06): identity updated to the bytes here; 8d0879bc5 changed the import paths, and the recorded identity was stale. source_identity unchanged"
     },
     {
       "from": "packages/project-preview/show/ProjectPreviewsPanel.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/assemble-and-publish-an-app-project/packages/project-preview/show/ProjectPreviewsPanel.tsx",
       "source_identity": "1f:c4ca0fe36331a6fce81ba6a93ba50a49354ae54d3c819a3b3b14fbbc1e30a858",
-      "identity": "1f:c4ca0fe36331a6fce81ba6a93ba50a49354ae54d3c819a3b3b14fbbc1e30a858"
+      "identity": "1f:d8cbd480c1f0bc961ca479e0dbcb81975192e88e2c6304099fbd63d85ef10cb4",
+      "edited": "Nov 20 2026 (L06): identity updated to the bytes here; 8d0879bc5 changed the import paths, and the recorded identity was stale. source_identity unchanged"
     },
     {
       "from": "src/app-project-assembly.mjs",
@@ -182,7 +185,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/assemble-and-publish-an-app-project/test/app-project-assembly.test.mjs",
       "source_identity": "1f:6f8c4f04c2217e918f6024c0d6f80639282562bda8f6c4c413de256794fb97fc",
-      "identity": "1f:6f8c4f04c2217e918f6024c0d6f80639282562bda8f6c4c413de256794fb97fc"
+      "identity": "1f:949cbe944075b6c1573eda84a1034ec50df87c2e699523231739df9257a3709f",
+      "edited": "Nov 20 2026 (L06): identity updated to the bytes here; 8d0879bc5 changed the import paths, and the recorded identity was stale. source_identity unchanged"
     },
     {
       "from": "test/app-project-native-output.test.mjs",
