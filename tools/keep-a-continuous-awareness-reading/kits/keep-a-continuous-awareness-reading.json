@@ -1,0 +1,46 @@
+{
+  "drafted_from": "tool:keep-a-continuous-awareness-reading row in tools/keep-a-continuous-awareness-reading/tool-rows.json, its code in tools/keep-a-continuous-awareness-reading/do-work/read-awareness.mjs and tools/keep-a-continuous-awareness-reading/test/read-awareness.test.mjs",
+  "start_here": "Say to your AI: \"What has the reading figured out about me, and when does it read next?\" It reads your picture, your reading state and your map rows, and gives back what the reading has found and when it reads again.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: the picture, the reading state and the questions are rows of the reading's own tables, and the map is the person's own map list, which the caller reads and hands in.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-a-continuous-awareness-reading"
+  ],
+  "instructions": [
+    "1. Read your picture and reading state from the reading's rows with tool:run-sql-in-my-database (the picture and reading tables the reading keeps for you).",
+    "2. Read your map rows from your own map list, if you have one, the same way.",
+    "3. Call the tool with action \"read\" for the picture, or \"next_due\" for the next reading time, with settings (your awareness rows), state ({allowed, picture, reading, pending, stated, unread, map_rows}) and now (milliseconds).",
+    "4. Read the last line of the answer: result.picture and result.reading for the picture, or result.next_due for the time. A reading with unread inputs is due now."
+  ],
+  "worked_examples": [
+    {
+      "title": "The picture and the next reading time",
+      "ask": "What has the reading figured out about me, and when does it read next?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-a-continuous-awareness-reading",
+            "input": {
+              "action": "next_due",
+              "settings": "<your awareness rows>",
+              "now": 1795000000000,
+              "state": {
+                "allowed": true,
+                "unread": true,
+                "reading": null,
+                "pending": null,
+                "picture": null
+              }
+            }
+          }
+        }
+      },
+      "given": "Your reading state is kept, and new messages arrived after the last reading.",
+      "hands_back": "{ \"next_due\": \"<the time, now, because inputs are unread>\" }"
+    }
+  ]
+}

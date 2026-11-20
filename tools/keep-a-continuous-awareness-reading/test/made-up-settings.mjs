@@ -33,6 +33,13 @@ export const settings = {
     columns: { name: 'Name', kind: 'Kind', evidence: 'Evidence', pursuit: 'Pursuit', heading_to: 'Heading to', why: '{label}: why', about: 'About' },
   },
   repair_instructions: 'Make the reply valid JSON.',
+  every_minutes: 10,
+  waiting_longest_minutes: 60,
+  readings_per_day: 5,
+  inputs: {
+    chars: 4000, messages: 50, results: 20, activity: 20, result_kinds: ['transcript', 'summary'], result_chars: 300,
+    message_chars: 300, speaker_chars: { person: 400 }, stated_pursuits: 10, stated_chars: 200,
+  },
 };
 
 export const mapSettings = {

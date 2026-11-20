@@ -20206,6 +20206,68 @@
  ],
  "tool:judge-one-shot-sounds-as-whole-sounds": [],
  "tool:judge-sound-effect-candidates-and-pick-one-per-sound": [],
+ "tool:keep-a-continuous-awareness-reading": [
+  {
+   "package": "keep-a-continuous-awareness-reading",
+   "paths": [
+    "do-work",
+    "src"
+   ],
+   "at": "/opt/keep-a-continuous-awareness-reading"
+  },
+  {
+   "package": "place-pursuits-on-a-life-map",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/place-pursuits-on-a-life-map"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:keep-a-facebook-pages-token": [],
  "tool:keep-a-local-file-in-my-files": [
   {
