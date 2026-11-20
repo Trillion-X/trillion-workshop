@@ -43,7 +43,7 @@
 //
 import { randomUUID } from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
-import { accessSync, closeSync, constants, mkdirSync, openSync, readFileSync, readSync, readdirSync, realpathSync, renameSync, statSync, writeFileSync } from 'node:fs';
+import { accessSync, closeSync, constants, mkdirSync, openSync, readFileSync, readSync, readdirSync, realpathSync, renameSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
 import { homedir, hostname } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -54,11 +54,15 @@ import { accountWithWord, operationCaller } from './account-call.mjs';
 // The account as this computer's settings name it: the command's brand placeholder filled from the marks word the settings keep.
 export const accountOfSettings = settings => accountWithWord(settings.account, settings.trillion_marks_as);
 import { runTaskMove, stateOfWord, tasksIn, wordsOfStates } from '../../plan-tasks-and-todo-lists/run-a-task-move.mjs';
+import { requestedOutcome } from '../../plan-tasks-and-todo-lists/task-moves.mjs';
+import { answerIssue, UnsupportedSchema } from './answer-shape.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (whole, name) => (Object.hasOwn(values, name) ? String(values[name]) : whole));
 // The receipt field keeps its name (job_contract): a receipt written before this change keeps its attempt count.
 const taskContract = (task, settings) => Object.fromEntries((settings.tasks?.revision_fields ?? []).map(field => [field, task?.[field] ?? null]));
 const home = path => String(path).replace(/^~(?=\/|$)/, homedir());
+// The file a task run writes its answer to ({result, evidence}); this computer checks it and finishes the task (finishFromAnswer).
+export const resultFileOf = (settings, handoff_id) => join(home(settings.state_folder), 'results', `${encodeURIComponent(handoff_id)}.json`);
 
 // Programs. A helper the Mac app starts has a short PATH, so a program a command names is looked for on this PATH, then in
 // the folders take-open-work.json program_paths names (~ expanded), then by the person's login shell. A program found is
@@ -350,7 +354,7 @@ export function plan({ open, agents, settings, started, today, running, chats, a
     }
     if (!job) {
       if (!ai) { leave('no chosen AI is installed here'); continue; }
-      const prompt = fill(item.task ? settings.prompts.task : settings.prompts.claim, { handoff_id: item.handoff_id, agent_id, computer, take_tool: settings.tasks?.take_tool, move_tool: settings.tasks?.move_tool, finish_tool: settings.tasks?.finish_tool, continuation: item.continuation ? JSON.stringify(item.continuation) : 'none' });
+      const prompt = fill(item.task ? settings.prompts.task : settings.prompts.claim, { handoff_id: item.handoff_id, agent_id, computer, take_tool: settings.tasks?.take_tool, move_tool: settings.tasks?.move_tool, finish_tool: settings.tasks?.finish_tool, continuation: item.continuation ? JSON.stringify(item.continuation) : 'none', do: item.asks?.do ?? requestedOutcome(item) ?? '', submit: JSON.stringify(item.asks?.submit ?? null), result_file: resultFileOf(settings, item.handoff_id) });
       job = { handoff_id: item.handoff_id, mode: 'claim', agent_id, cwd: home(settings.working_folder), prompt,
         command: ai.command.map(part => fill(part, { prompt })), ai_id: ai.id, work_mcp: ai.work_mcp };
     }
@@ -498,6 +502,46 @@ export function matchFiles(pattern) {
     paths = next;
   }
   return paths.filter(path => { try { return statSync(path).isFile(); } catch { return false; } });
+}
+
+// Whether two acceptances name the same outcome, target and rules, whatever the order their keys were stored in.
+const canonical = value => (Array.isArray(value) ? value.map(canonical) : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])])) : value);
+const sameAcceptance = (saved, wanted) => Boolean(saved) && JSON.stringify(canonical(saved)) === JSON.stringify(canonical(wanted));
+
+/**
+ * Finishes a task run from its result file: the answer is checked against the step's submit shape (asks.submit) and refused
+ * when it names a keyword this computer does not check or when the task names checks (asks.checks, not evaluated here). The
+ * answer is recorded on the task, the acceptance saved (one rule: the answer is present), and the task finished against that
+ * acceptance. Resolves null when the task is finished; otherwise the reason it was not, which the caller gives the task back with.
+ */
+export async function finishFromAnswer(call, settings, { job, read, logPath, at = new Date() }) {
+  const words = settings.words;
+  const file = resultFileOf(settings, job.handoff_id);
+  let written = null;
+  try { written = JSON.parse(readFileSync(file, 'utf8')); } catch { /* no readable result */ }
+  const evidence = written?.evidence;
+  if (!written || typeof written !== 'object' || Array.isArray(written) || typeof evidence !== 'string' || !evidence.trim()) return fill(words.answer_missing, { log: logPath });
+  if (written.result === null || written.result === undefined) return fill(words.answer_refused, { why: evidence.trim().slice(0, 400) });
+  if (!read.asks?.submit) return fill(words.answer_refused, { why: 'the task names no submit shape to check the answer against' });
+  if (Array.isArray(read.asks.checks) && read.asks.checks.length) return fill(words.answer_refused, { why: 'the task names checks, which this computer does not evaluate' });
+  let issue;
+  try { issue = answerIssue(written.result, read.asks.submit); }
+  catch (error) { if (error instanceof UnsupportedSchema) return fill(words.answer_refused, { why: error.message }); throw error; }
+  if (issue) return fill(words.answer_refused, { why: issue });
+  const outcome = requestedOutcome(read);
+  if (!outcome) return fill(words.answer_refused, { why: 'the task names no outcome to check against' });
+  const target = { type: settings.tasks.kind, id: job.handoff_id };
+  const acceptance = { outcome, target, rules: [{ id: 'outcome', path: 'answer', required: true }] };
+  const check = { target, outcome, checked_at: at.toISOString(), evidence: [{ ref: file, observation: evidence.trim().slice(0, 2000) }], obligations: [] };
+  try {
+    await call('/handoffs/answer', { handoff_id: job.handoff_id, answer: written.result });
+    // A retry finds the acceptance an earlier attempt saved; a different saved acceptance is never replaced (the shared plan refuses it).
+    if (!sameAcceptance(read.acceptance, acceptance)) await call('/handoffs/plan', { handoff_id: job.handoff_id, agent_id: job.agent_id, taken_at: job.taken_at, acceptance });
+    await call('/handoffs/finish', { handoff_id: job.handoff_id, agent_id: job.agent_id, taken_at: job.taken_at, result: JSON.stringify(written.result), check });
+  } catch (error) {
+    return fill(words.answer_not_finished, { why: error?.message ?? String(error) });
+  }
+  return null;
 }
 
 /**
@@ -710,6 +754,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
     mkdirSync(join(folder, 'runs'), { recursive: true });
     try { job.command = withWorkMcp(job, job.command, settings, folder); }
     catch (error) { runs.push(failedToStart(job, error)); continue; }
+    if (call.tasks) { mkdirSync(join(folder, 'results'), { recursive: true }); try { unlinkSync(resultFileOf(settings, job.handoff_id)); } catch { /* none from an earlier run */ } }
     const out = openSync(logPath, 'a');
     let child;
     try { child = spawnRun(program, job.command.slice(1), { cwd: job.cwd, env: childEnv(), stdio: ['ignore', out, out] }); } catch (error) {
@@ -807,10 +852,17 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
         records.update(job.handoff_id, { final_read_pending: true, release_pending: true, recovery_because: fill(settings.words.not_finished, { code, log: logPath, computer }) });
         log({ did: 'final job read awaits recovery', handoff_id: job.handoff_id, error: String(error?.message ?? error) });
       }
+      // A task run is finished by this computer from the result file the run wrote, checked against the step's submit shape
+      // (finishFromAnswer). The run never finishes its own task. A refusal gives the task back with its reason.
+      let refusal = null;
+      if (call.tasks && code === 0 && read?.state === 'taken' && read.taken_by === job.agent_id) {
+        refusal = await finishFromAnswer(call, settings, { job, read, logPath, at: now() });
+        if (refusal === null) read = (await call('/handoffs/read', { handoff_id: job.handoff_id }))?.handoff;
+      }
       const finished = read?.state === 'finished';
       let released = false;
       if (!finished && read?.state === 'taken' && read.taken_by === job.agent_id) {
-        released = await releaseHeld(call, settings, job, fill(settings.words.not_finished, { code, log: logPath, computer }));
+        released = await releaseHeld(call, settings, job, refusal ?? fill(settings.words.not_finished, { code, log: logPath, computer }));
         if (!released) records.update(job.handoff_id, { release_pending: true });
       }
       if (call.tasks && !finished && job.executor_starts >= settings.tasks.max_attempts && read?.state === 'open' && read.continuation?.owner === job.agent_id) {
@@ -935,6 +987,24 @@ export function taskCaller(call, settings, { now = () => new Date(), computer = 
         if (/The rule for .take.|cannot be given .take.|No task .* is among the records/.test(error?.message ?? '')) error.refused = true;
         throw error;
       }
+    }
+    if (path === '/handoffs/answer') {
+      const before = await operation('@own-records', 'records:read', { id: body.handoff_id });
+      if (!before) throw new Error('The task was not found to record its answer.');
+      await operation('@own-records', 'records:write', { records: [{ id: body.handoff_id, type: rules.kind, value: { ...before, answer: body.answer }, expected: { type: rules.kind, value: before } }] });
+      return { recorded: true };
+    }
+    if (path === '/handoffs/plan') {
+      const { result, kept } = await act(rules.move_tool, { as: body.agent_id, id: body.handoff_id, action: 'plan', taken_at: body.taken_at, acceptance: body.acceptance }, randomUUID());
+      if (!kept) throw new Error('The task changed before its acceptance was saved; the next pass reads it again.');
+      if (typeof result?.moved !== 'boolean') throw new Error('The shared plan returned no transition result.');
+      if (!result.moved) throw new Error('The shared plan did not save the acceptance.');
+      return { moved: true };
+    }
+    if (path === '/handoffs/finish') {
+      const { result, kept } = await act(rules.finish_tool, { as: body.agent_id, id: body.handoff_id, taken_at: body.taken_at, result: body.result, check: body.check }, randomUUID());
+      if (!kept) throw new Error('The task changed before its finish was written; the next pass reads it again.');
+      return { result };
     }
     if (path === '/handoffs/release') {
       const { result, kept } = await act(rules.move_tool, { as: body.agent_id, id: body.handoff_id, action: body.park ? 'wait' : 'release', taken_at: body.taken_at, because: body.because,

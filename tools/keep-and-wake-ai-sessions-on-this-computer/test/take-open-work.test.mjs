@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { accountCaller, chatOf, eachLine, findChats, limitResetAt, listOpenWork, readPage, plan, releaseHeld, restUntil, runPass, startedRecords, tailOf, takerCard, withComputerArgs, withWorkMcp } from '../harness/take-open-work.mjs';
+import { accountCaller, chatOf, eachLine, findChats, limitResetAt, listOpenWork, readPage, plan, releaseHeld, resultFileOf, restUntil, runPass, startedRecords, tailOf, takerCard, withComputerArgs, withWorkMcp } from '../harness/take-open-work.mjs';
 import { runTriage } from '../harness/triage-open-work.mjs';
 import settingsFile from '../harness/take-open-work.json' with { type: 'json' };
 
@@ -612,7 +612,8 @@ async function jobFixture() {
       const receipt = `tool:${key}`;
       if (receipts.has(receipt)) return clone(receipts.get(receipt));
       const fn = input.tool === settingsFile.tasks.take_tool ? takeATask : changeATask;
-      const answer = { exit_code: 0, result: await fn({ input: input.input, task: { request_key: key } }, context) };
+      const payload = input.tool === settingsFile.tasks.finish_tool ? { ...input.input, action: 'finish' } : input.input;
+      const answer = { exit_code: 0, result: await fn({ input: payload, task: { request_key: key } }, context) };
       receipts.set(receipt, clone(answer));
       return answer;
     }
@@ -640,6 +641,60 @@ test('the account source is data: the kept sign-in, pinned to the Mac, with the 
   assert.deepEqual(settingsFile.account.pins, ['f596fa0076f6c620']);
   assert.deepEqual(Object.keys(settingsFile.account).sort(), ['credential', 'pins', 'timeout_seconds', 'what_this_is']);
   assert.equal(settingsFile.work_mcp.bridge, './account-mcp-bridge.mjs');
+});
+
+// A step's answer shape, as the step's own asks.submit declares it (the same schema the workflow engine checks).
+const SUBMIT = { type: 'object', required: ['word'], properties: { word: { type: 'string', enum: ['ready'] } }, additionalProperties: false };
+const writeAnswer = (file, value) => { mkdirSync(join(file, '..'), { recursive: true }); writeFileSync(file, JSON.stringify(value)); };
+
+test('a task run is finished by this computer from its result file: the answer is checked against the submit shape, recorded, the acceptance saved, and the task finished', async () => {
+  const f = await jobFixture();
+  delete f.task().acceptance; // a step task names no acceptance until its run finishes it
+  f.task().asks = { do: 'Answer with the one word ready.', submit: SUBMIT, checks: [] };
+  const file = resultFileOf(f.configured, 'calendar-task:synthetic');
+  const pass = await f.pass(() => f.child(() => writeAnswer(file, { result: { word: 'ready' }, evidence: 'I answered ready.' })));
+  await Promise.all(pass.runs);
+  assert.equal(f.task().status, 'Done', f.task().released?.words);
+  assert.equal(f.task().result, '{"word":"ready"}');
+  assert.deepEqual(f.task().answer, { word: 'ready' });
+  assert.deepEqual(f.task().acceptance.rules, [{ id: 'outcome', path: 'answer', required: true }]);
+  assert.equal(f.task().check.evidence[0].ref, file);
+});
+
+test('a retry after an earlier attempt saved the same acceptance finishes the task, and a different saved acceptance is never replaced', async () => {
+  const f = await jobFixture();
+  f.task().asks = { do: 'Answer with the one word ready.', submit: SUBMIT, checks: [] };
+  f.task().acceptance = { outcome: f.task().outcome, target: { type: settingsFile.tasks.kind, id: 'calendar-task:synthetic' }, rules: [{ id: 'outcome', path: 'answer', required: true }] };
+  const file = resultFileOf(f.configured, 'calendar-task:synthetic');
+  const pass = await f.pass(() => f.child(() => writeAnswer(file, { result: { word: 'ready' }, evidence: 'Second attempt.' })));
+  await Promise.all(pass.runs);
+  assert.equal(f.task().status, 'Done', f.task().released?.words);
+  const other = await jobFixture();
+  other.task().asks = { do: 'Answer with the one word ready.', submit: SUBMIT, checks: [] };
+  const otherFile = resultFileOf(other.configured, 'calendar-task:synthetic');
+  const refused = await other.pass(() => other.child(() => writeAnswer(otherFile, { result: { word: 'ready' }, evidence: 'x' })));
+  await Promise.all(refused.runs);
+  assert.notEqual(other.task().status, 'Done');
+});
+
+test('a run whose answer breaks the submit shape is given its task back with the reason, never Done', async () => {
+  const f = await jobFixture();
+  f.task().asks = { do: 'Answer with the one word ready.', submit: SUBMIT, checks: [] };
+  const file = resultFileOf(f.configured, 'calendar-task:synthetic');
+  const pass = await f.pass(() => f.child(() => writeAnswer(file, { result: { word: 'blue' }, evidence: 'I said blue.' })));
+  await Promise.all(pass.runs);
+  assert.notEqual(f.task().status, 'Done');
+  assert.match(f.task().released.words, /does not match the step's answer shape \(result\.word must be one of "ready"\)/);
+  assert.equal(f.task().answer, undefined);
+});
+
+test('a run that writes no readable result file gives its task back with the reason, never Done', async () => {
+  const f = await jobFixture();
+  f.task().asks = { do: 'Answer with the one word ready.', submit: SUBMIT, checks: [] };
+  const pass = await f.pass(() => f.child(() => {}));
+  await Promise.all(pass.runs);
+  assert.notEqual(f.task().status, 'Done');
+  assert.match(f.task().released.words, /wrote no readable result file/);
 });
 
 test('task worker leaves a task that names nobody: no run starts and the task stays To do', async () => {
