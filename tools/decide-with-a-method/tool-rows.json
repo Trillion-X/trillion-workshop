@@ -743,7 +743,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": false,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -1006,7 +1006,10 @@
                 }
               }
             }
-          }
+          },
+          "hosts": [
+            "77.42.92.201"
+          ]
         },
         "needs": {
           "expected_seconds": 10,
@@ -1753,7 +1756,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": false,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -2016,7 +2019,10 @@
                 }
               }
             }
-          }
+          },
+          "hosts": [
+            "77.42.92.201"
+          ]
         },
         "needs": {
           "expected_seconds": 10,
@@ -2598,7 +2604,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": false,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -2861,7 +2867,10 @@
                 }
               }
             }
-          }
+          },
+          "hosts": [
+            "77.42.92.201"
+          ]
         },
         "needs": {
           "expected_seconds": 20,
@@ -3394,7 +3403,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": false,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -3657,7 +3666,10 @@
                 }
               }
             }
-          }
+          },
+          "hosts": [
+            "77.42.92.201"
+          ]
         },
         "needs": {
           "expected_seconds": 10,
@@ -4505,7 +4517,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": false,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -4768,7 +4780,10 @@
                 }
               }
             }
-          }
+          },
+          "hosts": [
+            "77.42.92.201"
+          ]
         },
         "needs": {
           "expected_seconds": 10,
@@ -5628,7 +5643,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": false,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -5891,7 +5906,10 @@
                 }
               }
             }
-          }
+          },
+          "hosts": [
+            "77.42.92.201"
+          ]
         },
         "needs": {
           "expected_seconds": 120,
@@ -6581,7 +6599,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": false,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -6846,7 +6864,10 @@
                 }
               }
             }
-          }
+          },
+          "hosts": [
+            "77.42.92.201"
+          ]
         },
         "needs": {
           "expected_seconds": 10,
@@ -8397,7 +8418,7 @@
             ]
           },
           "workdir": "/opt/decide-with-a-method",
-          "internet": true,
+          "internet": false,
           "stdout": "json",
           "argv": [
             "node",
@@ -8568,7 +8589,10 @@
                 }
               }
             }
-          }
+          },
+          "hosts": [
+            "77.42.92.201"
+          ]
         },
         "result_selector": "$.result",
         "provenance": {
@@ -8921,7 +8945,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": false,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -9198,7 +9222,10 @@
                 }
               }
             }
-          }
+          },
+          "hosts": [
+            "77.42.92.201"
+          ]
         },
         "verify": [
           {
@@ -11090,7 +11117,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": false,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -11330,7 +11357,10 @@
                 }
               }
             }
-          }
+          },
+          "hosts": [
+            "77.42.92.201"
+          ]
         },
         "needs": {
           "expected_seconds": 20,
@@ -11791,7 +11821,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": false,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -12054,7 +12084,10 @@
                 }
               }
             }
-          }
+          },
+          "hosts": [
+            "77.42.92.201"
+          ]
         },
         "needs": {
           "expected_seconds": 120,
@@ -13591,7 +13624,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "internet": false,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -13854,7 +13887,10 @@
                 }
               }
             }
-          }
+          },
+          "hosts": [
+            "77.42.92.201"
+          ]
         },
         "needs": {
           "expected_seconds": 120,
