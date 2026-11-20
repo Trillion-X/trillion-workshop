@@ -1,5 +1,6 @@
 import { withSharedCargoTargetLock } from './shared-cargo-target.mjs';
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { existsSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -221,6 +222,21 @@ async function currentCommittedModules(expectedCrateDirs = null, expectedSourceF
 /** Boolean preflight; byte consumers use withCommittedModules for their complete read. */
 export async function committedModulesCurrent(expectedCrateDirs = null, expectedSourceFiles = null) {
   return (await currentCommittedModules(expectedCrateDirs, expectedSourceFiles)) !== null;
+}
+
+/**
+ * The first file a declared crate input needs that is not there, as { dir, file } (dir and file as written relative to
+ * the tools folder, the form fingerprint.json uses), or null. The fingerprint reads each crate's Cargo.toml and its
+ * workspace's Cargo.toml and Cargo.lock, so a partial sibling checkout is named here instead of only failing the check.
+ */
+export function missingCrateInput(crateDirs, base = TOOLS) {
+  for (const dir of crateDirs) {
+    const workspace = dirname(dir);
+    for (const file of [join(dir, 'Cargo.toml'), join(workspace, 'Cargo.toml'), join(workspace, 'Cargo.lock')]) {
+      if (!existsSync(join(base, file))) return { dir, file };
+    }
+  }
+  return null;
 }
 
 /**
