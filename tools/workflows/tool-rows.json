@@ -2212,6 +2212,21 @@
               "steps": 40,
               "wall_ms": 2400000
             }
+          },
+          {
+            "id": "an-ai-connected",
+            "on": {
+              "fact": {
+                "kind": "ai-connected",
+                "from": [
+                  "sender"
+                ]
+              }
+            },
+            "budget": {
+              "steps": 3,
+              "wall_ms": 12000
+            }
           }
         ],
         "needs": {
