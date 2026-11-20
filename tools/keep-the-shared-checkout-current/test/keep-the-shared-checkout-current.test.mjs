@@ -199,3 +199,16 @@ test('by default an origin-deleted clean file moves into the trash folder in the
   assert.equal(result.trashed[0].to.startsWith(join(env.shared, '.git', 'keep-the-shared-checkout-current-trash')), true);
   assert.equal(readFileSync(result.trashed[0].to, 'utf8'), 'clean gone\n');
 });
+
+test('an origin-deleted file that a pass kept, and that is later back at its old bytes, moves to the trash', () => {
+  const env = setup();
+  publish(env, { 'dirty-gone.txt': null }, 'delete dirty-gone');
+  write(env.shared, { 'dirty-gone.txt': 'my edit\n' });
+  keepCurrent(env.shared, { trashRoot: env.trashRoot, now: LATER() });
+  assert.equal(read(env, 'dirty-gone.txt'), 'my edit\n');
+  write(env.shared, { 'dirty-gone.txt': 'dirty gone\n' });
+  const result = keepCurrent(env.shared, { trashRoot: env.trashRoot, now: LATER() });
+  assert.equal(existsSync(join(env.shared, 'dirty-gone.txt')), false);
+  assert.equal(result.trashed.length, 1);
+  assert.equal(readFileSync(result.trashed[0].to, 'utf8'), 'dirty gone\n');
+});

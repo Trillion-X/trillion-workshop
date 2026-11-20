@@ -49,8 +49,16 @@ function readMarker(stateFile) {
 }
 
 // Rescue refs, newest first.
+// The names carry the pass time, so the newest is the largest name (commit dates tie within a second).
 function rescueRefs(root) {
-  return git(root, ['for-each-ref', '--sort=-committerdate', '--format=%(refname)', 'refs/rescue/']).split('\n').filter((ref) => ref.startsWith(RESCUE_PREFIX));
+  return git(root, ['for-each-ref', '--sort=-refname', '--format=%(refname)', 'refs/rescue/']).split('\n').filter((ref) => ref.startsWith(RESCUE_PREFIX));
+}
+
+// A second pass in the same second gets the next free name (-2, -3 ...), so no pass refuses for a name.
+function uniqueRef(root, base) {
+  let ref = base;
+  for (let n = 2; gitOrNull(root, ['rev-parse', '--verify', '-q', ref]) !== null; n += 1) ref = `${base}-${n}`;
+  return ref;
 }
 
 // A rescue ref goes only when its commit is origin's own tip plus itself (no commit of its own that origin lacks), and
@@ -71,6 +79,21 @@ function pruneRescueRefs(root, origin) {
     if (removable) git(root, ['update-ref', '-d', ref]);
     else blobs.forEach((oid) => known.add(oid));
   });
+}
+
+// The bytes each path had at the HEADs of the last RECENT_HEADS reflog entries, as path -> Set of blob ids. A file origin
+// deleted that still holds one of them was clean when origin deleted it, so it may go to the trash.
+const RECENT_HEADS = 20;
+function recentHeadBlobs(root) {
+  const byPath = new Map();
+  const heads = [...new Set(git(root, ['reflog', '-n', String(RECENT_HEADS), '--format=%H', 'HEAD']).split('\n').filter(Boolean))];
+  for (const head of heads) {
+    for (const [p, oid] of blobsAt(root, head)) {
+      if (!byPath.has(p)) byPath.set(p, new Set());
+      byPath.get(p).add(oid);
+    }
+  }
+  return byPath;
 }
 
 // The whole pass. Refusals and a moved HEAD return before anything in the working tree is written.
@@ -105,8 +128,7 @@ export function keepCurrent(root, { trashRoot = gitPathIn(root, TRASH_DIR), now 
       if (newest !== null && git(root, ['rev-parse', `${newest}^{tree}`]).trim() === tree && gitOrNull(root, ['merge-base', '--is-ancestor', head, newest]) !== null) {
         result.rescue_ref = newest;
       } else {
-        const ref = `${RESCUE_PREFIX}${stampFile(now)}`;
-        if (gitOrNull(root, ['rev-parse', '--verify', '-q', ref]) !== null) return refuse(`${ref} already exists; a second pass in the same second is refused`);
+        const ref = uniqueRef(root, `${RESCUE_PREFIX}${stampFile(now)}`);
         const message = `Rescue of the shared checkout at ${result.at}: its uncommitted and untracked files, and any commits not on origin/main. Local only.`;
         const commit = git(root, ['commit-tree', tree, '-p', head, '-m', message], { env: GIT_AUTHOR }).trim();
         git(root, ['update-ref', ref, commit]);
@@ -124,13 +146,14 @@ export function keepCurrent(root, { trashRoot = gitPathIn(root, TRASH_DIR), now 
   const incoming = git(root, ['diff', '--name-only', '--no-renames', '-z', head, origin]).split('\0').filter(Boolean);
   const candidates = [...new Set([...incoming, ...dirty, ...Object.keys(marker)])].sort();
   const disk = workingState(root, candidates, now);
+  const recentBlobs = recentHeadBlobs(root);
   const plan = { update: [], trash: [], keep: [], skip: [], marker: {} };
   for (const p of candidates) {
     const headOid = headBlobs.get(p) ?? null;
     const originOid = originBlobs.get(p) ?? null;
     const { oid: work, recent } = disk.get(p);
     if (work === originOid) continue;
-    const clean = work === headOid || (work !== null && marker[p] === work);
+    const clean = work === headOid || (work !== null && marker[p] === work) || (work !== null && originOid === null && recentBlobs.get(p)?.has(work) === true);
     if (clean && recent) {
       plan.skip.push({ path: p, why: 'edited in the last 120 s; left for the next pass' });
       if (work !== null) plan.marker[p] = work;

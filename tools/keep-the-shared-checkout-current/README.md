@@ -14,6 +14,7 @@ Otherwise, in order:
    - clean (bytes equal HEAD) and edited in the last 120 seconds: skipped this pass, and remembered in `.git/keep-the-shared-checkout-current.json`;
    - clean and origin has a version: updated from origin;
    - clean and origin deleted it: moved to `<git-dir>/keep-the-shared-checkout-current-trash/<time>/`, keeping its relative path (the git folder is inside the granted checkout, so the sandbox allows the move; `~/.Trash` is refused by it);
+   - origin deleted it and its bytes are one of its versions at the last 20 HEADs (the reflog): a clean file, moved to the trash (the same rule catches a file a pass kept earlier that later went back to its old bytes);
    - anything else (someone's edit, an untracked file, a local deletion): kept, with the reason.
 3. **Move.** HEAD and the index go to `origin/main` with `git reset --mixed`. The working tree is not touched by this step. HEAD is re-read just before it; if it moved, the pass stops and the next one retries.
 4. **Write.** Clean paths take origin's bytes with `git checkout origin/main -- <path>`, only if the bytes still match what step 2 saw.
