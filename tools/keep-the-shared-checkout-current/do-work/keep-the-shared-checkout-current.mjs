@@ -5,85 +5,22 @@
 // README: save the whole working state on a local rescue ref, keep every path someone changed, move HEAD and the
 // index to origin/main, write the clean paths from origin, and move the clean paths origin deleted to the Trash.
 // Nothing is deleted: a file that cannot be moved stays where it is and is reported.
-import { execFileSync, spawnSync } from 'node:child_process';
-import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, renameSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { blobsAt, dirtyPaths, git, gitOrNull, gitPathIn, refusingState, workingState } from './git-in-a-declared-folder.mjs';
 
 const RECENT_MS = 120_000;
 const STATE_FILE = 'keep-the-shared-checkout-current.json';
 const INDEX_FILE = 'keep-the-shared-checkout-current.index';
 const RESCUE_PREFIX = 'refs/rescue/workshop-shared-';
-const REFUSING_STATE = ['MERGE_HEAD', 'REVERT_HEAD', 'CHERRY_PICK_HEAD', 'REBASE_HEAD', 'rebase-merge', 'rebase-apply'];
 const GIT_AUTHOR = { GIT_AUTHOR_NAME: 'keep-the-shared-checkout-current', GIT_AUTHOR_EMAIL: 'keep-current@localhost', GIT_COMMITTER_NAME: 'keep-the-shared-checkout-current', GIT_COMMITTER_EMAIL: 'keep-current@localhost' };
 
 // Inherited GIT_* variables (an index or a repository a shell exported) would point git at the wrong files.
-const BASE_ENV = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_') || key.includes('SSH')));
-
-function git(root, args, { env = {}, input } = {}) {
-  return execFileSync('git', ['-C', root, ...args], { env: { ...BASE_ENV, ...env }, input, encoding: 'utf8', maxBuffer: 1 << 30, stdio: ['pipe', 'pipe', 'pipe'] });
-}
-
-// Returns null instead of throwing: a missing ref, a detached HEAD or a failed command is an answer here.
-function gitOrNull(root, args, options) {
-  try {
-    return git(root, args, options);
-  } catch {
-    return null;
-  }
-}
-
 const pad = (n) => String(n).padStart(2, '0');
 const stampFile = (d) => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
 const stampWords = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-
-// path -> blob id of every file in a commit (directories and submodules are not files here).
-function blobsAt(root, rev) {
-  const blobs = new Map();
-  for (const entry of git(root, ['ls-tree', '-r', '-z', rev]).split('\0')) {
-    if (!entry) continue;
-    const tab = entry.indexOf('\t');
-    const [, type, oid] = entry.slice(0, tab).split(' ');
-    if (type === 'blob') blobs.set(entry.slice(tab + 1), oid);
-  }
-  return blobs;
-}
-
-// Blob ids of the bytes on disk, hashed as they are (no clean filters). A symlink is hashed as its target text.
-function workingState(root, paths, now) {
-  const state = new Map();
-  const regular = [];
-  for (const p of paths) {
-    const full = join(root, p);
-    let info;
-    try {
-      info = lstatSync(full);
-    } catch {
-      state.set(p, { oid: null, recent: false });
-      continue;
-    }
-    const recent = now.getTime() - info.mtimeMs < RECENT_MS;
-    if (info.isFile()) {
-      regular.push(p);
-      state.set(p, { oid: null, recent });
-    } else if (info.isSymbolicLink()) {
-      state.set(p, { oid: git(root, ['hash-object', '--no-filters', '--stdin'], { input: readlinkSync(full) }).trim(), recent });
-    } else {
-      state.set(p, { oid: 'not-a-file', recent });
-    }
-  }
-  if (regular.length) {
-    const oids = git(root, ['hash-object', '--no-filters', '--stdin-paths'], { input: `${regular.join('\n')}\n` }).trim().split('\n');
-    regular.forEach((p, i) => state.set(p, { oid: oids[i], recent: state.get(p).recent }));
-  }
-  return state;
-}
-
-function dirtyPaths(root) {
-  const out = git(root, ['status', '--porcelain=v1', '-z', '--untracked-files=all', '--no-renames']);
-  return out.split('\0').filter(Boolean).map((entry) => entry.slice(3));
-}
 
 function reasonToKeep({ head, origin, work, clash }) {
   const parts = [];
@@ -113,16 +50,14 @@ function readMarker(stateFile) {
 
 // The whole pass. Refusals and a moved HEAD return before anything in the working tree is written.
 export function keepCurrent(root, { trashRoot = join(homedir(), '.Trash'), now = new Date(), beforeReset = () => {} } = {}) {
-  const gitPath = (name) => resolve(root, git(root, ['rev-parse', '--git-path', name]).trim());
+  const gitPath = (name) => gitPathIn(root, name);
   const result = { at: stampWords(now), outcome: 'ran', branch: null, head_before: null, head_after: null, origin: null, behind_before: null, behind_after: null, local_commits: [], rescue_ref: null, updated: [], trashed: [], kept: [], skipped: [], why: null };
   const refuse = (why, outcome = 'refused') => ({ ...result, outcome, why });
-
+  const refusal = refusingState(root);
+  if (refusal) return refuse(refusal);
   const branch = gitOrNull(root, ['symbolic-ref', '-q', '--short', 'HEAD'])?.trim();
   if (branch !== 'main') return refuse(`HEAD is not on branch main (${branch ?? 'no branch or not a git checkout'})`);
   result.branch = branch;
-  const lock = REFUSING_STATE.find((name) => existsSync(gitPath(name)));
-  if (existsSync(gitPath('index.lock'))) return refuse('.git/index.lock exists: a git command is running in this checkout');
-  if (lock) return refuse(`${lock} exists: a merge, rebase, cherry-pick or revert is in progress`);
   if (gitOrNull(root, ['fetch', '-q', 'origin']) === null) return refuse('git fetch origin failed');
 
   const head = git(root, ['rev-parse', 'HEAD']).trim();

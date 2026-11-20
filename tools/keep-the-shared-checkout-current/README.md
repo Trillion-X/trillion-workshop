@@ -30,6 +30,7 @@ One JSON line on stdout: `outcome` (`ran`, `refused`, `stopped`, or `error`), `w
 | File | Purpose |
 |------|---------|
 | `do-work/keep-the-shared-checkout-current.mjs` | `keepCurrent(root, { trashRoot, now, beforeReset })` and its command line `--root <checkout>`. |
+| `do-work/git-in-a-declared-folder.mjs` | The one way a Workshop tool runs git in a granted folder: `git`, `gitOrNull`, `refusingState` (index lock, merge, rebase, cherry-pick, revert), `blobsAt`, `workingState`, `dirtyPaths`, `gitPathIn`. Any tool that runs git from a scheduled wake imports it (`../../keep-the-shared-checkout-current/do-work/git-in-a-declared-folder.mjs`). |
 | `test/keep-the-shared-checkout-current.test.mjs` | Temporary repositories (a bare origin, a publisher, the shared checkout): a dirty overlap kept, an untracked clash kept with origin's version not written, an origin delete of a dirty file kept, an origin delete of a clean file moved to the Trash, HEAD moving mid-pass stops it, unpushed commits saved and reported, a recently edited file skipped and then written by the next pass, and `index.lock` a no-op. |
 | `tool-rows.json` | `tool:keep-the-shared-checkout-current`, a `computer` run with `change-a-folder` and `start-a-program`, and its wake `every-five-minutes` (every 5 minutes, UTC). |
 | `part.json` | The pass is public. |
