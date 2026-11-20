@@ -549,14 +549,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -568,6 +563,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -845,14 +848,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -864,6 +862,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -1138,6 +1144,14 @@
    "at": "/opt/query-and-change-list-rows"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -1221,6 +1235,14 @@
     "src/connecting-without-the-store.mjs"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -1333,6 +1355,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -1418,17 +1448,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -1700,6 +1733,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -1774,14 +1815,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -1808,6 +1844,14 @@
     "task-moves.mjs"
    ],
    "at": "/opt/plan-tasks-and-todo-lists"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -2314,6 +2358,14 @@
    "at": "/opt/process-session"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -2398,6 +2450,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "search-everything-with-one-question",
@@ -2503,6 +2563,14 @@
     "src/workshop-looks.json"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -2855,14 +2923,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -2874,6 +2937,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -3037,6 +3108,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "run-sql-in-my-database",
    "paths": [
     "read-data/role-recipes.json"
@@ -3125,6 +3204,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -3427,14 +3514,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -3446,6 +3528,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -3533,6 +3623,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -3637,6 +3735,71 @@
   {
    "package": "media-composition",
    "paths": [
+    "do-work/blur-faces-not-agreed.py",
+    "do-work/find-recurring-voices.py"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "run-on-a-persons-computer",
+   "paths": [
+    "confined-run.mjs"
+   ],
+   "at": "/opt/run-on-a-persons-computer"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy"
+   ],
+   "at": "/opt/know-who-is-in-this/do-work"
+  },
+  {
+   "packages": [
+    "blake3",
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "kaldi-native-fbank",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy",
+    "webrtcvad-wheels"
+   ],
+   "at": "/opt/media-composition/do-work"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
     "do-work/align-clips.mjs",
     "do-work/author-aligned-split.mjs",
     "do-work/author-beat-montage.mjs",
@@ -3650,7 +3813,6 @@
     "do-work/auto-reframe.mjs",
     "do-work/batch-produce-reels.mjs",
     "do-work/beat-onset-picker.mjs",
-    "do-work/blur-faces-not-agreed.py",
     "do-work/build-edit-decisions.ts",
     "do-work/build-overlay-render-descriptor.ts",
     "do-work/card-layout.mjs",
@@ -3681,7 +3843,6 @@
     "do-work/extract-poster.mjs",
     "do-work/filmcraft-edit-job.mjs",
     "do-work/find-action-moments.mjs",
-    "do-work/find-recurring-voices.py",
     "do-work/grade-a-video.mjs",
     "do-work/karaoke-captions-cli.mjs",
     "do-work/keyframe-curve.mjs",
@@ -3764,55 +3925,6 @@
     "do-work/write-media-composition-record.ts"
    ],
    "at": "/opt/media-composition"
-  },
-  {
-   "package": "run-on-a-persons-computer",
-   "paths": [
-    "confined-run.mjs"
-   ],
-   "at": "/opt/run-on-a-persons-computer"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "packages": [
-    "coloredlogs",
-    "flatbuffers",
-    "humanfriendly",
-    "mpmath",
-    "numpy",
-    "onnxruntime",
-    "packaging",
-    "pillow",
-    "protobuf",
-    "sympy"
-   ],
-   "at": "/opt/know-who-is-in-this/do-work"
-  },
-  {
-   "packages": [
-    "blake3",
-    "coloredlogs",
-    "flatbuffers",
-    "humanfriendly",
-    "kaldi-native-fbank",
-    "mpmath",
-    "numpy",
-    "onnxruntime",
-    "packaging",
-    "pillow",
-    "protobuf",
-    "sympy",
-    "webrtcvad-wheels"
-   ],
-   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:assemble-a-plan-into-a-cut": [],
@@ -3987,6 +4099,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   }
  ],
  "tool:audit-what-a-voice-classifier-was-trained-on": [
@@ -4723,14 +4843,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -4742,6 +4857,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -4907,6 +5030,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -5052,6 +5183,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -5139,6 +5278,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -5234,6 +5381,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -5345,6 +5500,71 @@
   {
    "package": "media-composition",
    "paths": [
+    "do-work/blur-faces-not-agreed.py",
+    "do-work/find-recurring-voices.py"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "run-on-a-persons-computer",
+   "paths": [
+    "confined-run.mjs"
+   ],
+   "at": "/opt/run-on-a-persons-computer"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy"
+   ],
+   "at": "/opt/know-who-is-in-this/do-work"
+  },
+  {
+   "packages": [
+    "blake3",
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "kaldi-native-fbank",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy",
+    "webrtcvad-wheels"
+   ],
+   "at": "/opt/media-composition/do-work"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
     "do-work/align-clips.mjs",
     "do-work/author-aligned-split.mjs",
     "do-work/author-beat-montage.mjs",
@@ -5358,7 +5578,6 @@
     "do-work/auto-reframe.mjs",
     "do-work/batch-produce-reels.mjs",
     "do-work/beat-onset-picker.mjs",
-    "do-work/blur-faces-not-agreed.py",
     "do-work/build-edit-decisions.ts",
     "do-work/build-overlay-render-descriptor.ts",
     "do-work/card-layout.mjs",
@@ -5389,7 +5608,6 @@
     "do-work/extract-poster.mjs",
     "do-work/filmcraft-edit-job.mjs",
     "do-work/find-action-moments.mjs",
-    "do-work/find-recurring-voices.py",
     "do-work/grade-a-video.mjs",
     "do-work/karaoke-captions-cli.mjs",
     "do-work/keyframe-curve.mjs",
@@ -5472,55 +5690,6 @@
     "do-work/write-media-composition-record.ts"
    ],
    "at": "/opt/media-composition"
-  },
-  {
-   "package": "run-on-a-persons-computer",
-   "paths": [
-    "confined-run.mjs"
-   ],
-   "at": "/opt/run-on-a-persons-computer"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "packages": [
-    "coloredlogs",
-    "flatbuffers",
-    "humanfriendly",
-    "mpmath",
-    "numpy",
-    "onnxruntime",
-    "packaging",
-    "pillow",
-    "protobuf",
-    "sympy"
-   ],
-   "at": "/opt/know-who-is-in-this/do-work"
-  },
-  {
-   "packages": [
-    "blake3",
-    "coloredlogs",
-    "flatbuffers",
-    "humanfriendly",
-    "kaldi-native-fbank",
-    "mpmath",
-    "numpy",
-    "onnxruntime",
-    "packaging",
-    "pillow",
-    "protobuf",
-    "sympy",
-    "webrtcvad-wheels"
-   ],
-   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:capture-dedupe": [
@@ -5581,6 +5750,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -5650,6 +5827,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -5784,6 +5969,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -5908,6 +6101,14 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -6421,14 +6622,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -6440,6 +6636,14 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -6560,6 +6764,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   }
  ],
  "tool:check-a-compiled-packaging-template-against-the-ledger": [],
@@ -6971,6 +7183,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "social-posts",
    "paths": [
     "records/post-place-records.json"
@@ -7157,6 +7377,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -7373,6 +7601,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -8133,6 +8369,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -8194,14 +8438,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -8278,17 +8517,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -8612,6 +8854,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -8865,6 +9115,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -8948,6 +9206,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -9177,14 +9443,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -9196,6 +9457,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -9254,14 +9523,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -9272,6 +9536,14 @@
     "things-to-store-and-run.json"
    ],
    "at": "/opt/notifications"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -9308,14 +9580,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -9327,6 +9594,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -9472,14 +9747,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -9499,6 +9769,14 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -9606,14 +9884,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -9625,6 +9898,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -9900,14 +10181,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -9919,6 +10195,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -10072,6 +10356,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -10370,14 +10662,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -10389,6 +10676,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -10484,6 +10779,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -10652,6 +10955,14 @@
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -10722,17 +11033,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -10793,17 +11107,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -10962,6 +11279,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -11129,17 +11454,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -11454,6 +11782,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -11887,14 +12223,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -11913,6 +12244,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -12214,6 +12553,14 @@
    "at": "/opt/record-log"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "refuse-requests-to-private-addresses",
    "paths": [
     "public-address.json",
@@ -12416,17 +12763,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -12498,6 +12848,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -12731,6 +13089,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -12874,6 +13240,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -12972,6 +13346,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "social-posts",
@@ -13089,6 +13471,14 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -13273,6 +13663,14 @@
     "read-data/residual-read-demand-from-receiver-facts.mjs"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "send-requests-to-an-engine",
@@ -13521,14 +13919,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -13540,6 +13933,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "share-anything",
@@ -14401,14 +14802,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -14420,6 +14816,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -14523,6 +14927,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -15542,6 +15954,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "send-requests-to-an-engine",
    "paths": [
     "read-data/find-the-running-app-and-send-requests-to-it.mjs"
@@ -15567,14 +15987,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -15593,6 +16008,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -15630,14 +16053,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -15656,6 +16074,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -15925,7 +16351,8 @@
   {
    "package": "records-door",
    "paths": [
-    "read-data/large-file.json"
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
    ],
    "at": "/opt/records-door"
   },
@@ -16038,6 +16465,14 @@
    "at": "/opt/formula-engine"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -16116,6 +16551,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -16158,14 +16601,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -16177,6 +16615,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -16906,6 +17352,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/large-file.json"
@@ -17291,14 +17745,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -17310,6 +17759,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -17582,14 +18039,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -17601,6 +18053,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -17672,6 +18132,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -17699,14 +18167,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -17718,6 +18181,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -17807,14 +18278,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -17826,6 +18292,14 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -17919,6 +18393,14 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -18018,6 +18500,14 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -18422,14 +18912,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -18448,6 +18933,14 @@
     "do-work/content-media-work-loop.ts"
    ],
    "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -18517,14 +19010,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -18543,6 +19031,14 @@
     "do-work/content-media-work-loop.ts"
    ],
    "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -18733,6 +19229,14 @@
     "do-work/content-media-work-loop.ts"
    ],
    "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -18957,6 +19461,14 @@
     "do-work/content-media-work-loop.ts"
    ],
    "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -19519,14 +20031,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -19538,6 +20045,14 @@
     "harness/retry-source-return-request.mjs"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -19779,6 +20294,14 @@
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -19843,14 +20366,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -19930,6 +20448,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -20224,14 +20750,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -20243,6 +20764,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -20326,6 +20855,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "send-requests-to-an-engine",
    "paths": [
     "read-data/find-the-running-app-and-send-requests-to-it.mjs"
@@ -20365,14 +20902,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -20384,6 +20916,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -20536,6 +21076,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "starting-set",
@@ -20705,6 +21253,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "starting-set",
    "paths": [
     "read-data/shipped-default.mjs"
@@ -20789,14 +21345,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -20994,14 +21545,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -21013,6 +21559,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -21107,6 +21661,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -21276,14 +21838,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -21307,6 +21864,70 @@
   {
    "package": "media-composition",
    "paths": [
+    "do-work/blur-faces-not-agreed.py",
+    "do-work/find-recurring-voices.py"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "run-on-a-persons-computer",
+   "paths": [
+    "confined-run.mjs"
+   ],
+   "at": "/opt/run-on-a-persons-computer"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "read-data/role-recipes.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy"
+   ],
+   "at": "/opt/know-who-is-in-this/do-work"
+  },
+  {
+   "packages": [
+    "blake3",
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "kaldi-native-fbank",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy",
+    "webrtcvad-wheels"
+   ],
+   "at": "/opt/media-composition/do-work"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
     "do-work/align-clips.mjs",
     "do-work/author-aligned-split.mjs",
     "do-work/author-beat-montage.mjs",
@@ -21320,7 +21941,6 @@
     "do-work/auto-reframe.mjs",
     "do-work/batch-produce-reels.mjs",
     "do-work/beat-onset-picker.mjs",
-    "do-work/blur-faces-not-agreed.py",
     "do-work/build-edit-decisions.ts",
     "do-work/build-overlay-render-descriptor.ts",
     "do-work/card-layout.mjs",
@@ -21351,7 +21971,6 @@
     "do-work/extract-poster.mjs",
     "do-work/filmcraft-edit-job.mjs",
     "do-work/find-action-moments.mjs",
-    "do-work/find-recurring-voices.py",
     "do-work/grade-a-video.mjs",
     "do-work/karaoke-captions-cli.mjs",
     "do-work/keyframe-curve.mjs",
@@ -21434,62 +22053,6 @@
     "do-work/write-media-composition-record.ts"
    ],
    "at": "/opt/media-composition"
-  },
-  {
-   "package": "run-on-a-persons-computer",
-   "paths": [
-    "confined-run.mjs"
-   ],
-   "at": "/opt/run-on-a-persons-computer"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "read-data/role-recipes.json"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "packages": [
-    "coloredlogs",
-    "flatbuffers",
-    "humanfriendly",
-    "mpmath",
-    "numpy",
-    "onnxruntime",
-    "packaging",
-    "pillow",
-    "protobuf",
-    "sympy"
-   ],
-   "at": "/opt/know-who-is-in-this/do-work"
-  },
-  {
-   "packages": [
-    "blake3",
-    "coloredlogs",
-    "flatbuffers",
-    "humanfriendly",
-    "kaldi-native-fbank",
-    "mpmath",
-    "numpy",
-    "onnxruntime",
-    "packaging",
-    "pillow",
-    "protobuf",
-    "sympy",
-    "webrtcvad-wheels"
-   ],
-   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:keep-keyed-things-in-a-fixed-memory-budget": [
@@ -21745,14 +22308,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -21764,6 +22322,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -21860,6 +22426,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -21925,17 +22499,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -22015,6 +22592,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -22153,14 +22738,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -22306,6 +22886,14 @@
     "harness/retry-source-return-request.mjs"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -22490,17 +23078,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -23055,14 +23646,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -23168,6 +23754,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   }
  ],
  "tool:line-up-two-movements": [],
@@ -23319,6 +23913,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -23604,6 +24206,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -23680,6 +24290,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -23744,17 +24362,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -23854,6 +24475,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -23908,14 +24537,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -23927,6 +24551,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -23962,14 +24594,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -23988,6 +24615,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -24475,14 +25110,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -24501,6 +25131,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -24538,14 +25176,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -24557,6 +25190,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -24634,6 +25275,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "social-posts",
    "paths": [
     "records/post-place-records.json"
@@ -24674,14 +25323,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -24693,6 +25337,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "social-posts",
@@ -24751,14 +25403,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -24770,6 +25417,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -24805,14 +25460,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -24831,6 +25481,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -24990,6 +25648,14 @@
     "harness/retry-source-return-request.mjs"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -25509,6 +26175,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -25704,6 +26378,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -25950,6 +26632,14 @@
    "at": "/opt/content-media-evidence"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -26056,6 +26746,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -26147,6 +26845,14 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -26246,6 +26952,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -26473,6 +27187,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -26804,6 +27526,14 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -27338,17 +28068,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -27409,17 +28142,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -28412,17 +29148,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -28511,6 +29250,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -28727,14 +29474,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -28746,6 +29488,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -29368,17 +30118,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -29438,17 +30191,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -29508,17 +30264,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -29578,17 +30337,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -29648,17 +30410,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -29729,6 +30494,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -29967,6 +30740,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -30170,14 +30951,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -30188,6 +30964,14 @@
     "things-to-store-and-run.json"
    ],
    "at": "/opt/notifications"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -30240,14 +31024,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -30258,6 +31037,14 @@
     "things-to-store-and-run.json"
    ],
    "at": "/opt/notifications"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -30328,14 +31115,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -30346,6 +31128,14 @@
     "things-to-store-and-run.json"
    ],
    "at": "/opt/notifications"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -30398,14 +31188,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -30416,6 +31201,14 @@
     "things-to-store-and-run.json"
    ],
    "at": "/opt/notifications"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -30603,6 +31396,71 @@
   {
    "package": "media-composition",
    "paths": [
+    "do-work/blur-faces-not-agreed.py",
+    "do-work/find-recurring-voices.py"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "run-on-a-persons-computer",
+   "paths": [
+    "confined-run.mjs"
+   ],
+   "at": "/opt/run-on-a-persons-computer"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy"
+   ],
+   "at": "/opt/know-who-is-in-this/do-work"
+  },
+  {
+   "packages": [
+    "blake3",
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "kaldi-native-fbank",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy",
+    "webrtcvad-wheels"
+   ],
+   "at": "/opt/media-composition/do-work"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
     "do-work/align-clips.mjs",
     "do-work/author-aligned-split.mjs",
     "do-work/author-beat-montage.mjs",
@@ -30616,7 +31474,6 @@
     "do-work/auto-reframe.mjs",
     "do-work/batch-produce-reels.mjs",
     "do-work/beat-onset-picker.mjs",
-    "do-work/blur-faces-not-agreed.py",
     "do-work/build-edit-decisions.ts",
     "do-work/build-overlay-render-descriptor.ts",
     "do-work/card-layout.mjs",
@@ -30647,7 +31504,6 @@
     "do-work/extract-poster.mjs",
     "do-work/filmcraft-edit-job.mjs",
     "do-work/find-action-moments.mjs",
-    "do-work/find-recurring-voices.py",
     "do-work/grade-a-video.mjs",
     "do-work/karaoke-captions-cli.mjs",
     "do-work/keyframe-curve.mjs",
@@ -30730,55 +31586,6 @@
     "do-work/write-media-composition-record.ts"
    ],
    "at": "/opt/media-composition"
-  },
-  {
-   "package": "run-on-a-persons-computer",
-   "paths": [
-    "confined-run.mjs"
-   ],
-   "at": "/opt/run-on-a-persons-computer"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "packages": [
-    "coloredlogs",
-    "flatbuffers",
-    "humanfriendly",
-    "mpmath",
-    "numpy",
-    "onnxruntime",
-    "packaging",
-    "pillow",
-    "protobuf",
-    "sympy"
-   ],
-   "at": "/opt/know-who-is-in-this/do-work"
-  },
-  {
-   "packages": [
-    "blake3",
-    "coloredlogs",
-    "flatbuffers",
-    "humanfriendly",
-    "kaldi-native-fbank",
-    "mpmath",
-    "numpy",
-    "onnxruntime",
-    "packaging",
-    "pillow",
-    "protobuf",
-    "sympy",
-    "webrtcvad-wheels"
-   ],
-   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:name-a-voice": [
@@ -30977,14 +31784,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -30996,6 +31798,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -31071,6 +31881,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -31166,6 +31984,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   }
  ],
  "tool:network-profile": [
@@ -31363,14 +32189,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -32022,6 +32843,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -32154,7 +32983,8 @@
   {
    "package": "records-door",
    "paths": [
-    "read-data/large-file.json"
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
    ],
    "at": "/opt/records-door"
   },
@@ -32335,14 +33165,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -32354,6 +33179,14 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -32383,14 +33216,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -32402,6 +33230,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -32437,14 +33273,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -32456,6 +33287,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -32550,6 +33389,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -32666,14 +33513,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -32685,6 +33527,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -32720,14 +33570,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -32746,6 +33591,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -32781,14 +33634,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -32807,6 +33655,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -32891,6 +33747,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -33090,14 +33954,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -33109,6 +33968,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -33185,6 +34052,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -33275,6 +34150,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -33310,14 +34193,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -33329,6 +34207,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -33961,6 +34847,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -34156,6 +35050,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -34339,14 +35241,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -34358,6 +35255,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -35316,6 +36221,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -35411,6 +36324,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -35446,14 +36367,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -35465,6 +36381,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -35500,14 +36424,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -35519,6 +36438,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -35815,6 +36742,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "social-posts",
    "paths": [
     "records/post-place-records.json"
@@ -36066,6 +37001,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   }
  ],
  "tool:pull-a-time-window-from-a-stored-camera-file": [
@@ -36909,6 +37852,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -37109,6 +38060,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -37343,6 +38302,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -37373,14 +38340,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -37399,6 +38361,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -37537,14 +38507,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -37556,6 +38521,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -37753,14 +38726,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -37779,6 +38747,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -37814,14 +38790,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -37840,6 +38811,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -38133,6 +39112,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "social-posts",
@@ -38760,6 +39747,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -38926,14 +39921,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -38980,6 +39970,14 @@
     "src/list-refusals.mjs"
    ],
    "at": "/opt/query-and-change-list-rows"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "run-work-later-or-on-a-repeat",
@@ -39177,6 +40175,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   }
  ],
  "tool:read-calendar-events": [
@@ -39197,14 +40203,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -39223,6 +40224,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -39275,14 +40284,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -39302,6 +40306,14 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -39817,14 +40829,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -39871,6 +40878,14 @@
     "src/list-refusals.mjs"
    ],
    "at": "/opt/query-and-change-list-rows"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "run-work-later-or-on-a-repeat",
@@ -39961,14 +40976,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -40015,6 +41025,14 @@
     "src/list-refusals.mjs"
    ],
    "at": "/opt/query-and-change-list-rows"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "run-work-later-or-on-a-repeat",
@@ -40447,14 +41465,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -40473,6 +41486,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -40508,14 +41529,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -40527,6 +41543,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -40636,17 +41660,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -40930,7 +41957,8 @@
   {
    "package": "records-door",
    "paths": [
-    "read-data/large-file.json"
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
    ],
    "at": "/opt/records-door"
   },
@@ -41126,6 +42154,14 @@
     "utils.js"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   }
  ],
  "tool:read-my-treg-balance": [],
@@ -41179,17 +42215,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -41236,14 +42275,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -41255,6 +42289,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -41331,6 +42373,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "social-posts",
@@ -41467,6 +42517,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -41560,6 +42618,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -41746,6 +42812,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "send-requests-to-an-engine",
    "paths": [
     "read-data/find-the-running-app-and-send-requests-to-it.mjs"
@@ -41925,6 +42999,14 @@
     "records/workshop-placement-records.json"
    ],
    "at": "/opt/pick-where-one-piece-of-work-runs-the-device"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "refuse-requests-to-private-addresses",
@@ -42665,6 +43747,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -42758,6 +43848,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -42963,6 +44061,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -43113,6 +44219,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -43369,6 +44483,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -43466,6 +44588,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -43516,14 +44646,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -43534,6 +44659,14 @@
     "things-to-store-and-run.json"
    ],
    "at": "/opt/notifications"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -44518,6 +45651,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -44914,6 +46055,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "send-requests-to-an-engine",
    "paths": [
     "read-data/find-the-running-app-and-send-requests-to-it.mjs"
@@ -44975,14 +46124,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -44993,6 +46137,14 @@
     "things-to-store-and-run.json"
    ],
    "at": "/opt/notifications"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -45057,14 +46209,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -45075,6 +46222,14 @@
     "things-to-store-and-run.json"
    ],
    "at": "/opt/notifications"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -45244,6 +46399,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -45337,6 +46500,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -45481,17 +46652,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -45557,14 +46731,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -45575,6 +46744,14 @@
     "things-to-store-and-run.json"
    ],
    "at": "/opt/notifications"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -45999,17 +47176,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -46429,6 +47609,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -46512,6 +47700,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -46711,14 +47907,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -46737,6 +47928,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -46772,14 +47971,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -46798,6 +47992,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -46939,6 +48141,14 @@
     "harness/retry-source-return-request.mjs"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -47236,6 +48446,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -47786,6 +49004,14 @@
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "build-a-screen-from-patches",
    "paths": [
     "read-data"
@@ -47931,14 +49157,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -47985,6 +49206,14 @@
     "src/list-refusals.mjs"
    ],
    "at": "/opt/query-and-change-list-rows"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "run-work-later-or-on-a-repeat",
@@ -48046,14 +49275,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -48072,6 +49296,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -48365,6 +49597,14 @@
     "read-data/residual-read-demand-from-receiver-facts.mjs"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "send-requests-to-an-engine",
@@ -48723,6 +49963,14 @@
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -49056,6 +50304,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   }
  ],
  "tool:say-why-a-technique-works": [],
@@ -49118,6 +50374,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -49236,6 +50500,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -49537,6 +50809,14 @@
    "at": "/opt/formula-engine"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -49638,17 +50918,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "search-everything-with-one-question",
@@ -49732,6 +51015,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "search-everything-with-one-question",
    "paths": [
     "tool-rows.json"
@@ -49785,17 +51076,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "search-everything-with-one-question",
@@ -49978,14 +51272,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -49997,6 +51286,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -50034,14 +51331,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -50053,6 +51345,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -50088,14 +51388,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -50107,6 +51402,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -50182,6 +51485,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "social-posts",
@@ -50273,6 +51584,14 @@
     "src/connecting-without-the-store.mjs"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -50489,6 +51808,14 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -50856,6 +52183,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -51019,6 +52354,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "starting-set",
@@ -51190,17 +52533,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -51297,6 +52643,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/large-file.json"
@@ -51361,14 +52715,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -51380,6 +52729,14 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -51409,14 +52766,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -51435,6 +52787,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -51617,6 +52977,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "social-posts",
@@ -52194,14 +53562,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -52212,6 +53575,14 @@
     "things-to-store-and-run.json"
    ],
    "at": "/opt/notifications"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -52276,14 +53647,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -52294,6 +53660,14 @@
     "things-to-store-and-run.json"
    ],
    "at": "/opt/notifications"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -52439,14 +53813,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -52465,6 +53834,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -52540,6 +53917,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "social-posts",
@@ -53409,6 +54794,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -53502,6 +54895,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -53736,6 +55137,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -53819,6 +55228,14 @@
     "src/connecting-without-the-store.mjs"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -54187,6 +55604,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "starting-set",
    "paths": [
     "read-data/shipped-default.mjs"
@@ -54260,17 +55685,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "share-anything",
@@ -54420,6 +55848,14 @@
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -54518,6 +55954,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -54703,6 +56147,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -54911,6 +56363,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   }
  ],
  "tool:sort-bounces-and-replies": [
@@ -55110,6 +56570,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/large-file.json",
@@ -55136,14 +56604,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -55155,6 +56618,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -55473,6 +56944,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -55566,6 +57045,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -55952,14 +57439,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -55971,6 +57453,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -56124,6 +57614,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "starting-set",
    "paths": [
     "read-data/shipped-default.mjs"
@@ -56192,14 +57690,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -56246,6 +57739,14 @@
     "src/list-refusals.mjs"
    ],
    "at": "/opt/query-and-change-list-rows"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "run-work-later-or-on-a-repeat",
@@ -56399,14 +57900,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -56418,6 +57914,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -56588,6 +58092,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "starting-set",
    "paths": [
     "read-data/shipped-default.mjs"
@@ -56696,6 +58208,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "take-payments",
@@ -56927,6 +58447,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "starting-set",
    "paths": [
     "read-data/shipped-default.mjs"
@@ -57094,6 +58622,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "starting-set",
    "paths": [
     "read-data/shipped-default.mjs"
@@ -57209,6 +58745,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/large-file.json"
@@ -57281,6 +58825,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "social-posts",
@@ -57624,14 +59176,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -57914,14 +59461,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -57940,6 +59482,14 @@
     "do-work/content-media-work-loop.ts"
    ],
    "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -57968,14 +59518,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -57994,6 +59539,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -58029,14 +59582,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -58055,6 +59603,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -58246,6 +59802,14 @@
    "at": "/opt/formula-engine"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -58430,6 +59994,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -58459,14 +60031,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -58478,6 +60045,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -58658,14 +60233,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -58677,6 +60247,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -58829,6 +60407,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "social-posts",
@@ -59016,6 +60602,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -59368,6 +60962,14 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -59959,6 +61561,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -60003,14 +61613,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -60022,6 +61627,14 @@
     "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -60209,6 +61822,14 @@
    "at": "/opt/formula-engine"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -60369,17 +61990,20 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "workflows",
@@ -60478,14 +62102,9 @@
   {
    "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
     "do-work/send-a-file-to-a-namespace.mjs",
     "do-work/send-retry.mjs",
     "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
@@ -60497,6 +62116,14 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
   },
   {
    "package": "run-work-later-or-on-a-repeat",

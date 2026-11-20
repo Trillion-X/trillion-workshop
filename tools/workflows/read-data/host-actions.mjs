@@ -16,7 +16,7 @@
 //   await host.run(tool, input, { key? })                                -> another Workshop tool's result (tools:run; a failed run throws;
 //                                                                           an answer sent as byte pages is joined and checked first)
 //   await host.operation(method, input, { key? })                        -> one door method at the run's own address (wake:arrive, tools:list ...)
-//   await host.writeLarge(name, source, { mediaType? })                  -> a file above the piece bound, over the lease road
+//   await host.writeLarge(name, source, { mediaType? })                  -> a file above the piece bound, in raw pieces through the files right
 //
 // readWholeFile needs the run's files right (the descriptor holds files_resource); without it the call is refused with
 // `no_files` before anything is sent. The descriptor is read at the first use of either action, so a function that uses
@@ -27,6 +27,7 @@ import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { readWholeFile } from './whole-file.mjs';
+import { keepInRawPieces } from '../../records-door/read-data/raw-pieces.mjs';
 
 const PROTOCOL = '2025-06-18';
 const READ_RETRIES = 5;
@@ -227,17 +228,15 @@ export function openHostActions({ descriptor = 3, fetchImpl = fetch, wait = ms =
       const first = await ask(current(), fetchImpl, wait, { address, method, input, key, retry: false });
       return wholeOf(first, at => ask(current(), fetchImpl, wait, { address, method, input: { ...input, after_byte: at }, key, retry: true }));
     },
-    // A file above the piece bound, kept over the lease road by the Workshop's one chunked sender, with this run's own
-    // capability as its authorization (the bearer is never printed, logged or returned).
-    async writeLarge(name, source, { mediaType = null } = {}) {
+    // A file above the piece bound, kept in raw pieces through this run's files right (records-door raw-pieces.mjs): the Files
+    // tool's write_file_start, each piece as a raw octet-stream body, write_file_finish, with this run's own capability as the
+    // bearer (never printed, logged or returned). Until Nov 20 2026 this was a lease road the engine no longer serves.
+    async writeLarge(name, source, { mediaType = null, uploadId } = {}) {
       const route = current();
-      const { bearerControl, namespaceClient } = await import('../../browse-and-upload-my-files/do-work/namespace-client.mjs');
-      const { loadChunking } = await import('../../browse-and-upload-my-files/do-work/content-chunks.mjs');
-      const { sendFile } = await import('../../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs');
-      const origin = new URL(route.url).origin;
-      const control = bearerControl({ origin, authorization: async () => `Bearer ${route.capability}`, fetchImpl });
-      const client = namespaceClient({ origin, control, fetchImpl });
-      return sendFile({ client, source, name, mediaType, chunking: await loadChunking() });
+      const tool = route.files_resource;
+      if (typeof tool !== 'string' || !tool) throw new HostActionError('no_files', 'This run was not handed a files right.', 'not_started');
+      return keepInRawPieces({ url: route.url, capability: route.capability, filesTool: tool, toolsAddress: route.tools_resource ?? WORKSHOP_TOOLS, fetchImpl, wait },
+        name, source, { mediaType: mediaType ?? undefined, ...(uploadId ? { uploadId } : {}) });
     },
     parentActions: {
       async trashSource(input) {

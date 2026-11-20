@@ -2,7 +2,7 @@
 //
 // Keeps files from the person's computer in their Files under the names they choose. One file (path, name) or a list
 // (files: [{ path, name, media_type }]) is kept in order; each file is kept by workflows' keepLocalFile (read-data/whole-file.mjs), which
-// sends a small file in pieces and a file above the whole-file threshold over the lease road.
+// sends a small file in pieces and a file above the whole-file threshold in raw pieces (tools/records-door read-data/raw-pieces.mjs).
 //
 // Non-Negotiable Invariants:
 //   1. A link, a folder, a relative path, a bad name, or a file that cannot be read is refused with its reason, and

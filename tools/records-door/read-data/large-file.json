@@ -1,4 +1,7 @@
 {
-  "_what": "Settings of the large-file road (read-data/whole-file.mjs LARGE_FILE): a file above `threshold_bytes` is kept as one of the person's Namespace files by the Workshop's one chunked sender (tools/browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs, through writeLargeFile in records-door.mjs) over a write lease minted with the run's own capability, instead of 40 KiB MCP pieces. Chunk sizes, the send window, the lease life and the retries are that sender's; the engine's limits are in src/mcp/carried/settings.json in trillion-rust.",
-  "threshold_bytes": 16777216
+  "_what": "Settings of the large-file road (read-data/whole-file.mjs LARGE_FILE, read-data/raw-pieces.mjs RAW_PIECES): a file above `threshold_bytes` is kept as one of the person's files in raw pieces of `piece_bytes` (raw-pieces.mjs keepInRawPieces: each piece the body of one octet-stream POST with its call in X-Call, which the engine hands to tool:your-files as the piece's content_file), instead of 40 KiB base64 pieces. `piece_bytes` is the engine's own most bytes for one raw body (the engine's src/mcp/settings.json upload_most_bytes, 32 MiB). A piece whose outcome is unknown, or a busy or throttled door, is asked again after `first_wait_ms` doubled each time, at most `most_tries` times in a row; the upload goes on from where write_file_start says it stands.",
+  "threshold_bytes": 16777216,
+  "piece_bytes": 33554432,
+  "first_wait_ms": 500,
+  "most_tries": 7
 }

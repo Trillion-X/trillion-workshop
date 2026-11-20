@@ -91,7 +91,7 @@ test('a refusal of the Files tool throws its own code, and an answer that is no 
   await assert.rejects(other.files('find_file', { name_or_identity: '/a' }), { code: 'rpc_error', outcome: 'unknown' });
 });
 
-test('a file above the piece bound with no lease road is refused before anything is sent', async () => {
+test('a file above the piece bound with no raw-piece road is refused before anything is sent', async () => {
   const sent = [];
   const host = { files: async (...call) => { sent.push(call); return {}; }, writeLarge: undefined };
   await assert.rejects(writeWholeFile(host, 'big.bin', Buffer.alloc(LARGE_FILE.threshold_bytes + 1)), { code: 'large_file_route_unavailable' });

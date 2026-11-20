@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { keepALocalFile } from '../do-work/keep-a-local-file.mjs';
 import { LARGE_FILE } from '../../workflows/read-data/whole-file.mjs';
 
-// A host whose files right records each call: pieces for a small write, and the lease road for a large one.
+// A host whose files right records each call: pieces for a small write, and raw pieces (writeLarge) for a large one.
 function fakeDoor() {
   const calls = [];
   return {
@@ -38,7 +38,7 @@ test('keeps a regular file in pieces and answers the door finish', async () => {
   assert.ok(door.calls.filter(call => call.op === 'write_file_piece').length >= 2);
 });
 
-test('a file above the whole-file threshold goes over the lease road, not in pieces', async () => {
+test('a file above the whole-file threshold goes in raw pieces (writeLarge), not in base64 pieces', async () => {
   const dir = tempFolder(join(tmpdir(), 'keep-local-'));
   const path = join(dir, 'big.mov');
   await writeFile(path, Buffer.alloc(LARGE_FILE.threshold_bytes + 5, 1));

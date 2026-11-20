@@ -19,8 +19,8 @@
 //   await door.write([{ id, type, value, expected? }], { key }) -> receipt; value null removes, expected checks prior
 //   await door.files('list_files', { folder: '/notes/' })   -> the files door's answer, at `files_resource`, which the
 //                                                          descriptor holds when the row declares a `files` right
-//   await door.writeLarge(name, source, { mediaType })     -> the finish answer; a file above the piece bound, kept over
-//                                                          the lease road (writeLargeFile below; source from whole-file.mjs bufferSource or the sender's fileSource)
+//   await door.writeLarge(name, source, { mediaType })     -> the finish answer; a file above the piece bound, kept in raw
+//                                                          pieces (writeLargeFile below, raw-pieces.mjs; source from whole-file.mjs bufferSource or the sender's fileSource)
 //   await door.operation(method, input, { key, at })       -> one operation a right names (wake:arrive at @own-records;
 //                                                          tools:update at door.toolsAddress, the Workshop's address)
 //   await door.run('tool:x', { ... }, { key })              -> another Workshop tool's run (`tools:run` at the Workshop's
@@ -41,6 +41,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { pagedCall } from './byte-pages.mjs';
 import { settledWrite } from './settled-write.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { keepInRawPieces } from './raw-pieces.mjs';
 
 const PROTOCOL = '2025-06-18';
 const BUSY_RETRIES = 5;
@@ -287,12 +288,11 @@ export function openRecordsDoorAt({ url, resource, capability, filesResource, to
   return withLargeFiles(call, { url, capability, filesResource, resource, toolsResource, fetchImpl, wait });
 }
 
-// A file above the piece bound is kept over the lease road at this door's own origin (writeLargeFile below).
+// A file above the piece bound is kept in raw pieces through this door's own files right (writeLargeFile below).
 function withLargeFiles(call, { url, capability, filesResource, resource, toolsResource, fetchImpl, wait }) {
-  const origin = new URL(url).origin;
   // The door keeps its read-only `resource`: writeLarge is added to it, never spread into a copy.
   return Object.assign(recordsDoorFromCall(call, { filesResource, resource, toolsResource, wait }), {
-    writeLarge: (name, source, options) => writeLargeFile({ origin, capability, fetchImpl }, name, source, options),
+    writeLarge: (name, source, options) => writeLargeFile({ url, capability, filesResource, toolsResource, fetchImpl }, name, source, options),
   });
 }
 
@@ -304,19 +304,12 @@ export function throttledWait(retryAfter, attempt) {
   return Math.min(base, MAX_WAIT_MS) * (0.5 + Math.random() / 2);
 }
 
-// A file above the piece bound, kept over the lease road by the Workshop's one chunked sender
-// (browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs): a write lease minted with this run's own
-// capability at the door's origin, then the growing route, chunk by chunk, finished under the whole file's BLAKE3.
-// The capability is a bearer: it is handed to the sender as its authorization, never printed, logged or returned.
-// The engine checks every chunk and the whole file; a refused finish is an error and no row is written.
-export async function writeLargeFile({ origin, capability, fetchImpl }, name, source, { mediaType = null } = {}) {
-  // The sender is loaded only here: a row that never writes a large file does not need its closure packaged.
-  const { bearerControl, namespaceClient } = await import('../../browse-and-upload-my-files/do-work/namespace-client.mjs');
-  const { loadChunking } = await import('../../browse-and-upload-my-files/do-work/content-chunks.mjs');
-  const { sendFile } = await import('../../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs');
-  const control = bearerControl({ origin, authorization: async () => `Bearer ${capability}`, fetchImpl });
-  const client = namespaceClient({ origin, control, fetchImpl });
-  return sendFile({ client, source, name, mediaType, chunking: await loadChunking() });
+// A file above the piece bound, kept in raw pieces through this run's own files right (read-data/raw-pieces.mjs): the
+// Files tool's write_file_start, each piece as a raw octet-stream body, then write_file_finish, all at the door's url with
+// the run's capability as the bearer. Until Nov 20 2026 this was a lease road (/namespace/leases) the engine no longer serves.
+export async function writeLargeFile({ url, capability, filesResource, toolsResource, fetchImpl }, name, source, { mediaType = null, uploadId } = {}) {
+  return keepInRawPieces({ url, capability, filesTool: filesResource, toolsAddress: toolsResource, fetchImpl }, name, source,
+    { mediaType: mediaType ?? undefined, ...(uploadId ? { uploadId } : {}) });
 }
 
 // The record store can answer a record as its stored body, { kind, sequence, stored, meta, protected }, with the value kept as JSON
