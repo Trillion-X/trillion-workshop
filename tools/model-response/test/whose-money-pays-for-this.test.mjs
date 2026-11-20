@@ -14,7 +14,7 @@ import {
 
 test('gates a request whose spend somebody has claimed', () => {
   const ask = spendGateAskForModelRequest({
-    spendAuthorityRef: 'spend-authority:hosted-account',
+    spendAuthorityRef: 'spend-authority:operator-hosted',
     estimatedCostCents: 4,
     threadRef: 'thread:ada',
     requestId: 'thread:ada:7',
@@ -22,7 +22,7 @@ test('gates a request whose spend somebody has claimed', () => {
   assert.deepEqual(ask, {
     operation_ref: 'model-response:thread:ada',
     estimated_cost: 4,
-    spend_authority_ref: 'spend-authority:hosted-account',
+    spend_authority_ref: 'spend-authority:operator-hosted',
     idempotency_key: 'model-response:thread:ada:7',
   });
 });

@@ -10,7 +10,7 @@ import {
   readUnfinishedJson,
   textSoFarAt,
   wordsInTheRun,
-} from '../read-data/an-answer-arriving-in-documents.ts';
+} from '../../messages-screen/packages/model-response/read-data/an-answer-arriving-in-documents.ts';
 
 const PATH = ['candidates', 0, 'content', 'parts', 0, 'text'];
 const DELTA_TEXT = ['delta', 'text'];
@@ -28,9 +28,9 @@ function thoughtDelta(content) {
 }
 
 test('folding a run produces the same shape a single answer has, with all the words in it', () => {
-  const run = event('The app ') + event('finds the ') + event('needle mover.');
+  const run = event('Acme ') + event('finds the ') + event('needle mover.');
   assert.deepEqual(oneAnswerFromTheRun(run, PATH), {
-    candidates: [{ content: { parts: [{ text: 'The app finds the needle mover.' }] } }],
+    candidates: [{ content: { parts: [{ text: 'Acme finds the needle mover.' }] } }],
   });
 });
 
