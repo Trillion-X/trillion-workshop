@@ -25,3 +25,11 @@ export function screenInputOf(surfaceInput, host) {
   const taken = Object.fromEntries(names.filter(name => name in host).map(name => [name, host[name]]));
   return { ...given, ...taken };
 }
+
+/** The person's own tours from what the host answered under its `tours` label: a list of walkthrough-definition records (each
+ *  may arrive as itself or as { payload }), or { definitions: [...] }. Anything else, or none, is no tour, so the page mounts no
+ *  tour host at all. */
+export function tourDefinitionsOf(value) {
+  const list = Array.isArray(value) ? value : Array.isArray(value?.definitions) ? value.definitions : [];
+  return list.map(entry => entry?.payload ?? entry).filter(entry => entry?.kind === 'walkthrough-definition' && typeof entry.id === 'string');
+}

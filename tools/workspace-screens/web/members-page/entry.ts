@@ -23,7 +23,7 @@ import mountSidebar from '../../../sidebar/show/mount-sidebar';
 import mountArrangement from '../../../screen-arrangement/show/mount-screen-arrangement';
 import { SCREEN_MODULES } from 'members-screen-registry';
 import { customPropertiesOf, doorTransport, readHostConfig, recordsTransport, subjectOf } from './host';
-import { screenInputOf } from './rows.mjs';
+import { screenInputOf, tourDefinitionsOf } from './rows.mjs';
 import { sidebarCollections, type ScreenRow, type SidebarListsData } from '../src/workspace/sidebar-lists';
 import { activeRecordsSource } from '../src/workspace/records-source';
 import { setLiveChangesOffered } from '../src/workspace/store-changes';
@@ -34,6 +34,8 @@ import { keepShowRules } from '../src/workspace/show-rules-live';
 import { applyChosenScreenLook } from '../../../screen-look/show/apply-chosen-screen-look';
 import { applyScreenLookValues } from '../../../screen-look/show/ApplyCurrentScreenLook';
 import looks from '../src/workspace/looks.json';
+import mountWalkthroughHost from '../../../guided-overlay/show/mount-walkthrough-host';
+import { emitWalkthroughEventWhenHostReady } from '../../../guided-overlay/show/walkthroughs';
 // Every list's view switch offers visual-database's views, and the designed views (chat, feed, forum, and the rest), as the
 // workspace's own page offers them (src/workspace/main.tsx): a list's views are the same on both pages.
 import '../../../keep-lists-of-rows/show/offer-views-to-every-list.tsx';
@@ -104,3 +106,20 @@ mountArrangement({ el: document.getElementById('arrangement')!, props: {
   // A screen opened from another screen (a lesson from the course list) is not one of the sidebar's entries: its tab is kept.
   tabsOutsideCatalog: 'keep',
 } });
+
+// The person's own tours: the walkthrough-definition records the host answers under its `tours` label, run over this page by the
+// Workshop's tour host (tools/guided-overlay), which draws nothing until one starts. The page says it opened (first-use-ready), so a
+// tour whose trigger waits for that starts once, and the person's progress is kept through the host's records like any other record.
+// A host that names no label, or answers none, runs no tour.
+async function mountOwnTours(label: string): Promise<void> {
+  const read = await activeRecordsSource().read([label]);
+  const definitions = tourDefinitionsOf(read.records?.[label]);
+  if (!definitions.length) return;
+  // Whether a tour that starts by itself shows is the person's show rules (keepShowRules above): the host asks them first.
+  const el = document.createElement('div');
+  el.hidden = true;
+  document.body.append(el);
+  mountWalkthroughHost({ el, props: { definitions } });
+  emitWalkthroughEventWhenHostReady({ event_kind: 'first-use-ready' });
+}
+if (host.tours) void mountOwnTours(host.tours).catch(error => console.warn('The tours could not be read.', error));

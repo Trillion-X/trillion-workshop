@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { screenInputOf, screenKeyOf, surfaceKeyOf } from '../web/members-page/rows.mjs';
+import { screenInputOf, screenKeyOf, surfaceKeyOf, tourDefinitionsOf } from '../web/members-page/rows.mjs';
 import { screenModulesIn, screenModulesOf } from '../web/members-page/registry.mjs';
 
 const tools = resolve(fileURLToPath(new URL('.', import.meta.url)), '../..');
@@ -40,4 +40,17 @@ test('a row takes only the host values its host_input names, and nothing else re
   assert.deepEqual(screenInputOf({ host_input: ['subject_email'], video_field: 'video_url' }, host), { subject_email: 'a@example.test', video_field: 'video_url' });
   assert.deepEqual(screenInputOf({ host_input: ['missing'] }, host), {});
   assert.deepEqual(screenInputOf(undefined, host), {});
+});
+
+test('a page whose host answers no tour records gets no tour, so no tour host is mounted', () => {
+  for (const none of [undefined, null, {}, [], { definitions: [] }, 'own-tours', [{ kind: 'something-else', id: 'x' }], [{ kind: 'walkthrough-definition' }]]) {
+    assert.deepEqual(tourDefinitionsOf(none), []);
+  }
+});
+
+test('the person\'s own tours are taken as records or as { payload } entries', () => {
+  const tour = { kind: 'walkthrough-definition', id: 'own-tour:a', entry_step: 'one', steps: [], triggers: [] };
+  assert.deepEqual(tourDefinitionsOf([tour]), [tour]);
+  assert.deepEqual(tourDefinitionsOf([{ payload: tour }]), [tour]);
+  assert.deepEqual(tourDefinitionsOf({ definitions: [tour] }), [tour]);
 });

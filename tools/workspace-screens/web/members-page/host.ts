@@ -30,6 +30,9 @@ export type HostConfig = {
   /** The site's own look, the one its sign-in page wears: its theme id (the sign-in's data-theme) and the resolved tokens of that
    *  theme as the CSS its rows hold (look_css). The page sets these over the workspace look, so its shared buttons match the site. */
   site_look?: { id: string; css: string };
+  /** The records label the host answers the signed-in person's own tours under (walkthrough-definition records, a list); the
+   *  page runs them with the Workshop's tour host (tools/guided-overlay). Without one, the page runs no tours. */
+  tours?: string;
 };
 type Json = Record<string, unknown>;
 
