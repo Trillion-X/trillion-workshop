@@ -79,7 +79,7 @@ const TOOL = 'tool:serve-the-task-pages';
 
 test('a served page places every waiting thing with a task-record source; none lack a control', () => {
   assert.deepEqual(countsWithoutControl({ database: 'database-a', served: [TOOL], waiting: 366, unplaced: 0, examples: [] }),
-    { database: 'database-a', checked: 366, served: true, without_control: 0, examples: [] });
+    { database: 'database-a', checked: 366, served: true, without_control: 0, examples: [], summary: '' });
 });
 
 test('a served page still leaves a thing with a non-record source without a place, and names it', () => {
@@ -95,7 +95,7 @@ test('a page not served leaves every waiting thing without a place', () => {
 });
 
 test('an empty list is checked as zero and has no control to lack', () => {
-  assert.deepEqual(countsWithoutControl({ served: [TOOL], waiting: 0, unplaced: 0 }), { database: null, checked: 0, served: true, without_control: 0, examples: [] });
+  assert.deepEqual(countsWithoutControl({ served: [TOOL], waiting: 0, unplaced: 0 }), { database: null, checked: 0, served: true, without_control: 0, examples: [], summary: '' });
   assert.equal(countsWithoutControl({ served: [], waiting: 0, unplaced: 0 }).without_control, 0);
 });
 
@@ -115,4 +115,10 @@ test('a very long list is counted in full and names at most five examples', () =
 test('counts that arrive as text from the SQL step are read as numbers', () => {
   const out = countsWithoutControl({ database: 'database-a', served: [], waiting: '8', unplaced: '0', examples: [] });
   assert.deepEqual([out.checked, out.without_control], [8, 8]);
+});
+
+test('the summary names the count and the first ids, and is empty when nothing lacks a control', () => {
+  const out = countsWithoutControl({ database: 'database-a', served: [], waiting: 2, unplaced: 0, examples: ['record:calendar-task:one', 'record:calendar-task:two'] });
+  assert.equal(out.summary, 'First: record:calendar-task:one, record:calendar-task:two. Open Home to see them. (database-a, checked 2)');
+  assert.equal(countsWithoutControl({ database: 'database-a', served: [TOOL], waiting: 2, unplaced: 0, examples: [] }).summary, '');
 });

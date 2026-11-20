@@ -70,17 +70,22 @@ export function cardsWithoutControl(answer, opensScreen = () => true) {
 /** One database's waiting things judged by its counts (the workflow's SQL does the counting). `served` names the tools whose
  *  page the probe found answering; a waiting thing with a task-record source is placed by its database's task page when
  *  that page is served, so with it served only the `unplaced` ones have no place; with it not served, all have none.
- *  Returns { database, checked, served, without_control, examples } with at most five example ids. */
+ *  Returns { database, checked, served, without_control, examples, summary } with at most five example ids, and the one-line
+ *  summary a notice carries (empty when nothing lacks a control). */
 export function countsWithoutControl(summary) {
   const served = (summary?.served ?? []).includes(TASK_PAGE_TOOL);
   const waiting = Number(summary?.waiting ?? 0);
   const unplaced = Number(summary?.unplaced ?? 0);
+  const without = served ? unplaced : waiting;
+  const examples = (summary?.examples ?? []).slice(0, 5);
+  const where = summary?.database ?? 'a database';
   return {
     database: summary?.database ?? null,
     checked: waiting,
     served,
-    without_control: served ? unplaced : waiting,
-    examples: (summary?.examples ?? []).slice(0, 5),
+    without_control: without,
+    examples,
+    summary: without > 0 ? `First: ${examples.join(', ')}. Open Home to see them. (${where}, checked ${waiting})` : '',
   };
 }
 
