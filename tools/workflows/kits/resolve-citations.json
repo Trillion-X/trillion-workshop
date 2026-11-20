@@ -1,13 +1,13 @@
 {
-  "start_here": "Say to your AI: \"Check this citation against its repository: trillion-workshop/tools/git-changes/show/mount-git-worktree.tsx:21@434ee11fd0, quote mountReactSurface.\" The run is granted one repository folder (here trillion-workshop); it answers ok true, or ok false with why, for each citation of that repository. A citation of another repository needs its own run.",
+  "start_here": "Say to your AI: \"Check this citation against its repository: example-repo/tools/git-changes/show/mount-git-worktree.tsx:21@434ee11fd0, quote mountReactSurface.\" The run is granted one repository folder (here example-repo); it answers ok true, or ok false with why, for each citation of that repository. A citation of another repository needs its own run.",
   "lists": [],
-  "no_lists_because": "It keeps no list of its own: it reads the repositories named in citation-resolvers.json through git on this computer and answers each citation in the run.",
+  "no_lists_because": "It keeps no list of its own: it reads the one folder granted to the run through git on this computer (citation-resolvers.json names no repository) and answers each citation in the run.",
   "workflows": [],
   "tools": [
     "tool:resolve-citations"
   ],
   "instructions": [
-    "1. Give the citations as the input: {\"items\": [{\"cite\": \"trillion-workshop/tools/git-changes/show/mount-git-worktree.tsx:21@434ee11fd0\", \"quote\": \"mountReactSurface\"}]}, one item per citation. A citation is root/path:line, root/path:line-line for a range, and @commit to read the file as that commit holds it. Group the citations by root: one run per repository.",
+    "1. Give the citations as the input: {\"items\": [{\"cite\": \"example-repo/tools/git-changes/show/mount-git-worktree.tsx:21@434ee11fd0\", \"quote\": \"mountReactSurface\"}]}, one item per citation. A citation is root/path:line, root/path:line-line for a range, and @commit to read the file as that commit holds it. Group the citations by root: one run per repository.",
     "2. Run tool:resolve-citations with that input. Its one granted folder is the root's (the repository's folder on this computer). It answers {\"result\": [{\"cite\", \"ok\", \"why\", \"against\"}]}, one verdict per citation.",
     "3. Read each verdict: ok true means the cited line or range holds the quote at the commit named (or at the root's current ref when it names none); ok false gives why, including 'root not granted to this run' for a citation of another repository; ok null means the repository is not on this computer, so the citation was not judged.",
     "4. Refuse any citation with ok false, and fix it with the line it names before the next step relies on it."
@@ -15,7 +15,7 @@
   "worked_examples": [
     {
       "title": "Check one new-home citation against the commit it names",
-      "ask": "Check the citation trillion-workshop/tools/git-changes/show/mount-git-worktree.tsx:21@434ee11fd0, quote mountReactSurface.",
+      "ask": "Check the citation example-repo/tools/git-changes/show/mount-git-worktree.tsx:21@434ee11fd0, quote mountReactSurface.",
       "mcp": {
         "server": "{cli}",
         "tool": "run_resource_operation",
@@ -26,7 +26,7 @@
             "input": {
               "items": [
                 {
-                  "cite": "trillion-workshop/tools/git-changes/show/mount-git-worktree.tsx:21@434ee11fd0",
+                  "cite": "example-repo/tools/git-changes/show/mount-git-worktree.tsx:21@434ee11fd0",
                   "quote": "mountReactSurface"
                 }
               ]
@@ -34,8 +34,8 @@
           }
         }
       },
-      "expect": "result[0].ok is true, against names trillion-workshop at commit 434ee11fd0",
-      "hands_back": "result[0] says ok true for the citation, and against names trillion-workshop at commit 434ee11fd0, the commit the citation names."
+      "expect": "result[0].ok is true, against names example-repo at commit 434ee11fd0",
+      "hands_back": "result[0] says ok true for the citation, and against names example-repo at commit 434ee11fd0, the commit the citation names."
     }
   ],
   "drafted_from": "tool:resolve-citations' own row (tools/workflows/tool-rows.json) and its function (read-data/resolve-citations.mjs), run through the runner on the citations of commit 14c689357's direct tests"

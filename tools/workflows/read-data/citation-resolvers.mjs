@@ -1,15 +1,17 @@
 // tools/workflows/read-data/citation-resolvers.mjs
 //
 // Opens what a finding cites. A `cites-resolve` check (recipe-check-kinds.json) names a resolver row of
-// citation-resolvers.json; the row says how to find citations in a text (`pattern`), which repositories they may name
-// (`roots`, each a folder and the ref to read) and which of two ways of looking one up applies (`kind`):
+// citation-resolvers.json; the row says how to find citations in a text (`pattern`), where the roots are read from (`roots`,
+// each a list of sources) and which of two ways of looking one up applies (`kind`):
 //
 //   file-line  <root>/<path>:<line>   the line of that file (a checkout at the root's ref, or the copy in the person's files) holds the item's quote (when the check names one)
-//   commit     a commit hash          it exists in one of the roots and is dated after the item's `after` date
+//   commit     a commit hash          it exists in the root and is dated after the item's `after` date
 //
-//   resolveItem(check, item, { resolvers, files }) -> [{ cite, ok, why }]   ok is true, false, or null when the root is not
-//                                                                           on this computer (cannot be judged here)
+//   resolveItem(check, item, { resolvers, files, granted }) -> [{ cite, ok, why }]   ok is true, false, or null when the root is not
+//                                                                                    on this computer (cannot be judged here)
 //
+// `granted` is the one folder the run was granted: the only root a citation may name is that folder's name, read from the
+// row's `*` roots. Without `granted` no root resolves.
 // `files` is the person's files the caller read from where it keeps them and handed in ({ <name>: text | { text } |
 // { base64 } | null }); a copy folder is read only from those, and a file not handed in cannot be judged.
 //
@@ -17,6 +19,7 @@
 import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
+import { basename } from 'node:path';
 import { promisify } from 'node:util';
 import { readFileSync } from 'node:fs';
 
@@ -34,10 +37,11 @@ const git = (folder, ...args) => run('git', ['-C', folder, ...args], { maxBuffer
 // One root's source as it can be read here: a checkout read with git at its ref, or the person's own files holding a copy
 // (read from the files handed in). `sources` are tried in the order the DATA lists them; the first one present answers.
 //   { name, readFile(path) -> text | null | undefined, commitDate(hash) -> ISO date | null | undefined }   null: not there; undefined: cannot say
-async function sourceOf(rootName, root, files) {
+async function sourceOf(rootName, root, files, granted) {
   for (const source of root.sources ?? []) {
-    if (source.folder) {
-      const folder = folderOf(source);
+    // `granted` is the run's one folder; a source with no granted folder (none was granted) or no folder at all is skipped.
+    const folder = source.granted ? granted : source.folder ? folderOf(source) : undefined;
+    if (folder !== undefined) {
       if (!existsSync(folder)) continue;
       return {
         name: `${rootName} at ${source.ref ?? 'HEAD'}`,
@@ -50,7 +54,7 @@ async function sourceOf(rootName, root, files) {
       };
     }
     if (source.files && files) {
-      const at = `${source.files.replace(/\/$/, '')}/`;
+      const at = `${source.files.replace('{root}', rootName).replace(/\/$/, '')}/`;
       // The text of one file of the copy; undefined when it was not handed in.
       const readText = async name => textOfHeld(files[name]);
       const stampText = await readText(`${at}.source-copy.json`);
@@ -89,13 +93,13 @@ async function judgedAgainst(source) {
   return head ? `${source.name} at ${head}` : `${source.name}, head not recorded`;
 }
 
-async function fileLine(row, cite, item, check, { files }) {
+async function fileLine(row, cite, item, check, { files, granted }) {
   // A citation may name a line range (file:40-55) and a commit (@commit): then the file is read as that commit holds it.
   const [, rootName, path, line, endLine, pinned] = new RegExp(row.pattern).exec(cite);
   const root = row.roots?.[rootName];
-  if (!root) return { cite, ok: false, why: `no repository named ${rootName} in the resolver` };
+  if (!root) return { cite, ok: false, why: `root not granted to this run` };
   if (path.split('/').some(part => part === '..' || part === '.' || part === '') || path.includes('\\')) return { cite, ok: false, why: `${path} is not a path inside ${rootName}` };
-  const source = await sourceOf(rootName, root, files);
+  const source = await sourceOf(rootName, root, files, granted);
   if (!source) return { cite, ok: null, why: `${rootName} is not on this computer and no copy of it is in the files this run may read` };
   if (pinned && !source.readAt) return { cite, ok: null, why: `${rootName} has no source that can read ${path} at commit ${pinned}` };
   const text = pinned ? await source.readAt(pinned, path) : await source.readFile(path);
@@ -113,13 +117,13 @@ async function fileLine(row, cite, item, check, { files }) {
   return { cite, ok: true, against };
 }
 
-async function commit(row, cite, item, check, { files }) {
+async function commit(row, cite, item, check, { files, granted }) {
   const after = check.after === undefined ? null : Date.parse(item?.[check.after]);
   if (check.after !== undefined && Number.isNaN(after)) return { cite, ok: false, why: `${check.after} is not a date` };
   let blind = 0;
   let unsure = 0;
   for (const [rootName, root] of Object.entries(row.roots ?? {})) {
-    const source = await sourceOf(rootName, root, files);
+    const source = await sourceOf(rootName, root, files, granted);
     if (!source) { blind += 1; continue; }
     const found = await source.commitDate(cite);
     if (found === undefined) { unsure += 1; continue; }
@@ -134,10 +138,12 @@ async function commit(row, cite, item, check, { files }) {
 // A row a finding cites is in the person's own database, which the caller reads itself: no kind here looks it up.
 const KINDS = { 'file-line': fileLine, commit };
 
-export async function resolveItem(check, item, { resolvers = RESOLVERS, files } = {}) {
-  const row = resolvers.resolvers.find(entry => entry.resolver === check.resolver);
-  if (!row) return [{ cite: check.resolver, ok: null, why: `no resolver named ${check.resolver}` }];
+export async function resolveItem(check, item, { resolvers = RESOLVERS, files, granted } = {}) {
+  const found = resolvers.resolvers.find(entry => entry.resolver === check.resolver);
+  if (!found) return [{ cite: check.resolver, ok: null, why: `no resolver named ${check.resolver}` }];
+  // With a granted folder, the row's `*` root is that folder, and only that folder's name is a root a citation may name.
+  const row = granted === undefined ? found : { ...found, roots: { [basename(granted)]: found.roots?.['*'] } };
   const text = item?.[check.field];
   const cites = [...new Set(typeof text === 'string' ? [...text.matchAll(new RegExp(row.pattern, 'g'))].map(match => match[0]) : [])];
-  return Promise.all(cites.map(cite => KINDS[row.kind](row, cite, item, check, { files })));
+  return Promise.all(cites.map(cite => KINDS[row.kind](row, cite, item, check, { files, granted })));
 }

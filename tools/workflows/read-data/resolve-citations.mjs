@@ -23,7 +23,7 @@ export async function resolveCitationsInGrantedRoot(input = {}, grantedFolder) {
       result.push({ cite, ok: false, why: 'root not granted to this run', against: null });
       continue;
     }
-    const verdicts = await resolveItem(check, { cite, quote: item?.quote });
+    const verdicts = await resolveItem(check, { cite, quote: item?.quote }, { granted: grantedFolder });
     result.push(...verdicts.map(verdict => ({ cite: verdict.cite, ok: verdict.ok, why: verdict.why ?? null, against: verdict.against ?? null })));
   }
   return { result };

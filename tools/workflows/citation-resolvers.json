@@ -1,5 +1,5 @@
 {
- "about": "What a finding's citations are resolved against, as DATA. A `cites-resolve` check names one resolver here; the resolver's `kind` is one of two ways of looking something up (file-line, commit), its `pattern` finds the citations in a text, and `roots` names the repositories by the name a citation starts with. A root lists its `sources` in the order they are tried: `{folder, ref}` is a checkout on the computer running the check (read with git at the ref), `{files}` is a folder of the person's own files holding a copy of the source (read from the files the caller handed in, so a run in a container reads it too). The copy folder holds `.source-copy.json` ({ref, copied_at}), the files at their paths, and `.commit-dates.json` ({ <commit hash>: <ISO date> }). A root with no source available here makes the check unevaluated, never passed. Adding a repository or a copy folder is adding a row here.",
+ "about": "What a finding's citations are resolved against, as DATA. A `cites-resolve` check names one resolver here; the resolver's `kind` is one of two ways of looking something up (file-line, commit), its `pattern` finds the citations in a text, and `roots` says where each root is read. This file names no repository: the root `*` stands for the one folder granted to the run (its read-a-folder grant, read by the tool), and a citation's root must be that folder's name. A root lists its `sources` in the order they are tried: `{granted, ref}` is that granted checkout on the computer running the check (read with git at the ref), `{files}` is a folder of the person's own files holding a copy of the source (read from the files the caller handed in, so a run in a container reads it too; `{root}` in the path is the citation's root name). The copy folder holds `.source-copy.json` ({ref, copied_at}), the files at their paths, and `.commit-dates.json` ({ <commit hash>: <ISO date> }). A root with no source available here makes the check unevaluated, never passed. Naming a repository, or a copy folder, is the caller's grant, never a row here.",
  "resolvers": [
   {
    "resolver": "code-line",
@@ -7,36 +7,14 @@
    "pattern": "([A-Za-z0-9_.-]+)/([A-Za-z0-9_./-]+):([0-9]+)(?:-([0-9]+))?(?:@([0-9a-f]{7,40}))?",
    "meaning": "<root>/<path>:<line>; the line of the file at the root's ref must hold the quoted text when the check names a quote field.",
    "roots": {
-    "trillion-rust": {
+    "*": {
      "sources": [
       {
-       "folder": "~/dev/trillion-rust",
-       "ref": "origin/main"
-      },
-      {
-       "files": "/source-copies/trillion-rust"
-      }
-     ]
-    },
-    "trillion-workshop": {
-     "sources": [
-      {
-       "folder": "~/dev/trillion-workshop",
-       "ref": "origin/main"
-      },
-      {
-       "files": "/source-copies/trillion-workshop"
-      }
-     ]
-    },
-    "ai-command-center": {
-     "sources": [
-      {
-       "folder": "~/dev/ai-command-center",
+       "granted": true,
        "ref": "HEAD"
       },
       {
-       "files": "/source-copies/ai-command-center"
+       "files": "/source-copies/{root}"
       }
      ]
     }
@@ -46,38 +24,16 @@
    "resolver": "commits",
    "kind": "commit",
    "pattern": "\\b(?=[0-9a-f]*[0-9])[0-9a-f]{7,40}\\b",
-   "meaning": "A commit hash; it must exist in one of the roots and be dated after the date the check's `after` field holds.",
+   "meaning": "A commit hash; it must exist in the granted root and be dated after the date the check's `after` field holds.",
    "roots": {
-    "trillion-rust": {
+    "*": {
      "sources": [
       {
-       "folder": "~/dev/trillion-rust",
-       "ref": "origin/main"
-      },
-      {
-       "files": "/source-copies/trillion-rust"
-      }
-     ]
-    },
-    "trillion-workshop": {
-     "sources": [
-      {
-       "folder": "~/dev/trillion-workshop",
-       "ref": "origin/main"
-      },
-      {
-       "files": "/source-copies/trillion-workshop"
-      }
-     ]
-    },
-    "ai-command-center": {
-     "sources": [
-      {
-       "folder": "~/dev/ai-command-center",
+       "granted": true,
        "ref": "HEAD"
       },
       {
-       "files": "/source-copies/ai-command-center"
+       "files": "/source-copies/{root}"
       }
      ]
     }
