@@ -1,6 +1,0 @@
-{
-  "_what": "Limits of read-data/files-identity-as-a-file.mjs: the most bytes one file may hold to be handed to a program (3 GiB, above the 2.38 GB clips the person edits), the bytes asked per read_file page (4 MiB, the page size whole-file.mjs uses), and the name the file takes in its run folder (a video container's name, so ffmpeg and ffprobe read it as a video).",
-  "most_bytes": 3221225472,
-  "read_bytes": 4194304,
-  "file_name": "source.mp4"
-}
