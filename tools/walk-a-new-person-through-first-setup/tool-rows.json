@@ -244,7 +244,7 @@
       "database": {
        "type": "string",
        "minLength": 1,
-       "description": "The database that keeps the toolkits and toolkit_swaps tables, as this computer names it (the computer picks the login). The tool reads both tables there: toolkits rows { id, value: { title?, description?, tools: [tool ids], default?, stack?: { slot: [pointer] } }, position }, toolkit_swaps rows { id: toolkit-swap:..., value: { title?, description?, swap: { slot: [pointer] } }, position }; first setup offers them all and fills the cart (toolkits.cart) from the picked toolkit, else from the one marked default"
+       "description": "The database that keeps the toolkits and toolkit_swaps tables, as this computer names it (the computer picks the login). The tool reads both tables there: toolkits rows { id, value: { title?, description?, items: [marketplace item ids, in the order an account gets them], default?, every_account?, stack?: { slot: [pointer] }, connections?: [{ service, credential: the vault name, why }], facts?: [{ id, question, from? }] }, position }, toolkit_swaps rows { id: toolkit-swap:..., value: { title?, description?, swap: { slot: [pointer] } }, position }; first setup offers them all and fills the cart (toolkits.cart) from the picked toolkit, else from the one marked default"
       },
       "credential_name": {
        "type": "string",

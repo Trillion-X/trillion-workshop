@@ -8,7 +8,7 @@ import { setupSteps } from '../do-work/setup-steps-from-a-cart.mjs';
 const row = (id, value) => ({ id, type: 'record:toolkit', value });
 const toolkits = [row('toolkit:example', {
   default: true,
-  tools: ['tool:sample-draft', 'tool:sample-send'],
+  items: ['tool:sample-draft', 'tool:sample-send'],
   stack: {
     'place-to-keep': [
       { id: 'a-folder', door: 'file:kept', speaks: 'files' },

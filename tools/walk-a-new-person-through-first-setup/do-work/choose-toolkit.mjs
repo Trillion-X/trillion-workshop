@@ -1,11 +1,19 @@
-// A toolkit is a row of the toolkits table that lists tool ids. First setup offers the toolkit rows; the person picks one,
-// drops some of its tool ids and adds others. This is the whole decision. The rows are read straight from the database that
+// A toolkit is a row of the toolkits table that lists marketplace item ids. First setup offers the toolkit rows; the person
+// picks one, drops some of its tool ids and adds others. This is the whole decision. The rows are read straight from the database that
 // keeps them, in its own language (readToolkitRows): the toolkits and toolkit_swaps tables, each { id, value, position },
 // beside workflow_recipes in the database of whoever runs the site. No file and no other store holds a toolkit. Everything
 // else here reads nothing and writes nothing.
 //
-//   toolkit row   { id, type: 'record:toolkit', value: { title?, description?, tools: ['tool:...', ...], default?: true,
-//                   stack?: { slot: [pointer, ...] } } }   (the stack and its pointers: toolkit-stack.mjs)
+//   toolkit row   { id, type: 'record:toolkit', value: { title?, description?, items: ['tool:...', 'workflow:...', ...],
+//                   default?: true, stack?: { slot: [pointer, ...] }, connections?: [{ service, credential, why }],
+//                   facts?: [{ id, question, from? }] } }
+//                 items  any marketplace item ids in the order an account gets them (a workflow that makes a table before
+//                        one that reads it); an id's kind is its prefix, as the marketplace kinds name it. Its tool: ids
+//                        are the toolkit's tools.
+//                 stack  the parts and their pointers (toolkit-stack.mjs); a pointer's credential is a key to give
+//                 connections  each service the person must connect: credential is the exact vault NAME its key is kept
+//                        under (never the key), why the words they read
+//                 facts  each fact to fill: id, the question when nothing the person has answers it, from where to look first
 //   swap row      { id: 'toolkit-swap:...', type: 'record:toolkit-swap', value: { title?, description?, swap: { slot: [pointer] } } }
 //   choice        { toolkit: the id of an offered toolkit row, drop?: [tool ids], add?: [tool ids],
 //                   swap?: { slot: [pointer, ...] } }   any part swapped: each named slot takes these pointers instead (a slot
@@ -16,8 +24,12 @@
 //   known_tools   optional: every tool id the caller can install; an added id outside it is refused
 
 import { readStack, readToolkitStack } from './toolkit-stack.mjs';
+import policy from '../read-data/stack-policy.json' with { type: 'json' };
 
 const TOOL_ID = /^tool:\S+$/;
+const ITEM_ID = /^[a-z][a-z0-9-]*:\S+$/;
+const CREDENTIAL = new RegExp(policy.patterns.credential);
+const FACT_ID = /^[a-z][a-z0-9_.:-]{0,99}$/;
 const TOOLKIT_TYPE = 'record:toolkit';
 
 const SWAP_TYPE = 'record:toolkit-swap';
@@ -54,17 +66,58 @@ const idList = (value, name) => {
   return [...new Set(value)];
 };
 
-/** The toolkit rows as offered: id, title, description and their tool ids, each id once, in the row's order. */
+const words = (value, name, most = 2000) => {
+  if (typeof value !== 'string' || !value.trim() || value.length > most) throw new Error(`${name} is words, at most ${most} characters.`);
+  return value;
+};
+
+/** A toolkit's items: marketplace item ids, each once, in the row's order. */
+const itemList = (value, name) => {
+  if (!Array.isArray(value) || !value.every(id => typeof id === 'string' && ITEM_ID.test(id))) throw new Error(`${name} is a list of marketplace item ids, each its kind, a colon, then the id (tool:..., workflow:...).`);
+  const seen = [...new Set(value)];
+  idList(seen.filter(id => id.startsWith('tool:')), name);
+  return seen;
+};
+
+/** The services a toolkit needs connected: { service, credential: the vault name, why }. */
+const connectionList = (value, name) => {
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) throw new Error(`${name} is a list of { service, credential, why }.`);
+  return value.map((entry, at) => {
+    const where = `${name}[${at}]`;
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) throw new Error(`${where} is { service, credential, why }.`);
+    const stray = Object.keys(entry).filter(key => !['service', 'credential', 'why'].includes(key));
+    if (stray.length) throw new Error(`${where} holds ${stray.join(', ')}: a connection holds only service, credential and why; a key is never in a row.`);
+    if (typeof entry.credential !== 'string' || !CREDENTIAL.test(entry.credential) || entry.credential.length > policy.most_credential_bytes) throw new Error(`${where}.credential is the vault name its key is kept under (${policy.patterns.credential}), not a key.`);
+    return { service: words(entry.service, `${where}.service`, 80), credential: entry.credential, why: words(entry.why, `${where}.why`) };
+  });
+};
+
+/** The facts a toolkit fills: { id, question, from? }. */
+const factList = (value, name) => {
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) throw new Error(`${name} is a list of { id, question, from? }.`);
+  return value.map((entry, at) => {
+    const where = `${name}[${at}]`;
+    if (!entry || typeof entry !== 'object' || typeof entry.id !== 'string' || !FACT_ID.test(entry.id)) throw new Error(`${where} needs an id: lowercase letters, digits and _ . : -.`);
+    return { id: entry.id, question: words(entry.question, `${where}.question`), ...(entry.from === undefined ? {} : { from: words(entry.from, `${where}.from`) }) };
+  });
+};
+
+/** The toolkit rows as offered: id, title, description, their items and tool ids, connections and facts, in the row's order. */
 export function offeredToolkits(rows) {
-  if (!Array.isArray(rows)) throw new Error(`toolkits is a list of ${TOOLKIT_TYPE} rows: { id, type, value: { title?, description?, tools } }.`);
+  if (!Array.isArray(rows)) throw new Error(`toolkits is a list of ${TOOLKIT_TYPE} rows: { id, type, value: { title?, description?, items } }.`);
   const seen = new Set();
   const offered = rows.map((row, at) => {
     if (!row || typeof row !== 'object' || typeof row.id !== 'string' || !row.id) throw new Error(`toolkits[${at}] needs an id.`);
     if (row.type !== TOOLKIT_TYPE) throw new Error(`toolkits[${at}] is type ${row.type}, not ${TOOLKIT_TYPE}.`);
-    if (!row.value || typeof row.value !== 'object' || Array.isArray(row.value)) throw new Error(`toolkits[${at}] needs a value: { title?, description?, tools }.`);
+    if (!row.value || typeof row.value !== 'object' || Array.isArray(row.value)) throw new Error(`toolkits[${at}] needs a value: { title?, description?, items }.`);
     if (seen.has(row.id)) throw new Error(`toolkits[${at}] repeats the toolkit id ${row.id}.`);
     seen.add(row.id);
-    const { title, description, tools } = row.value;
+    const { title, description } = row.value;
+    const items = itemList(row.value.items, `toolkits[${at}].value.items`);
+    const connections = connectionList(row.value.connections, `toolkits[${at}].value.connections`);
+    const facts = factList(row.value.facts, `toolkits[${at}].value.facts`);
     const stack = readToolkitStack(row.value, `toolkits[${at}].value`);
     if (row.value.default !== undefined && row.value.default !== true) throw new Error(`toolkits[${at}].value.default is true or left out.`);
     if (row.value.every_account !== undefined && row.value.every_account !== true) throw new Error(`toolkits[${at}].value.every_account is true or left out.`);
@@ -76,7 +129,10 @@ export function offeredToolkits(rows) {
       ...(stack ? { stack } : {}),
       ...(typeof title === 'string' ? { title } : {}),
       ...(typeof description === 'string' ? { description } : {}),
-      tools: idList(tools, `toolkits[${at}].value.tools`),
+      items,
+      tools: items.filter(id => id.startsWith('tool:')),
+      ...(connections.length ? { connections } : {}),
+      ...(facts.length ? { facts } : {}),
     };
   });
   const defaults = offered.filter(row => row.default);
@@ -114,8 +170,15 @@ export function chooseToolkit({ toolkits, choice, knownTools = null }) {
   const swapped = Object.keys(swap);
   const stack = toolkit.stack || swapped.length ? readStack({ ...(toolkit.stack ?? {}), ...swap }, `${toolkit.id} with its swaps`) : null;
   const chosen = [...kept, ...added];
-  const always = [...new Set(offered.filter(row => row.every_account).flatMap(row => row.tools))].filter(id => !chosen.includes(id));
-  return { toolkit: toolkit.id, tools: [...chosen, ...always], dropped: drop, added, ...(always.length ? { every_account: always } : {}), ...(swapped.length ? { swapped } : {}), ...(stack ? { stack } : {}) };
+  const everyAccount = offered.filter(row => row.every_account);
+  const always = [...new Set(everyAccount.flatMap(row => row.tools))].filter(id => !chosen.includes(id));
+  // Every item the account gets, in order: the toolkit's own without the dropped tools, the added tools, then every
+  // every-account row's items it does not hold yet; and the connections and facts of all of them, each once.
+  const items = [...new Set([...toolkit.items.filter(id => !drop.includes(id)), ...added, ...everyAccount.flatMap(row => row.items)])];
+  const once = (list, key) => [...new Map(list.map(entry => [key(entry), entry])).values()];
+  const connections = once([toolkit, ...everyAccount].flatMap(row => row.connections ?? []), entry => entry.credential);
+  const facts = once([toolkit, ...everyAccount].flatMap(row => row.facts ?? []), entry => entry.id);
+  return { toolkit: toolkit.id, tools: [...chosen, ...always], items, dropped: drop, added, ...(always.length ? { every_account: always } : {}), ...(connections.length ? { connections } : {}), ...(facts.length ? { facts } : {}), ...(swapped.length ? { swapped } : {}), ...(stack ? { stack } : {}) };
 }
 
 /** The cart first setup fills for a new account: the person's choice when they made one, else the one toolkit marked default,

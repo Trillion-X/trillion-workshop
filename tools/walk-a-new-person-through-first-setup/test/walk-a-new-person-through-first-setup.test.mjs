@@ -70,15 +70,15 @@ test('a request without an origin is refused', () => {
 
 // Rows as records:list returns them: { id, type, value }.
 const toolkits = [
-  { id: 'toolkit:sample-writer', type: 'record:toolkit', value: { title: 'Sample writer', description: 'Tools for drafting.', tools: ['tool:sample-draft', 'tool:sample-edit', 'tool:sample-draft'] } },
-  { id: 'toolkit:sample-maker', type: 'record:toolkit', value: { tools: ['tool:sample-cut'] } },
+  { id: 'toolkit:sample-writer', type: 'record:toolkit', value: { title: 'Sample writer', description: 'Tools for drafting.', items: ['tool:sample-draft', 'tool:sample-edit', 'tool:sample-draft'] } },
+  { id: 'toolkit:sample-maker', type: 'record:toolkit', value: { items: ['tool:sample-cut'] } },
 ];
 
 // Rows of the toolkits and toolkit_swaps tables as readToolkitRows answers them: { id, type, value }, in their order.
 const sampleStack = { data: [{ id: 'sample-file', door: 'file:sample.db', speaks: 'sql' }], hosting: [{ id: 'sample-host', door: '@sample-host', speaks: 'tools:run' }] };
 const tableToolkits = [
-  { id: 'toolkit:sample-first', type: 'record:toolkit', value: { title: 'First', tools: ['tool:sample-draft'], default: true, stack: sampleStack } },
-  { id: 'toolkit:sample-second', type: 'record:toolkit', value: { title: 'Second', tools: ['tool:sample-cut'], stack: sampleStack } },
+  { id: 'toolkit:sample-first', type: 'record:toolkit', value: { title: 'First', items: ['tool:sample-draft'], default: true, stack: sampleStack } },
+  { id: 'toolkit:sample-second', type: 'record:toolkit', value: { title: 'Second', items: ['tool:sample-cut'], stack: sampleStack } },
 ];
 const tableSwaps = [
   { id: 'toolkit-swap:sample-no-domain', type: 'record:toolkit-swap', value: { title: 'No domain', swap: { domain: [{ id: 'sample-name', door: '@sample-names', speaks: 'tools:run', label: 'tool:name_site' }] } } },
@@ -129,9 +129,9 @@ test('a swap is picked by its row id, into the named toolkit or the default one,
 
 test('a row that is not a toolkit row, or has no value, is refused', () => {
   const offer = rows => () => walkAPersonThroughFirstSetup({ origin: ORIGIN, runtime: notStarted, toolkits: rows });
-  assert.throws(offer([{ id: 'toolkit:x', type: 'record:note', value: { tools: [] } }]), /not record:toolkit/);
+  assert.throws(offer([{ id: 'toolkit:x', type: 'record:note', value: { items: [] } }]), /not record:toolkit/);
   assert.throws(offer([{ id: 'toolkit:x', type: 'record:toolkit' }]), /needs a value/);
-  assert.throws(offer([{ id: 'toolkit:x', type: 'record:toolkit', value: { tools: ['sample-cut'] } }]), /tool ids/);
+  assert.throws(offer([{ id: 'toolkit:x', type: 'record:toolkit', value: { items: ['sample-cut'] } }]), /marketplace item ids/);
 });
 
 test('first setup offers the toolkit rows the caller hands in, each tool id once, and no choice until one is made', () => {
@@ -146,7 +146,7 @@ test('the person picks a toolkit, drops one tool id and adds another: the answer
     origin: ORIGIN, view: 'state', runtime: notStarted, toolkits,
     toolkit_choice: { toolkit: 'toolkit:sample-writer', drop: ['tool:sample-edit'], add: ['tool:sample-cut', 'tool:sample-draft'] },
   });
-  assert.deepEqual(plan.toolkits.choice, { toolkit: 'toolkit:sample-writer', tools: ['tool:sample-draft', 'tool:sample-cut'], dropped: ['tool:sample-edit'], added: ['tool:sample-cut'] });
+  assert.deepEqual(plan.toolkits.choice, { toolkit: 'toolkit:sample-writer', tools: ['tool:sample-draft', 'tool:sample-cut'], items: ['tool:sample-draft', 'tool:sample-cut'], dropped: ['tool:sample-edit'], added: ['tool:sample-cut'] });
 });
 
 test('a pick with nothing dropped or added installs the toolkit as it stands', () => {
