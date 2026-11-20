@@ -11,7 +11,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { openRecords } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
-import { agentRecordStore, AGENT_RECORD_TABLES } from '../../shared-code/src/agent-records.mjs';
+import { agentRecordStore, AGENT_RECORD_TABLES, NotificationIndexBuilding } from '../../shared-code/src/agent-records.mjs';
 import { agentLegacyRows } from '../../shared-code/src/agent-legacy-rows.mjs';
 import { JOB_COLUMNS, jobColumnsOf } from '../../shared-code/src/agents.mjs';
 
@@ -785,4 +785,27 @@ test('old cards copied by the first pass are not read again; a card past its pla
   card({ agent_id: 'a31', reader: 'reader', takes_work: true, name: 'old 31, written after the pass' });
   assert.deepEqual(passed.cards().map(item => item.name), ['moved 1', 'old 31, written after the pass']);
   assert.deepEqual(passed.cardIdsOf({ reader: 'reader', takes_work: true }), ['a01', 'a31']);
+});
+
+// The NotificationIndexBuilding branch of notificationWork (tools/shared-code/src/agent-legacy-rows.mjs, the `exists('handoff')`
+// refusal): while an older agent_handoffs table still holds rows the notification index cannot be trusted, so the bridge
+// refuses WITHOUT asking the record store; once that table is marked moved, or is gone, the bridge asks the record store.
+test('notification work refuses while an older handoff table is present, and asks the record store once it has moved or is gone', () => {
+  const { sql, records, current, bridge, handoff } = opened();
+  handoff(job(1, {}));
+  const asked = [];
+  const spy = { ...current, notificationWork: options => { asked.push(options); return current.notificationWork(options); } };
+  const refusing = agentLegacyRows({ sql, records, current: spy });
+  assert.throws(() => refusing.notificationWork({ limit: 5 }), NotificationIndexBuilding);
+  assert.equal(asked.length, 0, 'the refusal happens before the record store is asked');
+  const moved = agentLegacyRows({ sql, records, current: spy, placeOf: table => (table === 'agent_handoffs' ? { moved: true } : records.read(`table-move:${table}`) ?? {}) });
+  assert.doesNotThrow(() => moved.notificationWork({ limit: 5 }));
+  assert.equal(asked.length, 1, 'a moved table hands the question to the record store');
+  const gone = opened();
+  gone.sql.exec('DROP TABLE agent_handoffs');
+  const goneAsked = [];
+  const goneSpy = { ...gone.current, notificationWork: options => { goneAsked.push(options); return gone.current.notificationWork(options); } };
+  const goneBridge = agentLegacyRows({ sql: gone.sql, records: gone.records, current: goneSpy });
+  try { goneBridge.notificationWork({ limit: 5 }); } catch (error) { assert.ok(!(error instanceof NotificationIndexBuilding && goneAsked.length === 0), 'a missing table is not refused by the bridge'); }
+  assert.equal(goneAsked.length, 1, 'with no older table the record store is asked');
 });
