@@ -10,7 +10,10 @@
       "to": "tools/show-each-setup-step-with-the-real-things-found/from-an-older-version/src/setup-capability-evidence.mjs",
       "source_identity": "1f:f5da4ca022b1cf01b5da65455d01493fdadfaf5d7a07bcd34b28d58f5aa3e83f",
       "identity": "1f:b9bde767ba90b6a2cc4e8cd6e80b06f4b2937d77059b3f3f8d8243292c2e4d59",
-      "held": false
+      "held": false,
+      "ported_to": [
+        "tools/show-each-setup-step-with-the-real-things-found/do-work/setup-capability-evidence.mjs"
+      ]
     },
     {
       "from": "src/setup-known.mjs",
@@ -19,7 +22,10 @@
       "source_identity": "1f:ba4f80bd547a451970c6d95d1e22e002f8d7bdaa4105e0cc644445e7383ba55b",
       "identity": "1f:ba4f80bd547a451970c6d95d1e22e002f8d7bdaa4105e0cc644445e7383ba55b",
       "held": true,
-      "ported_to": "tools/show-each-setup-step-with-the-real-things-found/read-data/setup-known.mjs"
+      "ported_to": [
+        "tools/show-each-setup-step-with-the-real-things-found/read-data/setup-known.mjs"
+      ],
+      "removed_from_here": true
     },
     {
       "from": "src/setup-week.mjs",
@@ -28,7 +34,10 @@
       "source_identity": "1f:3a2a35039b7da5d5334b4427bb13eddc66897391b8211839f3e23b8791db6d00",
       "identity": "1f:212fd90da98a014b155578a3d9ed78a12b9a2e193370fd5bcbcd3b45613723ac",
       "held": true,
-      "ported_to": "tools/show-each-setup-step-with-the-real-things-found/read-data/setup-week.mjs"
+      "ported_to": [
+        "tools/show-each-setup-step-with-the-real-things-found/read-data/setup-week.mjs"
+      ],
+      "removed_from_here": true
     },
     {
       "from": "test/setup-capability-evidence.test.mjs",
@@ -36,7 +45,11 @@
       "to": "tools/show-each-setup-step-with-the-real-things-found/from-an-older-version/test/setup-capability-evidence.test.mjs.held",
       "source_identity": "1f:59a848b0ad7bbe1a48210dec2d8f15e1b43fffab34e38e4cbd2978c94491dabf",
       "identity": "1f:29ddf9ea359f322bf994cdd6b5b49dcbe75eb9714a78b961eed5a5abc1cf0748",
-      "held": true
+      "held": true,
+      "ported_to": [
+        "tools/show-each-setup-step-with-the-real-things-found/test/setup-capability-evidence.test.mjs"
+      ],
+      "removed_from_here": true
     },
     {
       "from": "test/setup-known.test.mjs",
@@ -45,7 +58,10 @@
       "source_identity": "1f:30c919785901fec590f98ee780f5264dbd56d35909b634f5e7d1731d20b9ed0a",
       "identity": "1f:30c919785901fec590f98ee780f5264dbd56d35909b634f5e7d1731d20b9ed0a",
       "held": true,
-      "ported_to": "tools/show-each-setup-step-with-the-real-things-found/test/setup-known.test.mjs"
+      "ported_to": [
+        "tools/show-each-setup-step-with-the-real-things-found/test/setup-known.test.mjs"
+      ],
+      "removed_from_here": true
     }
   ]
 }

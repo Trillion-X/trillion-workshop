@@ -22,7 +22,11 @@
       "held": false,
       "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has.",
       "identity_as_held": "1f:32123b394289738717881b0c5fb84bcaec5a0023096b9830f924f7300c550aa0",
-      "identity": "1f:a3d2f086c75e935a7dc29859d9f734ac0038f5cb10bafd128ab31a19d5ab5b86"
+      "identity": "1f:a3d2f086c75e935a7dc29859d9f734ac0038f5cb10bafd128ab31a19d5ab5b86",
+      "ported_to": [
+        "tools/walk-a-new-person-through-first-setup/do-work/setup-plan.mjs",
+        "tools/set-up-my-account/do-work/setup-tools.mjs"
+      ]
     },
     {
       "from": "test/setup-plan.test.mjs",
@@ -30,7 +34,12 @@
       "to": "tools/walk-a-new-person-through-first-setup/from-an-older-version/test/setup-plan.test.mjs.held",
       "source_identity": "1f:25d75eb390102458e5351e9aedf2b6394c45b569fa6083303bf919dbd9aacfcc",
       "identity": "1f:25d75eb390102458e5351e9aedf2b6394c45b569fa6083303bf919dbd9aacfcc",
-      "held": true
+      "held": true,
+      "ported_to": [
+        "tools/set-up-my-account/test/setup-tools.test.mjs",
+        "tools/walk-a-new-person-through-first-setup/test/setup-plan-outcomes.test.mjs"
+      ],
+      "removed_from_here": true
     },
     {
       "from": "test/setup-runtime.test.mjs",
@@ -38,7 +47,11 @@
       "to": "tools/walk-a-new-person-through-first-setup/from-an-older-version/test/setup-runtime.test.mjs.held",
       "source_identity": "1f:4d1b931e0e22e24a07c609aa0f7d108c521dab76c6632bf783b4a425e888ab6b",
       "identity": "1f:4d1b931e0e22e24a07c609aa0f7d108c521dab76c6632bf783b4a425e888ab6b",
-      "held": true
+      "held": true,
+      "ported_to": [
+        "tools/set-up-my-account/test/setup-runtime.test.mjs"
+      ],
+      "removed_from_here": true
     },
     {
       "from": "src/setup-policy.json",
