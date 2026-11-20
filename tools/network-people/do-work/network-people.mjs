@@ -15,6 +15,7 @@ import { isDeepStrictEqual } from 'node:util';
 import settings from '../../introduce-two-people/src/network-settings.json' with { type: 'json' };
 import introductionStates from '../../introduce-two-people/src/introduction-states.json' with { type: 'json' };
 import { KINDS, keepRow, profileOf, profilesIn, recordsIn, refuse, rowId, words } from '../read-data/profile-rows.mjs';
+// Open pursuits on the path (old src/person-network.mjs:21-36): a space nobody here is in yet, that its own join rule lets anyone into.
 
 const HANDLE = /^[a-z0-9_]{3,30}$/;
 const NAME_MOST = 80;
@@ -25,6 +26,8 @@ const NEED_MOST = 300;
 const PURSUITS_MOST = 10;
 const TITLE_MOST = 200;
 const DIMENSIONS_MOST = 4096;
+// The most open pursuits a path answers (old settings on_your_path.spaces, src/network.mjs rules, DATA in introduce-two-people).
+const OPEN_SPACES_MOST = settings.on_your_path.spaces;
 // Words too common to show a match (the word-share fallback only).
 const STOP = new Set(['the', 'and', 'for', 'with', 'you', 'your', 'are', 'from', 'that', 'this', 'have', 'looking', 'need', 'want', 'can', 'who', 'how', 'what', 'where', 'about', 'some', 'any']);
 const TEXT_FIELDS = { name: NAME_MOST, about: TEXT_MOST, offering: TEXT_MOST, seeking: TEXT_MOST, contact: CONTACT_MOST };
@@ -153,9 +156,10 @@ export function findNetworkPeople(input) {
   return { subject, need, matched_by: embedding ? 'meaning' : 'words', people };
 }
 
-/** tool:on-my-path: people whose shown pursuits are close in meaning to one of this person's pursuits (cosine at least the path's
- * min_similarity), each with their pursuit beside this person's own, best first. Only profiles that chose to show their pursuits, and
- * only pursuits that carry an embedding, are compared. */
+/** tool:on-my-path: people whose shown pursuits are close in meaning to one of this person's pursuits, and open spaces on the same
+ * pursuits: a space this person is not in, whose join rows let anyone in (a free row), and whose embedding (the owner's record:space
+ * value) is at least the path's min_similarity close to one of the pursuits. Each answer names both pursuits. Only profiles that chose
+ * to show their pursuits, and only pursuits and spaces that carry an embedding, are compared. Open spaces are at most OPEN_SPACES_MOST. */
 export function onMyPath(input) {
   const records = recordsIn(input);
   const subject = subjectOf(input);
@@ -172,7 +176,23 @@ export function onMyPath(input) {
       if (!held || score > held.score) best.set(value.handle, { handle: value.handle, name: value.name ?? null, their_pursuit: theirs.title, your_pursuit: own.title, score });
     }
   }
-  return { subject, people: [...best.values()].sort((a, b) => b.score - a.score || (a.handle < b.handle ? -1 : 1)) };
+  const people = [...best.values()].sort((a, b) => b.score - a.score || (a.handle < b.handle ? -1 : 1));
+  const inside = new Set(records.filter(record => record.type === KINDS.member && record.value?.subject === subject && record.value?.state === 'member').map(record => record.value.space));
+  const spaces = records.filter(record => record.type === KINDS.space && Array.isArray(record.value?.embedding) && record.value?.config?.join?.some(row => row?.free === true) && !inside.has(decodeURIComponent(record.id.split(':').at(-1))))
+    .flatMap(record => {
+      const space = record.value;
+      const id = decodeURIComponent(record.id.split(':').at(-1));
+      let top = null;
+      for (const own of mine) {
+        if (own.embedding.length !== space.embedding.length) continue;
+        const score = cosine(own.embedding, space.embedding);
+        if (score >= PATH_MIN_SIMILARITY && (!top || score > top.score)) top = { score, yours: own.title };
+      }
+      return top ? [{ space: id, title: space.title, about: space.about ?? '', score: top.score, your_pursuit: top.yours }] : [];
+    })
+    .sort((a, b) => b.score - a.score || (a.space < b.space ? -1 : 1))
+    .slice(0, OPEN_SPACES_MOST);
+  return { subject, people, spaces };
 }
 
 /** tool:read-a-network-contact: one person's contact, to another person, only while an introduction between them is in a released

@@ -82,6 +82,25 @@ test('a path compares shown pursuits by meaning at the path\'s own threshold, an
   assert.deepEqual(onMyPath({ subject: BO, records: [ana, bo] }).people, []);
 });
 
+test('an open pursuit on the path: a space the person is not in, that anyone may join, and whose embedding is close to a pursuit; the rest are left out', () => {
+  const open = { type: KINDS.space, id: rowId('space', 'bakers-circle'), value: { title: 'Bakers circle', about: 'Weekly sourdough meet', owner: BO, label: 'group', config: { join: [{ free: true }] }, embedding: NEARBY } };
+  const far = { type: KINDS.space, id: rowId('space', 'tax-club'), value: { title: 'Tax club', owner: BO, label: 'group', config: { join: [{ free: true }] }, embedding: FAR } };
+  const invited = { type: KINDS.space, id: rowId('space', 'private-room'), value: { title: 'Private room', owner: BO, label: 'group', config: { join: [{ invited: true }] }, embedding: NEARBY } };
+  const joined = { type: KINDS.space, id: rowId('space', 'already-in'), value: { title: 'Already in', owner: BO, label: 'group', config: { join: [{ free: true }] }, embedding: NEARBY } };
+  const mine = { type: KINDS.member, id: rowId('member', 'already-in', ANA), value: { space: 'already-in', subject: ANA, member_type: 'member', state: 'member' } };
+  const unembedded = { type: KINDS.space, id: rowId('space', 'no-vector'), value: { title: 'No vector', owner: BO, label: 'group', config: { join: [{ free: true }] } } };
+  const answer = onMyPath({ subject: ANA, records: [ana, open, far, invited, joined, mine, unembedded] });
+  assert.deepEqual(answer.spaces.map(space => [space.space, space.title, space.your_pursuit]), [['bakers-circle', 'Bakers circle', 'sourdough bread classes']]);
+  assert.ok(answer.spaces[0].score >= 0.72);
+});
+
+test('open pursuits on the path are at most the settings cap, best match first', () => {
+  const many = Array.from({ length: 9 }, (_, index) => ({ type: KINDS.space, id: rowId('space', `club-${index}`), value: { title: `Club ${index}`, owner: BO, label: 'group', config: { join: [{ free: true }] }, embedding: [1, 0.2 + index * 0.001, 0] } }));
+  const answer = onMyPath({ subject: ANA, records: [ana, ...many] });
+  assert.equal(answer.spaces.length, 6);
+  assert.ok(answer.spaces[0].score >= answer.spaces[5].score);
+});
+
 test('the released states are states of the introduction owner, and the rest are not released', () => {
   for (const state of RELEASED) assert.ok(KNOWN_STATES.includes(state), `${state} is a state`);
   const notReleased = ['proposed', 'one_yes', 'sent', 'declined', 'passed', 'expired'];

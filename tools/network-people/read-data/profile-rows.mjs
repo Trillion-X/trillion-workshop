@@ -11,6 +11,8 @@ export const KINDS = {
   profile: 'record:network-profile',
   label: 'record:network-label',
   introduction: 'record:network-introduction',
+  space: 'record:space',
+  member: 'record:space-member',
 };
 
 const part = value => encodeURIComponent(String(value));

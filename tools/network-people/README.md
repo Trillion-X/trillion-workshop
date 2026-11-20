@@ -19,7 +19,8 @@ A contact is kept on the person's own profile row. `tool:read-a-network-contact`
 ## What is not ported
 
 - The old credit cost of find and the path (`cost_by_distance`, `stranger_cost`) is not here.
-- Open pursuits on the path (the old `spaces`) are not answered here yet.
+- Open pursuits on the path match by meaning only when the space's own record carries an embedding; nothing here makes one (no run can embed today). Access-based join rows (`{ access }`, `{ invited }`) are not read, so only spaces with a free row are answered.
+- Meaning-matching in find and on-my-path is PARTIAL until a run can embed: the vectors come from the caller today.
 - `given_name` and `family_name` (private account names from the purchase) are not here.
 
 ## Files

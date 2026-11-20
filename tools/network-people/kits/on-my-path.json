@@ -10,7 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"Show people whose shown pursuits are close to mine\", and give it subject (this person), database (the pursuit database that holds the network_records table), and the fields the ask needs.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, the tool id and its input (the worked example shows one).",
-    "3. Read the answer: a profile saved is named by stored; a search names people by handle, never by contact; a contact is answered only while an introduction is released."
+    "3. Read the answer: people are the shown pursuits close to yours; spaces are the open pursuits close to yours that you are not in yet."
   ],
   "worked_examples": [
     {
@@ -31,7 +31,7 @@
         }
       },
       "given": "The input {\"subject\":\"person:sample-ana\",\"database\":\"sample_for_who_runs_it\"}.",
-      "hands_back": "It answered {\"subject\":\"person:sample-ana\",\"people\":[]}."
+      "hands_back": "It answered {\"subject\":\"person:sample-ana\",\"people\":[],\"spaces\":[]}."
     }
   ]
 }

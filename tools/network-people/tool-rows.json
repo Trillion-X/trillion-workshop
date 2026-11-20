@@ -805,7 +805,7 @@
         "label": "Who is on my path",
         "status": "active",
         "job": "Show people whose shown pursuits are close in meaning to one of this person's pursuits",
-        "description": "Answers the people who chose to show their pursuits and whose pursuit is at least on_your_path.min_similarity close, by cosine, to one of this person's pursuits (each pursuit carries its embedding), each with both pursuits beside each other. Open pursuits are not answered here yet.",
+        "description": "Answers the people who chose to show their pursuits and whose pursuit is at least on_your_path.min_similarity close, by cosine, to one of this person's pursuits (each pursuit carries its embedding), each with both pursuits beside each other. Open pursuits: spaces you are not in whose join rows let anyone in (a free row) and whose embedding is close to one of your pursuits, at most the settings cap (6).",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -833,7 +833,8 @@
           "type": "object",
           "required": [
             "subject",
-            "people"
+            "people",
+            "spaces"
           ],
           "properties": {
             "subject": {
@@ -844,6 +845,13 @@
               "items": {
                 "type": "object"
               }
+            },
+            "spaces": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Open pursuits on the same path: spaces you are not in that anyone may join, at most the settings cap"
             }
           }
         },
@@ -1142,7 +1150,7 @@
         "maker": "maker:network-people",
         "result_selector": "$.result",
         "provenance": {
-          "source": "the old on_my_path (an older tag of the old worker tools, tools.mjs.held:298 at a476dd597 and src/network.mjs:2022-2060)"
+          "source": "the old on_my_path (an older tag of the old worker tools, tools.mjs.held:298 at a476dd597 and src/network.mjs:2022-2060), with its open pursuits from src/person-network.mjs:21-36"
         }
       }
     },
