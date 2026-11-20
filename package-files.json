@@ -3582,13 +3582,6 @@
    "at": "/opt/parts/traffic-attribution"
   },
   {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
-  },
-  {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
     "src/lists.json"
@@ -6491,13 +6484,6 @@
    "at": "/opt/evaluate-progress"
   },
   {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
-  },
-  {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
     "src/lists.json"
@@ -6748,13 +6734,6 @@
     "read-data"
    ],
    "at": "/opt/evaluate-progress"
-  },
-  {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   },
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
@@ -9439,13 +9418,6 @@
    "at": "/opt/parts/run-experiments"
   },
   {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
-  },
-  {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
     "src/lists.json"
@@ -9781,13 +9753,6 @@
     "read-data"
    ],
    "at": "/opt/evaluate-progress"
-  },
-  {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   },
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
@@ -16209,13 +16174,6 @@
    "at": "/opt/evaluate-progress"
   },
   {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
-  },
-  {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
     "src/lists.json"
@@ -17929,13 +17887,6 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   },
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
@@ -23027,13 +22978,6 @@
    "at": "/opt/parts/unit-economics"
   },
   {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
-  },
-  {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
     "src/lists.json"
@@ -23146,13 +23090,6 @@
     "read-data"
    ],
    "at": "/opt/parts/funnels-and-offers"
-  },
-  {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   },
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
@@ -27163,13 +27100,6 @@
    "at": "/opt/evaluate-progress"
   },
   {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
-  },
-  {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
     "src/lists.json"
@@ -27746,14 +27676,6 @@
     "run"
    ],
    "at": "/opt/choose-and-save-local-files"
-  },
-  {
-   "package": "choose-and-save-local-files",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/choose-and-save-local-files/run"
   },
   {
    "package": "records-door",
@@ -30620,13 +30542,6 @@
    "at": "/opt/workflows"
   },
   {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
-  },
-  {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
     "src/lists.json"
@@ -31141,13 +31056,6 @@
    "at": "/opt/parts/run-experiments"
   },
   {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
-  },
-  {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
     "src/lists.json"
@@ -31245,13 +31153,6 @@
     "do-work/run-a-function.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   },
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
@@ -31401,13 +31302,6 @@
     "do-work/run-a-function.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   },
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
@@ -34402,13 +34296,6 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
-  },
-  {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
     "src/lists.json"
@@ -36339,13 +36226,6 @@
    "at": "/opt/parts/work-breakdown"
   },
   {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
-  },
-  {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
     "src/lists.json"
@@ -36832,17 +36712,6 @@
    "at": "/opt/list-tools-for-an-ai"
   },
   {
-   "package": "build-a-screen-from-patches",
-   "paths": [
-    "read-data/declared-props.json",
-    "read-data/screen-spec.json",
-    "read-data/screen-spec.mjs",
-    "read-data/view-patch.json",
-    "read-data/view-patch.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/build-a-screen-from-patches"
-  },
-  {
    "package": "content-identity",
    "paths": [
     "read-data/blake3.mjs",
@@ -37057,13 +36926,6 @@
     "do-work/run-a-function.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   },
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
@@ -37912,13 +37774,6 @@
    "at": "/opt/parts/ask-questions-sort-answers-follow-up"
   },
   {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
-  },
-  {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
     "src/lists.json"
@@ -38010,13 +37865,6 @@
     "read-data"
    ],
    "at": "/opt/evaluate-progress"
-  },
-  {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   },
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
@@ -39567,13 +39415,6 @@
    "exclude": [
     "__tests__"
    ]
-  },
-  {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   },
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
@@ -43201,13 +43042,6 @@
    "at": "/opt/evaluate-progress"
   },
   {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
-  },
-  {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
     "src/lists.json"
@@ -43617,13 +43451,6 @@
     "do-work/run-a-function.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   },
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
@@ -45352,13 +45179,6 @@
    "at": "/opt/run-a-signed-events-effects-once"
   },
   {
-   "package": "paid-access",
-   "paths": [
-    "read-data/payment-effects.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/paid-access"
-  },
-  {
    "package": "records-door",
    "paths": [
     "do-work",
@@ -46798,13 +46618,6 @@
     "read-data"
    ],
    "at": "/opt/evaluate-progress"
-  },
-  {
-   "package": "query-and-change-list-rows",
-   "paths": [
-    "src/list-aggregates.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   },
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",

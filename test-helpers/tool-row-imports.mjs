@@ -358,6 +358,26 @@ function doorReachFor(desc, files, text, fileSet) {
   return false;
 }
 
+// Each place in the run's folder is laid once. The engine never replaces a file it already laid (container.rs copy_file), and
+// the files it lays are read-only, so a folder laid whole and a file inside it laid again by another item stops every run of the
+// row: 17dedb039 laid formula-engine and build-a-screen-from-patches folders whole beside hand-declared files in them, and from
+// Nov 19 2026 6:55 PM CST every workflow run on the Mac failed (Failure::Unavailable at copy). A path whose place is already
+// laid, by itself or by a folder holding it, is dropped from the later item; an item left with no paths is dropped.
+function layOnce(items) {
+  const placeOf = (item, rel) => path.posix.join(item.at, rel === '.' ? '' : rel);
+  const laid = [];
+  for (const item of items) for (const rel of item.paths ?? []) laid.push(placeOf(item, rel));
+  const held = (place, self) => laid.some((other, i) => i !== self && (place === other ? i < self : place.startsWith(other + '/')));
+  let index = 0;
+  const out = [];
+  for (const item of items) {
+    if (!item.paths) { out.push(item); continue; }
+    const paths = item.paths.filter(() => !held(laid[index], index++));
+    if (paths.length) out.push(paths.length === item.paths.length ? item : { ...item, paths });
+  }
+  return out;
+}
+
 function checkRow(rowFile, desc) {
   const rawFiles = desc.invoke?.files;
   const shape = rawFiles === undefined ? "no-files" : Array.isArray(rawFiles.package_files) ? "array" : rawFiles.package_files && typeof rawFiles.package_files === "object" ? "single-object" : "other";
@@ -483,7 +503,7 @@ function checkRow(rowFile, desc) {
   const declares = Boolean(desc.invoke?.records) || (Array.isArray(desc.stored) && desc.stored.length > 0);
   if (!declares && touches && !doorExceptions.has(desc.id)) findings.push({ kind: 'door-without-records' });
   if (declares && !touches) findings.push({ kind: 'records-without-door' });
-  return { findings, items };
+  return { findings, items: layOnce(items) };
 }
 
 const results = [];

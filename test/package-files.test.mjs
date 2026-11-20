@@ -58,3 +58,18 @@ test('no tool row places one package folder twice', () => {
   }
   assert.deepEqual(twice, [], 'a package folder is placed twice: the walk must skip a package the row already places (tool-row-imports.mjs `placed`)');
 });
+
+test('every place a row is laid out with is laid once: no path again, and none inside a folder the row already lays', () => {
+  // The engine never replaces a file it laid (container.rs copy_file) and lays them read-only, so a second copy stops every run
+  // of the row; on Nov 19 2026 at 6:55 PM CST every workflow run on the Mac failed this way.
+  const rows = JSON.parse(readFileSync(join(repo, PACKAGE_FILES), 'utf8'));
+  const twice = [];
+  for (const [row, items] of Object.entries(rows)) {
+    const places = items.flatMap(item => (item.paths ?? []).map(rel => (rel === '.' ? item.at : `${item.at.replace(/\/$/, '')}/${rel}`)));
+    const sorted = [...places].sort();
+    for (let i = 1; i < sorted.length; i += 1) {
+      if (sorted[i] === sorted[i - 1] || sorted.slice(0, i).some(other => sorted[i].startsWith(`${other}/`))) twice.push(`${row}: ${sorted[i]}`);
+    }
+  }
+  assert.deepEqual(twice.slice(0, 20), [], 'a row lays one place twice: drop the later path (test-helpers/tool-row-imports.mjs layOnce)');
+});
