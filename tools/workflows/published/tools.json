@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:7f651317ca929f80b48fb46bd1ed0d330a0df13d83a5424bdae50175efa30900"
+  "blake3": "1f:37a10e003b524860ef69cc243b56c59ce9dd2eb7128ef787bdc0724daa7b00af"
  },
  "fields": [
   {
@@ -623,7 +623,7 @@
    "values": {
     "title": "Approve a post",
     "job": "Check a drafted post is approved exactly as it was reviewed and answer the approved post row to keep",
-    "description": "Give post_id and expected_values (the complete approval_values of the post as it was reviewed); expected_values is required, and approval is refused when its words, file, destinations or time changed since. A post going nowhere yet is refused. approved_by names who approved it. Returns post, said and the approved post row to store under `keep`. Give records: the post.",
+    "description": "Give post_id and expected_values (the complete approval_values of the post as it was reviewed); expected_values is required, and approval is refused when its words, file, destinations or time changed since. A post going nowhere yet is refused. approved_by names who approved it. Returns post, said and the approved post row to store under `keep`. Give records: the post. Give database to approve in that pursuit database: the post and the person's approval setting are read there and the answer is kept there, so no caller can carry an auto setting in.",
     "status": "active",
     "maker": "maker:social-posts",
     "licence_class": "licence:maker-own",
@@ -2758,6 +2758,21 @@
    }
   },
   {
+   "id": "tool:correct-source-identity",
+   "values": {
+    "title": "Correct a message decision that names another app's chat",
+    "job": "Point a saved message decision back at its original chat, and keep what it replaced",
+    "description": "Rewrites a message decision's reason, next action, success measure and move to continue its handoff in the original chat it came from. The caller reads the kept person message, its source chat and the handoff by SQL and hands them in as facts, with the agent name the handoff must carry: the message must be the person's and in that chat, the handoff must have arrived from that message, and the decision must be an act that names another app. The replaced decision moves to decision_history and the generation rises by one; an exact repeat answers already_corrected and writes nothing. Any mismatch is refused and nothing is written. Its records are handed in as records and what changed comes back as keep.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
+   }
+  },
+  {
    "id": "tool:cost-measurement-ledger",
    "values": {
     "title": "Check and total cost measurements",
@@ -3031,6 +3046,21 @@
    }
   },
   {
+   "id": "tool:decide-what-a-said-done-answer-means",
+   "values": {
+    "title": "Decide what a said-done answer means",
+    "job": "Given one ask and the classifier's answer, say whether the row is settled, left alone, or handed to the AIs",
+    "description": "Pure. probability at or above 0.7 gives verdict done with the settle values; below 0.35 gives not_said and nothing else; between them, or with no answer (null), gives unsure or no_classifier with the hand-off job, once per message and row. The thresholds are DATA in src/said-done.json. It settles and hands off nothing.",
+    "status": "active",
+    "maker": "maker:close-a-list-row-when-i-say",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "close-a-list-row-when-i-say"
+   }
+  },
+  {
    "id": "tool:delete-a-mail-draft",
    "values": {
     "title": "Delete a draft",
@@ -3283,6 +3313,22 @@
    }
   },
   {
+   "id": "tool:edit-local-image",
+   "values": {
+    "title": "Edit an image locally",
+    "job": "Edit an image from your files using an image editing brief and your chosen local model",
+    "description": "Runs MFLUX on your Apple Silicon Mac through its public, MIT-licensed MCP server. Uses your computer for inference. The selected model is explicit; no paid provider or hosted inference fallback. First use downloads that model. Returns the completed PNG in your files.",
+    "status": "active",
+    "maker": "maker:media-composition",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-11T08:48:59.647Z",
+    "folder": "media-composition"
+   }
+  },
+  {
    "id": "tool:end-a-decision",
    "values": {
     "title": "End decisions no one will carry on",
@@ -3381,7 +3427,7 @@
    "values": {
     "title": "Evaluate a formula over rows",
     "job": "Evaluate a formula over each row of a list: read a value from the row, then run a pipeline of steps (and, or, not, equals, more than, less than, is in a list, position in a list, lower-case, contains, starts with, join, is empty, is unknown) over it",
-    "description": "Takes a binding (select from the row at a path, or a stated literal, then a transform list of { op, args }; an argument may itself be a binding evaluated over the value the step receives) and rows. Answers one value per row, in order, and the rows that could not be evaluated with the reason (a step given a value of the wrong kind, or a step that is not supported). Three-state logic: and, or and not answer true, false or unknown, and a comparison with an unknown side is unknown. Nothing outside the row is read.",
+    "description": "Takes a binding (select from the row at a path, or a stated literal, then a transform list of { op, args }; an argument may itself be a binding evaluated over the value the step receives) and rows, or the formula written as text instead of the binding (=price * quantity, IF(@.done, \"yes\", \"no\"), FILTER(items, |x| => x.age > 3); the functions are the rows of rules/text-formulas.json), which the engine compiles into the binding it means. Answers one value per row, in order, and the rows that could not be evaluated with the reason (a step given a value of the wrong kind, or a step that is not supported). Three-state logic: and, or and not answer true, false or unknown, and a comparison with an unknown side is unknown. Nothing outside the row is read.",
     "status": "active",
     "maker": "maker:formula-engine",
     "licence_class": "licence:maker-own",
@@ -4415,6 +4461,22 @@
    }
   },
   {
+   "id": "tool:generate-local-image",
+   "values": {
+    "title": "Generate an image locally",
+    "job": "Generate an original image from a visual brief with your chosen local image model, for an article hero, thumbnail or illustration",
+    "description": "Runs MFLUX on your Apple Silicon Mac through its public, MIT-licensed MCP server. Uses your computer for inference. The selected model is explicit; no paid provider or hosted inference fallback. First use downloads that model. Returns the completed PNG in your files.",
+    "status": "active",
+    "maker": "maker:media-composition",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-11T08:48:59.646Z",
+    "folder": "media-composition"
+   }
+  },
+  {
    "id": "tool:generate-speech",
    "values": {
     "title": "Make speech from text with a provider command (runs on your computer)",
@@ -4944,6 +5006,21 @@
     "title": "Hear a recording another of my devices made",
     "job": "Hear a recording one of my other devices made and tell me each person's turn in it as that device heard it",
     "description": "Reads a recording one of the person's other devices made (`file`, its name or identity in the person's files) from the bytes handed in as stored.files into the run's own folder, hears it on this computer with the Whisper model the person names, names each turn from the voices people enrolled (`voice_prints`; tool:enrol-a-voice-or-face), and answers one heard row per turn as tool:listen-for-a-while does, with `device` as the device and times counted from `at` (when the device began recording; now when left out). It keeps nothing: it writes no row and no file, so the person's AI takes the `heard` rows from the answer and keeps them where it chooses. The same `listening` name continues an earlier listening's unknown voices when the last answer's `voice_session` is handed back as `voice_session`. The person's recording rules and `listening_switch` are asked as for a live listening. The copy read for hearing is deleted once heard; the person's file is left where it is. Every answer lists what leaves this computer and what stays.",
+    "status": "active",
+    "maker": "maker:listen-for-a-while",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "listen-for-a-while"
+   }
+  },
+  {
+   "id": "tool:hear-sources",
+   "values": {
+    "title": "Hear one call's sources",
+    "job": "Hear each source recording of one call on its own with a Whisper model on this computer and get the words back in time order, labelled by source",
+    "description": "The old tool:hear-sources (computer/mac-tools.json:241-244 at b7dc53d08a). Hears each recording handed in (`sources: [{ source, path }]`, where source is a row of the hearing-sources DATA: microphone or system-audio) on its own, with the ggml Whisper model the person names (`model_path`), and answers the words in time order labelled by their source row (`me` marks the person's own voice). The whisper-cli and ffmpeg programs are the ones named (`whisper_cli`, `ffmpeg`), else the ones on PATH. `at` is when the call began (a time; the words count from it). It records the session (the program's id, the flags, the sources, a content id) in the session file of the hearing-sources DATA and answers it. It keeps no recording: each copy it writes beside a source is removed once heard, and the person's files are left where they are.",
     "status": "active",
     "maker": "maker:listen-for-a-while",
     "licence_class": "licence:permissive",
@@ -5495,6 +5572,21 @@
    }
   },
   {
+   "id": "tool:keep-the-shared-checkout-current",
+   "values": {
+    "title": "Keep the shared Workshop checkout on origin/main",
+    "job": "Every five minutes, bring the shared Workshop checkout on this computer up to origin/main, keeping every file someone is changing, every untracked file, and every commit not on origin, and saving the whole working state on a local rescue ref first.",
+    "description": "One pass over the granted checkout (--root). It refuses, touching nothing, when the checkout is not on branch main, when .git/index.lock exists, when a merge, rebase, cherry-pick or revert is in progress, or when git fetch fails. Otherwise it saves the whole working state (tracked changes, untracked files, and commits not on origin/main) as a local refs/rescue/workshop-shared-<time> commit that is never pushed, then keeps every path whose bytes differ from both HEAD and origin, and every path changed in the last 120 seconds, skips the clean ones changed in the last 120 seconds until the next pass, moves HEAD and the index to origin/main with git reset --mixed, writes origin's bytes over the clean paths, and moves the clean paths origin deleted into the Trash. It never deletes a file and never runs git reset --hard, git clean or git push. Returns outcome (ran, refused or stopped), behind_before and behind_after, the rescue_ref, local_commits, updated, trashed, kept and skipped (each with why).",
+    "status": "active",
+    "maker": "maker:keep-the-shared-checkout-current",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-the-shared-checkout-current"
+   }
+  },
+  {
    "id": "tool:keep-the-words-a-person-gave",
    "values": {
     "title": "Keep the words a person gave",
@@ -5943,6 +6035,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:list-my-automations",
+   "values": {
+    "title": "List my automations",
+    "job": "Show everything my account does by itself on the signed-in page: each trigger, schedule and kept-running program with what sets it off in plain words, what it does, whether it is on, its last run and a switch, each workflow with the words of the conditions it fires on, and one of them opened as a when-then graph with the input of what it runs",
+    "description": "Give wakes (the rows wake:list answers), optionally recipes (my workflow rows; fields kept as JSON text are read back), tools (descriptors of the tools the wakes run: id, label, input_schema) and open (an id the list gave). Returns automations (id, open_id, kind trigger|schedule|running, name, when, does, starts, enabled, state, red, last_run_at, last_problem, switch), workflows (workflow_id, label, job, steps, fires_when words, enabled) and counts of red, on and off; with open, that one automation or workflow: says, does, then, input_schema, last_run and graph {steps, edges}. Reads only; the switch is the engine's wake:switch.",
+    "status": "active",
+    "maker": "maker:show-my-automations-on-the-signed-in-page-what-sets",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "show-my-automations-on-the-signed-in-page-what-sets"
    }
   },
   {
@@ -7065,7 +7172,7 @@
    "values": {
     "title": "Measure how much of a checklist is done",
     "job": "See how much of a packing list or other checklist is done and group its items, for example by category",
-    "description": "Give the items (id, status, and optionally group) and which statuses mean done and which statuses leave the count (an item no longer needed). Returns how many counted items are done, how many are counted, the share done (0 when nothing is counted), and the items grouped by their group with a count and a done count for each. An item with no group goes under ungrouped_label (default uncategorized). Both status lists must be given, and may be empty. An item with no id is refused.",
+    "description": "Give the items (id, status, and optionally group) and which statuses mean done and which statuses leave the count (an item no longer needed). Returns how many counted items are done, how many are counted, the share done (0 when nothing is counted), and the items grouped by their group with a count and a done count for each. An item with no group goes under ungrouped_label (default uncategorized). Both status lists must be given, and may be empty. An item with no id is refused. Optionally give containers (id, label, parent) and name each item's container: the answer then holds container_paths, each item's bag path from the outermost bag in. Optionally give what an item waits on, as depends_on (item ids) on the item or as a dependencies list of { item, depends_on, reason }: the answer then holds blocked, each not-done item that waits on something not done, with what it waits on and the reasons. A thing waited on that is not in the list counts as not done. Without these the answer is unchanged.",
     "status": "active",
     "maker": "maker:plan-trips",
     "licence_class": "licence:maker-own",
@@ -7555,6 +7662,21 @@
      "placement:small-container"
     ],
     "folder": "name-my-next-commitment"
+   }
+  },
+  {
+   "id": "tool:name-the-open-rows-a-message-names",
+   "values": {
+    "title": "Name the open rows a message names",
+    "job": "Given the person's own message and the open list rows it names, make the classifier question for each row, with the settle values and the hand-off words",
+    "description": "Pure. Takes the message and the open rows the caller read (each with its list and settling field). Refuses AI words, someone else's words and history brought in (brought_in true) by returning no asks. Each ask carries its question (state and questions for the classifier), the values a settle would write, and the words a hand-off needs. It asks nothing and settles nothing.",
+    "status": "active",
+    "maker": "maker:close-a-list-row-when-i-say",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "close-a-list-row-when-i-say"
    }
   },
   {
@@ -8285,6 +8407,22 @@
    }
   },
   {
+   "id": "tool:plan-storage-release",
+   "values": {
+    "title": "What leaves when, by my release rules",
+    "job": "Say which deleted items give their storage back now and when every other one will, by the person's own release rules and keep-for, for the items the AI read",
+    "description": "items are what list_recently_deleted answered, each with byte_length (the bytes of its names); kept_bytes is the bytes the person's files use now (files_summary bytes); now is the ISO time to judge at (left out: now). rules, if given, decide this run only and are not saved; left out, the person's saved rules (setting:release_rules, handed in as stored) decide. Answers now (ids that leave now), items (each with leaves_at, because: a rule id or keep-for, and when_storage_above), leaving (bytes per day for the next days), kept_after, the rules and what a rule can name. It changes nothing: to give the storage back, forget those items for good and run the files tool's queue_release and release_gone_bytes.",
+    "status": "active",
+    "maker": "maker:set-storage-release-rules",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-19T00:00:00Z",
+    "folder": "set-storage-release-rules"
+   }
+  },
+  {
    "id": "tool:plan-the-address-a-live-camera-streams-to",
    "values": {
     "title": "Plan the address a live camera streams to",
@@ -8415,6 +8553,21 @@
      "placement:your-computer"
     ],
     "folder": "motion-film-template"
+   }
+  },
+  {
+   "id": "tool:prepare-a-match-pick-record",
+   "values": {
+    "title": "Prepare a match pick prompt, a pick or a result to keep",
+    "job": "Make the record for a free match pick prompt (a label and two or more choices), one person's pick, or a match's result, checked and trimmed, with a new id and the time, ready to keep",
+    "description": "Give what (prompt, pick or result) and that record's fields. prompt: label, choices as [{ choiceId, label }] (at least two, each with its own id), startsAt?, matchId?. pick: matchId, pickerId, choiceId, pickId?. result: matchId, winningChoiceId, summary, resultId?. An id you leave out is made new; now is the time to stamp (else the clock). Give banned_terms (the person's own list) to refuse a prompt label, a choice label or a result summary that uses one of them. Returns { id, record }: the record to keep in the person's own store, in the shape tool:tally-match-picks reads. Nothing is written here. Refuses a missing field, a choice id given twice, an unknown what or a time that is not a time, saying which.",
+    "status": "active",
+    "maker": "maker:match-picks",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "match-picks"
    }
   },
   {
@@ -9750,6 +9903,24 @@
    }
   },
   {
+   "id": "tool:read-pane-and-feel-settings",
+   "values": {
+    "title": "Read the Panes and Feel settings",
+    "job": "Show the Panes settings (how panes size and snap, with the rows a person edits) and the Feel settings (each moment and the feel it plays on touch, sound and motion)",
+    "description": "Reads the starting pane sizes and their settings rows from tools/arrange-screens-in-panes/pane-sizes.json and the feels from tools/feel/records/feel-moments.json. Refuses a moment that names a feel the DATA does not define. Keeps nothing.",
+    "status": "active",
+    "maker": "maker:arrange-screens-in-panes",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "arrange-screens-in-panes",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:read-peoples-poses-from-a-video",
    "values": {
     "title": "Read where each person's joints are in a video, frame by frame (runs on your computer)",
@@ -9911,6 +10082,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:read-sharing-state",
+   "values": {
+    "title": "Read my sharing and stories",
+    "job": "Say whether my decisions are shared anonymously and my stories published, whether each is my own choice or the default and the day the default began, and how many decisions everyone has shared or published so far",
+    "description": "Give the person stored choices and pool counts: share ({ anonymized: true|false } or null), stories ({ on: true|false } or null), sharedCount (number, or null when the pool could not answer), storyCounts ({ career: n, ... } or null) and storyRows ([{ name: story:<case>, value: { published, id, title, at } }]). Returns sharing { on, chosen, from_day, shared_so_far } and stories { on, chosen, from_day, published_so_far, stories }. A count the pool could not give is null, never zero.",
+    "status": "active",
+    "maker": "maker:read-sharing-state",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "choose-whether-my-decisions-are-shared-show"
    }
   },
   {
@@ -10945,6 +11131,21 @@
    }
   },
   {
+   "id": "tool:retire-a-copied-ai-reply",
+   "values": {
+    "title": "Retire a copied AI reply",
+    "job": "Retire an AI reply a person recorded by hand when the transcript already kept the same reply, and keep the transcript's reply with its links",
+    "description": "Give the copy's id and the reply's id, the evidence, and the rows read from the store ([{ id, type, value }]: the two messages and the thread index row when there is one). Answers the correction under `correction` and the rows that change under `keep` ([{ id, type, value, expected }]) for the caller to store. Nothing is retired unless the copy and the reply have the same text, app and conversation, are within two minutes of each other, and the reply has a source_ref.",
+    "status": "active",
+    "maker": "maker:retire-a-copied-ai-reply",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "retire-a-copied-ai-reply"
+   }
+  },
+  {
    "id": "tool:rewrite-control-bytes-as-escapes",
    "values": {
     "title": "Make a raw control byte in my source files searchable again",
@@ -11126,6 +11327,21 @@
    }
   },
   {
+   "id": "tool:sales-contracts",
+   "values": {
+    "title": "Sales contracts in my database",
+    "job": "Save, list and read sales contracts as rows of a sales_contracts table in one of my pursuit databases",
+    "description": "Saves a sales contract (contract with a name and optional primitives), lists one page of them newest first, or reads one by contract_id, in the sales_contracts table of the named pursuit database (the tool makes that table if it is missing). Nothing here fixes a price, a term or a billing period; a removed contract is not read and not revived by a save. Answers the saved or listed contracts with their times, or the database's own error text.",
+    "status": "active",
+    "maker": "maker:build-and-send-a-sales-contract",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "build-and-send-a-sales-contract"
+   }
+  },
+  {
    "id": "tool:sample-shots-and-frames-from-my-format-library",
    "values": {
     "title": "Sample shots and their frames from my format library (runs on your computer)",
@@ -11198,6 +11414,36 @@
      "placement:small-container"
     ],
     "folder": "how-someone-does-their-thing"
+   }
+  },
+  {
+   "id": "tool:save-x-bookmarks",
+   "values": {
+    "title": "Save your X bookmarks to your files",
+    "job": "Keep the posts the person bookmarked on X in their files, newest first, so their AI can use them",
+    "description": "Reads the posts the person bookmarked on X, through the person's X account that Composio holds: Composio's X bookmarks action, run as the person. No X token is kept in the vault for this. It keeps them as one file in their files. Give since (the newest key the last read answered) to read only the new ones; the answer says how many were read, how many are not kept yet, the newest key and the file's name. It reads only: nothing is posted, liked or changed on X.",
+    "status": "active",
+    "maker": "maker:save-what-you-watch-and-read",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "save-what-you-watch-and-read"
+   }
+  },
+  {
+   "id": "tool:save-x-likes",
+   "values": {
+    "title": "Save the posts you liked on X to your files",
+    "job": "Keep the posts the person liked on X in their files, newest first, so their AI can use them",
+    "description": "Reads the posts the person liked on their connected X account through X's API (the reader in save-what-you-watch-and-read) and keeps them as one file in their files. Give since (the newest key the last read answered) to read only the new ones; the answer says how many were read, how many are not kept yet, the newest key and the file's name. It reads only: nothing is posted, liked or changed on X.",
+    "status": "active",
+    "maker": "maker:save-what-you-watch-and-read",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "save-what-you-watch-and-read"
    }
   },
   {
@@ -11277,6 +11523,21 @@
      "placement:your-computer"
     ],
     "folder": "compare-voice-and-music-models"
+   }
+  },
+  {
+   "id": "tool:say-what-got-worse",
+   "values": {
+    "title": "Say what got worse since the last reading",
+    "job": "Compare a reading with the one before it (this day and the day before, this week and last) and say which numbers got worse, so a schedule tells the person only when something did",
+    "description": "Give measures, each { label, now, before, worse_when: \"higher\" or \"lower\" }. now and before are a number, a list of numbers (added up) or a list of items: value is the path to each item's number and key the path to its name, so a total also says which parts moved. missing: \"zero\" counts nothing found as none (for counts); otherwise a side that was not read is left uncompared. at_least is the smallest change that counts, scale divides both before they are shown (1000000 for microseconds to seconds) and unit is shown after each number. Returns worse (true when any measure got worse), measures (each with now, before, change, worse and the parts that moved), lines and said, the reading in words. Use it in a workflow after a tool that reads two periods, with an edge on worse to tool:tell-the-person.",
+    "status": "active",
+    "maker": "maker:run-rules-and-schedules-by-themselves",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:this-account"
+    ],
+    "folder": "run-rules-and-schedules-by-themselves"
    }
   },
   {
@@ -12249,6 +12510,22 @@
      "placement:small-container"
     ],
     "folder": "field-values"
+   }
+  },
+  {
+   "id": "tool:set-release-rules",
+   "values": {
+    "title": "Change when deleted files give back storage",
+    "job": "Change the rules that give back the storage of deleted files sooner than keep-for: by where it was, kind, size, days since deleted, or while storage is above a size",
+    "description": "rules replaces the whole list; each is { id, label, on, when, after_days, storage_above_bytes, order }. when is a formula-engine rule tree over label (text), kind (choice), where (choice), size (bytes), days_deleted (number), state (choice), by (choice), count (number), or null for everything; after_days gives matching items back that many days after they were deleted; storage_above_bytes gives matching items back (order oldest or largest) while the files kept are above that many bytes. Keep-for stays the longest anything waits. Left out, nothing changes. Your AI reads your setting:release_rules and hands it in as stored; the answer's keep is the new setting for it to keep. Answers the rules now in force and what a rule can name.",
+    "status": "active",
+    "maker": "maker:set-storage-release-rules",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-19T00:00:00Z",
+    "folder": "set-storage-release-rules"
    }
   },
   {

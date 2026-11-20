@@ -2623,9 +2623,17 @@
   {
    "package": "social-posts",
    "paths": [
+    "do-work",
     "read-data"
    ],
    "at": "/opt/social-posts"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -2672,11 +2680,96 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "read-data/role-recipes.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "social-posts",
@@ -3218,11 +3311,34 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "audio-transcription",
+   "paths": [
+    "read-data/hear-here.mjs",
+    "read-data/hear-link-flow.mjs",
+    "read-data/read-link-captions.mjs"
+   ],
+   "at": "/opt/audio-transcription"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "run-on-a-persons-computer",
+   "paths": [
+    "confined-run.mjs"
+   ],
+   "at": "/opt/run-on-a-persons-computer"
   },
   {
    "package": "workflows",
@@ -4579,11 +4695,34 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "audio-transcription",
+   "paths": [
+    "read-data/hear-here.mjs",
+    "read-data/hear-link-flow.mjs",
+    "read-data/read-link-captions.mjs"
+   ],
+   "at": "/opt/audio-transcription"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "run-on-a-persons-computer",
+   "paths": [
+    "confined-run.mjs"
+   ],
+   "at": "/opt/run-on-a-persons-computer"
   },
   {
    "package": "workflows",
@@ -8888,6 +9027,133 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:correct-source-identity": [
+  {
+   "package": "decide-with-a-method",
+   "paths": [
+    "read-data",
+    "method-rows"
+   ],
+   "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/branch.mjs"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "learn-from-everyones-results",
+   "paths": [
+    "read-data/plain-privacy-pass.mjs"
+   ],
+   "at": "/opt/learn-from-everyones-results"
+  },
+  {
+   "package": "ask-a-small-model-for-a-verdict",
+   "paths": [
+    "do-work/ask-a-hosted-classifier.mjs",
+    "do-work/ask-a-locally-served-model.mjs",
+    "do-work/ask-for-a-verdict.mjs",
+    "do-work/fresh-local-classifier-fetch.mjs",
+    "do-work/judge-content.mjs",
+    "do-work/who-can-be-asked.mjs"
+   ],
+   "at": "/opt/ask-a-small-model-for-a-verdict"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/branch-core.mjs"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "learn-from-everyones-results",
+   "paths": [
+    "read-data/plain-privacy-pass.json"
+   ],
+   "at": "/opt/learn-from-everyones-results"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:cost-measurement-ledger": [
   {
    "package": "workflows",
@@ -10058,6 +10324,16 @@
     "read-data/paste-policy.json"
    ],
    "at": "/opt/messages-screen"
+  }
+ ],
+ "tool:decide-what-a-said-done-answer-means": [
+  {
+   "package": "close-a-list-row-when-i-say",
+   "paths": [
+    "do-work",
+    "src"
+   ],
+   "at": "/opt/close-a-list-row-when-i-say"
   }
  ],
  "tool:delete-a-mail-draft": [
@@ -13476,6 +13752,13 @@
     "quiet-switches.json"
    ],
    "at": "/opt/headless-browser"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   }
  ],
  "tool:find-nearest-places": [
@@ -16037,7 +16320,7 @@
    "at": "/opt/workflows"
   }
  ],
- "tool:hear-sources": [
+ "tool:hear-for-a-device": [
   {
    "package": "listen-for-a-while",
    "paths": [
@@ -16228,7 +16511,7 @@
    "at": "/opt/workflows"
   }
  ],
- "tool:hear-for-a-device": [
+ "tool:hear-sources": [
   {
    "package": "listen-for-a-while",
    "paths": [
@@ -18603,6 +18886,15 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:keep-the-shared-checkout-current": [
+  {
+   "package": "keep-the-shared-checkout-current",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/keep-the-shared-checkout-current"
   }
  ],
  "tool:keep-the-words-a-person-gave": [
@@ -24964,11 +25256,34 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "audio-transcription",
+   "paths": [
+    "read-data/hear-here.mjs",
+    "read-data/hear-link-flow.mjs",
+    "read-data/read-link-captions.mjs"
+   ],
+   "at": "/opt/audio-transcription"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "run-on-a-persons-computer",
+   "paths": [
+    "confined-run.mjs"
+   ],
+   "at": "/opt/run-on-a-persons-computer"
   },
   {
    "package": "workflows",
@@ -25139,6 +25454,16 @@
     "read-data"
    ],
    "at": "/opt/name-my-next-commitment"
+  }
+ ],
+ "tool:name-the-open-rows-a-message-names": [
+  {
+   "package": "close-a-list-row-when-i-say",
+   "paths": [
+    "do-work",
+    "src"
+   ],
+   "at": "/opt/close-a-list-row-when-i-say"
   }
  ],
  "tool:name-voices-from-the-call": [
@@ -33599,6 +33924,13 @@
     "quiet-switches.json"
    ],
    "at": "/opt/headless-browser"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   }
  ],
  "tool:read-my-signal-messages-on-this-computer": [
@@ -33844,6 +34176,44 @@
     "do-work/run-a-function.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
   }
  ],
  "tool:read-peoples-poses-from-a-video": [],
@@ -39115,6 +39485,13 @@
     "split2"
    ],
    "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "build-and-send-a-sales-contract",
+   "paths": [
+    "sales-contract-builder.json"
+   ],
+   "at": "/opt/build-and-send-a-sales-contract"
   }
  ],
  "tool:sample-shots-and-frames-from-my-format-library": [],
@@ -39408,6 +39785,52 @@
     "read-data"
    ],
    "at": "/opt/how-someone-does-their-thing"
+  }
+ ],
+ "tool:save-x-bookmarks": [
+  {
+   "package": "save-what-you-watch-and-read",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/save-what-you-watch-and-read"
+  },
+  {
+   "package": "headless-browser",
+   "paths": [
+    "quiet-switches.json"
+   ],
+   "at": "/opt/headless-browser"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/composio-connection"
+  }
+ ],
+ "tool:save-x-likes": [
+  {
+   "package": "save-what-you-watch-and-read",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/save-what-you-watch-and-read"
+  },
+  {
+   "package": "headless-browser",
+   "paths": [
+    "quiet-switches.json"
+   ],
+   "at": "/opt/headless-browser"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   }
  ],
  "tool:say-a-narration-line-in-a-cloned-voice-model": [],
@@ -50005,175 +50428,5 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": [],
- "tool:name-the-open-rows-a-message-names": [
-  {
-   "package": "close-a-list-row-when-i-say",
-   "paths": [
-    "do-work",
-    "src"
-   ],
-   "at": "/opt/close-a-list-row-when-i-say"
-  }
- ],
- "tool:decide-what-a-said-done-answer-means": [
-  {
-   "package": "close-a-list-row-when-i-say",
-   "paths": [
-    "do-work",
-    "src"
-   ],
-   "at": "/opt/close-a-list-row-when-i-say"
-  }
- ],
- "tool:save-x-bookmarks": [
-  {
-   "package": "save-what-you-watch-and-read",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/save-what-you-watch-and-read"
-  },
-  {
-   "package": "headless-browser",
-   "paths": [
-    "quiet-switches.json"
-   ],
-   "at": "/opt/headless-browser"
-  },
-  {
-   "package": "composio-connection",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/composio-connection"
-  }
- ],
- "tool:correct-source-identity": [
-  {
-   "package": "decide-with-a-method",
-   "paths": [
-    "read-data",
-    "method-rows"
-   ],
-   "at": "/opt/decide-with-a-method"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "rules",
-    "built-stored-bytes/formula-engine"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "check-against-a-persons-rules-and-verdicts",
-   "paths": [
-    "do-work/branch.mjs"
-   ],
-   "at": "/opt/check-against-a-persons-rules-and-verdicts"
-  },
-  {
-   "package": "records-door",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/records-door"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "learn-from-everyones-results",
-   "paths": [
-    "read-data/plain-privacy-pass.mjs"
-   ],
-   "at": "/opt/learn-from-everyones-results"
-  },
-  {
-   "package": "ask-a-small-model-for-a-verdict",
-   "paths": [
-    "do-work/ask-a-hosted-classifier.mjs",
-    "do-work/ask-a-locally-served-model.mjs",
-    "do-work/ask-for-a-verdict.mjs",
-    "do-work/fresh-local-classifier-fetch.mjs",
-    "do-work/judge-content.mjs",
-    "do-work/who-can-be-asked.mjs"
-   ],
-   "at": "/opt/ask-a-small-model-for-a-verdict"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "check-against-a-persons-rules-and-verdicts",
-   "paths": [
-    "do-work/branch-core.mjs"
-   ],
-   "at": "/opt/check-against-a-persons-rules-and-verdicts"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/formula-engine/formula_engine.js",
-    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
-   ],
-   "at": "/opt/formula-engine"
-  },
-  {
-   "package": "learn-from-everyones-results",
-   "paths": [
-    "read-data/plain-privacy-pass.json"
-   ],
-   "at": "/opt/learn-from-everyones-results"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
-   ],
-   "at": "/opt/workflows"
-  }
- ]
+ "tool:your-files-names": []
 }

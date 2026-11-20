@@ -37,7 +37,7 @@
 
 import React from 'react';
 import kindsData from './notification-kinds.json';
-import waitingOnYou from '../../../../src/waiting-on-you.json';
+import waitingOnYou from '../../../workspace-screens/web/src/waiting-on-you.json';
 import {Button} from '../coss/ui/button';
 import {ShowRuleMenu} from '../show-rules/ShowRuleMenu';
 import {NOTICE_SUBJECT, noticeThing} from './notification-center';

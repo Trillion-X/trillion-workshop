@@ -17,7 +17,7 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import firstAnswers from '../../../../src/workspace/first-answers.json' with { type: 'json' };
+import firstAnswers from '../../../workspace-screens/web/src/workspace/first-answers.json' with { type: 'json' };
 
 /** This device's storage for the page, or null where the page may not use any. */
 export function pageStorage(): Storage | null {
