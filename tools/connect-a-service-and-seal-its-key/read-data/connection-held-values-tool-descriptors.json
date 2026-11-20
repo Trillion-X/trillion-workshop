@@ -1,0 +1,266 @@
+{
+  "kind": "package-set-records",
+  "record_set": "connection-held-values-tool-descriptors",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::tool::list-connections",
+      "address": "package::ai-tool-catalog::tool::list-connections",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-connections",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "List connections",
+        "job": "List the services this account is connected to, with each connection's status and when it was last checked",
+        "description": "List the services this account is connected to, with each connection's status and when it was last checked",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [],
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "list"
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::service-connections"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::check-connection",
+      "address": "package::ai-tool-catalog::tool::check-connection",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-connection",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "Check a connection",
+        "job": "Check that a connected service still accepts this account's stored key",
+        "description": "Check that a connected service still accepts this account's stored key",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "connection_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "connection_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The connection's id, as list-connections shows it."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "check"
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::service-connections"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::rename-connection",
+      "address": "package::ai-tool-catalog::tool::rename-connection",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:rename-connection",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "Rename a connection",
+        "job": "Give a connected account a different name",
+        "description": "Give a connected account a different name",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "connection_id",
+            "account_label"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "connection_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The connection's id, as list-connections shows it."
+            },
+            "account_label": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "rename"
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::service-connections"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::set-connection-details",
+      "address": "package::ai-tool-catalog::tool::set-connection-details",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:set-connection-details",
+        "listed_on": "2026-10-05T07:00:00Z",
+        "label": "Set a connection detail",
+        "job": "Set a detail of a connected account that is not secret, such as its account ID or site address, without giving its key again",
+        "description": "Set a detail of a connected account that is not secret, such as its account ID or site address, without giving its key again. The key is checked again afterwards.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "connection_id",
+            "values"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "connection_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The connection's id, as list-connections shows it."
+            },
+            "values": {
+              "type": "object",
+              "description": "One value per detail, keyed by the field id (for example { \"account_id\": \"...\" }). Secret fields are set with replace-connection-value."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "details"
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::service-connections"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::replace-connection-value",
+      "address": "package::ai-tool-catalog::tool::replace-connection-value",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:replace-connection-value",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "Replace a connection's key",
+        "job": "Replace the key a connection uses, for example after the service issued a new one",
+        "description": "Replace the key a connection uses, for example after the service issued a new one",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "connection_id",
+            "values"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "connection_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The connection's id, as list-connections shows it."
+            },
+            "values": {
+              "type": "object",
+              "writeOnly": true,
+              "description": "One value per credential field, keyed by the field's id."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "replace"
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::service-connections"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::disconnect-service",
+      "address": "package::ai-tool-catalog::tool::disconnect-service",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:disconnect-service",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "Disconnect a service",
+        "job": "Disconnect a service and remove its stored key from this account",
+        "description": "Disconnect a service and remove its stored key from this account",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "connection_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "connection_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The connection's id, as list-connections shows it."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "disconnect"
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::service-connections"
+        }
+      }
+    }
+  ]
+}

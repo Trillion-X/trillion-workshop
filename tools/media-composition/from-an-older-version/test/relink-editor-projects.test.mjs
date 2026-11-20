@@ -10,7 +10,7 @@ import { join, relative } from 'node:path';
 import zlib from 'node:zlib';
 import { checkedMoves, relinkEditorProjects, relinkPremiereProjects, rewriteProjectXml } from 'trillion-workshop/tools/media-composition/do-work/relink-editor-projects.mjs';
 import { rowsFromList, recordsList } from 'trillion-workshop/tools/ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs';
-import toolSources from '../../../connect-a-service-and-seal-its-key/from-an-older-version/records/workshop-tool-records.json' with { type: 'json' };
+import toolSources from '../../read-data/media-composition-tool-row-source.json' with { type: 'json' };
 import licences from 'trillion-workshop/licence-classes.json' with { type: 'json' };
 
 const SCRIPT = new URL(import.meta.resolve('trillion-workshop/tools/media-composition/do-work/relink-editor-projects.mjs')).pathname;

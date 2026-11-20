@@ -1,0 +1,96 @@
+{
+  "kind": "package-set-records",
+  "record_set": "hosted-site-tool-descriptors",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::tool::set-up-hosted-site",
+      "address": "package::ai-tool-catalog::tool::set-up-hosted-site",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:set-up-hosted-site",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "Set up a hosted site",
+        "job": "Set up a hosted publishing site with its owner and connect this account to it, so posts can be written and published on it",
+        "description": "Runs the site's first-run setup inside its own container (the owner's name, email and the site title), then connects this account to the site; the site's admin key goes straight into this account's locked box and is never shown.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "site_id",
+            "owner_name",
+            "owner_email",
+            "title"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "site_id": {
+              "type": "string",
+              "description": "Which hosted site, e.g. site:newsletter"
+            },
+            "owner_name": {
+              "type": "string",
+              "x-free-text-because": "The site owner name for the hosted site first-run setup, written there as they want it to read."
+            },
+            "owner_email": {
+              "type": "string",
+              "format": "email"
+            },
+            "title": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "connected",
+            "site_url"
+          ]
+        },
+        "verify": [
+          {
+            "kind": "output-contains",
+            "output_selector": "$.connected",
+            "text": "true"
+          }
+        ],
+        "invoke": {
+          "kind": "hosted-service",
+          "operation": "set-up"
+        },
+        "needs": {
+          "expected_seconds": 60
+        },
+        "licence_class": "licence:permissive",
+        "placements": [
+          "placement:hosted-sites"
+        ],
+        "provenance": {
+          "repository": "https://github.com/TryGhost/Ghost",
+          "licence": "MIT"
+        },
+        "price_ref": "price:hosted-site"
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool-price::hosted-site",
+      "address": "package::ai-tool-catalog::tool-price::hosted-site",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-price",
+        "id": "price:hosted-site",
+        "label": "your own publishing site",
+        "amount_micros": 0,
+        "currency": "usd",
+        "per": "site",
+        "access_ref": "access:hosted-site"
+      }
+    }
+  ]
+}

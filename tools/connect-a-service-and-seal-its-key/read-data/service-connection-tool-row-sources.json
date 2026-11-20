@@ -1,0 +1,401 @@
+{
+  "kind": "package-set-records",
+  "record_set": "service-connection-tool-row-sources",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::tool-row-source::service-connection-descriptors",
+      "address": "package::ai-tool-catalog::tool-row-source::service-connection-descriptors",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-row-source",
+        "id": "source:service-connection-descriptors",
+        "list": {
+          "records": {
+            "package": "service-connections",
+            "kind": "service-connection-descriptor"
+          }
+        },
+        "entry": {
+          "id": "vendor",
+          "label": "name",
+          "job": "instructions",
+          "connect_guide": "connectGuide",
+          "connection": "record_address",
+          "credential_fields": "credentialFields",
+          "verify_request": "verifyRequest",
+          "acquire": "acquire",
+          "domain": "domain",
+          "category": "category",
+          "capabilities": "capabilities",
+          "carried_by": "carriedBy",
+          "helper_links": "helperLinks",
+          "guide_choices": "guideChoices",
+          "sends_from": "sendsFrom"
+        },
+        "id_prefix": "tool:connect-service-",
+        "row": {
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "values"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "values": {
+                "type": "object",
+                "writeOnly": true,
+                "description": "One value per credential field, keyed by the field's id. The values go into this account's locked box and are never stored with the task or shown again.",
+                "x-credential-fields": {
+                  "fill": {
+                    "from": "entry",
+                    "field": "credential_fields"
+                  }
+                }
+              },
+              "account_label": {
+                "type": "string",
+                "description": "A name for this account, when you connect more than one account of the same service."
+              }
+            }
+          },
+          "invoke": {
+            "kind": "held-values",
+            "operation": "connect",
+            "provider": {
+              "fill": {
+                "from": "entry",
+                "field": "id"
+              }
+            },
+            "connects": {
+              "connection": {
+                "fill": {
+                  "from": "entry",
+                  "field": "connection"
+                }
+              },
+              "credential_fields": {
+                "fill": {
+                  "from": "entry",
+                  "field": "credential_fields"
+                }
+              },
+              "verify_request": {
+                "fill": {
+                  "from": "entry",
+                  "field": "verify_request"
+                }
+              },
+              "acquire": {
+                "fill": {
+                  "from": "entry",
+                  "field": "acquire"
+                }
+              },
+              "connect_guide": {
+                "fill": {
+                  "from": "entry",
+                  "field": "connect_guide"
+                }
+              },
+              "domain": {
+                "fill": {
+                  "from": "entry",
+                  "field": "domain"
+                }
+              },
+              "category": {
+                "fill": {
+                  "from": "entry",
+                  "field": "category"
+                }
+              },
+              "capabilities": {
+                "fill": {
+                  "from": "entry",
+                  "field": "capabilities"
+                }
+              },
+              "carried_by": {
+                "fill": {
+                  "from": "entry",
+                  "field": "carried_by"
+                }
+              },
+              "helper_links": {
+                "fill": {
+                  "from": "entry",
+                  "field": "helper_links"
+                }
+              },
+              "guide_choices": {
+                "fill": {
+                  "from": "entry",
+                  "field": "guide_choices"
+                }
+              },
+              "sends_from": {
+                "fill": {
+                  "from": "entry",
+                  "field": "sends_from"
+                }
+              }
+            }
+          },
+          "licence_class": "licence:maker-own",
+          "placements": [
+            "placement:held-values"
+          ],
+          "provenance": {
+            "record": {
+              "fill": {
+                "from": "entry",
+                "field": "connection"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool-row-source::how-to-ask-something-else-to-do-things",
+      "address": "package::ai-tool-catalog::tool-row-source::how-to-ask-something-else-to-do-things",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-row-source",
+        "id": "source:how-to-ask-something-else-to-do-things",
+        "lay_over": [
+          {
+            "where": {
+              "connection_id": "service_connection:ghost"
+            },
+            "row": {
+              "billing": {
+                "payers": [
+                  "trillion-credit"
+                ],
+                "price_micros": 20000,
+                "per": "call",
+                "seller": "platform"
+              }
+            }
+          }
+        ],
+        "list": {
+          "records": {
+            "package": "service-connections",
+            "kind": "how-to-ask-something-else-to-do-things",
+            "each_of": "instrument_requests",
+            "not_carried_into_each": [
+              "notes"
+            ]
+          }
+        },
+        "entry": {
+          "id": "record_name",
+          "job": "notes",
+          "how_to_reach_it": "how_to_reach_it",
+          "connection": "connection_ref",
+          "connection_id": "connection_id",
+          "url": "url",
+          "query": "query",
+          "method": "method",
+          "headers": "headers",
+          "body": "body_template",
+          "body_encoding": "body_encoding",
+          "timeout_ms": "timeout_ms",
+          "credential_injections": "credential_injections",
+          "before_you_have_a_secret": "before_you_have_a_secret",
+          "before_you_can": "before_you_can",
+          "external_effect": "external_effect",
+          "after_it_works": "after_it_works",
+          "required_action": "required_action",
+          "answer_codes_that_mean_it_worked": "answer_codes_that_mean_it_worked",
+          "response_map": "response_map",
+          "status_map": "status_map",
+          "reply_holds_values": "reply_holds_values",
+          "record_address": "record_address",
+          "input_schema": "input_schema",
+          "output_schema": "output_schema",
+          "verify": "verify",
+          "host_is_connection_field": "host_is_connection_field",
+          "reply_cursor_paging": "reply_cursor_paging",
+          "label": "label"
+        },
+        "id_prefix": "tool:",
+        "row": {
+          "invoke": {
+            "kind": {
+              "fill": {
+                "from": "entry",
+                "field": "how_to_reach_it"
+              }
+            },
+            "connection": {
+              "fill": {
+                "from": "entry",
+                "field": "connection"
+              }
+            },
+            "connection_id": {
+              "fill": {
+                "from": "entry",
+                "field": "connection_id"
+              }
+            },
+            "url": {
+              "fill": {
+                "from": "entry",
+                "field": "url"
+              }
+            },
+            "query": {
+              "fill": {
+                "from": "entry",
+                "field": "query"
+              }
+            },
+            "method": {
+              "fill": {
+                "from": "entry",
+                "field": "method"
+              }
+            },
+            "headers": {
+              "fill": {
+                "from": "entry",
+                "field": "headers"
+              }
+            },
+            "body": {
+              "fill": {
+                "from": "entry",
+                "field": "body"
+              }
+            },
+            "body_encoding": {
+              "fill": {
+                "from": "entry",
+                "field": "body_encoding"
+              }
+            },
+            "timeout_ms": {
+              "fill": {
+                "from": "entry",
+                "field": "timeout_ms"
+              }
+            },
+            "credential_injections": {
+              "fill": {
+                "from": "entry",
+                "field": "credential_injections"
+              }
+            },
+            "before_you_have_a_secret": {
+              "fill": {
+                "from": "entry",
+                "field": "before_you_have_a_secret"
+              }
+            },
+            "before_you_can": {
+              "fill": {
+                "from": "entry",
+                "field": "before_you_can"
+              }
+            },
+            "external_effect": {
+              "fill": {
+                "from": "entry",
+                "field": "external_effect"
+              }
+            },
+            "after_it_works": {
+              "fill": {
+                "from": "entry",
+                "field": "after_it_works"
+              }
+            },
+            "required_action": {
+              "fill": {
+                "from": "entry",
+                "field": "required_action"
+              }
+            },
+            "answer_codes_that_mean_it_worked": {
+              "fill": {
+                "from": "entry",
+                "field": "answer_codes_that_mean_it_worked"
+              }
+            },
+            "response_map": {
+              "fill": {
+                "from": "entry",
+                "field": "response_map"
+              }
+            },
+            "status_map": {
+              "fill": {
+                "from": "entry",
+                "field": "status_map"
+              }
+            },
+            "reply_holds_values": {
+              "fill": {
+                "from": "entry",
+                "field": "reply_holds_values"
+              }
+            },
+            "host_is_connection_field": {
+              "fill": {
+                "from": "entry",
+                "field": "host_is_connection_field"
+              }
+            },
+            "reply_cursor_paging": {
+              "fill": {
+                "from": "entry",
+                "field": "reply_cursor_paging"
+              }
+            }
+          },
+          "licence_class": "licence:maker-own",
+          "placements": [
+            "placement:public-web-address"
+          ],
+          "provenance": {
+            "record": {
+              "fill": {
+                "from": "entry",
+                "field": "record_address"
+              }
+            }
+          },
+          "input_schema": {
+            "fill": {
+              "from": "entry",
+              "field": "input_schema"
+            }
+          },
+          "output_schema": {
+            "fill": {
+              "from": "entry",
+              "field": "output_schema"
+            }
+          },
+          "verify": {
+            "fill": {
+              "from": "entry",
+              "field": "verify"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

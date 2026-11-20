@@ -1,0 +1,91 @@
+{
+  "kind": "package-set-records",
+  "record_set": "speech-to-text-tool-descriptor",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::tool::speech-to-text",
+      "address": "package::ai-tool-catalog::tool::speech-to-text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:speech-to-text",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "Speech to text",
+        "job": "Transcribe the speech in an audio or video file into text",
+        "description": "Turns spoken audio at a web address into text with timed segments, using the open Whisper large-v3-turbo speech model.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "audio_url"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "audio_url": {
+              "type": "string",
+              "format": "uri",
+              "description": "A web address that serves the audio file itself (mp3, wav, m4a, ogg, flac or webm), up to 25 MB."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "text"
+          ],
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "invoke": {
+          "kind": "model",
+          "model": "@cf/openai/whisper-large-v3-turbo",
+          "input": {
+            "audio": {
+              "fill": {
+                "from": "input",
+                "field": "audio_url",
+                "fetch": "base64"
+              }
+            }
+          }
+        },
+        "needs": {
+          "max_input_bytes": 25000000,
+          "expected_seconds": 30,
+          "gpu": true,
+          "network_egress": false
+        },
+        "licence_class": "licence:permissive",
+        "placements": [
+          "placement:rented-model-runtime"
+        ],
+        "maker": "maker:openai",
+        "provenance": {
+          "repository": "https://github.com/openai/whisper",
+          "licence": "MIT",
+          "model": "whisper-large-v3-turbo",
+          "served_by": "Cloudflare Workers AI model catalog",
+          "source": "hand-typed seed read from https://developers.cloudflare.com/workers-ai/models/whisper-large-v3-turbo/",
+          "read_on": "2026-09-26"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "audio_url": "https://raw.githubusercontent.com/openai/whisper/main/tests/jfk.flac"
+            },
+            "output_selector": "$.text",
+            "contains": "ask not what your country can do for you"
+          }
+        ]
+      }
+    }
+  ]
+}

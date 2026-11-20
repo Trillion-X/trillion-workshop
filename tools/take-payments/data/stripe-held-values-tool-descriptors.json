@@ -1,0 +1,369 @@
+{
+  "kind": "package-set-records",
+  "record_set": "stripe-held-values-tool-descriptors",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::tool::set-up-paid-plan",
+      "address": "package::ai-tool-catalog::tool::set-up-paid-plan",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:set-up-paid-plan",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "Set up paid plans",
+        "job": "Set up this service's paid plans on its connected Stripe account: one payment link per priced offer, the review codes, the plan page and the payment notices",
+        "description": "Runs only on this service's operator account. Uses the operator's Stripe connection, which the request sender places into each request; Stripe's signing secret for payment notices goes straight into the operator's locked box. Run it again after the offers change.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [],
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "set-up-paid-plan",
+          "connection": "package::service-connections::published-record::stripe",
+          "connection_id": "service_connection:stripe",
+          "credential_injections": [
+            {
+              "field_id": "secret_key",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ]
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::stripe-payment-provider"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::give-referral-credit",
+      "address": "package::ai-tool-catalog::tool::give-referral-credit",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:give-referral-credit",
+        "listed_on": "2026-09-29T20:49:58Z",
+        "label": "Give a referral free month",
+        "job": "Give one person a free month of their plan as credit on this service's Stripe account, because someone who joined with their link started paying",
+        "description": "Runs only on this service's operator account, started by the payment notice that makes a referral reward owed (src/payment.mjs rewardReferrals). Uses the operator's Stripe connection; the reward's idempotency key is Stripe's, so the same reward is never credited twice.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "subscription_id",
+            "amount_cents",
+            "currency",
+            "idempotency_key"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "subscription_id": {
+              "type": "string",
+              "description": "The referrer's subscription; the credit goes on the Stripe customer it bills"
+            },
+            "amount_cents": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "The credit, in cents"
+            },
+            "currency": {
+              "type": "string",
+              "description": "Three-letter currency of the plan"
+            },
+            "idempotency_key": {
+              "type": "string",
+              "description": "One key per reward, so it is credited once"
+            },
+            "description": {
+              "type": "string",
+              "description": "The line the customer reads on the credit; a referral's words when left out"
+            },
+            "reason": {
+              "type": "string",
+              "description": "Why the credit is given (referral, first-month), kept on it"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "give-referral-credit",
+          "connection": "package::service-connections::published-record::stripe",
+          "connection_id": "service_connection:stripe",
+          "credential_injections": [
+            {
+              "field_id": "secret_key",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ],
+          "external_effect": {
+            "kind": "charge",
+            "what": "a credit on a person's Stripe bill"
+          }
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::stripe-payment-provider"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::meter-plan-usage",
+      "address": "package::ai-tool-catalog::tool::meter-plan-usage",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:meter-plan-usage",
+        "listed_on": "2026-10-03T12:00:00Z",
+        "label": "Count what a plan charges by use",
+        "job": "Add a paid plan's counted prices (storage above what it includes) to a person's subscription on this service's Stripe account, and send each day's count of what they keep above it",
+        "description": "Runs only on this service's operator account. A paid checkout or renewal starts it to add the plan's counted prices to the subscription (src/payment.mjs startPlanUsage); each paying account's store starts it once a day with that day's count (src/plan-usage.mjs). Uses the operator's Stripe connection; nothing is counted while the subscription is in its free trial or after it ends, and each day's count carries its own identifier so it is counted once.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "subscription_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "subscription_id": {
+              "type": "string",
+              "description": "The subscription the counted prices are on"
+            },
+            "attach": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Counted prices to add to the subscription when it does not carry them yet"
+            },
+            "report": {
+              "type": "array",
+              "description": "One day's counts",
+              "items": {
+                "type": "object",
+                "required": [
+                  "event_name",
+                  "value",
+                  "identifier"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "event_name": {
+                    "type": "string",
+                    "description": "The meter's event name"
+                  },
+                  "value": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Whole units above what the plan includes"
+                  },
+                  "identifier": {
+                    "type": "string",
+                    "description": "One identifier per subscription, meter and day, so a day is counted once"
+                  },
+                  "timestamp": {
+                    "type": "integer",
+                    "description": "Seconds since 1970 of the day counted"
+                  }
+                }
+              }
+            },
+            "allocation_offer_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "meter-plan-usage",
+          "connection": "package::service-connections::published-record::stripe",
+          "connection_id": "service_connection:stripe",
+          "credential_injections": [
+            {
+              "field_id": "secret_key",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ],
+          "external_effect": {
+            "kind": "charge",
+            "what": "counted storage on a person's Stripe bill"
+          }
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::stripe-payment-provider"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::open-purchase-billing",
+      "address": "package::ai-tool-catalog::tool::open-purchase-billing",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:open-purchase-billing",
+        "listed_on": "2026-10-03T12:00:00Z",
+        "label": "Manage one purchase",
+        "job": "Open the secure card, invoice and cancellation page for one verified funding purchase; operator only.",
+        "description": "Runs only on this service's operator account, through its Stripe connection: opens Stripe's own page for one subscription a payer holds, where they change its card, read its invoices or cancel it, and answers with that page's address. The payer's Billing screen starts it from a purchase row; the subscription must be one their account paid for.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "subscription_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "subscription_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "open-purchase-billing",
+          "connection": "package::service-connections::published-record::stripe",
+          "connection_id": "service_connection:stripe",
+          "credential_injections": [
+            {
+              "field_id": "secret_key",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ]
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::stripe-payment-provider"
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "redirect"
+          ],
+          "properties": {
+            "redirect": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::read-purchase-card",
+      "address": "package::ai-tool-catalog::tool::read-purchase-card",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-purchase-card",
+        "listed_on": "2026-10-05T16:00:00Z",
+        "label": "Read the card a purchase uses",
+        "job": "Read the brand, last four digits and expiry of the card one verified funding purchase is paid with; operator only.",
+        "description": "Runs only on this service's operator account, through its Stripe connection: reads one subscription with its card expanded and answers only the card's brand, last four digits, expiry and wallet, so a payer's Billing screen can show which card pays each purchase. Never reads or returns the card number.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "subscription_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "subscription_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "read-purchase-card",
+          "connection": "package::service-connections::published-record::stripe",
+          "connection_id": "service_connection:stripe",
+          "credential_injections": [
+            {
+              "field_id": "secret_key",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ]
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::stripe-payment-provider"
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "card"
+          ],
+          "properties": {
+            "card": {
+              "type": [
+                "object",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

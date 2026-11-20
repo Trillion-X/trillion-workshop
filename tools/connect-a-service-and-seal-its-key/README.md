@@ -1,6 +1,6 @@
 # Service Connections
 
-Every service a person can connect to Trillion as DATA (one descriptor per service in `records.json`), plus the connect, rename and disconnect request builders and the connect dialog that read those descriptors.
+Every service a person can connect as DATA (one descriptor per service in `records.json`), plus the connect, rename and disconnect request builders and the connect dialog that read those descriptors.
 
 Vault access belongs to this tool. `read-data/ask-the-vault-for-one-secret.mjs` exposes the sole secret reader, `read-data/list-the-vault-names.mjs` lists names without values, and `do-work/put-one-secret-in-the-vault.mjs` writes one secret. They use only the native vault command named by product DATA; a read value travels through a private pipe. Synthetic behavior is covered by `tests/names-held-by-the-vault.test.mjs` and its stand-in command fixture.
 
@@ -22,7 +22,7 @@ A launcher can select its qualified native command with `CREDENTIAL_HOME_COMMAND
 
 | File | Purpose |
 |------|---------|
-| `records.json` | `{ package, things: [...] }`: one published record per service (`package::service-connections::published-record::<vendor>`) whose `payload` names the service, its capabilities, `credentialFields`, `helperLinks` (each `{ id, label, url, description?, tone? }`: a button on Connections, `tone` its look such as `primary`, a `description` a step above it), `domain`, `category`, `verifyRequest`, an `acquire` flow when it signs in by its own flow, `carriedBy` when only the person's own computer can reach it, and `sendsFrom` when the service refuses requests from servers' addresses. `scripts/workshop-rows.mjs` turns each into a Workshop connect row through the row source `source:service-connection-descriptors` in `records/workshop-tool-records.json`. |
+| `records.json` | `{ package, things: [...] }`: one published record per service (`package::service-connections::published-record::<vendor>`) whose `payload` names the service, its capabilities, `credentialFields`, `helperLinks` (each `{ id, label, url, description?, tone? }`: a button on Connections, `tone` its look such as `primary`, a `description` a step above it), `domain`, `category`, `verifyRequest`, an `acquire` flow when it signs in by its own flow, `carriedBy` when only the person's own computer can reach it, and `sendsFrom` when the service refuses requests from servers' addresses. `scripts/workshop-rows.mjs` turns each into a Workshop connect row through the row source `source:service-connection-descriptors` in `read-data/service-connection-tool-row-sources.json`. |
 | `do-work/list-every-connection.mjs` | The run of `tool:list-every-connection`: reads both owners' rows as they are, names no service or place. |
 | `do-work/connection-categories.json` | Which service category is which list category (`Messaging` is `Messages`...), so both kinds group together. |
 | `tool-rows.json` | The rows above. |
@@ -37,7 +37,7 @@ A launcher can select its qualified native command with `CREDENTIAL_HOME_COMMAND
 | `do-work/disconnect-service.ts` | Request builder for disconnecting one connected account. |
 | `do-work/rename-service-connection.ts` | Request builder for renaming one connected account's label. |
 | `do-work/external-effect-attempt.ts` | The states of one outside effect attempt (prepared, dispatching, unknown, succeeded, rejected, cancelled). |
-| `do-work/engine-seams.ts` | `engineSeams()`: refuses a connect call that passes no seams; Trillion always passes its own (`src/held-values.mjs`). |
+| `do-work/engine-seams.ts` | `engineSeams()`: refuses a connect call that passes no seams; the host always passes its own (`src/held-values.mjs`). |
 | `do-work/mint-credential-handle.ts` | Browser-side client that hands raw credential material straight to the value owner. |
 | `do-work/shell-redirect-acquisition.ts` | An OAuth authorization-code acquire with no child process: the shell opens the provider and completes on its own redirect. |
 | `do-work/workflow-actions.ts` | The owner-action bridge; with no owner-action host it fails in words and callers pass the host's seams. |
@@ -48,6 +48,8 @@ A launcher can select its qualified native command with `CREDENTIAL_HOME_COMMAND
 | `read-data/list-the-vault-names.mjs` | Lists vault names without printing secret values. |
 | `do-work/put-one-secret-in-the-vault.mjs` | `putOneSecretInTheVault()` stores one secret through the native vault command. |
 | `read-data/read-service-connections.ts` | Reads a person's connected accounts through the work contract's columns. |
+| `read-data/service-connection-tool-row-sources.json` | The two row sources (`source:service-connection-descriptors`, `source:how-to-ask-something-else-to-do-things`) that pour each descriptor of `records.json` into a connect row (`tool:connect-service-<vendor>`, `invoke.kind` `held-values`, operation `connect`) through `tools/ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs`. Read by `tools/keep-and-wake-ai-sessions-on-this-computer/test/google-calendar-scopes.test.mjs` and `instagram-identity-contract.test.mjs`. |
+| `read-data/connection-held-values-tool-descriptors.json` | The six connection operations the old locked box ran for a connected account: list, check (does the stored key still work), rename, set a detail that is not secret, replace the key, disconnect (remove its stored key). Descriptors only: trillion-rust runs no `held-values` invoke kind, so no row of them runs today (see the research row `verify-every-port/connect-a-service-and-seal-its-key`). |
 | `show/ServiceConnectionDialog.tsx` | The connect dialog, drawn entirely from a service's descriptor. |
 | `show/ConnectedAccountsSection.tsx` | The connected-accounts list inside the connect dialog. |
 | `show/mount-service-connection-dialog.tsx` | Mounts the dialog and completes a shell-redirect sign-in. |
@@ -57,14 +59,14 @@ A launcher can select its qualified native command with `CREDENTIAL_HOME_COMMAND
 | Name | Shape | Role |
 |------|-------|------|
 | descriptor `payload` | `{ provider, name, capabilities, credentialFields?, helperLinks?, domain, category, verifyRequest, acquire?, carriedBy?, sendsFrom? }` | One service. A new service is one record here, never code. |
-| `carriedBy` | `{ steps: [string] }` | The service lives on the person's own computer (iMessage, WhatsApp): the Trillion helper `computer/carry-connections.mjs` carries it, Connections shows it under "On your computer" with these steps, and `src/carried-connections.mjs` reaches it. |
+| `carriedBy` | `{ steps: [string] }` | The service lives on the person's own computer (iMessage, WhatsApp): the helper `computer/carry-connections.mjs` carries it, Connections shows it under "On your computer" with these steps, and `src/carried-connections.mjs` reaches it. |
 | `sendsFrom` | `[{ placement, next_when_answered?: [status] }]` | Where the connection's requests leave from, in order (`src/send-from.mjs`): each a Workshop placement (`placement:this-worker` sends from Trillion, `placement:your-computer-network` from the person's own computer through its helper), and the next one is tried only when this one answers a status listed. Carried onto the connect row as `invoke.connects.sends_from`; the tools that use the connection, its posts and its check all send through it. |
 | `engineSeams(context)` | → `ServiceConnectionSeams` | Where the contract, value store, owner actions and clock come from. |
 
 ## Dependencies
 
-**Depends on:** `src/held-values.mjs` (the seams Trillion passes), `tools/ui` (the dialog's components).
-**Depended on by:** `scripts/workshop-rows.mjs` and `records/workshop-tool-records.json` (connect rows), `src/account-screens.mjs` (Connections), `src/connect-with-a-key.mjs`, `src/carried-connections.mjs` (services a computer carries).
+**Depends on:** `src/held-values.mjs` (the seams the host passes), `tools/ui` (the dialog's components).
+**Depended on by:** `scripts/workshop-rows.mjs` and `read-data/service-connection-tool-row-sources.json` (connect rows), `src/account-screens.mjs` (Connections), `src/connect-with-a-key.mjs`, `src/carried-connections.mjs` (services a computer carries).
 
 ## Reported access for an operation
 

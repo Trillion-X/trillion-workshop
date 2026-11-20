@@ -13,7 +13,7 @@ const read = path => JSON.parse(readFileSync(new URL(path, import.meta.url), 'ut
 // The rows name old trillion's package service-connections, which is tools/connect-a-service-and-seal-its-key here.
 const packageFolder = name => new URL(`../../${name === 'service-connections' ? 'connect-a-service-and-seal-its-key' : name}/`, import.meta.url).pathname;
 const services = read('../../connect-a-service-and-seal-its-key/records.json').things;
-const sourceRows = read('../../connect-a-service-and-seal-its-key/from-an-older-version/records/workshop-tool-records.json').records.map(row => row.payload)
+const sourceRows = read('../../connect-a-service-and-seal-its-key/read-data/service-connection-tool-row-sources.json').records.map(row => row.payload)
   .filter(row => ['source:service-connection-descriptors', 'source:how-to-ask-something-else-to-do-things'].includes(row.id));
 assert.equal(sourceRows.length, 2);
 const derived = sourceRows.map(source => rowsFromList(source, recordsList(source.list.records, packageFolder)

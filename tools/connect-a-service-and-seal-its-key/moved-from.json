@@ -341,6 +341,76 @@
       "source_identity": "1f:678d6e9d724bf248d509401410f5128c956bfd4ff2f23e41389f5feff7919a36",
       "identity": "1f:998500d83797a35bc33a9fad3456cd837536480eb407c33d484dde6facad6d28",
       "changed": "No maker, host or person of any one deployment stays in the file: no maker's own newsletter service row and no maker's name in descriptions."
+    },
+    {
+      "source": "trillion-workshop",
+      "from": "tools/connect-a-service-and-seal-its-key/from-an-older-version/computer/secret-references.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "to": "trillion-rust: src/tool_runs/tools/http/references.rs",
+      "note": "Not moved byte for byte: ported one to one by trillion-rust (its header names this file's lines 27-89). `resolveAll`, the `command` and `http` provider kinds and `{env:NAME}` were dropped there for the reasons its header gives (references.rs lines 17-24); the bytes stay in old trillion at b7dc53d08a13252409f48873d543442a2fc26f9e and in this repository's history before the commit that removed them."
+    },
+    {
+      "source": "trillion-workshop",
+      "from": "tools/connect-a-service-and-seal-its-key/from-an-older-version/computer/secret-references.json",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "to": "trillion-rust: src/tool_runs/tools/http/secret-providers.json",
+      "note": "The words, timeout and cache life are rows of secret-providers.json beside references.rs. Not a judged source file."
+    },
+    {
+      "source": "trillion-workshop",
+      "from": "tools/connect-a-service-and-seal-its-key/from-an-older-version/test/secret-references.test.mjs.held",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "to": "trillion-rust: src/tool_runs/tools/http/references/tests.rs",
+      "note": "The four assertions are ported as Rust tests: memory-only value kept for its lifetime (tests.rs:65), a stopped lookup caches nothing (:89), unknown provider, malformed reference and empty answer refused with no value in the words (:102). The web-provider-with-environment-header assertion belongs to the dropped `http` kind and `resolveAll` masking list."
+    },
+    {
+      "source": "trillion-workshop",
+      "from": "tools/connect-a-service-and-seal-its-key/from-an-older-version/records/workshop-tool-records.json (2 row sources)",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/connect-a-service-and-seal-its-key/read-data/service-connection-tool-row-sources.json",
+      "note": "Records `source:service-connection-descriptors` and `source:how-to-ask-something-else-to-do-things`, byte for byte; read by the keep-and-wake Google Calendar and Instagram tests."
+    },
+    {
+      "source": "trillion-workshop",
+      "from": "tools/connect-a-service-and-seal-its-key/from-an-older-version/records/workshop-tool-records.json (6 connection operations)",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/connect-a-service-and-seal-its-key/read-data/connection-held-values-tool-descriptors.json",
+      "note": "Records tool:list-connections, check-connection, rename-connection, set-connection-details, replace-connection-value and disconnect-service, byte for byte."
+    },
+    {
+      "source": "trillion-workshop",
+      "from": "tools/connect-a-service-and-seal-its-key/from-an-older-version/records/workshop-tool-records.json (5 Stripe operations)",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/take-payments/data/stripe-held-values-tool-descriptors.json",
+      "note": "Records tool:set-up-paid-plan, give-referral-credit, meter-plan-usage, open-purchase-billing and read-purchase-card, byte for byte, beside the Stripe rows that own those jobs."
+    },
+    {
+      "source": "trillion-workshop",
+      "from": "tools/connect-a-service-and-seal-its-key/from-an-older-version/records/workshop-tool-records.json (speech to text)",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/audio-transcription/read-data/speech-to-text-tool-descriptor.json",
+      "note": "Record tool:speech-to-text, byte for byte."
+    },
+    {
+      "source": "trillion-workshop",
+      "from": "tools/connect-a-service-and-seal-its-key/from-an-older-version/records/workshop-tool-records.json (repo explorer)",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/read-data/repo-explorer-tool-descriptor.json",
+      "note": "Record tool:repo-explorer, byte for byte, beside src/workshop.mjs that handles its namespace file input."
+    },
+    {
+      "source": "trillion-workshop",
+      "from": "tools/connect-a-service-and-seal-its-key/from-an-older-version/records/workshop-tool-records.json (hosted site)",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/host-tool-servers-and-sites/read-data/hosted-site-tool-descriptors.json",
+      "note": "Records tool:set-up-hosted-site and price:hosted-site, byte for byte, beside src/hosted-sites.mjs whose executor runs the `set-up` operation."
+    },
+    {
+      "source": "trillion-workshop",
+      "from": "tools/connect-a-service-and-seal-its-key/from-an-older-version/records/workshop-tool-records.json (media composition source)",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/media-composition/read-data/media-composition-tool-row-source.json",
+      "note": "Record source:media-composition-tools, byte for byte; read by tools/media-composition/from-an-older-version/test/relink-editor-projects.test.mjs."
     }
   ],
   "not_matched": []

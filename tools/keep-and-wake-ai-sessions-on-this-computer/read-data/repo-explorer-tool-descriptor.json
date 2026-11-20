@@ -1,0 +1,134 @@
+{
+  "kind": "package-set-records",
+  "record_set": "repo-explorer-tool-descriptor",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::tool::repo-explorer",
+      "address": "package::ai-tool-catalog::tool::repo-explorer",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:repo-explorer",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "use_limits": {
+          "runs_per_day": 20,
+          "failures_per_day": 5
+        },
+        "label": "Make a repository into a tool",
+        "status": "active",
+        "job": "Turn a public code repository into a working tool for a job, so later calls run it directly",
+        "description": "Downloads one commit of a public repository into an isolated deployed container, reads its latest release files, works out how to make it do the job on a sample input (building it, or downloading a ready-built release file), runs the kept tool on that sample offline to check it does the job and writes the files it names, stores the working files under their BLAKE3 identity, and keeps it as a tool that can take your files and save the files it makes in yours, with the licence class read from the repository.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "repo_url",
+            "job",
+            "sample_input",
+            "expect_contains"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "repo_url": {
+              "type": "string",
+              "format": "uri",
+              "description": "A public GitHub repository address"
+            },
+            "job": {
+              "type": "string",
+              "minLength": 3,
+              "description": "What the tool should do, in plain words"
+            },
+            "sample_input": {
+              "type": "object",
+              "description": "One example input; each field becomes an input of the new tool. A field holding a file of yours (its identity, 1f: then 64 hex characters) becomes a file input, staged in the container as a local path"
+            },
+            "expect_contains": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Text the sample run's output must contain; the kept tool is checked against it"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "descriptor",
+            "job_check"
+          ],
+          "properties": {
+            "descriptor": {
+              "type": "object",
+              "required": [
+                "id",
+                "invoke",
+                "bytes_fingerprint",
+                "verify"
+              ]
+            },
+            "job_check": {
+              "type": "object",
+              "required": [
+                "passed",
+                "output"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "repo-explorer",
+          "input": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "settings": {
+            "planner": {
+              "model": "@cf/qwen/qwen2.5-coder-32b-instruct",
+              "max_tokens": 4000
+            },
+            "max_rounds": 4,
+            "unknown_licence_class": "licence:no-hosting-rights",
+            "tool_placement": "placement:deployed-container",
+            "kept_paths": [
+              "/work"
+            ],
+            "kept_changes_under": [
+              "/usr/local"
+            ],
+            "max_kept_bytes": 40000000,
+            "max_release_assets": 40
+          }
+        },
+        "needs": {
+          "expected_seconds": 240,
+          "network_egress": true,
+          "memory_mb": 2048
+        },
+        "result_saved_as_tool": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:deployed-container"
+        ],
+        "maker": "maker:trillion",
+        "provenance": {
+          "source": "trillion src/repo-explorer.mjs"
+        },
+        "verify": [
+          {
+            "kind": "output-contains",
+            "output_selector": "$.job_check.passed",
+            "text": "true"
+          },
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.job_check.output",
+            "input_field": "expect_contains"
+          }
+        ]
+      }
+    }
+  ]
+}
