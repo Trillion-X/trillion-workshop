@@ -43,7 +43,7 @@
 import { execFileSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
+import { homedir, platform } from 'node:os';
 import { join } from 'node:path';
 import { text as readAll } from 'node:stream/consumers';
 import { fileURLToPath } from 'node:url';
@@ -54,12 +54,31 @@ import { makeHashCodeHexFromBytes, makeHashCodeHexFromJson } from '../../content
 const API = 'https://api.anthropic.com';
 const PR_URL = /https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/pull\/\d+/g;
 
-function signIn(folderName) {
-  const folder = join(homedir(), folderName);
-  const org = JSON.parse(readFileSync(join(folder, '.claude.json'), 'utf8')).oauthAccount.organizationUuid;
-  const item = `Claude Code-credentials-${createHash('sha256').update(folder).digest('hex').slice(0, 8)}`;
-  const oauth = JSON.parse(execFileSync('security', ['find-generic-password', '-s', item, '-w'], { encoding: 'utf8' })).claudeAiOauth;
-  if (oauth.expiresAt < Date.now()) throw new Error(`${folderName}: sign-in expired at ${new Date(oauth.expiresAt).toString()}`);
+/** Read only the existing Claude Code sign-in. macOS uses Keychain; Linux uses the CLI's private credentials file.
+ * Never echo, persist, refresh, or forward the access token except as the provider Authorization header.
+ */
+export function signIn(folderName, { home = homedir(), system = platform(), read = readFileSync, keychain = execFileSync, now = Date.now() } = {}) {
+  if (typeof folderName !== 'string' || !/^[A-Za-z0-9._-]+$/.test(folderName) || ['.', '..'].includes(folderName)) {
+    throw new Error('Name one Claude config folder directly beneath the home folder.');
+  }
+  const folder = join(home, folderName);
+  const account = JSON.parse(read(join(folder, '.claude.json'), 'utf8'));
+  const org = account.oauthAccount?.organizationUuid;
+  if (typeof org !== 'string' || !org) throw new Error(`${folderName}: no Claude organization in its existing sign-in`);
+  let raw;
+  if (system === 'darwin') {
+    const item = `Claude Code-credentials-${createHash('sha256').update(folder).digest('hex').slice(0, 8)}`;
+    raw = keychain('security', ['find-generic-password', '-s', item, '-w'], { encoding: 'utf8' });
+  } else if (system === 'linux') {
+    raw = read(join(folder, '.credentials.json'), 'utf8');
+  } else {
+    throw new Error(`${folderName}: this sign-in reader supports macOS and Linux only`);
+  }
+  const oauth = JSON.parse(raw).claudeAiOauth;
+  if (typeof oauth?.accessToken !== 'string' || !oauth.accessToken || !Number.isFinite(oauth.expiresAt)) {
+    throw new Error(`${folderName}: no valid Claude subscription sign-in found`);
+  }
+  if (oauth.expiresAt <= now) throw new Error(`${folderName}: sign-in expired at ${new Date(oauth.expiresAt).toString()}; refresh it with Claude Code`);
   return { org, token: oauth.accessToken };
 }
 
@@ -238,7 +257,24 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
     print(JSON.stringify(answer));
     return answer;
   }
-  const account = signIn(folderName);
+  const account = await authenticate(folderName);
+  if (command === 'list-json') {
+    if (rest.length > 1 || !/^[0-9]+$/.test(rest[0] ?? '100')) throw new Error('usage: list-json <config-folder> [limit 1..200]');
+    const limit = Number(rest[0] ?? 100);
+    if (!Number.isSafeInteger(limit) || limit < 1 || limit > 200) throw new Error('list-json limit must be 1..200');
+    const rows = (await everyPage(account, '/v1/sessions', Math.min(100, limit), { request, until: sessions => sessions.length >= limit })).slice(0, limit).map(sessionRow);
+    const answer = { config_folder: folderName, sessions: rows, count: rows.length, limited: rows.length === limit };
+    print(JSON.stringify(answer));
+    return answer;
+  }
+  if (command === 'read-one') {
+    if (rest.length !== 1 || !/^[A-Za-z0-9_-]{1,200}$/.test(rest[0])) throw new Error('usage: read-one <config-folder> <session-id>');
+    const session = await get(account, `/v1/sessions/${rest[0]}`, undefined, { request, includeErrorBody: false });
+    const said = whatItSaid(await everyPage(account, `/v1/sessions/${rest[0]}/events`, 1000, { request, includeErrorBody: false }));
+    const answer = { config_folder: folderName, ...sessionRow(session), ...said };
+    print(JSON.stringify(answer));
+    return answer;
+  }
   if (command === 'list') {
     const rows = (await everyPage(account, '/v1/sessions', 100)).map(sessionRow);
     writeFileSync(rest[0], JSON.stringify(rows));
@@ -314,7 +350,7 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
     console.log(JSON.stringify({ session: session.id, status: session.session_status, repositories: names, url: session.session_url ?? null }));
     return;
   }
-  throw new Error('usage: read-cloud-sessions.mjs list|read|read-first|send|start <config-folder> ...');
+  throw new Error('usage: read-cloud-sessions.mjs list-json|read-one|list|read|read-first|send|start <config-folder> ...');
 }
 
 // A record id of the person's Trillion: a type and a name, `record:brief:release-plan`, never a path.
