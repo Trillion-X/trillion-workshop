@@ -527,7 +527,7 @@
           "type": "object",
           "required": ["schema", "action", "harness", "status", "ready", "checks", "changes", "boundaries"],
           "properties": {
-            "schema": {"type": "string", "const": "trillion.harness-setup-report/v1"},
+            "schema": {"type": "string", "const": "harness-setup-report/v1"},
             "action": {"type": "string"},
             "harness": {"type": "string"},
             "status": {"type": "string"},

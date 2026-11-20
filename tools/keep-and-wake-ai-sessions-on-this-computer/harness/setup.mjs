@@ -357,7 +357,7 @@ export function localRuntimeChecks({ payload, home = homedir(), rules = settings
 
 export async function setup({ action = 'inspect', harness, payload, sourceCommit, trustHooks = false, reviewedDefinitionHashes, home = homedir(), env = process.env, platform = process.platform, rules = settings, installer = SELF, execute = run, inspectPayload = verifyPayload, openCodex = codexClient, inspectRuntime = localRuntimeChecks } = {}) {
   const checks = []; const changes = [];
-  const finish = () => ({ schema: 'trillion.harness-setup-report/v1', scope: 'local-harness', evidence_level: 'local-configuration-and-processes', action, harness, status: checks.every(check => check.status === 'ready') ? 'ready' : 'pending', ready: checks.every(check => check.status === 'ready'), checks, changes, boundaries: rules.boundaries });
+  const finish = () => ({ schema: 'harness-setup-report/v1', scope: 'local-harness', evidence_level: 'local-configuration-and-processes', action, harness, status: checks.every(check => check.status === 'ready') ? 'ready' : 'pending', ready: checks.every(check => check.status === 'ready'), checks, changes, boundaries: rules.boundaries });
   if (!['inspect', 'apply', 'remove'].includes(action)) throw new Error('Use --action inspect, apply or remove.');
   if (trustHooks && action !== 'apply') throw new Error('--trust-hooks is an explicit apply option.');
   if (reviewedDefinitionHashes !== undefined && (!trustHooks || action !== 'apply')) throw new Error('Reviewed definitions require explicit trust on apply.');

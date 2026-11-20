@@ -29,7 +29,7 @@
         }
       },
       "given": "The command is node tools/keep-and-wake-ai-sessions-on-this-computer/harness/setup.mjs --action inspect --harness claude-code. Worked out by calling setup() from harness/setup.mjs with action inspect, harness claude-code, platform linux and an empty scratch home (the test \"unknown hosts, unsupported platforms and disabled hooks\" asserts the same unsupported platform check); on a real Mac the checks list is longer.",
-      "hands_back": "{\"schema\":\"trillion.harness-setup-report/v1\",\"scope\":\"local-harness\",\"evidence_level\":\"local-configuration-and-processes\",\"action\":\"inspect\",\"harness\":\"claude-code\",\"status\":\"pending\",\"ready\":false,\"checks\":[{\"id\":\"platform\",\"status\":\"unsupported\",\"reason\":\"The full local hook suite currently uses the Mac app and macOS Keychain. Use account setup for this platform's supported capabilities.\",\"evidence\":{}}],\"changes\":[],\"boundaries\":[ids mcp, sources, notifications and iphone-widgets, each with an owner and a reason]}; nothing is written and the process exits 2."
+      "hands_back": "{\"schema\":\"harness-setup-report/v1\",\"scope\":\"local-harness\",\"evidence_level\":\"local-configuration-and-processes\",\"action\":\"inspect\",\"harness\":\"claude-code\",\"status\":\"pending\",\"ready\":false,\"checks\":[{\"id\":\"platform\",\"status\":\"unsupported\",\"reason\":\"The full local hook suite currently uses the Mac app and macOS Keychain. Use account setup for this platform's supported capabilities.\",\"evidence\":{}}],\"changes\":[],\"boundaries\":[ids mcp, sources, notifications and iphone-widgets, each with an owner and a reason]}; nothing is written and the process exits 2."
     }
   ]
 }

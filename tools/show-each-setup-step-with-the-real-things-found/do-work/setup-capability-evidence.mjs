@@ -5,8 +5,8 @@
 // the transcript hook's own kept prompt and execution receipt for a harness session, and the person's words kept
 // through the carrier door (what read_setup counts as arrived) for source intake. No check here accepts a message an
 // AI wrote to describe those records, and none promotes them past what they show.
-import harnessSetup from '../../../keep-and-wake-ai-sessions-on-this-computer/harness/setup.json' with { type: 'json' };
-import { workResultWords } from '../../../see-what-my-ais-did/do-work/work-results.mjs';
+import harnessSetup from '../../keep-and-wake-ai-sessions-on-this-computer/harness/setup.json' with { type: 'json' };
+import { workResultWords } from '../../see-what-my-ais-did/do-work/work-results.mjs';
 
 const list = value => Array.isArray(value) ? value : [];
 const text = value => typeof value === 'string' && value.trim().length > 0;
@@ -45,10 +45,10 @@ export function localHarnessReport(reference, { scope_id, harness, settings = ha
     || !instant(message.recorded_at) || !text(message.conversation_id) || !text(message.captured_road) || message.captured_road === 'unspecified')
     problems.push('A local inspection must be kept as an attributed AI evidence message with its actual record provenance.');
   try { if (typeof message?.text === 'string' && message.text.length <= 100_000) envelope = JSON.parse(message.text); } catch { /* generic prose is not an inspector report */ }
-  if (envelope?.schema !== 'trillion.setup-local-evidence/v1' || envelope.capability !== 'harness' || envelope.scope_id !== scope_id)
+  if (envelope?.schema !== 'setup-local-evidence/v1' || envelope.capability !== 'harness' || envelope.scope_id !== scope_id)
     problems.push('The stored local evidence must bind the exact capability and discovered computer.');
   const report = envelope?.report, host = settings.hosts.find(row => row.id === harness);
-  if (!host || report?.schema !== 'trillion.harness-setup-report/v1' || report.scope !== 'local-harness' || report.action !== 'inspect'
+  if (!host || report?.schema !== 'harness-setup-report/v1' || report.scope !== 'local-harness' || report.action !== 'inspect'
     || report.harness !== harness || report.evidence_level !== 'local-configuration-and-processes') problems.push('Use the current structured inspect output for this exact supported harness.');
   const checks = list(report?.checks);
   if (!checks.length || checks.length > 80 || !unique(checks.map(row => row?.id))) problems.push('The inspector checks must be nonempty and distinct.');
@@ -121,7 +121,7 @@ export function hostToolEvidence(reference, { operation, references = new Map() 
   const common = ['schema', 'operation', 'host', 'tool', 'tool_result_id', 'observed_at', 'account_ref', 'connector', 'scheduled_pickup'];
   if (reference?.kind !== 'message' || !resolved(reference) || message?.speaker === 'person' || !text(message?.speaker)
     || !instant(message?.recorded_at) || !text(message?.conversation_id) || !text(message?.captured_road) || message.captured_road === 'unspecified'
-    || !only(envelope, common) || envelope?.schema !== 'trillion.setup-host-evidence/v1' || envelope.operation !== operation
+    || !only(envelope, common) || envelope?.schema !== 'setup-host-evidence/v1' || envelope.operation !== operation
     || !['host', 'tool', 'tool_result_id'].every(field => text(envelope?.[field]) && envelope[field].length <= 300)
     || !instant(envelope?.observed_at) || Date.parse(envelope.observed_at) > Date.parse(message.recorded_at))
     problems.push('Use an attributed, bounded host-tool result with its actual host, tool, result identity and observation time.');

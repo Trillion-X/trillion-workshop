@@ -34143,7 +34143,7 @@
   {
    "package": "show-each-setup-step-with-the-real-things-found",
    "paths": [
-    "from-an-older-version/src/setup-capability-evidence.mjs"
+    "do-work/setup-capability-evidence.mjs"
    ],
    "at": "/opt/show-each-setup-step-with-the-real-things-found"
   },
