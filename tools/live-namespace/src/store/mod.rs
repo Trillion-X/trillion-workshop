@@ -198,6 +198,9 @@ pub trait Rows: Send + Sync {
     fn get(&self, scope: &str, id: &str) -> Result<Read, Error>;
     /// The rows of `ids`, in the order asked; none where there is no such row.
     fn get_many(&self, scope: &str, ids: &[&str]) -> Result<Vec<Option<Record>>, Error>;
+    /// The rows of `pairs` (each a scope and an id), in the order asked; none where there is no such row. Rows of many scopes are
+    /// read together, so a batch across scopes costs the reads of one scope's batch, not one read per scope.
+    fn get_scoped(&self, pairs: &[(&str, &str)]) -> Result<Vec<Option<Record>>, Error>;
     /// The row's version, counting a deleted row's (what a change expects), and the row if it is there.
     fn held_record_with_version(&self, scope: &str, id: &str) -> Result<(i64, Option<Record>), Error>;
     /// The rows of a scope in id order, strictly after `after` (empty: from the first), at most `limit` of them.
@@ -831,6 +834,38 @@ impl Rows for SqlStore {
             }
         }
         Ok(ids.iter().map(|id| found.get(*id).cloned()).collect())
+    }
+
+    fn get_scoped(&self, pairs: &[(&str, &str)]) -> Result<Vec<Option<Record>>, Error> {
+        let mut link = self.link.lock().map_err(unavailable)?;
+        // The pairs are grouped by the table their scope is kept in, so each table is read in batches of (scope, id).
+        let mut groups: std::collections::BTreeMap<String, (Option<&'static DeclaredTable>, Vec<(&str, &str)>)> = std::collections::BTreeMap::new();
+        for &(scope, id) in pairs {
+            let table = Self::table_of(scope);
+            let name = table.map_or_else(|| declared().generic.clone(), |table| table.table.clone());
+            groups.entry(name).or_insert_with(|| (table, Vec::new())).1.push((scope, id));
+        }
+        let mut found: std::collections::BTreeMap<(String, String), Record> = std::collections::BTreeMap::new();
+        for (name, (table, asked)) in groups {
+            let columns = match table {
+                Some(table) => table.selected(),
+                None => "id, version, request_key, request_identity, value, changed".to_owned(),
+            };
+            for batch in asked.chunks(IDS_AT_ONCE / 2) {
+                let marks = vec!["(?, ?)"; batch.len()].join(", ");
+                let text = format!("SELECT scope, {columns} FROM {name} WHERE (scope, id) IN (VALUES {marks})");
+                let params: Vec<Cell> = batch.iter().flat_map(|(scope, id)| [Cell::text(scope), Cell::text(id)]).collect();
+                for cells in link.query(&text, &params)? {
+                    let scope = cells[0].as_text().ok_or(crate::cause!(Error::Unavailable))?;
+                    let (record, _, _) = match table {
+                        Some(table) => Self::record(table, &cells[1..])?,
+                        None => Self::generic_record(&cells[1..])?,
+                    };
+                    found.insert((scope, record.id.clone()), record);
+                }
+            }
+        }
+        Ok(pairs.iter().map(|(scope, id)| found.get(&((*scope).to_owned(), (*id).to_owned())).cloned()).collect())
     }
 
     fn held_record_with_version(&self, scope: &str, id: &str) -> Result<(i64, Option<Record>), Error> {

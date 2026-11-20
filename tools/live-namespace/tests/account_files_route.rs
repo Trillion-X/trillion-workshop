@@ -1078,6 +1078,7 @@ struct Counted {
 impl live_namespace::store::Rows for Counted {
     fn get(&self, scope: &str, id: &str) -> Result<live_namespace::store::Read, live_namespace::store::Error> { self.rows.get(scope, id) }
     fn get_many(&self, scope: &str, ids: &[&str]) -> Result<Vec<Option<live_namespace::store::Record>>, live_namespace::store::Error> { self.rows.get_many(scope, ids) }
+    fn get_scoped(&self, pairs: &[(&str, &str)]) -> Result<Vec<Option<live_namespace::store::Record>>, live_namespace::store::Error> { self.rows.get_scoped(pairs) }
     fn held_record_with_version(&self, scope: &str, id: &str) -> Result<(i64, Option<live_namespace::store::Record>), live_namespace::store::Error> { self.rows.held_record_with_version(scope, id) }
     fn list_page(&self, scope: &str, after: &str, limit: usize) -> Result<live_namespace::store::Page<live_namespace::store::Record, String>, live_namespace::store::Error> { self.rows.list_page(scope, after, limit) }
     fn ids(&self, scope: &str, after: Option<&str>, limit: usize) -> Result<(Vec<String>, Option<String>), live_namespace::store::Error> { self.rows.ids(scope, after, limit) }

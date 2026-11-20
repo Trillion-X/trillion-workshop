@@ -33,7 +33,7 @@
 
 use super::{
     settings::{settings, word},
-    text, now_iso, AccountFiles, AccountFilesError, Answer, RESULTS, RESULTS_BY_KIND, RESULT_COUNTS, RESULT_COUNT_KIND,
+    text, now_iso, AccountFiles, AccountFilesError, Answer, ALIASES, FILES, RESULTS, RESULTS_BY_KIND, RESULT_COUNTS, RESULT_COUNT_KIND,
     RESULT_INDEX_KIND, RESULT_KIND,
 };
 use crate::{
@@ -43,7 +43,7 @@ use crate::{
 use content_crypto::advanced::blake3;
 use serde_json::{json, Map, Value};
 use std::{
-    collections::HashMap,
+    collections::{BTreeSet, HashMap},
     sync::{Mutex, OnceLock},
     time::{Duration, Instant},
 };
@@ -132,12 +132,12 @@ impl AccountFiles {
     /// The newest result of each kind a file has under any of its identities (of one kind, given `kind`)
     /// (old `newestOf`).
     pub(super) fn newest_of(&self, identity: &str, kind: Option<&str>) -> Answer<Vec<Record>> {
+        if let Some(kind) = kind {
+            return Ok(self.newest_of_many(&[identity], kind)?.into_iter().flatten().collect());
+        }
         let mut newest: Vec<Record> = Vec::new();
         for known in self.same_file(identity)? {
-            let found = match kind {
-                Some(kind) => self.get(&results_scope(&known), kind)?.into_iter().collect::<Vec<_>>(),
-                None => self.store.list_page(&results_scope(&known), "", MAX_PAGE_ITEMS)?.items,
-            };
+            let found = self.store.list_page(&results_scope(&known), "", MAX_PAGE_ITEMS)?.items;
             for record in found {
                 match newest.iter_mut().find(|kept| kept.id == record.id) {
                     Some(kept) if text(&kept.value, "recorded_at") < text(&record.value, "recorded_at") => *kept = record,
@@ -148,6 +148,74 @@ impl AccountFiles {
         }
         newest.sort_by(|a, b| a.id.cmp(&b.id));
         Ok(newest)
+    }
+
+    /// The newest result of `kind` under any identity of each of `identities` (old `newestOf` of one kind, for many files at once; the
+    /// answer per identity is `newest_of`'s). The files of the identities are read in one batch, the aliases of those that are no file's
+    /// own in one more, the files they name in one more, and every family's results of `kind` in one read across their scopes, so the
+    /// store reads do not grow with the number of identities.
+    pub(super) fn newest_of_many(&self, identities: &[&str], kind: &str) -> Answer<Vec<Option<Record>>> {
+        let own = self.store.get_many(FILES, identities)?;
+        let mut canonical: Vec<String> = identities.iter().map(|identity| (*identity).to_owned()).collect();
+        let mut files: HashMap<String, Record> = HashMap::new();
+        let mut unknown = Vec::new();
+        for (n, (identity, record)) in identities.iter().zip(own).enumerate() {
+            match record {
+                Some(record) => {
+                    files.insert((*identity).to_owned(), record);
+                }
+                None => unknown.push(n),
+            }
+        }
+        if !unknown.is_empty() {
+            let ids: Vec<&str> = unknown.iter().map(|&n| identities[n]).collect();
+            for (&n, alias) in unknown.iter().zip(self.store.get_many(ALIASES, &ids)?) {
+                if let Some(target) = alias.and_then(|alias| text(&alias.value, "identity").map(str::to_owned)) {
+                    canonical[n] = target;
+                }
+            }
+            let aimed: Vec<String> = unknown.iter().filter(|&&n| canonical[n] != identities[n]).map(|&n| canonical[n].clone()).collect::<BTreeSet<_>>().into_iter().collect();
+            let aimed_refs: Vec<&str> = aimed.iter().map(String::as_str).collect();
+            for (target, record) in aimed.iter().zip(self.store.get_many(FILES, &aimed_refs)?) {
+                if let Some(record) = record {
+                    files.insert(target.clone(), record);
+                }
+            }
+        }
+        // Each identity's family, in the order `family_of` gives it: the file's identity, then the file's own aliases.
+        let mut families: Vec<Vec<String>> = Vec::with_capacity(identities.len());
+        for (n, identity) in identities.iter().enumerate() {
+            let mut family = vec![(*identity).to_owned()];
+            if !family.contains(&canonical[n]) {
+                family.insert(0, canonical[n].clone());
+            }
+            if let Some(aliases) = files.get(&canonical[n]).and_then(|file| file.value.get("aliases")).and_then(Value::as_array) {
+                for alias in aliases {
+                    let alias = alias.as_str().or_else(|| text(alias, "alias"));
+                    if let Some(alias) = alias.filter(|alias| !family.iter().any(|known| known == alias)) {
+                        family.push(alias.to_owned());
+                    }
+                }
+            }
+            families.push(family);
+        }
+        let scopes: Vec<String> = families.iter().flatten().map(|member| results_scope(member)).collect::<BTreeSet<_>>().into_iter().collect();
+        let asked: Vec<(&str, &str)> = scopes.iter().map(|scope| (scope.as_str(), kind)).collect();
+        let held: HashMap<&str, Record> = scopes.iter().map(String::as_str).zip(self.store.get_scoped(&asked)?)
+            .filter_map(|(scope, record)| record.map(|record| (scope, record))).collect();
+        Ok(families.iter().map(|family| {
+            let mut newest: Option<&Record> = None;
+            for member in family {
+                if let Some(record) = held.get(results_scope(member).as_str()) {
+                    newest = match newest {
+                        Some(kept) if text(&kept.value, "recorded_at") < text(&record.value, "recorded_at") => Some(record),
+                        Some(kept) => Some(kept),
+                        None => Some(record),
+                    };
+                }
+            }
+            newest.cloned()
+        }).collect())
     }
 
     /// A result as the operations answer it: its fields and its value.
@@ -322,9 +390,10 @@ impl AccountFiles {
             return Err(AccountFilesError::Invalid(word("result_many"), crate::cause!()));
         }
         let Some(_open) = admit_read(&self.account, caller) else { return Ok(busy(crate::cause!(caller_site: result_read_not_admitted))) };
+        let valid: Vec<&str> = identities.iter().copied().filter(|identity| super::release::is_identity(identity)).collect();
         let mut found = Map::new();
-        for identity in identities.iter().filter(|identity| super::release::is_identity(identity)) {
-            if let Some(record) = self.newest_of(identity, Some(kind))?.into_iter().next() {
+        for (identity, record) in valid.iter().zip(self.newest_of_many(&valid, kind)?) {
+            if let Some(record) = record {
                 found.insert((*identity).to_owned(), record.value.get("value").cloned().unwrap_or(Value::Null));
             }
         }

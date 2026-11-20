@@ -25,8 +25,8 @@ use std::{
 };
 
 /// Every operation of `Rows`, by the name it crosses under.
-pub const OPERATIONS: [&str; 14] = [
-    "get", "get_many", "held_record_with_version", "list_page", "ids", "mutate", "stamp", "totals", "search", "place", "order",
+pub const OPERATIONS: [&str; 15] = [
+    "get", "get_many", "get_scoped", "held_record_with_version", "list_page", "ids", "mutate", "stamp", "totals", "search", "place", "order",
     "changes", "minted", "wait_for_order",
 ];
 
@@ -76,6 +76,16 @@ impl Rows for RowsByCalls {
         let answer = self.ask("get_many", json!({"scope": scope, "ids": ids}))?;
         let records = array(&answer)?.iter().map(record_or_none).collect::<Result<Vec<_>, _>>()?;
         if records.len() != ids.len() {
+            return Err(crate::cause!(Error::Unavailable));
+        }
+        Ok(records)
+    }
+
+    fn get_scoped(&self, pairs: &[(&str, &str)]) -> Result<Vec<Option<Record>>, Error> {
+        let asked: Vec<Value> = pairs.iter().map(|(scope, id)| json!([scope, id])).collect();
+        let answer = self.ask("get_scoped", json!({"pairs": asked}))?;
+        let records = array(&answer)?.iter().map(record_or_none).collect::<Result<Vec<_>, _>>()?;
+        if records.len() != pairs.len() {
             return Err(crate::cause!(Error::Unavailable));
         }
         Ok(records)
@@ -181,6 +191,11 @@ fn answered(store: &dyn Rows, operation: &str, a: &Value) -> Result<Value, Error
             let ids = array(&a["ids"])?.iter().map(text).collect::<Result<Vec<_>, _>>()?;
             let ids: Vec<&str> = ids.iter().map(String::as_str).collect();
             Value::Array(store.get_many(&scope()?, &ids)?.iter().map(Option::as_ref).map(record_value).collect())
+        }
+        "get_scoped" => {
+            let pairs = array(&a["pairs"])?.iter().map(|pair| Ok((text(&pair[0])?, text(&pair[1])?))).collect::<Result<Vec<(String, String)>, Error>>()?;
+            let refs: Vec<(&str, &str)> = pairs.iter().map(|(scope, id)| (scope.as_str(), id.as_str())).collect();
+            Value::Array(store.get_scoped(&refs)?.iter().map(Option::as_ref).map(record_value).collect())
         }
         "held_record_with_version" => {
             let (version, record) = store.held_record_with_version(&scope()?, &text_at(a, "id")?)?;
@@ -341,6 +356,8 @@ mod tests {
         assert_eq!(calls.get(scope, "one").unwrap().record, store.get(scope, "one").unwrap().record);
         assert_eq!(calls.get(scope, "none").unwrap().record, None);
         assert_eq!(calls.get_many(scope, &["two", "none", "one"]).unwrap(), store.get_many(scope, &["two", "none", "one"]).unwrap());
+        let pairs = [(scope, "two"), ("@namespace/names/none", "none"), (scope, "one")];
+        assert_eq!(calls.get_scoped(&pairs).unwrap(), store.get_scoped(&pairs).unwrap());
         assert_eq!(calls.held_record_with_version(scope, "one").unwrap(), store.held_record_with_version(scope, "one").unwrap());
         let (by_call, direct) = (calls.list_page(scope, "", 1).unwrap(), store.list_page(scope, "", 1).unwrap());
         assert_eq!((by_call.items, by_call.next), (direct.items, direct.next));

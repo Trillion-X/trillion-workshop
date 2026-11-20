@@ -17,6 +17,7 @@ implementation, over SQLite (a file of the person's own) or Postgres (the person
 | Name | Signature / Shape | Role |
 |------|-------------------|------|
 | `Rows::get` / `get_many` | `(scope, id)` / `(scope, &[id])` | One row, or rows in the order asked (none where there is none) |
+| `Rows::get_scoped` | `&[(scope, id)]` | Rows of many scopes read together, in the order asked; one read per table, not per scope (`newest_of_many` reads every identity's results this way) |
 | `Rows::list_page` / `ids` | `(scope, after, limit)` | A scope in id (byte) order strictly after a cursor, at most 1000 rows and 4 MiB a page |
 | `Rows::mutate` | `(scope, Mutation { id, expected_version, request_key, deleted, value }) -> Change` | Make, change or delete one row only if it is at `expected_version` (0: not there yet; a deleted row keeps its version) |
 | `Rows::held_record_with_version` | `(scope, id) -> (version, Option<Record>)` | The version a change must name, tombstones included |

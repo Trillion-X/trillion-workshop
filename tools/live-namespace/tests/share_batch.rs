@@ -46,6 +46,10 @@ impl Rows for Counting {
         self.count();
         self.rows.get_many(scope, ids)
     }
+    fn get_scoped(&self, pairs: &[(&str, &str)]) -> Result<Vec<Option<Record>>, Error> {
+        self.count();
+        self.rows.get_scoped(pairs)
+    }
     fn held_record_with_version(&self, scope: &str, id: &str) -> Result<(i64, Option<Record>), Error> {
         self.count();
         self.rows.held_record_with_version(scope, id)
