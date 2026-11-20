@@ -37,7 +37,8 @@
  *
  * Settings (mechanism_settings)
  *   where            the name of this source, told as each fact's where (default "imessage")
- *   database         the Messages database, absolute or under the person's home folder (default Library/Messages/chat.db)
+ *   database         the Messages database, absolute or under the person's home folder (default Library/Messages/chat.db);
+ *                    a waiter run inside a Mac sandbox names it absolutely, since the sandbox may hide the account list
  *   history_since    ISO time: on the first start, also tell messages at or after it
  *   include_own      true to tell the person's own sends too (default false)
  *   kinds            the kinds each message fact carries (default ["seed"])
@@ -240,6 +241,12 @@ export function accessChange(own, error, at, program = process.execPath) {
 
 const refused = (error) => /authorization denied|not permitted|unable to open|operation not permitted|EPERM|EACCES/i.test(String(error?.message ?? error));
 
+// The person's home folder: the account list's, else HOME. A run in a Mac sandbox may not read the account list
+// (uv_os_get_passwd answered ENOENT on the first live start, Nov 20 2026), so a waiter there names its database absolutely.
+function homeFolder() {
+  try { return userInfo().homedir; } catch { return process.env.HOME ?? "/"; }
+}
+
 function openReadOnly(file) {
   const { DatabaseSync } = process.getBuiltinModule("node:sqlite");
   return new DatabaseSync(file, { readOnly: true });
@@ -260,8 +267,7 @@ export async function watchForTransitions(settings, handlers) {
   const own = readSettings(settings);
   const signal = handlers.signal;
   const now = handlers.now ?? (() => Date.now());
-  const home = handlers.home ?? userInfo().homedir;
-  const file = path.isAbsolute(own.database) ? own.database : path.join(home, own.database);
+  const file = path.isAbsolute(own.database) ? own.database : path.join(handlers.home ?? homeFolder(), own.database);
   const open = handlers.open ?? openReadOnly;
   const watchFolder = handlers.watchFolder ?? ((folder, wake) => watch(folder, { persistent: true }, wake));
 

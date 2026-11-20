@@ -1447,6 +1447,13 @@
                 "operations": [
                   "wake:arrive"
                 ]
+              },
+              {
+                "at": "@own-records",
+                "id": "something-showed-up",
+                "operations": [
+                  "wake:arrive"
+                ]
               }
             ]
           },

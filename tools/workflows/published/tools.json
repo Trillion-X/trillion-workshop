@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:e5e8c1ff25b1469e278f14753fc76d432e6eedb205b891ae0e30600d45f13f5d"
+  "blake3": "1f:e38f15ea6cf81f9692714e553a5640cdd2f20d1ab942fedcb39980496d4df878"
  },
  "fields": [
   {
@@ -2902,6 +2902,21 @@
      "placement:small-container"
     ],
     "folder": "where-a-person-stands"
+   }
+  },
+  {
+   "id": "tool:create-a-space",
+   "values": {
+    "title": "Start a space",
+    "job": "Start a shared space with this person as its owner and first member, as its space row and the owner's member row, for the caller to store",
+    "description": "Answers the new record:space row and the owner's record:space-member row under `keep` for the caller to store. This person is the owner and first member. A space id already in the records is refused. A community is joined by its own rules and is not made here. It replaces the old create_membership.",
+    "status": "active",
+    "maker": "maker:space-members",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "space-members"
    }
   },
   {
@@ -6133,6 +6148,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:list-my-stays",
+   "values": {
+    "title": "List my stays",
+    "job": "List a person's own stays, inactive ones included, from their own database",
+    "description": "Lists this person's own stays, newest first (up to 100), each with its title, city or area, price and whether it is active. Give database and person. Reads only the person's own stays; it does not read other people's.",
+    "status": "active",
+    "maker": "maker:save-and-list-my-stays",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "save-and-list-my-stays"
    }
   },
   {
@@ -10145,6 +10175,21 @@
    }
   },
   {
+   "id": "tool:read-shared-decision",
+   "values": {
+    "title": "Read the anonymous shared entry of a decision",
+    "job": "Read back the anonymous entry a decision was shared as, with the review it was checked under",
+    "description": "Reads the anonymous shared entry tool:share-a-decision kept on a decision: its five shared fields and the review identity it was checked under. No goal, evidence or person field is read or returned. A decision that was never shared is refused. The caller hands in the decision's records as records.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
+   }
+  },
+  {
    "id": "tool:read-sharing-state",
    "values": {
     "title": "Read my sharing and stories",
@@ -11444,6 +11489,21 @@
      "placement:small-container"
     ],
     "folder": "read-and-write-mail"
+   }
+  },
+  {
+   "id": "tool:save-a-stay",
+   "values": {
+    "title": "Save a stay",
+    "job": "Offer or change a place a person hosts, in their own database",
+    "description": "Saves one stay the person offers: a city or area (never a street address), a price (free, ask, or a per-night amount in cents with a currency) and whether it is active. Give database and person; stay_id changes one of their stays. A person can have at most 6 active stays; an inactive one is always saved. The stay is kept in this database's stays table. Refused when the stay is not the person's.",
+    "status": "active",
+    "maker": "maker:save-and-list-my-stays",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "save-and-list-my-stays"
    }
   },
   {
