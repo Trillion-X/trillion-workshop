@@ -176,3 +176,79 @@ test('a plan is recorded only in the shape that was asked for', () => {
   unnamed[1].tactics[2].label = '';
   assert.throws(() => record([3, 3], { strategies: unnamed }), /tactic needs a tacticId and a label/);
 });
+
+// The records the person's scouting writes (ported from the package's add-report, add-court-zone-profile, record-result
+// and latest-plan builders). Each record is read back through the same readers the screen used.
+const writeReport = extra => scoutAnOpponent({ operation: 'record-report', subject_id: 'p:opp', subject_label: 'Birch', author_id: 'coach:1', now: NOW, ...extra });
+
+test('a report is private unless the person says public, lists are trimmed and without repeats, and it reads back as evidence', () => {
+  const { subject_record: subjectRecord, report_record: reportRecord } = writeReport({
+    report_id: 'ev:new', facts: { hand: 'left' }, strengths: [' opening ', 'opening', ''], strategies_worked: ['Attack the second try'], notes: '  watch the return  ', confidence: 0.9,
+  });
+  assert.equal(subjectRecord.subjectId, 'p:opp');
+  assert.equal(subjectRecord.subjectKind, 'player');
+  assert.equal(subjectRecord.payload.hand, 'left');
+  assert.equal(subjectRecord.payload.isSelf, undefined);
+  assert.equal(reportRecord.evidenceId, 'ev:new');
+  assert.equal(reportRecord.evidenceKind, 'player-report');
+  assert.equal(reportRecord.payload.visibility, 'private');
+  assert.deepEqual(reportRecord.payload.strengths, ['opening']);
+  assert.equal(reportRecord.payload.notes, 'watch the return');
+  assert.equal(reportRecord.source.confidence, 0.9);
+  assert.equal(reportRecord.payload.confidence, 0.9);
+  const rows = [{ payload: subjectRecord }, { payload: reportRecord }];
+  const { opponents } = scoutAnOpponent({ operation: 'search', rows });
+  assert.equal(opponents[0].reportCount, 1);
+  const { evidence } = scoutAnOpponent({ operation: 'profile', subject_id: 'p:opp', rows, confidence_policy: POLICY_HALF });
+  assert.deepEqual(evidence.usable, ['ev:new']);
+  assert.equal(writeReport({ visibility: 'public' }).report_record.payload.visibility, 'public');
+  assert.equal(writeReport({ is_self: true }).subject_record.payload.isSelf, true);
+  assert.throws(() => writeReport({ author_id: undefined }), /author_id is required/);
+  assert.throws(() => writeReport({ confidence: 'high' }), /confidence must be a number/);
+});
+
+test('a profile keeps the facts it is given, refuses a rating outside 0 to 100 and leaves a missing rating out', () => {
+  const { profile_record: profileRecord } = scoutAnOpponent({
+    operation: 'record-profile', subject_id: 'p:opp', profile_kind: 'zone-profile', profile_id: 'profile:new', now: NOW,
+    source: { sourceId: 'source:old-prompt', visibility: 'public' },
+    payload: {
+      hand: ' left ', quadrantMeaning: { A: 'wide forehand', E: 'deep lob' }, strongest: 'forehand', style: 'all-court',
+      winners: { from: 'B', to: 'D', rallyContext: 'short ball after serve plus one' }, errors: { from: 'C' },
+      ratings: { 'first-serve': 91, 'second-serve': null, volley: undefined },
+    },
+  });
+  assert.equal(profileRecord.kind, 'profile-projection');
+  assert.equal(profileRecord.projectionKind, 'zone-profile');
+  assert.equal(profileRecord.payload.hand, 'left');
+  assert.deepEqual(profileRecord.payload.quadrantMeaning, { A: 'wide forehand', E: 'deep lob' });
+  assert.deepEqual(profileRecord.payload.winners, { from: 'B', to: 'D', rallyContext: 'short ball after serve plus one' });
+  assert.deepEqual(profileRecord.payload.ratings, { 'first-serve': 91 });
+  assert.throws(() => scoutAnOpponent({ operation: 'record-profile', subject_id: 'p:opp', profile_kind: 'zone-profile', source: { sourceId: 's' }, payload: { ratings: { forehand: 101 } } }), /forehand rating must be between 0 and 100/);
+  assert.throws(() => scoutAnOpponent({ operation: 'record-profile', subject_id: 'p:opp', source: { sourceId: 's' }, payload: {} }), /profile_kind is required/);
+  assert.throws(() => scoutAnOpponent({ operation: 'record-profile', subject_id: 'p:opp', profile_kind: 'zone-profile', payload: {} }), /source needs a sourceId/);
+});
+
+test('a tactic result keeps its outcome and the plan, strategy and tactic it came from, and reads back on the profile', () => {
+  const { result_record: result } = prepareAMatchPlan({
+    operation: 'record-result', result_id: 'result:new', self_id: 'p:self', opponent_id: 'p:opp', plan_id: 'plan:1',
+    strategy_id: 'strategy:1', tactic_id: 'tactic:1', outcome: 'worked', notes: ' held the line ', match_ref: 'match:7', now: NOW,
+  });
+  assert.equal(result.resultKind, 'tactic-outcome');
+  assert.deepEqual(result.sourceRefs, ['plan:1', 'strategy:1', 'tactic:1', 'match:7']);
+  assert.equal(result.payload.notes, 'held the line');
+  const rows = seed().concat({ payload: result });
+  const view = profileForSubject(readScoutingState(rows), 'p:opp');
+  assert.equal(view.tacticOutcomes.at(-1).tacticLabel, 'Take the first move');
+  assert.ok(view.strategiesWorked.includes('Take the first move'));
+  assert.throws(() => prepareAMatchPlan({ operation: 'record-result', self_id: 'p:self', opponent_id: 'p:opp', outcome: 'maybe' }), /outcome must be worked, failed or mixed/);
+  assert.throws(() => prepareAMatchPlan({ operation: 'record-result', opponent_id: 'p:opp', outcome: 'worked' }), /self_id is required/);
+});
+
+test('the latest plan between the two is found by its time, and none is null', () => {
+  const older = { payload: { ...plan.payload, planId: 'plan:0', resultId: 'plan:0', createdAt: '2025-12-01T09:00:00.000Z' } };
+  const rows = [older, plan];
+  assert.equal(prepareAMatchPlan({ operation: 'latest-plan', rows, self_id: 'p:self', opponent_id: 'p:opp' }).plan_record.planId, 'plan:1');
+  assert.equal(prepareAMatchPlan({ operation: 'latest-plan', rows: [], self_id: 'p:self', opponent_id: 'p:opp' }).plan_record, null);
+  assert.equal(prepareAMatchPlan({ operation: 'latest-plan', rows, self_id: 'p:opp', opponent_id: 'p:self' }).plan_record, null);
+  assert.throws(() => prepareAMatchPlan({ operation: 'latest-plan', self_id: 'p:self', opponent_id: 'p:opp' }), /rows must be a list/);
+});

@@ -9,20 +9,19 @@
 //                allows are in the text; with no policy none is. Missing facts are left out, never written as "unknown".
 //   record-plan  { plan_id, request_id, self_id, opponent_id, strategies, plan_shape, evidence_refs?, now? }
 //                -> { plan_record }: the match-plan result once its shape is the one asked for
+//   record-result  { self_id, opponent_id, outcome: worked | failed | mixed, result_id?, plan_id?, strategy_id?, tactic_id?,
+//                    notes?, match_ref?, now? }
+//                -> { result_record }: a tactic tried in a match, with the plan, strategy and tactic it came from
+//   latest-plan  { rows, self_id, opponent_id }
+//                -> { plan_record }: the latest match plan between the two, or null
 // The plan itself is written by the AI that reads promptText; this command only prepares what it reads and checks what it
 // wrote, and calls no model.
-import { randomUUID } from 'node:crypto';
 import { runAsMain } from '../read-data/run-as-main.mjs';
 import {
-  assertPlanShape, assertPolicy, assertShape, buildPlanPrompt, profileForSubject, profileView, readScoutingState,
-  splitEvidenceByConfidence,
+  assertPlanShape, assertPolicy, assertShape, buildPlanPrompt, latestPlanFor, profileForSubject, profileView,
+  readScoutingState, splitEvidenceByConfidence, tacticResultRecord, timeOf,
 } from '../read-data/scouting.mjs';
-
-function timeOf(now) {
-  const when = now === undefined ? new Date() : new Date(now);
-  if (Number.isNaN(when.getTime())) throw new Error('now must be an ISO time such as 2026-01-01T09:00:00Z.');
-  return when.toISOString();
-}
+import { randomUUID } from 'node:crypto';
 
 function context(input) {
   const shape = assertShape(input.plan_shape);
@@ -83,7 +82,12 @@ export function prepareAMatchPlan(input) {
       if (!Array.isArray(input.rows)) throw new Error('rows must be a list of records.');
       return context(input);
     case 'record-plan': return recordPlan(input);
-    default: throw new Error('operation must be context or record-plan.');
+    case 'record-result': return { result_record: tacticResultRecord(input) };
+    case 'latest-plan':
+      if (!Array.isArray(input.rows)) throw new Error('rows must be a list of records.');
+      for (const name of ['self_id', 'opponent_id']) if (!input[name]) throw new Error(`${name} is required.`);
+      return { plan_record: latestPlanFor(input.rows, input.self_id, input.opponent_id) };
+    default: throw new Error('operation must be context, record-plan, record-result or latest-plan.');
   }
 }
 

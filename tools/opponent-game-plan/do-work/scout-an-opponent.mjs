@@ -9,10 +9,27 @@
 //            reports apart), and which reports the confidence policy lets a plan use
 // The policy is { minimumConfidence, missingConfidenceIsUsable }, given here or as an evidence-confidence-policy row; with
 // none, no report is usable. subject_kind and profile_kind keep only subjects and profiles of that kind.
+// record-report  { subject_id, subject_label, author_id, report_id?, subject_kind?, is_self?, facts?, visibility?, style_labels?,
+//                  strengths?, weaknesses?, strategies_worked?, strategies_failed?, notes?, confidence?, now? }
+//                -> { subject_record, report_record }: a subject and a report of evidence, private unless visibility says public
+// record-profile { subject_id, profile_kind, source: { sourceId, ... }, payload: { ...facts, ratings?: { name: 0-100 } }, profile_id?, now? }
+//                -> { profile_record }: a profile projection; a rating outside 0 to 100 is refused, never written
 import { runAsMain } from '../read-data/run-as-main.mjs';
-import { assertPolicy, profileForSubject, readScoutingState, searchRows, splitEvidenceByConfidence } from '../read-data/scouting.mjs';
+import {
+  assertPolicy, profileForSubject, profileRecord, readScoutingState, reportRecord, searchRows, splitEvidenceByConfidence,
+  subjectRecord,
+} from '../read-data/scouting.mjs';
 
 export function scoutAnOpponent(input) {
+  switch (input?.operation) {
+    case 'record-report': return { subject_record: subjectRecord(input), report_record: reportRecord(input) };
+    case 'record-profile': return { profile_record: profileRecord(input) };
+    case 'search': case 'profile': return scoutFromRows(input);
+    default: throw new Error('operation must be search, profile, record-report or record-profile.');
+  }
+}
+
+function scoutFromRows(input) {
   if (!Array.isArray(input?.rows)) throw new Error('rows must be a list of records.');
   const state = readScoutingState(input.rows, input);
   switch (input.operation) {

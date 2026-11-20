@@ -190,15 +190,32 @@
         "description": "Give the person's records and an operation. search lists every subject that is not the person themself, with how many reports and profiles are on file and how many tactics worked and failed against them. profile (with subject_id) joins the subject's reports (player-report evidence), profiles (profile-projection) and tactic outcomes into one view: strengths, weaknesses, strategies that worked and failed, style labels, ratings (any name, numbers 0 to 100; a value outside that is left out, not guessed), public and private reports apart, and the outcomes of tactics from earlier plans. It also says which reports a plan may use: the confidence policy is { minimumConfidence, missingConfidenceIsUsable }, given as confidence_policy or as an evidence-confidence-policy record in the rows, and with none no report is usable (every one waits for review). A report's confidence is its source's, else its own. Nothing here names a sport: the words for ratings, styles and facts are the ones in the records.",
         "input_schema": {
           "type": "object",
-          "required": ["operation", "rows"],
+          "required": ["operation"],
           "additionalProperties": false,
           "properties": {
-            "operation": { "type": "string", "enum": ["search", "profile"], "description": "What to do" },
-            "rows": { "type": "array", "items": { "type": "object" }, "description": "The records (subject, evidence, profile-projection, result, evidence-confidence-policy), each as { payload } or the record itself" },
-            "subject_id": { "type": "string", "description": "profile: the subject to pull together" },
+            "operation": { "type": "string", "enum": ["search", "profile", "record-report", "record-profile"], "description": "What to do" },
+            "rows": { "type": "array", "items": { "type": "object" }, "description": "search and profile: the records (subject, evidence, profile-projection, result, evidence-confidence-policy), each as { payload } or the record itself" },
+            "subject_id": { "type": "string", "description": "profile: the subject to pull together; record-report and record-profile: the subject the record is about" },
             "confidence_policy": { "type": "object", "description": "{ minimumConfidence: number, missingConfidenceIsUsable: true or false }; replaces a policy record in the rows", "additionalProperties": true },
-            "subject_kind": { "type": "string", "description": "Keep only subjects of this subjectKind" },
-            "profile_kind": { "type": "string", "description": "Keep only profiles of this projectionKind" }
+            "subject_kind": { "type": "string", "description": "Keep only subjects of this subjectKind; record-report and record-profile: the subject's kind (default player)" },
+            "profile_kind": { "type": "string", "description": "Keep only profiles of this projectionKind; record-profile: the kind of profile (required)" },
+            "subject_label": { "type": "string", "description": "record-report: the subject's name" },
+            "is_self": { "type": "boolean", "description": "record-report: true when the subject is the person themself" },
+            "facts": { "type": "object", "description": "record-report: facts about the subject (hand, and any other the person names)", "additionalProperties": true },
+            "report_id": { "type": "string", "description": "record-report: an id for the report (made when absent)" },
+            "author_id": { "type": "string", "description": "record-report: who wrote the report" },
+            "visibility": { "type": "string", "description": "record-report: public or private (private when absent)" },
+            "style_labels": { "type": "array", "items": { "type": "string" }, "description": "record-report: the style words the person uses" },
+            "strengths": { "type": "array", "items": { "type": "string" }, "description": "record-report: strengths, in the person's words" },
+            "weaknesses": { "type": "array", "items": { "type": "string" }, "description": "record-report: weaknesses, in the person's words" },
+            "strategies_worked": { "type": "array", "items": { "type": "string" }, "description": "record-report: what worked against this subject" },
+            "strategies_failed": { "type": "array", "items": { "type": "string" }, "description": "record-report: what did not work against this subject" },
+            "notes": { "type": "string", "description": "record-report: free notes" },
+            "confidence": { "type": "number", "description": "record-report: how sure the report is; the confidence policy reads it" },
+            "source": { "type": "object", "description": "record-profile: where the profile facts came from: { sourceId, visibility? , confidence? }", "additionalProperties": true },
+            "payload": { "type": "object", "description": "record-profile: the profile facts; ratings is { name: a number from 0 to 100 }", "additionalProperties": true },
+            "profile_id": { "type": "string", "description": "record-profile: an id for the profile (made when absent)" },
+            "now": { "type": "string", "description": "record and profile times: an ISO time (the clock when absent)" }
           }
         },
         "output_schema": {
@@ -206,7 +223,10 @@
           "properties": {
             "opponents": { "type": "array", "items": { "type": "object" }, "description": "search: { subjectId, name, facts, styleLabels, reportCount, profileCount, workedCount, failedCount }" },
             "profile": { "type": "object", "description": "profile: the joined view" },
-            "evidence": { "type": "object", "description": "profile: { usable: [report ids], needsReview: [report ids] }" }
+            "evidence": { "type": "object", "description": "profile: { usable: [report ids], needsReview: [report ids] }" },
+            "subject_record": { "type": "object", "description": "record-report: the subject record to write" },
+            "report_record": { "type": "object", "description": "record-report: the evidence record to write" },
+            "profile_record": { "type": "object", "description": "record-profile: the profile projection record to write" }
           }
         },
         "invoke": {
@@ -427,10 +447,10 @@
         "description": "Calls no model: the AI that reads the brief writes the plan. context takes the person's records, who is self and who is the opponent, who asked, and plan_shape { strategies, tactics_per_strategy } (how many of each the person wants; both required). It returns a plan-request record whose promptText asks for exactly that shape and then lists what only the usable evidence says of each side, one line per fact: names, facts, style, strongest, weakest, strategies that worked and did not work (earlier tactic outcomes included), ratings out of 100 and any other fact in the profile. Missing facts are left out, never written as unknown. It also lists the ids of the public, private and to-be-reviewed reports, the profiles and the tactic results behind the brief. A report is usable only if the confidence policy allows it (confidence_policy, or an evidence-confidence-policy record in the rows); with no policy none is, and every report is listed for review. record-plan takes the written strategies (each { strategyId, name, tactics: [{ tacticId, label, reason? }] }) and returns the match-plan result record only if it has exactly the strategies and tactics asked for. Records come back for the caller to write; nothing is kept here.",
         "input_schema": {
           "type": "object",
-          "required": ["operation", "plan_shape"],
+          "required": ["operation"],
           "additionalProperties": false,
           "properties": {
-            "operation": { "type": "string", "enum": ["context", "record-plan"], "description": "What to do" },
+            "operation": { "type": "string", "enum": ["context", "record-plan", "record-result", "latest-plan"], "description": "What to do" },
             "plan_shape": { "type": "object", "required": ["strategies", "tactics_per_strategy"], "properties": { "strategies": { "type": "integer", "minimum": 1 }, "tactics_per_strategy": { "type": "integer", "minimum": 1 } }, "description": "How many strategies, and how many tactics in each, the plan has" },
             "rows": { "type": "array", "items": { "type": "object" }, "description": "context: the records, each as { payload } or the record itself" },
             "self_id": { "type": "string", "description": "The subject id of the person's own side" },
@@ -443,6 +463,12 @@
             "evidence_refs": { "type": "array", "items": { "type": "string" }, "description": "record-plan: the report ids the plan rests on" },
             "subject_kind": { "type": "string" },
             "profile_kind": { "type": "string" },
+            "result_id": { "type": "string", "description": "record-result: an id for the result (made when absent)" },
+            "outcome": { "type": "string", "enum": ["worked", "failed", "mixed"], "description": "record-result: how the tactic went" },
+            "strategy_id": { "type": "string", "description": "record-result: the strategy the tactic belongs to" },
+            "tactic_id": { "type": "string", "description": "record-result: the tactic tried" },
+            "match_ref": { "type": "string", "description": "record-result: the match it was tried in" },
+            "notes": { "type": "string", "description": "record-result: free notes" },
             "now": { "type": "string", "description": "An ISO time for the record (the clock when absent)" }
           }
         },
@@ -450,7 +476,8 @@
           "type": "object",
           "properties": {
             "request_record": { "type": "object", "description": "context: the plan-request record, with promptText" },
-            "plan_record": { "type": "object", "description": "record-plan: the match-plan result record" }
+            "plan_record": { "type": "object", "description": "record-plan: the match-plan result record; latest-plan: the latest plan between the two, or null" },
+            "result_record": { "type": "object", "description": "record-result: the tactic-outcome record to write" }
           }
         },
         "invoke": {

@@ -6,10 +6,10 @@ Pulls together what a person has on file about an opponent, says which notes are
 
 | File | Purpose |
 |------|---------|
-| `read-data/scouting.mjs` | The records read and joined into a profile (one place makes a profile, whether from all reports or the usable ones), the search rows, the confidence split, the plan-shape check and the brief's text. |
+| `read-data/scouting.mjs` | The records read and joined into a profile (one place makes a profile, whether from all reports or the usable ones), the search rows, the confidence split, the plan-shape check, the brief's text, and the record builders (subject, report, profile projection, tactic result) and the latest plan. |
 | `read-data/run-as-main.mjs` | How a command runs: one JSON request on standard input, one JSON line out. |
-| `do-work/scout-an-opponent.mjs` | The command of `tool:scout-an-opponent`: `search` and `profile`. |
-| `do-work/prepare-a-match-plan.mjs` | The command of `tool:prepare-a-match-plan`: `context` (the plan-request record with its brief) and `record-plan` (the match-plan record, shape checked). |
+| `do-work/scout-an-opponent.mjs` | The command of `tool:scout-an-opponent`: `search` and `profile`, and `record-report` (a subject and a private-by-default report) and `record-profile` (a profile projection; ratings outside 0 to 100 refused). |
+| `do-work/prepare-a-match-plan.mjs` | The command of `tool:prepare-a-match-plan`: `context` (the plan-request record with its brief), `record-plan` (the match-plan record, shape checked), `record-result` (a tactic worked, failed or mixed) and `latest-plan` (the latest plan between two subjects, or null). |
 | `tool-rows.json` | The two tool rows. |
 | `part.json` | No module here is offered to other tools. |
 | `test/scouting.test.mjs` | The join, ratings, search, the policy (fail closed), the brief with low-confidence evidence left out, the plan shape. An invented game and made-up players. |
@@ -36,7 +36,7 @@ Pulls together what a person has on file about an opponent, says which notes are
 
 **Depends on:** Node 24 in the tool container.
 
-**Not carried:** the builders that wrapped a player report, a court-zone profile and a tactic result into a record and submitted it to the old workflow slot (engine plumbing); the profile builder's closed lists of court zones, shot names and playing styles (the person's words now); the live-engine proof test (it read a running engine); and the screens. The record fields for a profile are neutral (`strongest`, `weakest`, `style`, `ratings`), so records written for the old package need those four renamed.
+**Not carried:** the submission of the four write actions (`action:opponent-game-plan.add-report`, `add-court-zone-profile`, `request-plan`, `record-result`) to the retired Bitfield workflow slot: the records they built now come back from the commands above for the caller to write. The record builders themselves are ported (`record-report`, `record-profile`, `record-result`, `latest-plan`), without the old closed list of court zones A to D; the profile builder's closed lists of shot names and playing styles (the person's words now); the live-engine proof test (it read a running engine); and the screens. The record fields for a profile are neutral (`strongest`, `weakest`, `style`, `ratings`), so records written for the old package need those four renamed.
 
 **Depended on by:** Trillion, which reads `tool-rows.json` when it deploys.
 

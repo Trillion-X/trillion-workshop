@@ -14,6 +14,8 @@
 //   evidence-confidence-policy  { kind, policyId, minimumConfidence, missingConfidenceIsUsable }
 // Nothing here names a sport: what a rating, a style or a fact is called is the person's own words in their records.
 
+import { randomUUID } from 'node:crypto';
+
 const isRecord = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const payloadOf = row => (isRecord(row) ? (row.payload ?? row.value ?? row) : row);
 const field = (value, name) => (isRecord(value) && typeof value[name] === 'string' ? value[name] : '');
@@ -202,4 +204,138 @@ export function buildPlanPrompt(selfView, opponentView, shape) {
     '',
     ...profileLines('Opponent', opponentView),
   ].join('\n');
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// The records the person's scouting writes: a subject, a report of evidence, a profile projection, a tactic result.
+// Each builder returns the record for the caller to write; none keeps anything. Text is trimmed and empty text is left
+// out. The outcomes a tactic can have are the three the readers count: worked, failed, mixed.
+
+export const TACTIC_OUTCOMES = ['worked', 'failed', 'mixed'];
+
+export function timeOf(now) {
+  const when = now === undefined ? new Date() : new Date(now);
+  if (Number.isNaN(when.getTime())) throw new Error('now must be an ISO time such as 2026-01-01T09:00:00Z.');
+  return when.toISOString();
+}
+
+const textOf = value => (typeof value === 'string' && value.trim() ? value.trim() : undefined);
+const textListOf = values => [...new Set(listOf(values).map(textOf).filter(Boolean))];
+const newId = prefix => `${prefix}:${randomUUID()}`;
+
+function requireText(input, names) {
+  for (const name of names) if (!textOf(input[name])) throw new Error(`${name} is required.`);
+}
+
+// Ratings are whole or fractional numbers from 0 to 100; null and missing are left out. Anything else is refused on write
+// (the reader leaves it out, never guesses it).
+export function ratingsOf(values) {
+  if (values === undefined || values === null) return {};
+  if (!isRecord(values)) throw new Error('ratings must be { name: a number from 0 to 100 }.');
+  const ratings = {};
+  for (const [name, value] of Object.entries(values)) {
+    if (value === null || value === undefined) continue;
+    if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 100) throw new Error(`${name} rating must be between 0 and 100.`);
+    ratings[name] = value;
+  }
+  return ratings;
+}
+
+// A subject: someone in the scouting, the person themself or an opponent. Written again, it replaces the one before.
+export function subjectRecord({ subject_id, subject_label, subject_kind = 'player', is_self, facts = {}, now }) {
+  requireText({ subject_id, subject_label }, ['subject_id', 'subject_label']);
+  if (!isRecord(facts)) throw new Error('facts must be a record of the subject facts.');
+  return {
+    kind: 'subject',
+    subjectId: subject_id,
+    subjectKind: subject_kind,
+    label: subject_label.trim(),
+    payload: { ...facts, ...(is_self === true ? { isSelf: true } : {}) },
+    createdAt: timeOf(now),
+  };
+}
+
+// A report of evidence about a subject. Private unless the person says public; its confidence is kept on the source and
+// the payload, where the policy reads it.
+export function reportRecord({ report_id, subject_id, subject_label, subject_kind = 'player', author_id, visibility = 'private',
+  style_labels, strengths, weaknesses, strategies_worked, strategies_failed, notes, confidence, now }) {
+  requireText({ subject_id, author_id }, ['subject_id', 'author_id']);
+  if (confidence !== undefined && (typeof confidence !== 'number' || !Number.isFinite(confidence))) throw new Error('confidence must be a number.');
+  const evidenceId = report_id ?? newId('evidence');
+  return {
+    kind: 'evidence',
+    evidenceId,
+    subject: { id: subject_id, kind: subject_kind, label: textOf(subject_label) },
+    evidenceKind: 'player-report',
+    source: { sourceId: author_id, visibility, confidence },
+    payload: {
+      authorId: author_id,
+      visibility,
+      styleLabels: textListOf(style_labels),
+      strengths: textListOf(strengths),
+      weaknesses: textListOf(weaknesses),
+      strategiesWorked: textListOf(strategies_worked),
+      strategiesFailed: textListOf(strategies_failed),
+      notes: textOf(notes),
+      confidence,
+    },
+    createdAt: timeOf(now),
+  };
+}
+
+// A profile projection: facts about a subject from one source (court-zone notes, shot ratings, anything the person names).
+// Strings are trimmed, empty facts are left out, and ratings are checked by ratingsOf.
+export function profileRecord({ profile_id, subject_id, subject_kind = 'player', profile_kind, source, payload = {}, now }) {
+  requireText({ subject_id, profile_kind }, ['subject_id', 'profile_kind']);
+  if (!isRecord(source) || !textOf(source.sourceId)) throw new Error('source needs a sourceId.');
+  if (!isRecord(payload)) throw new Error('payload must be a record of the profile facts.');
+  const facts = {};
+  for (const [key, value] of Object.entries(payload)) {
+    if (key === 'ratings' || value === undefined || value === null) continue;
+    const kept = typeof value === 'string' ? textOf(value) : value;
+    if (kept !== undefined) facts[key] = kept;
+  }
+  return {
+    kind: 'profile-projection',
+    profileId: profile_id ?? newId('profile-projection'),
+    subject: { id: subject_id, kind: subject_kind },
+    projectionKind: profile_kind,
+    source,
+    sourceRefs: [source.sourceId],
+    payload: { ...facts, ratings: ratingsOf(payload.ratings) },
+    createdAt: timeOf(now),
+  };
+}
+
+// A tactic tried in a match: its outcome, and the plan, strategy and tactic it came from when given.
+export function tacticResultRecord({ result_id, self_id, opponent_id, plan_id, strategy_id, tactic_id, outcome, notes, match_ref, now }) {
+  requireText({ self_id, opponent_id }, ['self_id', 'opponent_id']);
+  if (!TACTIC_OUTCOMES.includes(outcome)) throw new Error('outcome must be worked, failed or mixed.');
+  const refs = [plan_id, strategy_id, tactic_id, match_ref].map(textOf).filter(Boolean);
+  return {
+    kind: 'result',
+    resultKind: 'tactic-outcome',
+    resultId: result_id ?? newId('result'),
+    subject: { id: opponent_id, kind: 'player' },
+    selfPlayerId: self_id,
+    opponentPlayerId: opponent_id,
+    sourceRefs: refs,
+    payload: {
+      planId: textOf(plan_id),
+      strategyId: textOf(strategy_id),
+      tacticId: textOf(tactic_id),
+      outcome,
+      notes: textOf(notes),
+      matchRef: textOf(match_ref),
+    },
+    createdAt: timeOf(now),
+  };
+}
+
+// The latest match plan between a person and an opponent (the one the tactics are marked on), or null.
+export function latestPlanFor(rows, selfId, opponentId) {
+  const { plans } = readScoutingState(rows);
+  return plans
+    .filter(plan => plan.selfPlayerId === selfId && plan.opponentPlayerId === opponentId)
+    .sort((a, b) => String(b.createdAt ?? '').localeCompare(String(a.createdAt ?? '')))[0] ?? null;
 }
