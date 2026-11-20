@@ -12,6 +12,7 @@
    ],
    "payload": {
     "uses_tools": [
+      "trillion-workshop/account-dashboard",
       "trillion-workshop/account-session",
       "trillion-workshop/addressed-marks",
       "trillion-workshop/agents-hub",
@@ -82,6 +83,7 @@
       "trillion-workshop/learn-a-workflow-from-a-job",
       "trillion-workshop/learn-from-everyones-results",
       "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
       "trillion-workshop/let-someone-look-at-my-account-read",
       "trillion-workshop/list-tools-for-an-ai",
       "trillion-workshop/listen-for-a-while",
@@ -96,6 +98,7 @@
       "trillion-workshop/media-identity",
       "trillion-workshop/media-playback",
       "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
       "trillion-workshop/models-on-this-computer",
       "trillion-workshop/move-records-through-declared-states",
       "trillion-workshop/native-space-source-release",
@@ -129,6 +132,7 @@
       "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
       "trillion-workshop/run-experiments",
       "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
       "trillion-workshop/run-tools-in-my-signed-in-browser",
       "trillion-workshop/run-work-later-or-on-a-repeat",
       "trillion-workshop/screen-arrangement",
@@ -422,6 +426,7 @@
   {
    "payload": {
     "uses_tools": [
+      "trillion-workshop/account-dashboard",
       "trillion-workshop/account-session",
       "trillion-workshop/addressed-marks",
       "trillion-workshop/agents-hub",
@@ -492,6 +497,7 @@
       "trillion-workshop/learn-a-workflow-from-a-job",
       "trillion-workshop/learn-from-everyones-results",
       "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
       "trillion-workshop/let-someone-look-at-my-account-read",
       "trillion-workshop/list-tools-for-an-ai",
       "trillion-workshop/listen-for-a-while",
@@ -506,6 +512,7 @@
       "trillion-workshop/media-identity",
       "trillion-workshop/media-playback",
       "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
       "trillion-workshop/models-on-this-computer",
       "trillion-workshop/move-records-through-declared-states",
       "trillion-workshop/native-space-source-release",
@@ -539,6 +546,7 @@
       "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
       "trillion-workshop/run-experiments",
       "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
       "trillion-workshop/run-tools-in-my-signed-in-browser",
       "trillion-workshop/run-work-later-or-on-a-repeat",
       "trillion-workshop/screen-arrangement",
@@ -762,6 +770,7 @@
   {
    "payload": {
     "uses_tools": [
+      "trillion-workshop/account-dashboard",
       "trillion-workshop/account-session",
       "trillion-workshop/addressed-marks",
       "trillion-workshop/agents-hub",
@@ -832,6 +841,7 @@
       "trillion-workshop/learn-a-workflow-from-a-job",
       "trillion-workshop/learn-from-everyones-results",
       "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
       "trillion-workshop/let-someone-look-at-my-account-read",
       "trillion-workshop/list-tools-for-an-ai",
       "trillion-workshop/listen-for-a-while",
@@ -846,6 +856,7 @@
       "trillion-workshop/media-identity",
       "trillion-workshop/media-playback",
       "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
       "trillion-workshop/models-on-this-computer",
       "trillion-workshop/move-records-through-declared-states",
       "trillion-workshop/native-space-source-release",
@@ -879,6 +890,7 @@
       "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
       "trillion-workshop/run-experiments",
       "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
       "trillion-workshop/run-tools-in-my-signed-in-browser",
       "trillion-workshop/run-work-later-or-on-a-repeat",
       "trillion-workshop/screen-arrangement",

@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:29048a9987e281c3f22e2acb2a0945c2985e872c89b53654b066f9acf7c59d23"
+  "blake3": "1f:8feb00af22ded5efe29b06b6be89aaf241ba2c1e33d0925307a45ab2e5c6ce34"
  },
  "fields": [
   {
@@ -2727,6 +2727,21 @@
    }
   },
   {
+   "id": "tool:copy-a-file-into-a-storage-place",
+   "values": {
+    "title": "Copy a file into a storage place",
+    "job": "Copy one of the person's files, any size, into a folder of a storage place they were given, or say plainly that they may not add files there",
+    "description": "Asks the storage place whether the person's account may add a file to the folder; when it may not, answers that in words with the folder's name and copies nothing. Otherwise opens one resumable upload with the account's connection and sends the file to it one piece at a time, each piece read by byte range from the file's address (a share link of the person's files), so memory holds one piece whatever the file's size. The places are DATA (read-data/storage-places.json: Google Drive and OneDrive today; a new kind is an entry). The account's key arrives on descriptor 4 and goes only to the place's own host, or to Composio when the account was connected there; the upload's own address is never answered.",
+    "status": "active",
+    "maker": "maker:copy-a-file-into-a-storage-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "copy-a-file-into-a-storage-place"
+   }
+  },
+  {
    "id": "tool:copy-a-site",
    "values": {
     "title": "Copy a website",
@@ -3883,6 +3898,22 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:find-my-x-account",
+   "values": {
+    "title": "Find which X account the person's connection holds",
+    "job": "Find the X account id the person's connected X account holds, so a listening source knows whose posts it reads",
+    "description": "Asks X who the connected token belongs to (users/me) and answers the account's id, username and name. Reads only. The bookmark and like listeners keep this id as their route key, so they start only when it is known.",
+    "status": "active",
+    "maker": "maker:save-what-you-watch-and-read",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": null,
+    "folder": "save-what-you-watch-and-read"
    }
   },
   {
@@ -9209,6 +9240,21 @@
    }
   },
   {
+   "id": "tool:read-ai-apps",
+   "values": {
+    "title": "Read my AI apps and keys",
+    "job": "Say which AI apps are connected to my account and what each one can reach, how long it may go unused and how many calls a minute it may make, my personal keys by their last four characters, my pursuits an AI can be given, and my webhooks",
+    "description": "Give the account records: keys ([{ id, name, ending, created_at }]), grants (the sign-ins: [{ id, clientId, userId, createdAt, metadata: { clientName, reach, ceiling } }]), idles ({ sign_in: idle days }), calls ({ sign_in: calls lately }), spaces ([{ space_id, title }]) and hooks ([{ id, url, name, created_at, delivered }]). A part you could not read: send null. Returns apps, keys and webhooks_section, with every word and count the screen shows.",
+    "status": "active",
+    "maker": "maker:read-ai-apps",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "see-and-limit-what-each-ai-can-reach"
+   }
+  },
+  {
    "id": "tool:read-ai-setups",
    "values": {
     "title": "Read other AIs' setups",
@@ -9490,6 +9536,21 @@
    }
   },
   {
+   "id": "tool:read-link-page",
+   "values": {
+    "title": "Read my link in bio page",
+    "job": "Say what my link in bio page shows: whether it is on, its address for each place, my links, the posts it lists, and what people opened",
+    "description": "Give page ({ on, code, name, title, about, links: [{ link_id, label, url }] }, null for no page yet), counts (the visit and open rows the page keeps), posts (my posts: [{ post_id, status, caption, link, destinations }]) and origin (the address the page is read at). Returns the page facts: on, address, addresses, links, posts, counts and the words the screen uses.",
+    "status": "active",
+    "maker": "maker:read-link-page",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "share-links"
+   }
+  },
+  {
    "id": "tool:read-live-matches",
    "values": {
     "title": "Show live matches, their scores and a tournament board",
@@ -9632,6 +9693,21 @@
      "placement:your-computer"
     ],
     "folder": "pull-from-connected-accounts"
+   }
+  },
+  {
+   "id": "tool:read-my-trading-account-board",
+   "values": {
+    "title": "Read my trading account board",
+    "job": "Show my trading account: its value, today's change and goal, its own figures and what I hold, from the trading agent's last cycle",
+    "description": "Give cycle: the fact the trading agent keeps as its last cycle (agent:trading-momentum.last-cycle), as the store holds it (its value_json) or the cycle object itself. It only reads what you give: nothing is kept, sent or read from a broker. It answers live (true when the cycle was given and reads), headline (value, deltaValue, deltaPct, deltaTone, goalLabel, goalProgressPct, equitySeries), account (the cycle's own scalar figures) and positions (one record per holding; an option contract carries its label, such as AAPL $150 Call · Jan 16 '26). Without a readable cycle it answers live false and says nothing about the account.",
+    "status": "active",
+    "maker": "maker:trading",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "trading"
    }
   },
   {
