@@ -24,6 +24,9 @@ export type HostConfig = {
   door_write: string;
   /** The host's own sign-in page; the page returns to `next` after signing in. Without one, the workspace's sign-in address. */
   sign_in?: string;
+  /** The look the page wears, by its id among the workspace's looks (src/workspace/looks.json); without one, the look a new
+   *  account starts with. */
+  look?: string;
 };
 type Json = Record<string, unknown>;
 

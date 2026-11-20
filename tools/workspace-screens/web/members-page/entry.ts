@@ -28,10 +28,15 @@ import { sidebarCollections, type ScreenRow, type SidebarListsData } from '../sr
 import { activeRecordsSource } from '../src/workspace/records-source';
 import { setLiveChangesOffered } from '../src/workspace/store-changes';
 import { setSavedViewsOffered } from '../src/workspace/record-configurations';
+import { applyChosenScreenLook } from '../../../screen-look/show/apply-chosen-screen-look';
+import looks from '../src/workspace/looks.json';
 
 type ScreenModule = { mount: (element: HTMLElement, props: Record<string, unknown>) => ReturnType<WarmMount> };
 
 const host = readHostConfig();
+// The page wears a look as the workspace does (src/workspace/main.tsx): its tokens on the root and the bridges on the body, so
+// every shared part draws its edges, grounds and muted words in the look's colours instead of the browser's black.
+applyChosenScreenLook(looks.themes, looks.themes.some(row => row.payload?.id === host.look) ? host.look! : looks.start_with);
 // The members page has no Worker: no live channel (/work/live) and no saved configurations (/work/api/configurations), so it asks for
 // neither. Its screens keep what they show from the host's answers.
 setLiveChangesOffered(false);
