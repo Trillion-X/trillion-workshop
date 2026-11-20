@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs';
 import { text } from 'node:stream/consumers';
 import pg from 'pg';
 import { labelAPerson } from './label-a-person.mjs';
+import { throughProxy } from '../../run-sql-in-my-database/do-work/through-the-run-proxy.mjs';
 
 const CONNECTION_DESCRIPTOR = 3;
 
@@ -22,7 +23,8 @@ const postgres = client => async (sql, ...values) => {
 
 const input = JSON.parse((await text(process.stdin)) || '{}');
 const { database, ...label } = input;
-const client = new pg.Client({ connectionString: readFileSync(CONNECTION_DESCRIPTOR, 'utf8').trim() });
+const proxy = process.env.HTTPS_PROXY;
+const client = new pg.Client({ connectionString: readFileSync(CONNECTION_DESCRIPTOR, 'utf8').trim(), ...(proxy ? { stream: throughProxy(proxy) } : {}) });
 try {
   if (typeof database !== 'string' || !database) throw Object.assign(new Error('Name the database the label is written in.'), { status: 400 });
   await client.connect();

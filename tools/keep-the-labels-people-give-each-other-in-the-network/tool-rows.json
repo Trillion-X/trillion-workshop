@@ -99,6 +99,14 @@
                 "at": "/opt/introduce-two-people"
               },
               {
+                "package": "run-sql-in-my-database",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/run-sql-in-my-database"
+              },
+              {
                 "packages": [
                   "pg"
                 ],
@@ -345,7 +353,7 @@
           "placement:your-computer"
         ],
         "provenance": {
-          "source": "Old label_person: the retired source repository at b3bde0cadb (src/tools.mjs lines 72, 103) and tools.mjs.held at a476dd597 (lines 297-308); the owner's label write is native-network-moderation.mjs (origin, folder keep-the-labels-people-give-each-other-in-the-network). Ported by L13 Nov 20 2026."
+          "source": "Old label_person: the retired source repository at b3bde0cadb (src/tools.mjs lines 72, 103) and tools.mjs.held at a476dd597 (lines 297-308); the owner's label write is native-network-moderation.mjs. Mounted like tool:sales-contracts (its pg package set and database mount). Ported by L13 Nov 20 2026."
         }
       }
     }
