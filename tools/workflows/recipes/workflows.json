@@ -119208,7 +119208,10 @@
           }
         },
         "source": {
-          "from": "a decision method"
+          "from": "a decision method",
+          "names": [
+            "1000000000x-e2e-full-production-app-from-start.md"
+          ]
         },
         "fires_when": [
           {
@@ -119829,7 +119832,9 @@
           }
         },
         "source": {
-          "from": "a decision method"
+          "from": "a decision method",
+          "names": [],
+          "names_private_count": 7
         },
         "fires_when": [
           {
@@ -120444,7 +120449,10 @@
           }
         },
         "source": {
-          "from": "a decision method"
+          "from": "a decision method",
+          "names": [
+            "00-must-follow-this-mandate-perfection-rigor.md"
+          ]
         },
         "fires_when": [
           {
@@ -120716,7 +120724,10 @@
           }
         },
         "source": {
-          "from": "a decision method"
+          "from": "a decision method",
+          "names": [
+            "1000x-maximize-the-constraints.md"
+          ]
         },
         "fires_when": [
           {
@@ -121305,7 +121316,9 @@
         },
         "source": {
           "from": "a decision method",
-          "note": "Names a tool that no tool in the Workshop offers yet: tool:who-does-each-step."
+          "names": [
+            "worldview.json"
+          ]
         },
         "fires_when": [
           {
@@ -122018,7 +122031,10 @@
           }
         },
         "source": {
-          "from": "a decision method"
+          "from": "a decision method",
+          "names": [
+            "algorithm-elon-musk.md"
+          ]
         },
         "fires_when": [
           {
@@ -122570,7 +122586,10 @@
           }
         },
         "source": {
-          "from": "a decision method"
+          "from": "a decision method",
+          "names": [
+            "generic-naming.md"
+          ]
         },
         "fires_when": [
           {
@@ -122799,7 +122818,10 @@
           }
         },
         "source": {
-          "from": "a decision method"
+          "from": "a decision method",
+          "names": [
+            "plan-file-template.md"
+          ]
         },
         "fires_when": [
           {
@@ -123363,7 +123385,10 @@
           }
         },
         "source": {
-          "from": "a decision method"
+          "from": "a decision method",
+          "names": [
+            "L78-research-plus-first-principles-gauntlet-create-plan-fully-execute-e2e.md"
+          ]
         },
         "fires_when": [
           {
@@ -123674,7 +123699,10 @@
           }
         },
         "source": {
-          "from": "a decision method"
+          "from": "a decision method",
+          "names": [
+            "stop-looking-start-seeing-ebook"
+          ]
         },
         "fires_when": [
           {
@@ -124053,7 +124081,10 @@
           }
         },
         "source": {
-          "from": "a decision method"
+          "from": "a decision method",
+          "names": [
+            "adversarial-1000x-compliance-gate.md"
+          ]
         },
         "fires_when": [
           {
