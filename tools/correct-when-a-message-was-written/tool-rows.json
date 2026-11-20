@@ -1,0 +1,184 @@
+{
+  "kind": "tool-rows",
+  "record_set": "correct-when-a-message-was-written-tool-rows",
+  "what_this_is": "The Workshop row for tools/correct-when-a-message-was-written: a kept person message written without its original time gets the exact time the person wrote it, with the evidence. Rows in, rows out: the run reads no store.",
+  "records": [
+    {
+      "id": "package::correct-when-a-message-was-written::tool::correct-when-a-message-was-written",
+      "address": "package::correct-when-a-message-was-written::tool::correct-when-a-message-was-written",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/content-identity"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:correct-when-a-message-was-written",
+        "label": "Correct when a message was written",
+        "status": "active",
+        "job": "Show when the person actually wrote a message they kept without its original time: the message keeps its id, text and links, with the exact time and the evidence",
+        "description": "Give the kept message's id, the time it was really written (any past time; never one ahead of the clock), the evidence, and the rows read from the store ([{ id, type, value }]: the message and any earlier time correction). Answers the correction under `correction` and the rows that change under `keep` ([{ id, type, value, expected }]). Only a kept person message can be dated, never after its capture time, and the same correction again answers the first one.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "records",
+            "message_id",
+            "authored_at",
+            "evidence"
+          ],
+          "properties": {
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type"
+                ]
+              },
+              "description": "The rows the ask reads, as the caller read them from its store: the message and any earlier time correction for it."
+            },
+            "message_id": {
+              "type": "string",
+              "description": "The kept person message's id."
+            },
+            "authored_at": {
+              "type": "string",
+              "description": "The time the person wrote it, as a date and time (like 2026-09-27T17:13:00Z)."
+            },
+            "evidence": {
+              "type": "string",
+              "description": "The source evidence (the old chat or export) that shows when it was written."
+            },
+            "now": {
+              "type": "string",
+              "description": "The clock this service reads the time against, as ISO text; left out, the current time."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "correction",
+            "keep"
+          ],
+          "properties": {
+            "correction": {
+              "type": "object",
+              "description": "The correction, kept under message-time-correction:<message_id>."
+            },
+            "keep": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The rows to change, each { id, type, value, expected }."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "correct-when-a-message-was-written",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/correct-when-a-message-was-written"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/claimed-time.mjs",
+                  "src/claimed-time.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/identity.mjs",
+                  "read-data/blake3.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/correct-when-a-message-was-written",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/correct-when-a-message-was-written/do-work/correct-when-a-message-was-written-run.mjs",
+            "correctWhenAMessageWasWritten"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:correct-when-a-message-was-written",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "the old tool list tools/list-and-run-my-tools-for-any-ai/source-baselines/tools.mjs.held:231 at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04 (correct_message_authored_at); the rule was keep-and-wake src/messages.mjs correctAuthoredAt (no caller on origin/main), with its time check in keep-and-wake src/claimed-time.mjs, rows in and keep out here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "records": [
+                {
+                  "type": "message",
+                  "id": "message:old",
+                  "value": {
+                    "app": "Muse",
+                    "conversation_id": "muse:one",
+                    "speaker": "person",
+                    "text": "Chat from the old app.",
+                    "at": "2026-10-05T06:00:00.000Z",
+                    "recorded_by": "app:Muse"
+                  }
+                }
+              ],
+              "message_id": "message:old",
+              "authored_at": "2026-09-27T17:13:00Z",
+              "evidence": "The old chat export shows this message on Sept 27",
+              "now": "2026-10-05T07:00:00.000Z"
+            },
+            "output_selector": "$.result.correction.authored_at",
+            "contains": false
+          }
+        ]
+      }
+    }
+  ]
+}
