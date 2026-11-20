@@ -9,22 +9,19 @@
     "screen-arrangement/crates/screen-arrangement",
     "shared-code/crates/composition-ast",
     "shared-code/crates/execution-types",
-    "shared-code/crates/formula-ast",
-    "shared-code/crates/formula-core",
     "shared-code/crates/graph",
     "shared-code/crates/json-canonicalization",
     "shared-code/crates/ops-core",
     "shared-code/crates/resilience",
     "shared-code/crates/shared-slot-batches",
     "shared-code/crates/slot-protocol",
-    "shared-code/crates/trigger-ast",
     "workflows/crates/journal-ast",
     "workflows/crates/workflow-component",
     "workflows/crates/workflow-core",
     "workflows/crates/workflow-engine"
   ],
   "source_files": [],
-  "fingerprint": "730bf9320ec76705b84007e97dff0f504a2024c0afe19b52ec05e71df549bad2",
+  "fingerprint": "11d2684aaa1f4e8a12af3c3469ede999f0827a16f144c4f2ced1470f5818ddcb",
   "workspace_commits": {
     "../../trillion-rust/crates": "f622fd79433ed720dfe4203471926ae92acd5c22"
   }

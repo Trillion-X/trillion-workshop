@@ -4,7 +4,9 @@
   "_not_carried": {
     "REPLACE": "the old REPLACE(text, start, length, new) replaced by position; no op does that, and SUBSTITUTE replaces by text",
     "DSUM, IS_NUMBER": "left as they are by the coordinator's word (Nov 19 2026): core.sum and core.type_of answer them",
-    "CAN, CURRENT_USER, HAS_ROLE, GET_ENTITY, EMIT_EVENT": "access is each pursuit database's own rights, not role lookups in a formula; these wait for a ruling",
+    "CAN, CURRENT_USER, HAS_ROLE": "retired: access is each pursuit database's own rights, and spaces and roles were retired (Nov 14 2026), so a formula looks up no role",
+    "GET_ENTITY": "retired, with a home: a row is read in its database's own language (SQL), never through a formula",
+    "EMIT_EVENT": "retired, with a home: telling something happened is a fact told to the engine (wake:arrive), never a formula's side effect",
     "versioned calls (NAME@v2)": "no user-defined functions exist to version"
   },
   "operators": {

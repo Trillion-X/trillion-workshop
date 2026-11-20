@@ -1,1 +1,0 @@
-{"variables":[{"binding_key":"customer","root_name":"customer","span":{"start_utf16":11,"end_utf16":19}},{"binding_key":"index","root_name":"index","span":{"start_utf16":32,"end_utf16":37}},{"binding_key":"rows","root_name":"rows","span":{"start_utf16":27,"end_utf16":31}}],"entities":[],"specials":[],"functions":["IF"]}

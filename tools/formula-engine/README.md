@@ -4,18 +4,20 @@ Rules and formulas over rows, in one Rust engine every host calls directly. A pe
 
 There is no JavaScript around the engine. Until Nov 19 2026 a JavaScript compiler (`rules/compile-rules.mjs`), five more `rules/*.mjs` wrappers and a second folder (`tools/formulas`) stood between callers and the Rust evaluator; they were deleted in the landing that moved compiling, the request checks, the guards and the classifier into the crate, and every caller now imports the built module and calls it.
 
+There is no second formula system. Until Nov 20 2026 `tools/shared-code/crates/formula-core`, `formula-ast` and `trigger-ast` held another evaluator, its text grammar and a trigger matcher that nothing fed. What this engine lacked from them (the operators listed in `rules/text-formulas.json` and formulas written as text) was ported in and proven first; then the three crates were deleted, and the grammar moved to `src/grammar/`.
+
 Logic has three states, and only a true answer keeps a row. A value that is unknown (missing, null) has no answer to a comparison that has to look at it, and NOT of unknown stays unknown, so such a row matches neither the comparison nor its negation. `is any of` / `is none of` and `is` / `is not` ask whether the value is in the list or equals the word, so an unknown value is kept by `is none of` and `is not`. A rule that is not finished (an unknown field or comparison, a comparison the field's kind does not offer, missing values) is left out and returned in `incomplete`, never guessed.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `crates/formula-engine/` | The engine: `src/rules.rs` (rule tree to binding), `src/guards.rs` (the limits), `src/requests.rs` (each request and its refusals), `src/classify.rs` (first rule that holds), `src/text.rs` (a text formula to a binding), `src/lib.rs` (evaluation), `src/host.rs` (the wasm-bindgen exports), `src/main.rs` (the WASI command) |
+| `crates/formula-engine/` | The engine: `src/rules.rs` (rule tree to binding), `src/guards.rs` (the limits), `src/requests.rs` (each request and its refusals), `src/classify.rs` (first rule that holds), `src/grammar/` (the text formula grammar: lexer, parser and expression), `src/text.rs` (a text formula to a binding), `src/lib.rs` (evaluation), `src/host.rs` (the wasm-bindgen exports), `src/main.rs` (the WASI command) |
 | `built-stored-bytes/formula-engine/` | `formula_engine.js` and `formula_engine_bg.wasm`: the crate for a JavaScript host (wasm-bindgen `web` target). Pages and Node tools import these and call the engine directly |
 | `built-stored-bytes/component/formula-engine.wasm` | The crate's command built for wasm32-wasip2: the one component the engine runs for this folder's tool rows on any computer (trillion-rust `src/tool_runs/tools/component.rs`) |
 | `rules/rule-operators.json` | Every comparison and group combinator as DATA |
 | `rules/evaluation-guards.json` | The limits and their refusal words as DATA |
-| `rules/text-formulas.json` | Every function and operator of a text formula: the op it runs, where each argument goes, and one example. A name the table does not hold is refused; the old positional REPLACE, DSUM, IS_NUMBER and the role functions are listed there as not carried, with why |
+| `rules/text-formulas.json` | Every function and operator of a text formula: the op it runs, where each argument goes, and one example. A name the table does not hold is refused; the old positional REPLACE, DSUM, IS_NUMBER and the retired role functions are listed there as not carried, with why and where their job lives now |
 | `tool-rows.json`, `kits/` | `tool:filter-rows-by-rules`, `tool:evaluate-a-formula`, `tool:list-comparisons`, `tool:classify-a-record`, each running the component |
 | `test/*.test.mjs` | Three-state logic, comparisons, errors and path safety (binding), rule trees (rules), the classifier (classify), the guards, the shipped module and the stored-formula contracts, and every row's sample run through the component (rows) |
 | `part.json` | The files other code may import |
@@ -43,6 +45,6 @@ The component takes the same requests by name: `component <formula-engine.wasm> 
 
 ## Dependencies
 
-**Depends on:** `tools/shared-code/crates/composition-ast` and `ops-core` (every operator's meaning), `formula-ast` (the text formula grammar, until its lexer and parser move into this crate), built by `tools/build-engine-modules-for-web-hosts`.
+**Depends on:** `tools/shared-code/crates/composition-ast` and `ops-core` (every operator's meaning), built by `tools/build-engine-modules-for-web-hosts`.
 
 **Depended on by:** every tool that filters or decides by rules (the workflow chooser `tools/workflows/read-data/choose-the-workflows-that-fire.mjs` among them), the workspace pages' record filters and computed columns, and its own tool rows.

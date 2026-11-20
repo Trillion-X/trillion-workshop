@@ -1,1 +1,0 @@
-{"operation":"project_source","protocol_version":1,"request_token":"project-1","source_revision":"legacy-r1","catalog_revision":"catalog-r1","registry_revision":"registry-r1","expected_policy_revision":"policy-r1","legacy_request":{"expression":"A1+B1","variables":{"A1":1,"B1":2}}}

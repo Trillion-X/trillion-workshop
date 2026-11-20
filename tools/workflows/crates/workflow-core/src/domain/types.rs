@@ -362,7 +362,7 @@ fn default_join() -> String {
 //
 // Edges are SEPARATE from nodes. A Step does NOT know its position, parents,
 // or dependencies — the graph topology determines that. Edge conditions use
-// the formula-ast BindingAST format, NOT string mini-DSLs.
+// the binding format (composition-ast bindings), NOT string mini-DSLs.
 // ============================================================================
 
 /// An edge in the execution DAG — pure topology.
@@ -382,7 +382,7 @@ pub struct StepEdge {
     /// Edge kind — dispatched to a registered EdgeHandler. Not an enum.
     #[serde(default = "default_edge_kind")]
     pub kind: String,
-    /// Edge condition — uses formula-ast BindingAST format for "on_result" edges.
+    /// Edge condition — a binding (composition-ast format) for "on_result" edges.
     /// Empty/null for "always" edges.
     #[serde(default)]
     pub config: Value,
@@ -402,7 +402,7 @@ pub struct CompiledEdge {
     /// Edge kind string — dispatched to EdgeHandler
     pub kind: String,
     /// Parsed condition (from edge.config). None = unconditional.
-    /// Using Value here; formula-ast BindingAST parsing happens in the EdgeHandler.
+    /// Using Value here; the binding is read in the EdgeHandler.
     pub condition: Option<Value>,
 }
 

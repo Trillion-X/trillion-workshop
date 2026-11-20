@@ -2,10 +2,10 @@
 //
 // Purpose:
 //   Definition dispatch infrastructure — the EXECUTE phase of the
-//   SENSE → DECIDE → EXECUTE → PAINT runtime loop. Provides sync
-//   `DefinitionDispatchExecutor` for interaction-engine dispatch, plus
-//   `AsyncWorkflowExecutor` which carries dependencies for workflow-owned
-//   outside access via the slot boundary adapter.
+//   SENSE → DECIDE → EXECUTE → PAINT runtime loop: `AsyncWorkflowExecutor`,
+//   which carries dependencies for workflow-owned outside access via the slot
+//   boundary adapter. (The sync dispatch path for the retired interaction
+//   engine had no caller and was deleted on Nov 20 2026 with trigger-ast.)
 //
 // Non-Negotiable Invariants:
 //   1. ALL outside work and direct reads route through ExecutorDeps.outside_access.
@@ -15,11 +15,8 @@
 //      `WorkflowError` with structured fields.
 //
 // Key Concepts:
-//   - DefinitionDispatchExecutor: Sync trait for the interaction-engine's definition dispatch
 //   - AsyncWorkflowExecutor: Production executor carrying workflow_ctx + outside-access adapter
 //   - ExecutorDeps: Dependency struct for step execution (built by build_executor_deps)
-//   - NoOpExecutor: Drops all actions (testing)
-//   - CollectingExecutor: Records all actions (testing/debugging)
 //
 // Architecture:
 //   ```text
@@ -59,186 +56,6 @@ mod value_to_bytes;
 
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
-use trigger_ast::DefinitionDispatch;
-
-use crate::domain::types::{Definition, Step};
-
-// ============================================================================
-// Definition Dispatch Executor Trait
-// ============================================================================
-
-/// Trait for executing definitions from the interaction engine.
-///
-/// This is the bridge to the workflow engine or any custom definition-dispatch executor.
-/// Hosts can implement this trait to customize definition execution.
-pub trait DefinitionDispatchExecutor: Send + Sync {
-    /// Execute a single definition dispatch request.
-    fn execute(&mut self, dispatch: &DefinitionDispatch) -> Result<(), String>;
-}
-
-// ============================================================================
-// No-Op Executor
-// ============================================================================
-
-/// No-op definition dispatcher for testing or when definitions are handled elsewhere
-#[derive(Debug, Default, Clone)]
-pub struct NoOpExecutor;
-
-impl NoOpExecutor {
-    pub fn new() -> Self {
-        Self
-    }
-}
-
-impl DefinitionDispatchExecutor for NoOpExecutor {
-    fn execute(&mut self, _dispatch: &DefinitionDispatch) -> Result<(), String> {
-        Ok(())
-    }
-}
-
-// ============================================================================
-// Collecting Executor
-// ============================================================================
-
-/// Collecting definition dispatcher that stores dispatches for later inspection
-///
-/// Useful for testing to verify which actions were dispatched.
-#[derive(Debug, Default, Clone)]
-pub struct CollectingExecutor {
-    pub executed_definitions: Vec<DefinitionDispatch>,
-}
-
-impl CollectingExecutor {
-    pub fn new() -> Self {
-        Self {
-            executed_definitions: Vec::new(),
-        }
-    }
-
-    /// Get all definitions that have been executed
-    pub fn definitions(&self) -> &[DefinitionDispatch] {
-        &self.executed_definitions
-    }
-
-    /// Clear all collected actions
-    pub fn clear(&mut self) {
-        self.executed_definitions.clear();
-    }
-
-    /// Get the number of actions executed
-    pub fn len(&self) -> usize {
-        self.executed_definitions.len()
-    }
-
-    /// Check if no actions have been executed
-    pub fn is_empty(&self) -> bool {
-        self.executed_definitions.is_empty()
-    }
-}
-
-impl DefinitionDispatchExecutor for CollectingExecutor {
-    fn execute(&mut self, dispatch: &DefinitionDispatch) -> Result<(), String> {
-        self.executed_definitions.push(dispatch.clone());
-        Ok(())
-    }
-}
-
-// ============================================================================
-// Workflow Executor
-// ============================================================================
-
-/// WorkflowExecutor processes definition dispatches by loading Definitions
-/// and dispatching steps through the workflow boundary adapter.
-///
-/// This is the production executor that connects the interaction engine's
-/// action dispatch to actual workflow execution.
-///
-/// # Supported Primitives (The 7 Kernel Codex Primitives)
-///
-/// - `_transact` / `transact` — Write operations via execute_transact
-/// - `_databaseRead` / `database_read` — Read operations via execute_read
-/// - `_journalAppend` / `journal_append` — Write to immutable log (bitemporal)
-/// - `_execute` / `execute` — Execute sandboxed WASM modules
-/// - `_callExternal` / `call_external` — HTTP calls to external services
-/// - `_schemaWrite` / `schema_write` — Schema mutations (Types, Constraints, Properties)
-///
-/// # Architecture
-///
-/// The executor validates and prepares requests at the synchronous layer.
-/// Actual async execution (database I/O, network calls) is driven by the
-/// runtime loop which provides the DataBackend, ResourceRegistry, and
-/// WorkflowContext needed for the async data layer.
-#[derive(Debug, Default)]
-pub struct WorkflowExecutor {
-    /// Definitions that have been executed (for debugging/audit)
-    executed_count: u64,
-}
-
-impl WorkflowExecutor {
-    pub fn new() -> Self {
-        Self { executed_count: 0 }
-    }
-
-    /// Get the number of definitions executed
-    pub fn executed_count(&self) -> u64 {
-        self.executed_count
-    }
-
-    /// Load an Definition by ID
-    ///
-    /// Pending: persistence layer connection to load from database.
-    /// In production, this would query the database for:
-    ///   SELECT * FROM entity WHERE id = definition_id
-    fn load_definition_for_dispatch(&self, _definition_id: &str) -> Option<Definition> {
-        None
-    }
-
-    /// Validate a workflow step before dispatch.
-    ///
-    /// After E.15/E.16, the workflow engine has zero knowledge of what primitives
-    /// exist — all validation is the receiving slot's responsibility (L090).
-    /// This function is a pass-through.
-    fn execute_step(
-        &self,
-        _step: &Step,
-        _definition: &Definition,
-        _dispatch: &DefinitionDispatch,
-    ) -> Result<(), String> {
-        // Generic Envelope dispatch (E.15 §25a) — the receiving slot validates.
-        // The workflow engine is a blind router.
-        Ok(())
-    }
-}
-
-impl DefinitionDispatchExecutor for WorkflowExecutor {
-    fn execute(&mut self, dispatch: &DefinitionDispatch) -> Result<(), String> {
-        self.executed_count += 1;
-
-        // 1. Load Definition by dispatch.definition_id
-        match self.load_definition_for_dispatch(&dispatch.definition_id) {
-            Some(definition) => {
-                // 2. Execute each workflow step in order
-                for step in &definition.steps {
-                    self.execute_step(step, &definition, dispatch)?;
-                }
-                Ok(())
-            }
-            None => {
-                // Definition not found - continue without error
-                // This is not necessarily an error since some actions may be
-                // handled by other systems (FSM transitions, etc.)
-                Ok(())
-            }
-        }
-    }
-}
-
-// ============================================================================
-// Async Definition Dispatch Executor Trait
-// ============================================================================
-
-// Async definition-dispatch executor trait DELETED in E.16 — typed primitive
-// execution was replaced by the workflow boundary adapter and plain step kinds.
 
 // ============================================================================
 // Async Workflow Executor
@@ -496,124 +313,6 @@ mod tests {
             crate::executor::context::test_product_word_ids(),
         )
     }
-
-    #[test]
-    fn test_no_op_executor_creation() {
-        let _executor = NoOpExecutor::new();
-    }
-
-    #[test]
-    fn test_no_op_executor_default() {
-        let _executor = NoOpExecutor;
-    }
-
-    #[test]
-    fn test_collecting_executor_creation() {
-        let executor = CollectingExecutor::new();
-        assert!(executor.is_empty());
-        assert_eq!(executor.len(), 0);
-    }
-
-    #[test]
-    fn test_collecting_executor_collects_definitions() {
-        let mut executor = CollectingExecutor::new();
-
-        let action = DefinitionDispatch {
-            trigger_id: "trigger:test".to_string(),
-            definition_id: "action:test:one".to_string(),
-            priority: 100,
-            context: serde_json::json!({"key": "value"}),
-        };
-
-        let result = executor.execute(&action);
-        assert!(result.is_ok());
-        assert_eq!(executor.len(), 1);
-        assert_eq!(executor.definitions()[0].definition_id, "action:test:one");
-    }
-
-    #[test]
-    fn test_collecting_executor_clear() {
-        let mut executor = CollectingExecutor::new();
-
-        let action = DefinitionDispatch {
-            trigger_id: "trigger:test".to_string(),
-            definition_id: "action:test:one".to_string(),
-            priority: 50,
-            context: serde_json::json!({}),
-        };
-
-        executor.execute(&action).unwrap();
-        assert!(!executor.is_empty());
-
-        executor.clear();
-        assert!(executor.is_empty());
-    }
-
-    #[test]
-    fn test_workflow_executor_creation() {
-        let executor = WorkflowExecutor::new();
-        assert_eq!(executor.executed_count(), 0);
-    }
-
-    #[test]
-    fn test_workflow_executor_default() {
-        let executor = WorkflowExecutor::default();
-        assert_eq!(executor.executed_count(), 0);
-    }
-
-    #[test]
-    fn test_workflow_executor_increments_count() {
-        let mut executor = WorkflowExecutor::new();
-
-        let action = DefinitionDispatch {
-            trigger_id: "trigger:keyboard".to_string(),
-            definition_id: "action:test:increment".to_string(),
-            priority: 100,
-            context: serde_json::json!({"data": 123}),
-        };
-
-        // Execute multiple times
-        executor.execute(&action).unwrap();
-        executor.execute(&action).unwrap();
-        executor.execute(&action).unwrap();
-
-        assert_eq!(executor.executed_count(), 3);
-    }
-
-    #[test]
-    fn test_workflow_executor_handles_missing_definition() {
-        let mut executor = WorkflowExecutor::new();
-
-        let action = DefinitionDispatch {
-            trigger_id: "trigger:test".to_string(),
-            definition_id: "action:nonexistent".to_string(),
-            priority: 1,
-            context: serde_json::json!({}),
-        };
-
-        // Should succeed even when Definition is not found
-        let result = executor.execute(&action);
-        assert!(result.is_ok());
-    }
-
-    #[test]
-    fn test_definition_dispatch_executor_trait_is_object_safe() {
-        // Verify the trait can be used as a trait object
-        let executor: Box<dyn DefinitionDispatchExecutor> = Box::new(NoOpExecutor::new());
-        drop(executor);
-
-        let executor: Box<dyn DefinitionDispatchExecutor> = Box::new(CollectingExecutor::new());
-        drop(executor);
-
-        let executor: Box<dyn DefinitionDispatchExecutor> = Box::new(WorkflowExecutor::new());
-        drop(executor);
-    }
-
-    // ========================================================================
-    // Typed dispatch tests (SchemaWrite, CallExternal, normalize_primitive)
-    // DELETED in E.16 — execute_step is now a pass-through (receiving slot
-    // validates), and normalize_primitive moved to step_executor.rs.
-    // ========================================================================
 
     // -- Test: AsyncWorkflowExecutor partition_key --
     #[test]

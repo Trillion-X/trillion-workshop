@@ -49,7 +49,7 @@ Workflow-core tests use anonymous test target names for boundary mechanics; conc
 | `src/domain/errors.rs` | `WorkflowError` — 28 variants with machine-readable codes and remediation hints |
 | `src/domain/canonical.rs` | Canonical workflow execution sequences and patterns |
 | `src/domain/mod.rs` | Domain module exports |
-| `src/executor/mod.rs` | Orchestration traits and executors: `DefinitionDispatchExecutor`, `AsyncWorkflowExecutor<B>`, `NoOpExecutor`, `CollectingExecutor` |
+| `src/executor/mod.rs` | The executor: `AsyncWorkflowExecutor<B>` |
 | `src/executor/automation.rs` | Orchestration engine: `execute_workflow()`, graph step handlers, `DefinitionStore` trait, `RetryPolicy` |
 | `src/executor/step_executor.rs` | Step execution: resolves bindings, asks outside work, reads state, captures outputs |
 | `src/executor/value_to_bytes.rs` | Private write-payload byte encoder for data-declared `value_to_bytes` layouts such as RTBL `cell_table` rows |
@@ -164,7 +164,6 @@ workflow definition was not delivered to the owner slot.
 | **`WorkflowError`** | enum: `InvalidStep { step_id, reason, hint }` \| `InvalidDefinition { definition_id, reason, hint }` \| `PrimitiveDispatchFailed { reason, hint }` \| `WorkflowNotFound` \| `DefinitionNotFound` \| `StepNotFound` | Structured errors with machine-readable codes (`code()`) and remediation hints |
 | **`execute_workflow`** | `async fn(store, action_store, workflow_id, trigger, actor) → Result<WorkflowInstance>` | Full workflow lifecycle: load, validate, execute steps, return instance |
 | **`execute_wait_step`** | `async fn(wait_cond, execution_context) → Result<()>` | Dispatch on WaitCondition variants (T1/T2/T3 temporal primitives) |
-| **`DefinitionDispatchExecutor`** | trait: `fn execute(&self, context, dispatch) → Result<(), String>` | Sync trait for interaction-engine definition dispatch |
 | **`AsyncWorkflowExecutor<B>`** | Generic struct: `{ backend: B, registry, request_ctx, guards_factory, executed_count }` | Production executor carrying backend + context + optional guards factory |
 | **`EnvelopeDispatchFn`** | `Fn(target_address, &PartitionKey, payload)` | Opaque cross-slot dispatch function that preserves the real Envelope routing partition |
 | **`TemplateResolver`** | — | Resolves binding expressions against `ExecutionContext` |
@@ -202,7 +201,6 @@ inline a substitute body.
 - `futures` — Concurrent parallel loop/branch execution
 - `uuid` — Unique transaction ID generation (journal_append primitive)
 - `chrono` — RFC3339 timestamps for journal entries
-- `interaction-engine` — DefinitionDispatch type for definition dispatch
 - `governance` — ConstraintProviderAdapter for constraint validation
 - `permissions` — PermissionProviderAdapter for permission enforcement (default-features disabled)
 - `bitemporal` — Immutable journal backend for audit logging
@@ -216,11 +214,9 @@ inline a substitute body.
 - `hosts/headless` — Executes workflows via Tauri commands
 - `hosts/desktop` — Desktop shell action execution
 - `runtime-loop` — Event-driven orchestration of workflow instances
-- `interaction-engine` — Via DefinitionDispatchExecutor trait for definition dispatch
 - `composition-engine` / `composition-engine-wasm` — Action dispatch
 
 ## Depended On By
 
-- `runtime-loop` — uses `DefinitionDispatchExecutor` in the SENSE→DECIDE→EXECUTE→PAINT loop
 - `composition-engine` / `composition-engine-wasm` — action dispatch
-- `hosts/desktop` — `WorkflowExecutor` + `DefinitionStore` implementation
+- `hosts/desktop` — `DefinitionStore` implementation

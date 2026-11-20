@@ -22,7 +22,7 @@
 
 ## Dependencies
 
-**Depends on:** `composition-ast`, `ops-core`, `state-graph`, `trigger-ast`, `graph`, `serde`, `serde_json`, `thiserror`, `lazy_static`, `chrono`, `web-time`, `rust_decimal`, `uuid`, `regex`, `urlencoding`.
+**Depends on:** `composition-ast`, `ops-core`, `state-graph`, `graph`, `serde`, `serde_json`, `thiserror`, `lazy_static`, `chrono`, `web-time`, `rust_decimal`, `uuid`, `regex`, `urlencoding`.
 
 **Depended on by:** `composition-engine`.
 
@@ -31,7 +31,7 @@
 - No slot boundary code lives here.
 - No browser thing-to-put-on-screen assets live here.
 - Public API compatibility is exposed through `composition-engine` re-exports; the implementation lives here.
-- This crate may depend on leaf crates such as `composition-ast`, `ops-core`, `state-graph`, `trigger-ast`, and `graph`.
+- This crate may depend on leaf crates such as `composition-ast`, `ops-core`, `state-graph` and `graph`.
 
 ## In Trillion
 

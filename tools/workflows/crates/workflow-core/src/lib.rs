@@ -46,10 +46,7 @@ pub use executor::automation::{BackoffStrategy, RetryPolicy};
 pub use executor::context::{record_step_output, BindingResolver};
 pub use executor::polling::{EventPollResult, EventPoller, PollConfig, WorkflowExecutionOutcome};
 pub use executor::step_executor::StepExecutor;
-pub use executor::{
-    AsyncWorkflowExecutor, CollectingExecutor, DefinitionDispatchExecutor, NoOpExecutor,
-    WorkflowExecutor,
-};
+pub use executor::AsyncWorkflowExecutor;
 
 pub use domain::{AttributeFactRow, DefinitionStore, EventStore, TriggerEvent};
 

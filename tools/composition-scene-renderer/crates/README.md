@@ -14,6 +14,6 @@ The module built from these goes to `tools/build-engine-modules-for-web-hosts/bu
 
 ## Dependencies
 
-**Depends on:** cargo, the engine's `composition-ast`, `ops-core`, `trigger-ast`, `graph` and `slot-protocol` in `../trillion-rust/crates`.
+**Depends on:** cargo, the engine's `composition-ast`, `ops-core`, `graph` and `slot-protocol` in `../trillion-rust/crates`.
 
 **Depended on by:** `tools/build-engine-modules-for-web-hosts` (`PAGE_COMPILED_MODULES`).

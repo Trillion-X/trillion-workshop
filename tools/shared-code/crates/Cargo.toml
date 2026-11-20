@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["composition-ast", "execution-types", "formula-ast", "formula-core", "graph", "json-canonicalization", "ops-core", "resilience", "shared-slot-batches", "slot-protocol", "trigger-ast"]
+members = ["composition-ast", "execution-types", "graph", "json-canonicalization", "ops-core", "resilience", "shared-slot-batches", "slot-protocol"]
 
 [workspace.package]
 version = "0.1.0"

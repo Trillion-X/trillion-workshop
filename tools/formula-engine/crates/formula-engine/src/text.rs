@@ -3,7 +3,7 @@
 //! Purpose
 //!   A formula written as text, compiled into one composition-ast binding, so a text formula and a binding are the
 //!   same thing to the engine: =PRICE * QUANTITY, IF(@.done, "yes", "no") and FILTER(items, |x| => x.age > 3) are
-//!   parsed by the formula grammar (formula-ast) and every operator and function is looked up in
+//!   parsed by the formula grammar (src/grammar) and every operator and function is looked up in
 //!   rules/text-formulas.json, which says the op:core id it runs and where each of its arguments goes.
 //!
 //!   compile(text) -> binding
@@ -23,9 +23,9 @@
 //!     call is refused with a sentence; nothing is guessed.
 
 use crate::{limits, Refused};
-use formula_ast::lexer::{Lexer, TokenType};
-use formula_ast::parser::Parser;
-use formula_ast::{AstNode, Expression, Literal};
+use crate::grammar::lexer::{Lexer, TokenType};
+use crate::grammar::parser::Parser;
+use crate::grammar::{AstNode, Expression, Literal};
 use serde_json::{json, Map, Value};
 use std::collections::HashMap;
 use std::sync::OnceLock;
@@ -136,7 +136,7 @@ impl Compiler {
         match expression {
             Expression::Literal(value) => self.literal(value),
             Expression::Identifier(name) => Ok(self.name(name, &[])),
-            Expression::MemberAccess(_) => match formula_ast::flatten_member_chain(expression) {
+            Expression::MemberAccess(_) => match crate::grammar::flatten_member_chain(expression) {
                 Some((root, path)) => Ok(self.name(&root, &path)),
                 None => {
                     let Expression::MemberAccess(access) = expression else { unreachable!() };
@@ -220,7 +220,7 @@ impl Compiler {
         select(chosen)
     }
 
-    fn call(&mut self, call: &formula_ast::FunctionCallExpr) -> Result<Value, String> {
+    fn call(&mut self, call: &crate::grammar::FunctionCallExpr) -> Result<Value, String> {
         let name = call.function_name.to_ascii_uppercase();
         let row = table().functions.get(&name).ok_or_else(|| format!("{name} is not a function rules/text-formulas.json holds."))?;
         if let Some(version) = call.version {
@@ -301,7 +301,7 @@ impl Compiler {
 
     /// A lambda as a chain of steps that starts from the bound value: its body, read with its parameters bound to the
     /// variables `binds` names. The item's variable is named after its parameter and handed back as the op's item_var.
-    fn chain(&mut self, name: &str, lambda: &formula_ast::LambdaExpr, spec: &Value, yields_list: bool) -> Result<(Value, Option<String>), String> {
+    fn chain(&mut self, name: &str, lambda: &crate::grammar::LambdaExpr, spec: &Value, yields_list: bool) -> Result<(Value, Option<String>), String> {
         let binds: Vec<&str> = spec["binds"].as_array().into_iter().flatten().filter_map(Value::as_str).collect();
         if lambda.parameters.len() != binds.len() {
             return Err(format!("{name}'s lambda takes {} parameters, and {} were given.", binds.len(), lambda.parameters.len()));

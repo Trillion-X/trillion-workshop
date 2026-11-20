@@ -176,8 +176,8 @@
 //! ### Object Literal Syntax
 //! Objects use `#{key: value}` syntax (lexed as `LBrace` token) to distinguish from code blocks `{}`.
 
-use crate::lexer::{Lexer, LexerError, Token, TokenType};
-use crate::*;
+use super::lexer::{Lexer, LexerError, Token, TokenType};
+use super::*;
 use std::iter::Peekable;
 use std::vec::IntoIter;
 use thiserror::Error;
@@ -972,13 +972,13 @@ mod tests {
     #[test]
     fn leading_formula_marker_preserves_expression_grammar_and_error_columns() {
         let addition = Parser::new().parse("=A1+B1").unwrap();
-        assert_eq!(addition.to_string(), "A1 + B1");
+        assert_eq!(addition, Parser::new().parse("A1 + B1").unwrap());
 
         let equality = Parser::new().parse("=A1==B1").unwrap();
-        assert_eq!(equality.to_string(), "A1 == B1");
+        assert_eq!(equality, Parser::new().parse("A1 == B1").unwrap());
 
         let lambda = Parser::new().parse("=|x| => x + 1").unwrap();
-        assert_eq!(lambda.to_string(), "|x| => x + 1");
+        assert_eq!(lambda, Parser::new().parse("|x| => x + 1").unwrap());
 
         let duplicate = Parser::new().parse("= =A1").unwrap_err();
         assert!(matches!(
@@ -1652,7 +1652,7 @@ mod tests {
             ];
 
             for (token_type, expected_precedence) in test_cases {
-                let token = Token::new(token_type.clone(), crate::lexer::Position::new(0, 0, 0));
+                let token = Token::new(token_type.clone(), super::super::lexer::Position::new(0, 0, 0));
                 let actual_precedence = parser.get_precedence(Some(&token));
                 assert_eq!(
                     actual_precedence, expected_precedence,
@@ -2492,7 +2492,7 @@ mod tests {
     /// Test that OperatorPrecedence enum works correctly with proper levels 0-7
     #[test]
     fn test_associativity_rules_implementation() {
-        use crate::lexer::Position;
+        use super::super::lexer::Position;
 
         // Test that all precedence levels return correct associativity
         assert_eq!(
@@ -2574,9 +2574,8 @@ mod tests {
             _ => panic!("Expected top-level binary expression"),
         }
 
-        // Test string representation confirms left-associativity
-        let AstNode::Expression(expr) = &result;
-        assert_eq!(format!("{}", expr), "5 - 3 - 1");
+        // The same tree as the explicitly left-grouped text confirms left-associativity
+        assert_eq!(result, Parser::new().parse("(5 - 3) - 1").unwrap());
     }
 
     #[test]

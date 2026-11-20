@@ -268,7 +268,6 @@ pub fn init_kernel_state(root: SceneNode, _viewport: Size) -> KernelState {
         binding_dep_index: None,     // Built on first compute pass (Task 167 Phase C)
         runtime_graph: initial_runtime_graph, // Always initialized from scene tree (Task 168 P2)
         interaction: InteractionState::new(),
-        trigger_store: TriggerStore::new(),
         ambient: HashMap::new(),
         state: HashMap::new(),
         ephemeral_actions: HashMap::new(), // Task 175: populated by register_ephemeral_actions()
@@ -1279,7 +1278,6 @@ pub fn render(
         context_cache: current_state.context_cache.clone(),
         dirty: cleared_dirty, // CLEARED — ready for next frame's mutations
         interaction: current_state.interaction.clone(),
-        trigger_store: current_state.trigger_store.clone(),
         ambient: current_state.ambient.clone(),
         state: current_state.state.clone(),
         ephemeral_actions: current_state.ephemeral_actions.clone(), // Task 175: preserve across renders
@@ -3504,27 +3502,8 @@ impl Kernel {
     // Graph-Based Trigger Registration (Task 175 Agent 2 types + Agent 4 wiring)
     // ========================================================================
 
-    /// Register pre-compiled triggers for graph-based matching inside `tick()`.
-    ///
-    /// Replaces any previously registered triggers. Triggers are indexed by
-    /// event type (pointer vs keyboard) for O(relevant) dispatch via
-    /// `TriggerStore::from_compiled()`.
-    ///
-    /// Called once at init after `compile_triggers()` produces `Vec<PreCompiledTrigger>`.
-    ///
-    /// # Arguments
-    ///
-    /// * `compiled` - Pre-compiled triggers (produced by trigger compilation at boot)
-    ///
-    /// # Performance
-    ///
-    /// O(n) where n = number of triggers. Called once at init.
-    pub fn register_triggers(&mut self, compiled: Vec<trigger_ast::PreCompiledTrigger>) {
-        self.current_state.trigger_store = TriggerStore::from_compiled(compiled);
-    }
-
-    /// Process a batch of input events with graph-based trigger matching and
-    /// ephemeral action execution. Returns only persistent effects that need
+    /// Process a batch of input events with node triggers and ephemeral action
+    /// execution. Returns only persistent effects that need
     /// host handling (e.g., workflow actions requiring database writes).
     ///
     /// This is the kernel half of the unified tick: events in → persistent effects out.
@@ -3585,10 +3564,8 @@ impl Kernel {
             // Try the in-kernel ephemeral fast-path FIRST: an action registered in
             // the ephemeral cache (e.g. `action:navigate` → CenterOnNode) runs here
             // with zero round-trips; only an action the kernel does NOT own falls
-            // through to the host (e.g. run-workflow → workflow slot). This is the
-            // SAME ephemeral-first / host-fallback rule the trigger_store path uses
-            // below (mod.rs execute_ephemeral_action), extended to node triggers so
-            // authored automations ("Go to a page", link-to-page) actually execute.
+            // through to the host (e.g. run-workflow → workflow slot), so authored
+            // automations ("Go to a page", link-to-page) actually execute.
             for effect in &input_result.effects {
                 if let Effect::ExecuteAction { action, params, .. } = effect {
                     // params carry the trigger payload (e.g. {target}); expose as {{input.*}}.
@@ -3598,83 +3575,6 @@ impl Kernel {
                         .unwrap_or_else(|| serde_json::json!({}));
                     if !self.execute_ephemeral_action(action, &input_context) {
                         persistent_effects.push(effect.clone());
-                    }
-                }
-            }
-
-            // Graph-based trigger matching: evaluate registered triggers
-            if self.current_state.trigger_store.is_empty() {
-                continue;
-            }
-
-            let event_path = input_result.universal_event.event_path.clone();
-
-            // Build event JSON for formula evaluation (matches JsEventContext shape)
-            let event_json = build_trigger_event_json(&input_result.universal_event);
-
-            // Pass state graph for zero-copy query lookups
-            let matches = self.current_state.trigger_store.match_triggers(
-                &event_json,
-                &self.current_state.state_graph,
-                &event.event_type,
-                &event_path,
-            );
-
-            // DEBUG: Log trigger match results (temporary — Investigation 022)
-            #[cfg(feature = "verbose-logging")]
-            if event.event_type == InputEventType::Pointer && event.subtype == "pointerup" {
-                eprintln!(
-                    "[INV-022] pointerup matches={}, synth_count={}",
-                    matches.len(),
-                    input_result
-                        .universal_event
-                        .synthesized
-                        .as_ref()
-                        .map(|s| s.len())
-                        .unwrap_or(0),
-                );
-            }
-
-            // Execute highest-priority match: ephemeral first, persistent fall through
-            if let Some(trigger_match) = matches.first() {
-                let input_context = build_action_input(&input_result.universal_event);
-                if !self.execute_ephemeral_action(&trigger_match.action_id, &input_context) {
-                    // Not ephemeral — emit Effect for host workflow execution
-                    persistent_effects.push(Effect::ExecuteAction {
-                        trigger_id: trigger_match.trigger_id.clone(),
-                        target_id: input_result.universal_event.target_id.clone(),
-                        action: trigger_match.action_id.clone(),
-                        params: None,
-                        context: Some(trigger_context_from_universal_event(
-                            &input_result.universal_event,
-                        )),
-                    });
-                }
-            }
-
-            // Also match synthesized events (click from pointerdown+pointerup)
-            if let Some(ref synthesized) = input_result.universal_event.synthesized {
-                for synth in synthesized {
-                    let synth_event_json = build_trigger_event_json(synth);
-                    let synth_path = synth.event_path.clone();
-                    let synth_matches = self.current_state.trigger_store.match_triggers(
-                        &synth_event_json,
-                        &self.current_state.state_graph,
-                        &synth.event_type,
-                        &synth_path,
-                    );
-
-                    if let Some(synth_match) = synth_matches.first() {
-                        let input_context = build_action_input(synth);
-                        if !self.execute_ephemeral_action(&synth_match.action_id, &input_context) {
-                            persistent_effects.push(Effect::ExecuteAction {
-                                trigger_id: synth_match.trigger_id.clone(),
-                                target_id: synth.target_id.clone(),
-                                action: synth_match.action_id.clone(),
-                                params: None,
-                                context: Some(trigger_context_from_universal_event(synth)),
-                            });
-                        }
                     }
                 }
             }
@@ -3835,90 +3735,6 @@ impl Kernel {
 
         true
     }
-}
-
-// ============================================================================
-// Tick Event Helpers (Task 175 Agent 4)
-// ============================================================================
-
-/// Build event JSON for trigger formula evaluation from a UniversalEvent.
-///
-/// Produces the same shape as the host-side `buildEventContext()`, with ALL
-/// event data fields forwarded so triggers can access `event.deltaX`, `event.ctrlKey`, etc.
-fn build_trigger_event_json(ue: &UniversalEvent) -> serde_json::Value {
-    let event_type = match ue.event_type {
-        InputEventType::Pointer => "pointer",
-        InputEventType::Key => "keyboard",
-        InputEventType::Wheel => "wheel",
-        InputEventType::Focus => "focus",
-        InputEventType::Blur => "blur",
-        InputEventType::Composition => "composition",
-    };
-
-    // Extract keyboard-specific fields
-    let key = if ue.event_type == InputEventType::Key {
-        ue.data
-            .get("key")
-            .and_then(|v| v.as_str())
-            .map(|s| serde_json::Value::String(s.to_string()))
-    } else {
-        None
-    };
-    let code = if ue.event_type == InputEventType::Key {
-        ue.data
-            .get("code")
-            .and_then(|v| v.as_str())
-            .map(|s| serde_json::Value::String(s.to_string()))
-    } else {
-        None
-    };
-
-    // Build base event JSON
-    let mut event = serde_json::json!({
-        "type": event_type,
-        "key": key,
-        "code": code,
-        "subtype": ue.subtype,
-        "target": ue.target_id,
-        "timestamp": ue.timestamp,
-    });
-
-    // Forward ALL event data fields into the JSON for trigger formula access.
-    // This allows triggers to query event.deltaX, event.deltaY, event.ctrlKey, etc.
-    if let (serde_json::Value::Object(ref mut event_map), Some(data_map)) =
-        (&mut event, ue.data.as_object())
-    {
-        for (k, v) in data_map {
-            // Don't overwrite base fields already set above
-            if !event_map.contains_key(k) {
-                event_map.insert(k.clone(), v.clone());
-            }
-        }
-    }
-
-    event
-}
-
-/// Build action input context from a UniversalEvent for ephemeral template resolution.
-///
-/// Produces: `{ "target_id": "...", "x": ..., "y": ..., ... }`
-fn build_action_input(ue: &UniversalEvent) -> serde_json::Value {
-    let mut map = serde_json::Map::new();
-    if let Some(ref tid) = ue.target_id {
-        map.insert(
-            "target_id".to_string(),
-            serde_json::Value::String(tid.clone()),
-        );
-    }
-    // Forward ALL event data fields for template resolution (deltaX, deltaY, ctrlKey, x, y, etc.)
-    if let Some(data_map) = ue.data.as_object() {
-        for (k, v) in data_map {
-            if !map.contains_key(k) {
-                map.insert(k.clone(), v.clone());
-            }
-        }
-    }
-    serde_json::Value::Object(map)
 }
 
 // ============================================================================
@@ -13230,13 +13046,6 @@ mod tests {
     }
 
     #[test]
-    fn test_register_triggers_empty_works() {
-        let mut kernel = make_tick_test_kernel();
-        kernel.register_triggers(vec![]);
-        assert!(kernel.current_state.trigger_store.is_empty());
-    }
-
-    #[test]
     fn test_tick_events_multiple_frames_independent() {
         let mut kernel = make_tick_test_kernel();
 
@@ -13266,48 +13075,6 @@ mod tests {
             .keyboard
             .pressed_keys
             .contains("a"));
-    }
-
-    #[test]
-    fn test_build_trigger_event_json_shape() {
-        let ue = UniversalEvent {
-            event_type: InputEventType::Pointer,
-            origin_id: OriginID::new("mouse:0"),
-            subtype: "pointerdown".to_string(),
-            timestamp: 42.0,
-            target_id: Some("node1".to_string()),
-            event_path: vec!["root".to_string(), "node1".to_string()],
-            data: serde_json::json!({"x": 10, "y": 20}),
-            consumed: false,
-            synthesized: None,
-        };
-        let json = build_trigger_event_json(&ue);
-
-        assert_eq!(json["type"], "pointer");
-        assert_eq!(json["subtype"], "pointerdown");
-        assert_eq!(json["target"], "node1");
-        assert_eq!(json["timestamp"], 42.0);
-    }
-
-    #[test]
-    fn test_build_action_input_shape() {
-        let ue = UniversalEvent {
-            event_type: InputEventType::Pointer,
-            origin_id: OriginID::new("mouse:0"),
-            subtype: "click".to_string(),
-            timestamp: 99.0,
-            target_id: Some("btn".to_string()),
-            event_path: vec!["root".to_string(), "btn".to_string()],
-            data: serde_json::json!({"x": 5, "y": 10}),
-            consumed: false,
-            synthesized: None,
-        };
-        let json = build_action_input(&ue);
-
-        assert_eq!(json["target_id"], "btn");
-        // build_action_input extracts x/y directly from event data
-        assert_eq!(json["x"], 5);
-        assert_eq!(json["y"], 10);
     }
 
     #[test]
@@ -15300,27 +15067,6 @@ mod tests {
             "cursor should move down from start"
         );
         assert_eq!(result.text, "line1\nline2", "text should not change");
-    }
-
-    // Test: build_trigger_event_json maps wheel events correctly and forwards data fields
-    #[test]
-    fn test_build_trigger_event_json_wheel() {
-        let ue = UniversalEvent {
-            event_type: InputEventType::Wheel,
-            origin_id: OriginID::default(),
-            subtype: "wheel".to_string(),
-            target_id: None,
-            timestamp: 0.0,
-            data: serde_json::json!({ "deltaX": 10.0, "deltaY": 20.0, "ctrlKey": true }),
-            event_path: Vec::new(),
-            consumed: false,
-            synthesized: None,
-        };
-        let json = build_trigger_event_json(&ue);
-        assert_eq!(json["type"], "wheel");
-        assert_eq!(json["deltaX"], 10.0);
-        assert_eq!(json["deltaY"], 20.0);
-        assert_eq!(json["ctrlKey"], true);
     }
 
     // Test: SetCamera ephemeral step applies pan and zoom deltas (static templates)

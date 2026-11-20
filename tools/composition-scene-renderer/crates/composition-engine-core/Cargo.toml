@@ -33,9 +33,6 @@ ops-core = { path = "../../../shared-code/crates/ops-core" }
 # Unified state graph for FSM and focus state (single source of truth)
 state-graph = { path = "../state-graph" }
 
-# Pre-compiled trigger types and evaluator (L088 leaf - shared with interaction-engine)
-trigger-ast = { path = "../../../shared-code/crates/trigger-ast" }
-
 # graph: Physics-level directed graph with cycle detection
 # Used for binding dependency index tracking in dirty.rs
 graph = { path = "../../../shared-code/crates/graph" }

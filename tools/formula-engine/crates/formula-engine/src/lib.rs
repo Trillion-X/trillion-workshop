@@ -32,6 +32,7 @@ use ops_core::OpValue;
 use serde_json::Value;
 
 pub mod classify;
+pub mod grammar;
 pub mod guards;
 pub mod requests;
 pub mod rules;

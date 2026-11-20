@@ -32,8 +32,6 @@ execution-types.workspace = true
 # Graph leaf crate — DirectedGraph for DAG execution (L069 generative primitive, leaf extraction)
 graph = { path = "../../../shared-code/crates/graph" }
 
-# Trigger AST leaf crate — DefinitionDispatch type (L088 leaf extraction)
-trigger-ast = { path = "../../../shared-code/crates/trigger-ast" }
 
 # Journal AST leaf crate — JournalRecord, compute_record_hash, Timestamp, ChangeAuthor (L088 leaf extraction)
 journal-ast = { path = "../journal-ast" }
