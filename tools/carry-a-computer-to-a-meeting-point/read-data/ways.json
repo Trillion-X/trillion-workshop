@@ -495,7 +495,7 @@
     },
     {
       "id": "ssh-certificate",
-      "_what": "The SSH reverse forward a meeting point admits by certificate: the carrier announces itself first (config announce.gives {remote_port: port, certificate: certificate}), and the meeting point answers the port it derives for the signed-in person's computer and a short-lived certificate for the carrier's own key whose key id and only principal are port-<port>. The host's sshd trusts the meeting point's carrier key (ca_public_file, written by the engine beside its key) and, for that key id, prints restrict,port-forwarding,permitlisten on that port alone, so one user serves every computer and nothing is written per computer.",
+      "_what": "The SSH reverse forward a meeting point admits by certificate: the carrier announces itself first (config announce.gives {remote_port: port, certificate: certificate}), and the meeting point answers the port it derives for the signed-in person's computer and a short-lived certificate for the carrier's own key whose key id and only principal are port-<port>. The host's sshd trusts the meeting point's carrier key (ca_public_file, written by the engine beside its key) and, for that key id, prints restrict,port-forwarding,permitlisten on that port alone, so one user serves every computer and nothing is written per computer. Both ends drop a silent link within about 30 s (the client's ServerAliveInterval 10 with count 3, the host's ClientAliveInterval 10 with ClientAliveCountMax 3): on Nov 20 2026, 2:36-2:39 PM CST, a computer on a phone hotspot lost its link, the host kept the dead session (ClientAliveInterval 0) holding its port, and the next tries were refused \"remote port forwarding failed\" until the carrier moved to another port, so the computer was not carried for about 3 minutes.",
       "transport_kind": "reverse_tunnel",
       "relay_host_ref": null,
       "order": 15,
@@ -580,7 +580,7 @@
           "-o",
           "ExitOnForwardFailure=yes",
           "-o",
-          "ServerAliveInterval=30",
+          "ServerAliveInterval=10",
           "-o",
           "ServerAliveCountMax=3",
           "-o",
@@ -605,7 +605,7 @@
             "file": {
               "path": "/etc/ssh/sshd_config.d/{user}.conf",
               "mode": "0644",
-              "text": "Match User {user}\n    TrustedUserCAKeys {ca_public_file}\n    AuthorizedPrincipalsCommand /bin/sh -c 'p=${1#port-}; [ \"port-$p\" = \"$1\" ] || exit 0; case $p in \"\"|*[!0-9]*) exit 0;; esac; [ \"$p\" -ge {port_min} ] && [ \"$p\" -le {port_max} ] || exit 0; printf \"restrict,port-forwarding,permitlisten=\\042127.0.0.1:%%s\\042 port-%%s\\n\" \"$p\" \"$p\"' {user} %i\n    AuthorizedPrincipalsCommandUser nobody\n    AuthorizedKeysFile none\n    AllowTcpForwarding remote\n    GatewayPorts no\n    PermitOpen none\n    X11Forwarding no\n    AllowAgentForwarding no\n    PermitTTY no\n    ForceCommand /usr/bin/false\n    PasswordAuthentication no\n    KbdInteractiveAuthentication no\n"
+              "text": "Match User {user}\n    TrustedUserCAKeys {ca_public_file}\n    AuthorizedPrincipalsCommand /bin/sh -c 'p=${1#port-}; [ \"port-$p\" = \"$1\" ] || exit 0; case $p in \"\"|*[!0-9]*) exit 0;; esac; [ \"$p\" -ge {port_min} ] && [ \"$p\" -le {port_max} ] || exit 0; printf \"restrict,port-forwarding,permitlisten=\\042127.0.0.1:%%s\\042 port-%%s\\n\" \"$p\" \"$p\"' {user} %i\n    AuthorizedPrincipalsCommandUser nobody\n    AuthorizedKeysFile none\n    AllowTcpForwarding remote\n    GatewayPorts no\n    PermitOpen none\n    X11Forwarding no\n    AllowAgentForwarding no\n    PermitTTY no\n    ForceCommand /usr/bin/false\n    PasswordAuthentication no\n    KbdInteractiveAuthentication no\n    ClientAliveInterval 10\n    ClientAliveCountMax 3\n"
             }
           },
           {
