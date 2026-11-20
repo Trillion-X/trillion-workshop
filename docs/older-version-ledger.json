@@ -6882,7 +6882,7 @@
   {
    "path": "records/marketplace-screens.json",
    "verdict": "moved",
-   "home": "trillion-workshop/tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/from-an-older-version/records/marketplace-screens.json",
+   "home": "trillion-workshop/tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/records/marketplace-screens.json (the current copy, 37 rows; the held copy was removed in 3a0c438ab, and its 3 retired rows are gone)",
    "group": "records-docs",
    "evidence": "same bytes on main (rescan 2026-11-05)",
    "was": {
@@ -9269,8 +9269,8 @@
   },
   {
    "path": "scripts/publish-marketplace-screens.mjs",
-   "verdict": "being_moved",
-   "home": "trillion-workshop:tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/from-an-older-version/scripts/publish-marketplace-screens.mjs",
+   "verdict": "replaced",
+   "home": "trillion-workshop:tools/list-and-run-my-tools-for-any-ai/do-work/publish-screen-rows.mjs (the replacement, landed in f21d232100586b765fe4595386b1e6331edea027; the held copy was removed in 3a0c438abdd0893aa92b796af8c8699239832c0c)",
    "pr": "https://github.com/Trillion-X/trillion-workshop/pull/221",
    "evidence": "Byte for byte, beside records/marketplace-screens.json (#203); stacked on #203; loads; receipt in that tool's moved-from.json.",
    "group": "rest2"

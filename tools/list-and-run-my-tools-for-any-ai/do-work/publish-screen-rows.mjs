@@ -17,15 +17,19 @@ export class PublishScreenRowsError extends Error {}
 const nonempty = value => typeof value === 'string' && value.trim() !== '';
 const firstLine = error => String(error?.message ?? error).split('\n')[0];
 
-/** Save then publish each catalogue row as `maker`. Returns [{ id, saved, published, error? }] in row order. */
-export async function publishScreenRows({ rows, maker, client } = {}) {
+/**
+ * Save then publish each catalogue row as `maker`. The publish guards need the host's version (hostVersion), its id (host),
+ * and the licence classes and placements the rows name (licences, placements), as publishTool does. Returns
+ * [{ id, saved, published, error? }] in row order.
+ */
+export async function publishScreenRows({ rows, maker, client, host, hostVersion, licences, placements } = {}) {
   if (!Array.isArray(rows)) throw new PublishScreenRowsError('rows: the catalogue rows, an array of ai-tool-descriptor objects.');
   if (!nonempty(maker)) throw new PublishScreenRowsError('maker: the person publishing the rows. Only this maker can withdraw them.');
   const results = [];
   for (const descriptor of rows) {
     try {
       await saveTool({ descriptor }, client);
-      await publishTool({ tool_id: descriptor.id, maker }, client);
+      await publishTool({ tool_id: descriptor.id, maker, host, host_version: hostVersion, licences, placements }, client);
       results.push({ id: descriptor.id, saved: true, published: true });
     } catch (error) {
       results.push({ id: descriptor.id, saved: false, published: false, error: firstLine(error) });

@@ -9,8 +9,15 @@ const descriptor = {
   invoke: { kind: 'container', argv: ['python3', 'main.py'], workdir: '/work' },
   can_do: ['Echo the text back'], cannot_do: ['Send messages'],
   verify: [{ kind: 'sample-run', input: { text: 'hi' } }],
+  licence_class: 'licence:maker-own', placements: ['placement:this-account'],
 };
 const files = Buffer.from('print(1)');
+// The catalogue facts the guards need: the licence class, its placements, and the host publishing (its version and id).
+const place = {
+  host: 'host:test', host_version: '2026.11.20',
+  licences: { 'licence:maker-own': { id: 'licence:maker-own', label: 'Maker-owned', allowed_placements: ['placement:this-account'] } },
+  placements: { 'placement:this-account': { id: 'placement:this-account', executor: 'container', reachable_from: ['host:test'] } },
+};
 
 // A stand-in for the database: the saved row and the listing row, answering the statements the port runs.
 const fakeDatabase = ({ saved = [{ id: 'tool:echo-test', descriptor, fingerprint: '1f:aa', files }], listings = [] } = {}) => {
@@ -46,7 +53,7 @@ const fakeDatabase = ({ saved = [{ id: 'tool:echo-test', descriptor, fingerprint
 
 test('publish lists a saved tool as its maker, hidden from the public site by default', async () => {
   const db = fakeDatabase();
-  const { listing } = await publishTool({ tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
+  const { listing } = await publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
   assert.equal(listing.maker, 'person:gate-test');
   assert.equal(listing.show_on_public_site, false);
   assert.ok(db.log.includes('COMMIT'));
@@ -54,55 +61,55 @@ test('publish lists a saved tool as its maker, hidden from the public site by de
 
 test('publish copies the saved files into the listing, so the listed tool can run for others', async () => {
   const db = fakeDatabase();
-  await publishTool({ tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
+  await publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
   assert.deepEqual(db.listings[0].files, files);
 });
 
 test('publish refuses a tool that is not saved in this database', async () => {
-  await assert.rejects(publishTool({ tool_id: 'tool:missing', maker: 'person:gate-test' }, fakeDatabase().client), PublishToolError);
+  await assert.rejects(publishTool({ ...place, tool_id: 'tool:missing', maker: 'person:gate-test' }, fakeDatabase().client), PublishToolError);
 });
 
 test('publish refuses a saved version that changed since it was checked', async () => {
-  await assert.rejects(publishTool({ tool_id: 'tool:echo-test', maker: 'person:gate-test', expected_fingerprint: '1f:bb' }, fakeDatabase().client), /changed since/);
+  await assert.rejects(publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'person:gate-test', expected_fingerprint: '1f:bb' }, fakeDatabase().client), /changed since/);
 });
 
 test('publish refuses a tool with no sample-run check', async () => {
   const db = fakeDatabase({ saved: [{ id: 'tool:echo-test', descriptor: { ...descriptor, verify: [] }, fingerprint: '1f:aa', files }] });
-  await assert.rejects(publishTool({ tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client), /sample-run/);
+  await assert.rejects(publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client), /sample-run/);
 });
 
 test('publish refuses both a price_ref and a usage_price', async () => {
-  await assert.rejects(publishTool({ tool_id: 'tool:echo-test', maker: 'm', price_ref: 'p', usage_price: { amount_micros: 100, currency: 'usd' } }, fakeDatabase().client), /either/);
+  await assert.rejects(publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'm', price_ref: 'p', usage_price: { amount_micros: 100, currency: 'usd' } }, fakeDatabase().client), /either/);
 });
 
 test('publish refuses a usage_price that is not whole hundreds of micros in usd', async () => {
-  await assert.rejects(publishTool({ tool_id: 'tool:echo-test', maker: 'm', usage_price: { amount_micros: 150, currency: 'usd' } }, fakeDatabase().client), /usage_price/);
+  await assert.rejects(publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'm', usage_price: { amount_micros: 150, currency: 'usd' } }, fakeDatabase().client), /usage_price/);
 });
 
 test('a public run is refused unless the tool is shown on the public site with no price', async () => {
   const run = { runs_per_day: 10 };
-  await assert.rejects(publishTool({ tool_id: 'tool:echo-test', maker: 'm', public_run: run }, fakeDatabase().client), /public_run is available only/);
-  await assert.rejects(publishTool({ tool_id: 'tool:echo-test', maker: 'm', public_run: run, show_on_public_site: true, price_ref: 'p' }, fakeDatabase().client), /public_run is available only/);
+  await assert.rejects(publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'm', public_run: run }, fakeDatabase().client), /public_run is available only/);
+  await assert.rejects(publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'm', public_run: run, show_on_public_site: true, price_ref: 'p' }, fakeDatabase().client), /public_run is available only/);
 });
 
 test('a public run with its daily ceiling is kept on the listing when the tool is eligible', async () => {
   const db = fakeDatabase();
-  const { listing } = await publishTool({ tool_id: 'tool:echo-test', maker: 'person:gate-test', public_run: { runs_per_day: 10 }, show_on_public_site: true }, db.client);
+  const { listing } = await publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'person:gate-test', public_run: { runs_per_day: 10 }, show_on_public_site: true }, db.client);
   assert.equal(listing.show_on_public_site, true);
   assert.deepEqual(listing.public_run, { runs_per_day: 10, max_input_bytes: 16384 });
 });
 
 test('another maker cannot take a listing, even after it is withdrawn', async () => {
   const db = fakeDatabase();
-  await publishTool({ tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
-  await unpublishTool({ tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
-  await assert.rejects(publishTool({ tool_id: 'tool:echo-test', maker: 'person:someone-else' }, db.client), /another maker/);
+  await publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
+  await unpublishTool({ ...place, tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
+  await assert.rejects(publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'person:someone-else' }, db.client), /another maker/);
 });
 
 test('withdraw by the maker removes the body and files and keeps the content-free evidence', async () => {
   const db = fakeDatabase();
-  await publishTool({ tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
-  const { evidence } = await unpublishTool({ tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
+  await publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
+  const { evidence } = await unpublishTool({ ...place, tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
   assert.equal(evidence.status, 'withdrawn');
   assert.equal(evidence.maker, 'person:gate-test');
   assert.equal(evidence.fingerprint, '1f:aa');
@@ -112,15 +119,15 @@ test('withdraw by the maker removes the body and files and keeps the content-fre
 
 test('withdraw by another maker is refused', async () => {
   const db = fakeDatabase();
-  await publishTool({ tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
-  await assert.rejects(unpublishTool({ tool_id: 'tool:echo-test', maker: 'person:someone-else' }, db.client), /not a tool this maker published/);
+  await publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
+  await assert.rejects(unpublishTool({ ...place, tool_id: 'tool:echo-test', maker: 'person:someone-else' }, db.client), /not a tool this maker published/);
 });
 
 test('outcome: a lost publish with the same terms reads as committed, and never publishes again', async () => {
   const db = fakeDatabase();
-  await publishTool({ tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
+  await publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
   const writes = db.log.filter(line => line.startsWith('INSERT')).length;
-  const { outcome } = await publishTool({ tool_id: 'tool:echo-test', maker: 'person:gate-test', recover: true }, db.client);
+  const { outcome } = await publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'person:gate-test', recover: true }, db.client);
   assert.equal(outcome.state, 'committed');
   assert.equal(db.log.filter(line => line.startsWith('INSERT')).length, writes);
 });
@@ -132,7 +139,7 @@ test('outcome: no listing of this maker reads as aborted', async () => {
 
 test('outcome: a listing on other terms, or a version saved since, reads as unknown', async () => {
   const db = fakeDatabase();
-  await publishTool({ tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
+  await publishTool({ ...place, tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client);
   assert.equal((await publishOutcome({ tool_id: 'tool:echo-test', maker: 'person:gate-test', show_on_public_site: true }, db.client)).state, 'unknown');
   db.saved[0].fingerprint = '1f:cc';
   assert.equal((await publishOutcome({ tool_id: 'tool:echo-test', maker: 'person:gate-test' }, db.client)).state, 'unknown');

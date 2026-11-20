@@ -12,8 +12,10 @@ const descriptor = {
   invoke: { kind: 'container', argv: ['python3', 'main.py'], workdir: '/work' },
   can_do: ['Echo the text back'], cannot_do: ['Send messages'],
   verify: [{ kind: 'sample-run', input: { text: 'hi' } }],
+  licence_class: 'licence:maker-own', placements: ['placement:this-account'],
 };
 const files = { 'main.py': 'print(1)' };
+const facts = { host: 'host:test', host_version: '2026.11.20', licences: { 'licence:maker-own': { id: 'licence:maker-own', label: 'Maker-owned', allowed_placements: ['placement:this-account'] } }, placements: { 'placement:this-account': { id: 'placement:this-account', executor: 'container', reachable_from: ['host:test'] } } };
 const saved = () => savedAndListedDatabase({ saved: [{ id: 'tool:echo-test', descriptor, fingerprint: '1f:aa', files: Buffer.from('x'), made_at: 'then' }] });
 
 test('deletes a saved tool: the row keeps its id, becomes status deleted and gets deleted_at', async () => {
@@ -38,7 +40,7 @@ test('saving the same id again revives a deleted tool, and it can be published a
   const row = db.saved.find(item => item.id === 'tool:echo-test');
   assert.equal(row.status, null);
   assert.equal(row.deleted_at, null);
-  const listed = await publishTool({ tool_id: 'tool:echo-test', maker: 'person:ana' }, db.client);
+  const listed = await publishTool({ ...facts, tool_id: 'tool:echo-test', maker: 'person:ana' }, db.client);
   assert.equal(listed.listing.status, 'published');
 });
 

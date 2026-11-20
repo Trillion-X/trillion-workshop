@@ -55,6 +55,44 @@ const MIN_MICROS = 100;
 // The same text for the same value whatever the key order, so two terms compare equal when they are equal.
 const stable = value => JSON.stringify(value, (key, item) => (object(item) ? Object.fromEntries(Object.keys(item).sort().map(k => [k, item[k]])) : item)) ?? 'null';
 
+// Two guards of the old publishTool (src/workshop.mjs:1707 and :942, :1709-1710). A release that needs a newer host version than the
+// one publishing it cannot have its sample checked here. A tool whose licence lets it run only in each caller's own sandbox
+// cannot be offered to everyone. Both need facts the publisher does not hold on its own, so the caller hands them in: the host
+// version (host_version), the host's id (host), the licence classes (licences: id -> { label, allowed_placements }) and the
+// placements (placements: id -> { id, executor, reachable_from }). A missing fact is refused, never skipped.
+export function compareVersions(a, b) {
+  const left = String(a).split('.').map(Number), right = String(b).split('.').map(Number);
+  for (let index = 0; index < Math.max(left.length, right.length); index++) {
+    const difference = (left[index] ?? 0) - (right[index] ?? 0);
+    if (difference) return difference;
+  }
+  return 0;
+}
+
+const runsOn = (release, hostVersion) => !release.minimum_host_version || compareVersions(hostVersion, release.minimum_host_version) >= 0;
+
+/** Why this host cannot publish the release, or null (the old compatibleRelease check on the row and its earlier releases). */
+export function refuseHostVersion(descriptor, hostVersion) {
+  const releases = [descriptor, ...(Array.isArray(descriptor.earlier_releases) ? descriptor.earlier_releases : [])];
+  if (releases.every(release => !release?.minimum_host_version)) return null;
+  if (!nonempty(hostVersion)) return `${descriptor.id} says it needs version ${descriptor.minimum_host_version} or newer, and this publish did not say which host it runs on, so its sample cannot be checked.`;
+  if (releases.some(release => release && runsOn(release, hostVersion))) return null;
+  return `${descriptor.id} says it needs version ${descriptor.minimum_host_version} or newer, and the host publishing it is ${hostVersion}, so its sample cannot be checked here.`;
+}
+
+/** Why this host cannot offer the tool to everyone, or null (the old choosePlacement, then the caller refusal). */
+export function refuseCallerOnly(descriptor, { licences, placements, host } = {}) {
+  if (!licences || !placements || !nonempty(host)) return `${descriptor.id}: where it runs is checked from the licence classes, the placements and this host, and they were not given.`;
+  const licence = nonempty(descriptor.licence_class) ? licences[descriptor.licence_class] : null;
+  if (!licence) return `${descriptor.id} has no known licence class, so it cannot run anywhere yet.`;
+  const allowedHere = Array.isArray(licence.allowed_placements) ? licence.allowed_placements : [];
+  const allowed = (Array.isArray(descriptor.placements) ? descriptor.placements : []).map(id => placements[id]).filter(place => place && allowedHere.includes(place.id));
+  const place = allowed.find(item => Array.isArray(item.reachable_from) && item.reachable_from.includes(host));
+  if (!place) return `${descriptor.id} cannot run from here: its licence allows ${allowedHere.join(', ') || 'no placement'}, and none of those can be reached from this service.`;
+  if (place.executor === 'caller') return `${descriptor.id}'s licence (${licence.label ?? licence.id}) lets it run only in each caller's own sandbox, so it cannot be offered to everyone from here.`;
+  return null;
+}
+
 function usagePriceProblem(usage) {
   if (!object(usage) || !Number.isSafeInteger(usage.amount_micros) || usage.amount_micros < MIN_MICROS
     || usage.amount_micros % MIN_MICROS !== 0 || usage.currency !== 'usd') {
@@ -120,6 +158,10 @@ export async function publishTool(input, client) {
     }
     const admitted = admitToolDescriptor(descriptor);
     if ('refused' in admitted) throw new PublishToolError(admitted.refused.reason);
+    const hostRefusal = refuseHostVersion(descriptor, asked.host_version);
+    if (hostRefusal) throw new PublishToolError(hostRefusal);
+    const placeRefusal = refuseCallerOnly(descriptor, asked);
+    if (placeRefusal) throw new PublishToolError(placeRefusal);
     if (publicRun && (!showOnPublicSite || priceRef !== undefined || usage !== undefined
       || !publicRunEligible({ ...descriptor, show_on_public_site: true }))) {
       throw new PublishToolError('public_run is available only for a public-site tool that runs in a no-network container without credentials, external effects, or a visitor price.');
