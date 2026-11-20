@@ -1,0 +1,68 @@
+{
+  "drafted_from": "tool:save-tool's port of the old server's saveTool (b6ae0ebf815f, src/workshop.mjs:1455); the row shape of tool:sales-contracts",
+  "start_here": "Say to your AI: \"Save this tool so I can find it later: <descriptor and files>.\" It checks the tool the same way a catalog tool is checked, then keeps it as one row of the saved_tools table in the database you name.",
+  "no_lists_because": "A saved tool is one row of the saved_tools table in the database the person names (the tool makes that table on first use), not a row of a list, so there is no list for a person to keep or pour into.",
+  "lists": [],
+  "workflows": [],
+  "tools": [
+    "tool:save-tool"
+  ],
+  "instructions": [
+    "1. Give your AI the tool's descriptor (its id, job, input_schema and invoke) and its code as files, for example {\"main.py\": \"...\"}.",
+    "2. Name the database the tool is kept in. The first save makes the saved_tools table there.",
+    "3. Read the answer: the saved id, its fingerprint and its size. A refused save names each problem in plain words; fix those and save again."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep a small echo tool",
+      "ask": "Save this tool so I can find it later: it echoes text back.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:save-tool",
+            "input": {
+              "database": "the database the person names",
+              "descriptor": {
+                "kind": "ai-tool-descriptor",
+                "id": "tool:echo-test",
+                "job": "Echo the input text back",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "invoke": {
+                  "kind": "container",
+                  "argv": [
+                    "python3",
+                    "main.py"
+                  ],
+                  "workdir": "/work"
+                },
+                "can_do": [
+                  "Echo the text back"
+                ],
+                "cannot_do": [
+                  "Send messages"
+                ]
+              },
+              "files": {
+                "main.py": "import json,sys\nprint(json.dumps({'echo': json.load(sys.stdin)}))"
+              }
+            }
+          }
+        }
+      },
+      "given": "A descriptor for tool:echo-test and its one file, main.py",
+      "hands_back": "The saved id tool:echo-test, its fingerprint beginning 1f:, its size in bytes and saved: true; the table is saved_tools"
+    }
+  ],
+  "workflow": null
+}

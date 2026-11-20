@@ -1,0 +1,56 @@
+// tools/list-and-run-my-tools-for-any-ai/test/save-tool.test.mjs
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { fingerprintOf, filesAsBytes, descriptorProblems, saveTool, SAVED_TABLE, SaveToolError } from '../do-work/save-tool.mjs';
+
+const echo = {
+  kind: 'ai-tool-descriptor', id: 'tool:echo-test', job: 'Echo the input text back',
+  input_schema: { type: 'object', properties: { text: { type: 'string' } } },
+  invoke: { kind: 'container', argv: ['python3', 'main.py'], workdir: '/work' },
+  can_do: ['Echo the text back'], cannot_do: ['Send messages'],
+};
+
+const fakeClient = () => {
+  const calls = [];
+  return { calls, query: async (text, values) => { calls.push({ text, values }); return { rows: [], rowCount: 0 }; } };
+};
+
+test('a valid echo descriptor has no problems', () => {
+  assert.deepEqual(descriptorProblems(echo), []);
+});
+
+test('an empty job is refused in plain words', () => {
+  assert.ok(descriptorProblems({ ...echo, job: '' }).some(p => p.startsWith('job:')));
+});
+
+test('a container without argv is refused', () => {
+  assert.ok(descriptorProblems({ ...echo, invoke: { kind: 'container', workdir: '/work' } }).some(p => p.startsWith('invoke.argv:')));
+});
+
+test('files must be a path inside the tool', () => {
+  assert.throws(() => filesAsBytes({ '../escape.py': 'x' }), SaveToolError);
+  assert.throws(() => filesAsBytes({ '/abs.py': 'x' }), SaveToolError);
+});
+
+test('the fingerprint is BLAKE3 with the old 1f: prefix', () => {
+  assert.match(fingerprintOf(new Uint8Array([1, 2, 3])), /^1f:[0-9a-f]{64}$/);
+});
+
+test('a save creates the table, then upserts one row into it', async () => {
+  const client = fakeClient();
+  const saved = await saveTool({ descriptor: echo, files: { 'main.py': 'print(1)' } }, client);
+  assert.equal(saved.table, SAVED_TABLE);
+  assert.match(client.calls[0].text, /CREATE TABLE IF NOT EXISTS saved_tools/);
+  assert.match(client.calls[1].text, /INSERT INTO saved_tools/);
+  assert.equal(client.calls[1].values[0], 'tool:echo-test');
+});
+
+test('sending both files and bytes_base64 is refused', async () => {
+  await assert.rejects(saveTool({ descriptor: echo, files: { 'a.py': 'x' }, bytes_base64: 'AA==' }, fakeClient()), SaveToolError);
+});
+
+test('a refused descriptor writes nothing', async () => {
+  const client = fakeClient();
+  await assert.rejects(saveTool({ descriptor: { ...echo, job: '' }, files: { 'a.py': 'x' } }, client), SaveToolError);
+  assert.equal(client.calls.length, 0);
+});
