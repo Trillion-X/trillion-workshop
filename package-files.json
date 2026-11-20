@@ -33883,6 +33883,75 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:read-sharing-state": [
+  {
+   "package": "choose-whether-my-decisions-are-shared-show",
+   "paths": [
+    "do-work",
+    "src"
+   ],
+   "at": "/opt/choose-whether-my-decisions-are-shared-show"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/pool-settings.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:read-spend-rails": [
   {
    "package": "guard-ai-spending",

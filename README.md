@@ -31,7 +31,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 ## The tools
 
 <!-- tool-catalogue:start -->
-Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1464 tools in 316 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
+Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1465 tools in 317 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
 
 | Folder | Tools |
 |---|---|
@@ -81,6 +81,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `check-words-for-personal-data` | `tool:check-personal-data` |
 | `choose-and-save-local-files` | `tool:plan-choosing-and-saving-files-on-my-computer` |
 | `choose-the-feed-each-widget-shows` | `tool:choose-the-feed-each-widget-shows` |
+| `choose-whether-my-decisions-are-shared-show` | `tool:read-sharing-state` |
 | `cite-principles-from-captions` | `tool:cite-principles-from-captions` |
 | `collect-and-rank-viewer-questions` | `tool:collect-and-rank-viewer-questions` |
 | `compare-two-ai-builds-on-trap-tasks` | `tool:compare-two-ai-builds-on-trap-tasks` |

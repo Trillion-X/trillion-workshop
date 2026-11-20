@@ -1,0 +1,46 @@
+{
+  "drafted_from": "tool:read-sharing-state row and its do-work file; read it before relying on it",
+  "start_here": "Say to your AI: \"Say whether my decisions are shared anonymously and what my stories published total is.\" It runs tool:read-sharing-state and answers the sharing and stories state.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes the records it is given and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:read-sharing-state"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Say whether my decisions are shared anonymously and what my stories published total is.\"",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-sharing-state and its input (the worked example shows one).",
+    "3. Read what comes back: sharing on or off, whether it is your choice or the default, the day the default began, and the pool count (or null when it could not be read).",
+    "4. Nothing is kept by this read."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read my sharing and stories on its own sample",
+      "ask": "Say whether my decisions are shared anonymously.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-sharing-state",
+            "input": {
+              "share": null,
+              "stories": {
+                "on": false
+              },
+              "sharedCount": 12,
+              "storyCounts": {
+                "career": 2,
+                "money": 1
+              },
+              "storyRows": []
+            }
+          }
+        }
+      },
+      "given": "The input {\"share\":null,\"stories\":{\"on\":false},\"sharedCount\":12,\"storyCounts\":{\"career\":2,\"money\":1},\"storyRows\":[]}.",
+      "hands_back": "It answered sharing with on true, chosen false, from_day 2026-09-28 and shared_so_far 12."
+    }
+  ]
+}
