@@ -105,7 +105,7 @@ test('remind says what is soon, an agreement of another group is refused, and th
   assert.throws(() => holdToIt({ group, operation: 'remind', agreement, policy: { marks: [] } }), /needs marks/);
   assert.throws(() => hold({ operation: 'remind', agreement: { ...agreement, group: 'other-club' } }), /does not belong to this group/);
   assert.throws(() => hold({ operation: 'remind' }), /Say which agreement/);
-  assert.throws(() => hold({ operation: 'agreements' }), /operation is one of/);
+  assert.throws(() => holdToIt({ operation: 'agreements' }, { now: at('2026-03-02T08:00:00Z') }), /group/);
 });
 
 test('the pure parts: cadence windows, presence by first name and alias, marks by what happened, and tallies', () => {
@@ -138,4 +138,64 @@ test('a check reads heard turns: the speaker names who came, and voices with no 
   assert.equal(done.unnamed_voices, 1);
   assert.deepEqual(done.marks.map(mark => mark.mark), ['came', 'not-counted', 'not-counted']);
   assert.deepEqual(evidenceFromHeard([{ speaker: ' ', start: 'x' }, { start: 'y' }, { speaker: 'Lin', start: '2026-03-02T09:07:00Z' }]), [{ name: 'Lin', at: '2026-03-02T09:07:00Z' }]);
+});
+
+// Ported from the old module's tests (test/hold-to-it.older-version.test.mjs, removed with its generation). Each one keeps the
+// old assertion; where the old one read a store or booked a calendar, the same fact is read from this answer.
+test('a one-time meeting is the right instant in its zone on either side of a clock change', () => {
+  const laZone = 'America/Los_Angeles';
+  const october = hold({ what: 'Autumn check', agreed_by: ['Lin'], cadence: { every: 'once', date: '2026-10-05', at: '11:00', minutes: 60, time_zone: laZone } });
+  assert.equal(october.next.starts_at, '2026-10-05T18:00:00.000Z');
+  const december = hold({ what: 'Winter check', agreed_by: ['Lin'], cadence: { every: 'once', date: '2026-12-05', at: '11:00', minutes: 60, time_zone: laZone } });
+  assert.equal(december.next.starts_at, '2026-12-05T19:00:00.000Z');
+});
+
+test('a zone that is not one is refused, never read as UTC, and a zone in another case is kept in its proper name', () => {
+  assert.throws(() => hold({ what: 'Daily team meeting', agreed_by: ['Sam'], cadence: { every: 'day', at: '11:00', time_zone: 'Pacific Time' } }), /not a time zone/);
+  const kept = hold({ what: 'Daily team meeting', agreed_by: ['Sam'], cadence: { every: 'day', at: '11:00', time_zone: 'america/los_angeles' } });
+  assert.equal(kept.agreement.cadence.time_zone, 'America/Los_Angeles');
+});
+
+test('a meeting nobody set up marks everyone who agreed as not arranged', () => {
+  const { agreement } = hold(daily);
+  const checked = check(agreement, { arranged: false, evidence: [], read_from: ['call'] }, '2026-03-02T10:00:00Z');
+  assert.deepEqual(checked.marks.map(row => row.mark), ['not-arranged', 'not-arranged', 'not-arranged']);
+});
+
+test('a one-time meeting whose day nobody said is never set on the calendar', () => {
+  const kept = hold({ what: 'Study session', agreed_by: ['Lin'], cadence: { every: 'once', at: '09:00', time_zone: 'UTC' } });
+  assert.equal(kept.needs_time, true);
+  assert.equal(kept.next, undefined);
+  assert.equal(kept.remind, undefined);
+  assert.equal(kept.check, undefined);
+});
+
+test('an unknown operation and a held agreement from another group say what to send', () => {
+  assert.throws(() => holdToIt({ policy, group, operation: 'nope' }, { now: at('2026-03-02T08:00:00Z') }), /operation is one of/);
+  const { agreement } = hold(daily);
+  assert.throws(() => hold({ operation: 'check', group: 'other-group', agreement }), /does not belong to this group/);
+});
+
+test('the agreements listing names each agreement as the group read it, in order, at most the DATA limit', () => {
+  const items = [{ item_id: 'item_1', title: 'Daily check-in', body: { group, cadence: { every: 'day', at: '09:00' } } }, { item_id: 'item_2', title: 'Weekly review', body: { group, cadence: { every: 'week', on: ['monday'] } } }];
+  assert.deepEqual(holdToIt({ operation: 'agreements', group, agreements: items }, { now: at('2026-03-02T08:00:00Z') }), {
+    agreements: [
+      { agreement_id: 'item_1', what: 'Daily check-in', group, cadence: { every: 'day', at: '09:00' } },
+      { agreement_id: 'item_2', what: 'Weekly review', group, cadence: { every: 'week', on: ['monday'] } },
+    ],
+  });
+  const many = Array.from({ length: 60 }, (_, index) => ({ item_id: `item_${index}`, title: `t${index}`, body: {} }));
+  assert.equal(holdToIt({ operation: 'agreements', group, agreements: many }, { now: at('2026-03-02T08:00:00Z') }).agreements.length, 50);
+});
+
+test('a weekly meeting that runs past midnight shifts its check to the next day, and one that wraps the week ends on the day before', () => {
+  const late = armAt({ every: 'week', on: ['monday'], at: '23:45', minutes: 30, time_zone: 'UTC' }, 60, 0, policy);
+  assert.deepEqual([late.every.at, late.every.on], ['00:45', ['tuesday']]);
+  const sunday = armAt({ every: 'week', on: ['sunday'], at: '00:05', time_zone: 'UTC' }, -10, 0, policy);
+  assert.deepEqual([sunday.every.at, sunday.every.on], ['23:55', ['saturday']]);
+});
+
+test('a long weekly meeting shifts every weekday by the full day count of its check offset', () => {
+  const longCheck = armAt({ every: 'week', on: ['monday', 'wednesday'], at: '00:05', minutes: 1500, time_zone: 'UTC' }, 1530, 0, policy);
+  assert.deepEqual([longCheck.every.at, longCheck.every.on], ['01:35', ['tuesday', 'thursday']]);
 });

@@ -24,7 +24,7 @@ import { readFileSync } from 'node:fs';
 import { addCivilDays, instantAt, timeZoneName, wallTimeOf, weekday } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 
 export const readSettings = () => JSON.parse(readFileSync(new URL('./hold-to-it.json', import.meta.url), 'utf8'));
-const OPERATIONS = ['keep', 'retime', 'remind', 'check', 'mark', 'scorecard'];
+const OPERATIONS = ['keep', 'retime', 'remind', 'check', 'mark', 'scorecard', 'agreements'];
 const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 const refuse = words => { throw new Error(words); };
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : null);
@@ -171,6 +171,11 @@ export function holdToIt(input, { now = () => Date.now() } = {}) {
   const { operation } = input;
   if (!OPERATIONS.includes(operation)) refuse(`operation is one of: ${OPERATIONS.join(', ')}.`);
   const group = text(input.group) ?? refuse(words.needs_group);
+  // The group's agreements as the caller read them from the space (its items: item_id, title, body), in the order given, at most the DATA limit.
+  if (operation === 'agreements') {
+    const items = Array.isArray(input.agreements) ? input.agreements.filter(row => row && typeof row === 'object') : [];
+    return { agreements: items.slice(0, settings.agreements_limit).map(item => ({ agreement_id: item.item_id, what: item.title, ...item.body })) };
+  }
   const policy = policyOf(input, settings);
   const current = now();
 

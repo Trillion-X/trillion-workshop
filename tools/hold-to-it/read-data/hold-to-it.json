@@ -1,5 +1,6 @@
 {
   "_what": "How tool:hold-to-it (read-data/hold-to-it.mjs) works out a group's agreements. `types` are the record types of the agreement and mark the answer is shaped for (ids start with them). The policy is handed in with the request: `marks` [{ id, label, points, when: present | absent | not_arranged | unclear | not_done, miss? }], `defaults` { minutes, time_zone, remind_minutes, check_after_minutes }, and optionally `evidence_before_minutes`, `evidence_after_minutes` and `unnamed_prefixes`, how a voice with no name is labelled. `default_area` is what an unnamed merit area of a mark is called in a person's totals. `words` are what the answers say.",
+  "agreements_limit": 50,
   "types": {
     "agreement": "record:agreements",
     "mark": "record:agreement-marks"
