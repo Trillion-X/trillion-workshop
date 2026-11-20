@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:run-sql-in-my-database's row shape and the old sales-contract records door (5f1efcaee, sales-contract-actions.mjs, removed); sample runs answered on the Mac with tool:sales-contracts",
+  "drafted_from": "tool:run-sql-in-my-database's row shape and the old sales-contract records door (5f1efcaee, sales-contract-actions.mjs, removed in 68eddc58e; now do-work/sales-contract-sql.mjs, with cleanContract in do-work/sales-contract-records.mjs); sample runs answered on the Mac with tool:sales-contracts",
   "start_here": "Say to your AI: \"Save my Spring coaching sales contract in my pursuit database and show me my last five contracts\", with {\"action\":\"save\",\"database\":\"shop_for_who_runs_it\",\"contract\":{\"name\":\"Spring coaching\",\"primitives\":[]}} and then {\"action\":\"list\",\"database\":\"shop_for_who_runs_it\",\"limit\":5}. It runs tool:sales-contracts and answers the saved contract and the page of contracts, each with its times.",
   "lists": [],
   "no_lists_because": "The contracts are rows of the sales_contracts table in the pursuit database the person names (the tool makes that table on first use), not rows of a list, so there is no list for a person to keep or pour into.",

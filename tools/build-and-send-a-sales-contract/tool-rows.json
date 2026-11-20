@@ -947,7 +947,7 @@
           "placement:your-computer"
         ],
         "provenance": {
-          "source": "L07 verify-every-port: the records-door contract store (5f1efcaee, sales-contract-actions.mjs) moved to a sales_contracts table in the selling pursuit's database, per the lead's 11:56 PM direction; the process shape is run-sql-in-my-database's"
+          "source": "L07 verify-every-port: the records-door contract store (5f1efcaee, sales-contract-actions.mjs, removed in 68eddc58e) moved to a sales_contracts table in the selling pursuit's database, per the lead's 11:56 PM direction; it now runs do-work/sales-contract-sql.mjs (cleanContract from do-work/sales-contract-records.mjs); the process shape is run-sql-in-my-database's"
         }
       }
     }

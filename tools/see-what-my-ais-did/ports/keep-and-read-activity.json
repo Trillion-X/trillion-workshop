@@ -12,7 +12,10 @@
  "sources": [],
  "targets": [
   {
-   "path": "tools/see-what-my-ais-did/do-work/keep-and-read-activity.mjs"
+   "path": "tools/see-what-my-ais-did/do-work/activity-row-from-a-call.mjs"
+  },
+  {
+   "path": "tools/see-what-my-ais-did/do-work/activity-in-database.mjs"
   }
  ],
  "preserve": [],

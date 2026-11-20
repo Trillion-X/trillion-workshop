@@ -1,7 +1,7 @@
 // tools/see-what-my-ais-did/do-work/activity-row-from-a-call.mjs
 //
 // The step that turns one tool call an AI made into the activity row the person keeps, ported from the old command
-// keep-and-read-activity.mjs (its loop body). Which calls leave a row and how each reads is the DATA in
+// keep-and-read-activity.mjs, removed in 3c0fc7198; tool:keep-an-ai-activity-row calls it through do-work/activity-in-database.mjs. Which calls leave a row and how each reads is the DATA in
 // tools/shared-code/src/activity-marks.json; the rules are activityRow, unmarkedActivityRow, recordableActivityRow and
 // keptActivityRow in tools/shared-code/src/activity.mjs. This file only shapes one call and says why a call left no row.
 import { activityRow, keptActivityRow, recordableActivityRow, unmarkedActivityRow } from '../../shared-code/src/activity.mjs';
