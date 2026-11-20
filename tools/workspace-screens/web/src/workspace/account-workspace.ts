@@ -9,19 +9,24 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. Nothing here names a tool: the sidebar is the catalogue's answer, page by page; a tool added to it is a screen
 //      the next time the page reads it.
-//   2. The records the arrangement keeps are this page's own (memoryRecordsSource), kept in no server store.
+//   2. The records the arrangement keeps (its layouts, sidebar, looks, the person's own show rules) are rows of one table
+//      in the person's own database (sql-records.ts, account-records.json), read and written through the SQL tool with
+//      the person's own rights; the saved ones the first draw needs are read in one read beside the catalogue's first page.
 //   3. The first page of the catalogue draws the workspace; the rest are offered as they come (Workspace.reoffer).
 
 import { readJson, setPageDoor } from './api';
 import { answerAtTheDoor } from './account-door';
 import { pass, takeCallback } from './account-pass';
-import { memoryRecordsSource, setWorkspaceRecordsSource } from './records-source';
+import { remoteRecordsSource, setWorkspaceRecordsSource } from './records-source';
+import { sqlRecordsTransport } from './sql-records';
+import { runWorkshopTool } from './workshop-tool-api';
+import kept from './account-records.json' with { type: 'json' };
 import { answerTargets } from './targets';
 import { installScreenRunner } from './screen-runner';
 import { screens } from './screen-mounts';
 import { offeredScreens, startScreenRecords, type ScreenRow } from './offered-screens';
 import { mountWorkspace, newWorkspaceRoot } from './mount-workspace';
-import { showRecords } from './records';
+import { readStartupRecords, showRecords } from './records';
 import { keepShowRules } from './show-rules-live';
 import surfaces from './screens.mjs';
 import { toolSurfaces } from '../work-workshop.mjs';
@@ -35,14 +40,17 @@ const screenRows = (page: Listed) =>
 await takeCallback();
 await pass();
 setPageDoor(answerAtTheDoor);
-setWorkspaceRecordsSource(memoryRecordsSource());
+const statement = (sql: string, params: unknown[]) =>
+  runWorkshopTool<{ rows: Record<string, unknown>[] }>(kept.tool, { credential_name: kept.credential_name, sql, params }).then(ran => ran.result?.rows ?? []);
+setWorkspaceRecordsSource(remoteRecordsSource(sqlRecordsTransport(statement, kept.table, kept.retry)));
 installScreenRunner(screens, surfaces.address_label);
 await answerTargets();
 const viewer = { access_refs: [] as string[] };
+const startup = readStartupRecords();
 let page = await listed(null);
 const tools = screenRows(page);
 const offered = offeredScreens(viewer, tools);
-await startScreenRecords(offered, {});
+await startScreenRecords(offered, await startup);
 // No rules are assigned to this page by an operator: the person's own rules are their records, applied as on every page.
 await keepShowRules({ rules: [] });
 const root = newWorkspaceRoot();

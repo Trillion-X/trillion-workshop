@@ -1,0 +1,11 @@
+{
+  "_what": "Where the signed-in workspace keeps its saved records (sql-records.ts): one table, made by the workspace in the person's own database on its first write, reached through the SQL tool with the connection the person saved under `credential_name`.",
+  "tool": "tool:run-sql-in-my-database",
+  "credential_name": "own-rows-postgres-connection",
+  "table": "workspace_records",
+  "retry": {
+    "_what": "After a write the database refused or could not be reached, the next write waits first_ms, doubled after each further failure up to most_ms, and a written batch ends the wait. A refused write puts the old value back and a screen writes again, so without the wait one unreachable database became 1,278 tool runs in 20 s (Nov 20 2026).",
+    "first_ms": 500,
+    "most_ms": 60000
+  }
+}

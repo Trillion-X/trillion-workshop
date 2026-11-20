@@ -104,7 +104,8 @@ export function activeRecordsSource(): WorkspaceRecordsSource {
 }
 
 const encoder = new TextEncoder();
-const identityOf = (value: unknown): string => makeHashCodeHexFromBytes(encoder.encode(JSON.stringify(value)));
+/** A value's identity as a store checks a write's expectation: the identity of its JSON bytes (records.ts identityOfValue). */
+export const identityOf = (value: unknown): string => makeHashCodeHexFromBytes(encoder.encode(JSON.stringify(value)));
 
 /** Applies one batch to the held values: each write whose expectation still holds is kept, and each whose expectation
  *  no longer holds is reported with the value now held. A memory source keeps no fork, since it keeps no history. */
