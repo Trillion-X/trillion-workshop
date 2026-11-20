@@ -1,6 +1,7 @@
 // The task page's mount (the screen module contract: mount(element, props) returns the cleanup). It asks `dataUrl` for the
 // page's data every `intervalMs`, but only while the tab is visible: a hidden tab asks nothing, and coming back to a visible
 // tab asks at once. It redraws only when the answer changed. A failed ask keeps what was drawn last; nothing is copied.
+// Before anything is drawn, a failed ask says why in words and is asked again on the same interval (the list of choices too).
 // With `choices`, the host offers several sets of work (pursuits, teams): their list is asked of `choices.url`
 // ([{ id, label }], in the host's order), the page draws them as one control above Now and History (with `every`, one
 // more choice that means all of them), the chosen ids are kept in the address (?<param>=) and every data ask names them
@@ -24,9 +25,15 @@ function Live({ dataUrl, intervalMs, seenKey, choices, ask }: Required<Omit<Task
   const [data, setData] = useState<Data | null>(null);
   const [items, setItems] = useState<{ id: string; label: string }[] | null>(choices ? null : []);
   const [chosen, setChosen] = useState(() => (choices ? new URLSearchParams(location.search).get(choices.param) ?? '' : ''));
+  const [failed, setFailed] = useState<string | null>(null);
   useEffect(() => {
-    if (!choices) return;
-    ask(choices.url).then(text => setItems(JSON.parse(text))).catch(() => setItems([]));
+    if (!choices) return undefined;
+    let timer: number | undefined;
+    const list = () => ask(choices.url)
+      .then(text => { setItems(JSON.parse(text)); setFailed(null); })
+      .catch(error => { setFailed(String(error?.message ?? error)); timer = window.setTimeout(list, intervalMs); });
+    list();
+    return () => window.clearTimeout(timer);
   }, [choices?.url]);
   const ids = items?.map(item => item.id) ?? [];
   const value = chosen === EVERY && choices?.every ? EVERY : ids.includes(chosen) ? chosen : ids[0] ?? '';
@@ -47,8 +54,8 @@ function Live({ dataUrl, intervalMs, seenKey, choices, ask }: Required<Omit<Task
     let timer: number | undefined;
     const read = () => {
       ask(asked)
-        .then(text => { if (text === last) return; last = text; setData(JSON.parse(text)); })
-        .catch(() => {});
+        .then(text => { setFailed(null); if (text === last) return; last = text; setData(JSON.parse(text)); })
+        .catch(error => setFailed(String(error?.message ?? error)));
     };
     const stop = () => { if (timer !== undefined) { window.clearInterval(timer); timer = undefined; } };
     const start = () => { if (timer === undefined) { read(); timer = window.setInterval(read, intervalMs); } };
@@ -57,7 +64,7 @@ function Live({ dataUrl, intervalMs, seenKey, choices, ask }: Required<Omit<Task
     document.addEventListener('visibilitychange', onVisibility);
     return () => { stop(); document.removeEventListener('visibilitychange', onVisibility); };
   }, [asked, intervalMs, ask]);
-  if (!data) return null;
+  if (!data) return failed ? <p className="m-0 px-6 pt-7 text-center text-[15px]">{`The work could not be read: ${failed}. Asking again.`}</p> : null;
   return data.changes.length
     ? <TaskPage key={value} data={data} seenKey={key} seenBefore={seenBefore} choice={choice} />
     : <p className="m-0 px-6 pt-7 text-center text-[15px]">No changes yet.</p>;

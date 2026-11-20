@@ -47,6 +47,13 @@ const TOOLS = [
 /** A database's login as the engine handed it on its descriptor; empty when none was handed. */
 const heldOn = descriptor => { try { return readFileSync(descriptor, 'utf8').trim(); } catch { return ''; } };
 
+/** `read(index)` asked once for each index and kept: a descriptor read again starts at its end and finds nothing, so a
+ *  connection opened again after a reset uses the login read the first time. */
+export function readOnce(read) {
+  const kept = new Map();
+  return index => { if (!kept.has(index)) kept.set(index, read(index)); return kept.get(index); };
+}
+
 /** One client for a connection string, reached through the run's own proxy when the engine names one. */
 async function connectTo(connection) {
   const { default: pg } = await import('pg');
@@ -169,11 +176,12 @@ export async function answer(session, message) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const held = [];
+  const loginOf = readOnce(index => heldOn(FIRST_DESCRIPTOR + index));
   const session = taskPagesSession({
     open: async (_database, index) => {
-      const connection = heldOn(FIRST_DESCRIPTOR + index);
+      const connection = loginOf(index);
       if (!connection) throw new Error('No login was handed for that database.');
-      held.push(connection);
+      if (!held.includes(connection)) held.push(connection);
       return connectTo(connection);
     },
   });

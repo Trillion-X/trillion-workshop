@@ -7,7 +7,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PGlite } from '@electric-sql/pglite';
-import { answer, taskPagesSession } from '../do-work/serve-task-pages.mjs';
+import { answer, readOnce, taskPagesSession } from '../do-work/serve-task-pages.mjs';
 
 const TASK_TABLES = `create table calendar_tasks (id text primary key, title text, plain_title text, plain_detail text, parent_id jsonb, status text,
     waiting_on text, made_at timestamptz, changed_at timestamptz, assignees jsonb, taken_by text);
@@ -100,4 +100,11 @@ test('a connection reset while it waits is let go, and the next ask opens it aga
   last.emit('error', new Error('read ECONNRESET'));
   assert.deepEqual((await session.pursuits({ dbs, pages_database: 'runs_it' })).map(item => item.id), ['bakery', 'garden']);
   assert.equal(opens, 2);
+});
+
+test('each database login is read from its descriptor once, so a connection opened again uses the same login', () => {
+  const reads = [];
+  const loginOf = readOnce(index => { reads.push(index); return reads.filter(read => read === index).length === 1 ? `login-${index}` : ''; });
+  assert.deepEqual([loginOf(0), loginOf(1), loginOf(0)], ['login-0', 'login-1', 'login-0']);
+  assert.deepEqual(reads, [0, 1]);
 });
