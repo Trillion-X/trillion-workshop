@@ -17,6 +17,8 @@
 //   3. Its own findings are never counted as waiting things: a card whose id starts with `check:` is left out (the check
 //      does not file or count itself).
 
+import { realpathSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import surfaces from '../../shared-code/src/workspace/screens.mjs';
 import { placeOfAddress } from '../../hand-off-jobs-between-agents/src/workspace/addresses.mjs';
 import { controlOf } from '../../hold-one-thing-until-done/read-data/needs-you-hold.mjs';
@@ -83,7 +85,7 @@ export function countsWithoutControl(summary) {
 }
 
 // The tool's entry: the input on stdin is either cards { origin?, finishes?, sections, served? } or counts { database?, served, waiting, unplaced, examples? }; the output on stdout is the result.
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const chunks = [];
   for await (const chunk of process.stdin) chunks.push(chunk);
   const input = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
