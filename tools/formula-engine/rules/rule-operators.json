@@ -77,6 +77,9 @@
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.contains", "args": {"value": {"$param": "text"}}}]}
     },
     {
+      "id": "contains_exactly", "label": "contains exactly", "chip": "contains exactly", "icon": "text-search", "input": "text", "param_case": "exact", "applies_to": ["text", "fact"], "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.contains", "args": {"value": {"$param": "text"}}}]}
+    },
+    {
       "id": "does_not_contain", "label": "does not contain", "chip": "does not contain", "icon": "search-x", "input": "text", "param_case": "lower", "negate": true,
       "applies_to": ["text", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.contains", "args": {"value": {"$param": "text"}}}]}
