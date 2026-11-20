@@ -530,6 +530,7 @@
             }
           },
           "kind": "container",
+          "max_run_ms": 900000,
           "internet": false,
           "workdir": "/opt/check-every-screen-at-every-width",
           "stdout": "json",
