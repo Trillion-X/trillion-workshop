@@ -4,7 +4,7 @@ Files of old trillion whose job is this tool's (show each setup step with the re
 
 | Old path | Here | Status |
 |---|---|---|
-| `src/setup-capability-evidence.mjs` | `src/setup-capability-evidence.mjs` | runs: its `src/work-results.mjs` import names `tools/see-what-my-ais-did/from-an-older-version/src/work-results.mjs`; read by `tools/set-up-my-account/from-an-older-version/src/setup-runtime.mjs` |
+| `src/setup-capability-evidence.mjs` | `src/setup-capability-evidence.mjs` | runs: its `src/work-results.mjs` import names `tools/see-what-my-ais-did/from-an-older-version/src/work-results.mjs`; read by `tools/set-up-my-account/do-work/setup-runtime.mjs` |
 | `src/setup-known.mjs` | `src/setup-known.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/setup-policy.json (at the tag, not moved here yet) |
 | `src/setup-week.mjs` | `src/setup-week.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/setup-policy.json (at the tag, not moved here yet) |
 | `test/setup-capability-evidence.test.mjs` | `test/setup-capability-evidence.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/activity.mjs (already gone at the tag), src/work-results.mjs (at the tag, not moved here yet) |

@@ -1,0 +1,9 @@
+{
+  "_what": "The words of the Get started screen's own actions (send paths /work/api/setup/retry, /restart and /stop), moved with their rules from the retired repository src/account-routes.mjs `actions` (tag before-worker-retire, b6ae0ebf81, lines 510-535). The words of a step finished on the screen (setup/complete) are in setup-policy.json (complete_here.missing, complete_here.said, words.finished_elsewhere).",
+  "stop_needs_a_run": "Choose the setup run to stop.",
+  "stop_not_verified": "The stop could not be verified. Check setup again before retrying.",
+  "stopped": "Further setup steps are stopped. Already started work may still finish or have effects.",
+  "stop_reason": "Stopped by the person from the setup screen.",
+  "restart_not_done": "Setup has not restarted. Check its current state and try again.",
+  "restarted": "Setup is ready to continue in your AI. Its earlier results are kept."
+}

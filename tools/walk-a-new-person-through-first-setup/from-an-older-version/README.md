@@ -6,6 +6,6 @@ Files of old trillion whose job is this tool's (walk a new person through first 
 |---|---|---|
 | `src/setup-installs.mjs` | moved to `do-work/setup-installs.mjs` (adapted, wired into `tool-rows.json`) | ported |
 | `src/setup-plan.mjs` | moved to `do-work/setup-plan.mjs` (adapted, wired into `tool-rows.json`) | ported in part; the HTTP `setupTools` surface is not carried (see `../README.md`) |
-| `src/setup-runtime.mjs` | moved to `tools/set-up-my-account/from-an-older-version/src/setup-runtime.mjs` | moved wholesale on 2026-11-14 and running there; its run lookups read the setup recipe run (see that tool's README) |
+| `src/setup-runtime.mjs` | moved to `tools/set-up-my-account/do-work/setup-runtime.mjs` | moved wholesale on 2026-11-14 and running there; its run lookups read the setup recipe run (see that tool's README) |
 | `test/setup-plan.test.mjs` | `test/setup-plan.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/ai-app-guides.mjs (at the tag, not moved here yet), test/setup-fixtures.mjs (at the tag, not moved here yet) |
 | `test/setup-runtime.test.mjs` | `test/setup-runtime.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/shipped-defaults.mjs (at the tag, not moved here yet), records/starting-rules.json (at the tag, not moved here yet) |

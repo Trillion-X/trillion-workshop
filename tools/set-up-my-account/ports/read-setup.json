@@ -32,7 +32,7 @@
   },
   {
    "repository": "trillion-workshop",
-   "path": "tools/set-up-my-account/from-an-older-version/src/setup-runtime.mjs",
+   "path": "tools/set-up-my-account/do-work/setup-runtime.mjs",
    "why": "Its readSetupReference reads one cited setup evidence reference for the setup runtime and gathers no screen facts; the runtime itself (makeSetupRuntime) is what read-setup hands the screen as facts.runtime."
   },
   {

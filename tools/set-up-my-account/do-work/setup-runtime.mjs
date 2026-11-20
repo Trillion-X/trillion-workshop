@@ -7,15 +7,16 @@
 // Rules, schedules, listeners and providers retain their existing create/edit/remove/stop/reset management owners.
 // The loop's input is a message kept in this account, or, for work handed through Trillion with no message behind it,
 // that work's own kept job: an AI is never asked to invent a person's message to have something to answer.
+// Lives in do-work/ since Nov 19 2026 (it was from-an-older-version/src/); its tests are test/setup-runtime.test.mjs.
 // Moved wholesale from old trillion src/setup-runtime.mjs (tag old-trillion-before-worker-retire) by way of
 // tools/walk-a-new-person-through-first-setup/from-an-older-version/src/setup-runtime.mjs.held; only its imports and its run
 // lookups changed. A setup run is a run of the setup recipe on the workflow engine (tool:run-workflow-definition): its id
 // is `runId` of the setup recipe and the policy's request key, and its checked answers are the answers the caller kept, so
 // the separate verification receipt the old owner saved is the verify-outcome answer itself (read-setup.mjs supplies
 // readRun and readOutput over the setup_run the caller hands in). Nothing here writes: no receipt or session is kept by a read.
-import { withoutSecrets } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/scheduler.mjs';
-import { workResultWords } from '../../../see-what-my-ais-did/from-an-older-version/src/work-results.mjs';
-import { nativeSourceReturn, setupCapabilityEvidence } from '../../../show-each-setup-step-with-the-real-things-found/from-an-older-version/src/setup-capability-evidence.mjs';
+import { withoutSecrets } from '../../keep-and-wake-ai-sessions-on-this-computer/src/scheduler.mjs';
+import { workResultWords } from '../../see-what-my-ais-did/from-an-older-version/src/work-results.mjs';
+import { nativeSourceReturn, setupCapabilityEvidence } from '../../show-each-setup-step-with-the-real-things-found/from-an-older-version/src/setup-capability-evidence.mjs';
 // A setup run's id: the setup recipe and the request key it is run under.
 const runId = (recipe, requestKey) => `record:calendar-task:${recipe}:${requestKey}`;
 

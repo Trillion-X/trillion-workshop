@@ -129,7 +129,7 @@ test('the apps the account has come from the names its sign-ins were made under,
 
 // setup_facts that carry no setup runtime: Get started reads the setup run the caller hands in (setup_run: the
 // status tool:run-workflow-definition answered and the answers given so far, which the caller keeps in the person's own
-// database), through the setup runtime moved here from old trillion (from-an-older-version/src/setup-runtime.mjs). No
+// database), through the setup runtime moved here from old trillion (do-work/setup-runtime.mjs). No
 // setup_run is the true "not started", never "the runtime source is unreadable"; a reader with no owner here answers
 // unavailable; nothing is read from or written to any store.
 const NO_FACTS = { facts: {}, shared_rules: null, context: null };

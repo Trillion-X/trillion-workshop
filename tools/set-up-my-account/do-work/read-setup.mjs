@@ -40,7 +40,7 @@ import showRules from '../read-data/show-rules.json' with { type: 'json' };
 import setupSettings from '../read-data/setup-steps.json' with { type: 'json' };
 import { devicesFor, installationObserver, systemOf } from '../../set-up-my-devices-and-cameras/src/devices.mjs';
 import capabilityPolicy from '../read-data/setup-policy.json' with { type: 'json' };
-import { makeSetupRuntime, makeSetupWorkflow } from '../from-an-older-version/src/setup-runtime.mjs';
+import { makeSetupRuntime, makeSetupWorkflow } from './setup-runtime.mjs';
 import { defaultRecipeFor } from '../../workflows/read-data/public-recipes.mjs';
 import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
 import { seeWhatIsLeftToSetUp } from './see-what-is-left-to-set-up.mjs';

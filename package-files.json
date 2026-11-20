@@ -33190,8 +33190,7 @@
    "package": "set-up-my-account",
    "paths": [
     "do-work",
-    "read-data",
-    "from-an-older-version/src"
+    "read-data"
    ],
    "at": "/opt/set-up-my-account"
   },
