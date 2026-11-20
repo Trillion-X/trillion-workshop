@@ -1,0 +1,88 @@
+{
+  "drafted_from": "tool:leave-a-shared-pursuit's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Leave the shared pursuit I am in, for the test person\", with {\"pursuit\": \"pursuit:gate-club\", \"subject\": \"person:gate-test\", \"records\": [{\"type\": \"record:space\", \"id\": \"record:space:gate-club\", \"value\": {\"title\": \"Gate club\", \"owner\": \"person:gate-test-two\", \"config\": {\"join\": [{\"free\": true}]}}}, {\"type\": \"record:space-member\", \"id\": \"record:space-member:gate-club:person%3Agate-test-two\", \"value\": {\"space\": \"gate-club\", \"subject\": \"person:gate-test-two\", \"member_type\": \"owner\", \"state\": \"member\", \"how\": \"owner\", \"joined_at\": \"2026-01-01T00:00:00.000Z\"}}, {\"type\": \"record:space-member\", \"id\": \"record:space-member:gate-club:person%3Agate-test\", \"value\": {\"space\": \"gate-club\", \"subject\": \"person:gate-test\", \"member_type\": \"member\", \"state\": \"member\", \"how\": \"free\", \"joined_at\": \"2026-02-01T00:00:00.000Z\"}}, {\"type\": \"pursuit\", \"id\": \"pursuit:gate-club\", \"value\": {\"id\": \"pursuit:gate-club\", \"title\": \"Gate club\", \"space_id\": \"gate-club\", \"status\": \"active\"}}]}. It runs tool:leave-a-shared-pursuit and answers the change, with the rows to store under keep.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes the rows it reads and answers the rows to change. The caller reads and stores them.",
+  "workflows": [],
+  "tools": [
+    "tool:leave-a-shared-pursuit"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Leave the shared pursuit I am in\", naming the pursuit, the person, and the rows read from the store.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:leave-a-shared-pursuit and its input (the worked example shows one).",
+    "3. Read the answer: membership says whether the person is out; keep lists each row to change. Store each row whose expected still matches."
+  ],
+  "worked_examples": [
+    {
+      "title": "A test member leaves a shared test pursuit, on its own sample",
+      "ask": "Leave the shared pursuit I am in, for the test person",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:leave-a-shared-pursuit",
+            "input": {
+              "pursuit": "pursuit:gate-club",
+              "subject": "person:gate-test",
+              "records": [
+                {
+                  "type": "record:space",
+                  "id": "record:space:gate-club",
+                  "value": {
+                    "title": "Gate club",
+                    "owner": "person:gate-test-two",
+                    "config": {
+                      "join": [
+                        {
+                          "free": true
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "record:space-member",
+                  "id": "record:space-member:gate-club:person%3Agate-test-two",
+                  "value": {
+                    "space": "gate-club",
+                    "subject": "person:gate-test-two",
+                    "member_type": "owner",
+                    "state": "member",
+                    "how": "owner",
+                    "joined_at": "2026-01-01T00:00:00.000Z"
+                  }
+                },
+                {
+                  "type": "record:space-member",
+                  "id": "record:space-member:gate-club:person%3Agate-test",
+                  "value": {
+                    "space": "gate-club",
+                    "subject": "person:gate-test",
+                    "member_type": "member",
+                    "state": "member",
+                    "how": "free",
+                    "joined_at": "2026-02-01T00:00:00.000Z"
+                  }
+                },
+                {
+                  "type": "pursuit",
+                  "id": "pursuit:gate-club",
+                  "value": {
+                    "id": "pursuit:gate-club",
+                    "title": "Gate club",
+                    "space_id": "gate-club",
+                    "status": "active"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The test pursuit pursuit:gate-club in the test space gate-club, run by person:gate-test-two; the test member person:gate-test asks to leave.",
+      "hands_back": "It answered {\"pursuit_id\":\"pursuit:gate-club\",\"left\":\"gate-club\",\"membership\":\"left\"}; keep marks person:gate-test's member row left and the pursuit pursuit:gate-club ended."
+    }
+  ]
+}

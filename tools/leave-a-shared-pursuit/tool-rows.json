@@ -1,0 +1,261 @@
+{
+  "kind": "tool-rows",
+  "record_set": "leave-a-shared-pursuit-tool-rows",
+  "what_this_is": "The Workshop row for tools/leave-a-shared-pursuit: a person leaves a pursuit they share, changing only their own membership and the pursuit's status for them. Not wired to any screen, route or wake.",
+  "records": [
+    {
+      "id": "package::leave-a-shared-pursuit::tool::leave-a-shared-pursuit",
+      "address": "package::leave-a-shared-pursuit::tool::leave-a-shared-pursuit",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/space-members",
+          "trillion-workshop/content-identity"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:leave-a-shared-pursuit",
+        "label": "Leave a shared pursuit",
+        "status": "active",
+        "job": "A person leaves a pursuit they share with other people: their own membership of its space is marked left, what they put there stays, and the pursuit ends for them",
+        "description": "Give the pursuit's id, the person, and the rows read from the store ([{ id, type, value }]: the pursuit, its space, the space's member rows). Refuses a pursuit that is not theirs or has ended, and refuses the person who runs the space (hand it over first). Answers the membership change and the pursuit ended, under `keep` ([{ id, type, value, expected }]) for the caller to store. It changes only the caller's own rows. The network's room leave is not a row change and is not done here.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pursuit",
+            "subject",
+            "records"
+          ],
+          "properties": {
+            "pursuit": {
+              "type": "string",
+              "description": "The pursuit's id, as the person's record names it (pursuit:...)."
+            },
+            "subject": {
+              "type": "string",
+              "description": "The person leaving, the way the space names them."
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type"
+                ]
+              },
+              "description": "The rows the ask reads: the pursuit, the space row, and the space's member rows."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "pursuit_id",
+            "left",
+            "keep"
+          ],
+          "properties": {
+            "pursuit_id": {
+              "type": "string"
+            },
+            "left": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The space left, or null when the pursuit had no shared space."
+            },
+            "membership": {
+              "type": "string",
+              "description": "The membership state after the ask (left, or none when they were not a member)."
+            },
+            "keep": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The rows to change, each { id, type, value, expected }."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "leave-a-shared-pursuit",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/leave-a-shared-pursuit"
+              },
+              {
+                "package": "space-members",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/space-members"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "paid-access",
+                "paths": [
+                  "read-data/who-holds-access.mjs",
+                  "read-data/payment-effects.mjs",
+                  "read-data/effect-lifecycle.mjs",
+                  "read-data/read-granted-access-refs.ts",
+                  "read-data/take-payments-events.json"
+                ],
+                "at": "/opt/paid-access"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes/formula-engine"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
+                "package": "space-member-types",
+                "paths": [
+                  "src"
+                ],
+                "at": "/opt/space-member-types"
+              }
+            ]
+          },
+          "workdir": "/opt/leave-a-shared-pursuit",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/leave-a-shared-pursuit/do-work/leave-a-shared-pursuit-run.mjs",
+            "leaveASharedPursuit"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:leave-a-shared-pursuit",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "old repository commit 4ffa1dc4a2^:src/pursuit-rooms.mjs leavePursuit (259-268) and ownPursuit (184-190): the person's own pursuit, not ended, and the room left; the owner refusal is tool:leave-a-space (space-members do-work/space-members.mjs:59). Not wired: no screen, route or wake calls it; the live wiring waits for the owner's word."
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "pursuit": "pursuit:gate-club",
+              "subject": "person:gate-test",
+              "records": [
+                {
+                  "type": "record:space",
+                  "id": "record:space:gate-club",
+                  "value": {
+                    "title": "Gate club",
+                    "owner": "person:gate-test-two",
+                    "config": {
+                      "join": [
+                        {
+                          "free": true
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "record:space-member",
+                  "id": "record:space-member:gate-club:person%3Agate-test-two",
+                  "value": {
+                    "space": "gate-club",
+                    "subject": "person:gate-test-two",
+                    "member_type": "owner",
+                    "state": "member",
+                    "how": "owner",
+                    "joined_at": "2026-01-01T00:00:00.000Z"
+                  }
+                },
+                {
+                  "type": "record:space-member",
+                  "id": "record:space-member:gate-club:person%3Agate-test",
+                  "value": {
+                    "space": "gate-club",
+                    "subject": "person:gate-test",
+                    "member_type": "member",
+                    "state": "member",
+                    "how": "free",
+                    "joined_at": "2026-02-01T00:00:00.000Z"
+                  }
+                },
+                {
+                  "type": "pursuit",
+                  "id": "pursuit:gate-club",
+                  "value": {
+                    "id": "pursuit:gate-club",
+                    "title": "Gate club",
+                    "space_id": "gate-club",
+                    "status": "active"
+                  }
+                }
+              ]
+            },
+            "output_selector": "$.result.membership",
+            "contains": false
+          }
+        ]
+      }
+    }
+  ]
+}
