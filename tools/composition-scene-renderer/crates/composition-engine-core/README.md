@@ -6,7 +6,7 @@
 
 | Path | Purpose |
 |---|---|
-| `src/binding/` | Binding AST/evaluation/cache/operator integration. |
+| `src/binding/` | Re-exports the one binding evaluator, validator and operators from composition-ast; adds `scene_index_from_typed`. |
 | `src/blueprint/` | Blueprint validation, normalization, and scene resolution. |
 | `src/bridge/` | Data and journal bridge traits/adapters. |
 | `src/host.rs` | Host adapter traits used by pure composition code. |

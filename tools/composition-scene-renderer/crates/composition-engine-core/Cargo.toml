@@ -21,14 +21,10 @@ chrono.workspace = true
 # Cross-platform Instant: uses performance.now() on wasm32, std::time::Instant on native
 web-time.workspace = true
 
-# Decimal arithmetic for financial precision
-rust_decimal.workspace = true
 
 # Shared vocabulary types (leaf crate - L088 SSOT for SceneNode, Binding, etc.)
 composition-ast = { path = "../../../shared-code/crates/composition-ast" }
 
-# Unified operator semantics (single source of truth)
-ops-core = { path = "../../../shared-code/crates/ops-core" }
 
 # Unified state graph for FSM and focus state (single source of truth)
 state-graph = { path = "../state-graph" }
@@ -42,7 +38,6 @@ uuid.workspace = true
 
 # Text processing
 regex.workspace = true
-urlencoding.workspace = true
 
 [features]
 default = []

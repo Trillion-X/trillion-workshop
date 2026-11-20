@@ -272,7 +272,7 @@ fn validate_style(style: &BlueprintStyle, path: &str, errors: &mut Vec<Diagnosti
 /// Validate a Binding object's shape
 ///
 /// Basic validation until Agent 6's binding module is ported.
-/// Full validation will be delegated to binding/validator.rs when available.
+/// Full validation is composition_ast::binding::validator::validate_binding_deep.
 fn validate_binding_shape(
     binding: &super::types::BindingRef,
     path: &str,
