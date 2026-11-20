@@ -737,6 +737,52 @@
       }
     },
     {
+      "kind": "contains-exactly",
+      "meaning": "Every item at path (a step's windows, each carrying the text it was asked for and the window read around it) holds its text exactly inside its window: the same characters, the same case and the same quote marks. An item whose window does not hold its text is a break, with the item's position named. Exact, not lowered: the same operator (op:core.contains, no lower step) that the formula engine's contains_exactly row is.",
+      "fields": [
+        {
+          "field": "path",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        }
+      ],
+      "wrong": {
+        "$values": "path",
+        "transform": [
+          {
+            "op": "op:core.filter_where",
+            "args": {
+              "predicate": [
+                {
+                  "op": "op:core.get_path",
+                  "args": {
+                    "path": "window"
+                  }
+                },
+                {
+                  "op": "op:core.contains",
+                  "args": {
+                    "value": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "vars",
+                        "key": "$item",
+                        "path": "text"
+                      }
+                    }
+                  }
+                },
+                {
+                  "op": "op:core.not"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "kind": "mentioned-in",
       "meaning": "Every value at path appears in the text at in.",
       "fields": [
