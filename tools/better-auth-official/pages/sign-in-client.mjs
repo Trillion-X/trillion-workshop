@@ -403,6 +403,69 @@ const accountRow = (heading, detail, change) => {
   }
   return item;
 };
+// /account, below the rows: where the person is signed in (each other browser or device can be signed out), their passkeys (one can be removed)
+// and their keys for scripts and AIs (one can be turned off). The lists are Better Auth's own: list-sessions, revoke-session, passkey delete and
+// api-key list and delete.
+const listRow = (heading, detail, action) => {
+  const item = document.createElement('li'); item.className = 'page-item';
+  const title = document.createElement('h3'); title.className = 'page-item-heading'; title.textContent = heading;
+  const text = document.createElement('p'); text.className = 'page-item-detail'; text.textContent = detail;
+  item.append(title, text);
+  if (action) { const actions = document.createElement('div'); actions.className = 'page-item-actions'; actions.append(action); item.append(actions); }
+  return item;
+};
+const endingButton = (dataset, label) => { const button = document.createElement('button'); button.className = 'page-action'; button.type = 'button'; Object.assign(button.dataset, dataset); button.textContent = label; return button; };
+async function accountSessions(current) {
+  const listed = await json(`${authBase}/list-sessions`);
+  if (!listed.ok) return refusal(listed, words.failed);
+  document.querySelector('[data-fill-list="sessions"]').replaceChildren(...listed.data.map(found => listRow(
+    found.token === current ? words.account_session_this : words.account_session_other,
+    words.account_session_signed_in.replace('{when}', when(found.createdAt)),
+    found.token === current ? null : endingButton({ sessionEnd: found.token }, words.account_session_end))));
+}
+function accountPasskeys(passkeys) {
+  const none = document.querySelector('[data-fill-list="passkeys"]');
+  if (!passkeys.length) return none.replaceChildren(listRow(words.account_passkeys_none));
+  none.replaceChildren(...passkeys.map(passkey => listRow(
+    passkey.name || words.account_passkey_unnamed,
+    words.account_passkey_made.replace('{when}', when(passkey.createdAt)),
+    endingButton({ passkeyRemove: passkey.id }, words.account_passkey_remove))));
+}
+async function accountKeys() {
+  const listed = await json(`${authBase}/api-key/list`);
+  if (!listed.ok) return refusal(listed, words.failed);
+  document.querySelector('[data-fill-list="keys"]').replaceChildren(...(listed.data.apiKeys ?? []).map(key => listRow(
+    key.name || words.account_key_unnamed,
+    words.account_key_made.replace('{when}', when(key.createdAt)),
+    endingButton({ keyOff: key.id }, words.account_key_off))));
+}
+// Each of these ends one line and takes it off the list; a refusal says so in the status box (busy, or try again).
+async function endSession(button) {
+  const done = await post(`${authBase}/revoke-session`, { token: button.dataset.sessionEnd });
+  if (!done.ok) return refusal(done, words.failed, 'try-again');
+  button.closest('li').remove();
+  status(words.account_session_ended);
+}
+async function removePasskey(button) {
+  const done = await post(`${authBase}/passkey/delete-passkey`, { id: button.dataset.passkeyRemove });
+  if (!done.ok) return refusal(done, words.failed, 'try-again');
+  button.closest('li').remove();
+  status(words.account_passkey_removed);
+}
+async function turnOffKey(button) {
+  const done = await post(`${authBase}/api-key/delete`, { keyId: button.dataset.keyOff });
+  if (!done.ok) return refusal(done, words.failed, 'try-again');
+  button.closest('li').remove();
+  status(words.account_key_off_done);
+}
+document.addEventListener('click', event => {
+  const ending = event.target.closest('[data-session-end]');
+  if (ending) return endSession(ending);
+  const removing = event.target.closest('[data-passkey-remove]');
+  if (removing) return removePasskey(removing);
+  const off = event.target.closest('[data-key-off]');
+  if (off) turnOffKey(off);
+});
 async function accountPage() {
   const session = await signedInPerson();
   if (!session) return;
@@ -423,6 +486,7 @@ async function accountPage() {
   );
   const refused = passkeys.error ?? accounts.error;
   if (refused) refusal(refused, words.unavailable);
+  await Promise.all([accountSessions(session.session?.token), accountKeys(), accountPasskeys(passkeys.data ?? [])]);
 }
 // The confirm step: the password box only for an account that has a password, cleared each time it is opened.
 function deleteStart() {
