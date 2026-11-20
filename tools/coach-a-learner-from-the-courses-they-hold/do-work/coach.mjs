@@ -100,14 +100,13 @@ export async function heldAccessOf(email, runs, settings) {
   const S = schema(settings);
   const N = settings.names;
   const pay = field => S.C('payment_events', field);
-  const [offers, events, grants] = await Promise.all([
-    runs.query(`SELECT * FROM ${S.T('offers')}`),
-    runs.query(`SELECT * FROM ${S.T('payment_events')} WHERE lower(${pay('email')}) = $1
+  // One after another: the three reads share one connection, which takes one query at a time.
+  const offers = await runs.query(`SELECT * FROM ${S.T('offers')}`);
+  const events = await runs.query(`SELECT * FROM ${S.T('payment_events')} WHERE lower(${pay('email')}) = $1
       OR ${pay('provider_object_ref')} IN (SELECT ${pay('provider_object_ref')} FROM ${S.T('payment_events')} WHERE lower(${pay('email')}) = $1 AND ${pay('provider_object_ref')} IS NOT NULL)
-      OR ${pay('subscription_id')} IN (SELECT ${pay('subscription_id')} FROM ${S.T('payment_events')} WHERE lower(${pay('email')}) = $1 AND ${pay('subscription_id')} IS NOT NULL)`, [email]),
-    runs.query(`SELECT g.* FROM ${S.T('access_grants')} g LEFT JOIN ${S.T('people')} p ON p.${S.C('people', 'id')} = g.${S.C('access_grants', 'person_id')}
-      WHERE lower(coalesce(p.${S.C('people', 'email')}, g.${S.C('access_grants', 'email')})) = $1`, [email]),
-  ]);
+      OR ${pay('subscription_id')} IN (SELECT ${pay('subscription_id')} FROM ${S.T('payment_events')} WHERE lower(${pay('email')}) = $1 AND ${pay('subscription_id')} IS NOT NULL)`, [email]);
+  const grants = await runs.query(`SELECT g.* FROM ${S.T('access_grants')} g LEFT JOIN ${S.T('people')} p ON p.${S.C('people', 'id')} = g.${S.C('access_grants', 'person_id')}
+      WHERE lower(coalesce(p.${S.C('people', 'email')}, g.${S.C('access_grants', 'email')})) = $1`, [email]);
   const paymentEvents = events.map(row => ({
     ...row,
     occurred_at: row[N.payment_events.occurred_at] ? new Date(row[N.payment_events.occurred_at]).toISOString() : null,
