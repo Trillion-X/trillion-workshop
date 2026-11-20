@@ -2,20 +2,32 @@
 
 Asking a model for an answer on a person's behalf: whose money pays for the request (a spend gate), content parts materialized from addresses, and an answer read while it is still arriving (words so far, the documents in the run, an unfinished JSON value).
 
-Carried byte for byte from bitfield-packages `packages/model-response` into `from-bitfield-packages/model-response/`; `moved-from.json` names each file's source path and commit and both identities. No other file in this repository held any of it.
-
-## Files
+## What is here
 
 | File | Purpose |
 |------|---------|
-| `from-bitfield-packages/model-response/do-work/whose-money-pays-for-this.ts` | `spendGateAskForModelRequest`, `spendGateApproved`, `spendGateRefusalMessage`. Pure; loads here. |
-| `from-bitfield-packages/model-response/do-work/materialize-addressed-content-parts.mjs` | `materializeAddressedContentParts` with its policy and error class. Pure; loads here. |
-| `from-bitfield-packages/model-response/read-data/an-answer-arriving-in-documents.ts` | `valueAtPath`, `documentsInTheRun`, `wordsInTheRun`, `oneAnswerFromTheRun`, `readUnfinishedJson`, `textSoFarAt`. Pure; loads here. |
-| `from-bitfield-packages/model-response/do-work/request-model-response.ts.held`, `index.ts.held` | The request itself (provider request assembly, structured-output check, workflow launch). Held: it calls the old package runtime (`sendRequestToBitfieldTarget`, a trusted id minter) and sends `slot::workflow` requests, which no longer exist; it needs the records door and this repository's model call before it can load. |
-| `from-bitfield-packages/model-response/**/*.test.*` | The package's tests. They import vitest, or read a fixture of another package's tree, so they are held (names end in `.held`) or named with their reason in `moved-from.json` under `held`. |
-| `from-bitfield-packages/model-response/things-to-store-and-run.json` | The package's records: checks, contract (what the package does not own), the HTTP workflow action, the materialization contract and the entries. Not wired to a row. |
-| `moved-from.json`, `part.json` | The receipt; the tree that imports these files. |
+| `do-work/whose-money-pays-for-this.ts` | `spendGateAskForModelRequest`, `spendGateApproved`, `spendGateRefusalMessage`. Pure. Copied byte for byte from bitfield-packages `packages/model-response/do-work/whose-money-pays-for-this.ts` (7e4af0df56). |
+| `do-work/materialize-addressed-content-parts.mjs` | `materializeAddressedContentParts` with its policy and error class. Pure. Copied byte for byte from bitfield-packages (ebf06ab600). |
+| `read-data/an-answer-arriving-in-documents.ts` | `valueAtPath`, `documentsInTheRun`, `wordsInTheRun`, `oneAnswerFromTheRun`, `readUnfinishedJson`, `textSoFarAt`. Pure. Copied byte for byte from bitfield-packages (ebf06ab600). |
+| `test/*.test.mjs` | The old vitest tests, ported to `node:test`. The materializer test generates its bytes in place instead of reading a fixture from another package tree. |
+| `moved-from.json`, `part.json` | The receipt (source path and commit for each file) and the tree that imports these files. |
 
-**Depends on:** nothing that loads (the held request needs the old package runtime).
+Run the tests with `node --test tools/model-response/test/*.test.mjs`.
 
-**Depended on by:** nothing in this repository.
+## What is not here yet
+
+The request itself (`request-model-response` in bitfield-packages, 5482a2a3c) is not ported. It assembled the provider request from DATA, rendered the body template, ran the spend gate before the candidate loop, sent the request to the HTTP executor, read the structured reply, and built the answer message. It called the retired Bitfield runtime and `slot::workflow` requests, so it cannot load as written.
+
+Callers still name it as `model-response.request-model-response`:
+
+- `tools/messages-screen/packages/chat/do-work/answer-one-addressed-turn.ts` (the answer to a message)
+- `tools/ask-a-small-model-for-a-verdict/packages/answer-state-questions/do-work/answer-state-questions.ts`
+- `tools/shared-code/packages/ask-a-small-model-for-a-verdict/do-work/ask-through-model-response.mjs`
+
+No current tool serves that name. Those calls are the gap. Its open pieces are recorded as calendar task rows under `record:calendar-task:verify-every-port-model-response-*`, with the verdict table in the study row `verify-every-port/model-response`.
+
+The read rules also still have a copy in `tools/messages-screen/packages/model-response/read-data/`, which `take-one-part-of-an-answer.ts` imports. That copy is to be repointed here and removed after this copy is read back.
+
+**Depends on:** nothing that loads outside this folder.
+
+**Depended on by:** nothing in this repository yet (see above).

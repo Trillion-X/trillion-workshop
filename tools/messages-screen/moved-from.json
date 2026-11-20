@@ -1288,7 +1288,7 @@
     {
       "from": "packages/model-response/read-data/an-answer-arriving-in-documents.ts",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/messages-screen/packages/model-response/read-data/an-answer-arriving-in-documents.ts",
+      "to": "tools/model-response/read-data/an-answer-arriving-in-documents.ts",
       "source_identity": "1f:db889324ffbdf20776a64b0f9ba75392fab0bae6e70ca64dca1bcdb4a700311c",
       "identity": "1f:db889324ffbdf20776a64b0f9ba75392fab0bae6e70ca64dca1bcdb4a700311c"
     },

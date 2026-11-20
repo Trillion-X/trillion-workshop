@@ -22,7 +22,7 @@ import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 // The rules for reading an answer that arrives as a run of documents belong to
 // the package that knows what an answer looks like. A copy here would be a
 // second set of rules for the same bytes, one line apart from the first.
-import { textSoFarAt, wordsInTheRun } from '../../model-response/read-data/an-answer-arriving-in-documents';
+import { textSoFarAt, wordsInTheRun } from '../../../../model-response/read-data/an-answer-arriving-in-documents';
 
 type JsonRecord = Record<string, unknown>;
 
