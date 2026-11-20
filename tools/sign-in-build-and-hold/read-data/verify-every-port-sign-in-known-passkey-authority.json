@@ -1,0 +1,57 @@
+{
+  "_what": "Which of a person's passkeys are KNOWN (may confirm a guarded change: a ceiling, a passkey, the ways the person is told, the account itself), when each gains that authority, and how the notices about them are sent. Read by read-data/verify-every-port-sign-in-known-passkey-authority.mjs. The user-verification flag a passkey reports is self-reported and no attestation is asked for, so the wall is custody of enrollment: every passkey record carries its provenance, fixed when it is saved. A passkey is KNOWN from a moment fixed by its provenance: sign-up at once; a passkey added with a known passkey's confirmation or vouched for by one after the notice wait; one added without a confirmation only on an account with no known passkey (or during a recovery the person asked for); never for one added without a confirmation to an account that has a known passkey (unvouched). The wait is operator DATA here, never a person's setting. Any use of a known passkey cancels every waiting passkey no known passkey confirmed. A recovery that has run its wait unknows every passkey known before it started. Every notice is told on every channel the person cannot narrow, at most `notice.most` times in `notice.window_hours`. Ported from the earlier code base's src/passkey-authority.json (b6ae0ebf815f). The sign-in email and storage of the rows are the caller's; the confirmation words and the confirmation itself are in verify-every-port-sign-in-guarded-change-confirm.json.",
+  "provenance": {
+    "sign-up": {
+      "gains_authority": true,
+      "wait_hours": 0
+    },
+    "known-passkey": {
+      "gains_authority": true,
+      "wait_hours": 72
+    },
+    "notice": {
+      "gains_authority": true,
+      "wait_hours": 72
+    },
+    "unvouched": {
+      "gains_authority": false
+    }
+  },
+  "notice": {
+    "kind": "needs-you-request",
+    "open": "/account",
+    "every_channel": true,
+    "mail_kind": "account-authority",
+    "most": 3,
+    "window_hours": 24
+  },
+  "legacy": {
+    "sign_up_seconds": 600
+  },
+  "words": {
+    "not_known_yet": "This passkey cannot confirm this change until {from}: it was added without a confirmation from a passkey you already had. Use a passkey you had before, or wait until then.",
+    "never_known": "This passkey signs in, but it was added without a confirmation from a passkey you already had, so it cannot confirm changes. Vouch for it on Account & security with a passkey you had before.",
+    "added_title": "A new passkey was added to your account",
+    "added_body": "It signs in now. From {from} it can also confirm changes to your limits. If you did not add it, remove it on Account & security before then, or sign in with a passkey you had before; either cancels it.",
+    "added_unvouched_body": "It signs in, but it cannot confirm changes to your limits, since no passkey you had confirmed it. If you did not add it, remove it on Account & security.",
+    "added_vouched_body": "It signs in now. A passkey you already had confirmed adding it, so from {from} it can also confirm changes to your limits. If you did not add it, remove it on Account & security before then.",
+    "recovery_title": "Someone asked to recover the passkeys on your account",
+    "recovery_body": "From {from} the passkeys you have now stop confirming changes to your limits. If you did not ask for this, sign in with one of them before then; that cancels it.",
+    "recovery_started": "Recovery started. From {from} your old passkeys stop confirming changes, and a passkey you add now can confirm them from then.",
+    "recovery_cancelled": "The recovery is cancelled.",
+    "recovery_not_needed": "Your account has no passkey that confirms changes now, so a passkey you add waits out its notice without a recovery.",
+    "vouched": "This passkey can confirm changes to your limits from {from}. Everywhere you are told hears of it now.",
+    "delayed_title": "Someone asked to delete your account or move it away",
+    "delayed_body": "It goes ahead only if it is asked again after {from}. If you did not ask for this, sign in with a passkey you had before, or cancel it on Account & security; either ends it.",
+    "delayed_started": "This waits until {from}, and everywhere you are told hears of it now. Ask again after then to go ahead.",
+    "delayed_waiting": "This waits until {from}. Ask again after then to go ahead.",
+    "delayed_other": "Another change that deletes or moves your account is waiting until {from}. Cancel it first, or wait.",
+    "delayed_cancelled": "The waiting change is cancelled.",
+    "too_many_notices": "Too many passkeys were added or recoveries asked for on this account today. Try again tomorrow.",
+    "link_for_title": "The service's operator made a link that adds a passkey to your account",
+    "link_for_body": "Whoever opens it before {until} can add a passkey that signs in to your account; it cannot confirm changes to your limits unless a passkey you have vouches for it, and you will be told when it is added. If you did not ask for this, remove any passkey you do not recognize on Account & security.",
+    "legacy_title": "Your older passkeys were checked",
+    "legacy_unvouched_body": "Passkeys on your account saved before the service recorded how each was added ({count}) still sign you in, but they confirm changes only once a passkey that already confirms changes vouches for them on Account & security.",
+    "legacy_waits_body": "Passkeys on your account saved before the service recorded how each was added ({count}) still sign you in, and from {from} they can confirm changes again. If you do not recognize one, remove it on Account & security before then."
+  }
+}

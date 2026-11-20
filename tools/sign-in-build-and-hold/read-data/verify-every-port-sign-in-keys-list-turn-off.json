@@ -1,0 +1,39 @@
+{
+  "_what": "A person's personal keys (the keys an AI app, an agent, a script or a machine signs in with): how many one list shows, what a key may last, the expiry choices the account page offers, and the words a list or a turn-off answers with (read-data/verify-every-port-sign-in-keys-list-turn-off.mjs). A key's own value is never listed or answered; only these fields are. A sign-in reaches no further and lasts no longer than the sign-in that makes or changes a key. Ported from the earlier code base's src/personal-keys.json and src/personal-keys.mjs (b6ae0ebf815f). Making and changing a key, the storage of keys and the ending of a sign-in at the account's policy owner are not here.",
+  "list_max": 200,
+  "expires_in_max_seconds": 157680000,
+  "expiry_choices": [
+    {
+      "seconds": 3600,
+      "label": "In 1 hour"
+    },
+    {
+      "seconds": 86400,
+      "label": "In 1 day"
+    },
+    {
+      "seconds": 604800,
+      "label": "In 7 days"
+    },
+    {
+      "seconds": 2592000,
+      "label": "In 30 days"
+    },
+    {
+      "seconds": 7776000,
+      "label": "In 90 days"
+    },
+    {
+      "seconds": 31536000,
+      "label": "In 1 year"
+    }
+  ],
+  "words": {
+    "expired": "This personal key expired at {at}. Its person can extend it on their account page, or make a new key.",
+    "not_yours": "That key is not one of this account's keys, or it is already off.",
+    "reaches_less": "This sign-in reaches less than that key, so it cannot change or turn off that key.",
+    "outlives": "A key cannot last longer than the sign-in that sets its expiry, which ends at {at}. Ask the person to do this on their account page.",
+    "bad_expiry": "Give expires_in as a whole number of seconds from 1 to {max}, or expires_at as a future date and time within that, or null for a key that never expires.",
+    "ended": "The key is off. Apps using it stop working on their next call."
+  }
+}

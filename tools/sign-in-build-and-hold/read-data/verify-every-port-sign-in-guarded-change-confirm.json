@@ -1,0 +1,34 @@
+{
+  "_what": "A guarded change (a change to a way the person signs in or is told, to a passkey, to a limit or to the account itself) goes ahead only with a confirmation from one of the person's known passkeys, for exactly that change. Read by read-data/verify-every-port-sign-in-guarded-change-confirm.mjs. `confirm_words` is what the page shows while the passkey prompt for a confirmation is up, one row per change a confirmation may be for, filled from the change; the prompt itself looks like a sign-in, so the words say exactly what the touch approves. A confirmation is made only for a change named here. `confirmation_seconds` is how long a confirmation waits to be used. Ported from the earlier code base's src/passkey-authority.json, src/passkey-authority.mjs and src/cap-change.mjs (b6ae0ebf815f), where the value is confirmation_seconds 120 in src/cap-change.json.",
+  "confirmation_seconds": 120,
+  "step_needed": "passkey-confirmation",
+  "words": {
+    "needs_known_passkey": "This change needs your passkey: confirm it with a passkey you already had.",
+    "held_while_waiting": "A new passkey or a passkey recovery is waiting, so the ways you are told cannot change now. Remove the waiting passkey, cancel the recovery, or sign in with a passkey you had before, which cancels it.",
+    "not_a_change": "That is not a change a passkey confirms here."
+  },
+  "confirm_words": {
+    "cap": "Confirm with your passkey: change a limit's ceiling, or what the limit covers or when it stops.",
+    "billing-month": "Confirm with your passkey: start your billing month on day {cycle_day}.",
+    "paid-ceiling": "Confirm with your passkey: set your paid ceiling to {dollars} dollars.",
+    "passkeys/new": "Confirm with your passkey: add a new passkey that can confirm changes once its notice has passed.",
+    "passkeys/vouch": "Confirm with your passkey: let another of your passkeys confirm changes once its notice has passed.",
+    "passkeys/remove": "Confirm with your passkey: remove a passkey that confirms changes.",
+    "email/remove": "Confirm with your passkey: remove your sign-in email.",
+    "email/replace": "Confirm with your passkey: change your sign-in email to {email}.",
+    "phone/remove": "Confirm with your passkey: remove phone sign-in.",
+    "password/remove": "Confirm with your passkey: remove your password.",
+    "authenticator/remove": "Confirm with your passkey: remove your authenticator app.",
+    "backup-codes/new": "Confirm with your passkey: make new backup codes, which ends the old ones.",
+    "backup-codes/remove": "Confirm with your passkey: remove your backup codes.",
+    "sessions/end": "Confirm with your passkey: sign out another browser.",
+    "account/disconnect": "Confirm with your passkey: disconnect every key, app and computer.",
+    "account/delete": "Confirm with your passkey: delete your account and everything in it.",
+    "account/move": "Confirm with your passkey: move everything in this account into another account ({to}).",
+    "passkeys/link-for": "Confirm with your passkey: make a link that adds a passkey to the account {account}, which that account is told of."
+  },
+  "confirmed_notice": {
+    "title": "Your passkey confirmed a change on your account",
+    "body": "{words} If you did not do this, sign in with your passkey and undo it on Account & security or your Spend screen: a raised ceiling and a passkey added this way wait before they count."
+  }
+}

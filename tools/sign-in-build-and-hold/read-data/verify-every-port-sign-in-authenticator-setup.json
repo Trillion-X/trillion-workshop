@@ -1,0 +1,28 @@
+{
+  "_what": "The shapes and words for setting up the ways an account signs in besides its passkeys, when the person adds them: backup codes (how many, how grouped, from which characters) and an authenticator app (how long a setup waits for its first right code, how many tries a setup gets). Read by read-data/verify-every-port-sign-in-authenticator-setup.mjs. Adding or changing a way in asks for a recent sign-in (fresh_minutes), so a browser left signed in cannot quietly add a way in for someone else. The authenticator app's label shown in the app is not here: it is named by the owner that wires the setup. Ported from the earlier code base's src/sign-in-methods.json and src/sign-in-methods.mjs (b6ae0ebf815f). Sign-in tries, the email index and the storage of codes are not here.",
+  "fresh_minutes": 10,
+  "backup_codes": {
+    "count": 10,
+    "groups": 3,
+    "group_length": 4,
+    "alphabet": "abcdefghjkmnpqrstuvwxyz23456789"
+  },
+  "authenticator": {
+    "digits": 6,
+    "seconds": 30,
+    "setup_minutes": 15,
+    "tries_per_setup": 5,
+    "window_minutes": 15
+  },
+  "words": {
+    "sign_in_again": "For your safety, sign in again first. Opening sign-in…",
+    "backup_made": "Keep these somewhere safe, away from this device. Each works once.",
+    "backup_reveal": "Your {count} backup codes. Copy them now: they are shown only this once.",
+    "backup_removed": "Your backup codes are removed.",
+    "authenticator_on": "Your authenticator app is on. It shows a new code for the service every 30 seconds.",
+    "authenticator_wrong": "That code is not right. Type the newest code your authenticator app shows for the service.",
+    "authenticator_setup_ended": "This setup ended. Open it again from Account & security.",
+    "authenticator_removed": "Your authenticator app is removed. Its codes no longer sign in.",
+    "authenticator_too_many": "Too many tries. Wait {minutes} minutes, then try again."
+  }
+}
