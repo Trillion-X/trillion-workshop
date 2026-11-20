@@ -27,6 +27,7 @@ import { driveFileHolders } from './drive-processes.mjs';
 import { listFolder } from './drive-folder.mjs';
 import { readMountTableDrives } from './drive-mount-table.mjs';
 import { fileURLToPath } from 'node:url';
+import { createDriveWalks, createIconCache, iconSize, volumeKey } from './drive-cache.mjs';
 
 const settings = JSON.parse(fs.readFileSync(new URL('./drives.json', import.meta.url), 'utf8'));
 const DRAW_ICON = fileURLToPath(new URL('./draw-icon.js', import.meta.url));
@@ -141,12 +142,15 @@ const connectedDrive = async (mount, deps) => {
 };
 
 /** What is under `mount` by kind of file, reading at most `most_files` files for at most `most_ms`. */
-export async function walkDrive(mount, { most_files, most_ms, largest_kept } = settings.kinds, clock = () => performance.now()) {
+/** The progress file is rewritten about once a second while a walk reads (the old drive tools did the same). */
+export const PROGRESS_EVERY_MS = 1000;
+
+export async function walkDrive(mount, { most_files, most_ms, largest_kept } = settings.kinds, clock = () => performance.now(), onProgress = () => {}) {
   const started = clock();
   const skip = new Set(fileKinds.skip_folders);
   const totals = new Map();
   const largest = [];
-  let files = 0, bytes = 0, complete = true;
+  let files = 0, bytes = 0, complete = true, lastReport = 0;
   const folders = [mount];
   walk: while (folders.length) {
     const folder = folders.pop();
@@ -160,6 +164,7 @@ export async function walkDrive(mount, { most_files, most_ms, largest_kept } = s
       let size;
       try { size = (await fs.promises.lstat(full)).size; } catch { continue; }
       files += 1; bytes += size;
+      if (clock() - lastReport >= PROGRESS_EVERY_MS) { lastReport = clock(); onProgress(files); }
       const kind = kindOf(entry.name);
       const row = totals.get(kind) ?? { kind, label: kindLabel(kind), files: 0, bytes: 0 };
       row.files += 1; row.bytes += size;
@@ -177,8 +182,18 @@ export async function walkDrive(mount, { most_files, most_ms, largest_kept } = s
 /** `tool:see-what-is-on-a-drive`: what is on one connected drive by kind of file, with its largest files. */
 export async function seeWhatIsOnADrive({ mount } = {}, _context, deps = {}) {
   const device = await connectedDrive(mount, deps);
-  return walkDrive(device.canonical_mount || device.mount, deps.bounds ?? settings.kinds);
+  // One walk per drive at a time, its progress kept while it reads (drive-cache.mjs); the kept result is the answer.
+  const walks = createDriveWalks({ folder: deps.walkFolder ?? path.join(os.tmpdir(), 'drive-walks'),
+    walk: (where, { onProgress }) => walkDrive(where, deps.bounds ?? settings.kinds, undefined, onProgress) });
+  const key = volumeKey({ identifier: device.device_identifier, name: device.name, ...(await driveNumbers(device)) });
+  return walks.read(device.canonical_mount || device.mount, key).then(answer => answer?.reading ? { mount: device.mount, state: 'reading', progress: answer.progress } : answer);
 }
+
+/** The device and inode numbers of the mount folder, which name the exact volume (drive-cache.mjs volumeKey). */
+const driveNumbers = async device => {
+  const stat = await fs.promises.stat(device.mount);
+  return { dev: stat.dev, ino: stat.ino };
+};
 
 /** `tool:get-a-drive-icon`: the icon Finder shows for one connected drive, as a square PNG of `size` pixels. */
 export async function getADriveIcon({ mount, size } = {}, _context, deps = {}) {
@@ -188,8 +203,13 @@ export async function getADriveIcon({ mount, size } = {}, _context, deps = {}) {
   const device = await connectedDrive(mount, deps);
   const reader = chooseReader(deps);
   if (!reader?.icon) return { mount: device.mount, icon: 'none', reason: 'This computer draws no drive icons.' };
-  const out = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'icon-')), 'icon.png');
-  const drawn = await (deps.exec ?? run)(reader.icon, ['-l', 'JavaScript', DRAW_ICON, device.mount, String(pixels), out]);
-  if (!drawn.ok || !fs.existsSync(out)) throw fail('The drive icon could not be drawn.');
-  return { mount: device.mount, media_type: 'image/png', base64: fs.readFileSync(out).toString('base64') };
+  // Drawn once per exact volume and size, then kept (drive-cache.mjs createIconCache).
+  const cache = createIconCache({ folder: deps.iconFolder ?? path.join(os.tmpdir(), 'drive-icons'),
+    draw: async (where, size, out) => {
+      const drawn = await (deps.exec ?? run)(reader.icon, ['-l', 'JavaScript', DRAW_ICON, where, String(size), out]);
+      if (!drawn.ok || !fs.existsSync(out)) throw fail('The drive icon could not be drawn.');
+    } });
+  const key = volumeKey({ identifier: device.device_identifier, name: device.name, ...(await driveNumbers(device)) });
+  const png = await cache.png({ mount: device.mount, key, size: pixels });
+  return { mount: device.mount, media_type: 'image/png', base64: png.toString('base64') };
 }
