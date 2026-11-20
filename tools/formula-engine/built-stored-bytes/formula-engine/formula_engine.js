@@ -25,6 +25,19 @@ export function compileRules(request) {
 }
 
 /**
+ * `{text}` -> `{binding}`: a formula written as text, as the binding it means.
+ * @param {any} request
+ * @returns {any}
+ */
+export function compileText(request) {
+    const ret = wasm.compileText(request);
+    if (ret[2]) {
+        throw takeFromExternrefTable0(ret[1]);
+    }
+    return takeFromExternrefTable0(ret[0]);
+}
+
+/**
  * `{binding, input}` -> `{value}`.
  * @param {any} request
  * @returns {any}

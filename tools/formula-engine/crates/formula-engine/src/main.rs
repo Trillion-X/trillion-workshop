@@ -7,7 +7,7 @@
 //!     ["component", "<this .wasm>", "<request>"]   the request object on standard input
 //!   and its last line on standard output is `{"result": ...}`, or `{"error": "..."}` with a failing exit.
 //!
-//!   Requests: filterRecords, evaluateFormula, listComparisons, classifyRecord (and compileRules, holds, testsHold,
+//!   Requests: filterRecords, evaluateFormula, compileText, listComparisons, classifyRecord (and compileRules, holds, testsHold,
 //!   filterRows, evaluate), the same functions the wasm-bindgen module offers a JavaScript host.
 //!
 //! Non-negotiable invariants
@@ -31,6 +31,7 @@ fn run(name: &str, request: &Value) -> Result<Value, Refused> {
         "testsHold" => requests::tests_hold(request, &now_ms).map(Value::Bool),
         "filterRows" => requests::filter_rows(request, &now_ms),
         "evaluate" => requests::evaluate(request, &now_ms),
+        "compileText" => requests::compile_text(request),
         other => Err(Refused::Sentence(format!("Unknown request: {other}."))),
     }
 }

@@ -14,6 +14,8 @@
 //!   filter_rows       {rows, binding} -> {matches, error_rows, first_error}: one binding over rows
 //!   evaluate          {binding, input} -> {value}: one binding over one value
 //!   evaluate_formula  {binding, rows} -> {values, errors}: one binding over each row (tool:evaluate-a-formula)
+//!   compile_text      {text} -> {binding}: a formula written as text, as the binding it means (src/text.rs)
+//!   Wherever a request takes a binding it takes `text` instead: the formula is compiled first, then run the same way.
 //!   list_comparisons  {field_kind?, operators?} -> {combinators, comparisons, field_kinds} (tool:list-comparisons)
 
 use serde_json::{json, Map, Value};
@@ -201,29 +203,48 @@ pub fn tests_hold(request: &Value, clock: &dyn Fn() -> f64) -> Result<bool, Refu
 /// One binding over rows: the positions it holds for. No binding holds for every row.
 pub fn filter_rows(request: &Value, clock: &dyn Fn() -> f64) -> Answer {
     let rows = request["rows"].as_array().ok_or_else(|| sentence("rows must be a list of values."))?;
-    let outcome = match request.get("binding").filter(|binding| !binding.is_null()) {
+    let outcome = match binding_of(request)? {
         None => crate::Outcome { matches: (0..rows.len() as u32).collect(), ..Default::default() },
-        Some(binding) => filter_with(&ready(binding)?, &as_rows(rows), clock)?,
+        Some(binding) => filter_with(&ready(&binding)?, &as_rows(rows), clock)?,
     };
     Ok(json!({"matches": outcome.matches, "error_rows": outcome.error_rows, "first_error": outcome.first_error}))
 }
 
+/// The request's binding: `binding` as given, or `text` compiled into one; None when it has neither.
+fn binding_of(request: &Value) -> Result<Option<Value>, Refused> {
+    match request.get("text").filter(|text| !text.is_null()) {
+        Some(text) => {
+            let text = text.as_str().ok_or_else(|| sentence("text must be a formula written as text, such as =price * quantity."))?;
+            crate::text::compile(text).map(Some)
+        }
+        None => Ok(request.get("binding").filter(|binding| !binding.is_null()).cloned()),
+    }
+}
+
+/// A formula written as text, as the binding it means.
+pub fn compile_text(request: &Value) -> Answer {
+    let text = request["text"].as_str().ok_or_else(|| sentence("Send { text }: a formula written as text, such as =price * quantity."))?;
+    let binding = crate::text::compile(text)?;
+    Ok(json!({"binding": binding}))
+}
+
 /// One binding over one value.
 pub fn evaluate(request: &Value, clock: &dyn Fn() -> f64) -> Answer {
-    let binding = request.get("binding").filter(|binding| binding.is_object()).ok_or_else(|| sentence("A formula binding is required."))?;
-    let value = evaluate_with(&ready(binding)?, request.get("input").cloned().unwrap_or_else(|| json!({})), clock)?;
+    let binding = binding_of(request)?.filter(Value::is_object).ok_or_else(|| sentence("A formula binding (or its text) is required."))?;
+    let value = evaluate_with(&ready(&binding)?, request.get("input").cloned().unwrap_or_else(|| json!({})), clock)?;
     Ok(json!({"value": value}))
 }
 
 /// One binding evaluated over each row: the value or the error it gave.
 pub fn evaluate_formula(request: &Value, clock: &dyn Fn() -> f64) -> Answer {
     need(request.is_object(), "Send an object with a binding and rows.")?;
+    let binding = binding_of(request)?.unwrap_or(Value::Null);
     need(
-        request["binding"].is_object(),
+        binding.is_object(),
         "binding must be an object like { \"$kind\": \"binding\", \"select\": { \"from\": \"self\", \"path\": [...] }, \"transform\": [{ \"op\": ... }] }, the ops being the formula engine's (op:core.*).",
     )?;
     let rows = request["rows"].as_array().ok_or_else(|| sentence("rows must be a list of values to evaluate the binding over."))?;
-    let prepared = ready(&request["binding"]);
+    let prepared = ready(&binding);
     let mut values = Vec::with_capacity(rows.len());
     let mut errors = Vec::new();
     for (at, row) in rows.iter().enumerate() {

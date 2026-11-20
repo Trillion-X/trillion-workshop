@@ -90,6 +90,12 @@ pub fn evaluate(request: JsValue) -> Result<JsValue, JsValue> {
     answer(requests::evaluate(&read(&request)?, &now_ms))
 }
 
+/// `{text}` -> `{binding}`: a formula written as text, as the binding it means.
+#[wasm_bindgen(js_name = compileText)]
+pub fn compile_text(request: JsValue) -> Result<JsValue, JsValue> {
+    answer(requests::compile_text(&read(&request)?))
+}
+
 /// `{binding, rows}` -> `{values, errors}`.
 #[wasm_bindgen(js_name = evaluateFormula)]
 pub fn evaluate_formula(request: JsValue) -> Result<JsValue, JsValue> {

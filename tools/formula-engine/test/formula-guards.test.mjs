@@ -18,7 +18,7 @@ const select = path => ({ $kind: 'binding', select: { from: 'self', path } });
 const refusedAs = guard => error => error.code === 'formula_guard' && error.guard === guard && typeof error.message === 'string' && error.message.length > 0;
 
 test('an ordinary formula still evaluates, and a row filter still filters', async () => {
-  assert.equal((await engine.evaluateBinding({ binding: { ...select(['minutes']), transform: [{ op: 'op:core.mul', args: { value: 60 } }] }, input: { minutes: 2 } })).value, '120');
+  assert.equal((await engine.evaluateBinding({ binding: { ...select(['minutes']), transform: [{ op: 'op:core.mul', args: { value: 60 } }] }, input: { minutes: 2 } })).value, 120);
   const answer = await engine.filterRowsByRules({ tree: { kind: 'group', combinator: 'and', rules: [{ kind: 'rule', field: 'n', operator: 'greater_than', params: { value: 1 } }] }, fields: [{ id: 'n', kind: 'number' }], rows: [{ n: 1 }, { n: 2 }, { n: 3 }] });
   assert.deepEqual(answer.matches, [1, 2]);
 });

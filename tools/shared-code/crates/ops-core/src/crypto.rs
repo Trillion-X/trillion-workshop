@@ -333,6 +333,50 @@ pub fn hash(input: &OpValue, algorithm: &OpValue, ctx: &EvalContext) -> Result<O
     Ok(OpValue::string(result))
 }
 
+/// Keyed message code: `hmac(message, key, algorithm, encoding) -> string` (RFC 2104).
+///
+/// `algorithm` is "sha256" (the default) or "sha512"; `encoding` is "hex" (the default) or "base64". This is the
+/// code a service signs a webhook body with, so a rule can check a signature it was handed. Null message or key
+/// propagates.
+pub fn hmac(
+    message: &OpValue,
+    key: &OpValue,
+    algorithm: &OpValue,
+    encoding: &OpValue,
+    _ctx: &EvalContext,
+) -> Result<OpValue, OpError> {
+    use content_crypto::advanced::sha2::Sha512;
+    use hmac::{Hmac, Mac};
+
+    if message.is_null() || key.is_null() {
+        return Ok(OpValue::null());
+    }
+    let text = message.as_str("hmac message")?;
+    let secret = key.as_str("hmac key")?;
+    let algorithm = if algorithm.is_null() { "sha256" } else { algorithm.as_str("hmac algorithm")? };
+    let encoding = if encoding.is_null() { "hex" } else { encoding.as_str("hmac encoding")? };
+    let refuse = |reason: String| OpError::InvalidArgument { operation: "hmac".to_string(), reason };
+
+    let code: Vec<u8> = match algorithm.to_ascii_lowercase().as_str() {
+        "sha256" => {
+            let mut mac = Hmac::<Sha256>::new_from_slice(secret.as_bytes()).map_err(|e| refuse(e.to_string()))?;
+            mac.update(text.as_bytes());
+            mac.finalize().into_bytes().to_vec()
+        }
+        "sha512" => {
+            let mut mac = Hmac::<Sha512>::new_from_slice(secret.as_bytes()).map_err(|e| refuse(e.to_string()))?;
+            mac.update(text.as_bytes());
+            mac.finalize().into_bytes().to_vec()
+        }
+        other => return Err(refuse(format!("unknown algorithm {other}; use sha256 or sha512"))),
+    };
+    match encoding.to_ascii_lowercase().as_str() {
+        "hex" => Ok(OpValue::string(bytes_to_hex(&code))),
+        "base64" => Ok(OpValue::string(base64::engine::general_purpose::STANDARD.encode(code))),
+        other => Err(refuse(format!("unknown encoding {other}; use hex or base64"))),
+    }
+}
+
 /// Content identity of `input`: the digest AND the code that says what produced it.
 ///
 /// `content_identity(input) -> "1f:<hex>"`. Null propagates, like every operator here.
@@ -559,6 +603,24 @@ fn md5_hash(input: &[u8]) -> [u8; 16] {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn hmac_matches_rfc_4231_case_2() {
+        let ctx = EvalContext::fast();
+        let message = OpValue::string("what do ya want for nothing?");
+        let key = OpValue::string("Jefe");
+        let sha256 = hmac(&message, &key, &OpValue::null(), &OpValue::null(), &ctx).unwrap();
+        assert_eq!(sha256.as_str("t").unwrap(), "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843");
+        let sha512 = hmac(&message, &key, &OpValue::string("sha512"), &OpValue::string("hex"), &ctx).unwrap();
+        assert_eq!(
+            sha512.as_str("t").unwrap(),
+            "164b7a7bfcf819e2e395fbe73b56e0a387bd64222e831fd610270cd7ea2505549758bf75c05a994a6d034f65f8f0e6fdcaeab1a34d4a6b4b636e070a38bce737"
+        );
+        let base64 = hmac(&message, &key, &OpValue::null(), &OpValue::string("base64"), &ctx).unwrap();
+        assert_eq!(base64.as_str("t").unwrap(), "W9zBRr9gdU5qBCQmCJV1x1oAPwidJzmDnexYuWTsOEM=");
+        assert!(hmac(&OpValue::null(), &key, &OpValue::null(), &OpValue::null(), &ctx).unwrap().is_null());
+        assert!(hmac(&message, &key, &OpValue::string("md5"), &OpValue::null(), &ctx).is_err());
+    }
 
     fn ctx() -> EvalContext {
         let mut ctx = EvalContext::strict();

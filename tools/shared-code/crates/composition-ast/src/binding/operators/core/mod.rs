@@ -28,7 +28,7 @@ use rust_decimal::prelude::*;
 use rust_decimal::RoundingStrategy;
 
 /// Semantic version for the composed operator surface.
-pub const CORE_OPERATORS_VERSION: u32 = 6;
+pub const CORE_OPERATORS_VERSION: u32 = 7;
 
 // =============================================================================
 // ERROR CONVERSION
@@ -161,6 +161,7 @@ pub fn register_core_operators(registry: &mut OperatorRegistry) -> Result<(), Re
     register_array_operators(registry)?;
     register_datetime_operators(registry)?;
     register_crypto_operators(registry)?;
+    register_graph_operators(registry)?;
     register_other_names(registry)?;
     Ok(())
 }
@@ -484,6 +485,23 @@ fn register_math_operators(registry: &mut OperatorRegistry) -> Result<(), Regist
         },
     ))?;
 
+    registry.register(FnOperator::new("op:core.cbrt", |input, _args, _ctx| {
+        math::cbrt(input, ctx_fast()).map_err(op_err)
+    }))?;
+
+    // Float sum and median of a list (f64 throughout), beside the exact `sum` and `median`
+    registry.register(FnOperator::new("op:core.fsum", |input, _args, _ctx| {
+        let arr = input.as_array("fsum").map_err(op_err)?;
+        let values: Vec<OpValue> = arr.iter().map(|v| OpValue::from_arc(v.clone())).collect();
+        math::fsum(&values, ctx_fast()).map_err(op_err)
+    }))?;
+
+    registry.register(FnOperator::new("op:core.fmedian", |input, _args, _ctx| {
+        let arr = input.as_array("fmedian").map_err(op_err)?;
+        let values: Vec<OpValue> = arr.iter().map(|v| OpValue::from_arc(v.clone())).collect();
+        math::fmedian(&values, ctx_fast()).map_err(op_err)
+    }))?;
+
     Ok(())
 }
 
@@ -690,6 +708,14 @@ fn register_conversion_operators(registry: &mut OperatorRegistry) -> Result<(), 
     registry.register(FnOperator::new("op:core.stringify", |input, args, _ctx| {
         let format = get_arg(args, "format");
         ops_core::serialization::stringify(input, &format, ctx_fast()).map_err(op_err)
+    }))?;
+
+    registry.register(FnOperator::new("op:core.is_nan", |input, _args, _ctx| {
+        conversion::is_nan(input, ctx_fast()).map_err(op_err)
+    }))?;
+
+    registry.register(FnOperator::new("op:core.is_finite", |input, _args, _ctx| {
+        conversion::is_finite(input, ctx_fast()).map_err(op_err)
     }))?;
 
     Ok(())
@@ -1197,6 +1223,7 @@ fn register_array_operators(registry: &mut OperatorRegistry) -> Result<(), Regis
     registry.register(FnOperator::new("op:core.find_where", each_item::find_where).with_nested_arguments())?;
     registry.register(FnOperator::new("op:core.flat_map", each_item::flat_map).with_nested_arguments())?;
     registry.register(FnOperator::new("op:core.map", each_item::map_path))?;
+    registry.register(FnOperator::new("op:core.reduce", each_item::reduce).with_nested_arguments())?;
 
     registry.register(FnOperator::new("op:core.append", |input, args, _ctx| {
         array::append(input, &get_arg(args, "value"), ctx_fast()).map_err(op_err)
@@ -1400,6 +1427,39 @@ fn register_datetime_operators(registry: &mut OperatorRegistry) -> Result<(), Re
         },
     ))?;
 
+    // A datetime written with a chrono `format`, on the wall clock of `timezone` when given
+    registry.register(FnOperator::new("op:core.dt_format", |input, args, _ctx| {
+        let format = get_arg(args, "format");
+        let tz = get_arg(args, "timezone");
+        datetime::format_date_tz(input, &format, &tz, ctx_fast()).map_err(op_err)
+    }))?;
+
+    registry.register(FnOperator::new("op:core.dt_format_time", |input, args, _ctx| {
+        let format = get_arg(args, "format");
+        let tz = get_arg(args, "timezone");
+        datetime::format_time(input, &format, &tz, ctx_fast()).map_err(op_err)
+    }))?;
+
+    // The first and the last whole second of the `unit` holding the value, read on the `timezone` wall clock
+    registry.register(FnOperator::new("op:core.dt_start_of", |input, args, _ctx| {
+        let unit = get_arg(args, "unit");
+        let tz = get_arg(args, "timezone");
+        datetime::start_of(input, &unit, &tz, ctx_fast()).map_err(op_err)
+    }))?;
+
+    registry.register(FnOperator::new("op:core.dt_end_of", |input, args, _ctx| {
+        let unit = get_arg(args, "unit");
+        let tz = get_arg(args, "timezone");
+        datetime::end_of(input, &unit, &tz, ctx_fast()).map_err(op_err)
+    }))?;
+
+    // Monday-to-Friday days from the value to `end`, both counted, less the `holidays` (dates) among them
+    registry.register(FnOperator::new("op:core.dt_workdays", |input, args, _ctx| {
+        let end = get_arg(args, "end");
+        let holidays = get_arg(args, "holidays");
+        datetime::workdays(input, &end, &holidays, ctx_fast()).map_err(op_err)
+    }))?;
+
     Ok(())
 }
 
@@ -1436,6 +1496,60 @@ fn register_crypto_operators(registry: &mut OperatorRegistry) -> Result<(), Regi
             ))
         },
     ))?;
+
+    // Keyed message code of the value with `key` (`algorithm` sha256 or sha512, `encoding` hex or base64)
+    registry.register(FnOperator::new("op:core.hmac", |input, args, _ctx| {
+        let key = get_arg(args, "key");
+        let algo = get_arg(args, "algorithm");
+        let enc = get_arg(args, "encoding");
+        crypto::hmac(input, &key, &algo, &enc, ctx_fast()).map_err(op_err)
+    }))?;
+
+    Ok(())
+}
+
+// =============================================================================
+// GRAPH OPERATORS
+// =============================================================================
+
+/// The evaluation context for one graph call: the fast context with the graph of the `edges` argument (kept to the
+/// `relationship` given, when one is).
+fn ctx_with_edges(args: Option<&OpValue>, relationship: &OpValue) -> Result<EvalContext, Diagnostic> {
+    let graph = ops_core::graph::graph_of_edges(&get_arg(args, "edges"), relationship).map_err(op_err)?;
+    let mut ctx = ctx_fast().clone();
+    ctx.graph = Some(std::sync::Arc::new(graph));
+    Ok(ctx)
+}
+
+fn register_graph_operators(registry: &mut OperatorRegistry) -> Result<(), RegistryError> {
+    use ops_core::graph;
+
+    // The nodes linked to the value by `edges` (each `{from, to, type?}` or `[from, to]`), one link kind when
+    // `relationship` names it: what points at it, what it points at, both, and where a `path` such as
+    // "project->task<-person" ends.
+    registry.register(FnOperator::new("op:core.graph_parents", |input, args, _ctx| {
+        let relationship = get_arg(args, "relationship");
+        let ctx = ctx_with_edges(args, &relationship)?;
+        let label = if relationship.is_null() { OpValue::string("") } else { relationship };
+        graph::parents(input, &label, &ctx).map_err(op_err)
+    }))?;
+
+    registry.register(FnOperator::new("op:core.graph_children", |input, args, _ctx| {
+        let relationship = get_arg(args, "relationship");
+        let ctx = ctx_with_edges(args, &relationship)?;
+        let label = if relationship.is_null() { OpValue::string("") } else { relationship };
+        graph::children(input, &label, &ctx).map_err(op_err)
+    }))?;
+
+    registry.register(FnOperator::new("op:core.graph_neighbors", |input, args, _ctx| {
+        let ctx = ctx_with_edges(args, &get_arg(args, "relationship"))?;
+        graph::neighbors(input, &ctx).map_err(op_err)
+    }))?;
+
+    registry.register(FnOperator::new("op:core.graph_traverse", |input, args, _ctx| {
+        let ctx = ctx_with_edges(args, &OpValue::null())?;
+        graph::traverse(input, &get_arg(args, "path"), &ctx).map_err(op_err)
+    }))?;
 
     Ok(())
 }

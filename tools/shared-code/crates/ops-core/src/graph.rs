@@ -211,10 +211,72 @@ fn get_entity_id(value: &OpValue) -> Result<String, OpError> {
 // TESTS
 // =============================================================================
 
+/// The graph a rule hands over as a list of edges, for `ctx.graph` during one call.
+///
+/// An edge is `{"from": id, "to": id}` (with an optional `"type"`) or a pair `[from, to]`. With `relationship` given,
+/// only edges whose `type` equals it are kept, so `parents`/`children` read one kind of link. An edge that would close
+/// a loop is refused, because the graph these operators walk has none.
+pub fn graph_of_edges(
+    edges: &OpValue,
+    relationship: &OpValue,
+) -> Result<graph::DirectedGraph<String>, OpError> {
+    let refuse = |reason: String| OpError::InvalidArgument { operation: "graph".to_string(), reason };
+    let wanted = if relationship.is_null() { None } else { Some(relationship.as_str("graph relationship")?.to_string()) };
+    let mut built = graph::DirectedGraph::new();
+    let list = match edges.as_inner() {
+        serde_json::Value::Array(list) => list,
+        serde_json::Value::Null => Vec::new(),
+        _ => return Err(refuse("`edges` must be a list".to_string())),
+    };
+    for edge in list {
+        let (from, to, kind) = match &edge {
+            serde_json::Value::Array(pair) if pair.len() == 2 => (pair[0].as_str(), pair[1].as_str(), None),
+            serde_json::Value::Object(fields) => (
+                fields.get("from").and_then(serde_json::Value::as_str),
+                fields.get("to").and_then(serde_json::Value::as_str),
+                fields.get("type").and_then(serde_json::Value::as_str),
+            ),
+            _ => (None, None, None),
+        };
+        let (Some(from), Some(to)) = (from, to) else {
+            return Err(refuse(format!("an edge needs text `from` and `to`: {edge}")));
+        };
+        if wanted.as_deref().is_some_and(|wanted| kind != Some(wanted)) {
+            continue;
+        }
+        let (from, to) = (from.to_string(), to.to_string());
+        built.add_node(from.clone());
+        built.add_node(to.clone());
+        built
+            .add_edge(&from, &to)
+            .map_err(|cycle| refuse(format!("the edges close a loop: {}", cycle.path.join(" -> "))))?;
+    }
+    Ok(built)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::sync::Arc;
+
+    #[test]
+    fn graph_of_edges_keeps_one_relationship_and_refuses_a_loop() {
+        let edges = OpValue::from(serde_json::json!([
+            {"from": "project", "to": "task", "type": "holds"},
+            {"from": "task", "to": "person", "type": "assigned"},
+            ["project", "note"]
+        ]));
+        let mut ctx = EvalContext::default();
+        ctx.graph = Some(Arc::new(graph_of_edges(&edges, &OpValue::null()).unwrap()));
+        let reached = traverse(&OpValue::string("project"), &OpValue::string("project->task->person"), &ctx).unwrap();
+        assert_eq!(reached.as_inner(), serde_json::json!(["person"]));
+        ctx.graph = Some(Arc::new(graph_of_edges(&edges, &OpValue::string("holds")).unwrap()));
+        let held = children(&OpValue::string("project"), &OpValue::string("holds"), &ctx).unwrap();
+        assert_eq!(held.as_inner(), serde_json::json!(["task"]));
+        let looped = OpValue::from(serde_json::json!([["a", "b"], ["b", "a"]]));
+        assert!(graph_of_edges(&looped, &OpValue::null()).is_err());
+        assert!(graph_of_edges(&OpValue::from(serde_json::json!([{"from": "a"}])), &OpValue::null()).is_err());
+    }
 
     fn ctx_with_graph() -> EvalContext {
         let mut g = graph::DirectedGraph::new();

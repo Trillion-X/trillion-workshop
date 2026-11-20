@@ -187,10 +187,10 @@
       "applies_to": ["date"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [
         {"op": "op:core.text_concat", "args": {"values": [
-          {"$kind": "binding", "select": {"from": "self"}, "transform": [{"op": "op:core.dt_iso_week_year"}, {"op": "op:core.add", "args": {"value": 0}}]},
+          {"$kind": "binding", "select": {"from": "self"}, "transform": [{"op": "op:core.dt_iso_week_year"}, {"op": "op:core.to_string"}]},
           "-W",
           {"$kind": "binding", "select": {"from": "self"}, "transform": [
-            {"op": "op:core.text_concat", "args": {"values": ["0", {"$kind": "binding", "select": {"from": "self"}, "transform": [{"op": "op:core.dt_iso_week"}, {"op": "op:core.add", "args": {"value": 0}}]}]}},
+            {"op": "op:core.text_concat", "args": {"values": ["0", {"$kind": "binding", "select": {"from": "self"}, "transform": [{"op": "op:core.dt_iso_week"}, {"op": "op:core.to_string"}]}]}},
             {"op": "op:core.text_right", "args": {"count": 2}}
           ]}
         ]}},

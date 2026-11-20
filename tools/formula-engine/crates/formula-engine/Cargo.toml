@@ -28,6 +28,7 @@ serde.workspace = true
 serde_json.workspace = true
 composition-ast = { path = "../../../shared-code/crates/composition-ast" }
 ops-core = { path = "../../../shared-code/crates/ops-core" }
+formula-ast = { path = "../../../shared-code/crates/formula-ast" }
 
 # ops-core pulls rand 0.8 -> getrandom 0.2, which refuses to compile for
 # wasm32-unknown-unknown without a chosen backend. Evaluating a binding never

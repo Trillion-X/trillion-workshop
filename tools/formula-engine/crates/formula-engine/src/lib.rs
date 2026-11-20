@@ -35,6 +35,7 @@ pub mod classify;
 pub mod guards;
 pub mod requests;
 pub mod rules;
+pub mod text;
 
 #[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 mod host;
@@ -94,11 +95,13 @@ pub(crate) fn sentence(text: impl Into<String>) -> Refused {
     Refused::Sentence(text.into())
 }
 
-/// A binding ready to run: its text (what the slow-formula pause is kept under), weight and prepared form.
+/// A binding ready to run: its text (what the slow-formula pause is kept under), weight and prepared form, and whether
+/// it reads the row as `from: "context"` (a compiled text formula does), so each row is handed over that way too.
 pub struct Ready {
     text: String,
     weight: u64,
     prepared: PreparedBinding,
+    reads_context: bool,
 }
 
 /// Check and prepare a binding once.
@@ -106,7 +109,9 @@ pub fn ready(binding: &Value) -> Result<Ready, Refused> {
     let weight = limits().check_binding(binding)?;
     let parsed: Binding =
         serde_json::from_value(binding.clone()).map_err(|error| sentence(format!("The rule could not be read: {error}")))?;
-    Ok(Ready { text: binding.to_string(), weight, prepared: PreparedBinding::prepare(&parsed, operator_resolver()) })
+    let text = binding.to_string();
+    let reads_context = text.contains(r#""from":"context""#);
+    Ok(Ready { text, weight, prepared: PreparedBinding::prepare(&parsed, operator_resolver()), reads_context })
 }
 
 /// The positions of the rows a binding holds for, how many rows an operator refused and the first such refusal.
@@ -139,7 +144,11 @@ pub fn filter_with(ready: &Ready, rows: &[OpValue], clock: &dyn Fn() -> f64) -> 
         }
         let from = slice * limits.rows_per_slice.max(1);
         for (offset, row) in chunk.iter().enumerate() {
-            let result = ready.prepared.evaluate(row, &context, operator_resolver());
+            let result = if ready.reads_context {
+                ready.prepared.evaluate(row, &context.clone().with_context(row.as_inner()), operator_resolver())
+            } else {
+                ready.prepared.evaluate(row, &context, operator_resolver())
+            };
             if let Some(message) = first_error(result.diagnostics) {
                 outcome.error_rows += 1;
                 outcome.first_error.get_or_insert(message);
@@ -316,8 +325,8 @@ mod tests {
     fn a_field_divides_by_another_field_of_the_input() {
         let ratio = json!({"$kind":"binding","select":{"from":"self","path":["views"]},"transform":[
             {"op":"op:core.div","args":{"value":{"$kind":"binding","select":{"from":"context","path":["channel_median"]}}}}]});
-        assert_eq!(evaluated(ratio.clone(), json!({"views": 300.0, "channel_median": 100.0})), json!("3"));
-        assert_eq!(evaluated(ratio, json!({"views": 50.0, "channel_median": 200.0})), json!("0.25"));
+        assert_eq!(evaluated(ratio.clone(), json!({"views": 300.0, "channel_median": 100.0})), json!(3));
+        assert_eq!(evaluated(ratio, json!({"views": 50.0, "channel_median": 200.0})), json!(0.25));
     }
 
     #[test]
@@ -325,7 +334,7 @@ mod tests {
         let both = json!({"$kind":"binding","select":{"from":"self","path":["views"]},"transform":[
             {"op":"op:core.mul","args":{"value":{"$kind":"binding","select":{"from":"self"}}}},
             {"op":"op:core.add","args":{"value":{"$kind":"binding","select":{"from":"context","path":["bonus"]}}}}]});
-        assert_eq!(evaluated(both, json!({"views": 4.0, "bonus": 1.0})), json!("17"));
+        assert_eq!(evaluated(both, json!({"views": 4.0, "bonus": 1.0})), json!(17));
     }
 
     #[test]
@@ -338,10 +347,10 @@ mod tests {
         let input = |voters: f64, keepers: f64| json!({"least_voters": 3.0, "voters": voters, "least_copy_keepers": 2.0, "copy_keepers": keepers});
         let mut listed = largest.clone();
         listed.as_object_mut().unwrap().remove("transform");
-        assert_eq!(evaluated(listed, input(1.0, 2.0)), json!([0, "2", "0"]), "each selection is evaluated");
-        assert_eq!(evaluated(largest.clone(), input(1.0, 2.0)), json!("2"));
-        assert_eq!(evaluated(largest.clone(), input(3.0, 1.0)), json!("1"));
-        assert_eq!(evaluated(largest, input(5.0, 5.0)), json!("0"), "never below the plain 0");
+        assert_eq!(evaluated(listed, input(1.0, 2.0)), json!([0, 2, 0]), "each selection is evaluated");
+        assert_eq!(evaluated(largest.clone(), input(1.0, 2.0)), json!(2));
+        assert_eq!(evaluated(largest.clone(), input(3.0, 1.0)), json!(1));
+        assert_eq!(evaluated(largest, input(5.0, 5.0)), json!(0), "never below the plain 0");
     }
 
     #[test]

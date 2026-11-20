@@ -10,16 +10,16 @@ Core operator implementations for the Architect EEAF expression evaluation engin
 | `context.rs` | Evaluation context (EvalContext, FloatMode) for operator configuration |
 | `error.rs` | Structured error types (OpError) with machine-readable codes |
 | `value.rs` | OpValue newtype wrapper around serde_json::Value with semantics |
-| `crypto.rs` | Pure crypto operators (hash_sha256, base64_encode/decode) |
+| `crypto.rs` | Pure crypto operators (hash by algorithm name, content identity, encode/decode, hmac with sha256 or sha512) |
 | `crypto_provider.rs` | Cryptographic provider trait, ClassicalProvider (Ed25519/X25519), HybridProvider (post-quantum ready) |
 | `math.rs` | Math operators (add, sub, mul, div, sum, average, round, abs, max, min, etc.) |
 | `conversion.rs` | Type conversion operators (to_number, to_string, to_boolean, to_array) |
-| `datetime.rs` | Date/time operators (date_add, date_diff, now, parse_date, format_datetime, etc.) |
+| `datetime.rs` | Date/time operators (date_add, date_diff, now, format_date, start_of and end_of on a zone's wall clock, workdays, etc.) |
 | `logical.rs` | Logical operators with tristate boolean semantics (and, or, not) |
 | `text.rs` | Text operators with Unicode/grapheme support (upper, lower, len, concat, slice, replace, etc.) |
 | `array.rs` | Array operators (length, first, last, nth, contains, unique, flatten, sort, etc.) |
 | `security.rs` | Security operator stubs (can, current_user, has_role, get_entity, emit_event) |
-| `graph.rs` | Graph traversal operators (parents, children, neighbors, traverse). Entity references use the canonical `{"$ent_ref": "entity-id"}` shape. |
+| `graph.rs` | Graph traversal operators (parents, children, neighbors, traverse) over `ctx.graph`, which `graph_of_edges` builds from the edges a rule hands over. Entity references use the canonical `{"$ent_ref": "entity-id"}` shape. |
 
 ## Key Types
 

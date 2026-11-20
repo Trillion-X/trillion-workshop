@@ -219,6 +219,14 @@ where
         return Ok(OpValue::bool(predicate(ord)));
     }
 
+    // A number against text that spells a number (exact decimal text, as a strict answer too long for an f64 is):
+    // compared as numbers, exactly.
+    if a.is_number() != b.is_number() && (a.is_string() || b.is_string()) {
+        if let (Ok(ad), Ok(bd)) = (a.as_decimal(op), b.as_decimal(op)) {
+            return Ok(OpValue::bool(predicate(ad.cmp(&bd))));
+        }
+    }
+
     // String comparison (lexicographic)
     if a.is_string() && b.is_string() {
         let as_ = a.as_str(op)?;
@@ -454,6 +462,27 @@ pub fn try_eval(value: &OpValue, _ctx: &EvalContext) -> Result<OpValue, OpError>
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn strict_answers_are_numbers_and_compare_as_numbers() {
+        let strict = EvalContext::strict();
+        let six = crate::math::mul(&OpValue::number(2.0), &OpValue::number(3.0), &strict).unwrap();
+        assert_eq!(six.as_inner(), json!(6));
+        let ten = crate::math::add(&OpValue::number(4.0), &OpValue::number(6.0), &strict).unwrap();
+        assert_eq!(gt(&six, &ten, &strict).unwrap().as_inner(), json!(false));
+        let tenths = crate::math::add(&OpValue::number(0.1), &OpValue::number(0.2), &strict).unwrap();
+        assert_eq!(tenths.as_inner(), json!(0.3));
+        let half = crate::math::div(&OpValue::number(7.0), &OpValue::number(2.0), &strict).unwrap();
+        assert_eq!(half.as_inner(), json!(3.5));
+        // More digits than an f64 keeps stay exact decimal text, and still compare with a number as numbers.
+        let long = OpValue::from_decimal(rust_decimal::Decimal::from_str_exact("0.1234567890123456789").unwrap());
+        assert_eq!(long.as_inner(), json!("0.1234567890123456789"));
+        assert_eq!(gt(&long, &OpValue::number(0.12), &strict).unwrap().as_inner(), json!(true));
+        assert_eq!(lt(&OpValue::number(0.2), &long, &strict).unwrap().as_inner(), json!(false));
+        // Two texts still compare by spelling, and text that is not a number is still refused against one.
+        assert_eq!(gt(&OpValue::string("b"), &OpValue::string("a"), &strict).unwrap().as_inner(), json!(true));
+        assert!(gt(&OpValue::string("tennis"), &OpValue::number(1.0), &strict).is_err());
+    }
 
     fn ctx() -> EvalContext {
         EvalContext::default()

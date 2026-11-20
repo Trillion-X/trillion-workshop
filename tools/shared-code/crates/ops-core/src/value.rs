@@ -536,10 +536,17 @@ impl OpValue {
         OpValue(OpNode::array(nodes))
     }
 
-    /// Create an OpValue from a rust_decimal::Decimal
+    /// Create an OpValue from a rust_decimal::Decimal: a number whenever an f64 holds exactly that decimal (every
+    /// sum of ordinary amounts does: 0.1 + 0.2 is 0.3), so an answer of strict arithmetic compares, sorts and adds
+    /// like any number; the exact decimal text only when no f64 holds it (more digits than an f64 keeps).
     pub fn from_decimal(d: Decimal) -> Self {
-        let json_val = serde_json::json!(d);
-        OpValue::from(json_val)
+        let d = d.normalize();
+        if let Some(n) = d.to_f64().filter(|n| n.is_finite()) {
+            if Decimal::from_str(&n.to_string()).ok() == Some(d) {
+                return OpValue::number(n);
+            }
+        }
+        OpValue::from(serde_json::json!(d))
     }
 
     /// Create an OpValue from an i64

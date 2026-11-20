@@ -3,9 +3,9 @@
 //! Purpose:
 //!   The operators that run a transform chain on each item of a list: keep the items it holds for
 //!   (`filter_where`), take the first one (`find_where`), splice what it makes (`flat_map`), count them
-//!   (`array_count_if` with `where`), and pick one path from each item (`map`). The chain is DATA, a list of
-//!   `{op, args}` steps exactly like a binding's `transform`, so any registered operator can judge or shape an
-//!   item, and a chain inside a chain nests without limit.
+//!   (`array_count_if` with `where`), pick one path from each item (`map`), and fold them into one value
+//!   (`reduce`). The chain is DATA, a list of `{op, args}` steps exactly like a binding's `transform`, so any
+//!   registered operator can judge or shape an item, and a chain inside a chain nests without limit.
 //!
 //! Non-Negotiable Invariants:
 //!   1. An item's chain is evaluated by the canonical evaluator (`OperatorContext::evaluate_nested_bindings`),
@@ -63,8 +63,13 @@ fn item_var(args: Option<&OpValue>) -> (String, String) {
 /// What one item's chain yields.
 fn run_chain(ctx: &OperatorContext, args: Option<&OpValue>, steps: &Value, item: &Value, index: usize, op: &str) -> Result<Value, Diagnostic> {
     let (name, index_name) = item_var(args);
-    let binding = json!({ "$kind": "binding", "select": { "from": "vars", "key": name }, "transform": steps });
     let item_ctx = ctx.with_iteration_vars(item.clone(), index, &name, &index_name);
+    run_chain_on(&item_ctx, &name, steps, op)
+}
+
+/// What a chain yields when it starts from the variable `start` of a context whose variables are already bound.
+fn run_chain_on(item_ctx: &OperatorContext, start: &str, steps: &Value, op: &str) -> Result<Value, Diagnostic> {
+    let binding = json!({ "$kind": "binding", "select": { "from": "vars", "key": start }, "transform": steps });
     let value = item_ctx
         .evaluate_nested_bindings(&binding)
         .ok_or_else(|| refused(DiagnosticCode::BindingOperatorError, format!("{op} needs the evaluator to run a chain")))?;
@@ -80,6 +85,23 @@ fn run_chain(ctx: &OperatorContext, args: Option<&OpValue>, steps: &Value, item:
 
 fn holds(value: &Value) -> bool {
     OpValue::from(value.clone()).is_truthy()
+}
+
+/// The list folded into one value: `step` runs from `$acc` (the value so far, first `initial`, null without it) with
+/// the item bound as `$item` and `$index` (or `item_var`), and what it yields is the next `$acc`. An empty list gives
+/// `initial`.
+pub fn reduce(input: &OpValue, args: Option<&OpValue>, ctx: &OperatorContext) -> OperatorResult {
+    let steps = chain(args, "step", "reduce")?;
+    let (name, index_name) = item_var(args);
+    let initial = args.map(OpValue::as_inner).and_then(|args| args.get("initial").cloned()).unwrap_or(Value::Null);
+    let mut acc = ctx.evaluate_nested_bindings(&initial).unwrap_or(initial);
+    for (index, item) in items(input, "reduce")?.into_iter().enumerate() {
+        let item_ctx = ctx
+            .with_iteration_vars(item, index, &name, &index_name)
+            .with_iteration_vars(acc, index, "$acc", &index_name);
+        acc = run_chain_on(&item_ctx, "$acc", &steps, "reduce")?;
+    }
+    Ok(OpValue::from(acc))
 }
 
 pub fn filter_where(input: &OpValue, args: Option<&OpValue>, ctx: &OperatorContext) -> OperatorResult {

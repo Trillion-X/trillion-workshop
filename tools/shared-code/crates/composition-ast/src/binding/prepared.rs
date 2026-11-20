@@ -341,15 +341,43 @@ mod tests {
         let prepared = PreparedBinding::prepare(&ratio, &resolver);
         let result = prepared.evaluate(&OpValue::from(row.clone()), &ctx, &resolver);
         assert!(result.diagnostics.is_empty(), "{:?}", result.diagnostics);
-        assert_eq!(result.value.into_inner(), json!("3"));
+        assert_eq!(result.value.into_inner(), json!(3));
         // The canonical evaluator gives the same value.
-        assert_eq!(evaluate_binding_with_resolver(&ratio, &row, &ctx, &resolver, None).value, json!("3"));
+        assert_eq!(evaluate_binding_with_resolver(&ratio, &row, &ctx, &resolver, None).value, json!(3));
         // `self` inside an argument is still the pipeline's current value (300 + 300).
         let doubled = json!({"$kind":"binding","select":{"from":"self","path":"views"},"transform":[
             {"op":"op:core.add","args":{"value":{"$kind":"binding","select":{"from":"self"}}}}]});
         let doubled = serde_json::from_value::<Binding>(doubled).expect("binding");
         let prepared = PreparedBinding::prepare(&doubled, &resolver);
-        assert_eq!(prepared.evaluate(&OpValue::from(row), &ctx, &resolver).value.into_inner(), json!("600"));
+        assert_eq!(prepared.evaluate(&OpValue::from(row), &ctx, &resolver).value.into_inner(), json!(600));
+    }
+
+    #[test]
+    fn arithmetic_then_a_comparison_answers() {
+        // Strict arithmetic answers a number, so a comparison after it compares numbers (6 > 10 is false), never
+        // the spelling of two texts ("6" > "10" would be true) and never a refusal of text against a number.
+        let resolver = resolver();
+        let row = json!({"price": 2, "quantity": 3, "other_price": 5, "other_quantity": 2});
+        let ctx = BindingEvaluationContext::default().with_context(row.clone());
+        let read = |path: &str| json!({"$kind":"binding","select":{"from":"context","path":path}});
+        let cases = [
+            ("op:core.gt", json!(10), false),
+            ("op:core.ge", json!(6), true),
+            ("op:core.lt", json!(6.5), true),
+            ("op:core.gt", json!({"$kind":"binding","select":{"from":"context","path":"other_price"},"transform":[{"op":"op:core.mul","args":{"value":read("other_quantity")}}]}), false),
+            ("op:core.ge", json!("5.99"), true),
+        ];
+        for (op, against, holds) in cases {
+            let binding = json!({"$kind":"binding","select":{"from":"self","path":"price"},"transform":[
+                {"op":"op:core.mul","args":{"value":read("quantity")}}, {"op":op,"args":{"value":against}}]});
+            let binding = serde_json::from_value::<Binding>(binding).expect("binding");
+            let result = PreparedBinding::prepare(&binding, &resolver).evaluate(&OpValue::from(row.clone()), &ctx, &resolver);
+            assert!(result.diagnostics.is_empty(), "{op}: {:?}", result.diagnostics);
+            assert_eq!(result.value.into_inner(), json!(holds), "{op} {against}");
+        }
+        let tenths = json!({"$kind":"binding","select":{"from":"literal","value":0.1},"transform":[{"op":"op:core.add","args":{"value":0.2}}]});
+        let tenths = serde_json::from_value::<Binding>(tenths).expect("binding");
+        assert_eq!(PreparedBinding::prepare(&tenths, &resolver).evaluate(&OpValue::from(json!({})), &ctx, &resolver).value.into_inner(), json!(0.3));
     }
 
     #[test]

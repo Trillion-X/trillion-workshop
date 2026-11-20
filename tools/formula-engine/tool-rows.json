@@ -595,17 +595,20 @@
         "label": "Evaluate a formula over rows",
         "status": "active",
         "job": "Evaluate a formula over each row of a list: read a value from the row, then run a pipeline of steps (and, or, not, equals, more than, less than, is in a list, position in a list, lower-case, contains, starts with, join, is empty, is unknown) over it",
-        "description": "Takes a binding (select from the row at a path, or a stated literal, then a transform list of { op, args }; an argument may itself be a binding evaluated over the value the step receives) and rows. Answers one value per row, in order, and the rows that could not be evaluated with the reason (a step given a value of the wrong kind, or a step that is not supported). Three-state logic: and, or and not answer true, false or unknown, and a comparison with an unknown side is unknown. Nothing outside the row is read.",
+        "description": "Takes a binding (select from the row at a path, or a stated literal, then a transform list of { op, args }; an argument may itself be a binding evaluated over the value the step receives) and rows, or the formula written as text instead of the binding (=price * quantity, IF(@.done, \"yes\", \"no\"), FILTER(items, |x| => x.age > 3); the functions are the rows of rules/text-formulas.json), which the engine compiles into the binding it means. Answers one value per row, in order, and the rows that could not be evaluated with the reason (a step given a value of the wrong kind, or a step that is not supported). Three-state logic: and, or and not answer true, false or unknown, and a comparison with an unknown side is unknown. Nothing outside the row is read.",
         "input_schema": {
           "type": "object",
           "required": [
-            "binding",
             "rows"
           ],
           "properties": {
             "binding": {
               "type": "object",
-              "description": "{ $kind: binding, select: { from: self, path: [...] }, transform: [{ op, args }], default? }"
+              "description": "{ $kind: binding, select: { from: self, path: [...] }, transform: [{ op, args }], default? } (or send text)"
+            },
+            "text": {
+              "type": "string",
+              "description": "The formula written as text, in place of binding: names and @.path read the row, F(...) is a function of rules/text-formulas.json, |x| => ... is a lambda"
             },
             "rows": {
               "type": "array",
@@ -711,6 +714,26 @@
             },
             "output_selector": "$.values",
             "contains": "true,false,"
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "text": "(price - discount) * quantity",
+              "rows": [
+                {
+                  "price": 5,
+                  "discount": 1,
+                  "quantity": 3
+                },
+                {
+                  "price": 10,
+                  "discount": 0,
+                  "quantity": 1
+                }
+              ]
+            },
+            "output_selector": "$.values",
+            "contains": "12,10"
           }
         ],
         "provenance": {

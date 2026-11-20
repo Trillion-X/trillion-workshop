@@ -723,7 +723,8 @@ pub fn workdays(
 ///
 /// - datetime: RFC 3339 string
 /// - unit: "year", "month", "week", "day", "hour", "minute"
-/// - timezone: Optional IANA timezone
+/// - timezone: Optional IANA timezone. The unit is read on that zone's wall clock, so the start of a New York day is
+///   its local midnight, and the answer is written with that zone's offset.
 ///
 /// Null propagation: `start_of(null, _) = null`
 pub fn start_of(
@@ -732,72 +733,14 @@ pub fn start_of(
     timezone: &OpValue,
     _ctx: &EvalContext,
 ) -> Result<OpValue, OpError> {
-    if datetime.is_null() || unit.is_null() {
-        return Ok(OpValue::null());
-    }
-
-    let dt_str = datetime.as_str("start_of")?;
-    let unit_str = unit.as_str("start_of")?;
-    let parsed_unit = parse_unit(unit_str)?;
-
-    let utc = parse_rfc3339_to_utc(dt_str)?;
-
-    let start_utc = match parsed_unit {
-        "y" => {
-            let year = utc.year();
-            Utc.with_ymd_and_hms(year, 1, 1, 0, 0, 0).single().unwrap()
-        }
-        "mo" => {
-            let year = utc.year();
-            let month = utc.month();
-            Utc.with_ymd_and_hms(year, month, 1, 0, 0, 0)
-                .single()
-                .unwrap()
-        }
-        "d" => {
-            let date = utc.date_naive();
-            Utc.from_utc_datetime(&date.and_hms_opt(0, 0, 0).unwrap())
-        }
-        "h" => {
-            let date = utc.date_naive();
-            let hour = utc.hour();
-            Utc.from_utc_datetime(&date.and_hms_opt(hour, 0, 0).unwrap())
-        }
-        "m" => {
-            let date = utc.date_naive();
-            let hour = utc.hour();
-            let minute = utc.minute();
-            Utc.from_utc_datetime(&date.and_hms_opt(hour, minute, 0).unwrap())
-        }
-        "w" => {
-            let days_since_monday = utc.weekday().num_days_from_monday();
-            let start_of_week =
-                utc.date_naive() - Duration::try_days(days_since_monday as i64).unwrap();
-            Utc.from_utc_datetime(&start_of_week.and_hms_opt(0, 0, 0).unwrap())
-        }
-        _ => {
-            return Err(OpError::InvalidArgument {
-                operation: "start_of".to_string(),
-                reason: "invalid unit for start_of. Use year, month, week, day, hour, minute"
-                    .to_string(),
-            })
-        }
-    };
-
-    if timezone.is_null() {
-        Ok(OpValue::string(to_rfc3339(start_utc)))
-    } else {
-        let tz_str = timezone.as_str("start_of")?;
-        let tz = parse_tz(tz_str)?;
-        Ok(OpValue::string(to_rfc3339(utc_to_tz(start_utc, tz))))
-    }
+    unit_bound(datetime, unit, timezone, false, "start_of")
 }
 
-/// Get the end of a time unit for a datetime.
+/// Get the end of a time unit for a datetime: its last whole second.
 ///
 /// - datetime: RFC 3339 string
 /// - unit: "year", "month", "week", "day", "hour", "minute"
-/// - timezone: Optional IANA timezone
+/// - timezone: Optional IANA timezone, read the same way as in `start_of`
 ///
 /// Null propagation: `end_of(null, _) = null`
 pub fn end_of(
@@ -806,68 +749,90 @@ pub fn end_of(
     timezone: &OpValue,
     _ctx: &EvalContext,
 ) -> Result<OpValue, OpError> {
+    unit_bound(datetime, unit, timezone, true, "end_of")
+}
+
+/// The first (or last whole) second of the unit holding `datetime`, worked out on the zone's wall clock. A wall time
+/// the zone skips (a clock change at midnight) moves to the first instant the zone has after it for a start, and to
+/// the last one before it for an end.
+fn unit_bound(
+    datetime: &OpValue,
+    unit: &OpValue,
+    timezone: &OpValue,
+    at_end: bool,
+    operation: &str,
+) -> Result<OpValue, OpError> {
     if datetime.is_null() || unit.is_null() {
         return Ok(OpValue::null());
     }
 
-    let dt_str = datetime.as_str("end_of")?;
-    let unit_str = unit.as_str("end_of")?;
+    let dt_str = datetime.as_str(operation)?;
+    let unit_str = unit.as_str(operation)?;
     let parsed_unit = parse_unit(unit_str)?;
-
     let utc = parse_rfc3339_to_utc(dt_str)?;
+    let tz = if timezone.is_null() { None } else { Some(parse_tz(timezone.as_str(operation)?)?) };
+    let wall = match tz {
+        Some(zone) => utc_to_tz(utc, zone).naive_local(),
+        None => utc.naive_utc(),
+    };
 
-    let end_utc = match parsed_unit {
-        "y" => {
-            let year = utc.year();
-            Utc.with_ymd_and_hms(year, 12, 31, 23, 59, 59)
-                .single()
-                .unwrap()
-        }
-        "mo" => {
-            let year = utc.year();
-            let month = utc.month();
-            let last_day = days_in_month(year, month);
-            Utc.with_ymd_and_hms(year, month, last_day, 23, 59, 59)
-                .single()
-                .unwrap()
-        }
-        "d" => {
-            let date = utc.date_naive();
-            Utc.from_utc_datetime(&date.and_hms_opt(23, 59, 59).unwrap())
-        }
-        "h" => {
-            let date = utc.date_naive();
-            let hour = utc.hour();
-            Utc.from_utc_datetime(&date.and_hms_opt(hour, 59, 59).unwrap())
-        }
-        "m" => {
-            let date = utc.date_naive();
-            let hour = utc.hour();
-            let minute = utc.minute();
-            Utc.from_utc_datetime(&date.and_hms_opt(hour, minute, 59).unwrap())
-        }
+    let date = wall.date();
+    let (first_day, last_day) = match parsed_unit {
+        "y" => (
+            NaiveDate::from_ymd_opt(date.year(), 1, 1),
+            NaiveDate::from_ymd_opt(date.year(), 12, 31),
+        ),
+        "mo" => (
+            NaiveDate::from_ymd_opt(date.year(), date.month(), 1),
+            NaiveDate::from_ymd_opt(date.year(), date.month(), days_in_month(date.year(), date.month())),
+        ),
         "w" => {
-            let days_since_monday = utc.weekday().num_days_from_monday();
-            let end_of_week =
-                utc.date_naive() + Duration::try_days(6 - days_since_monday as i64).unwrap();
-            Utc.from_utc_datetime(&end_of_week.and_hms_opt(23, 59, 59).unwrap())
+            let monday = date - Duration::days(date.weekday().num_days_from_monday() as i64);
+            (Some(monday), Some(monday + Duration::days(6)))
         }
+        "d" | "h" | "m" => (Some(date), Some(date)),
         _ => {
             return Err(OpError::InvalidArgument {
-                operation: "end_of".to_string(),
-                reason: "invalid unit for end_of. Use year, month, week, day, hour, minute"
-                    .to_string(),
+                operation: operation.to_string(),
+                reason: format!(
+                    "invalid unit for {operation}. Use year, month, week, day, hour, minute"
+                ),
             })
         }
     };
-
-    if timezone.is_null() {
-        Ok(OpValue::string(to_rfc3339(end_utc)))
-    } else {
-        let tz_str = timezone.as_str("end_of")?;
-        let tz = parse_tz(tz_str)?;
-        Ok(OpValue::string(to_rfc3339(utc_to_tz(end_utc, tz))))
+    let (hour, minute) = (wall.hour(), wall.minute());
+    let bound = match (parsed_unit, at_end) {
+        ("h", false) => first_day.and_then(|d| d.and_hms_opt(hour, 0, 0)),
+        ("h", true) => last_day.and_then(|d| d.and_hms_opt(hour, 59, 59)),
+        ("m", false) => first_day.and_then(|d| d.and_hms_opt(hour, minute, 0)),
+        ("m", true) => last_day.and_then(|d| d.and_hms_opt(hour, minute, 59)),
+        (_, false) => first_day.and_then(|d| d.and_hms_opt(0, 0, 0)),
+        (_, true) => last_day.and_then(|d| d.and_hms_opt(23, 59, 59)),
     }
+    .ok_or_else(|| OpError::InvalidArgument {
+        operation: operation.to_string(),
+        reason: format!("no {unit_str} bound for {dt_str}"),
+    })?;
+
+    let Some(zone) = tz else {
+        return Ok(OpValue::string(to_rfc3339(Utc.from_utc_datetime(&bound))));
+    };
+    // A skipped wall time is stepped over a minute at a time; no zone skips more than a day.
+    let step = Duration::minutes(if at_end { -1 } else { 1 });
+    let mut wall_bound = bound;
+    for _ in 0..=24 * 60 {
+        let resolved = zone.from_local_datetime(&wall_bound);
+        let instant = if at_end { resolved.latest() } else { resolved.earliest() };
+        if let Some(instant) = instant {
+            let instant = if at_end { instant.with_second(59).unwrap_or(instant) } else { instant };
+            return Ok(OpValue::string(to_rfc3339(instant)));
+        }
+        wall_bound += step;
+    }
+    Err(OpError::InvalidArgument {
+        operation: operation.to_string(),
+        reason: format!("{} has no wall time near {bound}", zone.name()),
+    })
 }
 
 /// Construct a full datetime from components.
@@ -1467,6 +1432,30 @@ mod tests {
         let tz = OpValue::null();
         let result = end_of(&dt, &unit, &tz, &ctx()).unwrap();
         assert_eq!(result.as_str("test").unwrap(), "2024-12-31T23:59:59Z");
+    }
+
+    #[test]
+    fn test_start_and_end_of_day_read_the_zone_wall_clock() {
+        let dt = OpValue::from(json!("2024-01-16T02:30:00Z")); // 9:30 PM on Jan 15 in New York
+        let unit = OpValue::from(json!("day"));
+        let tz = OpValue::from(json!("America/New_York"));
+        let start = start_of(&dt, &unit, &tz, &ctx()).unwrap();
+        assert_eq!(start.as_str("test").unwrap(), "2024-01-15T00:00:00-05:00");
+        let end = end_of(&dt, &unit, &tz, &ctx()).unwrap();
+        assert_eq!(end.as_str("test").unwrap(), "2024-01-15T23:59:59-05:00");
+        let week = start_of(&dt, &OpValue::from(json!("week")), &tz, &ctx()).unwrap();
+        assert_eq!(week.as_str("test").unwrap(), "2024-01-15T00:00:00-05:00");
+    }
+
+    #[test]
+    fn test_start_of_day_when_the_zone_skips_midnight() {
+        // Havana moved its clocks from 00:00 to 01:00 on 2024-03-10, so that day starts at 01:00.
+        let dt = OpValue::from(json!("2024-03-10T15:00:00Z"));
+        let tz = OpValue::from(json!("America/Havana"));
+        let start = start_of(&dt, &OpValue::from(json!("day")), &tz, &ctx()).unwrap();
+        assert_eq!(start.as_str("test").unwrap(), "2024-03-10T01:00:00-04:00");
+        let end = end_of(&OpValue::from(json!("2024-03-09T15:00:00Z")), &OpValue::from(json!("day")), &tz, &ctx()).unwrap();
+        assert_eq!(end.as_str("test").unwrap(), "2024-03-09T23:59:59-05:00");
     }
 
     // --- make_datetime tests ---
