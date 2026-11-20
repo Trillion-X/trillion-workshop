@@ -1978,6 +1978,7 @@
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
+    "src/workshop-looks.json",
     "src/workspace/screens.mjs"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
@@ -1989,6 +1990,13 @@
     "task-moves.mjs"
    ],
    "at": "/opt/plan-tasks-and-todo-lists"
+  },
+  {
+   "package": "workspace-screens",
+   "paths": [
+    "web/src/card-sections.mjs"
+   ],
+   "at": "/opt/workspace-screens"
   },
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
@@ -2467,6 +2475,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/workshop-looks.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
   },
   {
    "package": "workflows",
@@ -4418,6 +4433,60 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:build-docs-site": [
+  {
+   "package": "build-a-docs-site",
+   "paths": [
+    "parts"
+   ],
+   "at": "/opt/build-a-docs-site"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:build-records-to-write": [
   {
    "package": "export-records-as-list-rows",
@@ -5802,6 +5871,7 @@
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
+    "src/workshop-looks.json",
     "src/workspace/screens.mjs"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
@@ -5813,6 +5883,13 @@
     "task-moves.mjs"
    ],
    "at": "/opt/plan-tasks-and-todo-lists"
+  },
+  {
+   "package": "workspace-screens",
+   "paths": [
+    "web/src/card-sections.mjs"
+   ],
+   "at": "/opt/workspace-screens"
   },
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
@@ -8111,7 +8188,52 @@
   }
  ],
  "tool:check-takes-are-complete-with-a-small-local-model": [],
- "tool:check-that-everything-waiting-on-a-person-reaches-them": [{"package": "check-that-everything-waiting-on-a-person-reaches-them", "paths": ["do-work"], "at": "/opt/check-that-everything-waiting-on-a-person-reaches-them"}, {"package": "shared-code", "paths": ["src/workspace/screens.mjs", "src/who-does-it.json"], "at": "/opt/shared-code"}, {"package": "keep-and-wake-ai-sessions-on-this-computer", "paths": ["src/workspace/surfaces.json"], "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"}, {"package": "hand-off-jobs-between-agents", "paths": ["src/workspace/addresses.mjs", "src/workspace/view-transition.mjs"], "at": "/opt/hand-off-jobs-between-agents"}, {"package": "hold-one-thing-until-done", "paths": ["read-data/needs-you-hold.mjs"], "at": "/opt/hold-one-thing-until-done"}],
+ "tool:check-that-everything-waiting-on-a-person-reaches-them": [
+  {
+   "package": "check-that-everything-waiting-on-a-person-reaches-them",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/check-that-everything-waiting-on-a-person-reaches-them"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/workspace/screens.mjs",
+    "src/who-does-it.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/workspace/surfaces.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "hand-off-jobs-between-agents",
+   "paths": [
+    "src/workspace/addresses.mjs",
+    "src/workspace/view-transition.mjs"
+   ],
+   "at": "/opt/hand-off-jobs-between-agents"
+  },
+  {
+   "package": "hold-one-thing-until-done",
+   "paths": [
+    "read-data/needs-you-hold.mjs"
+   ],
+   "at": "/opt/hold-one-thing-until-done"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/workspace"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+  }
+ ],
  "tool:check-the-x-connection": [],
  "tool:check-what-a-buyer-paid": [
   {
@@ -11424,6 +11546,7 @@
     "src/work-workshop.mjs",
     "src/workshop-looks.json",
     "src/workshop-sample-rules.mjs",
+    "src/workshop-settings.json",
     "src/workshop.mjs",
     "src/workspace/file-previews.json",
     "src/workspace/first-answers.json",
@@ -20127,22 +20250,6 @@
    "at": "/opt/research-a-creator-or-topic"
   }
  ],
- "tool:build-docs-site": [
-  {
-   "package": "build-a-docs-site",
-   "paths": [
-    "parts"
-   ],
-   "at": "/opt/build-a-docs-site"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs"
-   ],
-   "at": "/opt/workflows"
-  }
- ],
  "tool:keep-hearing-session": [
   {
    "package": "listen-for-a-while",
@@ -25176,6 +25283,148 @@
   }
  ],
  "tool:make-and-measure-every-voice-take-of-a-line": [],
+ "tool:make-cut-out": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
  "tool:make-examples-from-picks": [
   {
    "package": "where-a-person-stands",
@@ -25426,6 +25675,574 @@
     "src"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+  }
+ ],
+ "tool:make-sound-effect-forged-on-my-computer": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
+ "tool:make-sound-effect-from-moss-on-my-computer": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
+ "tool:make-sound-effect-from-stable-audio-3-on-my-computer": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
+  }
+ ],
+ "tool:make-sound-effects-for-a-video-from-hunyuan-foley-on-my-computer": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/save-layout-state.ts",
+    "read-data/arrangement-history.ts",
+    "read-data/layout-types.ts",
+    "read-data/node-bookmark-types.ts",
+    "read-data/node-history-types.ts",
+    "read-data/read-screen-arrangement.ts",
+    "read-data/surface-modes.ts",
+    "read-data/tab-bar-placement.ts"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "record-voice-and-meetings",
+   "paths": [
+    "read-data/content-media-evidence.ts"
+   ],
+   "at": "/opt/record-voice-and-meetings"
+  },
+  {
+   "package": "screen-arrangement",
+   "paths": [
+    "read-data/read-projected-rows.ts"
+   ],
+   "at": "/opt/screen-arrangement"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/dockable-placement/dockable-placement.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/react"
+   ],
+   "at": "/opt/node_modules/react"
   }
  ],
  "tool:make-spoken-line-candidates-one-slot-at-a-time": [],
@@ -31637,6 +32454,7 @@
     "src/work-workshop.mjs",
     "src/workshop-looks.json",
     "src/workshop-sample-rules.mjs",
+    "src/workshop-settings.json",
     "src/workshop.mjs",
     "src/workspace/first-answers.json",
     "src/workspace/screens.mjs",
@@ -35040,6 +35858,7 @@
     "src/work-workshop.mjs",
     "src/workshop-looks.json",
     "src/workshop-sample-rules.mjs",
+    "src/workshop-settings.json",
     "src/workshop.mjs",
     "src/workspace/file-previews.json",
     "src/workspace/first-answers.json",
@@ -35967,6 +36786,7 @@
     "src/work-workshop.mjs",
     "src/workshop-looks.json",
     "src/workshop-sample-rules.mjs",
+    "src/workshop-settings.json",
     "src/workshop.mjs",
     "src/workspace/file-previews.json",
     "src/workspace/first-answers.json",
@@ -36735,6 +37555,7 @@
     "src/work-workshop.mjs",
     "src/workshop-looks.json",
     "src/workshop-sample-rules.mjs",
+    "src/workshop-settings.json",
     "src/workshop.mjs",
     "src/workspace/file-previews.json",
     "src/workspace/first-answers.json",
@@ -38355,6 +39176,72 @@
    "at": "/opt/formula-engine"
   },
   {
+   "package": "hand-off-jobs-between-agents",
+   "paths": [
+    "src/agent-tool-runs.mjs"
+   ],
+   "at": "/opt/hand-off-jobs-between-agents"
+  },
+  {
+   "package": "http-client",
+   "paths": [
+    "do-work/same-origin.mjs"
+   ],
+   "at": "/opt/http-client"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/renamed-tools.json",
+    "src/renamed-tools.mjs",
+    "src/server-instructions.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "pick-where-one-piece-of-work-runs-the-device",
+   "paths": [
+    "records/workshop-placement-records.json"
+   ],
+   "at": "/opt/pick-where-one-piece-of-work-runs-the-device"
+  },
+  {
+   "package": "refuse-requests-to-private-addresses",
+   "paths": [
+    "public-address.json",
+    "public-address.mjs"
+   ],
+   "at": "/opt/refuse-requests-to-private-addresses"
+  },
+  {
+   "package": "see-a-pursuit-through-the-lens",
+   "paths": [
+    "src/pursuit-lens.mjs"
+   ],
+   "at": "/opt/see-a-pursuit-through-the-lens"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/agent-delivery.mjs",
+    "src/server-instruction-paragraphs.mjs"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "walk-a-new-person-through-first-setup",
+   "paths": [
+    "do-work/choose-toolkit.mjs",
+    "do-work/setup-installs.mjs",
+    "do-work/setup-plan.mjs",
+    "do-work/setup-steps-from-a-cart.mjs",
+    "do-work/toolkit-stack.mjs",
+    "read-data/setup-policy.json",
+    "read-data/stack-policy.json"
+   ],
+   "at": "/opt/walk-a-new-person-through-first-setup"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -38362,6 +39249,18 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/tldts"
+   ],
+   "at": "/opt/node_modules/tldts"
+  },
+  {
+   "packages": [
+    "node_modules/tldts-core"
+   ],
+   "at": "/opt/node_modules/tldts-core"
   }
  ],
  "tool:read-shared-decision": [
@@ -38672,6 +39571,7 @@
     "src/work-workshop.mjs",
     "src/workshop-looks.json",
     "src/workshop-sample-rules.mjs",
+    "src/workshop-settings.json",
     "src/workshop.mjs",
     "src/workspace/file-previews.json",
     "src/workspace/first-answers.json",
@@ -40522,7 +41422,8 @@
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
-    "src/input-alias-refusal.mjs"
+    "src/input-alias-refusal.mjs",
+    "src/workshop-settings.json"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
   },
@@ -44017,7 +44918,8 @@
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
-    "src/input-alias-refusal.mjs"
+    "src/input-alias-refusal.mjs",
+    "src/workshop-settings.json"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
   },
@@ -46775,6 +47677,7 @@
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
+    "src/workshop-looks.json",
     "src/workspace/screens.mjs"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
@@ -46786,6 +47689,13 @@
     "task-moves.mjs"
    ],
    "at": "/opt/plan-tasks-and-todo-lists"
+  },
+  {
+   "package": "workspace-screens",
+   "paths": [
+    "web/src/card-sections.mjs"
+   ],
+   "at": "/opt/workspace-screens"
   },
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
@@ -48793,6 +49703,7 @@
     "src/work-workshop.mjs",
     "src/workshop-looks.json",
     "src/workshop-sample-rules.mjs",
+    "src/workshop-settings.json",
     "src/workshop.mjs",
     "src/workspace/file-previews.json",
     "src/workspace/first-answers.json",
@@ -49202,6 +50113,7 @@
     "src/work-workshop.mjs",
     "src/workshop-looks.json",
     "src/workshop-sample-rules.mjs",
+    "src/workshop-settings.json",
     "src/workshop.mjs",
     "src/workspace/first-answers.json",
     "src/workspace/screens.mjs",
@@ -56367,10 +57279,5 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": [],
- "tool:make-cut-out": [{"package": "media-composition", "paths": ["do-work", "read-data"], "at": "/opt/media-composition", "exclude": ["__tests__"]}],
- "tool:make-sound-effect-forged-on-my-computer": [{"package": "media-composition", "paths": ["do-work", "read-data"], "at": "/opt/media-composition", "exclude": ["__tests__"]}],
- "tool:make-sound-effect-from-stable-audio-3-on-my-computer": [{"package": "media-composition", "paths": ["do-work", "read-data"], "at": "/opt/media-composition", "exclude": ["__tests__"]}],
- "tool:make-sound-effect-from-moss-on-my-computer": [{"package": "media-composition", "paths": ["do-work", "read-data"], "at": "/opt/media-composition", "exclude": ["__tests__"]}],
- "tool:make-sound-effects-for-a-video-from-hunyuan-foley-on-my-computer": [{"package": "media-composition", "paths": ["do-work", "read-data"], "at": "/opt/media-composition", "exclude": ["__tests__"]}]
+ "tool:your-files-names": []
 }
