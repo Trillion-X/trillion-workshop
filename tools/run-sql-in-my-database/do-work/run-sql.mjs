@@ -16,6 +16,8 @@
 // login with the password the person holds; `create` with a password_verifier makes a login for someone else whose password
 // only they hold (they send the SCRAM verifier made from it, never the password: do-work/make-a-login-verifier.mjs); `create`
 // with valid_until and no held one mints a login that stops working then, and answers it once; `drop` takes a role away. Every value goes into the recipe's SQL through the server's own format().
+// A recipe that adds rows (`adds_rows`) also takes { table, columns, fixed }: the one table, the columns the login may name and the
+// values the server sets on every row it adds.
 // A recipe runs in one transaction unless it says `in_one_transaction: false`: Postgres runs CREATE DATABASE and DROP
 // DATABASE only outside a transaction block, so such a recipe's statements run one by one on the same connection.
 import { randomBytes } from 'node:crypto';
@@ -32,6 +34,8 @@ const MIN_PASSWORD_LENGTH = 43;
 // role's password unchanged, so the password itself never reaches this computer. Fewer than 4096 iterations is refused.
 const VERIFIER = /^SCRAM-SHA-256\$(\d+):[A-Za-z0-9+/]+={0,2}\$[A-Za-z0-9+/]{43}=:[A-Za-z0-9+/]{43}=$/;
 const RECIPES = JSON.parse(readFileSync(new URL('../read-data/role-recipes.json', import.meta.url), 'utf8')).recipes;
+
+const rowAddingRecipes = Object.keys(RECIPES).filter(name => RECIPES[name].adds_rows === true);
 
 const held = descriptor => {
   try { return readFileSync(descriptor, 'utf8').trim(); } catch { return ''; }
@@ -51,7 +55,7 @@ export function shapeOf(input) {
   const hasRecipe = Object.hasOwn(asked, 'recipe');
   if (hasSql + hasRecipe > 1) throw new Error('Give one of: sql (with params), or recipe.');
   if (hasRecipe) {
-    const { name, action, role, valid_until: validUntil, password_verifier: verifier, limits = {} } = asked.recipe ?? {};
+    const { name, action, role, valid_until: validUntil, password_verifier: verifier, limits = {}, table, columns, fixed } = asked.recipe ?? {};
     if (!Object.hasOwn(RECIPES, name ?? '')) throw new Error(`recipe.name must be one of ${Object.keys(RECIPES).join(', ')}.`);
     if (!['create', 'drop'].includes(action)) throw new Error('recipe.action must be create or drop.');
     if (role !== undefined && (typeof role !== 'string' || role === '')) throw new Error('recipe.role must be a role name.');
@@ -70,7 +74,17 @@ export function shapeOf(input) {
       if (action !== 'create') throw new Error('recipe.password_verifier is given when a login is made: give it with create.');
       if (role === undefined) throw new Error('recipe.password_verifier needs recipe.role: the login name the password\'s keeper connects as.');
     }
-    return { kind: 'recipe', name, action, role, validUntil, verifier, limits };
+    const addsRows = RECIPES[name].adds_rows === true;
+    if (!addsRows && [table, columns, fixed].some(given => given !== undefined)) throw new Error(`recipe.table, recipe.columns and recipe.fixed are for a recipe that adds rows (${rowAddingRecipes.join(', ')}), not ${name}.`);
+    if (addsRows) {
+      if (typeof table !== 'string' || table === '') throw new Error(`The ${name} recipe needs recipe.table: the table whose rows the login may add.`);
+      if (action === 'create') {
+        if (!Array.isArray(columns) || columns.length === 0 || columns.some(column => typeof column !== 'string' || column === '')) throw new Error('recipe.columns must be the list of column names the login may name when it adds a row.');
+        if (fixed !== undefined && (fixed === null || typeof fixed !== 'object' || Array.isArray(fixed))) throw new Error('recipe.fixed must be an object of column names and the value the server sets on every row the login adds.');
+        for (const column of Object.keys(fixed ?? {})) if (columns.includes(column)) throw new Error(`recipe.fixed.${column} is also in recipe.columns: a column is the login's to name or the server's to set, not both.`);
+      } else if (columns !== undefined || fixed !== undefined) throw new Error('recipe.columns and recipe.fixed are given when the rights are made: give them with create.');
+    }
+    return { kind: 'recipe', name, action, role, validUntil, verifier, limits, table, columns, fixed: fixed ?? {} };
   }
   if (hasSql) {
     if (typeof asked.sql !== 'string' || asked.sql.trim() === '') throw new Error('sql must be a statement as text.');
@@ -125,8 +139,12 @@ const runRecipe = async (client, shape, connection, roleConnection) => {
   if (!roleDatabase && recipe[shape.action].some(template => template.includes('%5$'))) throw new Error(`The ${shape.name} recipe names the held role connection's database: give role_credential_name.`);
   if (together) await runOne(client, 'BEGIN');
   try {
+    // A row-adding recipe's %6$I is its table, %7$s its column names each quoted by the server and joined, %8$L its fixed values as
+    // JSON text, %9$I the trigger's name; any other recipe is filled with nulls there. (%6$ is the limit's value in the limit statements below.)
+    const { rows: [{ listed }] } = await runOne(client, "SELECT string_agg(format('%I', each), ', ') AS listed FROM unnest($1::text[]) AS columns(each)", [shape.columns ?? null]);
+    const rule = recipe.adds_rows === true ? JSON.stringify(shape.fixed) : null;
     for (const template of recipe[shape.action]) {
-      const { rows: [{ statement }] } = await runOne(client, 'SELECT format($1, $2::text, $3::text, $4::text, $5::text, $6::text) AS statement', [template, login.role, login.password, login.validUntil, database, roleDatabase]);
+      const { rows: [{ statement }] } = await runOne(client, "SELECT format($1, $2::text, $3::text, $4::text, $5::text, $6::text, $7::text, $8::text, $9::text, left('rule_' || $2::text, 63)) AS statement", [template, login.role, login.password, login.validUntil, database, roleDatabase, shape.table ?? null, listed, rule]);
       await runOne(client, statement);
     }
     for (const [limit, value] of Object.entries(shape.limits ?? {})) {

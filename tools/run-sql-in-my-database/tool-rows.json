@@ -88,6 +88,24 @@
                 "password_verifier": {
                   "type": "string",
                   "description": "A login for someone else whose password only they hold: the SCRAM-SHA-256 verifier they made from it (do-work/make-a-login-verifier.mjs on their computer), given with create and role. The database keeps the verifier as the password; the password never comes here and nothing is answered."
+                },
+                "table": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "For a recipe that adds rows (may-only-add-rows-for-a-login): the one table whose rows the login may add; given with create and with drop."
+                },
+                "columns": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "For a recipe that adds rows, with create: the columns the login may name when it adds a row. A column not listed here and not in fixed cannot be named."
+                },
+                "fixed": {
+                  "type": "object",
+                  "description": "For a recipe that adds rows, with create: column names and the value the server sets on every row the login adds, whatever the login sends (a label every row must carry, a starting status). Not also in columns."
                 }
               }
             }

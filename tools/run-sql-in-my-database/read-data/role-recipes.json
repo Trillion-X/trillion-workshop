@@ -1,5 +1,5 @@
 {
-  "_what": "Role recipes: the SQL that makes a login of a kind in the person's own database, gives it its rights, and takes it away. Each statement is a format() string of the server's own (%1$I the role, %2$L its password, %3$L the time it stops working, %4$I the database the connection names, %5$I the database the held role connection names), filled by the server so no value is ever spliced into SQL text here. The owner login runs them (it needs CREATEROLE: tools/start-a-computer set-up-postgres-role.sh PG_MAKES_ROLES=yes), in one transaction, so a recipe makes all of a role or none of it, unless it says in_one_transaction false (Postgres makes and drops a database only outside a transaction block; its statements then run one by one on one connection). Standing: valid until infinity, the password the person holds under a name. Minted: a made-up password and a VALID UNTIL time; the answer hands the login once. A recipe's limits are the per-login limits a create may set: each is one statement filled with %6$s, the value the caller gives (a whole number above zero, checked before it reaches the server), and runs after the create statements only when that value is given, so no limit is a number chosen here: the caller passes what the computer's measured capacity allows.",
+  "_what": "Role recipes: the SQL that makes a login of a kind in the person's own database, gives it its rights, and takes it away. Each statement is a format() string of the server's own (%1$I the role, %2$L its password, %3$L the time it stops working, %4$I the database the connection names, %5$I the database the held role connection names; a recipe that adds rows also has %6$I its table, %7$s its columns, %8$L its fixed values and %9$I its trigger's name), filled by the server so no value is ever spliced into SQL text here. The owner login runs them (it needs CREATEROLE: tools/start-a-computer set-up-postgres-role.sh PG_MAKES_ROLES=yes), in one transaction, so a recipe makes all of a role or none of it, unless it says in_one_transaction false (Postgres makes and drops a database only outside a transaction block; its statements then run one by one on one connection). Standing: valid until infinity, the password the person holds under a name. Minted: a made-up password and a VALID UNTIL time; the answer hands the login once. A recipe's limits are the per-login limits a create may set: each is one statement filled with %6$s, the value the caller gives (a whole number above zero, checked before it reaches the server), and runs after the create statements only when that value is given, so no limit is a number chosen here: the caller passes what the computer's measured capacity allows.",
   "recipes": {
     "read-only": {
       "_what": "A login that may connect to the owner's database and read every table of its public schema, the ones there now and the ones the owner makes later, and may do nothing else: a share that may only read.",
@@ -100,6 +100,24 @@
         "ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE SELECT, INSERT, UPDATE, DELETE ON TABLES FROM %1$I",
         "REVOKE USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public FROM %1$I",
         "REVOKE SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public FROM %1$I",
+        "REVOKE USAGE ON SCHEMA public FROM %1$I",
+        "REVOKE CONNECT ON DATABASE %4$I FROM %1$I"
+      ]
+    },
+    "may-only-add-rows-for-a-login": {
+      "_what": "The rights of a login that may only add rows of one table, given to a login another login made (a-login), run by the database's owner in that database: it may connect and add rows, naming only recipe.columns, and read, change or remove nothing, in that table or any other. The row itself is held to a rule: each recipe.fixed column is set by the server to its value on every row this login adds, whatever the login sends, and a column that is neither listed nor fixed cannot be named at all (the column grant refuses it). Chosen over row-level security because turning row security on for a table blanks it for every other login without a policy of its own, and over an insert function because the login should add rows with the same INSERT every other writer uses. The login has no SELECT, so an INSERT answers no rows back (RETURNING is refused) and ON CONFLICT ... DO UPDATE is refused; a row whose key already exists is refused with the server's own duplicate-key text (or adds nothing under ON CONFLICT DO NOTHING), which says only that the key is taken. %6$I is recipe.table, %7$s recipe.columns each quoted and joined, %8$L recipe.fixed as JSON text, %9$I the trigger's name (rule_ and the role). The trigger acts only for this role, so the owner's and every other login's rows are untouched; its function is shared by every login of this kind. It makes and drops no login. The drop takes the trigger and every right back and leaves the login.",
+      "grants_only": true,
+      "adds_rows": true,
+      "create": [
+        "GRANT CONNECT ON DATABASE %4$I TO %1$I",
+        "GRANT USAGE ON SCHEMA public TO %1$I",
+        "CREATE OR REPLACE FUNCTION public.hold_added_rows_to_their_rule() RETURNS trigger LANGUAGE plpgsql AS $body$ BEGIN IF current_user = TG_ARGV[0] THEN NEW := jsonb_populate_record(NEW, TG_ARGV[1]::jsonb); END IF; RETURN NEW; END $body$",
+        "GRANT INSERT (%7$s) ON TABLE %6$I TO %1$I",
+        "CREATE TRIGGER %9$I BEFORE INSERT ON %6$I FOR EACH ROW EXECUTE FUNCTION public.hold_added_rows_to_their_rule(%1$L, %8$L)"
+      ],
+      "drop": [
+        "DROP TRIGGER IF EXISTS %9$I ON %6$I",
+        "REVOKE ALL ON TABLE %6$I FROM %1$I",
         "REVOKE USAGE ON SCHEMA public FROM %1$I",
         "REVOKE CONNECT ON DATABASE %4$I FROM %1$I"
       ]

@@ -393,3 +393,56 @@ test('with HTTPS_PROXY the statement goes through a CONNECT tunnel to the databa
 });
 
 
+
+// A login that may only add one kind of row: the role maker makes the login, the pursuit's owner (no right to make roles) gives it a
+// column-limited INSERT and a rule the server holds each added row to.
+test('may-only-add-rows-for-a-login: the login adds a row naming only its columns, the server sets the fixed ones, and it reads, changes, removes and reaches nothing else', async () => {
+  const admin = new pg.Client({ ...ADMIN, database: 'postgres' });
+  await admin.connect();
+  await admin.query("CREATE ROLE p_example_adds_owner LOGIN PASSWORD 'made-up-adds-owner-pw'");
+  await admin.query('CREATE DATABASE p_adds OWNER p_example_adds_owner');
+  await admin.query('REVOKE ALL ON DATABASE p_adds FROM PUBLIC');
+  await admin.end();
+  const owner = `postgres://p_example_adds_owner:made-up-adds-owner-pw@127.0.0.1:${PORT}/p_adds`;
+  await runSql({ connection: owner, input: { sql: "CREATE TABLE tasks (id text PRIMARY KEY, title text, description text, labels jsonb, status text DEFAULT 'To do', made_at timestamptz)" } });
+  await runSql({ connection: owner, input: { sql: 'CREATE TABLE secrets (id text PRIMARY KEY, words text)' } });
+  await runSql({ connection: owner, input: { sql: "INSERT INTO tasks (id, title, labels) VALUES ('t-own', 'an owner row', '[\"work\"]')" } });
+  const member = 'p_example_adds_only';
+  const password = randomBytes(32).toString('base64url');
+  const kept = `postgres://${member}:${password}@127.0.0.1:${PORT}/p_adds`;
+  const password_verifier = verifierOf(password);
+  await runSql({ connection: ownerConnection, input: { recipe: { name: 'a-login', action: 'create', role: member, password_verifier } } });
+  const recipe = { name: 'may-only-add-rows-for-a-login', role: member, table: 'tasks' };
+  await assert.rejects(runSql({ connection: owner, input: { recipe: { ...recipe, action: 'create', fixed: { labels: ['feedback'] } } } }), /recipe.columns must be the list/);
+  await assert.rejects(runSql({ connection: owner, input: { recipe: { ...recipe, action: 'create', columns: ['id', 'labels'], fixed: { labels: ['feedback'] } } } }), /recipe.fixed.labels is also in recipe.columns/);
+  await assert.rejects(runSql({ connection: owner, input: { recipe: { name: 'may-change-rows-for-a-login', action: 'create', role: member, table: 'tasks' } } }), /are for a recipe that adds rows/);
+  await assert.rejects(runSql({ connection: owner, input: { recipe: { name: 'may-only-add-rows-for-a-login', action: 'create', role: member, columns: ['id'] } } }), /needs recipe.table/);
+  await runSql({ connection: owner, input: { recipe: { ...recipe, action: 'create', columns: ['id', 'title', 'description', 'made_at'], fixed: { labels: ['feedback'], status: 'To do' } } } });
+  // Adds a row; the server sets the labels whatever the login sends, and a default is the table's own.
+  await runSql({ connection: kept, input: { sql: "INSERT INTO tasks (id, title, description, made_at) VALUES ('t-fb', 'It broke', 'words about it', now())" } });
+  assert.deepEqual((await runSql({ connection: owner, input: { sql: "SELECT id, labels, status FROM tasks WHERE id = 't-fb'" } })).rows, [{ id: 't-fb', labels: ['feedback'], status: 'To do' }]);
+  // A row that breaks the rule: it cannot name a fixed column or one that is not listed, and cannot take a row back out.
+  await assert.rejects(runSql({ connection: kept, input: { sql: "INSERT INTO tasks (id, labels) VALUES ('t-bad', '[\"work\"]')" } }), /permission denied for table tasks/);
+  await assert.rejects(runSql({ connection: kept, input: { sql: "INSERT INTO tasks (id, status) VALUES ('t-bad2', 'Done')" } }), /permission denied for table tasks/);
+  await assert.rejects(runSql({ connection: kept, input: { sql: "INSERT INTO tasks (id, title) VALUES ('t-fb', 'taken key')" } }), /duplicate key value/);
+  await assert.rejects(runSql({ connection: kept, input: { sql: "INSERT INTO tasks (id, title) VALUES ('t-ret', 'x') RETURNING id" } }), /permission denied for table tasks/);
+  await assert.rejects(runSql({ connection: kept, input: { sql: "INSERT INTO tasks (id, title) VALUES ('t-fb', 'x') ON CONFLICT (id) DO UPDATE SET title = 'x'" } }), /permission denied for table tasks/);
+  assert.equal((await runSql({ connection: kept, input: { sql: "INSERT INTO tasks (id, title) VALUES ('t-fb', 'x') ON CONFLICT DO NOTHING" } })).row_count, 0, 'a taken key adds nothing, and says no more than the duplicate-key text did');
+  // Nothing but adding, in this table or another.
+  await assert.rejects(runSql({ connection: kept, input: { sql: 'SELECT id FROM tasks' } }), /permission denied for table tasks/);
+  await assert.rejects(runSql({ connection: kept, input: { sql: "UPDATE tasks SET title = 'changed' WHERE id = 't-fb'" } }), /permission denied for table tasks/);
+  await assert.rejects(runSql({ connection: kept, input: { sql: 'DELETE FROM tasks' } }), /permission denied for table tasks/);
+  await assert.rejects(runSql({ connection: kept, input: { sql: 'TRUNCATE tasks' } }), /permission denied for table tasks/);
+  await assert.rejects(runSql({ connection: kept, input: { sql: "INSERT INTO secrets (id, words) VALUES ('s1', 'x')" } }), /permission denied for table secrets/);
+  await assert.rejects(runSql({ connection: kept, input: { sql: 'SELECT id FROM secrets' } }), /permission denied for table secrets/);
+  await assert.rejects(runSql({ connection: kept, input: { sql: 'ALTER TABLE tasks ADD COLUMN extra text' } }), /must be owner/);
+  // The owner's own rows are untouched by the rule, and only the login's rows are held to it.
+  await runSql({ connection: owner, input: { sql: "INSERT INTO tasks (id, title, labels, status) VALUES ('t-own2', 'owner again', '[\"work\"]', 'Done')" } });
+  assert.deepEqual((await runSql({ connection: owner, input: { sql: "SELECT labels, status FROM tasks WHERE id = 't-own2'" } })).rows, [{ labels: ['work'], status: 'Done' }]);
+  // Leaving takes the trigger and every right back, then the login.
+  await runSql({ connection: owner, input: { recipe: { ...recipe, action: 'drop' } } });
+  await assert.rejects(runSql({ connection: kept, input: { sql: "INSERT INTO tasks (id, title) VALUES ('t-after', 'x')" } }), /permission denied for database|not have CONNECT/);
+  assert.deepEqual((await runSql({ connection: owner, input: { sql: "SELECT count(*)::int AS n FROM pg_trigger WHERE tgname = 'rule_' || $1" , params: [member] } })).rows, [{ n: 0 }]);
+  await runSql({ connection: ownerConnection, input: { recipe: { name: 'a-login', action: 'drop', role: member } } });
+  assert.deepEqual(await roles(), []);
+});
