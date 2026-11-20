@@ -42,7 +42,7 @@
 //
 import { execFileSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, realpathSync, readdirSync, writeFileSync } from 'node:fs';
 import { homedir, platform } from 'node:os';
 import { join } from 'node:path';
 import { text as readAll } from 'node:stream/consumers';
@@ -249,6 +249,17 @@ export function whatItSaid(events) {
 }
 
 export async function dispatchCloudSessions([command, folderName, ...rest], { authenticate = signIn, request = fetch, print = console.log } = {}) {
+  if (command === 'accounts') {
+    if (folderName !== undefined || rest.length) throw new Error('usage: accounts');
+    const home = homedir();
+    const folders = readdirSync(home, { withFileTypes: true })
+      .filter(item => item.isDirectory() && /^\\.claude(?:[-_][A-Za-z0-9_-]+)?$/.test(item.name)
+        && existsSync(join(home, item.name, '.claude.json')))
+      .map(item => item.name).sort();
+    const answer = { folders, count: folders.length };
+    print(JSON.stringify(answer));
+    return answer;
+  }
   if (command === 'read-first') {
     if (rest.length < 1 || rest.length > 4) throw new Error('usage: read-first <config-folder> <session-id> [offset] [length] [snapshot]');
     const [session, offset = '0', length = String(FIRST_TEXT_BYTES), snapshot] = rest;
@@ -350,7 +361,7 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
     console.log(JSON.stringify({ session: session.id, status: session.session_status, repositories: names, url: session.session_url ?? null }));
     return;
   }
-  throw new Error('usage: read-cloud-sessions.mjs list-json|read-one|list|read|read-first|send|start <config-folder> ...');
+  throw new Error('usage: read-cloud-sessions.mjs accounts|list-json|read-one|list|read|read-first|send|start <config-folder> ...');
 }
 
 // A record id of the person's Trillion: a type and a name, `record:brief:release-plan`, never a path.
