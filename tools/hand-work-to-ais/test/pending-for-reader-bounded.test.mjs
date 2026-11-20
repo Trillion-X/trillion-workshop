@@ -38,8 +38,8 @@ function countingHost() {
 let clock = Date.parse('2026-11-06T12:00:00.000Z');
 const nextInstant = () => new Date(clock += 1);
 // The person's agents over the counted SQLite, as a fresh start builds them (old personStoreOver).
-function agentsOver(counted) {
-  const records = recordLogStore(counted.handle(), { transaction: counted.host.transaction, indexes: RECORD_INDEXES });
+function agentsOver(counted, indexes = RECORD_INDEXES) {
+  const records = recordLogStore(counted.handle(), { transaction: counted.host.transaction, indexes });
   let saved = null;
   const store = { ...agentRecordStore({ records, transaction: counted.host.transaction, cardsMoving: () => false }),
     savedInstructions: () => structuredClone(saved), putSavedInstructions: list => { saved = structuredClone(list); } };
@@ -113,13 +113,12 @@ test('old index entries use authoritative roots until maintained carried metadat
     const { carry, carry_presence, backfill, ...old } = index;
     return old;
   });
-  const now = () => new Date('2026-11-06T12:00:00Z');
-  const before = agentsOver(counted, now, oldIndexes);
+  const before = agentsOver(counted, oldIndexes);
   before.publish({ agent_id: 'old-index-chat', name: 'Synthetic card', description: 'Synthetic', takes_work: true, capacity: { max_concurrent: 5 } }, { reader: 'key:old-index' });
   before.handOff({ request_key: 'old-index-job', job: 'The authoritative old title', to_agent: 'old-index-chat', priority: 3, from_agent: 'synthetic-sender' });
   before.pendingForReader('key:old-index');
   before.records.checkpoint();
-  const after = agentsOver(counted, now);
+  const after = agentsOver(counted);
   const readMany = after.records.readMany;
   const opened = [];
   after.records.readMany = (ids, ...args) => { opened.push(...ids); return readMany(ids, ...args); };
