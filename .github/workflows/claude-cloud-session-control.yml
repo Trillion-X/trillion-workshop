@@ -1,0 +1,35 @@
+name: Claude Cloud session control tests
+on:
+  push:
+    branches:
+      - feature/claude-cloud-session-control-20261120
+  pull_request:
+    paths:
+      - 'tools/keep-and-wake-ai-sessions-on-this-computer/**'
+      - 'tools/run-on-a-persons-computer/mac-tools.json'
+      - 'README.md'
+      - '.github/workflows/claude-cloud-session-control.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 25
+          cache: npm
+      - run: npm ci
+      - name: Verify existing cloud sessions and new account bridge
+        run: node --test tools/keep-and-wake-ai-sessions-on-this-computer/test/read-cloud-sessions.test.mjs tools/keep-and-wake-ai-sessions-on-this-computer/test/claude-cloud-control.test.mjs
+      - name: Verify tool catalogue
+        run: node --test test/tool-catalogue-is-current.test.mjs
+      - name: Verify registered tool rows
+        run: node --test test/every-tool-row.test.mjs
