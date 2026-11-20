@@ -18,8 +18,8 @@ import { makeSavedPages, SavedPagesError } from '../src/saved-pages.mjs';
 import { findLinkProvider as providerOf } from '../src/saved-links.mjs';
 import { readWholeFile, writeWholeFile } from '../../workflows/read-data/whole-file.mjs';
 
-// The code the files right answers for a name that is not there (the proof on the Mac names the engine's own word).
-const MISSING_FILE = 'file_not_found';
+// The code the files right answers for a name that is not there: proved on the Mac by find_file on a missing name (Nov 20 2026, 5:44 AM CST).
+const MISSING_FILE = 'namespace_not_found';
 const REMOVE_REFUSAL = 'Removing a saved page needs a Files delete operation that no row declares yet, so nothing was removed.';
 
 // The Files right as the engine's page store sees it. A file that is not there reads as null; every other failure is raised,

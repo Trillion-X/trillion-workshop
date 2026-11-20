@@ -16,7 +16,7 @@ function fakeHost({ pages = {}, filesRight = true } = {}) {
       calls.push(op);
       if (!filesRight) throw Object.assign(new Error('This run has no files right.'), { code: 'no_files' });
       if (op === 'find_file') {
-        if (!store.has(args.name_or_identity)) throw Object.assign(new Error('There is no file by that name.'), { code: 'file_not_found' });
+        if (!store.has(args.name_or_identity)) throw Object.assign(new Error('There is no file by that name.'), { code: 'namespace_not_found' });
         return { names: [args.name_or_identity] };
       }
       if (op === 'read_file') {
