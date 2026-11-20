@@ -45,7 +45,9 @@ SCORE = 0.6                      # a detection below this is not a face
 NMS_IOU = 0.3
 KEEP_BLURRED_FRAMES = 6          # frames a face stays blurred after it was last seen
 RECOGNIZE_EVERY = 15             # frames between recognizing the same tracked face again
-OUT = '/opt/media-composition/out/blurred.mp4'
+# The row's output, found from this file: /opt/media-composition/out/blurred.mp4 in a run (the run's folder stands for /opt for the
+# output the row declares, and a program reaches the same folder from its own file, not by the literal path).
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'out', 'blurred.mp4')
 # The models sit beside the tools folder (the run's /opt/models/faces, which a program reaches from its own file, not by the path itself).
 MODEL_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'models', 'faces')
 MODELS = {'detector': os.path.join(MODEL_FOLDER, 'face_detection_yunet_2023mar.onnx'), 'recognizer': os.path.join(MODEL_FOLDER, 'face_recognition_sface_2021dec.onnx')}
