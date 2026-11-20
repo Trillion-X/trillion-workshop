@@ -14,7 +14,7 @@ test('the list is one GET with the key in the header, and each account names its
   const listAccounts = makeComposioAccounts({ read: () => STAND_IN_KEY, send });
   const accounts = await listAccounts({ toolkit: 'twitter' });
   assert.equal(sent.length, 1);
-  assert.equal(sent[0].url, 'https://backend.composio.dev/api/v3/connected_accounts?toolkit_slugs=twitter');
+  assert.equal(sent[0].url, 'https://backend.composio.dev/api/v3/connected_accounts?limit=100&toolkit_slugs=twitter');
   assert.equal(sent[0].init.method, 'GET');
   assert.equal(sent[0].init.redirect, 'manual');
   assert.equal(sent[0].init.headers['x-api-key'], STAND_IN_KEY);
@@ -91,4 +91,23 @@ test('when Composio names no organization or no own project, the list is refused
   await assert.rejects(makeComposioAccounts({ read: () => 'uak_stand-in-not-real', send: answering({ project: { org: { id: 'ok_x' } } }) })({}), /own project.*project_id/);
   await assert.rejects(makeComposioAccounts({ read: () => 'uak_stand-in-not-real', send: async () => reply(401, 'bad key') })({}), /Composio refused the key's organization \(401\)/);
   assert.equal(lists.length, 0);
+});
+
+test('the list follows Composio pages to the end: every page is read, with its cursor', async () => {
+  const urls = [];
+  const pages = [
+    { items: [{ id: 'ca_1', toolkit: { slug: 'gmail' }, status: 'ACTIVE' }, { id: 'ca_2', toolkit: { slug: 'gmail' }, status: 'ACTIVE' }], next_cursor: 'page-2' },
+    { items: [{ id: 'ca_3', toolkit: { slug: 'gmail' }, status: 'ACTIVE' }], next_cursor: null },
+  ];
+  const send = async (url) => { urls.push(url); return reply(200, pages[urls.length - 1]); };
+  const accounts = await makeComposioAccounts({ read: () => STAND_IN_KEY, send })({});
+  assert.deepEqual(accounts.map(a => a.id), ['ca_1', 'ca_2', 'ca_3']);
+  assert.equal(urls.length, 2);
+  assert.equal(urls[0].searchParams.get('cursor'), null);
+  assert.equal(urls[1].searchParams.get('cursor'), 'page-2');
+});
+
+test('a list that never ends is refused at the page cap, never read as complete', async () => {
+  const send = async () => reply(200, { items: [{ id: 'ca_x', toolkit: { slug: 'gmail' }, status: 'ACTIVE' }], next_cursor: 'again' });
+  await assert.rejects(makeComposioAccounts({ read: () => STAND_IN_KEY, send })({}), /more than 50 pages/);
 });

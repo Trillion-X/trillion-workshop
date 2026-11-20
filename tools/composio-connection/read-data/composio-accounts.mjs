@@ -18,6 +18,8 @@ const HELD_DESCRIPTOR = 4;
 const SAID = 300;
 const HOST = 'backend.composio.dev';
 const LIST = `https://${HOST}/api/v3/connected_accounts`;
+const PAGE_LIMIT = 100;
+const MAX_PAGES = 50;
 
 export class Refused extends Error {}
 
@@ -43,16 +45,26 @@ export function makeComposioAccounts({ read = descriptor => readFileSync(descrip
   };
   return async function listAccounts({ toolkit, projectId } = {}) {
     if (toolkit !== undefined && (typeof toolkit !== 'string' || !/^[a-z0-9_-]+$/.test(toolkit))) throw new Refused(`A toolkit is named by its lower-case slug, not ${JSON.stringify(toolkit)}.`);
-    const url = new URL(LIST);
-    if (toolkit) url.searchParams.set('toolkit_slugs', toolkit);
-    if (url.protocol !== 'https:' || url.hostname !== HOST) throw new Refused(`A Composio key goes only to ${HOST}, so nothing was sent to ${url.hostname}.`);
-    const reply = await send(url, { method: 'GET', redirect: 'manual', headers: { ...await headersOf(held(), projectId), Accept: 'application/json' } });
-    const text = await reply.text();
-    if (!reply.ok) throw new Refused(`Composio refused the account list (${reply.status}): ${text.replace(/\s+/g, ' ').trim().slice(0, SAID)}`);
-    let parsed;
-    try { parsed = JSON.parse(text); } catch { throw new Refused('Composio answered the account list with no JSON.'); }
-    const items = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.items) ? parsed.items : null;
-    if (!items) throw new Refused('Composio answered the account list without its items.');
-    return items.map(accountOf);
+    const accounts = [];
+    let cursor = null;
+    // Composio answers one page at a time, with next_cursor set while more accounts follow; every page is read to the end.
+    for (let page = 0; page < MAX_PAGES; page += 1) {
+      const url = new URL(LIST);
+      url.searchParams.set('limit', String(PAGE_LIMIT));
+      if (toolkit) url.searchParams.set('toolkit_slugs', toolkit);
+      if (cursor) url.searchParams.set('cursor', cursor);
+      if (url.protocol !== 'https:' || url.hostname !== HOST) throw new Refused(`A Composio key goes only to ${HOST}, so nothing was sent to ${url.hostname}.`);
+      const reply = await send(url, { method: 'GET', redirect: 'manual', headers: { ...await headersOf(held(), projectId), Accept: 'application/json' } });
+      const text = await reply.text();
+      if (!reply.ok) throw new Refused(`Composio refused the account list (${reply.status}): ${text.replace(/\s+/g, ' ').trim().slice(0, SAID)}`);
+      let parsed;
+      try { parsed = JSON.parse(text); } catch { throw new Refused('Composio answered the account list with no JSON.'); }
+      const items = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.items) ? parsed.items : null;
+      if (!items) throw new Refused('Composio answered the account list without its items.');
+      accounts.push(...items.map(accountOf));
+      cursor = Array.isArray(parsed) ? null : (parsed.next_cursor || null);
+      if (!cursor) return accounts;
+    }
+    throw new Refused(`The account list has more than ${MAX_PAGES} pages; nothing is read past that, so the list is not complete.`);
   };
 }
