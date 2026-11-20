@@ -5,7 +5,8 @@
 // it (the router's workflow-chosen carries the chosen row's `definition` and `start_at`). This reads no file and no
 // store, so no person's workflows depend on a shared folder. Every other field is the workflow's own input; `answers` (by step id),
 // `start_at` (a step to start at), `started_at` and `run` are kept with it.
-// Out, on standard output: { "result": { "status", "workflow", "run", "steps", "waiting" }, "wake_effects": [...] }.
+// Out, on standard output: { "result": { "status", "workflow", "run", "steps", "waiting" }, "wake_effects": [...] };
+// a walk that failed prints { "error", "result" } and exits 1.
 // The engine replays the definition from the start with the answers held. A step whose answer is held is answered with
 // it. Every other ask waits: one whose name is a tool id is handed back as a wake effect that runs that tool with the
 // step's input and tells its result back as the fact `workflow-step-answered` (wake's `reply`), which runs this again
@@ -173,5 +174,13 @@ fn main() {
         }
     }).collect();
     let waiting: Vec<Value> = waiting.into_iter().map(|mut w| { w["told_as"] = told_as(&w["step"], &w["for"]); w }).collect();
-    println!("{}", json!({ "result": { "status": walked["status"], "workflow": id, "run": run_id, "steps": steps, "waiting": waiting }, "wake_effects": effects }));
+    let result = json!({ "status": walked["status"], "workflow": id, "run": run_id, "steps": steps, "waiting": waiting });
+    // A walk that failed is a failed run: it ends with exit 1 and the engine's words, so the wake that started it is
+    // marked failed (and tells its failed fact) instead of ran, and whoever waits on its told answer hears the failure.
+    if walked["status"] == "failed" {
+        let why = walked["error_message"].as_str().unwrap_or("the workflow failed");
+        println!("{}", json!({ "error": format!("{id}: {why}"), "result": result }));
+        std::process::exit(1);
+    }
+    println!("{}", json!({ "result": result, "wake_effects": effects }));
 }

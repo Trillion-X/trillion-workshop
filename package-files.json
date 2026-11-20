@@ -36295,6 +36295,15 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:run-a-workflow": [
+  {
+   "package": "build-engine-modules-for-web-hosts",
+   "paths": [
+    "built-stored-bytes/workflow-component/workflow_component.wasm"
+   ],
+   "at": "/opt/workflow-component"
+  }
+ ],
  "tool:run-an-installed-apps-command-line": [],
  "tool:run-better-auth-sign-in": [],
  "tool:run-official-better-auth": [],

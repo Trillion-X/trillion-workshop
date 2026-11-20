@@ -13,7 +13,7 @@ The workflow engine (`workflow-core`, through `workflow-engine`) as one WebAssem
 ## In and out
 
 - Standard input: `{"input": <tool input>, "cause": <task.cause>, "context": <task.context>}`.
-- Standard output, one line: `{"result": {"status", "workflow", "run", "steps", "waiting"}, "wake_effects": [...]}`; `{"error"}` with exit 1 when the run cannot be walked.
+- Standard output, one line: `{"result": {"status", "workflow", "run", "steps", "waiting"}, "wake_effects": [...]}`; `{"error"}` with exit 1 when the run cannot be walked, and `{"error", "result"}` with exit 1 when the walk failed (the engine's words), so the wake that started it is marked failed, never ran.
 - `start_at` starts the definition at a later step: the part of it reachable from that step.
 
 ## Build

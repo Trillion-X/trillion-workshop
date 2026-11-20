@@ -1,0 +1,58 @@
+{
+ "start_here": "Say to your AI: \"Run my workflow check-a-formula now.\" It reads that workflow's row from where you keep your workflows, runs tool:run-a-workflow with the row's definition, and tells you which step it reached: here the step that asks tool:evaluate-a-formula, which the engine starts at once and whose answer runs the workflow on to its end.",
+ "lists": [],
+ "no_lists_because": "It keeps nothing and names no list: the definition is handed in by whatever starts the run, from the person's own workflow rows, and every answer travels back in the fact that runs it again.",
+ "workflows": [],
+ "tools": [
+  "tool:run-a-workflow",
+  "tool:evaluate-a-formula"
+ ],
+ "instructions": [
+  "1. Keep the workflow as a row of your own (its definition: id, name, kind workflow, is_active, version, steps, edges).",
+  "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:run-a-workflow and input {definition, and the workflow's own input fields}.",
+  "3. Read result.status and result.waiting: each step that names a tool is started for you, and each other step waits for whoever it names, with told_as saying how its answer comes back.",
+  "4. To have it run by itself, switch on its wakes: a-workflow-was-chosen (a router tells the chosen row), a-step-was-answered (answers come back) and a-row-changed (your switch input carries the definition to run on every change)."
+ ],
+ "worked_examples": [
+  {
+   "title": "A one-step workflow starts the formula tool and waits for its answer",
+   "ask": "Run my workflow check-a-formula now.",
+   "mcp": {
+    "server": "{cli}",
+    "tool": "do_one_thing_in_my_account",
+    "input": {
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:run-a-workflow",
+      "input": {
+       "definition": {
+        "id": "check-a-formula",
+        "name": "Check a formula",
+        "kind": "workflow",
+        "is_active": true,
+        "version": 1,
+        "edges": [],
+        "steps": [
+         {
+          "id": "check",
+          "kind": "ask",
+          "config": {
+           "name": "tool:evaluate-a-formula",
+           "context": { "step_id": "check" },
+           "input": { "rows": [{ "name": "Rye loaf" }], "binding": { "$kind": "binding", "select": { "from": "input", "path": "binding" } } }
+          }
+         }
+        ]
+       },
+       "binding": { "$kind": "binding", "select": { "from": "self", "path": ["name"] } }
+      }
+     }
+    }
+   },
+   "workflow": "check-a-formula",
+   "step": "check",
+   "given": "The workflow's own input binding, a formula that reads each row's name.",
+   "hands_back": "result.status \"paused\"; waiting[0] is {\"step\": \"check\", \"for\": \"tool:evaluate-a-formula\"}, and wake_effects[0] starts that tool with rows [{\"name\": \"Rye loaf\"}]; its answer is told back as workflow-step-answered and the next run ends \"completed\"."
+  }
+ ]
+}
