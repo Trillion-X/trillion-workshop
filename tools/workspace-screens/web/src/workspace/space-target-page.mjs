@@ -1,13 +1,23 @@
 // An addressed item is loaded by id even when it is outside the first page. Both reads use the ordinary Space
 // item owner and its permissions. The page keeps its normal cursor; opening a target never walks older history.
+import limits from './space-target-page.json' with { type: 'json' };
+
 export const spacePageKey = kinds => JSON.stringify([...new Set(kinds ?? [])].sort());
 
 // A list's declared kinds select its owner rows before pagination. Several kinds share one chronological
 // cursor: merge their bounded pages, and continue strictly before the last returned owner row.
-export async function readSpaceListPage(address, read, { kinds, before, limit = 30 } = {}) {
+const encoder = new TextEncoder();
+// Protective page limits (space-target-page.json). A page over either limit is refused as a whole.
+function checkedPage(page) {
+  if (!Array.isArray(page?.items) || page.items.length > limits.max_items) throw new Error('This list page has too many items.');
+  if (encoder.encode(JSON.stringify(page)).byteLength > limits.max_page_bytes) throw new Error('This list page is too large to show.');
+  return page;
+}
+
+export async function readSpaceListPage(address, read, { kinds, before, limit = limits.default_limit } = {}) {
   const selected = JSON.parse(spacePageKey(kinds));
   if (selected.length > 16 || selected.some(kind => typeof kind !== 'string' || !kind)) throw new Error('This list has invalid kinds.');
-  if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error('This list has an invalid page size.');
+  if (!Number.isInteger(limit) || limit < 1 || limit > limits.max_items) throw new Error('This list has an invalid page size.');
   const path = kind => {
     const query = new URLSearchParams();
     if (kind) query.set('kind', kind);
@@ -15,8 +25,8 @@ export async function readSpaceListPage(address, read, { kinds, before, limit = 
     if (selected.length) query.set('limit', String(limit));
     return `${address}/items${query.size ? `?${query}` : ''}`;
   };
-  if (selected.length < 2) return read(path(selected[0]));
-  const pages = await Promise.all(selected.map(kind => read(path(kind))));
+  if (selected.length < 2) return checkedPage(await read(path(selected[0])));
+  const pages = await Promise.all(selected.map(kind => read(path(kind)).then(checkedPage)));
   const cursorOf = row => `${row.provenance.added_at}${row.item_id}`;
   const rows = [...new Map(pages.flatMap(page => page.items).map(row => [row.item_id, row])).values()]
     .sort((a, b) => cursorOf(a) < cursorOf(b) ? 1 : cursorOf(a) > cursorOf(b) ? -1 : 0);

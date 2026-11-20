@@ -1,0 +1,6 @@
+{
+  "_what": "The limits of one list page read by readSpaceListPage (src/workspace/space-target-page.mjs). Ported from the old share collection store (the old source repo, src/share-collection-store.mjs: PAGE_ITEMS = 32 entries and PAGE_BYTES = 128 KB per stored page). A page never holds more than max_items rows nor more than max_page_bytes of JSON; a larger answer is refused, not cut. default_limit is the page size when a list does not name one.",
+  "default_limit": 30,
+  "max_items": 32,
+  "max_page_bytes": 131072
+}
