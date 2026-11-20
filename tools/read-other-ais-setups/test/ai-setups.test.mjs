@@ -1,7 +1,7 @@
 // tools/read-other-ais-setups/test/ai-setups.test.mjs
 // Read-only listing of the instruction files other AIs keep on this Mac (F-0267, F-0316). Moved from Trillion-X/trillion
-// test/ai-setups-import.test.mjs; its second test, the add-only import into saved instructions, exercises the account's
-// src/agents.mjs, which stays in Trillion-X/trillion, and is not carried here.
+// test/ai-setups-import.test.mjs; its second test, the add-only import into saved instructions, is now
+// tools/shared-code/test/agents-add-instructions.test.mjs beside the agents owner (src/agents.mjs).
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { mkdir, mkdtemp, symlink, writeFile } from 'node:fs/promises';
