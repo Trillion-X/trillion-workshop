@@ -9,6 +9,7 @@ import { closeStore, migrateStore } from './store.mjs';
 import { pageAnswer } from './pages.mjs';
 import { relatedOrigins } from './attached-origins.mjs';
 import { serveInternal } from './internal-verify.mjs';
+import { loopbackCorsHeaders } from './loopback-cors.mjs';
 import { readiness, stopWithoutDropping } from './stop-without-dropping.mjs';
 
 // Every start makes or updates the tables for the options it runs, one process at a time (store.mjs), before it answers anything.
@@ -23,6 +24,10 @@ const server = createServer(async (request, response) => {
   if (url === '/.well-known/webauthn' && request.method === 'GET') {
     return relatedOrigins(settings).then(body => response.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'max-age=300' }).end(JSON.stringify(body)));
   }
+  // The token endpoint answers a page on a person's own loopback address (loopback-cors.mjs): its preflight here, its POST with the headers.
+  const cors = loopbackCorsHeaders(request, settings);
+  if (cors && request.method === 'OPTIONS') return response.writeHead(204, cors).end();
+  if (cors) for (const [name, value] of Object.entries(cors)) response.setHeader(name, value);
   if (ours(url)) return handler(request, response);
   const answer = request.method === 'GET' || request.method === 'HEAD' ? pageAnswer(url) : null;
   if (answer) return response.writeHead(answer.status, answer.headers).end(request.method === 'HEAD' ? undefined : answer.body);
