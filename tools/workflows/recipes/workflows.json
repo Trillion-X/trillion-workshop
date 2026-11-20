@@ -137359,7 +137359,335 @@
               "start_at": "inventory"
             }
           }
-        ]
+        ],
+        "definition": {
+          "steps": [
+            {
+              "id": "inventory",
+              "kind": "ask",
+              "config": {
+                "name": "ai",
+                "input": {
+                  "do": "If the input has old and new, use them. If it has a fact instead, read fact.after (JSON text: moves as old -> new paths, removed paths, counts). Then use the old one yourself (or read its source) and list every action, piece of information, layout and way in it offered, including what only shows on hover, selection or right-click.",
+                  "old": {
+                    "$kind": "binding",
+                    "values": [
+                      "input",
+                      "old"
+                    ]
+                  },
+                  "new": {
+                    "$kind": "binding",
+                    "values": [
+                      "input",
+                      "new"
+                    ]
+                  },
+                  "fact": {
+                    "$kind": "binding",
+                    "values": [
+                      "input",
+                      "fact"
+                    ]
+                  },
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "capabilities"
+                    ],
+                    "properties": {
+                      "capabilities": {
+                        "type": "array",
+                        "minItems": 3,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "what",
+                            "how_reached"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "what": {
+                              "type": "string",
+                              "minLength": 5
+                            },
+                            "how_reached": {
+                              "type": "string",
+                              "minLength": 3
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "context": {
+                  "title": "List everything the old one does",
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "capabilities"
+                    ],
+                    "properties": {
+                      "capabilities": {
+                        "type": "array",
+                        "minItems": 3,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "what",
+                            "how_reached"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "what": {
+                              "type": "string",
+                              "minLength": 5
+                            },
+                            "how_reached": {
+                              "type": "string",
+                              "minLength": 3
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "check",
+              "kind": "ask",
+              "config": {
+                "name": "ai",
+                "input": {
+                  "do": "For each capability, try it in the new home the way a person would. Say whether it is there, missing, or worse.",
+                  "capabilities": {
+                    "$kind": "binding",
+                    "values": [
+                      "steps",
+                      "inventory",
+                      "capabilities"
+                    ]
+                  },
+                  "old": {
+                    "$kind": "binding",
+                    "values": [
+                      "input",
+                      "old"
+                    ]
+                  },
+                  "new": {
+                    "$kind": "binding",
+                    "values": [
+                      "input",
+                      "new"
+                    ]
+                  },
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "checked"
+                    ],
+                    "properties": {
+                      "checked": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "capability",
+                            "state"
+                          ],
+                          "properties": {
+                            "capability": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "state": {
+                              "enum": [
+                                "there",
+                                "missing",
+                                "worse"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "context": {
+                  "title": "Check each in the new home",
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "checked"
+                    ],
+                    "properties": {
+                      "checked": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "capability",
+                            "state"
+                          ],
+                          "properties": {
+                            "capability": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "state": {
+                              "enum": [
+                                "there",
+                                "missing",
+                                "worse"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "restore",
+              "kind": "ask",
+              "config": {
+                "name": "ai",
+                "input": {
+                  "do": "Bring back every missing or worse capability in the new home, through its shared parts rather than a one-off copy, and take before and after pictures of the old and new.",
+                  "checked": {
+                    "$kind": "binding",
+                    "values": [
+                      "steps",
+                      "check",
+                      "checked"
+                    ]
+                  },
+                  "old": {
+                    "$kind": "binding",
+                    "values": [
+                      "input",
+                      "old"
+                    ]
+                  },
+                  "new": {
+                    "$kind": "binding",
+                    "values": [
+                      "input",
+                      "new"
+                    ]
+                  },
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "restored",
+                      "pictures"
+                    ],
+                    "properties": {
+                      "restored": {
+                        "type": "array",
+                        "minItems": 0,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "capability",
+                            "where"
+                          ],
+                          "properties": {
+                            "capability": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "where": {
+                              "type": "string",
+                              "minLength": 3
+                            }
+                          }
+                        }
+                      },
+                      "pictures": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "string",
+                          "minLength": 3
+                        }
+                      }
+                    }
+                  }
+                },
+                "context": {
+                  "title": "Bring back what is missing",
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "restored",
+                      "pictures"
+                    ],
+                    "properties": {
+                      "restored": {
+                        "type": "array",
+                        "minItems": 0,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "capability",
+                            "where"
+                          ],
+                          "properties": {
+                            "capability": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "where": {
+                              "type": "string",
+                              "minLength": 3
+                            }
+                          }
+                        }
+                      },
+                      "pictures": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "string",
+                          "minLength": 3
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "edges": [
+            {
+              "from": "inventory",
+              "to": "check",
+              "kind": "always"
+            },
+            {
+              "from": "check",
+              "to": "restore",
+              "kind": "always"
+            }
+          ]
+        }
       }
     },
     {
