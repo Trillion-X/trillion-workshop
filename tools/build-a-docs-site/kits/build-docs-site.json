@@ -1,0 +1,88 @@
+{
+  "drafted_from": "tool:build-docs-site (tools/build-a-docs-site/tool-rows.json); its input and sample from the held descriptor in run-rules from-an-older-version/records/workshop-engine-tool-records.json",
+  "start_here": "Say to your AI: \"Make my docs site files from this manifest.\" It runs tool:build-docs-site with the manifest and saves the files it returns.",
+  "lists": [],
+  "no_lists_because": "It keeps nothing: the manifest comes in the request and the files come back in the answer.",
+  "workflows": [],
+  "tools": [
+    "tool:build-docs-site"
+  ],
+  "instructions": [
+    "1. Give the site facts, navigation, pages, palettes and roles.",
+    "2. Call tool:build-docs-site with them.",
+    "3. Read files: each { path, text } is one file of the docs site; problems lists anything that stopped the build."
+  ],
+  "worked_examples": [
+    {
+      "title": "A docs site is built from a short manifest",
+      "ask": "Build the docs site files for Salt & Fire Kitchen's handbook.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:build-docs-site",
+            "input": {
+              "site": {
+                "name": "Salt & Fire Kitchen",
+                "description": "Recipes, class times and kitchen safety for students.",
+                "url": "https://learn.saltandfire.example",
+                "navbar": {
+                  "primary": {
+                    "label": "Book a class",
+                    "href": "https://saltandfire.example/book"
+                  }
+                }
+              },
+              "navigation": [
+                {
+                  "tab": "Handbook",
+                  "groups": [
+                    {
+                      "group": "Start here",
+                      "pages": [
+                        "index",
+                        "safety/knives"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "pages": [
+                {
+                  "route": "index",
+                  "title": "Welcome",
+                  "description": "What to bring to your first class.",
+                  "body": "Bring an apron and closed shoes."
+                },
+                {
+                  "route": "safety/knives",
+                  "title": "Knife safety",
+                  "description": "How to hold and pass a knife.",
+                  "body": "Pinch the blade and curl your fingers."
+                }
+              ],
+              "palettes": {
+                "light": {
+                  "accent": "#c2410c",
+                  "page": "#fffaf5"
+                },
+                "dark": {
+                  "accent": "#fb923c",
+                  "page": "#0c0a09"
+                }
+              },
+              "roles": {
+                "accent": "accent",
+                "page": "page"
+              }
+            }
+          }
+        }
+      },
+      "given": "A site name, url, one tab with one group of two pages, and light and dark palettes.",
+      "hands_back": "files: docs.json, theme.css, theme.js, llms.txt and one .mdx per page; problems: an empty list when the build is clean."
+    }
+  ]
+}

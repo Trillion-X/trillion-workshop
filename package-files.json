@@ -20126,6 +20126,22 @@
    "at": "/opt/research-a-creator-or-topic"
   }
  ],
+ "tool:build-docs-site": [
+  {
+   "package": "build-a-docs-site",
+   "paths": [
+    "parts"
+   ],
+   "at": "/opt/build-a-docs-site"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:keep-hearing-session": [
   {
    "package": "listen-for-a-while",
