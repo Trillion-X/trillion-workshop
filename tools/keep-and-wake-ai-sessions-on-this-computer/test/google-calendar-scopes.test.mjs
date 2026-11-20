@@ -25,7 +25,7 @@ const acquire = calendar.invoke.connects.acquire;
 const metadataScope = 'https://www.googleapis.com/auth/calendar.calendars.readonly';
 
 test('the published Calendar consent authorizes its actual event-source identity proof', () => {
-  const eventSource = read('../../start-a-new-account-with-the-rules-and-catalog-items/from-an-older-version/records/workshop-event-source-records.json').records
+  const eventSource = read('../../start-a-new-account-with-the-rules-and-catalog-items/event-sources.json').records
     .find(row => row.payload.id === 'events:google-calendar').payload;
   const proof = tool(eventSource.route_key_proof.tool_id);
   assert.equal(proof.invoke.connection, calendar.invoke.connects.connection);

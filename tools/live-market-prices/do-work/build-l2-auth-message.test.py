@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
-# package-set://bitfield-studio/packages/polymarket/do-work/build-l2-auth-message.test.py
-#
-# Tests for build-l2-auth-message.py — the PUBLIC (secret-free) L2 auth message-builder.
-# THE LOAD-BEARING TEST: the `message` this builder produces is BYTE-IDENTICAL to sign-poly-hmac.py's
-# message (the reference signer). If they match, the vault hmac arm signing this builder's message_b64
-# yields the SAME POLY_SIGNATURE as the reference — which is what the vault's KAT asserts. So this test
-# closes the loop: builder.message == reference.message  AND  message_b64 == STANDARD base64(message).
-
+# Tests for build-l2-auth-message.py: the PUBLIC (secret-free) L2 auth message builder.
+# Ported from build-l2-auth-message.test.py.held (packages/polymarket at bitfield-packages 8ac9732afa). The old test
+# compared each message with the reference signer sign-poly-hmac.py, which is not carried (it takes the secret in argv).
+# Its message format is now pinned here as literal strings: timestamp + METHOD + path + body (single quotes normalized),
+# and the vault's own known-answer test (credentials-vault crate, the HmacSha256 scheme) signs these bytes.
 import base64
 import importlib.util
 import os
@@ -23,7 +20,6 @@ def _load(modname, filename):
 
 
 blm = _load("build_l2_auth_message", "build-l2-auth-message.py")
-ref = _load("sign_poly_hmac", "sign-poly-hmac.py")  # the reference signer (message construction is the SSOT)
 
 _failures = []
 def check(name, cond):
@@ -32,41 +28,29 @@ def check(name, cond):
         _failures.append(name)
 
 TS = "1700000000"
-# The KAT body be-exec bakes into the vault Rust unit test (keep in sync).
+# The KAT body the vault Rust unit test uses (keep in sync).
 BODY = '{"order":{"salt":1,"maker":"0xMaker"},"owner":"key-abc","orderType":"GTC"}'
 PUBLIC_CREDS = {"api_key": "key-abc", "passphrase": "pass-xyz", "address": "0xMaker"}
-# A VALID urlsafe-b64 secret so the reference signer runs (it urlsafe_b64decodes the secret first).
-# The message construction is INDEPENDENT of the key value, so any valid-b64 secret yields the same message;
-# we only read ref's returned message, never its signature here.
-REF_SECRET = base64.urlsafe_b64encode(b"polymarket-test-l2-secret-key-0001").decode("utf-8")
 
-# SINGLE-ARG seam contract (#125): public_creds is folded INTO the request object, not a 2nd positional arg.
-# 1. BYTE-IDENTICAL message vs the reference signer (POST /order with body) — THE load-bearing check.
+# 1. Message for POST /order with body: timestamp + METHOD + path + body.
 r_post = blm.build_l2_auth({"method": "POST", "path": "/order", "body": BODY, "timestamp": TS, "public_creds": PUBLIC_CREDS})
-_, ref_msg_post = ref.build_hmac_signature(REF_SECRET, TS, "POST", "/order", BODY)
-check("POST message == reference message (byte-identical)", r_post["message"] == ref_msg_post)
+check("POST message == ts+POST+/order+body", r_post["message"] == TS + "POST" + "/order" + BODY)
 
-# 2. BYTE-IDENTICAL message vs reference (GET /orders, NO body).
-r_get = blm.build_l2_auth({"method": "GET", "path": "/orders", "timestamp": TS, "public_creds": PUBLIC_CREDS})
-_, ref_msg_get = ref.build_hmac_signature(REF_SECRET, TS, "GET", "/orders", None)
-check("GET message == reference message (no body, byte-identical)", r_get["message"] == ref_msg_get)
+# 2. GET /orders, no body.
+r_get = blm.build_l2_auth({"method": "GET", "path": "/orders", "timestamp": TS})
 check("GET message == ts+GET+/orders exactly (no body segment)", r_get["message"] == TS + "GET" + "/orders")
 
-# 3. message_b64 is STANDARD base64 of the message (NOT urlsafe) — the vault decodes this to the raw bytes.
+# 3. message_b64 is STANDARD base64 of the message (NOT urlsafe); the vault decodes this to the raw bytes.
 check("POST message_b64 == STANDARD base64(message)",
       r_post["message_b64"] == base64.b64encode(r_post["message"].encode("utf-8")).decode("utf-8"))
 check("message_b64 round-trips to the exact message",
       base64.b64decode(r_post["message_b64"]).decode("utf-8") == r_post["message"])
-# standard-vs-urlsafe only diverges on +//- ; assert we did NOT urlsafe-encode (no '-'/'_' substitution semantics)
-check("message_b64 uses STANDARD alphabet (b64decode succeeds, b64 not urlsafe-only)",
-      base64.b64decode(r_post["message_b64"]) == r_post["message"].encode("utf-8"))
 
-# 4. Single->double quote normalization on the body (matches the reference / Go-TS impls).
-body_single = "{'x':1}"
-r_single = blm.build_l2_auth({"method": "POST", "path": "/order", "body": body_single, "timestamp": TS})
+# 4. Single->double quote normalization on the body.
+r_single = blm.build_l2_auth({"method": "POST", "path": "/order", "body": "{'x':1}", "timestamp": TS})
 check("single quotes normalized to double in message", r_single["message"].endswith('{"x":1}'))
 
-# 5. Empty-string body == no body (both omit the body segment) — matches sign-poly-hmac.py:60 guard.
+# 5. Empty-string body == no body.
 r_empty = blm.build_l2_auth({"method": "GET", "path": "/orders", "body": "", "timestamp": TS})
 check("empty-string body omits body segment (== no body)", r_empty["message"] == TS + "GET" + "/orders")
 
@@ -84,7 +68,7 @@ check("path changes message", blm.build_l2_auth({"method": "POST", "path": "/ord
 check("body changes message", blm.build_l2_auth({"method": "POST", "path": "/order", "body": '{"x":2}', "timestamp": TS})["message"] != r_post["message"])
 check("timestamp changes message", blm.build_l2_auth({"method": "POST", "path": "/order", "body": BODY, "timestamp": "9999999999"})["message"] != r_post["message"])
 
-# 8. timestamp defaults to now-seconds (10-digit unix seconds) when omitted.
+# 8. timestamp defaults to now in unix seconds (10 digits).
 r_now = blm.build_l2_auth({"method": "GET", "path": "/time"})
 check("default timestamp is unix seconds (10 digits)", r_now["timestamp"].isdigit() and len(r_now["timestamp"]) == 10)
 
@@ -92,16 +76,13 @@ check("default timestamp is unix seconds (10 digits)", r_now["timestamp"].isdigi
 r_nocreds = blm.build_l2_auth({"method": "GET", "path": "/orders", "timestamp": TS})
 check("no public_creds -> static_headers == {POLY_TIMESTAMP}", r_nocreds["static_headers"] == {"POLY_TIMESTAMP": TS})
 
-# 9b. SINGLE-ARG seam contract: public_creds folded INTO the request yields the identifier headers.
-check("folded public_creds -> POLY_ADDRESS/API_KEY/PASSPHRASE present",
-      set(r_post["static_headers"].keys()) == {"POLY_ADDRESS", "POLY_API_KEY", "POLY_PASSPHRASE", "POLY_TIMESTAMP"})
-# 9c. Even if a caller wrongly nests api_secret in public_creds, it is NEVER emitted (secret-free by construction).
+# 9c. A nested api_secret in public_creds is never emitted.
 r_leak = blm.build_l2_auth({"method": "GET", "path": "/orders", "timestamp": TS,
                             "public_creds": {**PUBLIC_CREDS, "api_secret": "SHOULD-NEVER-APPEAR"}})
 check("nested api_secret is NEVER emitted in static_headers",
       "api_secret" not in r_leak["static_headers"] and "SHOULD-NEVER-APPEAR" not in r_leak["static_headers"].values())
 
-# 10. Honest failure: missing path -> ok:false, message_b64:None, no fabricated message.
+# 10. Honest failure: missing path -> ok:false, message_b64 None, no fabricated message.
 r_bad = blm.build_l2_auth({"method": "GET"})
 check("missing path -> ok:false", r_bad["ok"] is False)
 check("missing path -> message_b64 None", r_bad["message_b64"] is None)

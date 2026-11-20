@@ -1,0 +1,12 @@
+{
+  "what_this_is": "The words for who is in a space, in one line, shown on an invite. Ported from the people block of the old source src/space-invitation.json at b6ae0ebf81 (old path); the other word blocks of that file are not ported yet.",
+  "people": {
+    "one": "{first} is in it",
+    "one_and_one": "{first} and one other are in it",
+    "one_and_more": "{first} and {rest} others are in it",
+    "two": "{first} and {second} are in it",
+    "two_and_one": "{first}, {second} and one other are in it",
+    "two_and_more": "{first}, {second} and {rest} others are in it",
+    "three": "{first}, {second} and {third} are in it"
+  }
+}

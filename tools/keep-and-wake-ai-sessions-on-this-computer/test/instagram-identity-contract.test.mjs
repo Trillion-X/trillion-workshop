@@ -16,7 +16,7 @@ const derived = sources.map(source => rowsFromList(source, recordsList(source.li
   .filter(entry => /^instagram(-|$)/.test(entry.record_name))));
 assert.deepEqual(derived.flatMap(result => result.refused), []);
 const tool = id => derived.flatMap(result => result.rows).find(row => row.id === id);
-const source = read('../../start-a-new-account-with-the-rules-and-catalog-items/from-an-older-version/records/workshop-event-source-records.json').records
+const source = read('../../start-a-new-account-with-the-rules-and-catalog-items/event-sources.json').records
   .find(row => row.payload.id === 'events:instagram').payload;
 const proof = tool(source.route_key_proof.tool_id);
 // Preserve the distinct user_id and id fields observed in the provider response; values are invented.
