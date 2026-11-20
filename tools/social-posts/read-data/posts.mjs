@@ -46,6 +46,11 @@ const text = (value, max) => (typeof value === 'string' && value.trim() ? value.
 const fillWords = (words, values) => words.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
 const completeApprovalValues = value => object(value) && Object.keys(value).length === APPROVAL_FIELDS.length
   && APPROVAL_FIELDS.every(field => Object.hasOwn(value, field));
+const SETTING = 'approval-setting';
+const DECISION = 'approval-decision';
+const REACHING_SCOPE = 'reaching-posts';
+// The person's standing answer for a kind of post, read from the records handed in: auto or ask. No row means ask.
+const standingAnswerOf = (records, scope) => (recordAt(records, SETTING, `${SETTING}:${scope}`)?.value?.mode === 'auto' ? 'auto' : 'ask');
 function requireCurrentReview(expected, post) {
   if (!completeApprovalValues(expected)) throw new Error('Give the complete approval_values from the review as expected_values.');
   if (contentOf(expected) !== contentOf(post)) throw new Error('The post changed after it was reviewed. Read and review its current approval_values before continuing.');
@@ -280,10 +285,16 @@ export async function approveAPost(input = {}, { now = () => new Date(), by_pers
   if (post.status === 'approved') return { post: shaped(post), said: 'The post was already approved.' };
   if (post.status !== 'draft') throw new Error(`${post.post_id} is ${post.status}, so there is nothing to approve.`);
   if (!post.destinations?.length) throw nowhere(post);
-  if (reachesSomeone(post) && byPerson !== true) throw new Error(`${post.post_id} reaches someone, so only the person can approve it, on their Posts screen.`);
+  // A post that reaches someone is approved on the person's yes: the host's by_person (their page), or their standing answer for
+  // reaching posts set to auto. Otherwise it waits for them. Every approval keeps a decision row: who, when, the post, and the basis.
+  const reaching = reachesSomeone(post);
+  const standing = standingAnswerOf(records, REACHING_SCOPE);
+  const basis = byPerson ? 'person' : reaching && standing === 'auto' ? 'setting' : reaching ? null : 'no-reach';
+  if (!basis) throw new Error(`${post.post_id} reaches someone, so only the person can approve it, on their Posts screen. Their approval setting for reaching posts is ask.`);
   const at = now().toISOString();
   const by = text(approvedBy, 100);
-  const approved = keep(kept, { ...post, status: 'approved', approved_at: at, approved_by_person: byPerson === true, ...(by ? { approved_by: by } : {}), updated_at: at });
+  const approved = keep(kept, { ...post, status: 'approved', approved_at: at, approved_by_person: byPerson === true || basis === 'setting', ...(by ? { approved_by: by } : {}), updated_at: at });
+  keepRows(kept, [{ id: `${DECISION}:${post.post_id}:${at}`, type: DECISION, value: { post_id: post.post_id, at, approved_by: by ?? null, basis, mode: standing, setting_id: basis === 'setting' ? `${SETTING}:${REACHING_SCOPE}` : null } }]);
   return withKept({ post: shaped(approved), said: 'Approved. tool:set-a-post-to-go-at-its-time sets it to go at its scheduled time.' }, kept);
 }
 

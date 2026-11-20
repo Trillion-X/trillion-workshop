@@ -192,7 +192,8 @@ test('an AI can approve a named post exactly as reviewed under its row grant, wi
   assert.equal(approved.status, 0, approved.error);
   assert.equal(approved.result.post.status, 'approved');
   assert.equal(approved.result.post.approved_by, 'Sample AI');
-  assert.equal(approved.result.keep.length, 1, 'the approved post comes back under keep');
+  assert.ok(approved.result.keep.some(row => row.id === postId), 'the approved post comes back under keep');
+  assert.equal(approved.result.keep.filter(row => row.type === 'approval-decision').length, 1, 'the approval keeps one decision row');
   assert.equal(approved.result.keep[0].value.status, 'approved');
   assert.equal(approved.result.keep[0].value.approved_from, undefined);
   assert.equal(draft.records.find(record => record.id === postId).value.status, 'draft', 'the post handed in is not changed');
