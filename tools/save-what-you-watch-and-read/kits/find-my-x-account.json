@@ -1,0 +1,36 @@
+{
+  "drafted_from": "tool:find-my-x-account's own row (its words, input schema and steps) and the answer its test gives, a stand-in X answer with made-up ids; no live X call was made when this was written",
+  "start_here": "Say to your AI: \"Which X account is my connection on?\", with {\"account\":\"service_connection:x\"}. It answers the account's id, username and name, and no post is read or changed.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:find-my-x-account"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Which X account is my connection on?\", and give it account (Which of the person's X connections to ask, by its id).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:find-my-x-account and its input (the worked example shows one).",
+    "3. Read the id it hands back. The X listeners keep that id as their route key, so a bookmark or like source starts only once it is known."
+  ],
+  "worked_examples": [
+    {
+      "title": "Ask which X account the connection is on",
+      "ask": "Which X account is my connection on?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-my-x-account",
+            "input": {
+              "account": "service_connection:x"
+            }
+          }
+        }
+      },
+      "given": "The input {\"account\":\"service_connection:x\"}, with X's users/me answer for a stand-in account (id 1000000001, username sample_maker).",
+      "hands_back": "{\"data\":{\"id\":\"1000000001\",\"username\":\"sample_maker\",\"name\":\"Sample Maker\"}}"
+    }
+  ]
+}

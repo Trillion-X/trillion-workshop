@@ -51,6 +51,14 @@ export function tokenFrom(request, read = readFileSync) {
   return token;
 }
 
+/** Whose token the request's descriptor holds: X's own answer to users/me, which the listener keeps as the route key. */
+export async function accountOf(request, { fetchImpl = fetch, read = readFileSync } = {}) {
+  const token = tokenFrom(request, read);
+  const me = await ask(fetchImpl, token, `${conventions.api.base}/${conventions.api.me}`);
+  if (!me.data?.id) throw new Error('X did not say whose token this is (users/me has no id).');
+  return { data: { id: String(me.data.id), username: me.data.username ?? null, name: me.data.name ?? null } };
+}
+
 /** The address of one page of the request's list. */
 export function pageAddress(kind, userId, after) {
   const { api } = conventions;

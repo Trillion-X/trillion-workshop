@@ -2,7 +2,7 @@
 // Every account, name and address below is made up.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { readFromApi, tokenFrom } from '../do-work/api-source.mjs';
+import { accountOf, readFromApi, tokenFrom } from '../do-work/api-source.mjs';
 import { browserSwitches, pageFor } from '../do-work/browser-source.mjs';
 import { readSaved } from '../do-work/read-saved-x-posts.mjs';
 import { collector, conventions, savedPost } from '../do-work/saved-source.mjs';
@@ -123,4 +123,18 @@ test('a read with since names the newest post it saw, and keeps since when nothi
   assert.equal(read.not_kept_yet, 3, 'the since post is already kept, so it is not counted as new');
   const quiet = await readSaved({ which: 'bookmarks', since: '9' }, listed([]));
   assert.equal(quiet.newest, '9', 'with nothing listed the cursor stays where it was');
+});
+
+test('the account read answers whose token it is, and refuses before any call when no token is handed', async () => {
+  const asked = [];
+  const fetchImpl = async address => {
+    asked.push(address);
+    return { ok: true, status: 200, headers: new Map(), text: async () => JSON.stringify({ data: { id: '1000000001', username: 'sample_maker', name: 'Sample Maker' } }) };
+  };
+  const got = await accountOf({ token_fd: 3 }, { fetchImpl, read: () => 'sample-token\n' });
+  assert.deepEqual(got, { data: { id: '1000000001', username: 'sample_maker', name: 'Sample Maker' } });
+  assert.equal(asked.length, 1, 'one call, to users/me');
+  assert.ok(asked[0].endsWith('/users/me'), asked[0]);
+  await assert.rejects(accountOf({ token_fd: 3 }, { fetchImpl, read: () => { throw new Error('no fd'); } }), /No X token was handed/);
+  assert.equal(asked.length, 1, 'no call without a token');
 });

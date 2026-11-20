@@ -1444,7 +1444,7 @@
         "route_key": "account",
         "event_id": "bookmark_id",
         "route_key_proof": {
-          "tool_id": "tool:x-find_my_account",
+          "tool_id": "tool:find-my-x-account",
           "output_selector": "$.data.id"
         },
         "poll": {
@@ -1497,7 +1497,7 @@
             "name": "like",
             "each": [
               {
-                "field": "items",
+                "field": "posts",
                 "as": "b"
               }
             ],
@@ -1536,16 +1536,24 @@
         "route_key": "account",
         "event_id": "post_id",
         "route_key_proof": {
-          "tool_id": "tool:x-find_my_account",
+          "tool_id": "tool:find-my-x-account",
           "output_selector": "$.data.id"
         },
         "poll": {
-          "tool_id": "tool:save-x-likes",
+          "tool_id": "tool:read-my-saved-x-posts",
+          "input": {
+            "which": "likes",
+            "account": "service_connection:x"
+          },
           "every_minutes": 30,
           "cursor": {
             "input_field": "since",
             "start": {
-              "tool_id": "tool:save-x-likes",
+              "tool_id": "tool:read-my-saved-x-posts",
+              "input": {
+                "which": "likes",
+                "account": "service_connection:x"
+              },
               "output_selector": "$.newest"
             },
             "next": {
