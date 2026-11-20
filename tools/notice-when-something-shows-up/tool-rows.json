@@ -417,6 +417,13 @@
               },
               {
                 "at": "@own-records",
+                "id": "kept-workflow-due",
+                "operations": [
+                  "wake:arrive"
+                ]
+              },
+              {
+                "at": "@own-records",
                 "id": "row-changes",
                 "operations": [
                   "wake:arrive"
