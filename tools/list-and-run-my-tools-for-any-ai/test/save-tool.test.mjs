@@ -41,8 +41,9 @@ test('a save creates the table, then upserts one row into it', async () => {
   const saved = await saveTool({ descriptor: echo, files: { 'main.py': 'print(1)' } }, client);
   assert.equal(saved.table, SAVED_TABLE);
   assert.match(client.calls[0].text, /CREATE TABLE IF NOT EXISTS saved_tools/);
-  assert.match(client.calls[1].text, /INSERT INTO saved_tools/);
-  assert.equal(client.calls[1].values[0], 'tool:echo-test');
+  const upsert = client.calls.find(call => /INSERT INTO saved_tools/.test(call.text));
+  assert.ok(upsert, 'the save upserts the row after the table is made');
+  assert.equal(upsert.values[0], 'tool:echo-test');
 });
 
 test('sending both files and bytes_base64 is refused', async () => {

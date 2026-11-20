@@ -72,36 +72,47 @@ export function descriptorProblems(row) {
 }
 
 /** The table, made when missing. Run once before each save, as the sales-contract store does. */
+// A deleted tool keeps its row with status 'deleted' and the time it was deleted (the old deleteTool kept the same), so a
+// publish or a delete never reads it as a live saved tool. Both columns are added to tables made before this change.
+const ADD_STATUS_SQL = [
+  `ALTER TABLE ${SAVED_TABLE} ADD COLUMN IF NOT EXISTS status text`,
+  `ALTER TABLE ${SAVED_TABLE} ADD COLUMN IF NOT EXISTS deleted_at timestamptz`,
+];
+
 export async function ensureSavedTable(client) {
   await client.query(TABLE_SQL, []);
+  for (const sql of ADD_STATUS_SQL) await client.query(sql, []);
 }
 
 /**
  * Save one tool into `saved_tools` through `client` (query(text, values) → { rows, rowCount }).
- * `input` is { descriptor, files } or { descriptor, bytes_base64 }; never both. Returns the saved summary.
+ * `input` is { descriptor, files } or { descriptor, bytes_base64 }; never both. A tool whose invoke is an account action
+ * runs no code of its own, so it is saved with no files at all (`{ descriptor }`). Returns the saved summary.
  */
 export async function saveTool(input, client) {
   const asked = object(input) ? input : {};
   const { descriptor, files, bytes_base64: bytesBase64 } = asked;
   if (!object(descriptor)) throw new SaveToolError('descriptor is required: the tool as an ai-tool-descriptor object.');
-  if ((files === undefined) === (bytesBase64 === undefined)) {
+  const codeFree = descriptor.invoke?.kind === 'account-action' && files === undefined && bytesBase64 === undefined;
+  if (!codeFree && (files === undefined) === (bytesBase64 === undefined)) {
     throw new SaveToolError('send the tool code as files or as bytes_base64, exactly one of them.');
   }
   const problems = descriptorProblems(descriptor);
   if (problems.length) throw new SaveToolError(`The tool was not saved: ${problems.join(' ')}`);
-  const bytes = files !== undefined
-    ? filesAsBytes(files, descriptor.invoke?.workdir)
-    : Buffer.from(String(bytesBase64), 'base64');
+  const bytes = codeFree ? Buffer.alloc(0)
+    : files !== undefined
+      ? filesAsBytes(files, descriptor.invoke?.workdir)
+      : Buffer.from(String(bytesBase64), 'base64');
   if (bytes.length > MAX_SAVED_BYTES) throw new SaveToolError(`The tool's files are over ${MAX_SAVED_BYTES} bytes.`);
   const id = descriptor.id;
   const fingerprint = fingerprintOf(bytes);
   await ensureSavedTable(client);
-  // One upsert: the same id replaces the saved tool it names; made_at is set on each save.
+  // One upsert: the same id replaces the saved tool it names; made_at is set on each save, and saving again revives a deleted id.
   await client.query(
     `INSERT INTO ${SAVED_TABLE} (id, descriptor, files, fingerprint, made_at)
      VALUES ($1, $2::jsonb, $3, $4, $5::timestamptz)
      ON CONFLICT (id) DO UPDATE SET descriptor = EXCLUDED.descriptor, files = EXCLUDED.files,
-       fingerprint = EXCLUDED.fingerprint, made_at = EXCLUDED.made_at`,
+       fingerprint = EXCLUDED.fingerprint, made_at = EXCLUDED.made_at, status = NULL, deleted_at = NULL`,
     [id, JSON.stringify(descriptor), bytes, fingerprint, new Date().toISOString()],
   );
   return { id, fingerprint, bytes: bytes.length, table: SAVED_TABLE, saved: true };

@@ -63,7 +63,7 @@ function usagePriceProblem(usage) {
   return null;
 }
 
-async function ensureListings(client) {
+export async function ensureListings(client) {
   await client.query(TABLE_SQL, []);
   for (const sql of ADD_COLUMNS_SQL) await client.query(sql, []);
 }
@@ -109,7 +109,7 @@ export async function publishTool(input, client) {
   await ensureListings(client);
   await client.query('BEGIN', []);
   try {
-    const { rows: saved } = await client.query(`SELECT id, descriptor, fingerprint, files FROM ${SAVED_TABLE} WHERE id = $1 FOR SHARE`, [toolId]);
+    const { rows: saved } = await client.query(`SELECT id, descriptor, fingerprint, files FROM ${SAVED_TABLE} WHERE id = $1 AND status IS DISTINCT FROM 'deleted' FOR SHARE`, [toolId]);
     if (!saved.length) throw new PublishToolError(`${toolId} is not one of the saved tools in this database. Save it with save_tool first.`);
     const { descriptor, fingerprint, files } = saved[0];
     if (expected !== undefined && expected !== fingerprint) {
