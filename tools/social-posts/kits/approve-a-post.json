@@ -10,7 +10,7 @@
     "tool:read-post-calendar"
   ],
   "instructions": [
-    "1. Say to your AI: \"Check a drafted post is approved exactly as it was reviewed and answer the approved post row to keep\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar); expected_values; records (The records the ask reads, as the caller read them from a store ({ id, type, value }): the post (type post) and the person's connection records (type connection).).",
+    "1. Say to your AI: \"Check a drafted post is approved exactly as it was reviewed and answer the approved post row to keep\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar); expected_values; records (The records the ask reads, as the caller read them from a store ({ id, type, value }): the post (type post) and the person's connection records (type connection).). Give database (the pursuit database that holds the post and the person's approval setting, such as ethos_for_who_runs_it) to approve in that database: the setting is read there, so nothing you give can carry an auto setting in. Without database the records you give decide, as before.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:approve-a-post and its input (the worked example shows one).",
     "3. Read what comes back: Give post_id and expected_values (the complete approval_values of the post as it was reviewed); expected_values is required, and approval is refused when its words, file, destinations or time changed since."
   ],
