@@ -19,6 +19,7 @@
 import settings from '../method-rows/settings.json' with { type: 'json' };
 import words from './answer-words.json' with { type: 'json' };
 import { rowsOfMethod, strictnessOf } from '../method-rows/view.mjs';
+import { isLegacyDecision, legacyAnswers, legacyMethodRows } from './legacy-decision.mjs';
 
 const blank = value => value === null || value === undefined || (typeof value === 'string' && !value.trim());
 // One answer's key, as method-rows/answers.mjs writes it (its answerKey is not exported there).
@@ -48,19 +49,41 @@ export function checkRows(answer, strictness) {
   return rows.filter(row => row && !blank(row.text));
 }
 
-// The worked steps of a decision: each row of its method that the decision has an answer for, in the view's order, with the
-// row's question, the labelled rows of its answer and how it was checked. A row with no answer is left out.
-export function workedSteps(held, decision, method) {
+// One worked step: the row's question, the labelled rows of its answer and how the answer was checked.
+const workedStep = (row, answer, byId, strictness) => ({
+  step_id: row.id,
+  question: row.values.question ?? null,
+  rows: answerRows(answer, byId),
+  checks: checkRows(answer, strictness),
+});
+
+// The worked steps of the saved view's answers: each row of the view that has an answer, in the view's order. A row with no
+// answer is left out.
+function viewWorkedSteps(held, decision, method) {
   const { record, rows } = rowsOfMethod(held, method);
   const byId = new Map(rows.map(row => [row.id, row]));
   return rows.flatMap(row => {
     const answer = held.get(settings.answers.type, answerKey(decision, row.id));
     if (!answer || typeof answer !== 'object') return [];
-    return [{
-      step_id: row.id,
-      question: row.values.question ?? null,
-      rows: answerRows(answer, byId),
-      checks: checkRows(answer, strictnessOf(row.values, record)),
-    }];
+    return [workedStep(row, answer, byId, strictnessOf(row.values, record))];
   });
+}
+
+// The worked steps of a decision: a decision made before method rows first, its answers as they were written, read with
+// the method it was made with (read-data/legacy-decision.mjs); then the saved view's answers. The two are kept apart: a
+// legacy step id is not a method row id, so an answer to a view row is shown even beside a legacy answer. A legacy decision
+// needs no saved view, so none is read for it unless `method` is named.
+export function workedSteps(held, decision, method) {
+  const root = held.get('decision', decision);
+  const legacy = isLegacyDecision(root) ? legacyWorkedSteps(root) : [];
+  const view = isLegacyDecision(root) && method === undefined ? [] : viewWorkedSteps(held, decision, method);
+  return [...legacy, ...view];
+}
+
+// The worked steps of a legacy root: its answers as legacy-decision.mjs reads them, each row checked by the strictness the
+// snapshot's own row carries (the default, which says so).
+function legacyWorkedSteps(root) {
+  const rows = legacyMethodRows(root);
+  const byId = new Map(rows.map(row => [row.id, row]));
+  return legacyAnswers(root).map(({ row, answer }) => workedStep(byId.get(row), answer, byId, byId.get(row).strictness));
 }
