@@ -950,7 +950,7 @@ export function historicalRules(rules = settings) {
 // A test seam: a loopback origin and a key read from a file stand in for Trillion and the Keychain. Anything but a loopback
 // origin is ignored, so no environment can send the account's words, or its key, to another place.
 const stand = (() => {
-  const origin = process.env.TRILLION_RECORDER_TEST_ORIGIN, keyFile = process.env.TRILLION_RECORDER_TEST_KEY_FILE;
+  const origin = process.env.RECORDER_TEST_ORIGIN, keyFile = process.env.RECORDER_TEST_KEY_FILE;
   return origin && keyFile && /^http:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?$/.test(origin)
     ? { rules: { origin }, send: { key: () => readFileSync(keyFile, 'utf8').trim() } } : { rules: {}, send: {} };
 })();
@@ -990,8 +990,11 @@ if (isEntryScript()) {
   if (backfill !== -1) event = { transcript_path: process.argv[backfill + 1] };
   else {
     // The turn must never wait on this: past the time box the process ends, whatever it was doing.
-    let raw = '';
-    for await (const chunk of process.stdin) raw += chunk;
+    // An event over max_event_bytes is drained and ignored (the old hook route refused it the same way); the cursor catches its turn up on the next pass.
+    const chunks = [];
+    let size = 0;
+    for await (const chunk of process.stdin) { size += chunk.length; if (size <= settings.max_event_bytes) chunks.push(chunk); }
+    const raw = size <= settings.max_event_bytes ? Buffer.concat(chunks).toString('utf8') : '';
     try { event = JSON.parse(raw || '{}'); } catch {}
     keepHookRunOnExit(import.meta.url, event);
   }
@@ -1017,8 +1020,8 @@ if (isEntryScript()) {
     process.exit(0);
   }
   const result = await (promptEvent
-    ? waitsForTranscript ? recordSubmittedPromptWhenTranscriptArrives(event, { rules }) : recordSubmittedPrompt(event, { rules })
-    : recordNew(event, { rules })).catch(() => ({ sent: 0 }));
+    ? waitsForTranscript ? recordSubmittedPromptWhenTranscriptArrives(event, { rules: { ...rules, ...stand.rules }, ...stand.send }) : recordSubmittedPrompt(event, { rules: { ...rules, ...stand.rules }, ...stand.send })
+    : recordNew(event, { rules: { ...rules, ...stand.rules }, ...stand.send })).catch(() => ({ sent: 0 }));
   const drainPath = event.transcript_path ?? event.transcriptPath ?? transcriptFor(event.session_id ?? event.sessionId, settings);
   if (backfill === -1 && !promptEvent && (result.pending > 0 || result.executions_pending > 0) && drainPath && (event.session_id ?? event.sessionId)) {
     const child = spawn(process.execPath, [fileURLToPath(import.meta.url), '--drain', '--transcript', drainPath,

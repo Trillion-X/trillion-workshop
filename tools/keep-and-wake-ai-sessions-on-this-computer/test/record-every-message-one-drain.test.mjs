@@ -151,7 +151,7 @@ test('a drain over a 520 MB transcript against a server that answers 507 stays u
   closeSync(handle);
   const began = Date.now();
   const out = await drainOnItsOwn(['--drain', '--transcript', path, '--session-id', 'drain-507-session'],
-    { ...process.env, HOME: home, TRILLION_RECORDER_TEST_ORIGIN: server.origin, TRILLION_RECORDER_TEST_KEY_FILE: keyFile }, settings.drain_most_ms);
+    { ...process.env, HOME: home, RECORDER_TEST_ORIGIN: server.origin, RECORDER_TEST_KEY_FILE: keyFile }, settings.drain_most_ms);
   assert.ok(!out.stuck, 'the drain ended');
   assert.ok(Date.now() - began < settings.drain_session_ms + 30_000, `ended after ${Date.now() - began} ms`);
   assert.ok(server.seen.length > 0 && server.seen.every(body => body === server.seen[0]), 'the same reply was sent again each time, never a second message');
@@ -179,7 +179,7 @@ test('a sweep gives a small chat its turn behind a huge one', async t => {
   utimesSync(small, new Date(Date.now() - 60_000), new Date(Date.now() - 60_000)); // the huge chat is the newest, so it goes first
   await new Promise(resolve => {
     const child = spawn(process.execPath, [script, '--sweep'], { env: { ...process.env, HOME: home, CODEX_HOME: join(home, 'codex'),
-      TRILLION_RECORDER_TEST_ORIGIN: server.origin, TRILLION_RECORDER_TEST_KEY_FILE: keyFile }, stdio: 'ignore' });
+      RECORDER_TEST_ORIGIN: server.origin, RECORDER_TEST_KEY_FILE: keyFile }, stdio: 'ignore' });
     const timer = setTimeout(() => { child.kill(); resolve(); }, settings.sweep_time_box_ms + 20_000);
     child.on('exit', () => { clearTimeout(timer); resolve(); });
   });

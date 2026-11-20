@@ -181,6 +181,7 @@
   "keychain_item": "trillion-agent-work-key",
   "batch_size": 100,
   "time_box_ms": 4000,
+  "max_event_bytes": 1048576,
   "transcript_read_bytes": 262144,
   "transcript_row_bytes": 8388608,
   "drain_most_ms": 600000,
