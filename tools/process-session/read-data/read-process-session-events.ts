@@ -64,13 +64,13 @@ function decodeState(tag: number): ProcessSessionState {
 }
 
 class ProcessSessionEventsCursor {
+  private readonly bytes: Uint8Array;
+  private readonly view: DataView;
   private offset = 0;
 
-  constructor(
-    private readonly bytes: Uint8Array,
-    private readonly view: DataView,
-    offset = 0,
-  ) {
+  constructor(bytes: Uint8Array, view: DataView, offset = 0) {
+    this.bytes = bytes;
+    this.view = view;
     this.offset = offset;
   }
 
@@ -156,11 +156,12 @@ class ProcessSessionEventsView implements ProcessSessionEventsFeedView {
 
   private readonly sessionIds: string[] = [];
   private readonly eventsOffset: number;
+  private readonly bytes: Uint8Array;
+  private readonly view: DataView;
 
-  constructor(
-    private readonly bytes: Uint8Array,
-    private readonly view: DataView,
-  ) {
+  constructor(bytes: Uint8Array, view: DataView) {
+    this.bytes = bytes;
+    this.view = view;
     const cursor = new ProcessSessionEventsCursor(bytes, view);
     const version = cursor.readU8('version');
     if (version !== FEED_VERSION) {
@@ -246,7 +247,10 @@ export interface ProcessSessionEventHead {
 class ProcessSessionHeadView implements ProcessSessionEventsFeedView {
   readonly eventCount: number;
 
-  constructor(readonly head: ProcessSessionEventHead) {
+  readonly head: ProcessSessionEventHead;
+
+  constructor(head: ProcessSessionEventHead) {
+    this.head = head;
     // The HEAD carries no replayable events — history lives in the log at
     // head.eventStreamAddress. Feed-view consumers see an empty event list
     // plus the head, so state-only readers keep working unchanged.
@@ -306,10 +310,13 @@ export interface ProcessSessionEventDelta {
 class ProcessSessionEventDeltaView implements ProcessSessionEventsFeedView {
   readonly eventCount = 1;
 
-  constructor(
-    private readonly bytes: Uint8Array,
-    private readonly view: DataView,
-  ) {}
+  private readonly bytes: Uint8Array;
+  private readonly view: DataView;
+
+  constructor(bytes: Uint8Array, view: DataView) {
+    this.bytes = bytes;
+    this.view = view;
+  }
 
   forEachEvent(visitor: ProcessSessionEventsFeedVisitor): void {
     const cursor = new ProcessSessionEventsCursor(this.bytes, this.view, 1);
