@@ -11,9 +11,12 @@
 //   2. A 401 is not retried: the page goes to the sign-in and does not draw.
 
 import { signInAddress } from '../src/workspace/addresses.mjs';
+import { NotForPersonError, type NotForPerson } from '../src/workspace/api';
 
 export type HostConfig = {
   placement: string;
+  // The records label that holds the list definitions (the sidebar's `sidebar_collections`, sidebar-lists.ts): the host's own rows.
+  lists: string;
   subject: string;
   records: string;
   door_record: string;
@@ -32,6 +35,9 @@ export function readHostConfig(): HostConfig {
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, { cache: 'no-store', ...init, headers: { 'content-type': 'application/json', ...(init?.headers ?? {}) } });
   const answer = await response.json().catch(() => ({}));
+  // The host says when a read is not for this person, with its own words: a plain state, not an error (failure.ts failedState).
+  const notForPerson = (answer as { not_for_person?: NotForPerson }).not_for_person;
+  if (!response.ok && notForPerson && typeof notForPerson.title === 'string') throw new NotForPersonError(String((answer as Json).error ?? ''), notForPerson);
   if (!response.ok) throw Object.assign(new Error((answer as Json).error as string || 'The host did not answer.'), { status: response.status });
   return answer as T;
 }

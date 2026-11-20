@@ -39,7 +39,8 @@ const valueAt = (row: unknown, path: string[]) => path.reduce<unknown>((value, k
 const repeats = (list: SidebarList) => list.settings?.repeats_rows === true;
 
 /** The group graph the sidebar draws: the app's lists, nested as the DATA nests them, over the screens offered. */
-export function sidebarCollections(rows: ScreenRow[], data: SidebarListsData, hostPackage: string, decided: DecidedRules = { holds: {}, hidden: [] }): unknown {
+// `scope` is the sidebar's own scope (the group.index the lists are keyed under); a page whose sidebar has another scope passes it.
+export function sidebarCollections(rows: ScreenRow[], data: SidebarListsData, hostPackage: string, decided: DecidedRules = { holds: {}, hidden: [] }, scope = 'sidebar'): unknown {
   const ruled = new Map(Object.entries(decided.holds).map(([id, held]) => [id, new Set(held)]));
   const hidden = new Set(decided.hidden);
   // A row with `listed: false` opens only where something places it (Home's own parts, a decision's tab): no list holds
@@ -117,5 +118,5 @@ export function sidebarCollections(rows: ScreenRow[], data: SidebarListsData, ho
     collections: [...tree.collections, ...shown(list.collections).map(project)],
     };
   };
-  return buildProjectedCollectionsNav({ scope: 'sidebar', collections: shown(data.sidebar_collections).map(project) as never });
+  return buildProjectedCollectionsNav({ scope, collections: shown(data.sidebar_collections).map(project) as never });
 }

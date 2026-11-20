@@ -24,6 +24,8 @@ import mountArrangement from '../../../screen-arrangement/show/mount-screen-arra
 import { SCREEN_MODULES } from 'members-screen-registry';
 import { doorTransport, readHostConfig, recordsTransport, subjectOf } from './host';
 import { screenInputOf } from './rows.mjs';
+import { sidebarCollections, type ScreenRow, type SidebarListsData } from '../src/workspace/sidebar-lists';
+import { activeRecordsSource } from '../src/workspace/records-source';
 import { setLiveChangesOffered } from '../src/workspace/store-changes';
 import { setSavedViewsOffered } from '../src/workspace/record-configurations';
 
@@ -48,12 +50,28 @@ const screens: Record<string, WarmMount> = Object.fromEntries(
 setWorkspaceRecordsSource(remoteRecordsSource(recordsTransport(host)));
 setRecordsDoor(doorTransport(host));
 await answerTargets();
+
+// The list definitions and the rows that name them, read from the host's records under the labels the host block gives.
+async function membersLists(): Promise<unknown> {
+  const read = await activeRecordsSource().read([host.lists, LIST]);
+  const surfaces = (read.records?.[host.lists] ?? {}) as SidebarListsData;
+  // The catalog rows arrive as { record, payload }; the builder reads each screen row as its payload (id, label, sidebar_collection).
+  const rows = ((read.records?.[LIST] ?? []) as { payload: ScreenRow }[]).map(entry => entry.payload);
+  // The graph is keyed under this page's sidebar scope, the one the sidebar below reads (scope: host.placement).
+  return sidebarCollections(rows, surfaces, host.placement, undefined, host.placement);
+}
 installScreenRunner(screens, LIST);
 
+// The sidebar's lists come from the host's rows: the list definitions (the host's `lists` label) and each row's `sidebar_collection`
+// name them, built by the owner of that rule (sidebar-lists.ts sidebarCollections), as the Workshop's own page builds its lists. The
+// members page keeps no list and no word of its own.
+const lists = await membersLists();
 mountSidebar({ el: document.getElementById('sidebar')!, props: { surfaceInput: {
   scope: host.placement,
-  persist_collection_edits: true,
+  // A member cannot make a list here: the 'Add a list' control is not drawn (the sidebar's own switch).
+  hide_collection_manager: true,
   placeable_surface_list_address_label: LIST,
+  surface_collections_graph: lists,
 } } });
 mountArrangement({ el: document.getElementById('arrangement')!, props: {
   placeableSurfaceListAddressLabel: LIST,

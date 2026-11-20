@@ -43,6 +43,18 @@ import { fingerprintOf } from '../read-fingerprint.mjs';
  *  when the refusal is one no feature row names. */
 export type UpgradeNeeded = { feature: { id: string; label: string } | null };
 
+/** A read the host says is for a different kind of person (a site's members only). The host gives the words; a screen draws them as
+ *  its state, with no retry, since asking again cannot change who the person is. */
+export type NotForPerson = { title: string; description?: string };
+export class NotForPersonError extends Error {
+  not_for_person: NotForPerson;
+  constructor(message: string, not_for_person: NotForPerson) {
+    super(message);
+    this.name = 'NotForPersonError';
+    this.not_for_person = not_for_person;
+  }
+}
+
 /** A read or action the person's plan does not include. `message` keeps the Worker's own words (written for an AI);
  *  a screen draws `upgrade_needed` instead. */
 export class PlanNeeded extends Error {
@@ -449,6 +461,8 @@ export async function readJson<T>(path: string, init: RequestInit = {}, repeatab
     const refusal = body as { error?: string; failure_code?: string; refused?: { code?: string }; outcome?: unknown; request_key?: unknown; upgrade_needed?: boolean; feature?: { id: string; label: string }; problems?: unknown[]; missing_connection?: string; step_needed?: string; change?: unknown; next?: { label?: unknown; href?: unknown } } | null;
     const said = typeof refusal?.error === 'string' ? refusal.error : '';
     if (refusal?.upgrade_needed === true) throw new PlanNeeded(said, { feature: refusal.feature ?? null });
+    const notForPerson = (body as { not_for_person?: NotForPerson } | null)?.not_for_person;
+    if (notForPerson && typeof notForPerson.title === 'string') throw new NotForPersonError(said, notForPerson);
     // No owner answers this address in the running Trillion (404 failure_code no-owner, final): the part is absent, not
     // broken and not out of reach, so it is said that way and never asked again by itself.
     if (status === 404 && refusal?.failure_code === 'no-owner') throw Object.assign(new Error(failureWords.absent), { status, absent: true });

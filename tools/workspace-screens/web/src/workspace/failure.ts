@@ -21,6 +21,7 @@
 import comparison from '../plan-comparison.json';
 import { needsPlanTitle } from '../plan-needs.mjs';
 import { mountScreenState, type AskYourAi, type EmptyScreenState, type FailedScreenState, type StateAction } from '../../../../ui/show/screen-state';
+import { NotForPersonError } from './api';
 import type { OpenableChoice } from '../../../../ui/show/choice-tiles/OpenChoice';
 import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import { PlanNeeded, type UpgradeNeeded } from './api';
@@ -88,6 +89,8 @@ export function planState(error: PlanNeeded): EmptyScreenState {
  *  itself first, then Try again and Ask your AI, and `elsewhere` as the one place to go instead when the screen has one. */
 export function failedState(error: unknown, retry: () => void, title: string, elsewhere?: StateAction): FailedScreenState | EmptyScreenState {
   if (error instanceof PlanNeeded) return planState(error);
+  // A read the host says is not for this person: the host's own words, no retry and no plan button.
+  if (error instanceof NotForPersonError) return { status: 'empty', icon: 'Lock', title: error.not_for_person.title, ...(error.not_for_person.description ? { description: error.not_for_person.description } : {}) };
   return {
     // Every state drawn here is a refused read, which changes nothing, so the person is told their work is as it was.
     status: 'failed', title, description: reasonOf(error), kept: words.read_kept,
