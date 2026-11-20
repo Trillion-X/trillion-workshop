@@ -1,0 +1,21 @@
+{
+  "_what": "Lists as what they are now: tables in the person's own databases (table-lists.ts). A database is any connection the person's vault names ending `credential_suffix` (read by `names_method` at the account's door, names only); each base table outside `skip_schemas` is one list, its columns its fields, its primary key its rows' ids. Every read and change is SQL run by `tool`. A column's kind is the first `kinds` entry whose `types` holds its database type (else `text`); a new field's column type is its kind's `column`. A new list is a new table in the database named `new_lists_in`. Saved views are rows of `views_table` in that same database, made on first save. Page sizes come from lists.json limits.",
+  "tool": "tool:run-sql-in-my-database",
+  "names_method": "/work/api/door/secrets:names",
+  "credential_suffix": "-connection",
+  "skip_schemas": ["pg_catalog", "information_schema"],
+  "new_lists_in": "own-rows-postgres-connection",
+  "views_table": "list_views",
+  "kinds": [
+    { "kind": "number", "column": "numeric", "types": ["smallint", "integer", "bigint", "numeric", "real", "double precision"] },
+    { "kind": "date", "column": "timestamptz", "types": ["date", "timestamp without time zone", "timestamp with time zone"] },
+    { "kind": "long-text", "column": "text", "types": ["json", "jsonb"] },
+    { "kind": "text", "column": "text", "types": [] }
+  ],
+  "words": {
+    "no_key": "This table has no key, so its rows cannot be changed here. Your AI can change it with SQL.",
+    "rename": "A table keeps its own name here; your AI can rename it with SQL.",
+    "unknown": "This list is not one of your tables any more.",
+    "not_read": "This could not be read."
+  }
+}

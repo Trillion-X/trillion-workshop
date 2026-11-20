@@ -8,9 +8,9 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. A list's fields are its DATA: nothing here names a list, a field or a field kind; each field's kind row
 //      (src/lists.json field_kinds) says how it draws, how it filters and what a typed value becomes.
-//   2. A list and its rows are the person's own records: every read and change goes through list-records.ts (the records
-//      door's read and the one records write, the same records the person's AI reads and writes); the screen reads the
-//      list back after each change instead of guessing it.
+//   2. A list is a table in one of the person's own databases and its rows are that table's rows: every read and change
+//      goes through read-data/table-lists.ts (SQL on the table, the same table the person's AI reads and writes with
+//      SQL); the screen reads the list back after each change instead of guessing it.
 //   3. Every element is a shared component; this file writes no markup.
 //   4. A computed field (its kind row `carries` a key) is drawn the way any record set draws one (record-set.tsx): a
 //      carried `derive` is a column the formula engine works out from the row's values, a carried `action` is a button
@@ -51,7 +51,7 @@ import { followHighlights, wordsToFind } from '../../../../ui/show/text-highligh
 import { clipboardWords, copyRows, pastePlan, readPastedRows, type PastePlan, type PastedRows } from './row-clipboard';
 
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
-import { changeList, makeList, putRows, readList, readLists, readRows, removeView, saveView, titleLinks, whereOf, type Field, type Kind, type List, type Read, type Row, type RowPut, type View } from './list-records';
+import { changeList, makeList, putRows, readList, readLists, readRows, removeView, saveView, titleLinks, whereOf, type Field, type Kind, type List, type Read, type Row, type RowPut, type View } from '../../../read-data/table-lists';
 const failed = (what: string) => (error: unknown) => notify(what, { kind: 'error', detail: errorWords(error) });
 const openList = (list: { id: string; label: string }) => openScreenOn('trillion.list', { id: list.id }, list.label);
 
