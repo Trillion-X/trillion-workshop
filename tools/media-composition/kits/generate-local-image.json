@@ -1,0 +1,39 @@
+{
+  "drafted_from": "tool:generate-local-image's own row (its words, input schema and invoke, which runs its app through tool:run-an-app-job) and the mflux row in do-work/apps-here.json; not run here, because the mflux app and its model need an Apple Silicon Mac and a model download this lane did not make",
+  "start_here": "Say to your AI: \"Generate an image locally\", giving the brief the picture is about. It runs on this Mac and makes the picture as a new file in your files.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and makes a picture file.",
+  "workflows": [],
+  "tools": [
+    "tool:generate-local-image",
+    "tool:run-an-app-job"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Generate an image locally\", and give it the brief and the fields its input names.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:generate-local-image and its input (the worked example shows one).",
+    "3. Read the picture file it kept in your files. If the mflux app is not on this Mac, the run says so and nothing is made."
+  ],
+  "worked_examples": [
+    {
+      "title": "Generate an image locally",
+      "ask": "Generate an image locally",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:generate-local-image",
+            "input": {
+              "brief": "a red kite over a beach",
+              "model": "schnell",
+              "steps": 4
+            }
+          }
+        }
+      },
+      "given": "The input {\"brief\":\"a red kite over a beach\",\"model\":\"schnell\",\"steps\":4}, the brief, the model and the step count, on this Mac with the mflux app declared in apps-here.json.",
+      "hands_back": "Not run here: the answer is \"not run in this pass, the mflux app and its model are not on this lane's computer\"."
+    }
+  ]
+}
