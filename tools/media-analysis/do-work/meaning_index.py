@@ -363,13 +363,26 @@ def ffprobe_duration(file: str) -> float:
 
 
 def frame_at(file: str, seconds: float | None):
-    """One square RGB frame (FRAME_SIDE px, center crop like CLIP's own preprocess) over a pipe."""
+    """One square RGB frame (FRAME_SIDE px, center crop like CLIP's own preprocess) over a pipe.
+
+    A sample is taken from the key frame at or before its time. A short clip whose only key frame is at its start has
+    none there, so the sample then decodes to the exact time, and failing that the first frame that decodes.
+    """
+    seeks = []
+    if seconds is not None:
+        seeks += [["-skip_frame", "nokey", "-ss", f"{seconds:.3f}"], ["-ss", f"{seconds:.3f}"]]
+    seeks.append([])
+    for seek in seeks:
+        image = grab_frame(file, seek)
+        if image is not None:
+            return image
+    return None
+
+
+def grab_frame(file: str, seek: list[str]):
     from PIL import Image
 
-    command = ["ffmpeg", "-nostdin", "-v", "error"]
-    if seconds is not None:
-        command += ["-skip_frame", "nokey", "-ss", f"{seconds:.3f}"]
-    command += ["-i", file, "-frames:v", "1", "-vf", f"scale={FRAME_SIDE}:{FRAME_SIDE}:force_original_aspect_ratio=increase,crop={FRAME_SIDE}:{FRAME_SIDE}", "-f", "rawvideo", "-pix_fmt", "rgb24", "pipe:1"]
+    command = ["ffmpeg", "-nostdin", "-v", "error", *seek, "-i", file, "-frames:v", "1", "-vf", f"scale={FRAME_SIDE}:{FRAME_SIDE}:force_original_aspect_ratio=increase,crop={FRAME_SIDE}:{FRAME_SIDE}", "-f", "rawvideo", "-pix_fmt", "rgb24", "pipe:1"]
     try:
         raw = subprocess.run(command, capture_output=True, timeout=60).stdout
     except (subprocess.TimeoutExpired, OSError):
