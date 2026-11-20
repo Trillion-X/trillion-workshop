@@ -1594,6 +1594,7 @@
           "capabilities": [
             "start-a-program"
           ],
+          "max_run_ms": 1200000,
           "workdir": "/opt/audio-transcription",
           "stdout": "json",
           "argv": [

@@ -87,3 +87,12 @@ test('the tool row declares the stored reads its run needs, as tool:hear-a-recor
   assert.deepEqual(payload('tool:transcribe-file').stored, [{ files: '/', operations: ['find_file', 'read_file'] }]);
   assert.deepEqual(payload('tool:transcribe-file').stored, payload('tool:hear-a-recording').stored);
 });
+
+test('the tool row sets its run deadline, so a 512 MB recording is not cut off by the default 120 s', () => {
+  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records;
+  const { invoke, max_input_bytes } = rows.find(record => record.payload.id === 'tool:transcribe-file').payload;
+  // 512 MB at the slowest measured share rate (0.77 MB/s) is about 665 s of reading, before MLX hears it.
+  assert.ok(invoke.max_run_ms >= 665000, `max_run_ms ${invoke.max_run_ms} is below the read time`);
+  assert.ok(invoke.max_run_ms <= 50400000, 'max_run_ms is above the ceiling');
+  assert.equal(max_input_bytes ?? 536870912, 536870912);
+});
