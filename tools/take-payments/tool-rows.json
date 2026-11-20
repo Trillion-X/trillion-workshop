@@ -654,7 +654,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             },
             "suggestions": {
               "type": "array",
@@ -1112,7 +1112,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             },
             "suggestions": {
               "type": "array",
@@ -1534,7 +1534,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -1953,7 +1953,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -2341,7 +2341,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -2732,7 +2732,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -3141,7 +3141,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -3533,7 +3533,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -3969,7 +3969,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -4381,7 +4381,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -4808,7 +4808,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -5260,7 +5260,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -5764,7 +5764,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -6878,7 +6878,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -7302,7 +7302,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -7681,7 +7681,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -8120,7 +8120,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -12275,7 +12275,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -13258,7 +13258,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
@@ -14058,7 +14058,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "additionalProperties": false,
@@ -14587,7 +14587,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "additionalProperties": false,
@@ -15117,7 +15117,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             },
             "offers": {
               "type": "array",
@@ -15518,7 +15518,7 @@
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
-              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [

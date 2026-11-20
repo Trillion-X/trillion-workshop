@@ -1,6 +1,7 @@
 // The Stripe money read names the connection it reads with: the handle the person's connections list gives for that
 // vendor (input.connection.connection_id), so the read finds the key that account holds. A service whose connections
-// are unknown is not read, so it is drawn as unread; one of which several accounts are held is refused, naming them.
+// are unknown is read with the service named and no account (service_connection:stripe), for the engine to find the
+// account the vault holds; one of which several accounts are listed is refused, naming them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { moneyServices, readMoney } from '../do-work/business-screen.mjs';
@@ -15,14 +16,18 @@ test('each connected Stripe service carries the handle of its own account from t
   assert.equal(moneyServices(rows, [])[0].connection_id, undefined);
 });
 
-test('the money read is run with that connection named in its input, and without one when unknown', async () => {
+test('the money read is run with that connection named in its input, and with the bare service when unknown', async () => {
   const seen = [];
   const run = async (tool_id, input) => { seen.push({ tool_id, input }); return { data: [], has_more: false }; };
   const since = new Date('2026-11-01T00:00:00.000Z');
   await readMoney({ services: moneyServices(rows, [{ connection_id: account, vendor: 'stripe' }]), run, since });
   const unknown = await readMoney({ services: moneyServices(rows, null), run, since });
-  assert.deepEqual(seen.map(call => call.input), [{ since: Math.floor(since.getTime() / 1000), connection: { connection_id: account } }]);
-  assert.equal(unknown[0].money, null);
+  const seconds = Math.floor(since.getTime() / 1000);
+  assert.deepEqual(seen.map(call => call.input), [
+    { since: seconds, connection: { connection_id: account } },
+    { since: seconds, connection: { connection_id: 'service_connection:stripe' } },
+  ]);
+  assert.deepEqual(unknown[0].money, { currencies: [], payments: 0, more: false, at_most: unknown[0].money.at_most });
 });
 
 test('several held Stripe accounts are refused plainly, naming them', async () => {

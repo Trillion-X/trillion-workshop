@@ -216,13 +216,13 @@ test('with no list of connections, a money read that fails is drawn as a failed 
   await assert.rejects(readBusinessForScreen({ held_connections: 'stripe' }, host), /held_connections is a list/);
 });
 
-test('a list left out is never taken as no connections: the listing is not run, no account is known to name, and each service is drawn as unread', async () => {
+test('a list left out is never taken as no connections: the listing is not run, and each service\'s money is read with the service named and no account', async () => {
   for (const given of [{ connection_records: [] }, { held_connections: HELD }, {}]) {
     const { runs, host } = runAnswering(listing(new Error('no listing without both lists'), () => ({ object: 'list', has_more: false, data: MONTH })));
     const shown = drawCatalogueScreen('tool:business', { business: await readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z', ...given }, host) });
-    assert.deepEqual(runs.map(run => run.tool), [], JSON.stringify(given));
+    assert.deepEqual(runs.map(run => [run.tool, run.input.connection]), [[MONEY_READ, { connection_id: 'service_connection:stripe' }]], JSON.stringify(given));
     assert.equal(shown.sections[0].heading, 'Stripe since October 1', 'never drawn as not connected');
-    assert.equal(shown.sections[0].rows?.[0]?.id, 'unread:Stripe');
+    assert.equal(shown.sections[0].rows?.[0]?.id === 'connect', false);
   }
 });
 

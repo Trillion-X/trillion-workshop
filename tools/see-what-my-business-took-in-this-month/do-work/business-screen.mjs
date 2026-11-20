@@ -19,10 +19,12 @@
 //       owned by tools/connections (the person's connection records and the vault's held names). So a service the
 //       person did not connect is drawn "<service> is not connected", live. When that list cannot be read (the run
 //       fails or takes too long), `connections` is null (unknown) and an unknown connection is never said to be
-//       connected or not: no account is known to name, so no money read is made and it is drawn as old Business drew a
-//       failed read, "could not be read just now", with no number. A money read names the account it reads
-//       (`connection: {connection_id}`, as every connection-taking row is handed one); a person who holds more than one
-//       account of a service is refused, naming them, and a read that fails (no key held, a refusal, too slow) is drawn the same way.
+//       connected or not: its money is read with the service named and no account (`service_connection:<vendor>`), and the
+//       engine finds the account the vault holds of it (one held: that one; several: refused, naming them; none: the
+//       key is not held), so a read that fails is drawn as old Business drew a failed read, "could not be read just now", with
+//       no number. A money read from a known list names the account it reads (`connection: {connection_id}`, as every
+//       connection-taking row is handed one); a person who holds more than one account of a service is refused, naming
+//       them, and a read that fails (no key held, a refusal, too slow) is drawn the same way.
 //       Old connectionsNow also added the connections a present computer carries (src/carried-connections.mjs); no
 //       owner keeps those today, and no payment service is carried by a computer, so none is added.
 //     - The operator's part has no owner today either: whether this account is the operator (env.OPERATOR_ACCOUNT_ID),
@@ -96,8 +98,9 @@ export function moneyWords(minor, currency) {
  * The payment services whose money can be read (src/money-reads.json), each with its name and whether this person
  * connected it. A service's name and vendor come from the read tool's own connection and that service's connect row.
  * rows: the Workshop's tool rows ({ tools }); connections: the person's connections ([{ connection_id, vendor, ... }]), or
- * null when they cannot be read (then `connected` is null: unknown). `accounts` are the ids of the person's accounts of
- * the service; `connection_id` is the one to read when there is exactly one.
+ * null when they cannot be read (then `connected` is null: unknown, and the read names the service with no account,
+ * `service_connection:<vendor>`, for the engine to find the account the vault holds). `accounts` are the ids of the
+ * person's accounts of the service; `connection_id` is the one to read when there is exactly one.
  */
 export function moneyServices(rows, connections) {
   return moneyReads.reads.flatMap(read => {
@@ -106,7 +109,8 @@ export function moneyServices(rows, connections) {
     const vendor = tool.invoke?.connection?.vendor;
     const service = rows.tools.find(item => item.invoke?.connects && item.invoke.provider === vendor);
     const accounts = connections === null ? [] : connections.filter(item => item.vendor === vendor).map(item => item.connection_id);
-    return [{ read, label: service?.label ?? vendor, connected: connections === null ? null : accounts.length > 0, accounts, connection_id: accounts.length === 1 ? accounts[0] : undefined }];
+    const connectionId = connections === null ? `service_connection:${vendor}` : accounts.length === 1 ? accounts[0] : undefined;
+    return [{ read, label: service?.label ?? vendor, connected: connections === null ? null : accounts.length > 0, accounts, connection_id: connectionId }];
   });
 }
 
@@ -135,8 +139,9 @@ export function tallyMoney(read, answer) {
 
 /**
  * Read this month's money on every connected payment service, with the one account of it the person holds named in the
- * read's input. A service whose connection is unknown is unread, and one the person holds several accounts of is refused,
- * naming them, since the person has not said which. `run(tool_id, input)` runs a tool with the person's own connection and
+ * read's input. A service whose connection is unknown is read with the service named and no account, which the engine
+ * answers with the one account the vault holds of it, or refuses naming several; a person's own list that shows several
+ * accounts is refused here, naming them, since the person has not said which. `run(tool_id, input)` runs a tool with the person's own connection and
  * answers its output, or null when it failed or took too long.
  */
 export async function readMoney({ services, run, since }) {
