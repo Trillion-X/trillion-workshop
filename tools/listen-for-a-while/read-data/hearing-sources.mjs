@@ -86,7 +86,7 @@ export async function hearSourcesOfACall(input, { hear = hearFile, hearing = {},
 export async function hearSourcesTool(input = {}, { settings = sourcesSettings(), file, hear = hearFile } = {}) {
   if (!String(input.model_path ?? '').trim()) throw fail(settings.words.needs_model);
   const cli = String(input.whisper_cli ?? '').trim() || 'whisper-cli';
-  const program = { id: 'whisper-cli', label: 'whisper-cli', check: [path.basename(cli), '--help'], search_path: path.isAbsolute(cli) ? [path.dirname(cli)] : [], model: input.model_path, ffmpeg: input.ffmpeg ?? null };
+  const program = { id: 'whisper-cli', label: 'whisper-cli', check: [path.basename(cli), '--help'], search_path: path.isAbsolute(cli) ? [path.dirname(cli)] : [], model: input.model_path, ffmpeg: input.ffmpeg ?? null, no_gpu: true };
   return hearSourcesOfACall({ sources: input.sources, flags: input.flags }, { hear, hearing: { rows: [program] }, settings, at: input.at ? Date.parse(input.at) : 0, file });
 }
 

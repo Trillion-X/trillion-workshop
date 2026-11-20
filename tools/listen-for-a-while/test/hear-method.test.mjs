@@ -69,7 +69,7 @@ test('the picked hearing row is what runs: its program, model and ffmpeg reach t
     "writeFileSync(out + '.args', JSON.stringify(args));",
     "writeFileSync(out, JSON.stringify({ full_text: 'hi', segments: [{ start: 0, end: 1, text: 'hi' }], language: 'en' }));",
   ].join('\n'));
-  const row = { id: 'whisper-test', label: 'whisper test', check: ['whisper-cli', '--version'], model: '/row-model.bin', ffmpeg: '/row/ffmpeg' };
+  const row = { id: 'whisper-test', label: 'whisper test', check: ['whisper-cli', '--version'], model: '/row-model.bin', ffmpeg: '/row/ffmpeg', no_gpu: true };
   const file = path.join(dir, 'sessions.json');
   const { session } = await hearSourcesOfACall(
     { sources: [{ source: 'microphone', path: path.join(dir, 'mic.wav') }] },
@@ -81,6 +81,7 @@ test('the picked hearing row is what runs: its program, model and ffmpeg reach t
   assert.ok(value('--whisper-cli').endsWith('/whisper-cli'), 'the row program is the whisper-cli that runs');
   assert.equal(value('--model-path'), '/row-model.bin', 'the row model is used, not the request model');
   assert.equal(value('--ffmpeg'), '/row/ffmpeg', 'the row ffmpeg is used, not the request ffmpeg');
+  assert.ok(seen.includes('--no-gpu'), 'the row asks for no GPU, so the seam gets --no-gpu');
   assert.equal(session.program, 'whisper-test');
 });
 
