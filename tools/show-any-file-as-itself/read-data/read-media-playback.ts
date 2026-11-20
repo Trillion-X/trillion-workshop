@@ -1,4 +1,4 @@
-import { readScreenReadyRecords } from '../../screen-ready-records/read-data/read-screen-ready-records';
+import { readScreenReadyRecords } from '../../screen-ready-records/read-data/read-screen-ready-records.ts';
 
 export type PublishedRecord = unknown;
 
