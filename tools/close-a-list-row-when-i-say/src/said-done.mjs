@@ -92,10 +92,64 @@ function settlingValues(row, message, words, names) {
 }
 
 /**
- * message, read, listFor (as rowsNamed), broughtIn (the owner's rule: true for history brought in), names ({ finish }: the
- * list choice the settled row is filed under, from the product's own words),
- * ask(input) → a probability 0 to 1 that the person says it is done, or null when no computer answers,
- * settle({ list_id, row_id, values }) → the lists road's answer, handOff(job) → agents.handOff's answer.
+ * Step 1 of the split (pure): the classifier questions for one person's message and the open rows it names (rows from
+ * rowsNamed, read by the caller). Nothing is asked when the words are not the person's own or are history brought in.
+ * Each ask carries the row's settle plan (values) and its hand-off words, so the later steps need nothing else.
+ */
+export function saidDoneAsks({ message, rows, names, broughtIn }) {
+  if (typeof names?.finish !== 'string' || !names.finish) throw new Error('saidDoneAsks needs names.finish: the words of the list choice that says the AIs did it.');
+  if (typeof broughtIn !== 'function') throw new Error('saidDoneAsks needs the broughtIn owner; nothing is weighed without it.');
+  if (!message || !thePersonsWords(message) || broughtIn(message)) return [];
+  return rows.map(row => {
+    const title = String(row.values[row.list.title_field] ?? row.row_id);
+    const doneWhen = row.values[settings.classify.detail_field];
+    const detail = present(doneWhen) && typeof doneWhen === 'string' ? fill(settings.classify.detail, { done_when: doneWhen }) : '';
+    const text = excerpt(message.text, row.mention);
+    const listName = row.list.label ?? row.list.id;
+    const words = text.replace(/\s+/g, ' ').trim();
+    return {
+      record_id: row.record_id,
+      row_id: row.row_id,
+      list_id: row.list.id,
+      title,
+      question: {
+        state: fill(settings.classify.state, { app: message.app ?? '', text, list: listName, title, detail }),
+        questions: { verdict: { type: 'noul', instructions: settings.classify.question, criteria: settings.classify.means } },
+      },
+      values: settlingValues(row, message, words, names),
+      filled: { app: message.app ?? '', message_id: message.id ?? '', record_id: row.record_id, row_id: row.row_id, list_id: row.list.id, title, text: words,
+        detail, conversation_id: message.conversation_id ?? '', values: JSON.stringify(settlingValues(row, message, words, names)) },
+    };
+  });
+}
+
+/**
+ * Step 2 of the split (pure): what one answer means for one ask. `probability` is the classifier's 0 to 1 yes, or null when no
+ * computer answered. Returns { verdict, probability?, settle? } (a clear yes: settle the row) or { verdict, probability?, hand }
+ * (between the thresholds, or no answer: the judgement goes to the person's AIs, once per message and row). A clear no is { verdict: 'not_said' }.
+ */
+export function saidDoneVerdict({ ask, probability, message }) {
+  const known = probability !== null && probability !== undefined && Number.isFinite(Number(probability));
+  const p = known ? Number(probability) : null;
+  if (known && p >= settings.close_at) return { verdict: 'done', probability: p, settle: { list_id: ask.list_id, row_id: ask.row_id, values: ask.values } };
+  if (known && p < settings.unsure_from) return { verdict: 'not_said', probability: p };
+  const filled = { ...ask.filled, why: known ? fill(settings.why.unsure, { probability: p.toFixed(2) }) : settings.why.silent };
+  const once = fill(settings.hand.once_per, filled);
+  return {
+    verdict: known ? 'unsure' : 'no_classifier',
+    ...(known ? { probability: p } : {}),
+    hand: {
+      job: fill(settings.hand.job, filled), said: fill(settings.hand.said, filled), from_agent: settings.hand.from_agent,
+      priority: settings.hand.priority, once_per: once, request_key: once,
+      input: { said_done: { message_id: message.id ?? null, list_id: ask.list_id, row_id: ask.row_id, values: ask.values } },
+    },
+  };
+}
+
+/**
+ * The whole weigh in one call (the owners passed in): saidDoneAsks, the question to ask, then saidDoneVerdict, settling or handing
+ * on. message, read, listFor (as rowsNamed), broughtIn (the owner's rule: true for history brought in), names ({ finish }),
+ * ask(input) → a probability 0 to 1 or null, settle({ list_id, row_id, values }), handOff(job) → agents.handOff's answer.
  */
 export async function weighSaidDone({ message, read, listFor, broughtIn, names, ask, settle, handOff }) {
   if (typeof names?.finish !== 'string' || !names.finish) throw new Error('weighSaidDone needs names.finish: the words of the list choice that says the AIs did it.');
@@ -103,36 +157,16 @@ export async function weighSaidDone({ message, read, listFor, broughtIn, names, 
   if (!message || !thePersonsWords(message) || broughtIn(message)) return { weighed: [] };
   const rows = await rowsNamed(message, { read, listFor });
   const weighed = [];
-  for (const row of rows) {
-    const title = String(row.values[row.list.title_field] ?? row.row_id);
-    const doneWhen = row.values[settings.classify.detail_field];
-    const detail = present(doneWhen) && typeof doneWhen === 'string' ? fill(settings.classify.detail, { done_when: doneWhen }) : '';
-    const text = excerpt(message.text, row.mention);
-    const listName = row.list.label ?? row.list.id;
-    const probability = await ask({
-      state: fill(settings.classify.state, { app: message.app ?? '', text, list: listName, title, detail }),
-      questions: { verdict: { type: 'noul', instructions: settings.classify.question, criteria: settings.classify.means } },
-    });
-    const known = probability !== null && probability !== undefined && Number.isFinite(Number(probability));
-    const p = known ? Number(probability) : null;
-    const words = text.replace(/\s+/g, ' ').trim();
-    const values = settlingValues(row, message, words, names);
-    if (known && p >= settings.close_at) {
-      await settle({ list_id: row.list.id, row_id: row.row_id, values });
-      weighed.push({ record_id: row.record_id, verdict: 'done', probability: p });
+  for (const item of saidDoneAsks({ message, rows, names, broughtIn })) {
+    const probability = await ask(item.question);
+    const verdict = saidDoneVerdict({ ask: item, probability, message });
+    if (verdict.settle) await settle(verdict.settle);
+    if (verdict.hand) {
+      const handed = await handOff(verdict.hand);
+      weighed.push({ record_id: item.record_id, verdict: verdict.verdict, ...(verdict.probability !== undefined ? { probability: verdict.probability } : {}), handoff_id: handed?.handoff?.handoff_id ?? handed?.handoff_id ?? null });
       continue;
     }
-    if (known && p < settings.unsure_from) { weighed.push({ record_id: row.record_id, verdict: 'not_said', probability: p }); continue; }
-    const filled = { app: message.app ?? '', message_id: message.id ?? '', record_id: row.record_id, row_id: row.row_id, list_id: row.list.id, title, text: words,
-      detail, conversation_id: message.conversation_id ?? '', values: JSON.stringify(values),
-      why: known ? fill(settings.why.unsure, { probability: p.toFixed(2) }) : settings.why.silent };
-    const once = fill(settings.hand.once_per, filled);
-    const handed = await handOff({
-      job: fill(settings.hand.job, filled), said: fill(settings.hand.said, filled), from_agent: settings.hand.from_agent,
-      priority: settings.hand.priority, once_per: once, request_key: once,
-      input: { said_done: { message_id: message.id ?? null, list_id: row.list.id, row_id: row.row_id, values } },
-    });
-    weighed.push({ record_id: row.record_id, verdict: known ? 'unsure' : 'no_classifier', ...(known ? { probability: p } : {}), handoff_id: handed?.handoff?.handoff_id ?? handed?.handoff_id ?? null });
+    weighed.push({ record_id: item.record_id, verdict: verdict.verdict, ...(verdict.probability !== undefined ? { probability: verdict.probability } : {}) });
   }
   return { weighed };
 }
