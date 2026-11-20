@@ -17,7 +17,7 @@ The settings file is JSON the person writes. There is no sender built in: with n
 }
 ```
 
-Optional: `advertised_host` (the address told to a sender in the passive reply; empty means the address its control connection arrived on), `passive_port_first` and `passive_port_last` (a range to open for data connections, for a firewall), `completion_note_suffix` (default `.finished.json`), `tls_certificate_file` and `tls_private_key_file` (turn on explicit TLS).
+Optional: `advertised_host` (the address told to a sender in the passive reply; empty means the address its control connection arrived on), `passive_port_first` and `passive_port_last` (a range to open for data connections, for a firewall), `completion_note_suffix` (default `.finished.json`), `tls_certificate_file` with `tls_private_key_descriptor` or `tls_private_key_file` (turn on explicit TLS). The descriptor (3 or above) is one the starter holds open with the key's PEM on it, read once into memory, so no file holds the key; the file road stays for a person who keeps the key in a file (keep it 0600). The Mac app's own receiver (`do-work/send-what-arrives-to-a-namespace.mjs`) already keeps its key in the Keychain and in memory.
 
 ## Files
 

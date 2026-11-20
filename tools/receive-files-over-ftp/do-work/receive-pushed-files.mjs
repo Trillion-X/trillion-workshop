@@ -53,7 +53,7 @@
 
 import { createServer as createTcpServer, isIP } from "node:net";
 import { TLSSocket, createSecureContext } from "node:tls";
-import { closeSync, createWriteStream, openSync, promises as fsp, readSync } from "node:fs";
+import { closeSync, createWriteStream, openSync, promises as fsp, readFileSync, readSync } from "node:fs";
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import path from "node:path";
 import { makeHashCodeHexFromChunks } from "../../content-identity/read-data/identity.mjs";
@@ -63,7 +63,7 @@ import { makeHashCodeHexFromChunks } from "../../content-identity/read-data/iden
  *
  *  { listen_host, listen_port, advertised_host, passive_port_first, passive_port_last, completion_note_suffix,
  *    senders: [{ login, password, handed_over_by }], media_types_by_extension: { mp4: "video/mp4" },
- *    tls_certificate_file, tls_private_key_file } */
+ *    tls_certificate_file, tls_private_key_file | tls_private_key_descriptor } */
 export function readSettings(file = {}) {
   const wholePort = (value, fallback, least) => (Number.isInteger(value) && value >= least && value < 65536 ? value : fallback);
   const senders = (Array.isArray(file.senders) ? file.senders : [])
@@ -90,6 +90,8 @@ export function readSettings(file = {}) {
     ),
     tls_certificate_file: nonEmpty(file.tls_certificate_file) ?? "",
     tls_private_key_file: nonEmpty(file.tls_private_key_file) ?? "",
+    /** A descriptor (3 or above) the starter holds open with the private key's PEM on it, so no file holds the key. */
+    tls_private_key_descriptor: Number.isInteger(file.tls_private_key_descriptor) && file.tls_private_key_descriptor >= 3 ? file.tls_private_key_descriptor : null,
   };
 }
 
@@ -610,10 +612,12 @@ export async function runReceiver({
   if (!settings || typeof root !== "string" || !root) throw new Error("runReceiver needs settings (from readSettings) and root, the folder to keep files in.");
   const resolvedRoot = path.resolve(root);
   let secureContext = null;
-  if (settings.tls_certificate_file && settings.tls_private_key_file) {
+  const keyOnDescriptor = settings.tls_private_key_descriptor !== null && settings.tls_private_key_descriptor !== undefined;
+  if (settings.tls_certificate_file && (keyOnDescriptor || settings.tls_private_key_file)) {
+    // The descriptor is read once, here, and the key stays in this process's memory; the file road reads the named file.
     secureContext = createSecureContext({
       cert: await fsp.readFile(path.resolve(resolvedRoot, settings.tls_certificate_file)),
-      key: await fsp.readFile(path.resolve(resolvedRoot, settings.tls_private_key_file)),
+      key: keyOnDescriptor ? readFileSync(settings.tls_private_key_descriptor) : await fsp.readFile(path.resolve(resolvedRoot, settings.tls_private_key_file)),
     });
   }
   const sessions = new Set();

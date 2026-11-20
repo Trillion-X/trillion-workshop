@@ -16,8 +16,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { connect } from "node:net";
-import { execFile } from "node:child_process";
+import { execFile, execFileSync } from "node:child_process";
 import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { closeSync, openSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { makeHashCodeHexFromBytes } from "../../content-identity/read-data/identity.mjs";
@@ -238,6 +239,36 @@ test("live: a wrong password yields no session and nothing can be stored", async
     assert.match(await control.send("STOR x.bin"), /^530 /);
     control.socket.destroy();
   });
+});
+
+test("live: the private key for secure sessions can be handed on a descriptor, with no file left holding it", async () => {
+  const folder = await mkdtemp(path.join(tmpdir(), "receive-pushed-files-key."));
+  const keyFile = path.join(folder, "k.pem");
+  execFileSync("openssl", ["req", "-x509", "-newkey", "ec", "-pkeyopt", "ec_paramgen_curve:prime256v1", "-nodes", "-keyout", keyFile, "-out", path.join(folder, "c.pem"), "-days", "1", "-subj", "/CN=127.0.0.1"], { stdio: "ignore" });
+  const descriptor = openSync(keyFile, "r");
+  unlinkSync(keyFile);
+  try {
+    await assert.rejects(stat(keyFile));
+    const settings = settingsFor({ tls_certificate_file: path.join(folder, "c.pem"), tls_private_key_descriptor: descriptor });
+    assert.equal(settings.tls_private_key_descriptor, descriptor);
+    assert.equal(settings.tls_private_key_file, "");
+    await withReceiver(async ({ receiver }) => {
+      const control = await open(receiver.address.port);
+      assert.match(await control.send("AUTH TLS"), /^234 /);
+      control.socket.destroy();
+    }, { settings });
+    // Without a key, secure sessions are refused plainly, as before.
+    await withReceiver(async ({ receiver }) => {
+      const control = await open(receiver.address.port);
+      assert.match(await control.send("AUTH TLS"), /^534 /);
+      control.socket.destroy();
+    }, { settings: settingsFor({ tls_certificate_file: path.join(folder, "c.pem") }) });
+    // Descriptors 0 to 2 are never a key's place.
+    assert.equal(settingsFor({ tls_private_key_descriptor: 1 }).tls_private_key_descriptor, null);
+  } finally {
+    closeSync(descriptor);
+    await rm(folder, { recursive: true, force: true });
+  }
 });
 
 test("live: a sender may delete a file that has no note yet, and only that", async () => {

@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 import {mkdtempSync, writeFileSync} from 'node:fs'
 import {join} from 'node:path'
 import {tmpdir} from 'node:os'
+import {spawn} from 'node:child_process'
 import {candidates as hostedCandidates, ask as askHosted} from '../do-work/ask-a-hosted-classifier.mjs'
 import {classifiersFrom, providersIn, whoCanBeAsked} from '../do-work/who-can-be-asked.mjs'
 import {VerdictRefused} from '../do-work/ask-for-a-verdict.mjs'
@@ -23,6 +24,33 @@ test('a hosted classifier offers nothing without an endpoint, a model and a key 
   assert.deepEqual(await hostedCandidates({key_file: keyFile('k'), endpoint: 'https://x'}), [])
   assert.deepEqual(await hostedCandidates({...row, key_file: '/nonexistent/key.txt'}), [])
   assert.deepEqual(await hostedCandidates({...row, key_file: keyFile('  \n')}), [])
+})
+
+// The key arrives on a descriptor a real parent process holds open, so no file holds it.
+const adapterUrl = new URL('../do-work/ask-a-hosted-classifier.mjs', import.meta.url).href
+const withKeyOnDescriptor = (descriptor, handed) => new Promise((resolve, reject) => {
+  const script = `import {candidates} from ${JSON.stringify(adapterUrl)}
+    const [one] = await candidates(${JSON.stringify({...row, key_descriptor: descriptor})})
+    console.log(JSON.stringify(one ? {length: one.reach.credential.length, twice: (await candidates(${JSON.stringify({...row, key_descriptor: descriptor})}))[0]?.reach.credential.length} : null))`
+  const stdio = ['ignore', 'pipe', 'pipe', 'ignore', 'ignore', 'ignore']
+  stdio[descriptor] = 'pipe'
+  const child = spawn(process.execPath, ['--input-type=module', '-e', script], {stdio})
+  let out = ''
+  child.stdout.on('data', chunk => { out += chunk })
+  child.on('error', reject)
+  child.on('close', () => resolve(JSON.parse(out.trim() || 'null')))
+  child.stdio[descriptor].end(handed)
+})
+
+test('a key handed on an inherited descriptor is read once and no file holds it', async () => {
+  assert.deepEqual(await withKeyOnDescriptor(3, 'secret-value\n'), {length: 12, twice: 12})
+  assert.deepEqual(await withKeyOnDescriptor(5, 'another-secret-value\n'), {length: 20, twice: 20})
+  assert.equal(await withKeyOnDescriptor(3, '  \n'), null)
+})
+
+test('a descriptor of the standard streams is no credential, and one that is not open offers nothing', async () => {
+  for (const descriptor of [0, 1, 2]) assert.deepEqual(await hostedCandidates({...row, key_descriptor: descriptor}), [])
+  assert.deepEqual(await hostedCandidates({...row, key_descriptor: 41}), [])
 })
 
 test('the key is read from the named file and sent as a bearer token, and the request never carries it', async () => {

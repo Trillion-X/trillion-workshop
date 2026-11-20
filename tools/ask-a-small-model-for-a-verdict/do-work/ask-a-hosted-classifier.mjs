@@ -2,14 +2,34 @@ import {readFileSync} from 'node:fs'
 import {VerdictRefused} from './ask-for-a-verdict.mjs'
 
 /**
- * The credential a provider row points at: a file the person names (`key_file`,
- * the file holds the key and the request never does), or none at all for a
- * server on their own computer (`needs_no_key`). An unreadable file is no
- * credential, so the adapter offers nothing rather than sending an empty
- * Authorization header.
+ * The credential a provider row points at: a descriptor the caller holds open
+ * (`key_descriptor`, 3 or above: one line, read once, so no file holds the key
+ * and the caller's own vault or Keychain reads it), or a file the person names
+ * (`key_file`, the file holds the key and the request never does), or none at
+ * all for a server on their own computer (`needs_no_key`). A descriptor that
+ * holds nothing, or a file that is unreadable, is no credential, so the adapter
+ * offers nothing rather than sending an empty Authorization header.
  */
+const FIRST_FREE_DESCRIPTOR = 3
+const heldOnDescriptor = new Map()
+
 function credentialFrom(settings) {
   if (settings.needs_no_key) return 'not-needed'
+  if (Number.isInteger(settings.key_descriptor)) {
+    if (settings.key_descriptor < FIRST_FREE_DESCRIPTOR) return null
+    // A pipe gives its line once; every candidate that names this descriptor in
+    // this process reads the one value the first read took.
+    if (!heldOnDescriptor.has(settings.key_descriptor)) {
+      let line = ''
+      try {
+        line = readFileSync(settings.key_descriptor, 'utf8').trim()
+      } catch {
+        line = ''
+      }
+      heldOnDescriptor.set(settings.key_descriptor, line || null)
+    }
+    return heldOnDescriptor.get(settings.key_descriptor)
+  }
   if (typeof settings.key_file !== 'string') return null
   try {
     return readFileSync(settings.key_file, 'utf8').trim() || null

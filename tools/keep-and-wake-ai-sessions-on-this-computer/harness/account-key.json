@@ -2,6 +2,7 @@
   "_what": "Where the account key is kept for the programs that run on a person's computer (harness/account-key.mjs). Only the homes the shipped code already writes: the Keychain item the Mac app and `trillion login` keep on a Mac (harness/trillion.json keychain_item, ComputerReader.swift), and on another system the 0600 file `trillion login` keeps (harness/trillion.json key_file).",
   "keychain_item": "trillion-agent-work-key",
   "key_file": "~/.trillion/cli/key",
+  "_key_file_why": "Read only where there is no Keychain (any system but macOS; this Mac has no such file). It is the one file the login command writes there, 0600 in a 0700 folder, and account-key.mjs refuses it when anyone but its owner can read it. The key is what signs in to the vault, so it cannot be kept in the vault.",
   "timeout_ms": 3000,
   "security_program": "/usr/bin/security",
   "keychain_missing_item_status": 44
