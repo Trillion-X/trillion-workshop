@@ -783,6 +783,87 @@
       }
     },
     {
+      "kind": "matched-items-hold-their-text",
+      "meaning": "Every item at path whose key field (named by `key`) is one of the values at `of` carries a window that holds its own text exactly: the same characters, case and quote marks. The window and the text are the item's own fields, `window` and `text`, as a read step gives them. Items whose key is not in `of` are not judged. The failing values are the items whose window does not hold its text. Exact, not lowered: op:core.contains with no lower step, the same operator as the contains-exactly row and the formula engine's contains_exactly row.",
+      "fields": [
+        {
+          "field": "path",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        },
+        {
+          "field": "key",
+          "shape": "key",
+          "required": true,
+          "refusal": "must name the field each item is matched by."
+        },
+        {
+          "field": "of",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        }
+      ],
+      "wrong": {
+        "$values": "path",
+        "transform": [
+          {
+            "op": "op:core.filter_where",
+            "args": {
+              "predicate": [
+                {
+                  "op": "op:core.get_path",
+                  "args": {
+                    "path": {
+                      "$fill": "key"
+                    }
+                  }
+                },
+                {
+                  "op": "op:core.in_list",
+                  "args": {
+                    "values": {
+                      "$values": "of"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "op": "op:core.filter_where",
+            "args": {
+              "predicate": [
+                {
+                  "op": "op:core.get_path",
+                  "args": {
+                    "path": "window"
+                  }
+                },
+                {
+                  "op": "op:core.contains",
+                  "args": {
+                    "value": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "vars",
+                        "key": "$item",
+                        "path": "text"
+                      }
+                    }
+                  }
+                },
+                {
+                  "op": "op:core.not"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "kind": "mentioned-in",
       "meaning": "Every value at path appears in the text at in.",
       "fields": [
