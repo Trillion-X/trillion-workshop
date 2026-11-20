@@ -9,7 +9,8 @@
 //   await host.parentActions.trashSource({ path, expected_generation })  -> { outcome: 'moved' }; one attempt, never retried
 //   await host.readWholeFile(name, { readBytes?, mostBytes? })           -> { title, size, bytes } (bytes null when above mostBytes)
 //   await host.files(method, input)                                      -> one files-right operation (list_files, write_file_start ...)
-//   await host.run(tool, input, { key? })                                -> another Workshop tool's result (tools:run; a failed run throws)
+//   await host.run(tool, input, { key? })                                -> another Workshop tool's result (tools:run; a failed run throws;
+//                                                                           an answer sent as byte pages is joined and checked first)
 //   await host.operation(method, input, { key? })                        -> one door method at the run's own address (wake:arrive, tools:list ...)
 //   await host.writeLarge(name, source, { mediaType? })                  -> a file above the piece bound, over the lease road
 //
@@ -41,6 +42,39 @@ const WORKSHOP_TOOLS = '@tools';
 // `result`, and a failed run throws `tool_run_failed` with the engine's cause; an answer with neither field is the answer itself.
 const TOOL_RUN_RESULT = 'result';
 const TOOL_RUN_ERROR = 'error';
+
+// An answer too big for one message is sent as pages of its own JSON bytes (trillion-rust src/mcp.rs `byte_page`):
+// `{ byte_page: { total, blake3, offset, length, base64, next_after_byte } }`. Each further page is the same call under the same
+// request key with `after_byte`, which the engine answers from the first call's receipt and never runs again. Until Nov 20 2026
+// a paged answer was handed on as it was: tool:list-running-programs with commands (about 635 KB) reached the next step of
+// workflow:stop-programs-left-running as a page with no `programs`, and every run of it failed from 12:30 AM CST.
+async function wholeOf(first, next) {
+  const head = first && typeof first === 'object' && !Array.isArray(first) ? first.byte_page : null;
+  if (!head || typeof head !== 'object') return first;
+  const broken = why => new HostActionError('byte_page_broken', `The paged answer could not be joined: ${why}.`, 'unknown');
+  const { total, blake3 } = head;
+  if (!Number.isInteger(total) || total < 0 || total > MOST_BYTES) throw broken('it names no whole size this owner takes');
+  if (typeof blake3 !== 'string' || !/^[0-9a-f]{64}$/i.test(blake3)) throw broken('it names no BLAKE3');
+  const parts = [];
+  let page = head;
+  let at = 0;
+  for (;;) {
+    if (page.offset !== at || page.total !== total || String(page.blake3).toLowerCase() !== blake3.toLowerCase()) throw broken(`a page does not continue at byte ${at}`);
+    const bytes = Buffer.from(typeof page.base64 === 'string' ? page.base64 : '', 'base64');
+    if (bytes.length !== page.length || (!bytes.length && at < total)) throw broken(`a page at byte ${at} holds ${bytes.length} bytes`);
+    parts.push(bytes);
+    at += bytes.length;
+    if (at > total) throw broken(`the pages hold more than ${total} bytes`);
+    if (at === total) break;
+    if (page.next_after_byte !== at) throw broken(`next_after_byte is ${page.next_after_byte ?? 'null'} at byte ${at}`);
+    const answer = await next(at);
+    page = answer && typeof answer === 'object' ? answer.byte_page : null;
+    if (!page || typeof page !== 'object') throw broken(`the answer after byte ${at} is not a page`);
+  }
+  const joined = Buffer.concat(parts);
+  if (makeHashCodeHexFromBytes(joined) !== `1f:${blake3.toLowerCase()}`) throw broken('the joined bytes do not hash to its BLAKE3');
+  try { return JSON.parse(joined.toString('utf8')); } catch { throw broken('the joined bytes are not JSON'); }
+}
 
 export class HostActionError extends Error {
   constructor(code, message, outcome = null) {
@@ -153,15 +187,19 @@ export function openHostActions({ descriptor = 3, fetchImpl = fetch, wait = ms =
     // run's grant and deadline. `key` names it within this run, so the same nested run sent again is one run. Answers the
     // run's result; a run that failed throws `tool_run_failed`. A run is asked once, never retried by this owner.
     async run(tool, input = {}, { key = `tools:run:${randomUUID()}` } = {}) {
-      const answer = await ask(current(), fetchImpl, wait, { address: current().tools_resource ?? WORKSHOP_TOOLS, method: 'tools:run',
-        input: { tool, input }, key, retry: false });
+      const address = current().tools_resource ?? WORKSHOP_TOOLS;
+      const first = await ask(current(), fetchImpl, wait, { address, method: 'tools:run', input: { tool, input }, key, retry: false });
+      // The later pages read the first call's receipt under its key, so asking for them again is safe.
+      const answer = await wholeOf(first, at => ask(current(), fetchImpl, wait, { address, method: 'tools:run', input: { tool, input, after_byte: at }, key, retry: true }));
       return resultOfRun(tool, answer);
     },
     // One operation the run's own door answers by its method (a workflow step's door ask: wake:arrive, tools:list, tools:run
     // at a server's address), at the descriptor's own address (`resource`, else @own-records). Sent once; the engine holds it
     // to this run's rights.
     async operation(method, input, { key = `${method}:${randomUUID()}` } = {}) {
-      return ask(current(), fetchImpl, wait, { address: current().resource ?? '@own-records', method, input, key, retry: false });
+      const address = current().resource ?? '@own-records';
+      const first = await ask(current(), fetchImpl, wait, { address, method, input, key, retry: false });
+      return wholeOf(first, at => ask(current(), fetchImpl, wait, { address, method, input: { ...input, after_byte: at }, key, retry: true }));
     },
     // A file above the piece bound, kept over the lease road by the Workshop's one chunked sender, with this run's own
     // capability as its authorization (the bearer is never printed, logged or returned).

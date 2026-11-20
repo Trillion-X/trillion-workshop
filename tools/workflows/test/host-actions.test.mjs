@@ -114,3 +114,33 @@ test('a whole file above mostBytes is never read past its first page', async () 
   } });
   assert.deepEqual(await host.readWholeFile('big.bin', { readBytes: 4, mostBytes: 10 }), { title: 'big.bin', size: 100, bytes: null });
 });
+
+test('a tool answer sent as byte pages is joined, checked and handed on whole; the later pages reuse the first key', async () => {
+  const { blake3 } = await import('@noble/hashes/blake3.js');
+  const { bytesToHex } = await import('@noble/hashes/utils.js');
+  const whole = Buffer.from(JSON.stringify({ tool: 'tool:made-up-list', exit_code: 0, result: { programs: Array.from({ length: 300 }, (_, pid) => ({ pid, name: `p${pid}` })), complete: true } }));
+  const hash = bytesToHex(blake3(whole));
+  const pageAt = (from, size = 4000) => {
+    const end = Math.min(from + size, whole.length);
+    return { byte_page: { total: whole.length, blake3: hash, offset: from, length: end - from, base64: whole.subarray(from, end).toString('base64'), next_after_byte: end < whole.length ? end : null } };
+  };
+  const calls = [];
+  const host = openHostActions({ descriptor: descriptorWith(), wait: noWait, fetchImpl: async (url, options) => {
+    const args = JSON.parse(options.body).params.arguments;
+    calls.push(args);
+    return parentResult({ structuredContent: pageAt(args.input.after_byte ?? 0) });
+  } });
+  const result = await host.run('tool:made-up-list', { most: 300 }, { key: 'step:list' });
+  assert.equal(result.programs.length, 300);
+  assert.equal(result.complete, true);
+  assert.ok(calls.length > 1, 'more than one page was asked');
+  assert.ok(calls.every(call => call.request_key === calls[0].request_key), 'every page is asked under the first call\'s key');
+  assert.deepEqual(calls.slice(1).map(call => call.input.after_byte), calls.slice(1).map((_, at) => (at + 1) * 4000));
+  // A page that does not hash to the whole's BLAKE3 is refused, never handed on.
+  const wrong = openHostActions({ descriptor: descriptorWith(), wait: noWait, fetchImpl: async (url, options) => {
+    const page = pageAt(JSON.parse(options.body).params.arguments.input.after_byte ?? 0);
+    page.byte_page.blake3 = '0'.repeat(64);
+    return parentResult({ structuredContent: page });
+  } });
+  await assert.rejects(wrong.run('tool:made-up-list', {}), error => error.code === 'byte_page_broken');
+});
