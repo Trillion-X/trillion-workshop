@@ -131,6 +131,22 @@ test('the installed one tree, started inside its own run, is refused for a part 
   assert.ok(inside.within.some(item => item.workflow === 'workflow:grow-the-one-tree' && item.part === 0));
 });
 
+test('installed false leaves out the installed recipes and every own row that shares an id with one; a chosen own row hands on its definition', async () => {
+  const definition = { id: 'workflow:greet-a-new-member', name: 'Greet', kind: 'workflow', is_active: true, version: 1, steps: [], edges: [] };
+  const mine = ownRow('greet-a-new-member', { title: 'Greet a new member', fires_when: JSON.stringify([condition('a member joined', ['member-joined'])]), definition: JSON.stringify(definition) });
+  const shipped = installed.find(recipe => recipe.fires_when);
+  const copy = { slug: shipped.id.replace(/^workflow:/, ''), value: { recipe: shipped.id, title: shipped.label, fires_when: JSON.stringify([condition('a member joined', ['member-joined'])]) } };
+  const parts = [{ kinds: ['member-joined'] }];
+  const both = await chooseTheWorkflowsThatFire({ parts, ...handedIn([mine, copy]) });
+  assert.ok(both.chosen.some(item => item.workflow === shipped.id), 'beside the installed ones, a copied row is chosen');
+  const only = await chooseTheWorkflowsThatFire({ parts, ...handedIn([mine, copy]), installed: false });
+  assert.deepEqual(only.chosen.map(item => item.workflow), ['workflow:greet-a-new-member']);
+  assert.deepEqual(only.chosen[0].definition, definition);
+  assert.equal(only.workflows, 1);
+  assert.equal(both.chosen.find(item => item.workflow === shipped.id).definition, undefined, 'a row with no definition hands none on');
+  await assert.rejects(chooseTheWorkflowsThatFire({ parts, installed: 'no' }), /installed must be true or false/);
+});
+
 test('parts are required', async () => {
   await assert.rejects(chooseTheWorkflowsThatFire({ parts: [], ...handedIn([]) }), /parts must be a list/);
 });

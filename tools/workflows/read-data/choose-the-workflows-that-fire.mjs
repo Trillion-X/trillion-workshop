@@ -7,14 +7,18 @@
 // conditions keep which parts. Nothing here names a workflow, a branch or a tag: a workflow added, or a kit installed,
 // is a candidate at once.
 //
-//   chooseTheWorkflowsThatFire({ parts, own?: [{ id, value: { recipe?, title, fires_when } }], operators?, within? })
-//     -> { workflows, own, catalog_only, chosen: [{ workflow, label, part, condition, made_by, from, input }],
+//   chooseTheWorkflowsThatFire({ parts, own?: [{ id, value: { recipe?, title, fires_when, definition? } }], operators?, within?, installed? })
+//     -> { workflows, own, catalog_only, chosen: [{ workflow, label, part, condition, made_by, from, input, definition? }],
 //          unfinished: [{ workflow, condition, incomplete }], unconditioned: [{ workflow, label }], unmatched_parts,
 //          within: [{ workflow, part, condition }] }
 //
 // within names the workflows of the runs this choice is made inside (the run itself and every run above it). A workflow
 // in that chain is never chosen again, so no workflow starts itself through its own parts, at any depth; its matches are
 // named in within instead of being dropped unseen.
+//
+// installed: false leaves the installed recipes out, and with them every own row whose id an installed recipe holds: the
+// candidates are only the person's rows that exist nowhere else (while another caller still chooses the installed ones).
+// A chosen own row that carries its definition hands it on, so whoever starts the run starts it from the row.
 //
 // A condition that is Off, unfinished (a rule the engine cannot evaluate) or has no rule at all chooses nothing; the
 // last two are named so the run can fix them. A workflow with no condition is named in unconditioned, so the run can
@@ -49,7 +53,7 @@ function ownWorkflows(rows = []) {
   for (const row of [...rows].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))) {
     const value = row.value ?? {};
     const id = typeof value.recipe === 'string' && value.recipe ? value.recipe : `workflow:${row.id}`;
-    byId.set(id, { label: value.title, conditions: parsed(value[FIRES_WHEN.field], `${row.id} ${FIRES_WHEN.field}`) });
+    byId.set(id, { label: value.title, conditions: parsed(value[FIRES_WHEN.field], `${row.id} ${FIRES_WHEN.field}`), definition: parsed(value.definition, `${row.id} definition`) });
   }
   return byId;
 }
@@ -88,11 +92,14 @@ function metKeys(condition, part, operators) {
 }
 
 export async function chooseTheWorkflowsThatFire(input = {}) {
-  const { parts, own: ownRows = [], operators, within = [] } = input;
+  const { parts, own: ownRows = [], operators, within = [], installed = true } = input;
+  if (typeof installed !== 'boolean') throw new Error('installed must be true or false.');
   if (!Array.isArray(within) || !within.every(id => typeof id === 'string')) throw new Error('within must be a list of workflow ids.');
   if (!Array.isArray(parts) || !parts.length || !parts.every(object)) throw new Error('parts must be a list of the seed\'s parts, each an object of its typed fields.');
-  const catalog = catalogRecipes();
+  const shipped = catalogRecipes();
+  const catalog = installed ? shipped : new Map();
   const own = ownWorkflows(ownRows);
+  if (!installed) for (const id of [...own.keys()]) if (shipped.has(id)) own.delete(id);
   const ids = [...new Set([...own.keys(), ...catalog.keys()])].sort();
   const matches = [], unfinished = [], unconditioned = [];
   // How many workflows hold each rule key, over every live condition: the rarer a key, the more a match on it says.
@@ -123,7 +130,8 @@ export async function chooseTheWorkflowsThatFire(input = {}) {
     const matched = metKeys(item.condition, parts[part], operators);
     const weight = typeof item.weight === 'number' ? item.weight : 1;
     const score = weight * matched.reduce((sum, key) => sum + Math.log(conditioned / (holders.get(key) ?? conditioned)), 0);
-    return { workflow, label, part, condition: item.label, made_by: item.made_by, from, matched, weight, score: Number(score.toFixed(6)), input: item.input ?? {} };
+    const definition = from === 'own' ? own.get(workflow)?.definition : undefined;
+    return { workflow, label, part, condition: item.label, made_by: item.made_by, from, matched, weight, score: Number(score.toFixed(6)), input: item.input ?? {}, ...(definition ? { definition } : {}) };
   }).sort((a, b) => a.part - b.part || b.score - a.score || (a.workflow < b.workflow ? -1 : 1));
   // A condition that keeps more than half of the parts it is shown says nothing about which work a part is: it is named in
   // broad so learn-and-prune rewrites it around the one situation its workflow is for.

@@ -237,7 +237,11 @@
                   }
                 }
               },
-              "description": "The person's own workflow rows, read by the caller from wherever the person keeps them: each { id, value: { recipe?, title, fires_when } }. Left out, only the installed recipes are candidates"
+              "description": "The person's own workflow rows, read by the caller from wherever the person keeps them: each { id, value: { recipe?, title, fires_when, definition? } }. Left out, only the installed recipes are candidates. A chosen own row that carries its definition hands it on in chosen"
+            },
+            "installed": {
+              "type": "boolean",
+              "description": "false leaves the installed recipes out, and every own row whose id an installed recipe holds: only the person's rows that exist nowhere else are candidates. Left out, true"
             }
           }
         },
