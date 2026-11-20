@@ -276,7 +276,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `see-a-pursuit-through-the-lens` | `tool:see-a-pursuit-through-the-lens` |
 | `see-and-limit-what-each-ai-can-reach` | `tool:read-ai-apps` |
 | `see-what-is-being-worked-on` | `tool:join-what-is-being-worked-on-into-a-tree` |
-| `see-what-my-ais-did` | `tool:list-what-my-ais-did` |
+| `see-what-my-ais-did` | `tool:keep-an-ai-activity-row`, `tool:read-ai-activity` |
 | `see-what-my-business-took-in-this-month` | `tool:read-business`, `tool:stripe-events-read_money_since` |
 | `seller-payment-setup` | `tool:build-a-sellers-payment-setup-request` |
 | `send-messages` | `tool:pace-sends-from-an-inbox`, `tool:save-interest-in-an-email-update`, `tool:send-a-message-on-this-mac`, `tool:send-a-text`, `tool:send-an-email`, `tool:send-due-email-lessons`, `tool:sign-someone-up-for-an-email-course`, `tool:sort-bounces-and-replies`, `tool:stop-an-email-course`, `tool:who-agreed-to-get-which-emails`, `tool:write-a-message-body-from-a-document` |
