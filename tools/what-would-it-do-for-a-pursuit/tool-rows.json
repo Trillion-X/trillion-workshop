@@ -400,7 +400,7 @@
           ]
         },
         "provenance": {
-          "source": "the old Network's the old pursuit answer (src/pursuit-plan.mjs and src/tools.mjs at b6ae0ebf815f): the words check, the closest-tools ranking and the one-day keep, ported; the embedding, recordings and Marketplace rows come from the caller"
+          "source": "the old Network's pursuit answer (src/pursuit-plan.mjs and src/tools.mjs at b6ae0ebf815f): the words check, the closest-tools ranking and the one-day keep, ported; the embedding, recordings and Marketplace rows come from the caller"
         },
         "verify": [],
         "result_selector": "$.result"
