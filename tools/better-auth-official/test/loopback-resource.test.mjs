@@ -76,3 +76,15 @@ test('every other resource is refused: another host, a lookalike, a spelling of 
   assert.equal(loopbackResource('http://127.0.0.1:8788/mcp', rule), 'http://127.0.0.1:8788/mcp');
   assert.equal(loopbackResource('http://[::1]:8788/mcp', rule), 'http://[::1]:8788/mcp');
 });
+
+test('a row kept with scopes from before is brought to the settings\' scopes, so the engine is not refused', async () => {
+  const resource = 'http://127.0.0.1:8799/mcp';
+  await pool.query(`insert into "oauthResource" (id, identifier, name, "allowedScopes", "createdAt", "updatedAt") values ($1, $2, $3, $4, now(), now())`,
+    ['old-row-8799', resource, rule.name, JSON.stringify(['records', 'tools', 'records-read', 'tools-list'])]);
+  const { token, refused } = await connect(resource);
+  assert.equal(refused, undefined, `${resource} was refused: ${refused}`);
+  assert.ok([audienceOf(token)].flat().includes(resource));
+  const held = (await pool.query('select "allowedScopes" as s from "oauthResource" where identifier = $1', [resource])).rows;
+  assert.equal(held.length, 1);
+  assert.deepEqual(held[0].s, settings.mcp.resource_scopes);
+});

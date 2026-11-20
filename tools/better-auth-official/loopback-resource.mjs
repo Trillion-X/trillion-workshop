@@ -14,13 +14,21 @@ export function loopbackResource(identifier, rule) {
   return identifier === canonical ? canonical : null;
 }
 
-/** Makes the store hold a row for each loopback resource named in `requested` (a text, an array of texts or nothing). */
+const sameScopes = (a, b) => Array.isArray(a) && a.length === b.length && a.every(scope => b.includes(scope));
+
+/** Makes the store hold a row for each loopback resource named in `requested` (a text, an array of texts or nothing), whose allowed
+ *  scopes are the settings' `scopes`: a row kept from before a scope was renamed or added is brought to them, so a renamed scope never
+ *  refuses every request for that engine (a row made Nov 17 2026 still allowed only records and tools, and refused tools:*). */
 export async function holdLoopbackResources(adapter, rule, scopes, requested) {
   for (const identifier of [requested ?? []].flat()) {
     const canonical = loopbackResource(identifier, rule);
     if (!canonical) continue;
     const where = [{ field: 'identifier', value: canonical }];
-    if (await adapter.findOne({ model: 'oauthResource', where })) continue;
+    const held = await adapter.findOne({ model: 'oauthResource', where });
+    if (held && !sameScopes(held.allowedScopes, scopes)) {
+      await adapter.update({ model: 'oauthResource', where, update: { allowedScopes: scopes, updatedAt: new Date() } });
+    }
+    if (held) continue;
     const now = new Date();
     try {
       await adapter.create({ model: 'oauthResource', data: { identifier: canonical, name: rule.name, allowedScopes: scopes, createdAt: now, updatedAt: now } });
