@@ -26,7 +26,7 @@ Callers still name it as `model-response.request-model-response`:
 
 No current tool serves that name. Those calls are the gap. Its open pieces are recorded as calendar task rows under `record:calendar-task:verify-every-port-model-response-*`, with the verdict table in the study row `verify-every-port/model-response`.
 
-The read rules also still have a copy in `tools/messages-screen/packages/model-response/read-data/`, which `take-one-part-of-an-answer.ts` imports. That copy is to be repointed here and removed after this copy is read back.
+The read rules live only here. `tools/messages-screen/packages/chat/do-work/take-one-part-of-an-answer.ts` imports this file; no other copy exists.
 
 **Depends on:** nothing that loads outside this folder.
 

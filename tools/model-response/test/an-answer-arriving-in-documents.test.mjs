@@ -10,7 +10,7 @@ import {
   readUnfinishedJson,
   textSoFarAt,
   wordsInTheRun,
-} from '../../messages-screen/packages/model-response/read-data/an-answer-arriving-in-documents.ts';
+} from '../read-data/an-answer-arriving-in-documents.ts';
 
 const PATH = ['candidates', 0, 'content', 'parts', 0, 'text'];
 const DELTA_TEXT = ['delta', 'text'];
