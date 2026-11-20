@@ -16,6 +16,8 @@
 //     {"tolerated_error": {"item": <the value>, ...}}). The one-step definition is named by the BLAKE3 of its read,
 //     so the same read is one definition wherever it is used.
 //   - A kind with no `wrong` binding is refused, by name, never passed.
+//   - withCorrections gives every checked step one correction round: a refused answer becomes a task anyone takes,
+//     checked by the same rules, and later steps read the answer that held (S#answer).
 import { readFileSync } from 'node:fs';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
@@ -198,6 +200,72 @@ export function checkSteps(subject, rules) {
   };
 }
 
+
+// Every reference to step `from` in a value (a binding's select key or its `steps` path, or a values path
+// ["steps", from, ...]) made a reference to step `to`.
+function repointStep(value, from, to) {
+  if (Array.isArray(value)) {
+    if (value[0] === 'steps' && value[1] === from) return ['steps', to, ...value.slice(2)];
+    return value.map(item => repointStep(item, from, to));
+  }
+  if (!object(value)) return value;
+  const out = Object.fromEntries(Object.entries(value).map(([key, inner]) => [key, repointStep(inner, from, to)]));
+  if (object(out.select) && out.select.from === 'steps') {
+    if (out.select.key === from) out.select = { ...out.select, key: to };
+    else if (out.select.key === undefined && typeof out.select.path === 'string' && (out.select.path === from || out.select.path.startsWith(`${from}.`))) {
+      out.select = { ...out.select, path: to + out.select.path.slice(from.length) };
+    }
+  }
+  return out;
+}
+
+/**
+ * One correction round for every checked step of a definition (a step S with S#checks, S#wrong and S#refused, as
+ * checkSteps makes them): a refused answer becomes a task, never a failed run on the first try.
+ *   - S#refused gets an on_failure edge to S#again, an ask anyone takes ("anyone"), handed S's words (do, submit, the
+ *     checks' says) and `refused`: what S#wrong found, each rule's words with only the values breaking it. The refused
+ *     answer itself is not copied: a run's answers already ride with its task, and a copy doubles a large answer.
+ *   - S#again is checked by the same rules (S#again#checks, #wrong, #refused); its #refused fails the run in the rules' own words.
+ *   - S#answer, a return step, is S#again's answer when it ran, else S's; what left S#checks when the checks held now
+ *     leaves S#answer, and every later reader of S reads S#answer (S's own check steps keep reading S).
+ * A step that already has S#again is left as it is, so this runs again over a stored definition without change.
+ * Answers { definition, subjects }: the new definition and the step ids that got a round.
+ */
+export function withCorrections(definition) {
+  const out = structuredClone(definition);
+  const ids = new Set(out.steps.map(step => step.id));
+  const subjects = out.steps
+    .filter(step => !step.id.includes('#') && ids.has(`${step.id}#checks`) && ids.has(`${step.id}#wrong`) && ids.has(`${step.id}#refused`) && !ids.has(`${step.id}#again`))
+    .map(step => step.id);
+  const done = [];
+  for (const subject of subjects) {
+    const step = out.steps.find(candidate => candidate.id === subject);
+    const context = object(step.config?.context) ? step.config.context : {};
+    const rules = (context.checks ?? []).filter(rule => object(rule) && rule.kind);
+    if (!rules.length) continue;
+    const answer = `${subject}#answer`;
+    const again = `${subject}#again`;
+    const own = id => id === subject || id.startsWith(`${subject}#`);
+    out.steps = out.steps.map(other => (own(other.id) ? other : repointStep(other, subject, answer)));
+    out.edges = out.edges.map(edge => (own(edge.from) && own(edge.to) ? edge : edge.config ? { ...edge, config: repointStep(edge.config, subject, answer) } : edge));
+    const ask = { id: again, kind: 'ask', config: { name: 'anyone',
+      input: { do: context.do, submit: context.submit, checks: rules.map(rule => rule.says ?? rule.kind), refused: binding({ from: 'steps', key: `${subject}#wrong`, path: 'output.problems' }) },
+      context: { ...context, step_id: again, title: `${context.title ?? subject}: correct the answer the checks refused`, corrects: subject } } };
+    const judged = checkSteps(again, rules.map(rule => repointStep(rule, subject, again)));
+    const coalesced = { $kind: 'binding', select: { from: 'literal', value: 0 }, resolve_nested_bindings: true,
+      transform: [op('coalesce', { values: [binding({ from: 'steps', key: again, path: 'output' }), binding({ from: 'steps', key: subject, path: 'output' })] })] };
+    const at = out.steps.findIndex(candidate => candidate.id === `${subject}#refused`);
+    out.steps.splice(at + 1, 0, ask, ...judged.steps, { id: answer, kind: 'return', config: { value: coalesced } });
+    const onwards = out.edges.filter(edge => edge.from === `${subject}#checks` && edge.to !== `${subject}#wrong`);
+    out.edges = out.edges.filter(edge => !onwards.includes(edge));
+    out.edges.push(onwards.length ? { ...onwards[0], to: answer } : { from: `${subject}#checks`, to: answer, kind: 'on_result', config: judged.onwards(answer).config });
+    out.edges.push(...[...new Set(onwards.map(edge => edge.to))].map(to => ({ from: answer, to, kind: 'always' })));
+    out.edges.push({ from: `${subject}#refused`, to: again, kind: 'on_failure' }, ...judged.edges, judged.onwards(answer));
+    if (judged.uses.length) out.uses = [...(out.uses ?? []), ...judged.uses.filter(used => !(out.uses ?? []).some(known => known.id === used.id))];
+    done.push(subject);
+  }
+  return { definition: out, subjects: done };
+}
 
 /** The answers a run's checks refused: subject step id → each rule that did not hold, said with the values breaking it.
  *  `ran` is the run's steps by id, as the engine gives them back. */
