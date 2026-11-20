@@ -147,7 +147,8 @@ function routedOpen(offered: Record<string, unknown>[]): Record<string, unknown>
 async function start() {
   // Every long wait on this page (a pressed button, a screen loading) says it is still working in these words.
   chooseStillWorkingWords(homeWords.still_working);
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/trillion-share-worker.js', { scope: '/' }).catch(() => {});
+  // No share worker is registered: the one this page registered was carried here on Nov 14 2026 (85f698767) without its
+  // file, which no build writes, so every page load asked for it and got 404.
   installScreenRunner(screens, surfaces.address_label, aroundScreen);
   // Every tool that carries its own screen is a screen here too (src/work-workshop.mjs toolSurfaces); an account whose
   // plan has no Workshop simply has none.

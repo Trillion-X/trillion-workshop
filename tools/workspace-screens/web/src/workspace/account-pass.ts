@@ -5,6 +5,10 @@
 //   being the client its client document names (account-pass.json `client_document`, on this page's own origin). The
 //   pass and its renewal are kept in this page's memory only; the code verifier, the state and the address asked for
 //   wait in sessionStorage across the one redirect to sign in, and are removed at the callback.
+//   A person already signed in to the sign-in tool gets the pass with no redirect: the authorize address is fetched, and
+//   when it ends at this page's own callback with the state this page sent, its code is exchanged right here. Only a
+//   person who must sign in (or confirm) leaves the page. On Nov 20 2026 every open of the Mac app's window went to the
+//   sign-in tool and back, so the whole page loaded twice, with a second white screen.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. No pass is ever written to storage, a cookie or an address.
@@ -29,15 +33,34 @@ async function exchange(fields: Record<string, string>): Promise<Pass> {
   return { access: answer.access_token, refresh: answer.refresh_token ?? null, ends: Date.now() + 1000 * (Number(answer.expires_in) || 0) };
 }
 
-/** Goes to the sign-in tool; the page comes back at the callback with a code. */
-async function signIn(): Promise<never> {
+/** The code the authorize address answers this page without leaving it, or null when the person must sign in or confirm. */
+async function quietCode(asked: string, state: string): Promise<string | null> {
+  try {
+    const response = await fetch(asked, { credentials: 'same-origin', redirect: 'follow', headers: { accept: 'text/html' } });
+    void response.body?.cancel();
+    const landed = new URL(response.url);
+    if (!response.ok || landed.origin !== location.origin || landed.pathname !== flow.callback) return null;
+    return landed.searchParams.get('state') === state ? landed.searchParams.get('code') : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The pass from the sign-in tool: with no redirect when the person is signed in there (quietCode), else the page goes
+ *  to sign in and comes back at the callback with a code. */
+async function signIn(): Promise<string> {
   const verifier = random();
   const state = random();
-  sessionStorage.setItem(flow.kept, JSON.stringify({ verifier, state, back: `${location.pathname}${location.search}` }));
   const challenge = base64url(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier))));
   const asked = new URL(flow.authorize, location.origin);
   const query = { response_type: 'code', client_id: at(flow.client_document), redirect_uri: at(flow.callback), scope: flow.scope, state, code_challenge: challenge, code_challenge_method: 'S256', resource: at(flow.resource) };
   for (const [name, value] of Object.entries(query)) asked.searchParams.set(name, value);
+  const code = await quietCode(asked.href, state);
+  if (code) {
+    held = await exchange({ grant_type: 'authorization_code', code, redirect_uri: at(flow.callback), code_verifier: verifier });
+    return held.access;
+  }
+  sessionStorage.setItem(flow.kept, JSON.stringify({ verifier, state, back: `${location.pathname}${location.search}` }));
   location.assign(asked.href);
   return new Promise<never>(() => {});
 }

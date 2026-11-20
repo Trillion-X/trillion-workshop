@@ -8,6 +8,10 @@
 //
 //   workspacePages(origin, site) -> [{ page, bytes }]   page relative to the pages folder (workspace.html, workspace/...)
 //
+//   A screen shown alone at its own address (a surface with shown_alone and route_paths outside /workspace in
+//   src/workspace/native-screen-program.json, such as the Mac menu bar panel's /menu-bar) is the same page at that address,
+//   so the front door answers it: until Nov 20 2026 /menu-bar had no page there, and the panel's reload every 31 s got 404.
+//
 //   A tool's own screen (a row's screen.kind "module") is built into a bundle the page imports from
 //   /workshop/modules/<bundle>/<file> (src/workspace/screen-module-address.mjs). A front door serving files has no server to
 //   open a bundle by its identity, so each bundle's files are pages at that address.
@@ -25,6 +29,14 @@ import { moduleAddress } from '../src/workspace/screen-module-address.mjs';
 import { untarGz } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 
 const BUILD = join(dirname(fileURLToPath(import.meta.url)), 'build-workspace.mjs');
+const PROGRAM = join(dirname(fileURLToPath(import.meta.url)), '../src/workspace/native-screen-program.json');
+
+/** The addresses outside /workspace where a screen is shown alone, each one plain path segment deep or more. */
+export function aloneAddresses(program = JSON.parse(readFileSync(PROGRAM, 'utf8'))) {
+  return [...new Set((program.surfaces ?? []).filter(surface => surface.shown_alone === true)
+    .flatMap(surface => surface.route_paths ?? [])
+    .filter(path => /^\/[a-z0-9][a-z0-9-]*(\/[a-z0-9][a-z0-9-]*)*$/.test(path) && path !== '/workspace' && !path.startsWith('/workspace/')))];
+}
 
 /** The workspace's pages for `origin` and its site `{ name }`. */
 export function workspacePages(origin, site) {
@@ -42,5 +54,7 @@ export function workspacePages(origin, site) {
   // The page asks for a bundle's file at its address with the identity escaped; the front door reads the path unescaped.
   const modules = [...readScreenModules(dirname(out)).values()].flatMap(({ bundle, bytes }) =>
     untarGz(bytes, { withBytes: true }).map(file => ({ page: decodeURIComponent(moduleAddress(bundle, file.name)).slice(1), bytes: Buffer.from(file.bytes) })));
-  return [...pages, ...modules].sort((a, b) => (a.page < b.page ? -1 : 1));
+  const workspace = pages.find(({ page }) => page === 'workspace.html');
+  const alone = workspace ? aloneAddresses().map(path => ({ page: `${path.slice(1)}.html`, bytes: workspace.bytes })) : [];
+  return [...pages, ...alone, ...modules].sort((a, b) => (a.page < b.page ? -1 : 1));
 }
