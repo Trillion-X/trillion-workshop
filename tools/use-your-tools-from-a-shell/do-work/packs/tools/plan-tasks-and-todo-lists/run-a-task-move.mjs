@@ -21,8 +21,14 @@ const RULES = JSON.parse(readFileSync(new URL('./task-moves.json', import.meta.u
 const RECORDS = '@own-records';
 const TOOLS = '@tools';
 
-// Every record of `type` (whose `where` fields equal), page after page, at most `most` of them.
-async function every(resource, type, where, most, pageSize) {
+// Every record of `type` (whose `where` fields equal), page after page, at most `most` of them. With `order`
+// ({ field, direction }) only the first `most` in that order, in one call: a store that keeps the records in tables sorts them.
+async function every(resource, type, where, most, pageSize, order = null) {
+  if (order) {
+    const page = await resource(RECORDS, 'records:list', { type, ...(where ? { where } : {}), limit: most, order });
+    if (!Array.isArray(page?.records)) throw new Error(`The account did not return its ${type} records.`);
+    return page.records.map(row => ({ id: row.id, type, value: row.value ?? null }));
+  }
   const found = [];
   let after = null;
   do {
@@ -42,7 +48,9 @@ export async function readFor(resource, read = {}, { rules = RULES } = {}) {
   const add = rows => { for (const row of rows) if (!held.has(row.id)) held.set(row.id, row); };
   if (read.tasks) {
     const statuses = read.tasks.statuses ?? [null];
-    for (const status of statuses) add(await every(resource, rules.task_kind, status === null ? read.tasks.where : { ...read.tasks.where, status }, most, pageSize));
+    // `newest` ({ field, direction, count }): only the first `count` of each status in that order, sorted by the store.
+    const order = read.tasks.newest ? { field: read.tasks.newest.field, direction: read.tasks.newest.direction } : null;
+    for (const status of statuses) add(await every(resource, rules.task_kind, status === null ? read.tasks.where : { ...read.tasks.where, status }, order ? read.tasks.newest.count : most, pageSize, order));
   }
   for (const type of read.types ?? []) add(await every(resource, type, null, rules.most_people_read, pageSize));
   // records:read answers the record's own value (the engine's read is the value, native-record-consumers.mjs), or null.
@@ -87,13 +95,16 @@ export function recordsInTables(runSql, { rest, rules = RULES } = {}) {
   const keptObject = table => `jsonb_build_object(${[...table.columns, table.rest].map(column => `'${column}', ${column === table.rest ? `coalesce(${column}, '{}'::jsonb)` : column}`).join(', ')})`;
   const tableOf = type => { const table = tables.get(type); if (!table) throw new Error(`No table keeps records of type ${type} (task-moves.json rows_in_tables).`); return table; };
 
-  async function list({ type, where = {}, limit = 100, after = null }) {
+  async function list({ type, where = {}, limit = 100, after = null, order = null }) {
     const table = tableOf(type);
+    if (order && after) throw new Error('A list in an order is read in one call: it takes no `after`.');
+    if (order && !table.columns.includes(named(order.field))) throw new Error(`${order.field} is not a column of ${table.table}.`);
+    const sorted = order ? `${order.field} ${order.direction === 'desc' ? 'desc' : 'asc'} nulls last, id ${order.direction === 'desc' ? 'desc' : 'asc'}` : 'id';
     const params = [];
     const conditions = Object.entries(where).map(([column, want]) => { params.push(cell(table, named(column), want)); return `${column} = ${cast(table, column, params.length)}`; });
     if (after) { params.push(after); conditions.push(`id > $${params.length}::text`); }
-    params.push(limit + 1);
-    const rows = await runSql(`select id, ${[...table.columns, table.rest].join(', ')} from ${table.table}${conditions.length ? ` where ${conditions.join(' and ')}` : ''} order by id limit $${params.length}`, params);
+    params.push(order ? limit : limit + 1);
+    const rows = await runSql(`select id, ${[...table.columns, table.rest].join(', ')} from ${table.table}${conditions.length ? ` where ${conditions.join(' and ')}` : ''} order by ${sorted} limit $${params.length}`, params);
     const page = rows.slice(0, limit);
     return { records: page.map(row => ({ id: row.id, value: valueOf(table, row) })), next: rows.length > limit ? page[page.length - 1].id : null };
   }
@@ -165,7 +176,7 @@ async function toolResult(resource, tool, input, key, { reads = 5, waitSeconds =
     answer = await resource(TOOLS, 'tools:read', { task_id: answer.task_id, wait_seconds: waitSeconds });
   }
   // A tool that answers with its own refusal (a rule that does not allow the move) is said as that refusal, code tool_refused.
-  if (answer?.state === 'failed' || (answer?.exit_code && answer.exit_code !== 0)) throw Object.assign(new Error(answer.error ?? saidIn(answer.stderr) ?? `${tool} failed.`), { code: 'tool_refused' });
+  if (answer?.state === 'failed' || (answer?.exit_code && answer.exit_code !== 0)) throw Object.assign(new Error(saidIn(answer.error) ?? saidIn(answer.stderr) ?? `${tool} failed.`), { code: 'tool_refused' });
   if (answer?.task_id && answer.state !== 'completed') throw new Error(`${tool} is still running; its request key ${key} reads it again.`);
   const output = answer?.output ?? answer;
   return output?.result ?? output;

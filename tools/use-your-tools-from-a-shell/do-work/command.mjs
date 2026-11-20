@@ -1753,6 +1753,10 @@ async function taskCommand(client, context, { command, call, flags, requestKey, 
   const store = tasksStoreOf(context);
   const resource = resourceOf(client, { store });
   if (call.call === 'who') call.read.types = whoTypes(store);
+  // In tables, a listing asks the store for only the newest it shows (one more, to know there are more), never every task.
+  if (store && call.call === 'see' && call.input.id === undefined && call.input.assignee === undefined) {
+    call.read.tasks = { ...call.read.tasks, newest: { ...settings.tasks.store.newest, count: (call.input.limit ?? settings.tasks.list_limit) + 1 } };
+  }
   const shownOf = found => (found ? { id: found.id, ...found.value } : null);
   const withoutKeep = answer => { const { keep: _keep, ...rest } = answer; return rest; };
   const readOne = async id => shownOf((await readFor(resource, { ids: [taskRef(id)] }))[0] ?? null);

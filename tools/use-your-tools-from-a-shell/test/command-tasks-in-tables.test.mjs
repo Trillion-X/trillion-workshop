@@ -61,6 +61,14 @@ test('--store names the database once; give, take, hand-on, the person\'s take a
     [row] = (await db.query(`select assignees, taken_by from calendar_tasks where id = 'record:calendar-task:k1'`)).rows;
     assert.deepEqual([row.assignees, row.taken_by], [['person:someone'], null]);
     assert.match(await main(['take', 'record:calendar-task:k1', '--as', 'person:someone'], seams()), /^Took record:calendar-task:k1\./);
+    for (const key of ['k2', 'k3', 'k4']) await main(['give', `Task ${key}`, '--key', key], seams());
+    const before = door.calls.length;
+    const listed = JSON.parse(await main(['tasks', '--limit', '2', '--json'], seams()));
+    assert.deepEqual(listed.tasks.map(one => one.id), ['record:calendar-task:k4', 'record:calendar-task:k3'], 'the newest first');
+    assert.equal(listed.more, true);
+    const lists = door.calls.slice(before).filter(call => call.input?.tool === SQL_TOOL && /from calendar_tasks/.test(call.input.input.sql) && /order by sent_at desc/.test(call.input.input.sql));
+    assert.equal(lists.length, 1, 'a listing is one statement that asks the table for the newest only');
+    assert.equal(lists[0].input.input.params.at(-1), 3, 'it asks for one more than it shows');
     const who = JSON.parse(await main(['who-can-take', '--json'], seams()));
     assert.equal(who.who.find(one => one.id === 'person:someone')?.busy, 1, 'who-can-take reads the users table and counts what each holds');
     const sql = door.calls.filter(call => call.input?.tool === SQL_TOOL);
