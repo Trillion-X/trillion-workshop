@@ -62,7 +62,9 @@ export function signIn(folderName, { home = homedir(), system = platform(), read
     throw new Error('Name one Claude config folder directly beneath the home folder.');
   }
   const folder = join(home, folderName);
-  const account = JSON.parse(read(join(folder, '.claude.json'), 'utf8'));
+  const accountFile = folderName === '.claude' && !existsSync(join(folder, '.claude.json'))
+    ? join(home, '.claude.json') : join(folder, '.claude.json');
+  const account = JSON.parse(read(accountFile, 'utf8'));
   const org = account.oauthAccount?.organizationUuid;
   if (typeof org !== 'string' || !org) throw new Error(`${folderName}: no Claude organization in its existing sign-in`);
   let raw;
@@ -254,7 +256,8 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
     const home = homedir();
     const folders = readdirSync(home, { withFileTypes: true })
       .filter(item => item.isDirectory() && /^\\.claude(?:[-_][A-Za-z0-9_-]+)?$/.test(item.name)
-        && existsSync(join(home, item.name, '.claude.json')))
+        && (existsSync(join(home, item.name, '.claude.json'))
+          || (item.name === '.claude' && existsSync(join(home, '.claude.json')))))
       .map(item => item.name).sort();
     const answer = { folders, count: folders.length };
     print(JSON.stringify(answer));
