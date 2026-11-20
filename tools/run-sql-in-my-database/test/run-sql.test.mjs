@@ -62,6 +62,12 @@ test('the row mounts one held connection by the name the input gives and reaches
   assert.ok(row.invoke.files.package_files[0].paths.includes('read-data'), 'the recipes are packed with the program');
 });
 
+test('the input names one way to the connection: credential_name or database, never both', () => {
+  const schema = row.input_schema;
+  assert.deepEqual(schema.anyOf, [{ required: ['credential_name'] }, { required: ['database'] }]);
+  assert.deepEqual(schema.not, { required: ['credential_name', 'database'] }, 'both are two mounts on descriptor 3, which the engine refuses');
+});
+
 test('every package of the pinned closure is a tgz with a https address and a BLAKE3, and is placed under node_modules', () => {
   const placed = row.invoke.files.package_files.filter(item => item.packages).map(item => item.packages[0]);
   assert.deepEqual(placed.sort(), Object.keys(row.invoke.packages).sort());

@@ -140,7 +140,13 @@
                 "database"
               ]
             }
-          ]
+          ],
+          "not": {
+            "required": [
+              "credential_name",
+              "database"
+            ]
+          }
         },
         "output_schema": {
           "type": "object",
