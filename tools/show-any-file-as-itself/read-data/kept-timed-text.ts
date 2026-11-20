@@ -1,4 +1,4 @@
-import type { TimedTextSegment } from '../show/MediaPlaybackSurface';
+import type { TimedTextSegment } from '../../media-playback/show/MediaPlaybackSurface';
 
 /** Saved transcript passages use seconds; the shared player indexes passages
  * in milliseconds and keeps word times in seconds. Preserve only valid timings.

@@ -95,15 +95,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/media-playback/show/MediaPlaybackSurface.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/show-any-file-as-itself/show/MediaPlaybackSurface.tsx",
-      "source_identity": "1f:9eb709591ff9fbb2a42047ac58fd790e3c4f6cf8662d8e55a2fcdc992348aaa3",
-      "identity": "1f:9eb709591ff9fbb2a42047ac58fd790e3c4f6cf8662d8e55a2fcdc992348aaa3",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/media-playback/show/PlaybackControls.tsx",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",

@@ -7,9 +7,10 @@ Browser-local graph canvas rendering and interaction primitives.
 | File | Purpose |
 |---|---|
 | `GraphCanvas.tsx` | Generic graph renderer that applies caller-owned camera state to nodes and edges, with token-backed surface chrome and no hardcoded visual palette. |
-| `CanvasView.tsx` | The reusable "observable graph VIEW" primitive (L069): outer Container + `<GraphCanvas>` + camera-tracking dot-grid + `children`/`inspectorSlot` + a `layout` annotation. Caller owns `useGraphCanvas` and threads graph state in. Consumed by `workflow-canvas` (the workflow surface) AND `funnel-offer-graph` (the tornado funnel) so both render through ONE canvas view. Domain-free. |
+| `CanvasView.tsx` | Moved out: the one copy is `tools/graph-canvas/show/CanvasView.tsx` (the graph view, owner of the canvas). The knowledge graph imports it from there. |
 | `use-graph-canvas.ts` | Generic interaction hook for pan, zoom, selection, zoom-to-fit, and optional node drag. |
 | `types.ts` | Domain-free camera, node frame, and edge route types. |
+| `DefaultEdge.tsx` | Default edge renderer for callers that do not provide one. |
 
 ## Rules
 

@@ -21,12 +21,32 @@ export interface CanvasViewProps extends Omit<GraphCanvasProps, 'children' | 'un
   showDotGrid?: boolean;
   /** A layout word carried onto the container as `data-canvas-layout`, for tests and tools. */
   layout?: string;
+  /**
+   * A generic `surface.reachability` perceivability tag carried onto the container as `data-reach-role` (e.g.
+   * "funnel-canvas"). A caller of this shared view can declare itself as a `must_see` target for the reachability prover
+   * this way, without CanvasView ever naming a specific surface. Undefined: no attribute.
+   */
+  reachRole?: string;
   /** Overlay children (inspector, drawer, legend). */
   children?: React.ReactNode;
+  /**
+   * A dedicated inspector/detail slot rendered after the overlay children, a named seam for a caller that has a detail
+   * drawer (the funnel's stage detail). Undefined: no DOM change.
+   */
+  inspectorSlot?: React.ReactNode;
 }
 
-/** The blind graph view: every GraphCanvas prop forwarded, the dot grid first, then the caller's overlays. */
-export function CanvasView({ containerRef, showDotGrid = true, layout, children, camera, ...graphProps }: CanvasViewProps): React.ReactElement {
+/** The blind graph view: every GraphCanvas prop forwarded, the dot grid first, then the caller's overlays and inspector slot. */
+export function CanvasView({
+  containerRef,
+  showDotGrid = true,
+  layout,
+  reachRole,
+  children,
+  inspectorSlot,
+  camera,
+  ...graphProps
+}: CanvasViewProps): React.ReactElement {
   return (
     <Container
       ref={containerRef}
@@ -37,10 +57,14 @@ export function CanvasView({ containerRef, showDotGrid = true, layout, children,
       position="relative"
       overflow="hidden"
       {...(layout ? { 'data-canvas-layout': layout } : {})}
+      {...(reachRole ? { 'data-reach-role': reachRole } : {})}
     >
       <GraphCanvas camera={camera} {...graphProps}>
-        {showDotGrid && camera ? <CanvasDotGrid panX={camera.pan_x} panY={camera.pan_y} zoom={camera.zoom} /> : null}
+        {showDotGrid && camera ? (
+          <CanvasDotGrid panX={camera.pan_x} panY={camera.pan_y} zoom={camera.zoom} />
+        ) : null}
         {children}
+        {inspectorSlot}
       </GraphCanvas>
     </Container>
   );
