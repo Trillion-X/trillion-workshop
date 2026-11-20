@@ -68,6 +68,18 @@ test('never twice: a job started here, one handed to a named agent, one held by 
   assert.deepEqual(left, { 'already started here': 1, 'handed to a named agent': 1, 'being worked on': 1, 'something is in the way': 1, 'waits for other work': 1 });
 });
 
+test('with tasks.take_unassigned false, this worker takes only the tasks that name its own agent id; a task naming nobody is left, and the default still takes it', () => {
+  const me = 'ai:take-open-work-mac';
+  const task = (id, assignees) => job(id, { task: true, assignees, priority: 'medium', sent_at: NOW, sent_by: 'ai:sender' });
+  const open = [task('t1', []), task('t2', [me]), task('t3', ['ai:someone-else'])];
+  const scoped = { ...base, agent_id: me, open, settings: { ...settings, max_concurrent: 10, tasks: { ...settings.tasks, take_unassigned: false } } };
+  const { start, left } = plan(scoped);
+  assert.deepEqual(start.map(item => item.handoff_id), ['t2']);
+  assert.deepEqual(left, { 'handed to nobody': 1, 'handed to a named agent': 1 });
+  const unscoped = plan({ ...base, agent_id: me, open, settings: { ...settings, max_concurrent: 10, tasks: { ...settings.tasks, take_unassigned: true } } });
+  assert.deepEqual(unscoped.start.map(item => item.handoff_id), ['t1', 't2']);
+});
+
 test('a chat\'s work goes back to that idle chat, one run per chat, and waits when the chat is busy, owned or unknown here', () => {
   const chatSource = 'claude-code:aaaa-1111';
   const from = (id, source_id) => job(id, { input: { arrived: { source_id } } });
@@ -570,7 +582,7 @@ async function jobFixture() {
   let time = new Date('2026-11-07T12:00:00.000Z');
   const as = 'ai:take-open-work-fixture';
   const acceptance = { outcome: 'The synthetic artifact contains the requested value', target: { type: 'synthetic-consumer', id: 'synthetic-consumer:artifact' }, rules: [{ id: 'outcome', path: 'content', equals: ['requested value'] }] };
-  const held = new Map([[ID, { type: KIND, value: { status: 'To do', description: 'Create a synthetic artifact and read it back', outcome: acceptance.outcome, assignees: [], sent_by: 'ai:synthetic-sender', priority: 'medium', sent_at: time.toISOString(), acceptance } }]]);
+  const held = new Map([[ID, { type: KIND, value: { status: 'To do', description: 'Create a synthetic artifact and read it back', outcome: acceptance.outcome, assignees: [as], sent_by: 'ai:synthetic-sender', priority: 'medium', sent_at: time.toISOString(), acceptance } }]]);
   const receipts = new Map(), calls = [];
   const write = (rows, key) => {
     if (key && receipts.has(key)) return;
@@ -622,6 +634,16 @@ async function jobFixture() {
   const resume = () => owner(changeATask, { as, id: ID, action: 'resume', because: 'The retained effects and dependency were reviewed' }, { request_key: 'synthetic-evidence-reviewed' });
   return { held, calls, configured, raw, wrap, pass, child, finish, resume, move, as, task, tick: () => { time = new Date(time.getTime() + 120000); } };
 }
+
+test('task worker leaves a task that names nobody: no run starts and the task stays To do', async () => {
+  const f = await jobFixture();
+  f.task().assignees = [];
+  const pass = await f.pass(() => { throw new Error('A task that names nobody must not start a run'); });
+  assert.deepEqual(pass.started, []);
+  assert.equal(pass.left['handed to nobody'], 1);
+  assert.equal(f.task().status, 'To do');
+  assert.equal(f.calls.some(call => call.method === 'records:write'), false);
+});
 
 test('task worker claims through shared action and recognizes persisted checked completion', async () => {
   const f = await jobFixture(); let artifact;

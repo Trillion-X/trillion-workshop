@@ -316,6 +316,9 @@ export function plan({ open, agents, settings, started, today, running, chats, a
     if (started.has(item.handoff_id) && !started.get(item.handoff_id).limit_hit) { leave('already started here'); continue; }
     const source_id = item.input?.arrived?.source_id;
     // A task names its assignees (record ids of anyone; none means anyone may take it). A chat's work names one AI in to_agent.
+    // With tasks.take_unassigned false (DATA), a task that names nobody is not this worker's: it is left for whoever it is
+    // handed to, so only the tasks that name this worker's own id are taken.
+    if (item.task && item.assignees.length === 0 && settings.tasks?.take_unassigned === false) { leave('handed to nobody'); continue; }
     const named = item.task ? item.assignees.length > 0 && !item.assignees.includes(agent_id) : Boolean(item.to_agent) && sourceOwners.get(source_id) !== item.to_agent;
     if (named) { leave('handed to a named agent'); continue; }
     // With a triage step (settings.triage, harness/triage-open-work.mjs), only work it sorted as real work is run.
