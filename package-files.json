@@ -15596,8 +15596,8 @@
   {
    "package": "run-on-a-persons-computer",
    "paths": [
-    "from-an-older-version/computer/confined-run.mjs",
-    "from-an-older-version/computer/confined-run.json"
+    "confined-run.mjs",
+    "confined-run.json"
    ],
    "at": "/opt/run-on-a-persons-computer"
   },
@@ -15691,8 +15691,8 @@
   {
    "package": "run-on-a-persons-computer",
    "paths": [
-    "from-an-older-version/computer/confined-run.mjs",
-    "from-an-older-version/computer/confined-run.json"
+    "confined-run.mjs",
+    "confined-run.json"
    ],
    "at": "/opt/run-on-a-persons-computer"
   },
@@ -15823,8 +15823,8 @@
   {
    "package": "run-on-a-persons-computer",
    "paths": [
-    "from-an-older-version/computer/confined-run.mjs",
-    "from-an-older-version/computer/confined-run.json"
+    "confined-run.mjs",
+    "confined-run.json"
    ],
    "at": "/opt/run-on-a-persons-computer"
   },
@@ -21159,8 +21159,8 @@
   {
    "package": "run-on-a-persons-computer",
    "paths": [
-    "from-an-older-version/computer/confined-run.mjs",
-    "from-an-older-version/computer/confined-run.json"
+    "confined-run.mjs",
+    "confined-run.json"
    ],
    "at": "/opt/run-on-a-persons-computer"
   },

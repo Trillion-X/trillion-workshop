@@ -45,7 +45,7 @@ export const runFetcher = (row, part, values, seconds, confine = linkSettings().
   const command = row.program && first === row.check[0] ? row.program : first;
   const failure = (error, stderr = error.stderr) => new Error((String(stderr ?? '').trim().split('\n').filter(line => !/^WARNING/.test(line)).pop() || error.message).replace(/^ERROR:\s*/, ''));
   if (confine?.enabled === true) {
-    return import('../../run-on-a-persons-computer/from-an-older-version/computer/confined-run.mjs')
+    return import('../../run-on-a-persons-computer/confined-run.mjs')
       .then(({ runConfined }) => runConfined(command, args, { tier: confine.tier, workspace: values.folder, timeout_ms: seconds * 1000, scoped_env: row.env ?? {} }))
       .then(done => done.stdout, error => { throw failure(error); });
   }

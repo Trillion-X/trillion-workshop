@@ -8,7 +8,7 @@ import { existsSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runFetcher } from '../tools/audio-transcription/read-data/hear-here.mjs';
-import { runConfined } from '../tools/run-on-a-persons-computer/from-an-older-version/computer/confined-run.mjs';
+import { runConfined } from '../tools/run-on-a-persons-computer/confined-run.mjs';
 
 const mac = { skip: process.platform !== 'darwin' || !existsSync('/usr/bin/sandbox-exec') };
 
