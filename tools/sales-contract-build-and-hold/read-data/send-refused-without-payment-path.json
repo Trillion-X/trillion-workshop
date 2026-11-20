@@ -1,0 +1,8 @@
+{
+  "seller_payment_connection": "service_connection:stripe",
+  "connected_status": "connected",
+  "messages": {
+    "fixed_payments": "Connect your own Stripe account in Connections to send a payment plan with a fixed number of payments.",
+    "no_payment_path": "Connect your Stripe account in Connections or set up Payments, so the person you send this to can pay you."
+  }
+}

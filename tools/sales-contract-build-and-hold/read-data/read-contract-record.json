@@ -1,0 +1,6 @@
+{
+  "messages": {
+    "not_found": "There is no sales contract {id} in this account.",
+    "no_id": "with no id"
+  }
+}

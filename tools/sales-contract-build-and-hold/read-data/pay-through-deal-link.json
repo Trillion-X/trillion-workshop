@@ -1,0 +1,16 @@
+{
+  "text": {
+    "payment_saved": "Your payment method is saved. Your first payment is being checked.",
+    "taken": "This was already accepted by someone else."
+  },
+  "copy": {
+    "no_payment_required": "sharing.paying.no_payment_required",
+    "paid": "sharing.paying.paid",
+    "received": "sharing.paying.received",
+    "disputed": "sharing.paying.disputed",
+    "subscription_ended": "sharing.paying.subscription_ended",
+    "refunded": "sharing.paying.refunded",
+    "sign_first": "sharing.paying.sign_first"
+  },
+  "payments_numbered": "Payment {received} of {cycles} received. {words}."
+}

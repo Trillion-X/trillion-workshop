@@ -1,0 +1,6 @@
+{
+  "prefix": "sales-contract:",
+  "messages": {
+    "no_store": "Sales contracts need the account store that owns their records."
+  }
+}

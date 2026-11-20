@@ -1,0 +1,8 @@
+{
+  "path": "/work/api/seller-payments",
+  "method": "POST",
+  "messages": {
+    "not_opened": "Payments could not be opened.",
+    "no_link": "Stripe did not return a secure setup link."
+  }
+}

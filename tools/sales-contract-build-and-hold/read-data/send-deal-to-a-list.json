@@ -1,0 +1,12 @@
+{
+  "contract_prefix": "sales-contract:",
+  "link_route": {
+    "contract": "sales-contract",
+    "record": "record-share"
+  },
+  "scope_kinds": {
+    "email": "email",
+    "phone": "phone",
+    "public": "public"
+  }
+}

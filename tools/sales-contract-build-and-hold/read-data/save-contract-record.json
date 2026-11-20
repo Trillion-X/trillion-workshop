@@ -1,0 +1,11 @@
+{
+  "kind": "sales-contract",
+  "status": "draft",
+  "id_prefix": "sales-contract:",
+  "messages": {
+    "not_object": "Give { contract } to save a sales contract.",
+    "terms_not_object": "Give the contract terms as an object.",
+    "no_name": "Give the contract a name.",
+    "primitives_not_list": "Contract primitives must be a list."
+  }
+}

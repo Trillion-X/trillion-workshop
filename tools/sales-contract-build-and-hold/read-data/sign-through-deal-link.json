@@ -1,0 +1,13 @@
+{
+  "name_field": {
+    "name": "name",
+    "required": true,
+    "min_length": 2,
+    "max_length": 200
+  },
+  "problems": {
+    "required": "Give your name to sign.",
+    "too_short": "Your name needs at least 2 characters.",
+    "too_long": "Your name can be at most 200 characters."
+  }
+}

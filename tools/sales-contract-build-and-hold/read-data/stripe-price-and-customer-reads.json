@@ -1,0 +1,22 @@
+{
+  "sources": [
+    {
+      "id": "stripe-prices",
+      "group": "offers",
+      "label": "Your offers on Stripe",
+      "connection": "stripe",
+      "tool_id": "tool:stripe-events-list_prices",
+      "input": {},
+      "items": ["data"]
+    },
+    {
+      "id": "stripe-customers",
+      "group": "customers",
+      "label": "Your customers on Stripe",
+      "connection": "stripe",
+      "tool_id": "tool:stripe-events-list_customers",
+      "input": {},
+      "items": ["data"]
+    }
+  ]
+}

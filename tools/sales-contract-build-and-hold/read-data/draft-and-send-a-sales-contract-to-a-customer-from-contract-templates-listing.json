@@ -1,0 +1,17 @@
+{
+  "fail": {
+    "message": "Sales contract templates need ordinary named terms and valid usage/access lists.",
+    "status": 503,
+    "code": "sales_contract_templates_invalid"
+  },
+  "usage_rule": {
+    "type": "MeterUsage",
+    "default_label": "Included usage {n}",
+    "default_resource": "service",
+    "default_metric": "usage"
+  },
+  "access_rule": {
+    "type": "GrantAccess",
+    "condition": "conditional"
+  }
+}

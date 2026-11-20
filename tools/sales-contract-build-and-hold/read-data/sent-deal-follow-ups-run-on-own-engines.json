@@ -1,0 +1,6 @@
+{
+  "paid_trigger": {
+    "where": [{ "field": "event", "equals": "negotiated_offer_paid" }]
+  },
+  "contract_field": "contract_id"
+}

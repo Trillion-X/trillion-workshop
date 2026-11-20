@@ -1,0 +1,10 @@
+{
+  "contract_prefix": "sales-contract:",
+  "route_prefix": "/share/",
+  "paid_query": "?paid=1",
+  "messages": {
+    "not_a_contract": "This link is not a sales contract.",
+    "amount": "A price is a whole number of cents above zero.",
+    "secure_origin": "Open the contract from its secure service address before creating a checkout link."
+  }
+}

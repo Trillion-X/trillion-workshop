@@ -1,0 +1,18 @@
+{
+  "operations": ["list", "read", "save", "send", "resources"],
+  "fields": ["operation", "contract_id", "contract", "name", "to", "scope", "note", "expires_at"],
+  "email_pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+  "max_note_length": 2000,
+  "messages": {
+    "not_object": "Give the request as an object.",
+    "operation": "operation must be one of {operations}.",
+    "unknown_field": "{field} is not a field of this tool.",
+    "contract_id": "contract_id must be text.",
+    "contract": "contract must be an object.",
+    "name": "name must be text.",
+    "to": "to must be an email address.",
+    "scope": "scope must be an object.",
+    "note": "note must be text of at most {max} characters.",
+    "expires_at": "expires_at must be a date and time."
+  }
+}

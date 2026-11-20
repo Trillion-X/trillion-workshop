@@ -1,0 +1,5 @@
+{
+  "operation": "set",
+  "rule_action": "run-when-something-happens",
+  "schedule_action": "run-at-a-time"
+}
