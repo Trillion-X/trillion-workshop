@@ -12,7 +12,10 @@
 //   2. The records the arrangement keeps (its layouts, sidebar, looks, the person's own show rules) are rows of one table
 //      in the person's own database (sql-records.ts, account-records.json), read and written through the SQL tool with
 //      the person's own rights; the saved ones the first draw needs are read in one read beside the catalogue's first page.
-//   3. The first page of the catalogue draws the workspace; the rest are offered as they come (Workspace.reoffer).
+//   3. The screens tools offer in their part.json `offers` (Find anything, the message box, Look, ...) are read when the
+//      page is built (`offered-screen-rows`, scripts/build-workspace.mjs) and offered before the catalogue's, as the
+//      signed-in page's screens answer offered them.
+//   4. The first page of the catalogue draws the workspace; the rest are offered as they come (Workspace.reoffer).
 
 import { readJson, setPageDoor } from './api';
 import { answerAtTheDoor } from './account-door';
@@ -30,6 +33,8 @@ import { readStartupRecords, showRecords } from './records';
 import { keepShowRules } from './show-rules-live';
 import surfaces from './screens.mjs';
 import { toolSurfaces } from '../work-workshop.mjs';
+// The screens every tool offers, read when the page was built (scripts/build-workspace.mjs).
+import screensToolsOffer from 'offered-screen-rows';
 
 type Listed = { tools: { id: string; label?: string; job?: string }[]; next?: string | null };
 const listed = (after: string | null) =>
@@ -48,7 +53,7 @@ await answerTargets();
 const viewer = { access_refs: [] as string[] };
 const startup = readStartupRecords();
 let page = await listed(null);
-const tools = screenRows(page);
+const tools: ScreenRow[] = [...(screensToolsOffer as ScreenRow[]), ...screenRows(page)];
 const offered = offeredScreens(viewer, tools);
 await startScreenRecords(offered, await startup);
 // No rules are assigned to this page by an operator: the person's own rules are their records, applied as on every page.

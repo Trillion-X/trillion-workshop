@@ -31,6 +31,7 @@ import { barrelImportsPlugin } from '../../../../tools/check-bundle-package-boun
 import { jsonFieldsPlugin } from './json-fields.mjs';
 import { buildScreenModules, filesOfBundle, formerNameShims, importMap, savedScreenSharedModules, screenModuleSpecs, SHARED_NAMESPACE, sharedEntries, writeScreenModules } from './screen-modules.mjs';
 import { toolFolders } from './tool-folders.mjs';
+import { offeredScreens as screensToolsOffer } from '../../../../tools/keep-and-wake-ai-sessions-on-this-computer/src/workspace/offered-screens.mjs';
 import { firstLoadInputs } from './workspace-screen-sizes.mjs';
 import { writeHarnessSetupAssets } from './harness-setup-assets.mjs';
 import { moduleDownloadGraph, staticModuleClosure } from './module-download-graph.mjs';
@@ -118,6 +119,11 @@ const pageBuild = (extraEntries = {}, extraPlugins = [], write = true) => build(
       builder.onResolve({ filter: /^screen-arrangement-in-the-page$/ }, () => ({ path: arrangement.gluePath }));
       builder.onResolve({ filter: /^screen-arrangement-bytes$/ }, () => ({ path: arrangement.wasmPath }));
       builder.onResolve({ filter: /^composition-engine-bytes$/ }, () => ({ path: compositionEngineBytes }));
+      // The screens every tool offers in its part.json `offers`, read when the page is built, as a Mac release writes them
+      // (keep-and-wake-ai-sessions-on-this-computer src/workspace/offered-screens.mjs): a page with no server of its own
+      // offers them beside its account's catalogue (src/workspace/account-workspace.ts).
+      builder.onResolve({ filter: /^offered-screen-rows$/ }, () => ({ path: 'offered-screen-rows', namespace: 'offered-screen-rows' }));
+      builder.onLoad({ filter: /.*/, namespace: 'offered-screen-rows' }, () => ({ contents: JSON.stringify(screensToolsOffer(workshop).surfaces), loader: 'json' }));
     },
   }, walkthroughsPlugin({ publicNamed: PUBLIC_NAMED, toursName, walkthroughFiles, root }), ...extraPlugins],
 });
