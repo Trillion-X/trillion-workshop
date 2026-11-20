@@ -75,6 +75,8 @@ import { raiseAsked } from '../../decide-who-may-change-a-cap/src/cap-change.mjs
 // The one key every store reads the service's current stops from (written by SharedPool.setSpendStops).
 export const SPEND_STOPS_KEY = 'spend:stops';
 
+export class SpendMeterError extends Error {}
+
 const DAY_MS = 86_400_000;
 const dayOf = ms => new Date(ms).toISOString().slice(0, 10);
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
@@ -192,7 +194,11 @@ export async function stopCovers({ stop, facts, matches, data = defaults }) {
   return matches(stop.when, data.work_facts, facts);
 }
 
-export function spendMeter({ readers, matches, tell = async () => {}, budgets: ownBudgets = () => [], cycleDay = () => defaults.cycle_day, service = () => false, now = () => Date.now(), data = defaults }) {
+export function spendMeter({ readers, matches, tell = async () => {}, budgets: ownBudgets = () => [], cycleDay = () => defaults.cycle_day, service = () => false, now = () => Date.now(), data = defaults, service_label, preference_prefix }) {
+  // The caller's own words, never this tool's: the label of a service-scope budget's group and the prefix of each line's
+  // preference key come from the caller's DATA. Refused when absent, so no product word is ever shared through this tool.
+  if (typeof service_label !== 'string' || !service_label.trim()) throw new SpendMeterError('service_label is required: the caller names the group of its own service budgets.');
+  if (typeof preference_prefix !== 'string' || !preference_prefix.trim()) throw new SpendMeterError('preference_prefix is required: the caller names the prefix of its preference keys.');
   const budgetRows = () => {
     const own = ownBudgets() ?? [];
     const ids = new Set(own.map(row => row.id));
@@ -292,7 +298,7 @@ export function spendMeter({ readers, matches, tell = async () => {}, budgets: o
       ...merchant.charges.map(charge => ({ id: `charge:${charge.id}`, what: charge.plan ?? merchant.title, when: charge.at, amount: charge.amount, source: labels.get(charge.source) ?? charge.source, kind: data.words.charge_kind_charge })),
     ];
     const view = {
-      label: fill(data.words.merchant_inside_label, { title: merchant.title }), preference_key: `spend-inside:${id}`,
+      label: fill(data.words.merchant_inside_label, { title: merchant.title }), preference_key: `${preference_prefix}${id}`,
       first_view: { wide: 'table', narrow: 'table' }, group: [{ field: 'kind' }],
       empty: { icon: 'Receipt', title: data.words.inside_empty }, no_match: data.words.inside_no_match,
       fields: [
@@ -451,7 +457,7 @@ export function spendMeter({ readers, matches, tell = async () => {}, budgets: o
       const ownedMonth = addUp(owned.map(entry => entry.dollars.month));
       const items = [
         { id: 'total', kind: 'total', title: data.words.total_title, group: '', state: ['reached', 'near', 'pace'].find(state => budgets.some(row => row.state === state)) ?? 'ok', today_dollars: totals.today - ownedToday + addUp(merchantRows.map(row => row.today_dollars)), month_dollars: totals.month - ownedMonth + addUp(merchantRows.map(row => row.month_dollars)), per_month: addUp(merchantRows.map(row => row.per_month)) + remainingMonth, days_90: addUp(merchantRows.map(row => row.days_90)), read_at: totalSourceAt ?? readAt },
-        ...budgets.map(row => ({ id: `budget:${row.id}`, kind: 'budget', title: row.label, group: row.scope === 'service' ? 'the Workshop' : 'Yours', state: row.state, budget: row.words, today_dollars: row.period === 'month' ? null : row.used_dollars, month_dollars: row.period === 'month' ? row.used_dollars : null, read_at: row.read_at ?? readAt })),
+        ...budgets.map(row => ({ id: `budget:${row.id}`, kind: 'budget', title: row.label, group: row.scope === 'service' ? service_label : 'Yours', state: row.state, budget: row.words, today_dollars: row.period === 'month' ? null : row.used_dollars, month_dollars: row.period === 'month' ? row.used_dollars : null, read_at: row.read_at ?? readAt })),
         ...(payments.state?.state === 'unread' ? [{ id: 'payments', kind: 'payments', title: data.words.payments_unread, group: '', state: 'unread', words: payments.state.error ?? '', read_at: readAt }] : []),
         ...sorted,
       ];
@@ -492,7 +498,7 @@ export function spendMeter({ readers, matches, tell = async () => {}, budgets: o
       const inside = line.inside;
       const dimensions = inside.dimensions ?? [];
       const view = {
-        label: fill(data.words.inside_label, { line: line.label }), preference_key: `spend-inside:${line.id}`,
+        label: fill(data.words.inside_label, { line: line.label }), preference_key: `${preference_prefix}${line.id}`,
         first_view: { wide: 'table', narrow: 'table' }, group: inside.group ?? [],
         empty: { icon: 'Receipt', title: data.words.inside_empty }, no_match: data.words.inside_no_match,
         fields: [

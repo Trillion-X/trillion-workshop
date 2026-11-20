@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { initSync, compileRules as engineCompileRules, filterRows as engineFilterRows } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { dollarsFor, historyDaysAt, periodsAt, spendBudgetRow, spendDayOf, spendDays, spendMeter } from '../src/spend-meter.mjs';
+import { dollarsFor, historyDaysAt, periodsAt, spendBudgetRow, spendDayOf, spendDays, spendMeter, SpendMeterError } from '../src/spend-meter.mjs';
 import data from '../../shared-code/src/spend-meter.json' with { type: 'json' };
 
 initSync({ module: readFileSync(new URL(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url))) });
@@ -31,7 +31,7 @@ function meterWith({ service = true, connected = true, budgets = [], own = {}, f
   const reads = [];
   const flyReads = [];
   const told = [];
-  const meter = spendMeter({
+  const meter = spendMeter({ service_label: 'Service group', preference_prefix: 'test-inside:',
     readers: {
       service: async (reading, period) => {
         if (reading.connection === 'fly') { flyReads.push(period.id); return fly; }
@@ -112,7 +112,7 @@ test('a reached service budget tells the operators once and stops no one\'s work
 test('a day heading past its budget at the rate so far tells once, before half of it is used', async () => {
   const run = async (hour, most) => {
     const told = [];
-    const meter = spendMeter({
+    const meter = spendMeter({ service_label: 'Service group', preference_prefix: 'test-inside:',
       readers: {
         service: async (reading, period) => (reading.connection === 'fly' ? { state: 'not-connected', connection: 'fly' } : period.id === 'today' ? today : month),
         'model-calls': async () => ({ amount: 0 }), 'store-work': async () => ({ amount: 0 }), 'own-api': async () => ({ rows: [] }),
@@ -206,7 +206,7 @@ test('a host billed per machine is read once, each machine priced by its own siz
 });
 
 test('a line built from kept readings says when its readings were read, the older of its two periods', async () => {
-  const meter = spendMeter({
+  const meter = spendMeter({ service_label: 'Service group', preference_prefix: 'test-inside:',
     readers: {
       service: async (reading, period, which) => (reading.connection === 'cloudflare'
         ? { kept: period.id === 'today' ? today : month, read_at: which.period === 'today' ? '2026-10-04T11:55:00.000Z' : '2026-10-04T11:40:00.000Z' }
@@ -241,7 +241,7 @@ test('past days are read from where they are counted, priced inside their own bi
     'from the start of the billing month three days back falls in, to yesterday');
   let connected = true;
   const asked = [];
-  const meter = spendMeter({
+  const meter = spendMeter({ service_label: 'Service group', preference_prefix: 'test-inside:',
     readers: {
       service: async (reading, period, which) => {
         asked.push(which.period);
@@ -272,7 +272,7 @@ test('past days are read from where they are counted, priced inside their own bi
   assert.equal((await meter.history({ kept: keptBare, counted: ['cloudflare-do-rows-written'] })).length, 8, 'a line connected since is read into every past day');
 
   // A source that cannot answer a day after it settled (it keeps only so far back) settles that day without the line.
-  const old = await spendMeter({
+  const old = await spendMeter({ service_label: 'Service group', preference_prefix: 'test-inside:',
     readers: { service: async () => ({ kept: { state: 'unread', error: 'date out of range' }, read_at: '2026-10-04T05:00:00.000Z' }) },
     matches, cycleDay: () => 26, now: () => NOON, data: one,
   }).history();
@@ -296,7 +296,7 @@ test('a line opens into its pieces today: each store and hour with its amount an
     workers: [],
   }] } } };
   const asked = [];
-  const meter = spendMeter({
+  const meter = spendMeter({ service_label: 'Service group', preference_prefix: 'test-inside:',
     readers: { service: async (reading, period, which) => {
       asked.push(`${which.id}:${which.period}`);
       if (which.id === 'cloudflare-usage-by-hour') return byHour;
@@ -328,7 +328,7 @@ test('a line opens into its pieces today: each store and hour with its amount an
   assert.ok(Math.abs(fewer.items[0].dollars / line.today_dollars - 10_000_000 / 74_834_997) < 1e-9);
   assert.ok(Math.abs(first.dollars / line.today_dollars - 30_000_000 / 74_834_997) < 1e-9);
 
-  const unread = spendMeter({ readers: { service: async reading => ({ state: 'not-connected', connection: reading.connection }) }, matches, now: () => NOON });
+  const unread = spendMeter({ service_label: 'Service group', preference_prefix: 'test-inside:', readers: { service: async reading => ({ state: 'not-connected', connection: reading.connection }) }, matches, now: () => NOON });
   const nothing = await unread.inside('cloudflare-do-rows-written');
   assert.deepEqual(nothing.items, []);
   assert.equal(nothing.view.empty.title, data.words.inside_unread);
@@ -338,7 +338,7 @@ test('a budget over one line counts that line alone, and every starting rule use
   // 2026-10-07: the model-work day row asked `is any of` of the `line` fact, which is text; the engine offers
   // that operator for choices only, so the rule matched every line and $10 of store and Fly costs stopped embeddings.
   const quiet = usage({ rowsWritten: 74_834_997, rowsRead: 77_484_063_156, requests: 1_647_228, neurons: 20_000 });
-  const meter = spendMeter({
+  const meter = spendMeter({ service_label: 'Service group', preference_prefix: 'test-inside:',
     readers: { service: async reading => (reading.connection === 'fly' ? { state: 'not-connected', connection: 'fly' } : quiet),
       'model-calls': async () => ({ amount: 0 }), 'store-work': async () => ({ amount: 0 }), 'own-api': async () => ({ rows: [] }) },
     matches, cycleDay: () => 26, service: () => true, now: () => NOON,
@@ -367,3 +367,15 @@ test('a budget over one line counts that line alone, and every starting rule use
 });
 
 
+
+test('the caller names the service budget group and the preference prefix; a missing one is refused, never shared by this tool', async () => {
+  const base = { readers: {}, matches, service: () => true, now: () => NOON };
+  assert.throws(() => spendMeter({ ...base, preference_prefix: 'p:' }), SpendMeterError);
+  assert.throws(() => spendMeter({ ...base, service_label: 'Group' }), SpendMeterError);
+  assert.throws(() => spendMeter({ ...base, service_label: '  ', preference_prefix: 'p:' }), SpendMeterError);
+  assert.throws(() => spendMeter({ ...base, service_label: 'Group', preference_prefix: '' }), SpendMeterError);
+  const answer = await spendMeter({ ...base, service_label: 'Caller group', preference_prefix: 'caller-inside:' }).read();
+  const budgetRows = answer.items.filter(item => item.kind === 'budget' && item.group !== 'Yours');
+  assert.ok(budgetRows.length > 0, 'the shared DATA has service budgets to label');
+  assert.ok(budgetRows.every(item => item.group === 'Caller group'));
+});
