@@ -1412,6 +1412,11 @@
               "maxLength": 40,
               "description": "When the call began, as a time (default: the start of the recordings)"
             },
+            "stored": {
+              "type": "object",
+              "description": "The bytes of each source recording, read by the caller from where the person keeps them: files is {path: {base64}} with one entry per sources path. Nothing else is read.",
+              "properties": {"files": {"type": "object", "description": "Each recording's bytes, keyed by its path in sources"}}
+            },
             "flags": {
               "type": "object",
               "description": "Flags in force for this hearing (for example whether a relay or a training opt-out was asked for); a key that looks like a secret is refused"

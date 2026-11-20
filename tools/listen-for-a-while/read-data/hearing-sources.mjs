@@ -12,7 +12,7 @@
 //      a token or key.
 //   4. Sources, labels, record file and words are DATA (hearing-sources.json); this file names none.
 //
-import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -87,10 +87,29 @@ export async function hearSourcesOfACall(input, { hear = hearFile, hearing = {},
 /** The hearer of tool:hear-sources: the picked program's own whisper-cli and ffmpeg, no Python (see hear-with-programs.mjs). */
 const hearWithRow = (recording, { program }) => hearWithPrograms(recording, { modelPath: program.model, whisperCli: program.program, ffmpeg: program.ffmpeg ?? 'ffmpeg' });
 
-export async function hearSourcesTool(input = {}, { settings = sourcesSettings(), file, hear = hearWithRow } = {}) {
+/**
+ * The bytes of one source come in with the request (`stored.files`, keyed by the source's path, read by the caller from where the
+ * person keeps them) and are written into this run's own folder under `scratch`; a run writes nothing else.
+ */
+const storedCopy = (input, name, folder) => {
+  const held = input.stored?.files?.[name];
+  if (held === undefined) throw fail(`${name} was not handed in: its bytes come in as stored.files.`);
+  const copy = path.join(folder, path.basename(String(name)));
+  writeFileSync(copy, Buffer.from(typeof held === 'string' ? held : held.base64 ?? '', typeof held === 'string' ? 'utf8' : 'base64'), { mode: 0o600 });
+  return copy;
+};
+
+export async function hearSourcesTool(input = {}, { settings = sourcesSettings(), file, hear = hearWithRow, scratch = process.env.TMPDIR ?? os.tmpdir() } = {}) {
   if (!String(input.model_path ?? '').trim()) throw fail(settings.words.needs_model);
   const cli = String(input.whisper_cli ?? '').trim() || 'whisper-cli';
   const program = { id: 'whisper-cli', label: 'whisper-cli', check: [path.basename(cli), '--help'], search_path: path.isAbsolute(cli) ? [path.dirname(cli)] : [], model: input.model_path, ffmpeg: input.ffmpeg ?? null };
-  return hearSourcesOfACall({ sources: input.sources, flags: input.flags }, { hear, hearing: { rows: [program] }, settings, at: input.at ? Date.parse(input.at) : 0, file });
+  // The session record is answered, not kept: a run writes only into its own folder, so the record file is there too.
+  const folder = mkdtempSync(path.join(scratch, 'hear-sources-'));
+  try {
+    const sources = (input.sources ?? []).map(entry => ({ source: entry.source, path: storedCopy(input, entry.path, folder) }));
+    return await hearSourcesOfACall({ sources, flags: input.flags }, { hear, hearing: { rows: [program] }, settings, at: input.at ? Date.parse(input.at) : 0, file: file ?? path.join(folder, 'sessions.json') });
+  } finally {
+    rmSync(folder, { recursive: true, force: true });
+  }
 }
 

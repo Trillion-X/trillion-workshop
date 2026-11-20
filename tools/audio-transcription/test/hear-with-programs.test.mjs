@@ -46,13 +46,21 @@ test('tool:hear-sources hears a source through the picked whisper-cli and no Pyt
   const saved = process.env.HEAR_TEST_DIR;
   process.env.HEAR_TEST_DIR = folder;
   try {
+    const bytes = readFileSync(recording).toString('base64');
     const { words, session } = await hearSourcesTool(
-      { sources: [{ source: 'microphone', path: recording }], model_path: '/m.bin', whisper_cli: fakeWhisper, ffmpeg: fakeFfmpeg },
-      { settings, file: path.join(folder, 'sessions.json') },
+      { sources: [{ source: 'microphone', path: 'call.m4a' }], stored: { files: { 'call.m4a': { base64: bytes } } }, model_path: '/m.bin', whisper_cli: fakeWhisper, ffmpeg: fakeFfmpeg },
+      { settings, scratch: folder, file: path.join(folder, 'sessions.json') },
     );
     assert.deepEqual(words.map(word => [word.speaker, word.text]), [['Me', 'Hello team.'], ['Me', 'Yes, I can hear you.']]);
     assert.equal(session.program, 'whisper-cli');
   } finally {
     if (saved === undefined) delete process.env.HEAR_TEST_DIR; else process.env.HEAR_TEST_DIR = saved;
   }
+});
+
+test('tool:hear-sources refuses a source whose bytes were not handed in', async () => {
+  await assert.rejects(
+    hearSourcesTool({ sources: [{ source: 'microphone', path: 'call.m4a' }], model_path: '/m.bin', whisper_cli: fakeWhisper, ffmpeg: fakeFfmpeg }, { settings: sourcesSettings(), scratch: folder }),
+    /was not handed in: its bytes come in as stored.files/,
+  );
 });
