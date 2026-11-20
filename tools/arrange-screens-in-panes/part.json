@@ -45,6 +45,7 @@
     { "id": "arrangement.header.actions.present-files", "label": "Show files from your computer in a pane" },
     { "id": "arrangement.header.actions.with-this", "label": "Tools and your AI for what a pane shows" },
     { "id": "arrangement.split", "label": "Split by dropping on a pane edge" },
+    { "id": "arrangement.present-immersive", "label": "Hide the tabs and fill the pane (drop a screen to make it immersive, or Make immersive)" },
     { "id": "arrangement.grab", "label": "Move a floating window by its strip" },
     { "id": "arrangement.container.frame", "label": "The frame around a floating window" },
     { "id": "arrangement.container.fill-height", "label": "A floating window as tall as its space" },

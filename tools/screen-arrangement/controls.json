@@ -10,6 +10,7 @@
     { "id": "arrangement.header.actions", "label": "A pane's ⋯ menu (it can open the whole sidebar inside the pane: Open something here)", "drawn_at": "show/ContainerHeader.tsx moreControl (zone header.actions)" },
     { "id": "arrangement.header.new-tab", "label": "A pane's new tab", "drawn_at": "show/ContainerHeader.tsx (zone header.new-tab)" },
     { "id": "arrangement.split", "label": "Splitting a pane", "drawn_at": "show/ContainerHeader.tsx (zone split)" },
+    { "id": "arrangement.present-immersive", "label": "Hide the tabs and fill the pane (drop a screen to make it immersive, or Make immersive)", "drawn_at": "show/region-drop-intents.ts present-immersive zone; show/node-action-pack.tsx region-immersive-enter" },
     { "id": "arrangement.layouts", "label": "Saved layouts", "drawn_at": "show/LayoutPicker.tsx, show/ArrangementNavigator.tsx" },
     { "id": "arrangement.navigation", "label": "The pane map", "drawn_at": "show/ArrangementNavigator.tsx" },
     { "id": "arrangement.zoom.pinch", "label": "Zooming the panes in and out with a pinch or ctrl/⌘ and the scroll wheel", "drawn_at": "show/canvas-gestures.ts onWheel (ctrl or cmd) and onTouchStart/onTouchMove (two fingers), show/SplitTreeArranger.tsx zoomShown" },

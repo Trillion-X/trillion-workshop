@@ -23,6 +23,7 @@
 import React from 'react'
 import type { NodeActionCapability, NodeActionPack, NodeRef } from '../../ui/show/node-actions';
 import { later } from '../../ui/show/load-later/later';
+import { controlShown } from '../../ui/show/show-rules/show-of';
 // The editors open only when a person picks one from a node's menu, so they arrive then, not with the first paint.
 const editors = () => import('../../ui/show/node-editors');
 const RenamePanel = later(editors, module => module.RenamePanel);
@@ -181,7 +182,7 @@ function enterImmersiveAction(services: NodeActionServices): NodeActionCapabilit
     label: 'Make immersive',
     icon: 'Expand',
     priority: 9,
-    accepts: (nodeRef) => !services.regionIsImmersive(nodeRef),
+    accepts: (nodeRef) => controlShown('arrangement.present-immersive') && !services.regionIsImmersive(nodeRef),
     run: (nodeRef) => services.toggleRegionImmersive(nodeRef),
   }
 }

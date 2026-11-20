@@ -25,6 +25,7 @@ import { readVisualLayerDrop, canPaintDataTransfer, type DropIntentCapability, t
 import { isOverSelectedRecordDropOwner } from '../../ui/show/selection'
 import { readPlaceableSurfaceSubject } from '../../ui/show/placeable-surface-intent'
 import { type AddressRef, type VisualLayerDescriptor } from '../../ui/show/visual-layer-stack'
+import { controlShown } from '../../ui/show/show-rules/show-of'
 import { hasPlaceableSurface } from './placeable-surface-drag'
 import {
   canonicalArtifactSubjectRef,
@@ -206,7 +207,8 @@ export function buildRegionDropIntents(args: RegionDropIntentArgs): DropIntentCa
       label: 'Hide tabs and fill pane',
       icon: 'expand',
       priority: 2,
-      accepts: ({ dataTransfer, clientX, clientY }) => !isOverSelectedRecordDropOwner(dataTransfer, clientX, clientY)
+      accepts: ({ dataTransfer, clientX, clientY }) => controlShown('arrangement.present-immersive')
+        && !isOverSelectedRecordDropOwner(dataTransfer, clientX, clientY)
         && (isArrangementSurfaceDrag(dataTransfer)
           || (Boolean(moveTab) && isArrangementTabDrag(dataTransfer))),
       apply: async (drop) => {
