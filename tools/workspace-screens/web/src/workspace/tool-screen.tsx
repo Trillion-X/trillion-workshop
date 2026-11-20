@@ -54,6 +54,7 @@ import { nativeResourcePresentationHost, resourcePresentationHost } from './reso
 import type { ResourcePresentationBinding } from './addressed-record-set';
 import { declaredCall } from './declared-request';
 import type { PartsScreenHandle, PartsSpec } from './parts-screen';
+import failureWords from './failure-words.json' with { type: 'json' };
 
 type ModuleSpec = { bundle?: string; file?: string; package?: string; entry?: string };
 export type Screen = { kind: string; spec?: PartsSpec; runtime?: string; label?: string; about?: string; icon?: string; url?: string; entry?: string; input?: Record<string, unknown>; module?: ModuleSpec; requests?: Record<string, unknown>; resource_binding?: ResourcePresentationBinding };
@@ -225,6 +226,12 @@ const moduleScreen: Show = (element, tool, screen, props) => {
   // (a guide's `screen`, a Home card's `card`) opens the same whether the screen's code is in the page or a module.
   const withScreenInput = (given: Props): Props => ({ ...given, surfaceInput: { ...(given.surfaceInput ?? {}), ...(screen.input ?? {}) } });
   let latestProps = withScreenInput(props);
+  // A module named by its spec that the page's import map does not hold was left out of this page's build (its code
+  // did not build, scripts/screen-modules.mjs): it is said as not in this version, never as the browser's own words.
+  if (!spec.bundle && !inImportMap(address)) {
+    mountScreenState(element, failedState(Object.assign(new Error(failureWords.absent), { status: 404, absent: true }), () => location.reload(), `${nameOf(tool, screen)} could not open`));
+    return () => { gone = true; unmount(); };
+  }
   mountScreenState(element, { status: 'loading', label: `Opening ${nameOf(tool, screen)}`, layout: 'rows' });
   // A browser keeps a module that failed to arrive as failed for the rest of the page, so trying again reloads it.
   import(address).then(
@@ -260,6 +267,15 @@ const moduleScreen: Show = (element, tool, screen, props) => {
 };
 
 const SHOWS: Record<string, Show> = { 'web-address': webAddressShow, 'app-entry': appEntry, module: moduleScreen, parts: partsScreen };
+
+/** Whether the page's own import map names `specifier` (each <script type="importmap"> of the page, read once). */
+let mapped: Set<string> | null = null;
+function inImportMap(specifier: string): boolean {
+  mapped ??= new Set([...document.querySelectorAll('script[type="importmap"]')].flatMap(script => {
+    try { return Object.keys((JSON.parse(script.textContent ?? '{}') as { imports?: Record<string, string> }).imports ?? {}); } catch { return []; }
+  }));
+  return mapped.has(specifier);
+}
 
 function unavailable(element: HTMLElement): () => void {
   mountScreenState(element, { status: 'empty', icon: 'Wrench', title: 'This tool has no screen here', description: 'Your AI can still use it. Open the Marketplace to see it.', action: goTo('Open the Marketplace', 'trillion.marketplace') });
