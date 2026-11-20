@@ -417,6 +417,13 @@ const listRow = (heading, detail, action) => {
 const endingButton = (dataset, label) => { const button = document.createElement('button'); button.className = 'page-action'; button.type = 'button'; Object.assign(button.dataset, dataset); button.textContent = label; return button; };
 async function accountSessions(current) {
   const listed = await json(`${authBase}/list-sessions`);
+  // Better Auth shows this list only to a sign-in made within its fresh window (a 403 SESSION_NOT_FRESH otherwise): the page says to
+  // sign in again and comes back here, never "That did not work" (seen on /account Nov 20 2026, 6:40 AM CST).
+  if (listed.status === 403) {
+    const again = document.createElement('a'); again.className = 'page-action page-action--link';
+    again.href = `/sign-in?${new URLSearchParams({ next: location.pathname + location.search })}`; again.textContent = words.account_sessions_confirm_action;
+    return document.querySelector('[data-fill-list="sessions"]').replaceChildren(listRow(words.account_sessions_confirm, '', again));
+  }
   if (!listed.ok) return refusal(listed, words.failed);
   document.querySelector('[data-fill-list="sessions"]').replaceChildren(...listed.data.map(found => listRow(
     found.token === current ? words.account_session_this : words.account_session_other,

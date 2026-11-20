@@ -122,6 +122,8 @@
   "account_session_signed_in": "Signed in {when}",
   "account_session_end": "Sign out",
   "account_session_ended": "Signed out there.",
+  "account_sessions_confirm": "To see where else you're signed in, sign in again.",
+  "account_sessions_confirm_action": "Sign in again",
   "account_passkey_made": "Added {when}",
   "account_passkey_unnamed": "Passkey",
   "account_passkey_remove": "Remove",

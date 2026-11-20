@@ -57,3 +57,11 @@ test('no inline style, no script in the sections, and no stand-in name typed int
   }
   assert.doesNotMatch(client.slice(client.indexOf('// /account:'), client.indexOf('// /device:')), /style\.|\.style\b/, 'the account script sets classes, not styles');
 });
+
+test('a sign-in too old to list where else it is signed in is asked to sign in again and come back, not told it failed', () => {
+  assert.match(client, /if \(listed\.status === 403\) \{/);
+  assert.match(client, /again\.href = `\/sign-in\?\$\{new URLSearchParams\(\{ next: location\.pathname \+ location\.search \}\)\}`/);
+  const words = JSON.parse(readFileSync(new URL('words.json', dir), 'utf8'));
+  assert.ok(words.account_sessions_confirm && words.account_sessions_confirm_action);
+  assert.match(bundle, /account_sessions_confirm_action/, 'the built bundle carries it (npm run build-pages)');
+});
