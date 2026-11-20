@@ -2,7 +2,7 @@
 // value changed, and offered only for an owner that could not be read now.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { knownFacts, mergeKnown, normalizeLive } from '../src/setup-known.mjs';
+import { knownFacts, mergeKnown, normalizeLive } from '../read-data/setup-known.mjs';
 
 const NOW = Date.parse('2026-10-08T14:02:00Z');
 const LATER = Date.parse('2026-10-09T09:00:00Z');
@@ -10,7 +10,7 @@ const LATER = Date.parse('2026-10-09T09:00:00Z');
 test('a read that changes a value keeps it with the time, an unchanged one keeps its old time, and a failed one is carried over', () => {
   const first = mergeKnown(null, normalizeLive({ pursuits: [{ title: 'Ship setup', status: 'active' }], connected: true }), NOW);
   assert.equal(first.changed, true);
-  assert.deepEqual(first.snapshot.pursuits, { value: ['Ship setup'], at: '2026-10-08T14:02:00.000Z' });
+  assert.deepEqual(first.snapshot.pursuits, { value: [{ title: 'Ship setup' }], at: '2026-10-08T14:02:00.000Z' });
   const same = mergeKnown(first.snapshot, normalizeLive({ pursuits: [{ title: 'Ship setup' }] }), LATER);
   assert.equal(same.changed, false);
   assert.equal(same.snapshot.pursuits.at, '2026-10-08T14:02:00.000Z');
@@ -38,13 +38,13 @@ test('nothing read and nothing kept is unknown, not an empty fact', () => {
 test('lists are capped and only titles and names are kept', () => {
   const live = normalizeLive({ pursuits: Array.from({ length: 250 }, (_, index) => ({ title: `P${index}`, now: 'secret', after: 'secret' })) });
   assert.equal(live.pursuits.length, 200);
-  assert.equal(live.pursuits[0], 'P0');
+  assert.deepEqual(live.pursuits[0], { title: 'P0' });
   assert.equal(JSON.stringify(live).includes('secret'), false);
 });
 
 test('an ended or archived pursuit is not kept as one Trillion knows', () => {
   const live = normalizeLive({ pursuits: [{ title: 'Ship setup', status: 'active' }, { title: 'Old', status: 'ended' }, { title: 'Shelf', status: 'archived' }] });
-  assert.deepEqual(live.pursuits, ['Ship setup']);
+  assert.deepEqual(live.pursuits, [{ title: 'Ship setup' }]);
   assert.deepEqual(knownFacts(live, {}).owned.pursuits, [{ title: 'Ship setup', status: 'active' }]);
 });
 

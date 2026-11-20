@@ -18,7 +18,8 @@
       "to": "tools/show-each-setup-step-with-the-real-things-found/from-an-older-version/src/setup-known.mjs.held",
       "source_identity": "1f:ba4f80bd547a451970c6d95d1e22e002f8d7bdaa4105e0cc644445e7383ba55b",
       "identity": "1f:ba4f80bd547a451970c6d95d1e22e002f8d7bdaa4105e0cc644445e7383ba55b",
-      "held": true
+      "held": true,
+      "ported_to": "tools/show-each-setup-step-with-the-real-things-found/read-data/setup-known.mjs"
     },
     {
       "from": "src/setup-week.mjs",
@@ -42,7 +43,8 @@
       "to": "tools/show-each-setup-step-with-the-real-things-found/from-an-older-version/test/setup-known.test.mjs.held",
       "source_identity": "1f:30c919785901fec590f98ee780f5264dbd56d35909b634f5e7d1731d20b9ed0a",
       "identity": "1f:30c919785901fec590f98ee780f5264dbd56d35909b634f5e7d1731d20b9ed0a",
-      "held": true
+      "held": true,
+      "ported_to": "tools/show-each-setup-step-with-the-real-things-found/test/setup-known.test.mjs"
     }
   ]
 }

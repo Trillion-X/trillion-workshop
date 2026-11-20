@@ -1,4 +1,4 @@
-// src/setup-known.mjs
+// tools/show-each-setup-step-with-the-real-things-found/read-data/setup-known.mjs
 //
 // Purpose: the last facts setup read successfully from each owner, kept per account in APP_KV, so that a read which fails
 // later shows the fact as it was when it last changed, not as unfinished. Titles, names and the profile words a setup
@@ -10,7 +10,7 @@
 //   3. The snapshot is written only when a kept value changed, and a failed write changes nothing for the person.
 //   4. Every stale fact says when it was read (`known_at`), so the screen can say "as of" and never shows it as live.
 
-import setupPolicy from './setup-policy.json' with { type: 'json' };
+import setupPolicy from '../../set-up-my-account/read-data/setup-policy.json' with { type: 'json' };
 
 export const SETUP_KNOWN_SCHEMA = 'trillion.setup-known/v1';
 export const setupKnownKey = userId => `setup-known:${userId}`;
