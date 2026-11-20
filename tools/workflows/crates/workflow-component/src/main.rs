@@ -204,8 +204,11 @@ fn main() {
     let told_as = |step: &Value, name: &Value| json!({ "source": ANSWERED, "event_id": format!("{run_id}:{}", step.as_str().unwrap_or_default()),
         "payload": { "workflow": id, "run": run, "step": step, "for": name } });
     // A name the engine can start (a tool id) is started with a reply; every other ask is told as a fact.
+    // One waiting step is handed out per pass, the first the walk reached. The run is carried in each answer's envelope
+    // and kept nowhere else, so two steps handed out together would each come back with the run as it stood before
+    // either answered, and the second answer back would lose the first. The next pass hands out the next one.
     let mut effects: Vec<Value> = told.into_iter().map(|(_, _, fact)| fact).collect();
-    effects.extend(waiting.iter().map(|w| {
+    effects.extend(waiting.iter().take(1).map(|w| {
         let told = told_as(&w["step"], &w["for"]);
         if w["for"].as_str().is_some_and(|name| name.starts_with("tool:")) {
             // A step whose input is exactly the door's call shape asks the tool's session one question (wake's `call`).
@@ -248,6 +251,30 @@ mod tests {
             vec![definition], "check", json!({}), "someone", "workflow", "2026-11-19T00:00:00Z", held())).unwrap();
         assert_eq!(walked["status"], "failed", "{walked}");
         assert!(walked["error_message"].as_str().unwrap_or_default().contains("reads no store"), "{walked}");
+    }
+
+    // Two steps waiting at once are handed out one per pass, so the second answer back carries the first.
+    #[test]
+    fn steps_waiting_together_are_handed_out_one_per_pass() {
+        let loop_of_two = json!({ "id": "two", "name": "two", "kind": "workflow", "is_active": true, "version": 1,
+            "steps": [{ "id": "each", "kind": "loop", "config": { "source": { "$kind": "binding", "select": { "from": "input", "path": "items" } },
+                "item_var": "item", "definition_id": "one", "parallel": true } }], "edges": [],
+            "uses": [{ "id": "one", "name": "one", "kind": "workflow", "is_active": true, "version": 1, "edges": [],
+                "steps": [{ "id": "ask", "kind": "ask", "config": { "name": "tool:x", "context": { "step_id": "ask" },
+                    "input": { "item": { "$kind": "binding", "select": { "from": "loop", "path": "item" } } } } }] }] });
+        let pass = |answers: Value| {
+            let given = json!({ "input": { "definition": loop_of_two, "items": ["a", "b"], "answers": answers }, "cause": { "key": "k" }, "context": {} });
+            let (run, refused) = the_run(&given);
+            let mut all = definitions_of(&run);
+            let definitions: Vec<workflow_core::Definition> = all.drain(..).map(|d| serde_json::from_value(d).unwrap()).collect();
+            let host = Arc::new(Held { run: "k".into(), answers: serde_json::from_value(run["answers"].clone()).unwrap_or_default(), refused, waiting: Mutex::new(vec![]), told: Mutex::new(vec![]) });
+            futures::executor::block_on(workflow_engine::run_definition_with_started_at(definitions, "two", run["input"].clone(), "someone", "workflow", "2026-11-20T00:00:00Z", host.clone())).unwrap();
+            let waiting = host.waiting.lock().unwrap().clone();
+            waiting
+        };
+        assert_eq!(pass(json!({})).len(), 2, "the walk reaches both items");
+        assert_eq!(pass(json!({ "each_iter_0/ask": 1 })).len(), 1, "an answered item stops waiting");
+        assert!(pass(json!({ "each_iter_0/ask": 1, "each_iter_1/ask": 2 })).is_empty());
     }
 
     // Each loop item waits under its own place in the run, and a top-level step under its own id.

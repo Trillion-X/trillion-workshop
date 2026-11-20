@@ -13,6 +13,7 @@ The workflow engine (`workflow-core`, through `workflow-engine`) as one WebAssem
 7. A told failure fails its step, in the words of the run that failed.
 8. A fact that woke the run may carry `definition` and `start_at` (the run's) and `input`, the person's own settings for that workflow (from their row's condition), which is spread into the workflow's input beside `fact`.
 9. A `read` step is refused in plain words, since this run holds no store: its declared fallback answers, else the step fails. A check never sees an empty answer for a row it could not read.
+10. One waiting step is handed out per pass, the first the walk reached: the run travels in each answer's envelope, so two out at once would each come back with the run as it stood before either answered.
 
 ## In and out
 
