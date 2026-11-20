@@ -1179,6 +1179,174 @@
       "wrong_is_text": true
     },
     {
+      "kind": "keeps-every-match-of",
+      "meaning": "Every piece of the text at `of` that one of the listed patterns matches is still in the text at path, character for character, such as the numbers, links and page marks a rewrite was told to keep. Each pattern is a regular expression; a pattern with a group keeps the group's text, one without keeps the whole match. The failing values are the pieces the text at path no longer holds.",
+      "fields": [
+        {
+          "field": "path",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        },
+        {
+          "field": "of",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        },
+        {
+          "field": "patterns",
+          "shape": "words",
+          "required": true,
+          "refusal": "must list the patterns whose matches are kept."
+        }
+      ],
+      "wrong": {
+        "$kind": "binding",
+        "select": {
+          "from": "literal",
+          "value": {
+            "$fill": "patterns"
+          }
+        },
+        "transform": [
+          {
+            "op": "op:core.map_to_nodes",
+            "args": {
+              "item_var": "$pattern",
+              "template": {
+                "$kind": "binding",
+                "select": {
+                  "from": "vars",
+                  "key": "$pattern"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.coalesce",
+                    "args": {
+                      "values": [
+                        {
+                          "$values": "of",
+                          "transform": [
+                            {
+                              "op": "op:core.map_to_nodes",
+                              "args": {
+                                "item_var": "$text",
+                                "template": {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "vars",
+                                    "key": "$text"
+                                  },
+                                  "transform": [
+                                    {
+                                      "op": "op:core.to_string"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "op": "op:core.join",
+                              "args": {
+                                "delimiter": "\n"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "op": "op:core.regex_extract",
+                    "args": {
+                      "pattern": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$pattern"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.array_flatten"
+          },
+          {
+            "op": "op:core.array_unique"
+          },
+          {
+            "op": "op:core.filter_where",
+            "args": {
+              "predicate": [
+                {
+                  "op": "op:core.coalesce",
+                  "args": {
+                    "values": [
+                      {
+                        "$values": "path",
+                        "transform": [
+                          {
+                            "op": "op:core.map_to_nodes",
+                            "args": {
+                              "item_var": "$text",
+                              "template": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "vars",
+                                  "key": "$text"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.to_string"
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "op": "op:core.join",
+                            "args": {
+                              "delimiter": "\n"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "op": "op:core.contains",
+                  "args": {
+                    "value": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "vars",
+                        "key": "$item"
+                      }
+                    }
+                  }
+                },
+                {
+                  "op": "op:core.not"
+                }
+              ]
+            }
+          },
+          {
+            "op": "op:core.take",
+            "args": {
+              "count": 8
+            }
+          }
+        ]
+      }
+    },
+    {
       "kind": "distinct-at-least",
       "meaning": "The values at path hold at least count different values.",
       "fields": [
