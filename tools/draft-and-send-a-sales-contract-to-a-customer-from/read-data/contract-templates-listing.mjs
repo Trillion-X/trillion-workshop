@@ -2,8 +2,8 @@
 // with its own terms kept as written. Port of salesContractTemplates in the old owner (src/sales-contract-templates.mjs,
 // held at from-an-older-version). Storage-free: the caller reads the template records and passes them in. Templates
 // are inert: choosing one never changes a saved deal, its price or its sharing.
-import data from './draft-and-send-a-sales-contract-to-a-customer-from-contract-templates-listing.json' with { type: 'json' };
-import { object, text } from './list-contract-records.mjs';
+import data from './contract-templates-listing.json' with { type: 'json' };
+import { object, text } from '../../build-and-send-a-sales-contract/read-data/list-contract-records.mjs';
 
 const humanWords = id => id.replace(/^[^:]+:/, '').replace(/[-_]+/g, ' ');
 const failure = () => Object.assign(new Error(data.fail.message), { status: data.fail.status, code: data.fail.code });

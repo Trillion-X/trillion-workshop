@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { salesContractTemplatesFrom } from '../read-data/draft-and-send-a-sales-contract-to-a-customer-from-contract-templates-listing.mjs';
+import { salesContractTemplatesFrom } from '../read-data/contract-templates-listing.mjs';
 
 // Made-up template records for the test only; no real customer terms are shipped with this module.
 const sample = () => ({
