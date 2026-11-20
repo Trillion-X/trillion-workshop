@@ -27,6 +27,7 @@
         "surface": {
           "id": "trillion.waiting",
           "surface_id": "trillion.waiting",
+          "control": "screens.waiting",
           "kind": "placeable-surface",
           "listed": true,
           "sidebar_collection": "start",

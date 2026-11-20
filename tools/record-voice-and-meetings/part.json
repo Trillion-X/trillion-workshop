@@ -65,6 +65,7 @@
         "surface": {
           "id": "trillion.record",
           "surface_id": "trillion.record",
+          "control": "screens.record",
           "kind": "placeable-surface",
           "sidebar_collection": "things-you-do-as-input",
           "order": 0.5,

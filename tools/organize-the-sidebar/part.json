@@ -180,6 +180,7 @@
             "board"
           ],
           "surface_id": "trillion.board",
+          "control": "screens.draw",
           "kind": "placeable-surface",
           "order": 26.5,
           "sidebar_collection": "things-you-do-as-input",

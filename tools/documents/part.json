@@ -41,6 +41,7 @@
         "surface": {
           "id": "trillion.write",
           "surface_id": "trillion.write",
+          "control": "screens.write",
           "kind": "placeable-surface",
           "sidebar_collection": "things-you-do-as-input",
           "order": 0.4,

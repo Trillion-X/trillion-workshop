@@ -28,6 +28,7 @@
 //      change or its `next_change_at` passes; a thing is known by its subject and fields.
 
 import data from 'trillion-workshop/tools/set-up-my-account/read-data/show-rules.json';
+import { shippedOff, shippedUnder } from 'trillion-workshop/tools/starting-set/read-data/shipped-default.mjs';
 import { changedRecord, deviceOf, everyRule, quickRule, rulesInForce, showDecision, withChanges } from './show-rules.mjs';
 import { decideEvery } from './show-rules-map.mjs';
 import { selfStartingToursMayShow } from './first-use-tour.mjs';
@@ -52,8 +53,12 @@ let authority: string | null = null;
 // The person's rules are their own record. A change is decided by changedRecord over the record as the store holds it
 // now and kept through the generic records write, compared and retried against that same value.
 async function keepChange(change: Change): Promise<void> {
-  await updateInputValueDurably(data.record, current => changedRecord(data,
-    current && typeof current === 'object' && !Array.isArray(current) ? current : null, change, Date.now(), authority));
+  // The change is made over the record with its shipped default laid under it, and the default is taken back off
+  // before it is kept, so a shipped type the person never changed is never written into their record.
+  await updateInputValueDurably(data.record, current => {
+    const own = current && typeof current === 'object' && !Array.isArray(current) ? current : null;
+    return shippedOff(data.record, changedRecord(data, shippedUnder(data.record, own), change, Date.now(), authority), own);
+  });
   announceShowChange();
 }
 
@@ -62,7 +67,8 @@ const fill = (template: string, values: { [name: string]: string }) => template.
 // The person's record as this page last read it: read once, and again only on its change notice (invariant 3).
 let kept: Kept | null | undefined;
 const readKept = (): Kept | null => {
-  const value = readInputValue<unknown>(data.record);
+  // The person's record with the default every account starts with laid under it (tools/starting-set shipped-defaults.json).
+  const value = shippedUnder(data.record, readInputValue<unknown>(data.record));
   kept = value && typeof value === 'object' && !Array.isArray(value) ? value as Kept : null;
   return kept;
 };

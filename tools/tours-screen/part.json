@@ -35,6 +35,7 @@
         "surface": {
           "id": "trillion.tours",
           "surface_id": "trillion.tours",
+          "control": "screens.tours",
           "kind": "placeable-surface",
           "sidebar_settings": {
             "remove_from_list": false,

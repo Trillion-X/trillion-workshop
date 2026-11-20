@@ -159,6 +159,7 @@
             "pursuit"
           ],
           "surface_id": "trillion.progress",
+          "control": "screens.progress",
           "kind": "placeable-surface",
           "sidebar_collection": "pursuits",
           "order": 30,
@@ -269,6 +270,7 @@
         "surface": {
           "id": "trillion.get-started",
           "surface_id": "trillion.get-started",
+          "control": "screens.get-started",
           "kind": "placeable-surface",
           "sidebar_settings": {
             "remove_from_list": false,
@@ -309,6 +311,7 @@
         "surface": {
           "id": "trillion.ai",
           "surface_id": "trillion.ai",
+          "control": "screens.ai",
           "kind": "placeable-surface",
           "sidebar_settings": {
             "remove_from_list": false,

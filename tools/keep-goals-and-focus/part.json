@@ -20,6 +20,7 @@
         "surface": {
           "id": "trillion.home",
           "surface_id": "trillion.home",
+          "control": "screens.home",
           "kind": "placeable-surface",
           "sidebar_collection": "start",
           "order": 0,

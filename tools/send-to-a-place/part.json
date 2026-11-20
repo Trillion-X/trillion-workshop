@@ -21,6 +21,7 @@
         "surface": {
           "id": "trillion.tray",
           "surface_id": "trillion.tray",
+          "control": "screens.tray",
           "kind": "placeable-surface",
           "sidebar_settings": {
             "remove_from_list": false,

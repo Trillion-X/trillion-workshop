@@ -21,6 +21,7 @@
         "surface": {
           "id": "trillion.formats",
           "surface_id": "trillion.formats",
+          "control": "screens.formats",
           "kind": "placeable-surface",
           "sidebar_collection": "information-being-acted-on",
           "order": 9,

@@ -30,7 +30,7 @@ import { bytesToHex } from '@noble/hashes/utils.js';
 import data from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
 import { initSync, filterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 import sharing from '../read-data/record-sharing.json' with { type: 'json' };
-import shippedDefaults from '../../starting-set/shipped-defaults.json' with { type: 'json' };
+import { shippedFor, shippedOff, shippedUnder } from '../../starting-set/read-data/shipped-default.mjs';
 import { typesOf, heldTypes } from '../../set-up-my-account/read-data/show-rules.mjs';
 import { makeShowRules } from '../read-data/show-rules-store.mjs';
 
@@ -58,63 +58,22 @@ function nowOf(input) {
   return at;
 }
 
-// The shipped default laid under the person's show-rules record, if one ships.
-const SHIPPED = shippedDefaults.records.map(row => row.payload).find(one => one?.kind === 'shipped-default' && one.record === data.record) ?? null;
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+// The shipped default for the person's show-rules record, if one ships, and the parts of it the rows below ask about.
+const SHIPPED = shippedFor(data.record);
 const listOf = value => (Array.isArray(value) ? value : []);
 const shippedTypes = () => (SHIPPED && (SHIPPED.merge?.by_id ?? []).includes('types') ? listOf(SHIPPED.value?.types).filter(type => object(type) && word(type.id)) : []);
-const shippedSwitches = () => (SHIPPED ? (SHIPPED.merge?.switched ?? []).filter(one => one.field === 'in_use' && word(one.off_in)) : []);
 /** The ids a shipped default switches on, each with where the person switches it off. */
-const shippedOn = () => shippedSwitches().flatMap(({ off_in }) => listOf(SHIPPED.value.in_use).map(id => ({ id, off_in })));
-
+const shippedOn = () => (SHIPPED ? (SHIPPED.merge?.switched ?? []).filter(one => one.field === 'in_use' && word(one.off_in)) : [])
+  .flatMap(({ off_in }) => listOf(SHIPPED.value.in_use).map(id => ({ id, off_in })));
 /** Whether a type id is a shipped type the person keeps no copy of their own of. */
 const isShipped = (id, record) => shippedTypes().some(type => type.id === id) && !listOf(record?.types).some(one => object(one) && one.id === id);
 
-/** The person's record with the shipped default laid under it, as the engine's reader lays it; null stays null only when nothing ships. */
-export function laidUnder(record) {
-  const types = shippedTypes();
-  const on = shippedOn();
-  if (!types.length && !on.length) return record ?? null;
-  const own = object(record) ? record : {};
-  const ownTypes = listOf(own.types);
-  const merged = [...types.filter(type => !ownTypes.some(one => object(one) && one.id === type.id)), ...ownTypes];
-  const inUse = [...new Set([...on.filter(({ id, off_in }) => own[off_in]?.[id]?.on !== false && merged.some(type => type.id === id)).map(({ id }) => id), ...listOf(own.in_use)])];
-  // The shipped switches are read into in_use here, so the store (which knows only starting-rule ids there) never sees them.
-  const rest = { ...own };
-  for (const off_in of new Set(on.map(one => one.off_in))) {
-    if (!object(own[off_in])) continue;
-    const switches = Object.fromEntries(Object.entries(own[off_in]).filter(([id]) => !on.some(one => one.id === id && one.off_in === off_in)));
-    rest[off_in] = switches;
-  }
-  return { ...rest, ...(merged.length ? { types: merged } : {}), ...(inUse.length ? { in_use: inUse } : {}) };
-}
+/** The person's record with the shipped default laid under it, by the one reader of shipped defaults
+ *  (tools/starting-set/read-data/shipped-default.mjs). */
+export const laidUnder = record => shippedUnder(data.record, record);
 
-/**
- * What the person's own record holds after a change made over laidUnder(before): the shipped types they did not
- * change are left out, and each shipped switch is kept as their `starting.<id>.on` instead of in their in_use.
- */
-export function takenOff(after, before) {
-  const types = shippedTypes();
-  const on = shippedOn();
-  if ((!types.length && !on.length) || !object(after)) return after;
-  const own = object(before) ? before : {};
-  const kept = listOf(after.types).filter(type => {
-    const shipped = types.find(one => one.id === type.id);
-    return !shipped || listOf(own.types).some(one => object(one) && one.id === type.id) || !same(type, shipped);
-  });
-  const shippedIds = new Set(on.map(({ id }) => id));
-  const inUse = listOf(after.in_use).filter(id => !shippedIds.has(id) || kept.some(type => type.id === id));
-  const next = { ...after };
-  for (const { id, off_in } of on) {
-    if (kept.some(type => type.id === id)) continue; // the person keeps their own copy: their in_use says
-    const switches = object(next[off_in]) ? { ...next[off_in] } : {};
-    if (listOf(after.in_use).includes(id)) delete switches[id];
-    else switches[id] = { on: false };
-    next[off_in] = switches;
-  }
-  delete next.types; delete next.in_use;
-  return { ...next, ...(kept.length ? { types: kept } : {}), ...(inUse.length ? { in_use: inUse } : {}) };
-}
+/** What the person's own record holds after a change made over laidUnder(before) (shipped-default.mjs shippedOff). */
+export const takenOff = (after, before) => shippedOff(data.record, after, before);
 
 /** The records the caller handed in as `records` for these labels: label → value, absent labels left out. */
 function readLabels(input, labels) {

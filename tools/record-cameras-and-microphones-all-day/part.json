@@ -17,6 +17,7 @@
         "surface": {
           "id": "trillion.always-recording",
           "surface_id": "trillion.always-recording",
+          "control": "screens.always-recording",
           "kind": "placeable-surface",
           "sidebar_collection": "things-you-do-as-input",
           "order": 0.65,

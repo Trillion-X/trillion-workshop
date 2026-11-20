@@ -65,6 +65,7 @@
         "surface": {
           "id": "trillion.record-video",
           "surface_id": "trillion.record-video",
+          "control": "screens.record-video",
           "kind": "placeable-surface",
           "sidebar_collection": "things-you-do-as-input",
           "order": 0.6,
