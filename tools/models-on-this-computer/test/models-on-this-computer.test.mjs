@@ -352,7 +352,13 @@ test('the shipped settings name every job\'s models, every wired judge and every
   const { localModelSettings } = await import('../read-data/models-on-this-computer.mjs');
   const settings = localModelSettings();
   const chat = new Set(settings.chat.map(row => row.id));
-  for (const [id, job] of Object.entries(settings.jobs)) for (const model of job.models) assert.ok(chat.has(model), `${id} names ${model}`);
+  const embed = new Set(settings.embed.map(row => row.id));
+  for (const [id, job] of Object.entries(settings.jobs)) {
+    // A job names chat rows or embedding rows, never both: vectors and words are not one answer.
+    const kinds = new Set(job.models.map(model => chat.has(model) ? 'chat' : embed.has(model) ? 'embed' : 'none'));
+    assert.ok(!kinds.has('none') && kinds.size === 1, `${id} names ${job.models.join(', ')}`);
+  }
+  assert.ok(settings.jobs.meaning?.models.every(model => embed.has(model)), 'texts with no job have an embedding job');
   for (const judge of Object.values(settings.wired)) assert.ok(settings.classify.some(row => row.id === judge), judge);
   const served = new Set([...settings.chat, ...settings.classify].map(row => row.model).filter(Boolean));
   for (const offer of settings.offer) assert.ok(served.has(offer.model), `${offer.id} answers at once once got`);
@@ -379,11 +385,30 @@ test('a server is named by its door: the port is the one the computer reports, a
     for (const row of rows.records.filter(row => row.payload.invoke?.local_doors)) {
       const doors = row.payload.invoke.local_doors;
       assert.deepEqual(doors.filter(door => typeof door === 'string'), ['local-model-server'], 'only the model server is required');
-      const named = new Set(shipped.chat.concat(shipped.classify).map(item => item.door).concat(shipped.server.door));
+      const named = new Set(shipped.chat.concat(shipped.classify, shipped.embed).map(item => item.door).concat(shipped.server.door));
       for (const door of named) assert.ok(doors.some(entry => entry === door || entry?.name === door), `${door} is listed`);
     }
     const none = await ask({ input: { messages: [{ role: 'user', content: 'hi' }] }, local_ports: {} });
     assert.ok(none.error, 'with no reported door nothing is asked and the answer says so');
     assert.equal(asked.length, 0);
+  } finally { server.close(); }
+});
+
+test('texts become one vector each from the embedding row its job names, with the model named; a short answer is that model\'s failure', async () => {
+  const asked = [];
+  const answers = { first: n => ({ embeddings: [[0.1, 0.2]] }), second: n => ({ embeddings: Array.from({ length: n }, (_, i) => [i, 1, 0]) }) };
+  const server = await serve(body => { asked.push(body); return answers[body.model](body.input.length); });
+  const url = `http://127.0.0.1:${server.address().port}/api/embed`;
+  const settings = { words, retry_after_seconds: 0, chat: [], classify: [], embed: [
+    { id: 'first', url, model: 'first', timeout_seconds: 5 }, { id: 'second', url, model: 'second', timeout_seconds: 5 },
+  ], jobs: { meaning: { models: ['second'] }, both: { models: ['first', 'second'] } } };
+  try {
+    const reply = await askLocal({ texts: ['a forehand', 'a backhand'] }, settings);
+    assert.deepEqual(reply, { vectors: [[0, 1, 0], [1, 1, 0]], model: 'second', dimensions: 3, served_by: 'second' });
+    assert.deepEqual(asked[0], { model: 'second', input: ['a forehand', 'a backhand'] });
+    const fell = await askLocal({ job: 'both', texts: ['one', 'two'] }, settings);
+    assert.equal(fell.model, 'second', 'one vector for two texts is the first row failing');
+    assert.equal((await askLocal({ texts: [] }, settings)).error, words.needs_input);
+    assert.equal((await askLocal({ texts: [3] }, settings)).error, words.needs_input);
   } finally { server.close(); }
 });

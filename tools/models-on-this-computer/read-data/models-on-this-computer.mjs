@@ -2,7 +2,8 @@
 //
 // Purpose
 //   Answers a model call with a model served on the person's own computer, so work that needs a model (checking
-//   answers, telling chatter from requests) costs nobody anything (`ask`, tool:ask-a-model), and says which free models
+//   answers, telling chatter from requests, turning words into vectors that compare meaning) costs nobody anything (`ask`,
+//   tool:ask-a-model), and says which free models
 //   fit this computer and gets them onto its model server (`fit`, tool:get-free-models). Runs as a `computer` row
 //   through tools/workflows/do-work/run-a-function.mjs. Moved from old trillion computer/local-models.mjs.
 //
@@ -144,8 +145,9 @@ async function askChatYesNo(row, { state, questions }) {
   return { model: row.model, answers };
 }
 
-/** { messages, tools?, max_tokens?, temperature? } -> the chat reply (OpenAI shape, with model), or { state, questions } -> the
- *  classifier's answers; { error } when no model here answered. */
+/** { messages, tools?, max_tokens?, temperature? } -> the chat reply (OpenAI shape, with model), { state, questions } -> the
+ *  classifier's answers, or { texts } -> one vector per text ({ vectors, model, dimensions }); { error } when no model here
+ *  answered. */
 export async function askLocal(input, settings, { priority = 0 } = {}) {
   if (Array.isArray(input.messages)) {
     const job = settings.jobs?.[input.job] ?? settings.jobs?.default ?? {};
@@ -175,6 +177,21 @@ export async function askLocal(input, settings, { priority = 0 } = {}) {
     const found = await firstAnswer(judges, row => (row.ask === 'chat' ? askChatYesNo(row, input)
       : post(row.url, { state: input.state, questions: input.questions }, row.timeout_seconds, { 'x-answer-within-seconds': String(row.timeout_seconds) })), settings.retry_after_seconds, failures, priority);
     return found ? { ...found.reply, served_by: found.row.id } : { error: settings.words.none, tried: failures };
+  }
+  if (Array.isArray(input.texts)) {
+    if (!input.texts.length || !input.texts.every(text => typeof text === 'string')) return { error: settings.words.needs_input };
+    // Vectors are comparable only with vectors from the same model, so a job names the embedding rows it may use (DATA
+    // `jobs`, `meaning` when the input names none) and the answer names the model that made them.
+    const job = settings.jobs?.[input.job] ?? settings.jobs?.meaning ?? {};
+    const rows = Array.isArray(job.models) ? job.models.map(id => (settings.embed ?? []).find(row => row.id === id)).filter(Boolean) : (settings.embed ?? []);
+    const failures = [];
+    const found = await firstAnswer(rows, async row => {
+      const reply = await post(row.url, { model: row.model, input: input.texts, ...(row.keep_alive ? { keep_alive: row.keep_alive } : {}) }, job.timeout_seconds ?? row.timeout_seconds);
+      if (!Array.isArray(reply?.embeddings) || reply.embeddings.length !== input.texts.length) throw Object.assign(new Error('no vectors'), { said: 'answered without one vector for each text' });
+      return reply;
+    }, settings.retry_after_seconds, failures, priority);
+    return found ? { vectors: found.reply.embeddings, model: found.row.model, dimensions: found.reply.embeddings[0].length, served_by: found.row.id }
+      : { error: settings.words.none, tried: failures };
   }
   return { error: settings.words.needs_input };
 }
@@ -251,7 +268,7 @@ export function placed(settings, ports = {}) {
     return { ...item, url, ...(url ? {} : { not_reported: String(settings.words?.not_reported ?? '').replaceAll('{door}', item.door) }) };
   };
   const server = settings.server?.door ? { ...settings.server, models: at(settings.server.door, settings.server.models), pull: at(settings.server.door, settings.server.pull) } : settings.server;
-  return { ...settings, server, chat: (settings.chat ?? []).map(row), classify: (settings.classify ?? []).map(row) };
+  return { ...settings, server, chat: (settings.chat ?? []).map(row), classify: (settings.classify ?? []).map(row), embed: (settings.embed ?? []).map(row) };
 }
 
 /** What a row hands in: { input, local_ports } (tool-rows.json stdin); a call with no ports reaches no server. */

@@ -1,5 +1,5 @@
 {
-  "_what": "The models this computer serves, read by read-data/models-on-this-computer.mjs (tool:ask-a-model and tool:get-free-models). A conversation ({ messages }) goes to the first `chat` row whose server answers, in the OpenAI chat-completions shape (Ollama serves it; keep_alive is how long the server keeps the model loaded after a call, so the next one does not wait for it to load); `jobs` name, for a kind of work, the chat rows to try and its token limit, time limit and answer format (`default` when the input names no job). A yes-or-no question about some words ({ state, questions }) goes to the first `classify` row that answers: a small classifier taking { state, questions } and answering probabilities, or, for a row whose `ask` is \"chat\", a chat model asked each question with the row's `prompt` and its probability of answering yes read from its own word probabilities (yesShare). `wired` maps a decision that was measured to the one classify row that answers it. A server that is not running is skipped; none answering is said in words. Nothing leaves this computer but the answer. Each row names the server that answers it by the name of a local door (`door`) and the `path` on it: the port is never written here, it is the one this computer's own report names under that door (its `local_ports`, handed to the run by the row's `{\"fill\": {\"from\": \"computer\", \"field\": \"local_ports\"}}`), and a row whose door the computer does not report is skipped as not running. `server` is the local model server (Ollama), by its door: `models` lists what it has, `pull` gets a model by its name (an Ollama name, or a Hugging Face model as hf.co/<repo>:<quantisation>). `offer` are the models offered for this computer by tool:get-free-models: each with the job it does, how much memory it needs to run well (min_memory_gb) and its download size; a model fits when the computer has that memory and the size plus `disk_spare_gb` free. Its `model` names match the `chat` and `classify` rows, so a model got here answers at once. A new local server or model is a row here.",
+  "_what": "The models this computer serves, read by read-data/models-on-this-computer.mjs (tool:ask-a-model and tool:get-free-models). A conversation ({ messages }) goes to the first `chat` row whose server answers, in the OpenAI chat-completions shape (Ollama serves it; keep_alive is how long the server keeps the model loaded after a call, so the next one does not wait for it to load); `jobs` name, for a kind of work, the chat rows to try and its token limit, time limit and answer format (`default` when the input names no job). A yes-or-no question about some words ({ state, questions }) goes to the first `classify` row that answers: a small classifier taking { state, questions } and answering probabilities, or, for a row whose `ask` is \"chat\", a chat model asked each question with the row's `prompt` and its probability of answering yes read from its own word probabilities (yesShare). `wired` maps a decision that was measured to the one classify row that answers it. A server that is not running is skipped; none answering is said in words. Nothing leaves this computer but the answer. Each row names the server that answers it by the name of a local door (`door`) and the `path` on it: the port is never written here, it is the one this computer's own report names under that door (its `local_ports`, handed to the run by the row's `{\"fill\": {\"from\": \"computer\", \"field\": \"local_ports\"}}`), and a row whose door the computer does not report is skipped as not running. `server` is the local model server (Ollama), by its door: `models` lists what it has, `pull` gets a model by its name (an Ollama name, or a Hugging Face model as hf.co/<repo>:<quantisation>). `offer` are the models offered for this computer by tool:get-free-models: each with the job it does, how much memory it needs to run well (min_memory_gb) and its download size; a model fits when the computer has that memory and the size plus `disk_spare_gb` free. Its `model` names match the `chat` and `classify` rows, so a model got here answers at once. A new local server or model is a row here. Words to compare by meaning ({ texts }) go to the `embed` rows its job names (`meaning` when it names none) and come back as one vector per text with the model that made them, since vectors compare only with vectors from the same model.",
   "most_tokens": 4096,
   "retry_after_seconds": 60,
   "server": {
@@ -130,6 +130,16 @@
       ],
       "most_tokens": 6000,
       "timeout_seconds": 1500
+    },
+    "meaning": {
+      "models": [
+        "ollama-embeddinggemma"
+      ]
+    },
+    "meaning-nomic": {
+      "models": [
+        "ollama-nomic-embed-text"
+      ]
     }
   },
   "classify": [
@@ -149,6 +159,24 @@
       "door": "local-classifier-server",
       "path": "/v1/systemone",
       "timeout_seconds": 15
+    }
+  ],
+  "embed": [
+    {
+      "id": "ollama-embeddinggemma",
+      "door": "local-model-server",
+      "path": "/api/embed",
+      "model": "embeddinggemma",
+      "keep_alive": "30m",
+      "timeout_seconds": 60
+    },
+    {
+      "id": "ollama-nomic-embed-text",
+      "door": "local-model-server",
+      "path": "/api/embed",
+      "model": "nomic-embed-text",
+      "keep_alive": "30m",
+      "timeout_seconds": 60
     }
   ],
   "offer": [
@@ -176,7 +204,7 @@
     "too_big": "This Mac does not have the memory or free space for it.",
     "not_offered": "That model is not one offered for this Mac.",
     "no_server": "The model server is not running on this computer. Download it from ollama.com, open it, and ask again.",
-    "needs_input": "Give messages (a conversation) or state and questions (a question about some words).",
+    "needs_input": "Give messages (a conversation), state and questions (a question about some words), or texts (words to turn into vectors).",
     "not_reported": "This computer does not report a port named {door}."
   }
 }
