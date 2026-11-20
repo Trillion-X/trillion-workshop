@@ -131,7 +131,7 @@ impl AccountFiles {
 
     /// The newest result of each kind a file has under any of its identities (of one kind, given `kind`)
     /// (old `newestOf`).
-    fn newest_of(&self, identity: &str, kind: Option<&str>) -> Answer<Vec<Record>> {
+    pub(super) fn newest_of(&self, identity: &str, kind: Option<&str>) -> Answer<Vec<Record>> {
         let mut newest: Vec<Record> = Vec::new();
         for known in self.same_file(identity)? {
             let found = match kind {

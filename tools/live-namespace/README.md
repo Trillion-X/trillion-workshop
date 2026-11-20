@@ -127,6 +127,7 @@ shares).
 | `src/serve/shares.rs` | One run of `serve-shares`. |
 | `src/store/` | The rows (see its README): `Rows`, `SqlStore`, `Link`, `tables.json`. |
 | `src/account_files/chunk_copies.rs` | The checked copies of stored chunks kept in the state folder (`src/account_files/settings.json` `chunk_copies`), served before the store is asked (see the account files' README). |
+| `src/account_files/tidy.rs`, `src/account_files/tidy.json` | A tidy-up of the person's files: grounded title and folder suggestions (`tidy_propose`), the person's choices (`tidy_decide`), one tidy-up applied and undone (`tidy_apply`, `tidy_undo`, `tidy_history`, `tidy_list`), kept as `@namespace/tidy-proposals` and `@namespace/tidy-ups` rows. Ported from the old src/file-tidy.mjs (tools/organize-my-files/src/); its words, limits and grounding are DATA in tidy.json. |
 | `src/account_files/` | The account files, moved from trillion-rust `src/account_files` (see its README). |
 | `src/cause_book/` | The engine's refusal causes, which every error here carries. |
 | `src/host/https.rs`, `src/host/https/settings.json` | The one HTTP client the byte store's requests go through. |
@@ -137,6 +138,7 @@ shares).
 | `tests/account_files_common/mod.rs` | The account files over rows and a byte port in memory. |
 | `tests/account_files_folder.rs`, `store_changes.rs`, `rows_in_both/` | What a native folder asks (changes, items, compare-and-set, pins, make_folder, bounds, thumbnails) and the store's change order, each in SQLite and in a real Postgres the tests start. |
 | `tests/share_bytes.rs` | The route over a real loopback socket: whole, ranges, 416, HEAD, a file in several pieces, every refusal the same 404, a share stopped between two requests, the type a share is served as (stored, else by its name's ending). |
+| `tests/tidy.rs` | A tidy-up through the calls: grounded and refused suggestions, choices, one tidy-up that moves and titles, a stale suggestion left out, undo and its refusal once a file changed, a tidy-up left part way finished by the next call. |
 | `tests/account_files_release.rs`, `account_files_results.rs`, `account_files_route.rs`, `account_files_share.rs` | The moved tests of release, results, the tool contract and shares. |
 
 ## Key Types / Functions

@@ -60,6 +60,7 @@ The person's files (every file they keep), served by the Namespace tool. The fil
 | `write_file_cancel` | upload | 0 |
 | `find_names` page of N | 1 get (a name equal to the prefix) + 1 scope walk + 1 batch get of the page's files | 0 |
 | `move_names` / `copy_names` / `set_aside` / `put_back`, per name | 2 gets (source and destination name) + 1 get per missing folder level; writes: the destination name, the file's names (1 get + 1 write, when they change), the source tombstone (not for a copy) | 0 |
+| `tidy_propose` / `tidy_list` / `tidy_decide` / `tidy_apply` / `tidy_undo` / `tidy_history` (`tidy.rs`) | a page walk of `@namespace/tidy-proposals` (at most `list_limit`) and of `@namespace/tidy-ups`; per suggestion its name and its cited results; apply and undo: the tidy-up's plan row, then per file one title result write and one name move (as `move_names`), each skipped when already taken | 0 |
 | a folder carry | 1 get (is it a name or a folder) + one scope walk per folder visited + one id walk of its child folders; per folder finished: the destination folder (when missing) and the source tombstone (not for a copy) | 0 |
 
 ## Usage

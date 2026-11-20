@@ -66,6 +66,7 @@ mod results;
 mod secrets;
 pub mod settings;
 pub mod source_reads;
+pub mod tidy;
 pub mod usage;
 mod words;
 mod write;
@@ -2130,6 +2131,23 @@ impl AccountFiles {
                 .ok_or(AccountFilesError::Invalid("id is required", crate::cause!()))
                 .and_then(|id| self.stop_share(id)),
             "list_shares" => self.list_shares(field("after"), number("limit").map(|limit| limit as usize)),
+            // A tidy-up of the person's files (tidy.rs): suggestions, the person's choices, one tidy-up applied and undone.
+            "tidy_propose" => match input.get("items").and_then(Value::as_array) {
+                Some(items) => self.tidy_propose(items, field("produced_by")),
+                None => Err(AccountFilesError::Invalid("items is a list of {name, title?, folder?, evidence}", crate::cause!())),
+            },
+            "tidy_list" => self.tidy_list(field("state")),
+            "tidy_decide" => match input.get("decisions").and_then(Value::as_array) {
+                Some(decisions) => self.tidy_decide(decisions),
+                None => Err(AccountFilesError::Invalid("decisions is a list of {id, choice: accept or reject}", crate::cause!())),
+            },
+            "tidy_apply" => match input.get("ids") {
+                None | Some(Value::Null) => self.tidy_apply(None, field("name")),
+                Some(Value::Array(ids)) if ids.iter().all(Value::is_string) => self.tidy_apply(Some(ids), field("name")),
+                Some(_) => Err(AccountFilesError::Invalid("ids is a list of suggestion ids, or left out to apply every accepted one", crate::cause!())),
+            },
+            "tidy_undo" => self.tidy_undo(field("id")),
+            "tidy_history" => self.tidy_history(number("limit").map(|limit| limit as usize)),
             "keep_look" => input.get("look").ok_or(AccountFilesError::Invalid("look is required (an object, or null to take it away)", crate::cause!()))
                 .and_then(|look| self.keep_look(&look.clone())),
             "share_file" => {

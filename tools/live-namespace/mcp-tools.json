@@ -1290,6 +1290,159 @@
         "required": [],
         "additionalProperties": false
       }
+    },
+    {
+      "name": "tidy_propose",
+      "description": "Suggest a title and/or a folder for each of the person's files, each grounded in results already kept about the file (name them in evidence: a transcript, a summary). Each suggestion waits for the person to accept or reject it (tidy_list, tidy_decide); nothing is changed until tidy_apply. A title whose words the evidence does not mention, or a new folder it does not support, is refused.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "One suggestion per file, 1 to 200",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "The file's full name, starting with /"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "A one-line title"
+                },
+                "folder": {
+                  "type": "string",
+                  "description": "The folder to move the file into, such as /Clients/Acme"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "The kinds of results kept for this file that the suggestion comes from"
+                },
+                "reason": {
+                  "type": "string",
+                  "description": "Why, in a sentence"
+                }
+              },
+              "required": [
+                "name",
+                "evidence"
+              ]
+            }
+          },
+          "produced_by": {
+            "type": "string",
+            "description": "Who suggested these (an AI app's name)"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "tidy_list",
+      "description": "The suggestions for tidying the person's files, newest first, with how many are in each state (review, accepted, rejected, applied, stale, undone) and the tidy-up an undo would reverse.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "description": "Only suggestions in this state"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "tidy_decide",
+      "description": "Accept or reject suggestions (the person's own choice) by their ids.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "decisions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "A suggestion's id"
+                },
+                "choice": {
+                  "type": "string",
+                  "description": "accept or reject",
+                  "enum": [
+                    "accept",
+                    "reject"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "choice"
+              ]
+            }
+          }
+        },
+        "required": [
+          "decisions"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "tidy_apply",
+      "description": "Apply every accepted suggestion (or those of ids) as one named tidy-up: titles recorded, files moved into their folders. A file or evidence that changed since its suggestion is left out and marked stale. Undo it with tidy_undo.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Only these accepted suggestions"
+          },
+          "name": {
+            "type": "string",
+            "description": "A name for this tidy-up"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "tidy_undo",
+      "description": "Undo a tidy-up (the newest when none is named): every file back to its name and title before, only when none changed since.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The tidy-up's id, as tidy_apply and tidy_history answer it"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "tidy_history",
+      "description": "The tidy-ups applied, newest first, each with what changed for each file and whether undo would reverse it.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "description": "At most this many, 1 to 50"
+          }
+        },
+        "additionalProperties": false
+      }
     }
   ]
 }
