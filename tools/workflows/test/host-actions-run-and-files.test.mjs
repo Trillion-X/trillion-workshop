@@ -66,16 +66,28 @@ test('a key longer than the engine bound is sent as its own identity, the same f
   assert.equal(side.sent[0].arguments.request_key, side.sent[1].arguments.request_key);
 });
 
-test('host.files needs the files right and sends one files operation at it; a read reads the whole file page by page', async () => {
+test('host.files needs the files right and sends each files operation as one call of the Files tool; a read reads the whole file page by page', async () => {
   const bare = openHostActions({ descriptor: descriptorWith(), wait: noWait, fetchImpl: async () => { throw new Error('no call expected'); } });
   await assert.rejects(bare.files('list_files', {}), { code: 'no_files', outcome: 'not_started' });
 
   const pages = { find_file: { names: ['/notes/a.txt'] }, read_file: { byte_length: 5, bytes_returned: 5, encoding: 'utf8', content: 'hello' } };
-  const side = nativeSide(args => ({ structuredContent: pages[args.method] }));
-  const host = openHostActions({ descriptor: descriptorWith({ files_resource: '@synthetic-files' }), wait: noWait, fetchImpl: side.fetchImpl });
+  const side = nativeSide(args => ({ structuredContent: { tool: args.input.tool, result: { structuredContent: pages[args.input.call.name], isError: false } } }));
+  const host = openHostActions({ descriptor: descriptorWith({ files_resource: 'tool:synthetic-files', tools_resource: '@synthetic-tools' }), wait: noWait, fetchImpl: side.fetchImpl });
   assert.deepEqual(await host.readWholeFile('a.txt'), { title: 'a.txt', size: 5, bytes: Buffer.from('hello') });
-  assert.deepEqual([...new Set(side.sent.map(call => call.arguments.address))], ['@synthetic-files']);
-  assert.deepEqual(side.sent.map(call => call.arguments.method), ['find_file', 'read_file']);
+  assert.deepEqual([...new Set(side.sent.map(call => `${call.arguments.address} ${call.arguments.method} ${call.arguments.input.tool}`))],
+    ['@synthetic-tools tools:run tool:synthetic-files']);
+  assert.deepEqual(side.sent.map(call => call.arguments.input.call.name), ['find_file', 'read_file']);
+  assert.deepEqual(side.sent[0].arguments.input.call.arguments, { name_or_identity: 'a.txt' });
+});
+
+test('a refusal of the Files tool throws its own code, and an answer that is no call result is an error', async () => {
+  const refused = nativeSide(() => ({ structuredContent: { tool: 'tool:synthetic-files', result: { isError: true, structuredContent: { code: 'file_not_found', outcome: 'not_started' } } } }));
+  const host = openHostActions({ descriptor: descriptorWith({ files_resource: 'tool:synthetic-files' }), wait: noWait, fetchImpl: refused.fetchImpl });
+  await assert.rejects(host.files('find_file', { name_or_identity: '/none' }), { code: 'file_not_found', outcome: 'not_started' });
+  assert.equal(refused.sent[0].arguments.address, '@tools', 'the Workshop tools address when the descriptor names none');
+  const broken = nativeSide(() => ({ structuredContent: { tool: 'tool:synthetic-files', error: { message: 'no' } } }));
+  const other = openHostActions({ descriptor: descriptorWith({ files_resource: 'tool:synthetic-files' }), wait: noWait, fetchImpl: broken.fetchImpl });
+  await assert.rejects(other.files('find_file', { name_or_identity: '/a' }), { code: 'rpc_error', outcome: 'unknown' });
 });
 
 test('a file above the piece bound with no lease road is refused before anything is sent', async () => {

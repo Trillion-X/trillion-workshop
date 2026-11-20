@@ -188,6 +188,70 @@
         "kind": "ai-tool-descriptor",
         "id": "tool:your-files",
         "label": "Your files",
+        "offers_runs": {
+          "_what": "What a run of another tool may be granted of these calls (trillion-rust src/account_rights/run_capability/call-rights.json): a row asks for it in its stored list as {files: <folder>, operations: [<call>]}, \"/\" for every name or a folder such as \"/sites/\", and gets exactly those calls, each touching only the names under that folder. Each rule says which argument of a call names a name (`id`, each of them for a move or a copy) or a folder (`id_prefix`); a call by a file's identity, or one that names no name (`{}`), is covered only by \"/\". A call not listed here is never granted to a run.",
+          "right": "files",
+          "operations": {
+            "list_files": {
+              "id_prefix": "folder"
+            },
+            "find_file": {
+              "id": "name_or_identity"
+            },
+            "show_file": {
+              "id": "name_or_identity"
+            },
+            "read_file": {
+              "id": "name_or_identity"
+            },
+            "read_file_span": {
+              "id": "name_or_identity"
+            },
+            "write_file": {
+              "id": "name"
+            },
+            "write_file_start": {
+              "id": "name"
+            },
+            "write_file_piece": {
+              "id": "name"
+            },
+            "write_file_finish": {
+              "id": "name"
+            },
+            "write_file_cancel": {
+              "id": "name"
+            },
+            "find_names": {
+              "id_prefix": "prefix"
+            },
+            "move_names": {
+              "id": [
+                "from",
+                "to"
+              ]
+            },
+            "copy_names": {
+              "id": [
+                "from",
+                "to"
+              ]
+            },
+            "set_aside": {
+              "id": "name"
+            },
+            "put_back": {
+              "id": "name"
+            },
+            "list_set_aside": {
+              "id_prefix": "folder"
+            },
+            "make_folder": {
+              "id": "name"
+            },
+            "bounds": {}
+          }
+        },
         "job": "Every name of the person's files, listed, followed as it changes, read by range, written, moved, shared and released, for an AI or a device's folder, through the engine's one door",
         "description": "The person's files (tools/live-namespace) as a session the engine keeps open and reaches only by calls: tools:run at @tools {tool: \"tool:your-files\", call: {name, arguments}} sends one MCP tools/call to the account's one session of this row, which the first call starts (trillion-rust src/tool_runs/tools/sessions.rs `call`); each call is answered on its own, so a list_changes that waits holds back no read. `name` is an operation of mcp-tools.json: list_files, list_changes, show_item, read_file_span, write_file, write_file_start, write_file_piece, write_file_finish, move_names, set_aside, put_back, make_folder, set_pin_rule, thumbnail, bounds, this_computer and the rest. The answer is {tool, result} with the operation's answer in result.structuredContent; a refusal is result.isError with {code, outcome}. read_file_span with raw: true answers the span's bytes themselves: {byte_slice: {total, offset, length, base64}}, or, to a request that accepts application/octet-stream, the raw bytes as the HTTP body with X-Total-Bytes and X-Offset (session.byte_result), so they cross the wire once, the first of them as soon as the store sends it. write_file_piece takes its piece raw the same way: a POST whose Content-Type is application/octet-stream, whose body is the piece and whose X-Call header is the base64url of the tools/call JSON; the engine names the body it kept as the call's content_file (session.byte_argument). The run opens no port. Its bytes are the person's own files-store connection, each field mounted on the descriptor settings.json `attached` names and never printed. Its names are rows a session of tool:your-files-names keeps (the one run that holds the person's database login), reached by calls through this run's door (invoke.records, descriptor 9): the engine lets one process reach only hosts every value it holds may go to, so a run holding the byte store's key and the database login could reach none. The program is the live-namespace this computer keeps among its program folders.",
         "status": "active",

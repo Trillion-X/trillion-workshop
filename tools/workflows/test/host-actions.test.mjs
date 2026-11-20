@@ -16,6 +16,8 @@ function descriptorWith(extra = {}) {
 const sourceObservation = { path: '/synthetic/source', expected_generation: '[["","1","2"]]' };
 const parentResult = value => new Response(JSON.stringify({ jsonrpc: '2.0', id: 1, result: value }),
   { headers: { 'content-type': 'application/json' } });
+// The engine's answer to one call of the Files session tool (`tools:run` with `call`): the session's own MCP result.
+const filesResult = structuredContent => parentResult({ structuredContent: { tool: 'tool:synthetic-files', result: { structuredContent, isError: false } } });
 
 test('the Trash move uses the descriptor route and exact observation through the MCP transport, once', async () => {
   const calls = [];
@@ -89,28 +91,28 @@ test('a whole file is read by name through the files right: find_file, then read
   const waits = [];
   let busy = true;
   const seen = [];
-  const host = openHostActions({ descriptor: descriptorWith({ files_resource: '@own-files' }), wait: async ms => { waits.push(ms); },
+  const host = openHostActions({ descriptor: descriptorWith({ files_resource: 'tool:synthetic-files' }), wait: async ms => { waits.push(ms); },
     fetchImpl: async (url, options) => {
       const { params } = JSON.parse(options.body);
       seen.push(params.arguments);
-      if (params.arguments.method === 'find_file' && busy) { busy = false; return parentResult({ isError: true, structuredContent: { code: 'selected_owner_unavailable' } }); }
-      if (params.arguments.method === 'find_file') return parentResult({ structuredContent: { names: ['papers/notes.txt'] } });
-      const { offset } = params.arguments.input;
-      const part = bytes.subarray(offset, offset + 4);
-      return parentResult({ structuredContent: { content: part.toString('base64'), encoding: 'base64', bytes_returned: part.length, byte_length: bytes.length } });
+      const { name, arguments: input } = params.arguments.input.call;
+      if (name === 'find_file' && busy) { busy = false; return parentResult({ isError: true, structuredContent: { code: 'selected_owner_unavailable' } }); }
+      if (name === 'find_file') return filesResult({ names: ['papers/notes.txt'] });
+      const part = bytes.subarray(input.offset, input.offset + 4);
+      return filesResult({ content: part.toString('base64'), encoding: 'base64', bytes_returned: part.length, byte_length: bytes.length });
     } });
   const read = await host.readWholeFile('notes.txt', { readBytes: 4 });
   assert.deepEqual(read, { title: 'notes.txt', size: bytes.length, bytes });
-  assert.equal(seen.filter(call => call.method === 'find_file').length, 2);
-  assert.equal(seen.every(call => call.address === '@own-files'), true);
+  assert.equal(seen.filter(call => call.input.call.name === 'find_file').length, 2);
+  assert.equal(seen.every(call => call.address === '@tools' && call.method === 'tools:run' && call.input.tool === 'tool:synthetic-files'), true);
   assert.equal(waits.length, 1);
 });
 
 test('a whole file above mostBytes is never read past its first page', async () => {
-  const host = openHostActions({ descriptor: descriptorWith({ files_resource: '@own-files' }), wait: noWait, fetchImpl: async (url, options) => {
+  const host = openHostActions({ descriptor: descriptorWith({ files_resource: 'tool:synthetic-files' }), wait: noWait, fetchImpl: async (url, options) => {
     const { params } = JSON.parse(options.body);
-    if (params.arguments.method === 'find_file') return parentResult({ structuredContent: { names: ['big.bin'] } });
-    return parentResult({ structuredContent: { content: 'AAAA', encoding: 'base64', bytes_returned: 4, byte_length: 100 } });
+    if (params.arguments.input.call.name === 'find_file') return filesResult({ names: ['big.bin'] });
+    return filesResult({ content: 'AAAA', encoding: 'base64', bytes_returned: 4, byte_length: 100 });
   } });
   assert.deepEqual(await host.readWholeFile('big.bin', { readBytes: 4, mostBytes: 10 }), { title: 'big.bin', size: 100, bytes: null });
 });

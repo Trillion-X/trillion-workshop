@@ -1,14 +1,18 @@
 // tools/workflows/read-data/host-actions.mjs
 //
 // The host actions a run gets from its native parent, read from the run's private descriptor (`parent_actions: { fd }`): one
-// JSON line { url, capability, files_resource?, computer_actions?: { resource, trash_source } } (trillion-rust
-// account_rights/run_capability.rs). A host action is the computer's work for the run, not a records operation, so this
-// module opens no records door and reads no record.
+// JSON line { url, capability, tools_resource?, files_resource?, computer_actions?: { resource, trash_source } } (trillion-rust
+// account_rights/run_capability.rs). `files_resource` names the Files session tool (tool:your-files) the run's files right
+// may call, when its row asks for one ({files: <folder>, operations} in its stored list); each files operation is one call
+// of that tool, `tools:run` { tool, call: { name, arguments } } at the tools address, held by the engine to the operations
+// and folder the row named. A host action is the computer's work for the run, not a records operation, so this module opens
+// no records door and reads no record.
 //
 //   const host = openHostActions({ descriptor: 3 });        // reads nothing yet
 //   await host.parentActions.trashSource({ path, expected_generation })  -> { outcome: 'moved' }; one attempt, never retried
 //   await host.readWholeFile(name, { readBytes?, mostBytes? })           -> { title, size, bytes } (bytes null when above mostBytes)
-//   await host.files(method, input)                                      -> one files-right operation (list_files, write_file_start ...)
+//   await host.files(method, input)                                      -> one files-right operation (list_files, write_file_start ...):
+//                                                                           the Files tool's structuredContent; its refusal throws its code
 //   await host.run(tool, input, { key? })                                -> another Workshop tool's result (tools:run; a failed run throws;
 //                                                                           an answer sent as byte pages is joined and checked first)
 //   await host.operation(method, input, { key? })                        -> one door method at the run's own address (wake:arrive, tools:list ...)
@@ -42,6 +46,10 @@ const WORKSHOP_TOOLS = '@tools';
 // `result`, and a failed run throws `tool_run_failed` with the engine's cause; an answer with neither field is the answer itself.
 const TOOL_RUN_RESULT = 'result';
 const TOOL_RUN_ERROR = 'error';
+// How the engine answers a call of a session tool (`tools:run` with `call`, trillion-rust src/tool_runs/tools/sessions.rs
+// `call`): `{ tool, result }` with the session's own MCP result `{ structuredContent, isError }`, or `{ tool, error }` when its
+// process answered a JSON-RPC error. A refused call's structuredContent is `{ code, outcome }`.
+const SESSION_CALL = 'call';
 
 // An answer too big for one message is sent as pages of its own JSON bytes (trillion-rust src/mcp.rs `byte_page`):
 // `{ byte_page: { total, blake3, offset, length, base64, next_after_byte } }`. Each further page is the same call under the same
@@ -161,6 +169,21 @@ export function resultOfRun(tool, answer) {
   return answer && typeof answer === 'object' && Object.hasOwn(answer, TOOL_RUN_RESULT) ? answer[TOOL_RUN_RESULT] : answer;
 }
 
+// The engine's answer to one call of the Files session tool, read in this one place (see SESSION_CALL above): its
+// structuredContent, or its refusal as a HostActionError with the tool's own code.
+export function resultOfCall(answer) {
+  const reply = answer && typeof answer === 'object' ? answer[TOOL_RUN_RESULT] : null;
+  if (!reply || typeof reply !== 'object' || Array.isArray(reply) || Object.hasOwn(answer, TOOL_RUN_ERROR)) {
+    throw new HostActionError('rpc_error', 'The files tool returned an error.', 'unknown');
+  }
+  if (reply.isError) {
+    const { code, outcome } = reply.structuredContent ?? {};
+    throw new HostActionError(typeof code === 'string' && code ? code : 'refused', 'The files tool refused the request.',
+      outcome === 'not_started' ? 'not_started' : 'unknown');
+  }
+  return reply.structuredContent;
+}
+
 /** The run's host actions. Nothing is read until the first use; each use reads the same descriptor once. */
 export function openHostActions({ descriptor = 3, fetchImpl = fetch, wait = ms => new Promise(done => setTimeout(done, ms)) } = {}) {
   let route;
@@ -176,12 +199,15 @@ export function openHostActions({ descriptor = 3, fetchImpl = fetch, wait = ms =
     return route;
   };
   const files = async (method, input) => {
-    const address = current().files_resource;
-    if (typeof address !== 'string' || !address) throw new HostActionError('no_files', 'This run was not handed a files right.', 'not_started');
-    return ask(current(), fetchImpl, wait, { address, method, input, retry: true });
+    const tool = current().files_resource;
+    if (typeof tool !== 'string' || !tool) throw new HostActionError('no_files', 'This run was not handed a files right.', 'not_started');
+    const address = current().tools_resource ?? WORKSHOP_TOOLS;
+    const answer = await ask(current(), fetchImpl, wait,
+      { address, method: 'tools:run', input: { tool, [SESSION_CALL]: { name: method, arguments: input } }, retry: true });
+    return resultOfCall(answer);
   };
   return {
-    // One operation on the person's Namespace files at the run's files right (find_file, read_file, write_file_start ...).
+    // One operation on the person's Files through the run's files right (find_file, read_file, write_file_start ...).
     files,
     // Another Workshop tool's run: `tools:run` { tool, input } at the descriptor's tools address (else @tools), held to this
     // run's grant and deadline. `key` names it within this run, so the same nested run sent again is one run. Answers the
