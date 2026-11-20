@@ -2969,6 +2969,7 @@
         {"job": "move one list's rows out of the account's primary store into the list's own store, a page at a time, verified row for row before the primary lets them go", "why": "that moves the engine's own list rows between engine stores; this runs the person's SQL in a database the person holds a connection to"},
         {"job": "apply one of the person's keep rules from their own schedule", "why": "that destroys expired records through the engine; this passes one statement to the person's own database and decides nothing"}
       ]
-    }
+    },
+    {"capability": "estimate what a person's services cost from measured use and listed rates, warn at a budget and stop paid work", "owner": ["tools/estimate-what-a-persons-services-cost-from/"], "entry": "tools/estimate-what-a-persons-services-cost-from/tool-rows.json", "evidence": "src/spend-meter.mjs (the port in progress) prices each measured line from listed rates, checks budget rows and answers stops; the rates and lines are DATA in tools/shared-code/src/spend-meter.json, and the money rules stay in tools/money-out and tools/decide-who-may-change-a-cap.", "distinct_from": [{"job": "guard the spend on an AI's own account before each paid call, by a daily budget that refuses the call", "why": "tools/guard-ai-spending reserves and records one paid call against a budget; this owner estimates and reports what services cost over a period and states a stop, and holds no reservation."}, {"job": "keep unit-safe cost observations, corrections, versioned forecasts and billing comparisons in generic account records", "why": "tools/measurement-ledger owns the cost-observation records and their history; this owner reads measured use and rates and produces the estimate, and keeps no ledger."}]}
   ]
 }
