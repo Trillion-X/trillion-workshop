@@ -80,3 +80,10 @@ test('the tool row requires the granted program, so a run cannot start without o
   assert.deepEqual(Object.keys(row.input_schema.properties.computer.properties['start-a-program'].properties).sort(), ['environment', 'models', 'program', 'program_kind']);
   assert.doesNotMatch(JSON.stringify(row.invoke), /python3/);
 });
+
+test('the tool row declares the stored reads its run needs, as tool:hear-a-recording does', () => {
+  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records;
+  const payload = id => rows.find(record => record.payload.id === id).payload;
+  assert.deepEqual(payload('tool:transcribe-file').stored, [{ files: '/', operations: ['find_file', 'read_file'] }]);
+  assert.deepEqual(payload('tool:transcribe-file').stored, payload('tool:hear-a-recording').stored);
+});

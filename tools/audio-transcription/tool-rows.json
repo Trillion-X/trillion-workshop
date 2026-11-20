@@ -1660,6 +1660,12 @@
           },
           "result_selector": "$.result"
         },
+        "stored": [
+          {
+            "files": "/",
+            "operations": ["find_file", "read_file"]
+          }
+        ],
         "needs": {
           "expected_seconds": 60,
           "network_egress": false,
