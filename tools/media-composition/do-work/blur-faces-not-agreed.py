@@ -46,7 +46,9 @@ NMS_IOU = 0.3
 KEEP_BLURRED_FRAMES = 6          # frames a face stays blurred after it was last seen
 RECOGNIZE_EVERY = 15             # frames between recognizing the same tracked face again
 OUT = '/opt/media-composition/out/blurred.mp4'
-MODELS = {'detector': '/opt/models/faces/face_detection_yunet_2023mar.onnx', 'recognizer': '/opt/models/faces/face_recognition_sface_2021dec.onnx'}
+# The models sit beside the tools folder (the run's /opt/models/faces, which a program reaches from its own file, not by the path itself).
+MODEL_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'models', 'faces')
+MODELS = {'detector': os.path.join(MODEL_FOLDER, 'face_detection_yunet_2023mar.onnx'), 'recognizer': os.path.join(MODEL_FOLDER, 'face_recognition_sface_2021dec.onnx')}
 TEMPLATE = np.array([[38.2946, 51.6963], [73.5318, 51.5014], [56.0252, 71.7366], [41.5493, 92.3655], [70.7299, 92.2041]], dtype=np.float64)
 
 

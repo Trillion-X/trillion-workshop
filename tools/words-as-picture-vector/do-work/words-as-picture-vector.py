@@ -21,7 +21,9 @@ import onnxruntime
 from tokenizers import Tokenizer
 
 request = json.load(sys.stdin)
-folder = request.get("model_folder") or os.environ.get("PICTURE_WORDS_MODEL", "/opt/models/clip-vit-base-patch32")
+# The model sits in the run's models folder beside this tool's own folder: /opt/models/clip-vit-base-patch32 in a run, reached from this file.
+MODEL_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "models", "clip-vit-base-patch32")
+folder = request.get("model_folder") or os.environ.get("PICTURE_WORDS_MODEL", MODEL_FOLDER)
 texts = [str(text)[:1000] for text in request.get("texts", [])]
 if not texts or len(texts) > 64:
     sys.exit("Send between 1 and 64 texts.")
