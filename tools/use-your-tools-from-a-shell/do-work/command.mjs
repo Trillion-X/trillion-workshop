@@ -790,7 +790,7 @@ export async function offersHere(listen, { fetchImpl = fetch, timeoutMs = 3000 }
 /** Carries this computer to the meeting point of the site this command came from (command.json `carry`) when it runs its own
  *  engine: makes the carrier's key once, and installs the carrier under this computer's init row. Answers what the install
  *  answered, or null when this computer runs no engine, came from no site, or has no carrier. */
-export async function carryThisComputer(context, { rules = settings, home = homedir(), platform = process.platform, exec = run, load = loadCarrier, program = null } = {}) {
+export async function carryThisComputer(context, { rules = settings, home = homedir(), platform = process.platform, exec = run, load = loadCarrier, program = null, readOffers = offersHere } = {}) {
   const engine = engineConfigHere({ rules, home });
   const listen = engine?.listen;
   const site = context.state.site();
@@ -809,7 +809,7 @@ export async function carryThisComputer(context, { rules = settings, home = home
   return carrier.installCarrier({
     label: rules.carry.label, way, relay_host: { id: 'site', hostname: new URL(site).hostname },
     computer_id: Buffer.from(blake3(new TextEncoder().encode(key.public))).toString('hex').slice(0, 16), local_port: Number(listen.split(':').at(-1)),
-    values: { public_key: key.public, have: JSON.stringify(haveOf(engine.report, await offersHere(listen))) }, credential_command: [...self, 'carrier-key'],
+    values: { public_key: key.public, have: JSON.stringify(haveOf(engine.report, await readOffers(listen))) }, credential_command: [...self, 'carrier-key'],
     announce: { argv: [...self, 'op', '--origin', site, '--address', announce.address, announce.method, announce.input], every_seconds: announce.every_seconds, settle_seconds: announce.settle_seconds, gives: announce.gives },
   }, state);
 }

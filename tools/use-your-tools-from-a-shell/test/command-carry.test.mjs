@@ -30,7 +30,7 @@ const context = site => ({ state: { site: () => site } });
 test('a computer with its own engine is carried to its site, with a key made once and kept only where keys are kept', async () => {
   const home = homeWith({ listen: '127.0.0.1:8788' });
   const made = [];
-  const deps = { home, platform: 'linux', load: async () => fakeCarrier(made), program: ['/usr/bin/node', '/p/command.mjs'] };
+  const deps = { home, platform: 'linux', load: async () => fakeCarrier(made), program: ['/usr/bin/node', '/p/command.mjs'], readOffers: async () => undefined };
   const { config, state } = await carryThisComputer(context('https://site.example.com'), deps);
   assert.equal(state, join(home, '.example/cli/carrier'));
   assert.equal(config.label, 'example-carrier');
@@ -65,7 +65,7 @@ test('the carrier runs the program as it was invoked, so it signs in under the s
   const invoked = process.argv[1];
   process.argv[1] = '/home/someone/.local/bin/example';
   try {
-    const { config } = await carryThisComputer(context('https://site.example.com'), { home, platform: 'linux', load: async () => fakeCarrier([]) });
+    const { config } = await carryThisComputer(context('https://site.example.com'), { home, platform: 'linux', load: async () => fakeCarrier([]), readOffers: async () => undefined });
     assert.deepEqual(config.credential_command, [process.execPath, '/home/someone/.local/bin/example', 'carrier-key']);
     assert.equal(config.announce.argv[1], '/home/someone/.local/bin/example', 'never the program file under its own name (command.mjs)');
   } finally { process.argv[1] = invoked; }
@@ -79,7 +79,7 @@ test('the site is filled into every part of the settings, so no part a person or
 
 test('the announcement carries the doors the engine report names and its label, the way the carrier fills and sends it', async () => {
   const home = homeWith({ listen: '127.0.0.1:8788', report: { local_ports: { gpu: 9001, browser: 9002 }, label: 'A Mac' } });
-  const { config } = await carryThisComputer(context('https://site.example.com'), { home, platform: 'linux', load: async () => fakeCarrier([]), program: ['/usr/bin/node', '/p/command.mjs'] });
+  const { config } = await carryThisComputer(context('https://site.example.com'), { home, platform: 'linux', load: async () => fakeCarrier([]), program: ['/usr/bin/node', '/p/command.mjs'], readOffers: async () => undefined });
   const expected = { doors: [{ name: 'gpu', port: 9001 }, { name: 'browser', port: 9002 }], label: 'A Mac' };
   assert.deepEqual(JSON.parse(config.values.have), expected);
   const { fill } = await import('../do-work/packs/tools/start-a-computer/do-work/fill-fields.mjs');

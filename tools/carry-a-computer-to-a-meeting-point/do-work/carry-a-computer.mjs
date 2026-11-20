@@ -133,10 +133,35 @@ function answerOf(spawnImpl, argv) {
   });
 }
 
+/** The values an announcement reads fresh each time it is made (`announce.fresh`: a value name for each `{url, field}`): the
+ *  computer's `have` comes from its own engine's /readyz at each announcement, so what the engine offers after a new placement
+ *  is announced within one announcement, never a copy kept since the last login. An announcement that names `{have}` and
+ *  says no `fresh` reads it so (a carrier installed before `fresh` existed). */
+const FRESH_HAVE = { have: { url: 'http://127.0.0.1:{local_port}/readyz', field: 'have' } };
+
+/** The JSON `url` answers, or undefined when it does not answer JSON within `timeoutMs`. */
+async function jsonAt(url, timeoutMs = 3000) {
+  try { return await (await fetch(url, { signal: AbortSignal.timeout(timeoutMs) })).json(); } catch { return undefined; }
+}
+
+/** `values` with each fresh value read now: one that cannot be read keeps the value it had. */
+export async function freshValues(announce, values, { fetchJson = jsonAt } = {}) {
+  const fresh = announce?.fresh ?? (announce?.argv?.some(part => typeof part === 'string' && part.includes('{have}')) ? FRESH_HAVE : {});
+  const read = { ...values };
+  for (const [name, { url, field }] of Object.entries(fresh)) {
+    let where;
+    try { where = fill(url, values, `announce.fresh.${name}`); } catch { continue; }
+    const answer = await fetchJson(where);
+    const value = answer?.[field];
+    if (value && typeof value === 'object') read[name] = JSON.stringify(value);
+  }
+  return read;
+}
+
 /** Keeps one computer carried: starts the way's client, and starts it again two seconds after it ends, until aborted. With no
  * `credential` (the config names no credential_command), the carrier's own key (keptKey) is the credential, and its public half
  * is the announced key unless the config gives one. */
-export async function serveCarrier(given, { credential, state, have = here(), spawnImpl = spawn, fetchBytes, run, wait = ms => new Promise(resolveWait => setTimeout(resolveWait, ms)), signal, report = () => {} }) {
+export async function serveCarrier(given, { credential, state, have = here(), spawnImpl = spawn, fetchBytes, fetchJson, run, wait = ms => new Promise(resolveWait => setTimeout(resolveWait, ms)), signal, report = () => {} }) {
   const own = credential ? null : keptKey(given.way, { state, run });
   const config = own && given.values?.public_key === undefined ? { ...given, values: { ...given.values, public_key: own.public } } : given;
   const credentialOf = credential ?? (async () => credentialText(own.private));
@@ -148,11 +173,14 @@ export async function serveCarrier(given, { credential, state, have = here(), sp
   let failed = 0;
   while (!signal?.aborted) {
     let values = valuesFor({ ...config, salt: failed ? `${config.salt ?? ''}${failed}` : config.salt });
-    const announceArgv = carried => config.announce.argv.map(part => fill(part, { ...values, carried }, 'announce'));
+    const announceArgv = async carried => {
+      const now = await freshValues(config.announce, values, { fetchJson });
+      return config.announce.argv.map(part => fill(part, { ...now, carried }, 'announce'));
+    };
     // An announcement whose answer the client needs (`announce.gives`: a value name for each answer field, such as the port the
     // meeting point gives this computer and a certificate that may listen on it alone) is asked before the client starts.
     if (gives) {
-      const answer = await answerOf(spawnImpl, announceArgv(false));
+      const answer = await answerOf(spawnImpl, await announceArgv(false));
       const given = answer && Object.entries(gives).map(([name, field]) => [name, answer[field]]);
       if (!given || given.some(([, value]) => value === undefined || value === null)) {
         failed += 1;
@@ -183,9 +211,10 @@ export async function serveCarrier(given, { credential, state, have = here(), sp
         child.kill('SIGTERM');
         timers.push(setTimeout(() => { if (!exited) child.kill('SIGKILL'); }, (config.end_seconds ?? 10) * 1000));
       };
-      const announce = () => {
-        if (!gives) { spawnImpl(config.announce.argv[0], announceArgv(true).slice(1), { stdio: 'ignore' }).on?.('error', () => {}); return; }
-        answerOf(spawnImpl, announceArgv(true)).then(answer => { if (answer) carried = true; else end(); });
+      const announce = async () => {
+        const argv = await announceArgv(true);
+        if (!gives) { spawnImpl(argv[0], argv.slice(1), { stdio: 'ignore' }).on?.('error', () => {}); return; }
+        answerOf(spawnImpl, argv).then(answer => { if (answer) carried = true; else end(); });
       };
       if (config.announce) {
         const every = () => timers.push(setInterval(announce, config.announce.every_seconds * 1000));

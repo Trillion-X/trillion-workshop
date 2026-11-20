@@ -348,3 +348,22 @@ test('with a credential (the Mac path, a credential_command), no key is made in 
   assert.deepEqual(announced.map(text => JSON.parse(text)), [{ public_key: 'ssh-ed25519 GIVEN carrier', carried: true }]);
   assert.deepEqual(dialed, ['GIVEN\n']);
 });
+
+test('an announcement reads the computer have fresh from its own engine each time, and keeps the last one it could not read', async () => {
+  const { freshValues } = await import('../do-work/carry-a-computer.mjs');
+  const announce = { argv: ['example', 'op', 'computers:announce', '{"have": {have}, "carried": {carried}}'] };
+  const values = { local_port: 8788, have: '{"doors":[]}' };
+  const asked = [];
+  const engine = have => async url => { asked.push(url); return { persons: 1, have }; };
+  const read = await freshValues(announce, values, { fetchJson: engine({ doors: [], offers: ['use-git-in-a-folder'] }) });
+  assert.deepEqual(JSON.parse(read.have), { doors: [], offers: ['use-git-in-a-folder'] });
+  assert.deepEqual(asked, ['http://127.0.0.1:8788/readyz'], 'its own engine, at the port it carries');
+  // An engine that does not answer, or an older one with no have: the value it had is kept.
+  assert.equal((await freshValues(announce, values, { fetchJson: async () => undefined })).have, values.have);
+  assert.equal((await freshValues(announce, values, { fetchJson: engine(undefined) })).have, values.have);
+  // An announcement that names no {have} reads nothing; one that says its own `fresh` reads that.
+  assert.deepEqual(await freshValues({ argv: ['op', '{"carried": {carried}}'] }, values, { fetchJson: engine({ doors: [] }) }), values);
+  const own = await freshValues({ argv: [], fresh: { have: { url: 'http://127.0.0.1:{local_port}/other', field: 'have' } } }, values, { fetchJson: engine({ doors: [{ name: 'gpu', port: 1 }] }) });
+  assert.equal(asked.at(-1), 'http://127.0.0.1:8788/other');
+  assert.deepEqual(JSON.parse(own.have), { doors: [{ name: 'gpu', port: 1 }] });
+});
