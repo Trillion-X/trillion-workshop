@@ -9,9 +9,12 @@ import { fileURLToPath } from 'node:url';
 import { makeComposioAccounts } from '../read-data/composio-accounts.mjs';
 
 /** The accounts answer: the count and the accounts, with no key in it. */
-export async function listConnectedAccounts(request = {}, { list = makeComposioAccounts() } = {}) {
-  const accounts = await list({ toolkit: request.toolkit, projectId: request.project_id });
-  return { toolkit: request.toolkit ?? null, count: accounts.length, accounts };
+export async function listConnectedAccounts(request = {}, { list } = {}) {
+  // Counts the requests the list sends: one per Composio page read to the end.
+  let pagesRead = 0;
+  const reader = list ?? makeComposioAccounts({ send: (url, init) => { pagesRead += 1; return fetch(url, init); } });
+  const accounts = await reader({ toolkit: request.toolkit, projectId: request.project_id });
+  return { toolkit: request.toolkit ?? null, count: accounts.length, accounts, pages_read: pagesRead };
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

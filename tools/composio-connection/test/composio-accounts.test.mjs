@@ -46,7 +46,7 @@ test('a toolkit that is not a slug is refused before any request leaves, and no 
 test('the tool answers the count and the accounts, and no answer carries the key', async () => {
   const list = async ({ toolkit }) => [{ id: 'x1', user_id: 'owner-1', toolkit: toolkit ?? null, alias: null, status: 'ACTIVE' }];
   const answer = await listConnectedAccounts({ toolkit: 'twitter' }, { list });
-  assert.deepEqual(answer, { toolkit: 'twitter', count: 1, accounts: [{ id: 'x1', user_id: 'owner-1', toolkit: 'twitter', alias: null, status: 'ACTIVE' }] });
+  assert.deepEqual(answer, { toolkit: 'twitter', count: 1, pages_read: 0, accounts: [{ id: 'x1', user_id: 'owner-1', toolkit: 'twitter', alias: null, status: 'ACTIVE' }] });
   assert.equal(JSON.stringify(answer).includes(STAND_IN_KEY), false);
 });
 
