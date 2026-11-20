@@ -1,7 +1,5 @@
 # workflows
 
-For a committed publication, `node tools/workflows/do-work/publish-tool-catalog.mjs TOOLS_FOLDER --git-ref COMMIT` reads only that exact Git tree. It includes listed row sources and leaves working files unchanged. Without `--git-ref`, it reads the working folder as before.
-
 Shared playbooks that any person's AI can follow step by step. Each playbook is a row of the person's list of workflows (its steps are rows of their list of workflow steps); the public ones are published into `published/` and made into `recipes/workflows.json`; the workflow engine that runs them is arriving here from `crates/workflow-engine` in the main Trillion repository.
 
 ## Files
@@ -39,8 +37,6 @@ Shared playbooks that any person's AI can follow step by step. Each playbook is 
 | `read-data/workshop-tool-ids.mjs`, `host-tools.json`, `do-work/tool-gaps.mjs` | The tool gaps: `recipeToolGaps(recipe, { known })` (in `recipe-problems.mjs`) lists the tool ids a recipe names, in `run_tool` and as `tool:<id>` in its steps, that no Workshop tool row (`workshopToolIds`) and no host tool (`host-tools.json`, DATA) offers. A gap is a warning: the recipe stays valid. `tool-gaps.mjs TOOLS_FOLDER` prints the missing tools and the recipes that wait for each. |
 | `test/recipe-rows.test.mjs` | A recipe read back from its rows in any step order and from door rows; two views made into recipes, refusing a missing recipe, a recipe with no steps and text that is not JSON; `recipes/workflows.json` equal to what the published files make, every recipe in it valid; a Workshop tool, a host tool and a missing tool told apart; an id with a colon kept whole. |
 | `test/notices-workflows.test.mjs` | The notice workflows (`recipes/read-my-device-notices.json`, `mark-my-notices-read.json`, `act-on-my-notice.json`): the statements each step carries in its `sql` run on PGlite against seeded devices and notices, and give the answers the recipes state: the route and the notices addressed to a device or to every device, the cursor (a full page keeps its last row; a registration never receives older notices), refusals, marks written once, and an open of a local path only. Each recipe's render step makes the `devices` and `notices` tables with `CREATE TABLE IF NOT EXISTS`. |
-| `published/tools.json`, `read-data/tool-catalog.mjs`, `do-work/publish-tool-catalog.mjs` | The Workshop's tool catalog as one file a site counts and lists tools from, never from a repository walk: one flat row per tool (title, job, description, status, maker, licence class, placements, listed on, folder, flags), in the list-view file shape with a BLAKE3 key. Generated from the tool folders' `tool-rows.json`, which stay the one source (a tool row is the contract of the code beside it); schemas and how a tool runs are left out. `node tools/workflows/do-work/publish-tool-catalog.mjs tools` (from the repository root) writes it, `--check` fails when it differs; see "Keeping the tool catalog current". |
-| `test/tool-catalog.test.mjs` | The committed file equals what the rows make and holds one row per tool; a row holds flat facts only; rows a tool-row-source lists belong to the folder that lists them; the key is the content identity (`tools/content-identity`) and does not depend on read order. |
 | `do-work/checklist_gate.py` | The checklist gate's command line: `gate`, `answer`, `answers-from-report`, `sweep`, `run-gates`, `run-files`, `scope`, `audit` and `checklist` (`--check`, `--write`, `--problems`). Every command takes `--library DIR --schema FILE`; all but `sweep`, `run-gates`, `run-files` and `checklist` lock the library directory without creating a lock file. `--read-only gate` also skips the schema's first-record command and pin-cache writes. |
 | `do-work/native_checklist_gate.py` | The native computer entry point: binds the library and schema to the granted folder, parses the command as argv (never shell text), and invokes the same checklist CLI in-process. Read-only rows accept only inspection commands; a write row must declare `change-a-folder`. |
 | `read-data/gate_library.py` | Reads the schema (a `$ref {file, path}` value is replaced by the value at that path in that file, so a setting that has an owner is read from its owner), locks the library directory, computes BLAKE3 of bytes and files, and provides the small helpers the others share. |
@@ -51,16 +47,6 @@ Shared playbooks that any person's AI can follow step by step. Each playbook is 
 | `read-data/gate_audit.py` | Which items a gate must cover (latest round plus live picks), and the audit of watch folders, with optional hold to a held-back folder. |
 | `read-data/checklist_rows.py` | The checklist document generated from the person's own text by the schema's `checklist_source`, its comparison with the file on disk, and its problem list. |
 | `test/bakery.py`, `test/test_checklist_gate.py`, `test/checklist-gate.test.mjs` | A made-up bakery library (checklist text, rule source, schema, a stand-in checker and gate), its native adapter's folder-scope and read-only cases, and the command-line gate tests; the `.mjs` runs them under `npm test`. |
-
-## Keeping the tool catalog current
-
-`published/tools.json` is derived from every folder's `tool-rows.json`, so any tool that lands makes it stale. It is therefore regenerated as part of the push, not by each tool's author: on the exact tip it is about to push, the pusher runs, from the repository root,
-
-```
-node tools/workflows/do-work/publish-tool-catalog.mjs tools
-```
-
-and, when `git status` shows `tools/workflows/published/tools.json` changed, commits that file alone as the last commit of the push. `test/tool-catalog.test.mjs` then holds that tip to the file (it fails when the committed file is not what the rows make), so a lane's own commits never need to touch it. The same holds for `recipes/workflows.json`, which comes from the two published workflow files (`node tools/workflows/do-work/rebuild-recipes.mjs`, `--check` to verify).
 
 ## Recipe shape
 
