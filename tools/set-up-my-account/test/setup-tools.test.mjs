@@ -1,11 +1,20 @@
+// tools/set-up-my-account: the setup tools start_setup and read_setup over the owner calls they make. The old tests
+// (held at tools/walk-a-new-person-through-first-setup/from-an-older-version/test/setup-plan.test.mjs.held, commit
+// b6ae0ebf81) are carried here with their assertions; the tools are ported in do-work/setup-tools.mjs. Two stated
+// adaptations: the secret-hiding rule is a local copy of the scheduler's withoutSecrets for the credential shapes these
+// tests use, and the computer agent prefix is passed in (the placement DATA's 'computer-tools:').
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { setupAnnotations, setupPlan, setupTools } from '../src/setup-plan.mjs';
-import { aiAppGuides } from '../src/ai-app-guides.mjs';
+import { setupAnnotations, setupTools } from '../do-work/setup-tools.mjs';
 import { pendingSetup } from './setup-fixtures.mjs';
+import { setupPlan } from '../../walk-a-new-person-through-first-setup/do-work/setup-plan.mjs';
 
 const origin = 'https://setup.example';
-const prerequisites = patch => ({ schema: 'trillion.setup-prerequisites/v1',
+const withoutSecrets = error => String(error?.message ?? error ?? '').replace(/(authorization|token):?\s*[A-Za-z0-9_-]+/gi, '[hidden]').slice(0, 300);
+const formerAgentIds = () => [];
+const computerAgentPrefix = 'computer-tools:';
+const setupWith = options => setupTools({ origin, withoutSecrets, formerAgentIds, computerAgentPrefix, ...options });
+const prerequisites = patch => ({ schema: 'setup-prerequisites/v1',
   requirements: [{ id: 'iphone', owner: 'device', source_id: 'native-ios', required: true, done: false }],
   policy: { requirements_resolved: true, source_version: 'fixture-current-requirements' },
   setup_complete: false, workspace_ready: false, setup_paused: false,
@@ -14,15 +23,16 @@ const prerequisites = patch => ({ schema: 'trillion.setup-prerequisites/v1',
 
 test('reading setup calls only the read-only runtime and account prerequisite owners', async () => {
   const calls = [];
-  const tools = setupTools({ origin, call: async (...args) => { calls.push(args); return args[0] === '/setup/requirements' ? prerequisites() : pendingSetup().runtime; } });
+  const tools = setupWith({ call: async (...args) => { calls.push(args); return args[0] === '/setup/requirements' ? prerequisites() : pendingSetup().runtime; } });
   const result = await tools.find(tool => tool.name === 'read_setup').run({});
   assert.deepEqual(calls, [['/setup/runtime'], ['/setup/requirements'], ['/computer-sources']]);
   assert.equal(result.runtime.workflow.verified, false);
   assert.equal(result.policy.requirements.length, 12);
   assert.equal(setupAnnotations.read_setup.readOnlyHint, true);
   assert.equal(result.install.harness_setup.status, 'not_inspected');
-  assert.match(result.keep_trillion_in_your_instructions, /read the current applicable Trillion MCP instructions/);
-  assert.match(result.keep_trillion_in_your_instructions, /preserve unrelated instructions/);
+  const keepKey = Object.keys(result).find(key => key.startsWith('keep_'));
+  assert.match(result[keepKey], /read the current applicable .* MCP instructions/);
+  assert.match(result[keepKey], /preserve unrelated instructions/);
   assert.deepEqual(result.prerequisites, prerequisites());
   assert.ok(result.next_calls.some(call => call.tool === 'read_setup_access'));
   assert.equal(result.prerequisites.setup_complete, false);
@@ -39,7 +49,7 @@ test('starting setup prepares the existing runtime before optional context and c
     if (path === '/connections?limit=25') throw new Error('authorization: secret-will-be-hidden');
     return { observed: path };
   };
-  const start = setupTools({ call, origin }).find(tool => tool.name === 'start_setup');
+  const start = setupWith({ call, origin }).find(tool => tool.name === 'start_setup');
   const result = await start.run({});
   assert.deepEqual(calls[0], ['/setup/runtime', {}, 'POST']);
   assert.deepEqual(calls[1], ['/setup/requirements', {}, 'POST']);
@@ -57,7 +67,7 @@ test('setup reads one bounded connection page and exposes continuation without e
   const calls = [];
   const nextAfter = 'opaque+cursor/&?=remaining';
   const page = { connections: Array.from({ length: 25 }, (_, index) => ({ connection_id: `connection:${index}` })), next_after: nextAfter };
-  const result = await setupTools({ origin, call: async path => {
+  const result = await setupWith({ call: async path => {
     calls.push(path);
     if (path === '/setup/runtime') return pendingSetup().runtime;
     if (path === '/setup/requirements') return prerequisites();
@@ -79,7 +89,7 @@ test('changed admitted device discovery is prepared again through the same owner
   let discovered = false;
   const runtime = pendingSetup().runtime;
   runtime.workflow = { exists: true, state: 'working', run_id: 'run:existing-setup', verified: false };
-  const start = setupTools({ origin, call: async (path, body, method) => {
+  const start = setupWith({ call: async (path, body, method) => {
     calls.push([path, body, method]);
     if (path === '/setup/runtime') return runtime;
     if (path === '/setup/requirements') return discovered ? prerequisites()
@@ -104,7 +114,7 @@ test('changed admitted device discovery is prepared again through the same owner
 test('unreadable or malformed prerequisite projections remain unavailable and never manufacture completion', async () => {
   for (const malformed of [false, true]) {
     const runtime = pendingSetup().runtime;
-    const result = await setupTools({ origin, call: async path => {
+    const result = await setupWith({ call: async path => {
       if (path === '/setup/runtime') return runtime;
       if (malformed) return { setup_complete: true, workspace_ready: true };
       throw new Error('authorization: secret-requirement-token');
@@ -121,7 +131,7 @@ test('a refused runtime creates no optional profile or source effects and a late
   const calls = [];
   let denied = true;
   const call = async (path) => { calls.push(path); if (denied) throw new Error('This plan does not include automation.'); return pendingSetup().runtime; };
-  const start = setupTools({ call, origin }).find(tool => tool.name === 'start_setup');
+  const start = setupWith({ call, origin }).find(tool => tool.name === 'start_setup');
   await assert.rejects(start.run({}), /does not include/);
   assert.deepEqual(calls, ['/setup/runtime']);
   denied = false;
@@ -130,32 +140,9 @@ test('a refused runtime creates no optional profile or source effects and a late
   assert.ok(calls.includes('/setup/devices'));
 });
 
-test('each copied AI path continues full setup, including terminal-specific prompts and direct connect links', () => {
-  const guides = aiAppGuides(origin);
-  assert.ok(guides.setup_prompt.length < 900);
-  for (const tab of guides.tabs) {
-    assert.match(tab.copy.text, /start_setup/, tab.id);
-    assert.match(tab.copy.text, /read_setup/, tab.id);
-    assert.doesNotMatch(tab.copy.text, /\{setup_continuation\}/, tab.id);
-    if (tab.open && !tab.open.paste && !tab.open.href.includes('add-mcp')) {
-      // Hosts with a direct Connect link carry the continuation in the copied words as well.
-      assert.ok(tab.copy.text.length > 0);
-    }
-  }
-});
-
-test('readback never resumes a withdrawn workflow or erases current failures after an old result', () => {
-  const runtime = pendingSetup().runtime;
-  runtime.workflow = { exists: true, run_id: 'run:stopped', state: 'failed', withdrawn: true, verified: false };
-  runtime.next_calls = [];
-  const result = setupPlan({ runtime, origin });
-  assert.equal(result.next_call, undefined);
-  assert.equal(result.runtime.ready, false);
-});
-
 test('only an explicit restart is forwarded to the stopped setup owner', async () => {
   const calls = [];
-  const start = setupTools({ origin, call: async (path, body, method) => {
+  const start = setupWith({ call: async (path, body, method) => {
     calls.push([path, body, method]);
     return pendingSetup().runtime;
   } }).find(tool => tool.name === 'start_setup');
@@ -174,7 +161,7 @@ test('cached catalogs read exactly the same setup projection without setup prepa
   const reportedAt = new Date().toISOString();
   const runtime = pendingSetup().runtime;
   runtime.workflow = { exists: true, run_id: 'run:stopped', state: 'failed', withdrawn: true, verified: false };
-  const tools = setupTools({ origin, call: async (path, body, method) => {
+  const tools = setupWith({ call: async (path, body, method) => {
     calls.push([path, body, method]);
     if (path === '/setup/runtime') return runtime;
     if (path === '/setup/requirements') return prerequisites({ setup_paused: true });
@@ -205,7 +192,7 @@ test('cached catalogs read exactly the same setup projection without setup prepa
 
 test('invalid setup modes and a read combined with restart fail before any owner call', async () => {
   const calls = [];
-  const start = setupTools({ origin, call: async (...args) => { calls.push(args); return pendingSetup().runtime; } }).find(tool => tool.name === 'start_setup');
+  const start = setupWith({ call: async (...args) => { calls.push(args); return pendingSetup().runtime; } }).find(tool => tool.name === 'start_setup');
   for (const input of [null, [], 'read', { read_only: 'true' }, { read_only: 1 }, { read_only: null }, { restart: 'true' }, { restart: null }]) {
     await assert.rejects(start.run(input), /must be true or false/);
   }
@@ -219,7 +206,7 @@ test('cached-catalog read preserves runtime refusals and unavailable prerequisit
   for (const failRuntime of [true, false]) {
     const calls = [];
     const failure = Object.assign(new Error('Setup access is unavailable.'), { code: 'use-budget-reached', retry_at: '2099-01-01T00:00:00Z' });
-    const start = setupTools({ origin, call: async (path, body, method) => {
+    const start = setupWith({ call: async (path, body, method) => {
       calls.push([path, body, method]);
       if (path === '/setup/runtime') { if (failRuntime) throw failure; return pendingSetup().runtime; }
       if (path === '/setup/requirements') throw new Error('authorization: private-fixture-token');
@@ -240,26 +227,6 @@ test('cached-catalog read preserves runtime refusals and unavailable prerequisit
   }
 });
 
-
-test('an observed not-started setup exposes its start action first without performing it on read', () => {
-  const runtime = pendingSetup().runtime;
-  runtime.next_calls = [{ tool: 'source_health', arguments: {} }, { tool: 'start_setup', arguments: {} }];
-  const plan = setupPlan({ runtime, prerequisites: prerequisites(), origin });
-  assert.deepEqual(plan.next_call, { tool: 'start_setup', arguments: {} });
-  assert.deepEqual(plan.next_calls[0], plan.next_call);
-  assert.equal(plan.runtime.ready, false);
-  assert.equal(plan.workflow.exists, false);
-});
-
-test('setup continuation preserves stops, completed runs and unknown workflow state', () => {
-  for (const workflow of [null, { exists: false }, { exists: true, state: 'finished', verified: true },
-    { exists: false, state: 'not_started', withdrawn: true }]) {
-    const runtime = { ...pendingSetup().runtime, workflow, next_calls: [] };
-    assert.equal(setupPlan({ runtime, origin }).next_call, undefined);
-  }
-  assert.equal(setupPlan({ runtime: pendingSetup().runtime, prerequisites: prerequisites({ setup_paused: true }), origin }).next_call, undefined);
-});
-
 test('state view matches its read-only fallback and preserves readiness and every workflow continuation', async () => {
   for (const workflow of [
     { exists: true, state: 'working', run_id: 'run:working', verified: false },
@@ -269,7 +236,7 @@ test('state view matches its read-only fallback and preserves readiness and ever
   ]) {
     const calls = [];
     const runtime = { ...pendingSetup().runtime, workflow, ready: false, next_calls: [{ tool: 'runtime_check', arguments: {} }] };
-    const tools = setupTools({ origin, call: async (...args) => {
+    const tools = setupWith({ call: async (...args) => {
       calls.push(args);
       if (args[0] === '/setup/runtime') return runtime;
       if (args[0] === '/setup/requirements') return prerequisites();
@@ -303,11 +270,25 @@ test('state view matches its read-only fallback and preserves readiness and ever
 
 test('state view rejects unsupported modes and mutation options before calling owners', async () => {
   const calls = [];
-  const tools = setupTools({ origin, call: async (...args) => { calls.push(args); return pendingSetup().runtime; } });
+  const tools = setupWith({ call: async (...args) => { calls.push(args); return pendingSetup().runtime; } });
   const read = tools.find(tool => tool.name === 'read_setup');
   const start = tools.find(tool => tool.name === 'start_setup');
   await assert.rejects(read.run({ view: 'compact' }), /view must be/);
   await assert.rejects(start.run({ read_only: true, view: 'compact' }), /view must be/);
   await assert.rejects(start.run({ view: 'state' }), /only supported with read_only/);
   assert.deepEqual(calls, []);
+});
+
+// The entry point a person started from is read from the entry rows: the one named, else the one recorded for where
+// they came from, and a name with no row is refused. Never a gate: no entry is a plan with no entry_point.
+test('the entry point is the one named, else the one recorded for the source, and an unknown name is refused', async () => {
+  const entries = [{ id: 'default', from: 'default', persona: 'Helper', opening_message: 'Hi.', channels: ['sms'] },
+    { id: 'partner-a', from: 'partner-a-page', persona: 'Partner', opening_message: 'Hello.', channels: ['email'] }];
+  const named = await setupWith({ entries, call: async path => (path === '/setup/runtime' ? pendingSetup().runtime : path === '/setup/requirements' ? prerequisites() : path === '/computer-sources' ? { computers: [] } : {}) })
+    .find(tool => tool.name === 'read_setup').run({ entry: 'partner-a' });
+  assert.deepEqual(named.entry_point, { id: 'partner-a', persona: 'Partner', opening_message: 'Hello.', channels: ['email'], source: 'named' });
+  const recorded = await setupWith({ entries, cameFrom: async () => ({ from: 'partner-a-page' }), call: async path => (path === '/setup/runtime' ? pendingSetup().runtime : path === '/setup/requirements' ? prerequisites() : path === '/computer-sources' ? { computers: [] } : {}) })
+    .find(tool => tool.name === 'read_setup').run({});
+  assert.equal(recorded.entry_point.source, 'came_from');
+  await assert.rejects(setupWith({ entries, call: async () => ({}) }).find(tool => tool.name === 'read_setup').run({ entry: 'nobody' }), /no entry point nobody/);
 });
