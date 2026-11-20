@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "composio-connection-tool-rows",
-  "what_this_is": "The Workshop rows for the tools in tools/composio-connection: the Composio connection every Composio tool reaches its account through, and the list of connected accounts that finds each account's owning user id.",
+  "what_this_is": "The Workshop rows for the tools in tools/composio-connection: the Composio connection every Composio tool reaches its account through, the list of connected accounts that finds each account's owning user id, and one Composio action run for one account.",
   "records": [
     {
       "id": "package::ai-tool-catalog::tool::list-my-connected-accounts",
@@ -155,6 +155,182 @@
                       "status": "ACTIVE"
                     }
                   ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-20"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::run-a-composio-action",
+      "address": "package::ai-tool-catalog::tool::run-a-composio-action",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:run-a-composio-action",
+        "label": "Run one Composio action for a connected account",
+        "job": "Do one thing in an app the person connected through Composio, as that account: run a Composio tool by its slug, or send one request to the app's own API for a field Composio's tools do not carry",
+        "description": "Runs, with the vault's Composio key, either one Composio tool for one connected account ({action, arguments}) or one request to the connected app's own API that Composio sends with the account's held sign-in ({proxy: {endpoint, method, body, parameters}}), for example a post's trial settings that Composio's named tool has no field for. The account is named by its connection id, with the user id that owns it and, for a person's own user key, the project the connection lives in. Nothing here names an app, a tool or an account: the caller names them. The key goes only to Composio's own host and appears in no answer. What the action does is the action's: a publish publishes and a send sends, so a caller puts its own checks in front.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "account_id"
+          ],
+          "properties": {
+            "action": {
+              "type": "string",
+              "description": "A Composio tool's upper-case slug, for example INSTAGRAM_CREATE_CAROUSEL_CONTAINER; give this or proxy"
+            },
+            "arguments": {
+              "type": "object",
+              "description": "The Composio tool's own fields"
+            },
+            "proxy": {
+              "type": "object",
+              "required": [
+                "endpoint"
+              ],
+              "description": "One request to the app's own API, sent by Composio with the account's sign-in; give this or action",
+              "properties": {
+                "endpoint": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "GET",
+                    "POST",
+                    "PUT",
+                    "PATCH",
+                    "DELETE"
+                  ]
+                },
+                "body": {},
+                "parameters": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "account_id": {
+              "type": "string",
+              "description": "The connection id (ca_...) of the account it runs as"
+            },
+            "user_id": {
+              "type": "string",
+              "description": "The user id that owns the connection (tool:list-my-connected-accounts answers it)"
+            },
+            "project_id": {
+              "type": "string",
+              "description": "The project the connection lives in (pr_...), needed when the vault holds a person's own user key"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "account_id",
+            "data"
+          ],
+          "properties": {
+            "account_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "action": {
+              "type": "string"
+            },
+            "endpoint": {
+              "type": "string"
+            },
+            "status": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "data": {}
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/composio-connection",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/composio-connection/do-work/run-a-composio-action.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "composio-api-key",
+              "fd": 4
+            }
+          ],
+          "files": {
+            "package_files": [
+              {
+                "package": "composio-connection",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/composio-connection"
+              }
+            ]
+          },
+          "connection": null
+        },
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true
+        },
+        "maker": "maker:composio-connection",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account_id": "ca_sample",
+              "user_id": "sample-owner",
+              "proxy": {
+                "endpoint": "/me?fields=id,username",
+                "method": "GET"
+              }
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://backend.composio.dev/api/v3/tools/execute/proxy"
+                },
+                "status": 200,
+                "body": {
+                  "successful": true,
+                  "status": 200,
+                  "data": {
+                    "id": "1",
+                    "username": "sample"
+                  }
                 }
               }
             ],

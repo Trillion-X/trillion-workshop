@@ -23,6 +23,15 @@ const EXECUTE = `https://${HOST}/api/v3/tools/execute/`;
 
 export class Refused extends Error {}
 
+/** The headers a held key is sent with: a project key (ak_) as x-api-key; a person's own user key (uak_) as x-user-api-key, with
+ *  the project their connections live in (a person's own connections sit in their consumer project, which only a user key with
+ *  that project named can reach). */
+export function keyHeaders(key, projectId) {
+  if (!key.startsWith('uak_')) return { 'x-api-key': key };
+  if (typeof projectId !== 'string' || !/^pr_[A-Za-z0-9_-]+$/.test(projectId)) throw new Refused('A user key reaches connections only with the project they live in: give project_id (pr_...).');
+  return { 'x-user-api-key': key, 'x-project-id': projectId };
+}
+
 /** `execute(tool, accountId, args, userId)`: one Composio tool run for one connected account, as the person; resolves to the tool's
  *  data. Composio needs the user id that owns the account (its entity) with a connected account, so a run passes it when given. */
 export function makeComposioCall({ read = descriptor => readFileSync(descriptor, 'utf8'), send = fetch } = {}) {
@@ -32,7 +41,7 @@ export function makeComposioCall({ read = descriptor => readFileSync(descriptor,
     if (!key) throw new Refused('The Composio key is not held: add composio-api-key to the vault, then run again.');
     return key;
   };
-  return async function execute(tool, accountId, args = {}, userId = undefined) {
+  return async function execute(tool, accountId, args = {}, userId = undefined, projectId = undefined) {
     if (typeof tool !== 'string' || !/^[A-Z][A-Z0-9_]*$/.test(tool)) throw new Refused(`A Composio tool is named by its upper-case slug, not ${JSON.stringify(tool)}.`);
     if (typeof accountId !== 'string' || !accountId) throw new Refused('Give the Composio account id of the connection (its connection_id).');
     const url = new URL(EXECUTE + tool);
@@ -40,7 +49,7 @@ export function makeComposioCall({ read = descriptor => readFileSync(descriptor,
     const reply = await send(url, {
       method: 'POST',
       redirect: 'manual',
-      headers: { 'x-api-key': held(), Accept: 'application/json', 'Content-Type': 'application/json' },
+      headers: { ...keyHeaders(held(), projectId), Accept: 'application/json', 'Content-Type': 'application/json' },
       body: JSON.stringify({ connected_account_id: accountId, ...(userId ? { user_id: userId } : {}), arguments: args }),
     });
     const text = await reply.text();
@@ -49,5 +58,38 @@ export function makeComposioCall({ read = descriptor => readFileSync(descriptor,
     try { parsed = JSON.parse(text); } catch { throw new Refused(`Composio answered ${tool} with no JSON.`); }
     if (parsed?.successful === false || parsed?.error) throw new Refused(`Composio could not run ${tool}: ${String(parsed.error ?? 'unsuccessful').slice(0, SAID)}`);
     return parsed?.data ?? null;
+  };
+}
+
+const PROXY = `https://${HOST}/api/v3/tools/execute/proxy`;
+
+/** `proxy({endpoint, method, body, parameters}, accountId)`: one request to the connected app's own API, sent by Composio with the
+ *  account's held sign-in, for a field Composio's named tools do not carry (for example a post's trial settings). The endpoint is
+ *  the app's own path or address; Composio adds the account's credentials. Resolves to the app's answer. */
+export function makeComposioProxy({ read = descriptor => readFileSync(descriptor, 'utf8'), send = fetch } = {}) {
+  let key = null;
+  const held = () => {
+    if (key === null) key = String(read(HELD_DESCRIPTOR)).trim();
+    if (!key) throw new Refused('The Composio key is not held: add composio-api-key to the vault, then run again.');
+    return key;
+  };
+  return async function proxy(request, accountId, userId = undefined, projectId = undefined) {
+    const { endpoint, method = 'GET', body, parameters } = request ?? {};
+    if (typeof endpoint !== 'string' || !endpoint) throw new Refused('Give the app endpoint the request goes to (its path or address).');
+    if (!/^(GET|POST|PUT|PATCH|DELETE)$/.test(method)) throw new Refused(`A request's method is GET, POST, PUT, PATCH or DELETE, not ${JSON.stringify(method)}.`);
+    if (typeof accountId !== 'string' || !accountId) throw new Refused('Give the Composio account id of the connection (its connection_id).');
+    if (parameters !== undefined && !Array.isArray(parameters)) throw new Refused('parameters is a list of {name, value, in: "query" or "header"}.');
+    const reply = await send(new URL(PROXY), {
+      method: 'POST',
+      redirect: 'manual',
+      headers: { ...keyHeaders(held(), projectId), Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint, method, connected_account_id: accountId, ...(userId ? { user_id: userId } : {}), ...(body !== undefined ? { body } : {}), ...(parameters ? { parameters } : {}) }),
+    });
+    const text = await reply.text();
+    if (!reply.ok) throw new Refused(`Composio refused the ${method} to ${endpoint} (${reply.status}): ${text.replace(/\s+/g, ' ').trim().slice(0, SAID)}`);
+    let parsed;
+    try { parsed = JSON.parse(text); } catch { throw new Refused(`Composio answered the ${method} to ${endpoint} with no JSON.`); }
+    if (parsed?.successful === false || parsed?.error) throw new Refused(`The ${method} to ${endpoint} did not go through: ${JSON.stringify(parsed.error ?? parsed.data ?? 'unsuccessful').slice(0, SAID)}`);
+    return { status: parsed?.status ?? null, data: parsed?.data ?? null };
   };
 }

@@ -1,0 +1,42 @@
+{
+  "drafted_from": "tool:run-a-composio-action's own row and the stand-in test tools/composio-connection/test/run-a-composio-action.test.mjs; one live read-only proxied GET /me for a connected Instagram account answered its username on Nov 20 2026",
+  "start_here": "Say to your AI: \"Run this Composio action for my account\", with the action (or the app request), the account's connection id and its user id.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: the caller names the account and the action.",
+  "workflows": [],
+  "tools": [
+    "tool:run-a-composio-action",
+    "tool:list-my-connected-accounts"
+  ],
+  "instructions": [
+    "1. Find the account's connection id and owning user id with tool:list-my-connected-accounts.",
+    "2. Call tool:run-a-composio-action with {account_id, user_id, project_id when the vault holds a user key, and either action + arguments or proxy {endpoint, method, body}}.",
+    "3. Read data (and status for a proxy request). An action that publishes or sends does so: put your checks before this step."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a connected Instagram account's name",
+      "ask": "Read my Instagram account's name through Composio",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-a-composio-action",
+            "input": {
+              "account_id": "ca_sample",
+              "user_id": "sample-owner",
+              "proxy": {
+                "endpoint": "/me?fields=id,username",
+                "method": "GET"
+              }
+            }
+          }
+        }
+      },
+      "given": "A stand-in Composio answer in the test.",
+      "hands_back": "{account_id: ca_sample, endpoint: /me?fields=id,username, status: 200, data: {id, username}}"
+    }
+  ]
+}
