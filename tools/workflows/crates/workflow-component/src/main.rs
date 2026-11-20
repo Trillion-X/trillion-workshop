@@ -68,7 +68,11 @@ impl Host for Held {
         self.waiting.lock().unwrap().push(json!({ "step": step, "for": name, "asks": input }));
         Ok(serde_json::to_vec(&json!({ "$kind": workflow_core::executor::context::NOT_ANSWERED_YET, "step_id": step, "asked": name })).unwrap())
     }
-    async fn read(&self, _: &str) -> Result<Vec<u8>, String> { Ok(b"{}".to_vec()) }
+    // This run holds no store, so a read step is refused in plain words (its declared fallback answers, else it fails):
+    // never an empty answer that a check could take for a row. A workflow reads through a step that names its reader.
+    async fn read(&self, from: &str) -> Result<Vec<u8>, String> {
+        Err(format!("this run reads no store, so {from} was not read: read it in a step that names the tool that reads it"))
+    }
 }
 
 fn fail(why: impl std::fmt::Display) -> ! {
@@ -105,12 +109,16 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
     };
     if let Some(fact) = detail["payload"].as_object() {
         // A fact that chose a workflow (the router's) carries the chosen row's definition and the step to start at; they
-        // are the run's, and the rest of the fact is the workflow's input as `fact`.
+        // are the run's. Its `input` (the person's own settings for that workflow, from their row's condition) is spread
+        // into the workflow's input, and the rest of the fact is the workflow's input as `fact`.
         let mut fact = fact.clone();
         for field in ["definition", "start_at"] {
             if let Some(value) = fact.remove(field) {
                 run.entry(field.to_string()).or_insert(value);
             }
+        }
+        if let Some(Value::Object(settings)) = fact.remove("input") {
+            for (field, value) in settings { own.insert(field, value); }
         }
         let fact = &fact;
         own.insert("fact".into(), Value::Object(fact.clone()));
@@ -219,4 +227,34 @@ fn main() {
         std::process::exit(1);
     }
     println!("{}", json!({ "result": result, "wake_effects": effects }));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn held() -> Arc<Held> {
+        Arc::new(Held { run: "r".into(), answers: BTreeMap::new(), refused: BTreeMap::new(), waiting: Mutex::new(vec![]), told: Mutex::new(vec![]) })
+    }
+
+    // A check that a row exists can never pass on a row this run could not read: the read is refused, and the walk fails.
+    #[test]
+    fn a_read_of_a_missing_row_fails_the_run_in_plain_words() {
+        let refused = futures::executor::block_on(held().read("row:missing")).unwrap_err();
+        assert!(refused.contains("reads no store") && refused.contains("row:missing"), "{refused}");
+        let definition: workflow_core::Definition = serde_json::from_value(json!({ "id": "check", "name": "check", "kind": "workflow",
+            "is_active": true, "version": 1, "edges": [], "steps": [{ "id": "exists", "kind": "read", "config": { "from": "row:missing" } }] })).unwrap();
+        let walked = futures::executor::block_on(workflow_engine::run_definition_with_started_at(
+            vec![definition], "check", json!({}), "someone", "workflow", "2026-11-19T00:00:00Z", held())).unwrap();
+        assert_eq!(walked["status"], "failed", "{walked}");
+        assert!(walked["error_message"].as_str().unwrap_or_default().contains("reads no store"), "{walked}");
+    }
+
+    // Each loop item waits under its own place in the run, and a top-level step under its own id.
+    #[test]
+    fn a_nested_ask_waits_under_its_place_in_the_run() {
+        let nested = json!({ "step_id": "tell", "_runtime_identity": [json!({ "iteration": "each_iter_1", "definition_id": "x" }).to_string(), "tell"] });
+        assert_eq!(step_of(&nested), "each_iter_1/tell");
+        assert_eq!(step_of(&json!({ "step_id": "pick" })), "pick");
+    }
 }

@@ -11,6 +11,8 @@ The workflow engine (`workflow-core`, through `workflow-engine`) as one WebAssem
 5. An ask named `wake:arrive` (the engine's own operation) is answered at once with `{told: true, kind, event_id}` and told as the fact it gives, `{kind, event_id?, payload}`, when the run ends (`event_id` left out is `<run>:<step>`). Its answer is held with the run, so a later pass replays it and tells nothing again.
 6. A step inside a loop or a used workflow is waited on, and answered, under its place in the run (the engine's `_runtime_identity`, e.g. `each_iter_1/tell`): each item is a step of its own.
 7. A told failure fails its step, in the words of the run that failed.
+8. A fact that woke the run may carry `definition` and `start_at` (the run's) and `input`, the person's own settings for that workflow (from their row's condition), which is spread into the workflow's input beside `fact`.
+9. A `read` step is refused in plain words, since this run holds no store: its declared fallback answers, else the step fails. A check never sees an empty answer for a row it could not read.
 
 ## In and out
 

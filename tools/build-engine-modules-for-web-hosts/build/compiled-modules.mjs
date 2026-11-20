@@ -1,7 +1,8 @@
 import { withSharedCargoTargetLock } from './shared-cargo-target.mjs';
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // This tool's folder, the Workshop's tools/ folder every crate directory is named from (a tool's crate is
@@ -48,9 +49,9 @@ export const ENGINE_COMPONENTS = [
 // is not; a hosted build without the engine checkout beside it stops the same way.
 export const BUILT_CRATES_FOLDER = join(BUILD_TOOL, 'built-stored-bytes');
 const BUILD_COMMAND = join(BUILD_TOOL, 'build/build-compiled-modules.mjs');
-export async function crateSourceFingerprint(crateDirs, sourceFiles = []) {
+export async function crateSourceFingerprint(crateDirs, sourceFiles = [], workspaceCommits = {}) {
   const { readdirSync, readFileSync, statSync, lstatSync, realpathSync, openSync, fstatSync, closeSync, constants } = await import('node:fs');
-  const { dirname, join, relative, resolve, isAbsolute } = await import('node:path');
+  const { basename, dirname, join, relative, resolve, isAbsolute } = await import('node:path');
   const { blake3 } = await import('@noble/hashes/blake3.js');
   const { bytesToHex } = await import('@noble/hashes/utils.js');
   const files = [], suppliedAppFiles = new Map(), root = realpathSync(WORKSHOP);
@@ -102,7 +103,27 @@ export async function crateSourceFingerprint(crateDirs, sourceFiles = []) {
       if (statSync(path).isDirectory()) walk(path); else files.push(relative(WORKSHOP, path));
     }
   };
-  for (const dir of crateDirs) walk(join(TOOLS, dir));
+  // A crate outside this Workshop (the engine's checkout beside it) is read from the commit its fingerprint records, never from
+  // that checkout's working files, which may hold other sessions' uncommitted edits.
+  const siblingBytes = new Map();
+  const atCommit = (workspace, file) => {
+    const commit = workspaceCommits[workspace];
+    if (!commit) throw new Error(`${workspace} has no recorded commit; its crates are read at a commit, not from its working files`);
+    return execFileSync('git', ['-C', join(TOOLS, workspace), 'show', `${commit}:./${file}`], { maxBuffer: 1 << 30 });
+  };
+  const textOf = (workspace, file) => workspace.startsWith('../') ? atCommit(workspace, file).toString('utf8') : readFileSync(join(TOOLS, workspace, file), 'utf8');
+  for (const dir of crateDirs) {
+    if (!dir.startsWith('../')) { walk(join(TOOLS, dir)); continue; }
+    const workspace = dirname(dir), commit = workspaceCommits[workspace];
+    if (!commit) throw new Error(`${workspace} has no recorded commit; its crates are read at a commit, not from its working files`);
+    const listed = execFileSync('git', ['-C', join(TOOLS, workspace), 'ls-tree', '-r', '--name-only', commit, '--', basename(dir)], { encoding: 'utf8' });
+    for (const file of listed.split('\n').filter(Boolean)) {
+      if (file.split('/').some(part => part === 'target' || part === '.DS_Store')) continue;
+      const path = relative(WORKSHOP, join(TOOLS, workspace, file));
+      files.push(path);
+      siblingBytes.set(path, atCommit(workspace, file));
+    }
+  }
   // Compiler options and path remapping are source inputs too. A changed build
   // owner must invalidate its existing bytes even when no Rust source changed.
   for (const name of ['shared-cargo-target', 'build-crate-for-a-web-host', 'compiled-modules', 'build-compiled-modules']) files.push(relative(WORKSHOP, join(BUILD_TOOL, 'build', `${name}.mjs`)));
@@ -110,12 +131,12 @@ export async function crateSourceFingerprint(crateDirs, sourceFiles = []) {
   // They are measured by what a build of these crates reads from them (workspaceManifestMeasure, lockClosureMeasure): a
   // crate added to a workspace, or the engine binary's own dependencies, leave the modules current.
   const measured = new Map();
-  const crateNames = crateDirs.map(dir => packageNameOf(readFileSync(join(TOOLS, dir, 'Cargo.toml'), 'utf8')));
+  const crateNames = crateDirs.map(dir => packageNameOf(textOf(dirname(dir), `${basename(dir)}/Cargo.toml`)));
   for (const workspace of new Set(crateDirs.map(dir => dirname(dir)))) {
     for (const file of ['Cargo.toml', 'Cargo.lock']) {
       const path = relative(WORKSHOP, join(TOOLS, workspace, file));
       if (!files.includes(path)) files.push(path);
-      const text = readFileSync(join(WORKSHOP, path), 'utf8');
+      const text = textOf(workspace, file);
       measured.set(path, Buffer.from(file === 'Cargo.toml' ? workspaceManifestMeasure(text) : lockClosureMeasure(text, crateNames)));
     }
   }
@@ -128,7 +149,7 @@ export async function crateSourceFingerprint(crateDirs, sourceFiles = []) {
   }
   const hasher = blake3.create();
   for (const path of files.sort()) {
-    const bytes = suppliedAppFiles.get(path) ?? measured.get(path) ?? readFileSync(join(WORKSHOP, path));
+    const bytes = suppliedAppFiles.get(path) ?? measured.get(path) ?? siblingBytes.get(path) ?? readFileSync(join(WORKSHOP, path));
     hasher.update(new TextEncoder().encode(`${path}\0${bytes.length}\0`));
     hasher.update(bytes);
   }
@@ -211,7 +232,7 @@ async function currentCommittedModules(expectedCrateDirs = null, expectedSourceF
   const sourceFiles = Object.hasOwn(built, 'source_files') ? built.source_files : [];
   if (!Array.isArray(sourceFiles) || sourceFiles.some(file => typeof file !== 'string') || new Set(sourceFiles).size !== sourceFiles.length ||
       expectedSourceFiles !== null && (!Array.isArray(expectedSourceFiles) || expectedSourceFiles.some(file => typeof file !== 'string') || JSON.stringify([...sourceFiles].sort()) !== JSON.stringify([...expectedSourceFiles].sort()))) return null;
-  try { if (await crateSourceFingerprint(built.crate_dirs, sourceFiles) !== built.fingerprint) return null; }
+  try { if (await crateSourceFingerprint(built.crate_dirs, sourceFiles, built.workspace_commits ?? {}) !== built.fingerprint) return null; }
   catch { return null; }
   if (!compiledModuleFiles().every(file => {
     try { return statSync(file).isFile(); } catch { return false; }

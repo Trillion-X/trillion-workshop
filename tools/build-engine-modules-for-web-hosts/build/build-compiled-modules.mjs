@@ -73,7 +73,17 @@ await withCrateBuilds(async builds => {
     process.stdout.write('compiled modules already match current source; reused completed output\n');
     return;
   }
-  const fingerprint = await crateSourceFingerprint(crateDirs, sourceFiles);
+  // The commit of each workspace outside the Workshop the crates came from (the engine's), by its path from tools/. The
+  // fingerprint reads those crates at this commit, so the commit names exactly the sources it covers, and a release can put
+  // that exact checkout beside the Workshop.
+  const git = (workspace, args) => execFileSync('git', args, { cwd: workspace, encoding: 'utf8' }).trim();
+  const workspace_commits = Object.fromEntries(crateWorkspaces().filter(workspace => !workspace.startsWith(TOOLS + sep)).map(workspace => {
+    if (realpathSync(git(workspace, ['rev-parse', '--show-toplevel'])) !== realpathSync(dirname(workspace))) {
+      throw new Error(`${workspace} is not the crates/ folder at the top of its own git checkout, so no commit names its crates`);
+    }
+    return [relative(TOOLS, workspace), git(workspace, ['log', '-1', '--format=%H', '--', '.'])];
+  }));
+  const fingerprint = await crateSourceFingerprint(crateDirs, sourceFiles, workspace_commits);
   const stageParent = dirname(resolve(BUILT_CRATES_FOLDER));
   mkdirSync(stageParent, { recursive: true });
   const stage = mkdtempSync(join(stageParent, '.compiled-modules-'));
@@ -97,19 +107,9 @@ await withCrateBuilds(async builds => {
       }
       process.stdout.write(`built ${crate} into private compiled-module output\n`);
     }
-    if (await crateSourceFingerprint(crateDirs, sourceFiles) !== fingerprint) {
+    if (await crateSourceFingerprint(crateDirs, sourceFiles, workspace_commits) !== fingerprint) {
       throw new Error('Crate sources changed during compilation; the published modules were left untouched');
     }
-    // The commit of each workspace outside the Workshop the crates came from (the engine's), by its path from tools/, so a
-    // release can put that exact checkout beside the Workshop. Workspace identity is commit-scoped;
-    // the source fingerprint above also detects working-tree bytes that differ from that commit.
-    const git = (workspace, args) => execFileSync('git', args, { cwd: workspace, encoding: 'utf8' }).trim();
-    const workspace_commits = Object.fromEntries(crateWorkspaces().filter(workspace => !workspace.startsWith(TOOLS + sep)).map(workspace => {
-      if (realpathSync(git(workspace, ['rev-parse', '--show-toplevel'])) !== realpathSync(dirname(workspace))) {
-        throw new Error(`${workspace} is not the crates/ folder at the top of its own git checkout, so no commit names its crates`);
-      }
-      return [relative(TOOLS, workspace), git(workspace, ['log', '-1', '--format=%H', '--', '.'])];
-    }));
     writeFileSync(join(next, 'fingerprint.json'), `${JSON.stringify({ crate_dirs: crateDirs, source_files: sourceFiles, fingerprint, workspace_commits }, null, 2)}\n`);
     const hadPrevious = existsSync(BUILT_CRATES_FOLDER);
     // Write recovery facts before retiring the current tree. Process exit at
