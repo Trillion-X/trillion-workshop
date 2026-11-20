@@ -576,13 +576,12 @@
         "id": "tool:keep-an-ai-activity-row",
         "label": "Keep an AI activity row",
         "job": "Keep one row of what an AI did on a person's account, in that person's own database",
-        "description": "Keeps one activity row (what the AI call left, made by the activity library) in the person's own database named by database. The tables activity_g<n>, activity_links_g<n> and activity_counts_g<n> and the views activity and activity_links are made there the first time (CREATE TABLE IF NOT EXISTS). The newest generation holds up to 5000 rows; a new one starts when it is full and the older one goes whole. Nothing is read back; the row's seq is returned.",
+        "description": "Keeps one activity row in the person's own database named by database. Give row (a finished activity row) or call (one raw tool call an AI made: tool, at, input, result, error, app, description), with access (the access names the person holds) for a call. A call becomes a row by the activity marks; a call that leaves no row answers kept false and why. The tables activity_g<n>, activity_links_g<n> and activity_counts_g<n> and the views activity and activity_links are made there the first time (CREATE TABLE IF NOT EXISTS). The newest generation holds up to 5000 rows; a new one starts when it is full and the older one goes whole.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "database",
-            "row"
+            "database"
           ],
           "properties": {
             "database": {
@@ -597,23 +596,38 @@
                 "at"
               ],
               "description": "One activity row, as the activity library makes it: tool, at, app, item, title, label, uses, for, ok and reason. Only ids, short titles and the failure words are kept."
+            },
+            "call": {
+              "type": "object",
+              "required": [
+                "tool",
+                "at"
+              ],
+              "description": "One raw tool call an AI made: tool, at (ISO text), input, result, error, app, description. The activity marks decide the row it leaves.",
+              "properties": {
+                "tool": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "at": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "access": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The access names the person holds (such as access:decision-kept). A row needing one they do not hold is kept without that id."
             }
-          }
+          },
+          "description": "Give row (a finished activity row) or call (a raw tool call); one of them."
         },
         "output_schema": {
           "type": "object",
-          "required": [
-            "generation",
-            "seq"
-          ],
-          "properties": {
-            "generation": {
-              "type": "integer"
-            },
-            "seq": {
-              "type": "integer"
-            }
-          }
+          "description": "{ generation, seq } when kept; { kept: false, left } when a raw call left no row."
         },
         "invoke": {
           "kind": "container",
@@ -639,6 +653,59 @@
                   "read-data"
                 ],
                 "at": "/opt/see-what-my-ais-did"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/activity-marks.json",
+                  "src/activity.mjs"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/execution-context.mjs",
+                  "src/read-bounded-json.mjs",
+                  "src/connecting-without-the-store.mjs",
+                  "src/connecting-without-the-store.json",
+                  "src/namespace-preview.mjs",
+                  "src/record-model-tools.mjs",
+                  "src/record-model.json",
+                  "src/record-scope.json",
+                  "src/workspace/file-previews.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "keep-lists-of-rows",
+                "paths": [
+                  "do-work/fractional-order.ts"
+                ],
+                "at": "/opt/keep-lists-of-rows"
+              },
+              {
+                "package": "record-log",
+                "paths": [
+                  "do-work/record-model.mjs"
+                ],
+                "at": "/opt/record-log"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
               },
               {
                 "package": "run-sql-in-my-database",
@@ -884,7 +951,7 @@
           ]
         },
         "provenance": {
-          "source": "the activity library's keepActivity (tools/shared-code/src/activity.mjs), ported to the person's own Postgres database with this tool's own tables"
+          "source": "the activity library's keepActivity and the call-to-row rules (tools/shared-code/src/activity.mjs, activity-marks.json), ported to the person's own Postgres database with this tool's own tables; the call step from the old keep-and-read-activity.mjs loop"
         },
         "verify": [],
         "result_selector": "$.result"
@@ -998,6 +1065,59 @@
                   "read-data"
                 ],
                 "at": "/opt/see-what-my-ais-did"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/activity-marks.json",
+                  "src/activity.mjs"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/execution-context.mjs",
+                  "src/read-bounded-json.mjs",
+                  "src/connecting-without-the-store.mjs",
+                  "src/connecting-without-the-store.json",
+                  "src/namespace-preview.mjs",
+                  "src/record-model-tools.mjs",
+                  "src/record-model.json",
+                  "src/record-scope.json",
+                  "src/workspace/file-previews.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "keep-lists-of-rows",
+                "paths": [
+                  "do-work/fractional-order.ts"
+                ],
+                "at": "/opt/keep-lists-of-rows"
+              },
+              {
+                "package": "record-log",
+                "paths": [
+                  "do-work/record-model.mjs"
+                ],
+                "at": "/opt/record-log"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
               },
               {
                 "package": "run-sql-in-my-database",

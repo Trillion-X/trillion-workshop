@@ -10,7 +10,8 @@
   "instructions": [
     "1. Say to your AI: \"Keep what my AI did in my own database\", and give it database (the person's own pursuit database, such as ethos_for_who_runs_it) and the row one AI call left.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:keep-an-ai-activity-row and its input (the worked example shows one).",
-    "3. Read what comes back: it answers the generation and seq the row was kept at. The tables are made in that database the first time."
+    "3. Read what comes back: it answers the generation and seq the row was kept at. The tables are made in that database the first time.",
+    "4. Or hand it one raw tool call the AI made (call: tool, at, input, result, error, app) and the access the person holds: the activity marks decide the row it leaves, and a call that leaves none answers kept false with why."
   ],
   "worked_examples": [
     {
@@ -59,6 +60,39 @@
         }
       },
       "hands_back": "It answered {\"generation\":1,\"seq\":1} (pinned run on proofs_for_who_runs_it, 4:33 AM CST Nov 20 2026; the made-up row was removed after the read-back and the tables were left in place)."
+    },
+    {
+      "title": "Keep one raw made-up call that leaves no row",
+      "ask": "Keep what my AI did in my own database",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-an-ai-activity-row",
+            "input": {
+              "database": "proofs_for_who_runs_it",
+              "call": {
+                "tool": "tool:sample-tool",
+                "at": "2026-11-20T04:45:00-06:00",
+                "app": "sample-app",
+                "description": "Does a made-up thing"
+              }
+            }
+          }
+        }
+      },
+      "given": {
+        "database": "proofs_for_who_runs_it",
+        "call": {
+          "tool": "tool:sample-tool",
+          "at": "2026-11-20T04:45:00-06:00",
+          "app": "sample-app",
+          "description": "Does a made-up thing"
+        }
+      },
+      "hands_back": "Not yet run on a real database; the pinned run waits for the Mac update. On the test's in-memory store this call answers { kept: false, left } with why: its tool has no mark."
     }
   ]
 }

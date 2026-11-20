@@ -55453,6 +55453,59 @@
    "at": "/opt/see-what-my-ais-did"
   },
   {
+   "package": "shared-code",
+   "paths": [
+    "src/activity-marks.json",
+    "src/activity.mjs"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/execution-context.mjs",
+    "src/read-bounded-json.mjs",
+    "src/connecting-without-the-store.mjs",
+    "src/connecting-without-the-store.json",
+    "src/namespace-preview.mjs",
+    "src/record-model-tools.mjs",
+    "src/record-model.json",
+    "src/record-scope.json",
+    "src/workspace/file-previews.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "do-work/fractional-order.ts"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "record-log",
+   "paths": [
+    "do-work/record-model.mjs"
+   ],
+   "at": "/opt/record-log"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
    "package": "run-sql-in-my-database",
    "paths": [
     "do-work"
@@ -55546,6 +55599,59 @@
     "read-data"
    ],
    "at": "/opt/see-what-my-ais-did"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/activity-marks.json",
+    "src/activity.mjs"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/execution-context.mjs",
+    "src/read-bounded-json.mjs",
+    "src/connecting-without-the-store.mjs",
+    "src/connecting-without-the-store.json",
+    "src/namespace-preview.mjs",
+    "src/record-model-tools.mjs",
+    "src/record-model.json",
+    "src/record-scope.json",
+    "src/workspace/file-previews.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "do-work/fractional-order.ts"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "record-log",
+   "paths": [
+    "do-work/record-model.mjs"
+   ],
+   "at": "/opt/record-log"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "package": "run-sql-in-my-database",

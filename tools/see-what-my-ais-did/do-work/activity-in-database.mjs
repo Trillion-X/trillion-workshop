@@ -8,6 +8,7 @@
 // process on descriptor 3, named by `database`; it is never in the request, argv, a file or the environment.
 import { readFileSync } from 'node:fs';
 import { keepRow, listRows, traceItem, openActivity } from '../read-data/activity-generations.mjs';
+import { rowFromCall } from './activity-row-from-a-call.mjs';
 import { throughProxy } from '../../run-sql-in-my-database/do-work/through-the-run-proxy.mjs';
 
 const CONNECTION_DESCRIPTOR = 3;
@@ -96,6 +97,16 @@ export function postgresActivityStore(client) {
   };
 }
 
+/** Keeps what one request hands in: a finished row (`row`), or one raw tool call (`call`, with the person's `access`) that the marks turn into a row. */
+export async function keepOne(store, request) {
+  if (request.call !== undefined) {
+    const { row, left } = rowFromCall(request.call, request.access ?? []);
+    if (!row) return { kept: false, left };
+    return { kept: true, ...(await keepRow(store, row)) };
+  }
+  return keepRow(store, request.row);
+}
+
 /** The process entry: the action is the argument (keep or read); one JSON request on stdin, the connection on descriptor 3. */
 export async function main(action = process.argv[2]) {
   const { default: pg } = await import('pg');
@@ -110,7 +121,7 @@ export async function main(action = process.argv[2]) {
     const store = postgresActivityStore(client);
     await openActivity(store);
     let result;
-    if (action === 'keep') result = await keepRow(store, request.row);
+    if (action === 'keep') result = await keepOne(store, request);
     else if (typeof request.item === 'string' && request.item.trim()) result = await traceItem(store, { item: request.item, depth: request.depth });
     else result = await listRows(store, request);
     await client.query('COMMIT', []);
