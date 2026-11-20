@@ -422,7 +422,7 @@
     },
     {
       "payload": {
-        "kind": "container",
+        "kind": "ai-tool-descriptor",
         "id": "tool:sales-contracts",
         "label": "Sales contracts in my database",
         "job": "Save, list and read sales contracts as rows of a sales_contracts table in one of my pursuit databases",
