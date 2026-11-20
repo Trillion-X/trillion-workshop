@@ -68,6 +68,8 @@ test('of two takes that read the same waiting task, only the first is kept, and 
   const takers = await resource('@own-records', 'records:list', { type: 'user', present: ['can'] });
   assert.deepEqual(takers.records.map(one => one.id).sort(), ['ai:north', 'person:someone'], 'a user whose can holds nothing is not listed as one who can take');
   await assert.rejects(resource('@own-records', 'records:list', { type: 'user', present: ['nope; drop'] }), /not a plain table or column name/);
+  const counted = await resource('@own-records', 'records:list', { type: 'calendar-task', fields: ['status', 'taken_by'] });
+  assert.deepEqual(counted.records.map(one => one.value), [{ status: 'In progress', taken_by: 'ai:north' }], 'only the named fields are read');
   await assert.rejects(resource('@own-records', 'records:list', { type: 'ai-job' }), /No table keeps records of type ai-job/);
   await assert.rejects(resource('@own-records', 'records:list', { type: 'calendar-task', where: { 'status; drop': 'x' } }), /not a plain table or column name/);
 });

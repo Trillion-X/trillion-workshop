@@ -1816,6 +1816,8 @@ async function taskCommand(client, context, { command, call, flags, requestKey, 
   const store = tasksStoreOf(context);
   const resource = resourceOf(client, { store });
   if (call.call === 'who') call.read.types = whoTypes(store);
+  // Who-can-take reads the tasks held now only to count them: in tables, only the fields that count.
+  if (store && call.call === 'who') call.read.tasks = { ...call.read.tasks, fields: settings.tasks.store.busy_fields };
   // In tables, a listing asks the store for only the newest it shows (one more, to know there are more), never every task.
   if (store && call.call === 'see' && call.input.id === undefined && call.input.assignee === undefined) {
     call.read.tasks = { ...call.read.tasks, newest: { ...settings.tasks.store.newest, count: (call.input.limit ?? settings.tasks.list_limit) + 1 } };
@@ -1985,7 +1987,7 @@ export async function main(argv, seams = {}) {
     const { account } = await client.whoami();
     // Who may take work: the records of who_types, handed in with the tasks held now, so each one's busy count is read too.
     const store = tasksStoreOf(context);
-    const { result } = await runTaskMove(resourceOf(client, { store }), { tool: settings.who.tool, input: {}, read: { types: whoTypes(store), tasks: { statuses: wordsOfStates([takenState]) } } });
+    const { result } = await runTaskMove(resourceOf(client, { store }), { tool: settings.who.tool, input: {}, read: { types: whoTypes(store), tasks: { statuses: wordsOfStates([takenState]), ...(store ? { fields: settings.tasks.store.busy_fields } : {}) } } });
     const rows = result?.who ?? [];
     const recent = row => flags.all === true || aiOf(row, { now }).recent;
     const shown = rows.filter(recent);

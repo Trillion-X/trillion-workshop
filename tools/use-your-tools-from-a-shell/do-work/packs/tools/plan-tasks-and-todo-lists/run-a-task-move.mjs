@@ -23,9 +23,9 @@ const TOOLS = '@tools';
 
 // Every record of `type` (whose `where` fields equal), page after page, at most `most` of them. With `order`
 // ({ field, direction }) only the first `most` in that order, in one call: a store that keeps the records in tables sorts them.
-async function every(resource, type, where, most, pageSize, order = null, present = null) {
+async function every(resource, type, where, most, pageSize, order = null, present = null, fields = null) {
   if (present) where = null;
-  const only = present ? { present } : {};
+  const only = { ...(present ? { present } : {}), ...(fields ? { fields } : {}) };
   if (order) {
     const page = await resource(RECORDS, 'records:list', { type, ...(where ? { where } : {}), ...only, limit: most, order });
     if (!Array.isArray(page?.records)) throw new Error(`The account did not return its ${type} records.`);
@@ -51,8 +51,9 @@ export async function readFor(resource, read = {}, { rules = RULES } = {}) {
   if (read.tasks) {
     const statuses = read.tasks.statuses ?? [null];
     // `newest` ({ field, direction, count }): only the first `count` of each status in that order, sorted by the store.
+    // `fields`: only these fields of each task, for a row that reads them and writes none of these tasks.
     const order = read.tasks.newest ? { field: read.tasks.newest.field, direction: read.tasks.newest.direction } : null;
-    for (const status of statuses) add(await every(resource, rules.task_kind, status === null ? read.tasks.where : { ...read.tasks.where, status }, order ? read.tasks.newest.count : most, pageSize, order));
+    for (const status of statuses) add(await every(resource, rules.task_kind, status === null ? read.tasks.where : { ...read.tasks.where, status }, order ? read.tasks.newest.count : most, pageSize, order, null, read.tasks.fields ?? null));
   }
   // A type is a record type, or { type, present }: only the records whose `present` fields hold a value.
   for (const one of read.types ?? []) {
@@ -84,7 +85,7 @@ export function recordsInTables(runSql, { rest, rules = RULES } = {}) {
     return [table.type, table];
   }));
   const valueOf = (table, row) => {
-    const value = { ...(row[table.rest] ?? {}) };
+    const value = { ...((table.rest && row[table.rest]) ?? {}) };
     for (const column of table.columns) if (row[column] !== null && row[column] !== undefined) value[column] = row[column];
     return value;
   };
@@ -101,8 +102,10 @@ export function recordsInTables(runSql, { rest, rules = RULES } = {}) {
   const keptObject = table => `jsonb_build_object(${[...table.columns, table.rest].map(column => `'${column}', ${column === table.rest ? `coalesce(${column}, '{}'::jsonb)` : column}`).join(', ')})`;
   const tableOf = type => { const table = tables.get(type); if (!table) throw new Error(`No table keeps records of type ${type} (task-moves.json rows_in_tables).`); return table; };
 
-  async function list({ type, where = {}, limit = 100, after = null, order = null, present = [] }) {
+  async function list({ type, where = {}, limit = 100, after = null, order = null, present = [], fields = null }) {
     const table = tableOf(type);
+    // Only the named fields that are columns (a field kept in the rest column is not read when fields are named).
+    const kept = fields ? { ...table, columns: table.columns.filter(column => fields.includes(column)), rest: null } : table;
     for (const field of present) if (!table.columns.includes(named(field))) throw new Error(`${field} is not a column of ${table.table}.`);
     if (order && after) throw new Error('A list in an order is read in one call: it takes no `after`.');
     if (order && !table.columns.includes(named(order.field))) throw new Error(`${order.field} is not a column of ${table.table}.`);
@@ -112,9 +115,9 @@ export function recordsInTables(runSql, { rest, rules = RULES } = {}) {
     for (const field of present) conditions.push(`${field} is not null`);
     if (after) { params.push(after); conditions.push(`id > $${params.length}::text`); }
     params.push(order ? limit : limit + 1);
-    const rows = await runSql(`select id, ${[...table.columns, table.rest].join(', ')} from ${table.table}${conditions.length ? ` where ${conditions.join(' and ')}` : ''} order by ${sorted} limit $${params.length}`, params);
+    const rows = await runSql(`select ${['id', ...kept.columns, ...(kept.rest ? [kept.rest] : [])].join(', ')} from ${table.table}${conditions.length ? ` where ${conditions.join(' and ')}` : ''} order by ${sorted} limit $${params.length}`, params);
     const page = rows.slice(0, limit);
-    return { records: page.map(row => ({ id: row.id, value: valueOf(table, row) })), next: rows.length > limit ? page[page.length - 1].id : null };
+    return { records: page.map(row => ({ id: row.id, value: valueOf(kept, row) })), next: rows.length > limit ? page[page.length - 1].id : null };
   }
   async function read({ id }) {
     for (const table of tables.values()) {

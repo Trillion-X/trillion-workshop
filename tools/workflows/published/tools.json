@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b2c7d82076fbadaaeca6ec04940d4e17fbf51991a87de71b229a595ccb6ea8ca"
+  "blake3": "1f:206c18ec608330b2f088dd2866bc8a2ccc1e07b5c335344d29761d42abfb4314"
  },
  "fields": [
   {
@@ -11054,7 +11054,7 @@
    "values": {
     "title": "Run SQL in my database",
     "job": "Run one SQL statement in my own database and see its rows",
-    "description": "Runs exactly one SQL statement as written (sql, with params for $1, $2 and so on) in the person's own database, as the login the connection string names: the server refuses text holding more than one command, and a login that may only read (the read connection) cannot write, because the database says so. Give database, the name of one of the person's databases as this computer names it (the computer picks the login), or credential_name, the vault name the person saved the connection under (a login that may only read, for a share that may only read), and optionally statement_timeout_ms. Answers columns, rows and row_count, or the database's own error text. It adds no shape, no list names and no record types. With recipe instead of sql it runs a role recipe (read-data/role-recipes.json, the SQL that makes, grants and takes away a kind of login) as the owner login, in one transaction unless the recipe says otherwise: create with role_credential_name makes that standing login with the password the person holds under that name; create with recipe.valid_until mints a login that stops working then and answers its connection once; drop takes a role away. The connection may name any server that speaks the Postgres wire protocol that this computer reaches on a local port it reports as own-rows-postgres.",
+    "description": "Runs exactly one SQL statement as written (sql, with params for $1, $2 and so on) in the person's own database, as the login the connection string names: the server refuses text holding more than one command, and a login that may only read (the read connection) cannot write, because the database says so. Give database, the name of one of the person's databases (the computer opens it with the login its vault holds as that name and -connection), or credential_name, the vault name the person saved the connection under (a login that may only read, for a share that may only read), and optionally statement_timeout_ms. Answers columns, rows and row_count, or the database's own error text. It adds no shape, no list names and no record types. With recipe instead of sql it runs a role recipe (read-data/role-recipes.json, the SQL that makes, grants and takes away a kind of login) as the owner login, in one transaction unless the recipe says otherwise: create with role_credential_name makes that standing login with the password the person holds under that name; create with recipe.valid_until mints a login that stops working then and answers its connection once; drop takes a role away. The connection may name any server that speaks the Postgres wire protocol that this computer reaches on a local port it reports as own-rows-postgres.",
     "status": "active",
     "maker": "maker:run-sql-in-my-database",
     "licence_class": "licence:maker-own",
