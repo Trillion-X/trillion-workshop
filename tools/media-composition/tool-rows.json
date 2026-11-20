@@ -1178,6 +1178,7 @@
      },
      "image": {
       "type": "string",
+      "format": "namespace-file",
       "pattern": "^1f:[a-f0-9]{64}$",
       "description": "An image identity from your files."
      }

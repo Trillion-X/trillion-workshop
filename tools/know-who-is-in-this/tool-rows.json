@@ -248,6 +248,7 @@
       },
       "file": {
        "type": "string",
+       "format": "namespace-file",
        "description": "A recording or picture in the person's files, by name or identity"
       },
       "heard_voice": {

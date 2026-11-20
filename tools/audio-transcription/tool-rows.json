@@ -654,7 +654,7 @@
           "required": ["file","model_path"],
           "additionalProperties": false,
           "properties": {
-            "file": {"type":"string","minLength":1,"maxLength":400,"description":"The recording's name or identity in the person's files","x-free-text-because":"A file name in the person's files."},
+            "file": {"type":"string","minLength":1,"maxLength":400,"format":"namespace-file","description":"The recording's name or identity in the person's files","x-free-text-because":"A file name in the person's files."},
             "model_path": {"type":"string","maxLength":400,"description":"The ggml Whisper model file on this computer, in the models folder the person granted","x-free-text-because":"A file path on this computer."},
             "whisper_cli": {"type":"string","maxLength":400,"description":"The whisper-cli program the person granted (default: the one on PATH)","x-free-text-because":"A file path on this computer."},
             "ffmpeg": {"type":"string","maxLength":400,"description":"The ffmpeg program the person granted (default: the one on PATH)","x-free-text-because":"A file path on this computer."},
