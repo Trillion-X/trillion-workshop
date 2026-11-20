@@ -8298,7 +8298,12 @@
               "start_at": "inventory"
             }
           }
-        ]
+        ],
+        "records": {
+          "runs": [
+            "tool:run-sql-in-my-database"
+          ]
+        }
       }
     },
     {
@@ -9453,7 +9458,12 @@
               "start_at": "scope"
             }
           }
-        ]
+        ],
+        "records": {
+          "runs": [
+            "tool:run-sql-in-my-database"
+          ]
+        }
       }
     },
     {
@@ -130715,7 +130725,12 @@
               }
             ]
           }
-        ]
+        ],
+        "records": {
+          "runs": [
+            "tool:run-sql-in-my-database"
+          ]
+        }
       }
     },
     {
@@ -165193,7 +165208,12 @@
               "start_at": "setup"
             }
           }
-        ]
+        ],
+        "records": {
+          "runs": [
+            "tool:run-sql-in-my-database"
+          ]
+        }
       }
     },
     {
@@ -204884,7 +204904,12 @@
               "start_at": "name"
             }
           }
-        ]
+        ],
+        "records": {
+          "runs": [
+            "tool:run-sql-in-my-database"
+          ]
+        }
       }
     },
     {
@@ -207542,7 +207567,12 @@
               "start_at": "own-work"
             }
           }
-        ]
+        ],
+        "records": {
+          "runs": [
+            "tool:run-sql-in-my-database"
+          ]
+        }
       }
     },
     {
@@ -212230,7 +212260,12 @@
               "start_at": "worth"
             }
           }
-        ]
+        ],
+        "records": {
+          "runs": [
+            "tool:run-sql-in-my-database"
+          ]
+        }
       }
     },
     {

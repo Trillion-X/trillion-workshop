@@ -1,5 +1,5 @@
 {
-  "about": "The vocabulary of recipe checks. A check is { kind, says, ...the fields its kind row names }. Adding a check kind is adding a row here: the validator reads every rule from the row. Field shapes: path = a list of keys starting at one of the roots (and reading only earlier steps); the `of` field of subset-of, covers and differs-from may also be a list of such paths, whose values are taken together, words = a non-empty list of non-empty strings, count = a whole number above 0, catalog = one of the catalogs, list = any list. A kind row's `wrong` is the binding whose value lists the values that break the rule (empty when it holds), and `holds`, when given, the binding that says whether it holds faster than `wrong` can; without `holds`, a rule holds when `wrong` is empty. In them {\"$values\": <field>, \"transform\"?} is the values at the rule's path in that field (the `this` root is the checked step's output; `values` stands in for `of` when the rule lists values instead), and {\"$fill\": <field>} is the rule's own value of that field. They are evaluated by the one shared evaluator every engine uses. A kind that has to look things up has `reads`: for each value of `each` the engine reads the address `from` builds from the value (the loop item), and {\"$read\": true, \"transform\"?} in its bindings is the list of what each read answered, a read that failed being {\"tolerated_error\": {\"item\": <the value>, ...}}. A kind whose `wrong` already says each break in words (`wrong_is_text`) is shown as it is; any other kind's values are shown as JSON.",
+  "about": "The vocabulary of recipe checks. A check is { kind, says, ...the fields its kind row names }. Adding a check kind is adding a row here: the validator reads every rule from the row. Field shapes: path = a list of keys starting at one of the roots (and reading only earlier steps); the `of` field of subset-of, covers and differs-from may also be a list of such paths, whose values are taken together, words = a non-empty list of non-empty strings, count = a whole number above 0, catalog = one of the catalogs, list = any list. A kind row's `wrong` is the binding whose value lists the values that break the rule (empty when it holds), and `holds`, when given, the binding that says whether it holds faster than `wrong` can; without `holds`, a rule holds when `wrong` is empty. In them {\"$values\": <field>, \"transform\"?} is the values at the rule's path in that field (the `this` root is the checked step's output; `values` stands in for `of` when the rule lists values instead), and {\"$fill\": <field>} is the rule's own value of that field. They are evaluated by the one shared evaluator every engine uses. A kind that has to look things up has `reads`: for each value of `each` (the loop item) the `reader` of its `catalog` (a catalog row's ask: the tool it names with its `input`, then its `found` binding over that answer) answers {id, found}, and {\"$read\": true, \"transform\"?} in its bindings is the list of those answers, a lookup that failed being {\"tolerated_error\": {\"item\": <the value>, ...}}. A catalog with no `reader` yet is read by the address `from` builds, as before readers: the host answers the thing, or a refusal. A reader's input may read the run's `kept_in.database`, the database the workflow row was read from, which its starter hands in. A kind whose `wrong` already says each break in words (`wrong_is_text`) is shown as it is; any other kind's values are shown as JSON.",
   "roots": [
     {
       "root": "this",
@@ -17,11 +17,87 @@
   "catalogs": [
     {
       "catalog": "workflow",
-      "meaning": "A workflow recipe the account can run."
+      "meaning": "A workflow recipe the account can run.",
+      "reader": {
+        "name": "tool:run-sql-in-my-database",
+        "input": {
+          "database": {
+            "$kind": "binding",
+            "select": {
+              "from": "input",
+              "path": "kept_in.database"
+            }
+          },
+          "sql": "SELECT recipe AS id FROM public.workflow_recipes WHERE recipe = $1",
+          "params": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "loop",
+                "path": "item"
+              },
+              "transform": [
+                {
+                  "op": "op:core.to_string"
+                }
+              ]
+            }
+          ]
+        },
+        "found": {
+          "$kind": "binding",
+          "select": {
+            "from": "steps",
+            "key": "read",
+            "path": "output.rows"
+          },
+          "transform": [
+            {
+              "op": "op:core.array_length"
+            },
+            {
+              "op": "op:core.ge",
+              "args": {
+                "value": 1
+              }
+            }
+          ]
+        }
+      }
     },
     {
       "catalog": "tool",
-      "meaning": "A tool the host offers."
+      "meaning": "A tool the host offers.",
+      "reader": {
+        "name": "tools:list",
+        "input": {
+          "tool": {
+            "$kind": "binding",
+            "select": {
+              "from": "loop",
+              "path": "item"
+            },
+            "transform": [
+              {
+                "op": "op:core.to_string"
+              }
+            ]
+          }
+        },
+        "found": {
+          "$kind": "binding",
+          "select": {
+            "from": "steps",
+            "key": "read",
+            "path": "output.id"
+          },
+          "transform": [
+            {
+              "op": "op:core.is_not_null"
+            }
+          ]
+        }
+      }
     },
     {
       "catalog": "list-row",
@@ -1931,6 +2007,9 @@
         "each": {
           "$values": "path"
         },
+        "catalog": {
+          "$fill": "catalog"
+        },
         "from": {
           "$kind": "binding",
           "select": {
@@ -1984,14 +2063,67 @@
                 },
                 {
                   "op": "op:core.is_not_null"
+                },
+                {
+                  "op": "op:core.if",
+                  "args": {
+                    "then": true,
+                    "else": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "vars",
+                        "key": "$item",
+                        "path": "found"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.equals",
+                          "args": {
+                            "value": false
+                          }
+                        }
+                      ]
+                    }
+                  }
                 }
               ]
             }
           },
           {
-            "op": "op:core.map",
+            "op": "op:core.map_to_nodes",
             "args": {
-              "path": "tolerated_error.item"
+              "template": {
+                "$kind": "binding",
+                "select": {
+                  "from": "vars",
+                  "key": "$item"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.coalesce",
+                    "args": {
+                      "values": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "vars",
+                            "key": "$item",
+                            "path": "tolerated_error.item"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "vars",
+                            "key": "$item",
+                            "path": "id"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
             }
           },
           {
@@ -2072,7 +2204,8 @@
               }
             }
           ]
-        }
+        },
+        "catalog": "ran-task"
       },
       "wrong": {
         "$values": "path",

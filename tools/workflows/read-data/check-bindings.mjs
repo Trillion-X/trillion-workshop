@@ -10,11 +10,12 @@
 //     binding (`take: "all"`), the `this` root read as the checked step's output (`["steps", <subject>, ...]`). A
 //     rule with `values` instead of `of` gives those values for `of`.
 //   - {"$fill": <field>} becomes the rule's own value of that field.
-//   - A kind with `reads` looks each value of `each` up: a `loop` step runs, per value, a one-step definition that
-//     `read`s the address `from` builds (the value is the loop's item), with item errors tolerated, so
-//     {"$read": true, "transform"?} is the list of what each read answered (a failed read is
-//     {"tolerated_error": {"item": <the value>, ...}}). The one-step definition is named by the BLAKE3 of its read,
-//     so the same read is one definition wherever it is used.
+//   - A kind with `reads` looks each value of `each` up: a `loop` step runs, per value (the loop's item), a definition
+//     that asks the `reader` its `catalog` row names (a tool and its input) and answers {id, found}, `found` being the
+//     reader's own binding over that tool's answer, with item errors tolerated, so {"$read": true, "transform"?} is
+//     the list of those answers (a failed lookup is {"tolerated_error": {"item": <the value>, ...}}). The definition
+//     is named by the BLAKE3 of its steps, so the same lookup is one definition wherever it is used. A catalog with no
+//     reader yet is `read` at the address the kind's `from` builds, as before readers, its answer the thing itself.
 //   - A kind with no `wrong` binding is refused, by name, never passed.
 //   - withCorrections gives every checked step one correction round: a refused answer becomes a task anyone takes,
 //     checked by the same rules, and later steps read the answer that held (S#answer).
@@ -133,11 +134,16 @@ export function checkBindings(rule, subject, index = 0) {
   let reads = null;
   if (row.reads) {
     const loop = `${subject}#read-${index}`;
-    const from = filled(row.reads.from, rule, subject);
+    const catalog = filled(row.reads.catalog, rule, subject);
+    const reader = KINDS.catalogs.find(entry => entry.catalog === catalog)?.reader;
+    const steps = reader ? [
+      { id: 'read', kind: 'ask', config: { name: reader.name, input: reader.input, context: { step_id: 'read', title: `Look up one ${catalog}` } } },
+      { id: 'found', kind: 'return', config: { value: { id: binding({ from: 'loop', path: 'item' }), found: reader.found } } },
+    ] : [{ id: 'read', kind: 'read', config: { from: filled(row.reads.from, rule, subject) } }];
     const definition = {
-      id: `check-read:${bytesToHex(blake3(new TextEncoder().encode(JSON.stringify(from)))).slice(0, 32)}`,
-      name: 'Read one value', kind: 'workflow', is_active: true, version: 1,
-      steps: [{ id: 'read', kind: 'read', config: { from } }], edges: [],
+      id: `check-read:${bytesToHex(blake3(new TextEncoder().encode(JSON.stringify(steps)))).slice(0, 32)}`,
+      name: `Look up one ${catalog}`, kind: 'workflow', is_active: true, version: 1,
+      steps, edges: reader ? [{ from: 'read', to: 'found', kind: 'always' }] : [],
     };
     reads = { definition, step: { id: loop, kind: 'loop', config: { source: filled(row.reads.each, rule, subject), item_var: 'item', definition_id: definition.id, tolerate_item_errors: true } } };
     return { holds: row.holds ? filled(row.holds, rule, subject, loop) : null, wrong: filled(row.wrong, rule, subject, loop), reads };

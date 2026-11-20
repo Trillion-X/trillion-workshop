@@ -58,7 +58,66 @@ for (const [name, checks, input, answers] of cases) {
   test(`${name}: the steps judge each answer as the older check step did`, () => holdsAsBefore(name, checks, input, answers));
 }
 
-// Checks that look things up: a host answers each read ({"catalog", "id"} → the thing, or a refusal).
+// Checks that look things up: each lookup asks its catalog's reader (recipe-check-kinds.json), here a host that answers
+// the workflow catalog's SQL from made-up rows; a catalog with no reader is refused when the workflow is made.
+const kept = ['workflow:made-up-a', 'workflow:made-up-b'];
+const asked = [];
+// The host answers the reader's tool; every other ask (the checked step and the one after it) is answered as the run's
+// own answers say, read from the step id in its context.
+const hostFor = (answer, reader = null) => ({
+  read: async () => { throw new Error('a lookup asks its reader, never a bare read'); },
+  ask: async (name, payload, context) => {
+    const input = JSON.parse(new TextDecoder().decode(payload));
+    if (name !== 'tool:run-sql-in-my-database') {
+      const { step_id: step } = JSON.parse(new TextDecoder().decode(context));
+      return new TextEncoder().encode(JSON.stringify(step === 'answer' ? answer : { done: true }));
+    }
+    if (reader) return reader(input);
+    asked.push({ name, database: input.database });
+    const rows = kept.includes(input.params[0]) ? [{ id: input.params[0] }] : [];
+    return new TextEncoder().encode(JSON.stringify({ columns: ['id'], rows, row_count: rows.length }));
+  },
+});
+const exists = [{ kind: 'exists', says: 'Each workflow exists', path: ['this', 'workflows', '*'], catalog: 'workflow' }];
+const keptIn = { kept_in: { database: 'made_up_for_who_runs_it' } };
+
+test('exists: each value is looked up by its catalog\'s reader, in the database the row was kept in', async () => {
+  for (const [answer, failed] of [
+    [{ workflows: ['workflow:made-up-a', 'workflow:made-up-b'] }, []],
+    [{ workflows: ['workflow:made-up-a', 'workflow:made-up-z'] }, ['Each workflow exists']],
+    [{ workflows: [] }, []],
+  ]) {
+    const run = await judged(exists, keptIn, answer, hostFor(answer));
+    assert.equal(run.status, failed.length ? 'failed' : 'completed', `${JSON.stringify(answer)}: ${run.error_message ?? ''}`);
+    assert.deepEqual(failing(run.error_message, exists), failed);
+  }
+  assert.ok(asked.length && asked.every(call => call.name === 'tool:run-sql-in-my-database' && call.database === 'made_up_for_who_runs_it'));
+  const run = await judged(exists, keptIn, { workflows: ['workflow:made-up-z'] }, hostFor({ workflows: ['workflow:made-up-z'] }));
+  assert.match(run.error_message, /Each workflow exists \("workflow:made-up-z"\)/);
+});
+
+test('exists: a reader that fails counts its value as not found', async () => {
+  const answer = { workflows: ['workflow:made-up-a'] };
+  const run = await judged(exists, keptIn, answer, hostFor(answer, () => { throw new Error('the database is not reachable'); }));
+  assert.equal(run.status, 'failed');
+  assert.match(run.error_message, /Each workflow exists \("workflow:made-up-a"\)/);
+});
+
+test('a catalog with no reader yet is read at its address, as before readers', async () => {
+  const rows = { 'list-row': { 'drafts/one': {} } };
+  const check = [{ kind: 'exists', says: 'Each draft is a row', path: ['this', 'rows', '*'], catalog: 'list-row' }];
+  const byAddress = answer => ({ ...hostFor(answer), read: async from => {
+    const { catalog, id } = JSON.parse(from);
+    if (!rows[catalog]?.[id]) throw new Error(`no ${catalog} ${id}`);
+    return new TextEncoder().encode(JSON.stringify(rows[catalog][id]));
+  } });
+  const held = await judged(check, {}, { rows: ['drafts/one'] }, byAddress({ rows: ['drafts/one'] }));
+  assert.equal(held.status, 'completed', held.error_message ?? '');
+  const missing = await judged(check, {}, { rows: ['drafts/one', 'drafts/two'] }, byAddress({ rows: ['drafts/one', 'drafts/two'] }));
+  assert.match(missing.error_message, /Each draft is a row \("drafts\/two"\)/);
+});
+
+// Lane jobs look things up by address: a host answers each read ({"catalog", "id"} → the thing, or a refusal).
 const known = { tool: { 'tool:made-up-a': {}, 'tool:made-up-b': {} }, 'ran-job': { 'job-north': { taker: 'ai:one' }, 'job-south': { taker: 'ai:two' }, 'job-east': { taker: 'ai:one' } } };
 const host = { read: async from => {
   const { catalog, id } = JSON.parse(from);
@@ -68,8 +127,6 @@ const host = { read: async from => {
 } };
 const laneJobs = { kind: 'lane-jobs', says: 'Each lane ran its own job', path: ['this', 'lanes', '*'], lane: 'lane', job: 'job', prefix: 'job-', lanes: ['north', 'south'] };
 const lookups = [
-  ['exists', [{ kind: 'exists', says: 'Each tool exists', path: ['this', 'tools', '*'], catalog: 'tool' }],
-    [[{ tools: ['tool:made-up-a', 'tool:made-up-b'] }, []], [{ tools: ['tool:made-up-a', 'tool:made-up-z'] }, ['Each tool exists']], [{ tools: [] }, []]]],
   ['lane-jobs', [laneJobs],
     [[{ lanes: [{ lane: 'north', job: 'job-north' }, { lane: 'south', job: 'job-south' }] }, []],
      [{ lanes: [{ lane: 'north', job: 'job-north' }] }, ['Each lane ran its own job']],
