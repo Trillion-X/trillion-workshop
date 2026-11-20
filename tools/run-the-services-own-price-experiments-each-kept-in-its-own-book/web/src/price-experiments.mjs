@@ -206,6 +206,21 @@ const ruled = work => {
   try { return work(); } catch (error) { throw error instanceof PriceRuleError ? new PriceExperimentError(error.message) : error; }
 };
 
+/** The DATA rule naming `id`. The whole list is checked first, as a published list is: every row is an object naming one
+ *  distinct experiment (trimmed) and its rule must clean, so one malformed or duplicated row refuses the list. */
+function suppliedRuleFor(supplied, id) {
+  const named = new Set();
+  let found;
+  for (const row of supplied) {
+    const applies = object(row) && typeof row.applies_to === 'string' ? row.applies_to.trim() : '';
+    if (!applies || named.has(applies)) throw new PriceExperimentError('Default price rules need a list of distinct experiment ids and valid price rules.');
+    named.add(applies);
+    const rule = ruled(() => cleanRule(row.rule));
+    if (applies === id) found = rule;
+  }
+  return found;
+}
+
 /** What an experiment's arms did, in the counts a price rule reads: per price the people shown it and the people who
  *  paid, the totals, and the price of the leading arm. */
 function ruleFacts(results) {
@@ -253,8 +268,7 @@ export function makePriceExperiments({ store, recordEvent, eventsOf, offers = as
     const own = read(experiment.id).rule;
     if (own) return own;
     if (!Array.isArray(supplied)) throw new PriceExperimentError('Default price rules must be a list.');
-    const rule = supplied.find(row => row?.applies_to === experiment.id)?.rule;
-    return rule && ruled(() => cleanRule(rule));
+    return suppliedRuleFor(supplied, experiment.id);
   };
   const resultsOf = async experiment => experimentResults(experiment, eventsOf(experiment.id), await keptAccounts(experiment), await shownCounted(experiment), await checkoutsStarted(experiment));
   async function keep(record) {
