@@ -8,12 +8,8 @@ import { savedAndListedDatabase } from './saved-and-listed-database.mjs';
 // The catalogue's own rows, as the held step read them: every row must save and publish with the current owners.
 const catalogue = JSON.parse(readFileSync(new URL('../../show-my-screens-from-a-catalogue-of-reads-and-layouts/records/marketplace-screens.json', import.meta.url), 'utf8')).tools;
 
-// The catalogue facts the publish guards need (the rows name licence:maker-own and placement:this-account).
-const facts = {
-  host: 'host:test', hostVersion: '2026.11.20',
-  licences: { 'licence:maker-own': { id: 'licence:maker-own', label: 'Maker-owned', allowed_placements: ['placement:this-account'] } },
-  placements: { 'placement:this-account': { id: 'placement:this-account', executor: 'container', reachable_from: ['host:test'] } },
-};
+// The host version the host-version guard reads (the catalogue rows name no minimum, so it is not checked for them).
+const facts = { hostVersion: '2026.11.20' };
 
 const codeTool = {
   kind: 'ai-tool-descriptor', id: 'tool:echo-test', job: 'Echo the input text back',

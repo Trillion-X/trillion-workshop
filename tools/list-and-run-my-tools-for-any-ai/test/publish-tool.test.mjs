@@ -12,12 +12,8 @@ const descriptor = {
   licence_class: 'licence:maker-own', placements: ['placement:this-account'],
 };
 const files = Buffer.from('print(1)');
-// The catalogue facts the guards need: the licence class, its placements, and the host publishing (its version and id).
-const place = {
-  host: 'host:test', host_version: '2026.11.20',
-  licences: { 'licence:maker-own': { id: 'licence:maker-own', label: 'Maker-owned', allowed_placements: ['placement:this-account'] } },
-  placements: { 'placement:this-account': { id: 'placement:this-account', executor: 'container', reachable_from: ['host:test'] } },
-};
+// The host version the host-version guard reads (the release check runs only for a tool that names a minimum).
+const place = { host_version: '2026.11.20' };
 
 // A stand-in for the database: the saved row and the listing row, answering the statements the port runs.
 const fakeDatabase = ({ saved = [{ id: 'tool:echo-test', descriptor, fingerprint: '1f:aa', files }], listings = [] } = {}) => {
