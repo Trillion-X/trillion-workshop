@@ -4,7 +4,7 @@
 //   One row's media as a screen module: the row named by the screen's input is read through the records door, and the media
 //   field it names is shown. A sound or video plays in the shared player with its captions, and the transcript reader beside
 //   it follows the playback word by word and seeks on a word click, when the row holds timed text in the field the input names.
-//   Anything else (a PDF, a text file, any other file) opens in the shared file preview. The row's body field shows beneath.
+//   Anything else (a PDF, a text file, any other file) opens in the shared file preview. The row's body field shows beneath, read as markdown by the shared MarkdownWords.
 //   A file the input gives directly is shown the same way, with no row read. The single export, `mount(element, props)`, is
 //   the contract of the module kind (web/src/workspace/tool-screen.tsx). The fields are the input's, never a fixed name here.
 //   The screen fills its pane and draws no frame of its own, as the other workspace screens do (file-screen.tsx): the pane's
@@ -27,6 +27,7 @@ import { MediaPlaybackSurface, type MediaPlaybackSeekRequest } from '../../media
 import { timedTextOf } from '../../media-playback/read-data/kept-timed-text';
 import { TranscriptReaderSurface } from '../../transcript-reader/show/TranscriptReaderSurface';
 import { Spinner } from '../../ui/show/spinner';
+import { MarkdownWords } from '../../ui/show/markdown-block/MarkdownWords';
 import { readRecord } from '#workspace/records-door';
 import { bodyOf, filesOf, mediaOf, sourceOf } from './row-media.mjs';
 
@@ -123,7 +124,7 @@ function RowMedia({ input }: { input: RowMediaInput }) {
               )}
             </Container>
           ))}
-          {body ? <Text variant="body" color="secondary">{body}</Text> : null}
+          {body ? <MarkdownWords words={body} /> : null}
           {!loading && !failed && !source && !body ? <Text variant="body" color="secondary">Nothing to show yet.</Text> : null}
         </Container>
         {withTranscript ? (
