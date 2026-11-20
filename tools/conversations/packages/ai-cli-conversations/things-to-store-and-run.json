@@ -150,9 +150,9 @@
                   "script_address": "package::gemini-logs-decoder::stored-bytes::decode-gemini-logs-script",
                   "module_name": "decode_gemini_logs",
                   "support_module": {
-                    "script_address": "package::transcript-mapper::stored-bytes::bitfield-crypto-python-module",
-                    "module_name": "bitfield_crypto",
-                    "mount_path": "bitfield_crypto.py"
+                    "script_address": "package::ai-cli-conversations::stored-bytes::content-identity-python-module",
+                    "module_name": "content_identity",
+                    "mount_path": "content_identity.py"
                   }
                 },
                 "input_shape": {
@@ -218,9 +218,9 @@
                   "script_address": "package::hermes-session-decoder::stored-bytes::decode-hermes-session-script",
                   "module_name": "decode_hermes_session",
                   "support_module": {
-                    "script_address": "package::transcript-mapper::stored-bytes::bitfield-crypto-python-module",
-                    "module_name": "bitfield_crypto",
-                    "mount_path": "bitfield_crypto.py"
+                    "script_address": "package::ai-cli-conversations::stored-bytes::content-identity-python-module",
+                    "module_name": "content_identity",
+                    "mount_path": "content_identity.py"
                   }
                 },
                 "provenance": {
@@ -914,6 +914,11 @@
           }
         }
       }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "content-identity-python-module",
+      "source_path": "../../read-data/content_identity.py"
     }
   ]
 }
