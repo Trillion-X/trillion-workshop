@@ -13,20 +13,26 @@
           "additionalProperties": false,
           "required": [
             "database",
-            "id",
+            "a",
+            "b",
             "from",
             "to"
           ],
           "properties": {
+            "a": {
+              "type": "string",
+              "minLength": 1,
+              "description": "One person in the introduction (their network address)."
+            },
+            "b": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The other person in the introduction (their network address)."
+            },
             "database": {
               "type": "string",
               "minLength": 1,
               "description": "The name of the person's database, such as shop_for_who_runs_it. The computer opens it with the login its vault holds as that name and -connection."
-            },
-            "id": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The introduction's id."
             },
             "from": {
               "type": "string",
@@ -331,6 +337,13 @@
                   "src/your-records.mjs"
                 ],
                 "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "network-people",
+                "paths": [
+                  "read-data/profile-rows.mjs"
+                ],
+                "at": "/opt/network-people"
               }
             ]
           },

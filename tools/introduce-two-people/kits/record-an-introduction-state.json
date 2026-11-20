@@ -26,7 +26,8 @@
             "tool": "tool:record-an-introduction-state",
             "input": {
               "database": "shop_for_who_runs_it",
-              "id": "intro-1",
+              "a": "person:gate-test",
+              "b": "person:gate-test-two",
               "from": "proposed",
               "to": "sent",
               "consent": "<the consent as it was shown>",
