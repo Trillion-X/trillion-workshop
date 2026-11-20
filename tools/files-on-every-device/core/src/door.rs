@@ -34,8 +34,6 @@ pub fn message(contract: &Contract, request: u64, key: &str, target: &Target, op
             Some(Value::from(request))
         } else if slot == slots.request_key {
             Some(Value::from(key))
-        } else if slot == slots.address {
-            Some(Value::from(target.address.as_str()))
         } else if slot == slots.method {
             Some(Value::from(target.method.as_str()))
         } else if slot == slots.call_input {

@@ -130,7 +130,17 @@ pub enum Command {
     /// replaces it; with none due the core sends none.
     Wake { at_ms: u64 },
     /// Send one request with `content_type` and `accept` as its headers; its body is the command's bytes.
-    Send { request: u64, method: String, url: String, content_type: String, accept: String, bytes: usize },
+    Send {
+        request: u64,
+        method: String,
+        url: String,
+        content_type: String,
+        accept: String,
+        bytes: usize,
+        /// Further headers to send as they are, by name (a raw upload's message, contract.json `call.raw_upload`).
+        #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+        headers: BTreeMap<String, String>,
+    },
     /// Stop waiting for a request that stalled; the core has asked elsewhere.
     Abandon { request: u64 },
     Anchor { demand: u64, anchor: String },

@@ -50,8 +50,9 @@ pub fn operation_of(message: &Value) -> (String, Value) {
         path.iter().fold(value, |value, name| &value[name.as_str()]).clone()
     };
     let body = &contract["call"]["body"];
-    let (address, method, call_input) = (slot(body, message, "address"), slot(body, message, "method"), slot(body, message, "call_input"));
-    assert_eq!((&address, &method), (&contract["files"]["address"], &contract["files"]["method"]));
+    let (method, call_input) = (slot(body, message, "method"), slot(body, message, "call_input"));
+    assert_eq!(&method, &contract["files"]["method"]);
+    assert!(message["params"]["arguments"].get("address").is_none(), "a call names its method, never an address");
     let files = &contract["files"]["input"];
     (slot(files, &call_input, "op").as_str().unwrap().to_owned(), slot(files, &call_input, "input"))
 }
@@ -323,7 +324,9 @@ impl Store {
             }
             "write_file_piece" => {
                 let id = text("upload_id").unwrap();
-                let bytes = BASE64.decode(text("content_base64").unwrap()).unwrap();
+                // The piece came raw: the door handed its body over as the content file (here, its bytes as base64).
+                let given = input["content_file"]["base64"].as_str().map(str::to_owned).or(text("content_base64"));
+                let bytes = BASE64.decode(given.unwrap()).unwrap();
                 let upload = self.uploads.get_mut(&id).unwrap();
                 assert_eq!(upload.0, text("name").unwrap(), "a piece names its upload's name");
                 let offset = number("offset").unwrap() as usize;
@@ -577,9 +580,23 @@ impl World {
     fn drain(&mut self) {
         while let Some((command, bytes)) = self.core.next_command() {
             match &command {
-                Command::Send { request, url, .. } => {
+                Command::Send { request, url, content_type, headers, .. } => {
                     assert!(url.starts_with(&origin()), "every request goes to this computer's door: {url}");
-                    let (operation, input) = operation_of(&serde_json::from_slice(&bytes).unwrap());
+                    // A raw upload, as the door takes it (the engine's src/mcp/upload.rs): the message rides in the contract's
+                    // header, base64url, and the body is the piece, which the door hands to the session as its content file.
+                    let upload = &contract_value()["call"]["raw_upload"];
+                    let raw = content_type == upload["content_type"].as_str().unwrap();
+                    let message = if raw {
+                        let header = headers.get(upload["header"].as_str().unwrap()).expect("a raw upload carries its message in the header");
+                        serde_json::from_slice(&base64::engine::general_purpose::URL_SAFE_NO_PAD.decode(header).unwrap()).unwrap()
+                    } else {
+                        serde_json::from_slice(&bytes).unwrap()
+                    };
+                    let (operation, mut input) = operation_of(&message);
+                    if raw {
+                        assert!(input.get("content_base64").is_none(), "a raw piece's bytes are its body alone");
+                        input["content_file"] = json!({"length": bytes.len(), "base64": BASE64.encode(&bytes)});
+                    }
                     self.sends.push((*request, operation.clone(), input.clone()));
                     if operation == "read_file_span" {
                         self.span_bytes_asked += input["length"].as_u64().unwrap();

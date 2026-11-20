@@ -17,7 +17,7 @@
 
 use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 
-use base64::engine::general_purpose::STANDARD as BASE64;
+use base64::engine::general_purpose::{STANDARD as BASE64, URL_SAFE_NO_PAD};
 use base64::Engine as _;
 use serde_json::{json, Map, Value};
 
@@ -67,6 +67,9 @@ struct Pending {
     sent_ms: u64,
     deadline_ms: Option<u64>,
     retry_at_ms: Option<u64>,
+    /// The bytes the call carries as its body (a piece sent raw, contract.json `call.raw_upload`), kept so a retry sends
+    /// them again.
+    raw: Option<Vec<u8>>,
 }
 
 #[derive(Default)]
@@ -392,6 +395,25 @@ impl Core {
             sent_ms: self.now_ms,
             deadline_ms: None,
             retry_at_ms: None,
+            raw: None,
+        });
+    }
+
+    /// `request`, with `bytes` as the call's body and its message in the contract's header (`call.raw_upload`).
+    fn request_raw(&mut self, purpose: Purpose, job: &str, input: Map<String, Value>, bytes: Vec<u8>) {
+        let Some(op) = self.contract.operation(job).map(str::to_owned) else {
+            self.failed(purpose, Problem::NotOffered);
+            return;
+        };
+        self.send(Pending {
+            purpose,
+            op,
+            input: Value::Object(input),
+            answer_bytes: 0,
+            sent_ms: self.now_ms,
+            deadline_ms: None,
+            retry_at_ms: None,
+            raw: Some(bytes),
         });
     }
 
@@ -420,7 +442,7 @@ impl Core {
             asks.push((Purpose::ThisComputer { asked_ms }, String::new()));
         }
         for (purpose, op) in asks {
-            self.send(Pending { purpose, op, input: Value::Object(Map::new()), answer_bytes: 0, sent_ms: self.now_ms, deadline_ms: None, retry_at_ms: None });
+            self.send(Pending { purpose, op, input: Value::Object(Map::new()), answer_bytes: 0, sent_ms: self.now_ms, deadline_ms: None, retry_at_ms: None, raw: None });
         }
     }
 
@@ -519,13 +541,20 @@ impl Core {
             (_, Some(bounds)) => Some(self.link.deadline_ms(&bounds, self.now_ms, ahead + pending.answer_bytes)),
         };
         let url = format!("{}{}", self.setup.origin.trim_end_matches('/'), self.contract.call.path);
+        // A call that carries bytes sends them as its body, and its message beside them in the contract's header.
+        let (content_type, headers, body) = match (&pending.raw, &self.contract.call.raw_upload) {
+            (Some(raw), Some(upload)) => (upload.content_type.clone(),
+                BTreeMap::from([(upload.header.clone(), URL_SAFE_NO_PAD.encode(&body))]), raw.clone()),
+            _ => (self.contract.call.content_type.clone(), BTreeMap::new(), body),
+        };
         let command = Command::Send {
             request,
             method: self.contract.call.method.clone(),
             url,
-            content_type: self.contract.call.content_type.clone(),
+            content_type,
             accept: self.contract.call.accept.clone(),
             bytes: body.len(),
+            headers,
         };
         self.pending.insert(request, pending);
         self.emit_bytes(command, body);
@@ -1210,8 +1239,12 @@ impl Core {
         input.insert(contract.field("upload_id").into(), json!(upload.upload_id));
         input.insert(contract.field("upload_name").into(), json!(upload.name));
         input.insert(contract.field("piece_offset").into(), json!(offset));
-        input.insert(contract.field("piece_content").into(), json!(BASE64.encode(bytes)));
         let end = offset + bytes.len() as u64;
+        if contract.call.raw_upload.is_some() {
+            // The piece is the call's body; the door hands it to the session as its content.
+            return self.request_raw(Purpose::Work { demand, stage: Stage::UploadPiece { end } }, "upload_piece", input, bytes.to_vec());
+        }
+        input.insert(contract.field("piece_content").into(), json!(BASE64.encode(bytes)));
         self.request(Purpose::Work { demand, stage: Stage::UploadPiece { end } }, "upload_piece", input);
     }
 

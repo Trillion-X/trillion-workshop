@@ -57,7 +57,7 @@ Every rule a native folder of the person's files needs, written once for every O
 ## Open
 
 - The read rate on the real store is not measured yet: tests/real_store.rs is the measurement. live-namespace now reads a window's pieces together (af2aa7711, b44a25b35); the core also keeps many reads in flight.
-- A span crosses the door raw and streamed (contract.json `raw`), up to the store's `span_most` a read. An upload piece still crosses as base64 inside JSON (write_file_piece `content_base64`): the contract has no raw upload yet.
+- A span crosses the door raw and streamed (contract.json `raw`), up to the store's `span_most` a read. An upload piece crosses raw too (contract.json `call.raw_upload`): the `send` command's body is the piece and its `headers` carry the door's message (`x-call`, base64url), which the door spools and hands to the files session as the piece's content; a piece inside the message as base64 could be only a few tens of KiB, since the session reads one bounded message a line.
 
 ## Dependencies
 

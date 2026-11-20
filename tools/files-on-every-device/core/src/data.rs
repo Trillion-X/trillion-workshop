@@ -22,6 +22,19 @@ pub struct Call {
     pub accept: String,
     pub body: Value,
     pub slots: Slots,
+    /// How a call that carries bytes (an upload's piece) travels: the bytes are the request's body, sent as `content_type`,
+    /// and the door's message rides beside them in the header `header`, base64url (the engine's src/mcp/upload.rs; the
+    /// door spools the body and hands it to the files session as the piece's `content_file`). Absent: the bytes go inside
+    /// the message as base64 (`piece_content`), which a session reading one bounded message a line can take only when small.
+    #[serde(default)]
+    pub raw_upload: Option<RawUpload>,
+}
+
+/// The headers of a call whose body is its bytes (`Call::raw_upload`).
+#[derive(Deserialize, Debug)]
+pub struct RawUpload {
+    pub content_type: String,
+    pub header: String,
 }
 
 /// The values of `Call::body` (and of a target's `input`) the core fills.
@@ -29,18 +42,16 @@ pub struct Call {
 pub struct Slots {
     pub request: String,
     pub request_key: String,
-    pub address: String,
     pub method: String,
     pub call_input: String,
     pub op: String,
     pub input: String,
 }
 
-/// What a call reaches at the door: an address, a method and the input it takes, with `op` and `input` slots, and the
-/// envelope of its own reply.
+/// What a call reaches at the door: the method and the input it takes, with `op` and `input` slots, and the envelope of
+/// its own reply. A call names its method, never an address: the door finds the method's owner (door plan D1.3).
 #[derive(Deserialize, Debug)]
 pub struct Target {
-    pub address: String,
     pub method: String,
     pub input: Value,
     /// Where the result inside the door's is, when the target's own reply wraps it.
