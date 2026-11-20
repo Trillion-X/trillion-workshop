@@ -41,9 +41,12 @@ if [ ! -x "$at/$program" ]; then
   runuser -u "$user" -- sh -c 'git -C "$0" archive --format=tar "$1" | tar -x -C "$2"' "$copy" "$commit" "$tree"
   words=$(printf '%s' "$SOURCE" | jq -r '[.environment[], .build[]] | map(@sh) | join(" ")')
   eval "set -- $words"
-  # The build's output is kept in a log beside the builds; a failed build names its first error and that log.
+  # The build's output is kept in a log beside the builds; a failed build names its first error and that log. The build is the
+  # first the kernel ends when memory runs out (oom_score_adj 1000, which its compilers inherit), never a unit that serves: on a
+  # 3.8 GB computer with no swap a build ended the running engine at 3:40:48 AM CST Nov 20 2026. Ended so, the build fails here
+  # and the slot that serves keeps serving.
   log="$builds/build-$commit.log"
-  if ! runuser -u "$user" -- sh -c 'cd "$0" && exec env "$@"' "$tree" "$@" > "$log" 2>&1; then
+  if ! runuser -u "$user" -- sh -c 'echo 1000 > /proc/self/oom_score_adj; cd "$0" && exec env "$@"' "$tree" "$@" > "$log" 2>&1; then
     grep -m1 -A1 '^error' "$log" >&2 || true
     echo "The build of $commit failed; its whole output is $log on this computer." >&2
     rm -rf "$tree"

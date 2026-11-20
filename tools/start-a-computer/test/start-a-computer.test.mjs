@@ -416,3 +416,8 @@ test('renting a machine nobody can reach answers its line and waits, with no SSH
   assert.deepEqual(commands, []);
 });
 
+
+test('a build on the computer is the first the kernel ends when memory runs out, never a unit that serves', () => {
+  const script = readFileSync(new URL('../do-work/build-from-source.sh', import.meta.url), 'utf8');
+  assert.match(script, /runuser -u "\$user" -- sh -c 'echo 1000 > \/proc\/self\/oom_score_adj; cd "\$0" && exec env "\$@"'/);
+});
