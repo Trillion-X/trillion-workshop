@@ -743,7 +743,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": false,
+          "internet": true,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -1753,7 +1753,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": false,
+          "internet": true,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -2598,7 +2598,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": false,
+          "internet": true,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -3394,7 +3394,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": false,
+          "internet": true,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -4505,7 +4505,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": false,
+          "internet": true,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -5628,7 +5628,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": false,
+          "internet": true,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -6581,7 +6581,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": false,
+          "internet": true,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -8397,7 +8397,7 @@
             ]
           },
           "workdir": "/opt/decide-with-a-method",
-          "internet": false,
+          "internet": true,
           "stdout": "json",
           "argv": [
             "node",
@@ -8921,7 +8921,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": false,
+          "internet": true,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -11090,7 +11090,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": false,
+          "internet": true,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -11791,7 +11791,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": false,
+          "internet": true,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
@@ -13591,7 +13591,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": false,
+          "internet": true,
           "workdir": "/opt/decide-with-a-method",
           "stdout": "json",
           "argv": [
