@@ -28384,6 +28384,16 @@
  ],
  "tool:predict-viewer-response-to-a-video": [],
  "tool:premix-a-motion-films-soundtrack": [],
+ "tool:prepare-a-match-pick-record": [
+  {
+   "package": "match-picks",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/match-picks"
+  }
+ ],
  "tool:prepare-a-match-plan": [
   {
    "package": "opponent-game-plan",

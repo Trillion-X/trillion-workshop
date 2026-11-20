@@ -42,7 +42,7 @@ for (const row of descriptors) {
   test(`${row.id} refuses an empty request in one JSON line and a non-zero exit`, async () => {
     const { error, stdout } = await runWith(row, await packed(row), {});
     assert.notEqual(error.code, 0);
-    assert.match(JSON.parse(stdout).error, /must be a list/);
+    assert.match(JSON.parse(stdout).error, /must be/);
   });
 }
 

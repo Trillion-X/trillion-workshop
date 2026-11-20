@@ -11,8 +11,11 @@ Shows how a community picked the winner of each match, the result, and how one p
 | `read-data/pick-copy.mjs` | Finds the person's banned terms in texts; the list arrives with the request. |
 | `do-work/check-pick-copy.mjs` | The command of `tool:check-pick-copy`: `{ texts, banned_terms }` in, `{ passed, findings }` out. |
 | `do-work/tally-match-picks.mjs` | The command of `tool:tally-match-picks`: `{ rows, picker_id? }` in, `{ matches, history? }` out. |
+| `read-data/pick-records.mjs` | The three records a pick is made of (`pick-match`, `match-pick`, `match-pick-result`) built from a request: trimmed, required fields checked, at least two choices with their own ids, a new id and the time, and the person's banned words refused. The old package's three builders, with the person's list in place of the shipped one. |
+| `do-work/prepare-match-pick-record.mjs` | The command of `tool:prepare-a-match-pick-record`: `{ what: prompt \| pick \| result, ...fields, banned_terms?, now? }` in, `{ id, record }` out. Writes nothing; the caller keeps the record in the person's store. |
 | `tool-rows.json` | The tool row. |
 | `part.json` | No module here is offered to other tools. |
+| `test/pick-records.test.mjs` | The three records built and trimmed, refusals (missing field, one choice, a choice id twice, banned wording, bad `what` or `now`), records read back by the tally, and the command. |
 | `test/pick-copy.test.mjs` | The banned terms: letter case, phrases across white space, punctuation, refusals. Made-up terms. |
 | `test/match-picks.test.mjs` | The split and rounding, an empty match, results (the latest counts), right and wrong in the history, a changed pick, ordering, records of other kinds ignored, the command. Made-up matches and pickers. |
 | `test/match-picks-rows.test.mjs` | The row run from a folder holding only the files it packs, against its sample, and its refusal. |
@@ -35,7 +38,7 @@ Shows how a community picked the winner of each match, the result, and how one p
 
 **Depends on:** Node 24 in the tool container.
 
-**Carried unwired, in the last section:** the builders for a prompt, a pick and a result (each wraps one record and submits it to the old workflow slot) and the screens, as the package's own files. **Not carried:** the copy guard's word list; `tool:check-pick-copy` takes it as the request's `banned_terms`, and the package's guard (`do-work/regulated-money-copy-guard.ts`) is carried as written.
+**Carried unwired, in the last section:** the package's own builders for a prompt, a pick and a result (each wraps one record and submits it to the old workflow slot) and the screens. The builders' job is done by `tool:prepare-a-match-pick-record`, which does not submit anything. **Not carried:** the copy guard's word list; `tool:check-pick-copy` takes it as the request's `banned_terms`, and the package's guard (`do-work/regulated-money-copy-guard.ts`) is carried as written.
 
 **Depended on by:** Trillion, which reads `tool-rows.json` when it deploys.
 

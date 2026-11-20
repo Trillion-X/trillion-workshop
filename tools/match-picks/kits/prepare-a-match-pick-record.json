@@ -1,0 +1,53 @@
+{
+  "drafted_from": "tool:prepare-a-match-pick-record's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make the record for a free match pick prompt (a label and two or more choices), one person's pick, or a match's result, checked and trimmed, with a new id and the time, ready to keep\", with {\"what\":\"prompt\",\"matchId\":\"pick-match:sample\",\"label\":\"Alder vs Birch\",\"choices\":[{\"choiceId\":\"c:alder\",\"label\":\"Alder\"},{\"choiceId\":\"c:birch\",\"label\":\"Birch\"}],\"banned_terms\":[\"zorp\"],\"now\":\"2026-06-20T12:00:00Z\"}. It runs tool:prepare-a-match-pick-record and answers {\"id\":\"pick-match:sample\",\"record\":{\"kind\":\"pick-match\",\"matchId\":\"pick-match:sample\",\"label\":\"Alder vs Birch\",\"choices\":[{\"choiceId\":\"c:alder\",\"label\":\"Alder\"},{\"choiceId\":\"c:birch\",\"label\":\"Birch\"}],\"status\":\"open\"}}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:prepare-a-match-pick-record",
+    "tool:tally-match-picks"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Make the record for a free match pick prompt (a label and two or more choices), one person's pick, or a match's result, checked and trimmed, with a new id and the time, ready to keep\", and give it what (prompt, pick or result) and that record's fields.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:prepare-a-match-pick-record and its input (the worked example shows one).",
+    "3. Read what comes back: the record to keep (id and record). Nothing is written by this tool: keep the record in your own store."
+  ],
+  "worked_examples": [
+    {
+      "title": "Prepare a match pick prompt on its own sample",
+      "ask": "Make the record for a free match pick prompt (a label and two or more choices), one person's pick, or a match's result, checked and trimmed, with a new id and the time, ready to keep",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:prepare-a-match-pick-record",
+            "input": {
+              "what": "prompt",
+              "matchId": "pick-match:sample",
+              "label": "Alder vs Birch",
+              "choices": [
+                {
+                  "choiceId": "c:alder",
+                  "label": "Alder"
+                },
+                {
+                  "choiceId": "c:birch",
+                  "label": "Birch"
+                }
+              ],
+              "banned_terms": [
+                "zorp"
+              ],
+              "now": "2026-06-20T12:00:00Z"
+            }
+          }
+        }
+      },
+      "given": "The input {\"what\":\"prompt\",\"matchId\":\"pick-match:sample\",\"label\":\"Alder vs Birch\",\"choices\":[{\"choiceId\":\"c:alder\",\"label\":\"Alder\"},{\"choiceId\":\"c:birch\",\"label\":\"Birch\"}],\"banned_terms\":[\"zorp\"],\"now\":\"2026-06-20T12:00:00Z\"}.",
+      "hands_back": "It answered {\"id\":\"pick-match:sample\",\"record\":{\"kind\":\"pick-match\",\"matchId\":\"pick-match:sample\",\"label\":\"Alder vs Birch\",\"choices\":[{\"choiceId\":\"c:alder\",\"label\":\"Alder\"},{\"choiceId\":\"c:birch\",\"label\":\"Birch\"}],\"status\":\"open\"}}."
+    }
+  ]
+}

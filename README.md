@@ -31,7 +31,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 ## The tools
 
 <!-- tool-catalogue:start -->
-Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1463 tools in 316 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
+Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1464 tools in 316 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
 
 | Folder | Tools |
 |---|---|
@@ -183,7 +183,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `make-a-lut-for-log-footage` | `tool:make-a-lut-for-log-footage` |
 | `make-a-video-playable-at-ingest` | `tool:decide-a-video-at-ingest` |
 | `make-things-feel-good` | `tool:pick-a-small-good-moment` |
-| `match-picks` | `tool:check-pick-copy`, `tool:tally-match-picks` |
+| `match-picks` | `tool:check-pick-copy`, `tool:prepare-a-match-pick-record`, `tool:tally-match-picks` |
 | `match-rows` | `tool:match-rows` |
 | `measure-a-characters-voice-lines-and-staging` | `tool:catalog-a-channels-videos-by-format`, `tool:code-the-comments-that-name-a-character`, `tool:collect-the-comments-that-name-a-character`, `tool:count-a-characters-turns-from-caption-marks`, `tool:count-a-shows-running-jokes-in-its-captions`, `tool:find-high-pitched-stretches-of-a-recording`, `tool:find-when-a-character-speaks`, `tool:list-what-a-character-says`, `tool:measure-how-a-show-stages-a-characters-turns`, `tool:sum-a-characters-time-per-video` |
 | `measure-first-frame` | `tool:measure-first-frame` |
