@@ -57,8 +57,11 @@ setOfferedRows(rowsToolsOffer);
 installScreenRunner(screens, surfaces.address_label);
 await answerTargets();
 const viewer = { access_refs: [] as string[] };
-const startup = readStartupRecords();
-let page = await listed(null);
+// Neither first read may keep the page from drawing: a records read or a tool list that fails (no computer answered
+// within account-door.json most_ms) draws the page with what it has, the screens the build knows and no saved
+// records, and each screen then says for itself what it could not read.
+const startup = readStartupRecords().catch((error: unknown) => { console.warn('first records read failed; drawing without them', error); return {}; });
+let page = await listed(null).catch((error: unknown): Listed => { console.warn('first tool list failed; drawing the screens the build knows', error); return { tools: [], next: null }; });
 const tools: ScreenRow[] = [...(screensToolsOffer as ScreenRow[]), ...screenRows(page)];
 const offered = offeredScreens(viewer, tools);
 await startScreenRecords(offered, await startup);
@@ -69,7 +72,7 @@ document.body.prepend(root);
 const workspace = mountWorkspace(root, offered, { catalogComplete: !page.next });
 keepPersonNotifications();
 while (page.next) {
-  page = await listed(page.next);
+  page = await listed(page.next).catch((): Listed => ({ tools: [], next: null }));
   tools.push(...screenRows(page));
   // The workspace holds this one list: it is changed in place, as the signed-in page does (main.tsx).
   offered.splice(0, offered.length, ...offeredScreens(viewer, tools));
