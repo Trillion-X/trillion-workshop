@@ -11,6 +11,7 @@ import { passkeyClient } from '@better-auth/passkey/client';
 import wordsWithNameGaps from './words.json' with { type: 'json' };
 import rules from './sign-in-rules.json' with { type: 'json' };
 import { authorizeQuery, signedQuery } from './oauth-query.mjs';
+import { safeNext } from './safe-next.mjs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { FormAlert } from '../../ui/show/form-alert/FormAlert.tsx';
@@ -23,7 +24,7 @@ const query = new URLSearchParams(location.search);
 // When an AI's connect opened this page, its signed request rides every page of the sign-in until the person is back at authorize.
 const carried = signedQuery(location.search);
 // Where to go after signing in: a same-origin path only, else the app's front page.
-const next = (() => { const asked = query.get('next') ?? '/'; return asked.startsWith('/') && !asked.startsWith('//') ? asked : '/'; })();
+const next = safeNext(query.get('next'));
 const email = query.get('email') ?? '';
 const go = (path, values = {}) => {
   const url = new URL(path, location.origin);
