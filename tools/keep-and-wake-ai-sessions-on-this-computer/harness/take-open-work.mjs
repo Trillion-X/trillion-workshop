@@ -50,7 +50,7 @@ import { fileURLToPath } from 'node:url';
 import { aiOrder, chosenAi as chosenAiOnThisComputer, computerSettings } from './chosen-ai.mjs';
 import { isOwnWork, takingOrder } from '../src/own-work.mjs';
 import { accountKeyOrNull, accountOrigin } from './account-key.mjs';
-import { runTaskMove, stateOfWord, wordsOfStates } from '../../plan-tasks-and-todo-lists/run-a-task-move.mjs';
+import { runTaskMove, stateOfWord, tasksIn, wordsOfStates } from '../../plan-tasks-and-todo-lists/run-a-task-move.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (whole, name) => (Object.hasOwn(values, name) ? String(values[name]) : whole));
 // The receipt field keeps its name (job_contract): a receipt written before this change keeps its attempt count.
@@ -853,7 +853,7 @@ export function readSettings() {
   const rows = Object.entries(kept('resting.json'));
   const resting = Object.fromEntries(rows.map(([id, row]) => [id, typeof row === 'string' ? row : row?.until]));
   const resting_because = Object.fromEntries(rows.filter(([, row]) => row?.because).map(([id, row]) => [id, row.because]));
-  return { ...settings, use_ai: chosenAiOnThisComputer(), ai_order: aiOrder(), resting, resting_because, trouble: kept('trouble.json') };
+  return { ...settings, tasks_store: computerSettings().tasks_store ?? null, use_ai: chosenAiOnThisComputer(), ai_order: aiOrder(), resting, resting_because, trouble: kept('trouble.json') };
 }
 
 // The worker keeps scheduling/attempt receipts only. The shared task owner (tools/plan-tasks-and-todo-lists) remains the
@@ -866,7 +866,11 @@ export function taskCaller(call, settings, { now = () => new Date(), computer = 
   if (typeof call.resource !== 'function') throw new Error('The task worker needs the addressed resource transport.');
   const workerId = `${rules.ai_kind}:${takerCard(settings, computer).agent_id}`;
   const openStates = wordsOfStates(taskRules.states.filter(state => !state.terminal).map(state => state.key));
-  const operation = (address, method, input, key = randomUUID()) => call.resource(address, method, input, key);
+  // Where the tasks are kept: this computer's settings name the held connection of the database whose tables keep them
+  // (`tasks_store`), else the account's records door keeps them. In tables, this worker's own record is a `user` row.
+  const store = settings.tasks_store ? { credential_name: settings.tasks_store } : null;
+  const operation = tasksIn((address, method, input, key = randomUUID()) => call.resource(address, method, input, key), store);
+  const aiKind = store ? rules.store_ai_kind : rules.ai_kind;
   const kindOf = id => String(id).split(':')[0];
   // The records a task tool names: the task itself, its continuation owner, its assignees, and the consumer a finish checks.
   const readsOf = input => ({ ids: [
@@ -942,9 +946,9 @@ export function taskCaller(call, settings, { now = () => new Date(), computer = 
       const id = body.agent_id;
       const before = await operation('@own-records', 'records:read', { id });
       if (before === undefined) throw new Error('The account did not return the worker AI record.');
-      try { await operation('@own-records', 'records:write', { records: [{ id, type: rules.ai_kind, value: { ...(before ?? {}), kind: before?.kind ?? rules.default_ai_kind,
+      try { await operation('@own-records', 'records:write', { records: [{ id, type: aiKind, value: { ...(before ?? {}), ...(store ? { name: before?.name ?? body.name } : {}), kind: before?.kind ?? rules.default_ai_kind,
         label: before?.label ?? body.name, agent_id: before?.agent_id ?? id.slice(id.indexOf(':') + 1), can: before?.can ?? ['any'], live: { ...(before?.live ?? {}), seen_at: now().toISOString(), minutes: 60 },
-        runs_on: before?.runs_on ?? { device: body.where, place: 'placement:your-computer' }, capacity: body.capacity }, expected: before === null ? null : { type: rules.ai_kind, value: before } }] }); }
+        runs_on: before?.runs_on ?? { device: body.where, place: 'placement:your-computer' }, capacity: body.capacity }, expected: before === null ? null : { type: aiKind, value: before } }] }); }
       catch (error) {
         if (error?.code !== 'original_command_conflict' && !String(error?.message).includes('original_command_conflict')) throw error;
         // Another pass published the same AI card first. Its fresh cells win; claiming still uses the task's conditional write.

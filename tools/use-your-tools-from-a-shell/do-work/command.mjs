@@ -60,7 +60,7 @@ import { localDoorAddress } from './local-door.mjs';
 import { keptFetch, startKeeper } from './keep-the-connection.mjs';
 import settings from './command.json' with { type: 'json' };
 import taskRules from './packs/tools/plan-tasks-and-todo-lists/task-moves.json' with { type: 'json' };
-import { declaredStates, readFor, runTaskMove, statesFrom, stateOfWord, wordsOfStates } from './packs/tools/plan-tasks-and-todo-lists/run-a-task-move.mjs';
+import { declaredStates, readFor, runTaskMove, statesFrom, stateOfWord, tasksIn, wordsOfStates } from './packs/tools/plan-tasks-and-todo-lists/run-a-task-move.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const fill = (template, values) => template.replace(/\{(\w+)\}/g, (whole, name) => (values[name] === undefined ? whole : String(values[name])));
@@ -141,7 +141,7 @@ export const aiIdOf = (id, rules = settings) => (/^[^:\s]+:\S+$/.test(String(id)
 
 // ── Command line ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const VALUE_FLAGS = new Set(['address', 'description', 'title', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'can', 'from', 'taken-by', 'assignee', 'ag-ui', 'since', 'list', 'check-file', 'acceptance-file', 'input']);
+const VALUE_FLAGS = new Set(['address', 'description', 'title', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'can', 'from', 'taken-by', 'assignee', 'ag-ui', 'since', 'list', 'check-file', 'acceptance-file', 'input', 'store']);
 // A flag given more than once keeps every value, in order (`--to A --to B`); the others keep the last.
 const MULTI_FLAGS = new Set(['to', 'can']);
 
@@ -269,8 +269,18 @@ const priorityOf = word => {
 };
 
 /** The addressed transport run-a-task-move.mjs expects, `resource(address, method, input, key)`: each call answered whole. */
-export const resourceOf = (client, { rules = settings } = {}) => (address, method, input, key) =>
-  opWhole(client, address, method, input, { requestKey: key ?? randomUUID(), rules });
+export const resourceOf = (client, { rules = settings, store = null } = {}) => tasksIn((address, method, input, key) =>
+  opWhole(client, address, method, input, { requestKey: key ?? randomUUID(), rules }), store);
+/** The database whose tables keep this person's tasks (command.json `tasks.store`): the held connection name given with
+ *  --store, kept for the next command, or the one kept before; null when none was ever given (the records door keeps them). */
+function tasksStoreOf(context, rules = settings) {
+  const given = context.flags?.[rules.tasks.store.flag];
+  if (typeof given === 'string' && given) { context.state.keepTasksStore?.(given); return { credential_name: given }; }
+  const kept = context.state.tasksStore?.();
+  return kept ? { credential_name: kept } : null;
+}
+/** The record types who-can-take reads: the store's when the tasks are kept in tables. */
+const whoTypes = (store, rules = settings) => (store ? rules.tasks.store.who_types : rules.tasks.who_types);
 
 /** Runs one Workshop tool by its id with `input` at the door: tools:run, answered whole. Answers the tool's own answer. */
 export async function toolCall(client, tool, input, { idempotent = false, rules = settings } = {}) {
@@ -1157,6 +1167,8 @@ export function stateOf({ rules = settings, home = homedir() } = {}) {
     connection: () => read(rules.connection.file),
     keepConnection: value => write(rules.connection.file, value),
     forgetConnection: () => rmSync(path(rules.connection.file), { force: true }),
+    tasksStore: () => { const name = read(rules.tasks.store.file)?.credential_name; return typeof name === 'string' && name ? name : null; },
+    keepTasksStore: name => write(rules.tasks.store.file, { credential_name: name }),
     madeKey: () => read(rules.made_key_file),
     keepMade: value => write(rules.made_key_file, value),
     forgetMade: () => rmSync(path(rules.made_key_file), { force: true }),
@@ -1354,7 +1366,8 @@ export function runTask(command, task, { rules = settings, me, spawnImpl = spawn
  *  it back when the command failed, each with the task row that makes that move. A move another AI made first is logged,
  *  never retried. */
 export async function serveOnce({ client, me, command, state, rules = settings, log, runImpl = runTask, refresh = async () => {} }) {
-  const resource = resourceOf(client, { rules });
+  const tasksStore = state.tasksStore?.();
+  const resource = resourceOf(client, { rules, store: tasksStore ? { credential_name: tasksStore } : null });
   const took = await runTaskMove(resource, { tool: rules.tasks.tools.take, input: { as: me.ai_id }, read: takeReads(me) });
   const task = took.result?.taken;
   if (!object(task)) return false;
@@ -1430,6 +1443,7 @@ const HELP = `{cli}: see your AIs and their tasks, and run your {site_name}'s to
   ${basename(settings.install.link)} records replay-from-transcripts --since TIME            list the rows this computer's AIs wrote, to keep in your own store (writes nothing)
 
   Tasks (a task is one calendar-task record; its assignees are the record ids that may do it: a person, an AI, anything with a record; none means anyone):
+  {cli} TASK-COMMAND ... --store NAME                 the tasks are rows of your own database's tables: NAME is the connection you saved for it (kept for the next command)
   {cli} tasks [ID] [--status S] [--from ID] [--taken-by ID] [--assignee ID] [--limit N]   the newest tasks that match, or one with its result
   {cli} give WORDS [--to ID]... [--title T] [--priority urgent|high|medium|low] [--outcome TEXT] [--key K] [--wait SECONDS]   give a task (--to: who may take it; repeat for more)
   {cli} take [ID] [--only-mine]                       take the oldest task you may take (or that one)
@@ -1736,7 +1750,9 @@ export function keptConnection({ rules = settings, home = homedir() } = {}) {
 async function taskCommand(client, context, { command, call, flags, requestKey, stdinBytes, stdout, print }) {
   const { tools, holder_commands: holders } = settings.tasks;
   const { me, state } = context;
-  const resource = resourceOf(client);
+  const store = tasksStoreOf(context);
+  const resource = resourceOf(client, { store });
+  if (call.call === 'who') call.read.types = whoTypes(store);
   const shownOf = found => (found ? { id: found.id, ...found.value } : null);
   const withoutKeep = answer => { const { keep: _keep, ...rest } = answer; return rest; };
   const readOne = async id => shownOf((await readFor(resource, { ids: [taskRef(id)] }))[0] ?? null);
@@ -1897,7 +1913,8 @@ export async function main(argv, seams = {}) {
     const now = Date.now();
     const { account } = await client.whoami();
     // Who may take work: the records of who_types, handed in with the tasks held now, so each one's busy count is read too.
-    const { result } = await runTaskMove(resourceOf(client), { tool: settings.who.tool, input: {}, read: { types: settings.tasks.who_types, tasks: { statuses: wordsOfStates([takenState]) } } });
+    const store = tasksStoreOf(context);
+    const { result } = await runTaskMove(resourceOf(client, { store }), { tool: settings.who.tool, input: {}, read: { types: whoTypes(store), tasks: { statuses: wordsOfStates([takenState]) } } });
     const rows = result?.who ?? [];
     const recent = row => flags.all === true || aiOf(row, { now }).recent;
     const shown = rows.filter(recent);

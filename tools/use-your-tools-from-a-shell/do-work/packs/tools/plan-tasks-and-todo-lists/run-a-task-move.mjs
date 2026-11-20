@@ -53,6 +53,90 @@ export async function readFor(resource, read = {}, { rules = RULES } = {}) {
   return [...held.values()];
 }
 
+// A store that keeps records as rows of tables (the runs-it database of whatever the work is for), as the same
+// addressed transport runTaskMove reads and writes through: records:list, records:read and records:write over the tables
+// `rows_in_tables` names, by one SQL statement each through `runSql(sql, params) -> rows`; any other operation goes to
+// `rest` (the caller's own transport, for tools:run). A record's value is its row's named columns and the fields of
+// its `rest` column. A write is one statement conditioned on the row as it was read (a new record only where none has its
+// id), so of two writers of one row only the first changes it; a refused write is the conflict runTaskMove reads again on.
+const NAME = /^[a-z_][a-z0-9_]*$/;
+const named = name => { if (!NAME.test(name)) throw new Error(`"${name}" is not a plain table or column name.`); return name; };
+const changedError = () => Object.assign(new Error('original_command_conflict: the row changed since it was read.'), { code: 'original_command_conflict' });
+
+export function recordsInTables(runSql, { rest, rules = RULES } = {}) {
+  const tables = new Map(rules.rows_in_tables.tables.map(table => {
+    for (const column of [table.table, table.rest, ...table.columns]) named(column);
+    return [table.type, table];
+  }));
+  const valueOf = (table, row) => {
+    const value = { ...(row[table.rest] ?? {}) };
+    for (const column of table.columns) if (row[column] !== null && row[column] !== undefined) value[column] = row[column];
+    return value;
+  };
+  // The row a value is kept as: each named column (null when the value has no such field) and the rest of its fields.
+  const rowOf = (table, value) => {
+    const row = { [table.rest]: {} };
+    for (const column of table.columns) row[column] = value?.[column] ?? null;
+    for (const [field, cell] of Object.entries(value ?? {})) if (!table.columns.includes(field)) row[table.rest][field] = cell;
+    return row;
+  };
+  const cast = (table, column, at) => (table.json.includes(column) || column === table.rest ? `$${at}::jsonb` : `$${at}::text`);
+  const cell = (table, column, cellValue) => (table.json.includes(column) || column === table.rest ? (cellValue === null ? null : JSON.stringify(cellValue)) : (cellValue === null ? null : String(cellValue)));
+  // The row as it was read, as one JSON object of the kept columns, so a condition compares it whole.
+  const keptObject = table => `jsonb_build_object(${[...table.columns, table.rest].map(column => `'${column}', ${column === table.rest ? `coalesce(${column}, '{}'::jsonb)` : column}`).join(', ')})`;
+  const tableOf = type => { const table = tables.get(type); if (!table) throw new Error(`No table keeps records of type ${type} (task-moves.json rows_in_tables).`); return table; };
+
+  async function list({ type, where = {}, limit = 100, after = null }) {
+    const table = tableOf(type);
+    const params = [];
+    const conditions = Object.entries(where).map(([column, want]) => { params.push(cell(table, named(column), want)); return `${column} = ${cast(table, column, params.length)}`; });
+    if (after) { params.push(after); conditions.push(`id > $${params.length}::text`); }
+    params.push(limit + 1);
+    const rows = await runSql(`select id, ${[...table.columns, table.rest].join(', ')} from ${table.table}${conditions.length ? ` where ${conditions.join(' and ')}` : ''} order by id limit $${params.length}`, params);
+    const page = rows.slice(0, limit);
+    return { records: page.map(row => ({ id: row.id, value: valueOf(table, row) })), next: rows.length > limit ? page[page.length - 1].id : null };
+  }
+  async function read({ id }) {
+    for (const table of tables.values()) {
+      const [row] = await runSql(`select id, ${[...table.columns, table.rest].join(', ')} from ${table.table} where id = $1::text`, [id]);
+      if (row) return valueOf(table, row);
+    }
+    return null;
+  }
+  async function write({ records }) {
+    for (const { id, type, value, expected } of records) {
+      const table = tableOf(type);
+      const columns = [...table.columns, table.rest];
+      let rows;
+      if (expected === null || expected === undefined) {
+        const row = rowOf(table, value);
+        const params = [id, ...columns.map(column => cell(table, column, row[column]))];
+        const stamps = [table.made_at, table.changed_at].filter(Boolean).map(named);
+        rows = await runSql(`insert into ${table.table} (id, ${[...columns, ...stamps].join(', ')}) values ($1::text, ${columns.map((column, at) => cast(table, column, at + 2)).join(', ')}${stamps.map(() => ', now()').join('')}) on conflict (id) do nothing returning id`, params);
+      } else {
+        const was = JSON.stringify(rowOf(table, expected.value));
+        if (value === null) {
+          rows = await runSql(`delete from ${table.table} where id = $1::text and ${keptObject(table)} = $2::jsonb returning id`, [id, was]);
+        } else {
+          const row = rowOf(table, value);
+          const params = [id, was, ...columns.map(column => cell(table, column, row[column]))];
+          const stamp = table.changed_at ? `, ${named(table.changed_at)} = now()` : '';
+          rows = await runSql(`update ${table.table} set ${columns.map((column, at) => `${column} = ${cast(table, column, at + 3)}`).join(', ')}${stamp} where id = $1::text and ${keptObject(table)} = $2::jsonb returning id`, params);
+        }
+      }
+      if (!rows.length) throw changedError();
+    }
+    return { written: records.length };
+  }
+  return async (address, method, input, key) => {
+    if (address === RECORDS && method === 'records:list') return list(input);
+    if (address === RECORDS && method === 'records:read') return read(input);
+    if (address === RECORDS && method === 'records:write') return write(input);
+    if (!rest) throw new Error(`${method} at ${address} has no transport here.`);
+    return rest(address, method, input, key);
+  };
+}
+
 /** The declared states the rules name (every `states` key). */
 export const declaredStates = (rules = RULES) => rules.states.map(state => state.key);
 /** The state a stored status word means: itself, or what `read_as` maps it to. */
@@ -67,16 +151,35 @@ export function wordsOfStates(states, rules = RULES) {
 export const statesFrom = (action, rules = RULES) => [...new Set(rules.transitions.filter(edge => edge.action === action).map(edge => edge.from))];
 
 /** One task row run over the records it needs, its writes kept where they were read. */
-export async function runTaskMove(resource, { tool, input = {}, key, read = {}, rules = RULES, reads = 5, waitSeconds = 10 }) {
-  const records = await readFor(resource, read, { rules });
-  let answer = await resource(TOOLS, 'tools:run', { tool, input: { ...input, records } }, key);
+/** One tool run to its answer: tools:run, read again while it is still running. Answers the tool's own result. */
+async function toolResult(resource, tool, input, key, { reads = 5, waitSeconds = 10 } = {}) {
+  let answer = await resource(TOOLS, 'tools:run', { tool, input }, key);
   for (let attempt = 0; answer?.task_id && !['completed', 'failed'].includes(answer.state) && attempt < reads; attempt += 1) {
     answer = await resource(TOOLS, 'tools:read', { task_id: answer.task_id, wait_seconds: waitSeconds });
   }
-  if (answer?.state === 'failed' || (answer?.exit_code && answer.exit_code !== 0)) throw new Error(answer.error ?? `${tool} failed.`);
+  if (answer?.state === 'failed' || (answer?.exit_code && answer.exit_code !== 0)) throw new Error(answer.error ?? answer.stderr ?? `${tool} failed.`);
   if (answer?.task_id && answer.state !== 'completed') throw new Error(`${tool} is still running; its request key ${key} reads it again.`);
   const output = answer?.output ?? answer;
-  const result = output?.result ?? output;
+  return output?.result ?? output;
+}
+
+/** The transport task moves go through for a store: `store` names the held connection of the database whose tables keep
+ *  the records (`{ credential_name }`), and each statement is one run of the rules' `rows_in_tables.sql_tool` through
+ *  `resource`; with no store, `resource` itself (an account whose records door keeps them). */
+export function tasksIn(resource, store, { rules = RULES } = {}) {
+  if (!store?.credential_name) return resource;
+  const tool = rules.rows_in_tables.sql_tool;
+  const runSql = async (sql, params) => {
+    const answer = await toolResult(resource, tool, { credential_name: store.credential_name, sql, params });
+    if (!Array.isArray(answer?.rows)) throw new Error(`${tool} answered no rows: ${String(answer?.error ?? JSON.stringify(answer)).slice(0, 300)}`);
+    return answer.rows;
+  };
+  return recordsInTables(runSql, { rest: resource, rules });
+}
+
+export async function runTaskMove(resource, { tool, input = {}, key, read = {}, rules = RULES, reads = 5, waitSeconds = 10 }) {
+  const records = await readFor(resource, read, { rules });
+  const result = await toolResult(resource, tool, { ...input, records }, key, { reads, waitSeconds });
   const keep = Array.isArray(result?.keep) ? result.keep : [];
   if (!keep.length) return { result, kept: true };
   try {

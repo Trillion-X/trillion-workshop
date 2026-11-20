@@ -108,5 +108,13 @@
   "live_minutes_default": 60,
   "holder_actions": ["finish", "fail", "release", "hand-on", "stuck", "unstuck", "wait", "plan"],
   "completion": {"max_evidence": 32, "max_obligations": 64, "means": "A finish names the exact saved requested outcome and current consumer observations. This validates coverage, ownership and timing; whoever finishes must inspect evidence for semantic truth. Work with a recoverable boundary uses wait/release and an owned bounded continuation on this same task, never an automatically generated chain.", "max_resume_minutes": 1440},
-  "limits": {"description_chars": 20000, "words_chars": 2000, "title_chars": 200, "id_chars": 200, "result_chars": 60000}
+  "limits": {"description_chars": 20000, "words_chars": 2000, "title_chars": 200, "id_chars": 200, "result_chars": 60000},
+  "rows_in_tables": {
+    "what": "Where a store that keeps records as rows of tables (the runs-it database of whatever the work is for) keeps each record type, read by run-a-task-move.mjs recordsInTables; `sql_tool` runs each statement in that database (tasksIn). A record's value is its row's named `columns` (a null column is no field) and the fields of its `rest` column; a write sets those columns and puts every other field in `rest`, only where the row is still what was read. `json` columns hold JSON; the others hold text. A type no row here names is not in tables.",
+    "sql_tool": "tool:run-sql-in-my-database",
+    "tables": [
+      {"type": "calendar-task", "table": "calendar_tasks", "columns": ["title", "description", "status", "priority", "assignees", "sent_by", "sent_at", "taken_by", "taken_at", "finished_by", "finished_at", "outcome", "result", "summary"], "json": ["assignees"], "rest": "details", "changed_at": "changed_at", "made_at": "made_at"},
+      {"type": "user", "table": "users", "columns": ["name", "kind", "can", "live"], "json": ["can", "live"], "rest": "details"}
+    ]
+  }
 }
