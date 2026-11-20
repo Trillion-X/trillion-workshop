@@ -4,10 +4,10 @@ Files of old trillion whose job is this tool's (choose where shares from the pho
 
 | Old path | Here | Status |
 |---|---|---|
-| `src/share-destinations.mjs` | `src/share-destinations.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports records/share-destination-starters.json (at the tag, not moved here yet), tools/record-voice-and-meetings/read-data/meeting-settings.mjs (already gone at the tag) |
-| `src/share-history.mjs` | `src/share-history.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports records/share-destination-starters.json (at the tag, not moved here yet), src/namespace.mjs (at the tag, not moved here yet) |
-| `src/share-starting-action.mjs` | `src/share-starting-action.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports tools/http-client/do-work/same-origin.mjs (already gone at the tag) |
-| `test/share-destinations.test.mjs` | `test/share-destinations.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports test/agent-store-for-tests.mjs (at the tag, not moved here yet), src/execution-modes.mjs (at the tag, not moved here yet), records/saved-instruction-starters.json (at the tag, not moved here yet), tools/record-voice-and-meetings/read-data/meeting-settings.mjs (already gone at the tag) |
+| `src/share-destinations.mjs` | removed here (ported) | ported to `read-data/share-destinations.mjs`, unwired: its routes and deliver_share wait on question 16 (C-1 to C-3). Test: test/share-destination-controls.test.mjs, 9 pass. The held copy is removed in the commit that names this row. |
+| `src/share-history.mjs` | removed here (ported) | ported to `read-data/share-history.mjs` in commit 3e94a853e; test/share-history.test.mjs, 5 pass. Its GET /shares route waits on question 16. |
+| `src/share-starting-action.mjs` | removed here (ported) | ported to `read-data/share-starting-action.mjs` (one import path changed); test/share-starting-action.test.mjs, 4 pass. |
+| `test/share-destinations.test.mjs` | `test/share-destinations.test.mjs.held` | held on question 16: 35 of its 45 cases exercise places, delivery and routes (see research row verify-every-port/remaining-held-files); its 10 others are the share-starting-action cases, the share-list cases and the workflow-action cases |
 
 ## Still on old trillion main at 5dc302be37
 
