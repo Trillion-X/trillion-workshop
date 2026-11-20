@@ -21,6 +21,8 @@
 //                                                          descriptor holds when the row declares a `files` right
 //   await door.writeLarge(name, source, { mediaType })     -> the finish answer; a file above the piece bound, kept over
 //                                                          the lease road (writeLargeFile below; source from whole-file.mjs bufferSource or the sender's fileSource)
+//   await door.operation(method, input, { key, at })       -> one operation a right names (wake:arrive at @own-records;
+//                                                          tools:update at door.toolsAddress, the Workshop's address)
 //   await door.run('tool:x', { ... }, { key })              -> another Workshop tool's run (`tools:run` at the Workshop's
 //                                                          address, `tools_resource`, else @tools), only for a
 //                                                          tool id the row declares in `runs`; the engine refuses others.
@@ -480,10 +482,13 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
       return call(method, input, key, resource);
     },
     // One operation the run's door answers by its method (a workflow step's door ask, such as wake:arrive), for a right
-    // the row declares; the engine finds the method's owner and holds the call to the run's rights.
-    async operation(method, input, { key } = {}) {
-      return call(method, input, key, resource);
+    // the row declares; the engine finds the method's owner and holds the call to the run's rights. `at` is the address the
+    // right names when it is not this door's own (`toolsAddress` for the Workshop's: an install of a source by its label).
+    async operation(method, input, { key, at = resource } = {}) {
+      return call(method, input, key, at);
     },
+    // The Workshop's own address (the descriptor's `tools_resource`, else @tools), for `operation`'s `at`.
+    toolsAddress: toolsResource,
     // One operation on the person's Namespace files (list_files, read_file, find_file ...), at the files resource the run
     // was handed when its row declares a `files` right; a run handed none is refused before anything is sent.
     async files(method, input, { key } = {}) {

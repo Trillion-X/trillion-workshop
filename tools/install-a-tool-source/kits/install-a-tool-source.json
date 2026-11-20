@@ -1,0 +1,38 @@
+{
+  "drafted_from": "tool:install-a-tool-source's row in tool-rows.json, do-work/install-a-tool-source.mjs and test/install-a-tool-source.test.mjs",
+  "start_here": "Say to your AI: \"Add my team's tools to all my computers: the archive at https://git.example.net/team/tools/-/archive/<commit>/tools.tar.gz, pinned by its files.\" It adds a row to your tool sources, and each of your computers installs it on its own.",
+  "lists": [],
+  "no_lists_because": "It keeps no list: your tool sources are rows in your own database, and this installs what one row says on the computer it runs on.",
+  "workflows": [],
+  "tools": [
+    "tool:install-a-tool-source"
+  ],
+  "instructions": [
+    "1. Keep one row per tool source in your own database: its label, the https address of a gzip tar archive of its tool folders, and files_blake3, the pin of its files (node tools/workflows/do-work/pin-a-commit-by-its-files.mjs REPOSITORY COMMIT ADDRESS prints both).",
+    "2. Switch on the workflow that runs this tool when a row of that table changes, on each computer of yours. Switching it on grants the right to install any of your sources.",
+    "3. Add, change or remove a row. Each computer installs it (or takes it away) by itself and answers changed, files_blake3 and previous; a computer that was off catches up when it is back."
+  ],
+  "worked_examples": [
+    {
+      "title": "A teammate's tool source on every computer",
+      "ask": "Install my team's tools on this computer: label team-tools, the archive https://archive.example.test/team/tools.tar.gz, pin bbbb...bbbb.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:install-a-tool-source",
+            "input": {
+              "source": "team-tools",
+              "address": "https://archive.example.test/team/tools.tar.gz",
+              "files_blake3": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            }
+          }
+        }
+      },
+      "given": "From test/install-a-tool-source.test.mjs, with a stub door: the tool sends tools:update to @tools with {source: \"team-tools\", address, files_blake3} under the key install-a-tool-source:team-tools:<pin>, and the stub answers {changed: true, files_blake3, previous: null}.",
+      "hands_back": "{\"source\":\"team-tools\",\"changed\":true,\"files_blake3\":\"bbbb...bbbb\",\"previous\":null}. The same row again answers changed false; {source, removed: true} answers removed true."
+    }
+  ]
+}
