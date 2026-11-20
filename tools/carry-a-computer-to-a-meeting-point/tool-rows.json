@@ -346,7 +346,7 @@
                 "at": "/opt/start-a-computer"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",

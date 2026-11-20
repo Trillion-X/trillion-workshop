@@ -18,9 +18,9 @@
       {"package":"ui","paths":["read-data/declared-selector.ts"],"at":"/opt/ui"},
       {"package":"refuse-requests-to-private-addresses","paths":["public-address.mjs","public-address.json"],"at":"/opt/refuse-requests-to-private-addresses"},
       {"package":"http-client","paths":["do-work/same-origin.mjs"],"at":"/opt/http-client"},
-      {"module":"tldts","paths":["package.json","LICENSE","dist"],"at":"/opt/node_modules/tldts"},
-      {"module":"tldts-core","paths":["package.json","LICENSE","dist"],"at":"/opt/node_modules/tldts-core"},
-      {"module":"@noble/hashes","paths":["LICENSE","package.json","blake3.js","blake2.js","_blake.js","_md.js","_u64.js","utils.js"],"at":"/opt/node_modules/@noble/hashes"}
+      {"packages":["node_modules/tldts"],"paths":["package.json","LICENSE","dist"],"at":"/opt/node_modules/tldts"},
+      {"packages":["node_modules/tldts-core"],"paths":["package.json","LICENSE","dist"],"at":"/opt/node_modules/tldts-core"},
+      {"packages":["node_modules/@noble/hashes"],"paths":["LICENSE","package.json","blake3.js","blake2.js","_blake.js","_md.js","_u64.js","utils.js"],"at":"/opt/node_modules/@noble/hashes"}
     ]}
   },
   "needs":{"expected_seconds":10,"network_egress":true},

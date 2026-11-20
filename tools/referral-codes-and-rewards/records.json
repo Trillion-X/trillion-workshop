@@ -146,7 +146,7 @@
         "at": "/opt/browse-and-upload-my-files"
        },
        {
-        "module": "@noble/hashes",
+        "packages": ["node_modules/@noble/hashes"],
         "paths": [
          "LICENSE",
          "package.json",
@@ -416,7 +416,7 @@
         "at": "/opt/browse-and-upload-my-files"
        },
        {
-        "module": "@noble/hashes",
+        "packages": ["node_modules/@noble/hashes"],
         "paths": [
          "LICENSE",
          "package.json",
@@ -648,7 +648,7 @@
         "at": "/opt/browse-and-upload-my-files"
        },
        {
-        "module": "@noble/hashes",
+        "packages": ["node_modules/@noble/hashes"],
         "paths": [
          "LICENSE",
          "package.json",

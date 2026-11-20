@@ -130,7 +130,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -251,12 +253,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -2795,7 +2791,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -2916,12 +2914,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -4761,7 +4753,9 @@
    "at": "/opt/start-a-computer"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -4771,12 +4765,6 @@
     "_md.js",
     "_u64.js",
     "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
    ],
    "at": "/opt/node_modules/@noble/hashes"
   }
@@ -5100,7 +5088,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -5221,12 +5211,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -9622,7 +9606,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -9743,12 +9729,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -11921,7 +11901,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -12042,12 +12024,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -12077,7 +12053,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -12198,12 +12176,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -12557,7 +12529,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -12678,12 +12652,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -12712,7 +12680,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -12833,12 +12803,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -12954,7 +12918,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -13075,12 +13041,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -13919,7 +13879,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -14061,12 +14023,6 @@
   },
   {
    "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "packages": [
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
@@ -14189,7 +14145,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -14310,12 +14268,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -14344,7 +14296,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -14465,12 +14419,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -15637,7 +15585,9 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -15673,12 +15623,6 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   }
  ],
  "tool:grade-a-video": [
@@ -15701,7 +15645,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -15822,12 +15768,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -19121,7 +19061,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -19242,12 +19184,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -22412,7 +22348,9 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -22448,12 +22386,6 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   }
  ],
  "tool:make-a-sales-contract": [
@@ -23169,7 +23101,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -23290,12 +23224,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -23674,7 +23602,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -23795,12 +23725,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -24346,7 +24270,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -24467,12 +24393,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -25080,7 +25000,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -25201,12 +25123,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -27416,7 +27332,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -27537,12 +27455,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -36280,7 +36192,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -36401,12 +36315,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -37301,7 +37209,9 @@
    "at": "/opt/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -37422,12 +37332,6 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   },
   {
    "packages": [
@@ -49726,7 +49630,9 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -49762,12 +49668,6 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   }
  ],
  "tool:work-out-unit-economics": [
@@ -49956,7 +49856,9 @@
    "at": "/opt/parts/content-identity"
   },
   {
-   "module": "@noble/hashes",
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
    "paths": [
     "LICENSE",
     "package.json",
@@ -49966,12 +49868,6 @@
     "_md.js",
     "_u64.js",
     "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
    ],
    "at": "/opt/node_modules/@noble/hashes"
   }
