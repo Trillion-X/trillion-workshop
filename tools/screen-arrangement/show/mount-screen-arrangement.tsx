@@ -55,6 +55,7 @@ import {
   readStartSurfaceIds,
 } from './empty-container-sources';
 import type { SurfaceCollectionsSource } from '../../sidebar/show/use-surface-collections';
+import { setHostAccountRef } from '../../arrange-screens-in-panes/read-data/saved-tabs-account.mjs';
 
 type MountArgs = {
   el: HTMLElement;
@@ -259,6 +260,9 @@ function readArrangementHostData(props: MountArgs['props']): ArrangementHostData
 }
 
 export default function mount({ el, props = {} }: MountArgs) {
+  // The signed-in identity the host page gives (its `accountRef`): the saved tabs of this browser are kept under it, so two
+  // people on one browser never share them (arrange-screens-in-panes read-data/saved-tabs-account.mjs). Unset: the portal session.
+  setHostAccountRef(readString(props?.accountRef) ?? null)
   // The arrangement draws the one shared floating panel; anything unpinned
   // (a sidebar list, a control group) opens through this seam.
   provideFloatingPanelOpener(mountFloatingPanel)

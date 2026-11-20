@@ -126,11 +126,15 @@ function applyBatch(held: Map<string, unknown>, body: RecordsWriteBody): Records
 
 type AcceptedListener = (writes: RecordsReceipt[], result: unknown) => void;
 
-function memoryOutbox(held: Map<string, unknown>): RecordsOutbox {
+/** The outbox over one batch applier: a send is applied in a later turn, and confirmed to the listeners when the applier
+ *  answers; an applier that throws is refused to the refusal listeners with status 0 (a lost connection) and the write
+ *  is no longer waiting. The memory and seeded sources apply to their own rows; a remote source applies over the wire. */
+function applierOutbox(apply: (body: RecordsWriteBody) => RecordsWriteReply | Promise<RecordsWriteReply>): RecordsOutbox {
   let latest = 0;
   const generations = new Map<string, number>();
   const onTheirWay = new Map<string, RecordsReceipt>();
   const acceptedListeners = new Set<AcceptedListener>();
+  const refusedListeners = new Set<(writes: RecordsReceipt[], status: number) => void>();
   const onAccepted = (listener: AcceptedListener) => {
     acceptedListeners.add(listener);
     return () => { acceptedListeners.delete(listener); };
@@ -142,9 +146,13 @@ function memoryOutbox(held: Map<string, unknown>): RecordsOutbox {
       generations.set(write.key, latest);
       onTheirWay.set(write.key, receipt);
       queueMicrotask(() => {
-        if (onTheirWay.get(write.key) === receipt) onTheirWay.delete(write.key);
-        const result = applyBatch(held, write.body as RecordsWriteBody);
-        for (const listener of [...acceptedListeners]) listener([receipt], result);
+        Promise.resolve().then(() => apply(write.body as RecordsWriteBody)).then(result => {
+          if (onTheirWay.get(write.key) === receipt) onTheirWay.delete(write.key);
+          for (const listener of [...acceptedListeners]) listener([receipt], result);
+        }, () => {
+          if (onTheirWay.get(write.key) === receipt) onTheirWay.delete(write.key);
+          for (const listener of [...refusedListeners]) listener([receipt], 0);
+        });
       });
     },
     track(write) {
@@ -161,11 +169,17 @@ function memoryOutbox(held: Map<string, unknown>): RecordsOutbox {
     isPendingVersion: (key, after) => onTheirWay.get(key)?.compare?.after === after,
     isCurrent: receipt => generations.get(receipt.key) === receipt.generation,
     onAccepted,
-    // A memory source cannot refuse a write for good: no store stands between the page and what it holds.
-    onRefusedReceipt: () => () => {},
+    onRefusedReceipt: listener => {
+      refusedListeners.add(listener);
+      return () => { refusedListeners.delete(listener); };
+    },
     restore: async () => [],
     readOnly: () => false,
   };
+}
+
+function memoryOutbox(held: Map<string, unknown>): RecordsOutbox {
+  return applierOutbox(async body => applyBatch(held, body));
 }
 
 /** Records held in this page's memory only: nothing is written anywhere else, and a reload starts empty. */
@@ -181,5 +195,16 @@ export function seededRecordsSource(rows: Record<string, unknown>): WorkspaceRec
     read: async labels => ({ records: Object.fromEntries(labels.filter(label => held.has(label)).map(label => [label, held.get(label)])) }),
     write: async body => applyBatch(held, body),
     outbox: memoryOutbox(held),
+  };
+}
+
+/** A source whose reads and writes go to a store the page reaches over the wire (the page's own server). `transport.read`
+ *  answers the values held under labels; `transport.write` confirms one batch, or throws when the store refuses or cannot be
+ *  reached. Changes are kept and sent in the same order as the memory source keeps them. */
+export function remoteRecordsSource(transport: { read(labels: readonly string[], options?: { fresh?: boolean }): Promise<RecordsRead>; write(body: RecordsWriteBody): Promise<RecordsWriteReply> }): WorkspaceRecordsSource {
+  return {
+    read: (labels, options) => transport.read(labels, options),
+    write: body => transport.write(body),
+    outbox: applierOutbox(body => transport.write(body)),
   };
 }

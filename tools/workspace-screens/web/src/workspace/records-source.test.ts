@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { makeHashCodeHexFromBytes } from './content-identity.mjs';
-import { memoryRecordsSource, seededRecordsSource, type RecordsReceipt } from './records-source.ts';
+import { memoryRecordsSource, remoteRecordsSource, seededRecordsSource, type RecordsReceipt } from './records-source.ts';
 
 const identityOf = (value: unknown) => makeHashCodeHexFromBytes(new TextEncoder().encode(JSON.stringify(value)));
 const SIDEBAR_LABEL = 'placeable-surface-list::main-workspace';
@@ -63,4 +63,33 @@ test('the engine names no server, no Worker store module and no socket: those li
   for (const forbidden of [/\/work\//, /quiet-writes/, /store-changes/, /live-room/, /from '\.\/api'/]) {
     assert.doesNotMatch(engine, forbidden);
   }
+});
+
+test('a remote source sends each batch to its transport in order, confirms it to the listeners, and refuses a batch the transport throws on', async () => {
+  const sent: string[] = [];
+  let fail = false;
+  const source = remoteRecordsSource({
+    read: async labels => ({ records: Object.fromEntries(labels.map(label => [label, `held:${label}`])) }),
+    write: async body => {
+      sent.push(body.writes[0].address_label);
+      if (fail) throw new Error('offline');
+      return { written: body.writes.length };
+    },
+  });
+  assert.deepEqual(await source.read(['a']), { records: { a: 'held:a' } });
+  const accepted: string[] = [];
+  const refused: number[] = [];
+  source.outbox.onAccepted(writes => accepted.push(writes[0].key));
+  source.outbox.onRefusedReceipt((_writes, status) => refused.push(status));
+  const write = (key: string) => ({ key, path: 'records', body: { writes: [{ address_label: key, payload: 1 }] } });
+  source.outbox.send(write('one'));
+  source.outbox.send(write('two'));
+  await settle();
+  assert.deepEqual(sent, ['one', 'two']);
+  assert.deepEqual(accepted, ['one', 'two']);
+  fail = true;
+  source.outbox.send(write('three'));
+  await settle();
+  assert.deepEqual(refused, [0]);
+  assert.equal(source.outbox.isWaiting('three'), false);
 });

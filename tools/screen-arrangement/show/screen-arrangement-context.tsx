@@ -29,6 +29,7 @@ import { withoutPassingWindows } from '../read-data/place-tab-in-overlay'
 import { keepPlacedRowsSideBySide, type ArrangementStage } from './split-tree-constraints'
 import { showChanged, showOf, showReady, useShowChange } from '../../ui/show/show-rules/show-of'
 import { askScreenArrangement } from '../do-work/ask-screen-arrangement'
+import { hostAccountRef, savedTabsAccountRef } from '../../arrange-screens-in-panes/read-data/saved-tabs-account.mjs'
 import {
   BROWSER_LOCAL_LAYOUT_STATE_UNAVAILABLE,
   createBrowserLocalLayoutStatePersistence,
@@ -292,7 +293,7 @@ export function LayoutOwnerProviderView({
       let accountRef: string
       try {
         browserContextRef = currentLogBrowserSessionBrowserId()
-        accountRef = await readBrowserSessionAccountRef(browserContextRef) ?? 'anonymous'
+        accountRef = savedTabsAccountRef(hostAccountRef(), await readBrowserSessionAccountRef(browserContextRef))
       } catch {
         // A re-ask that fails leaves the layout the person is already using.
         if (cancelled || resolution !== scopeResolutionRef.current || recheck) return

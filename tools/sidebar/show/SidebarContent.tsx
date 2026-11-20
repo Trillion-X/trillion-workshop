@@ -49,6 +49,7 @@ import {
 } from '../../ui';
 import { emitPlaceableSurfaceIntent as emitPlaceableSurfaceBrowserIntent, setPlaceableSurfaceDragData } from '../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import { PaneTab } from '../../ui/show/pane-tab';
+import { hostAccountRef } from '../../arrange-screens-in-panes/read-data/saved-tabs-account.mjs';
 import { NestingGuide } from '../../ui/show/nesting-guide';
 import { SurfacePreviewCard, type SurfacePreview } from '../../ui/show/surface-preview/SurfacePreviewCard';
 import { OPEN_CHOICES, shownOpenChoices, withOpenChoice, type OpenChoice } from '../../ui/show/placeable-surface-intent/open-choices';
@@ -116,16 +117,18 @@ const OPEN_CHOICE_ACTION = 'sidebar:open:';
 
 // When the person last opened each row, kept in this browser only, so a row
 // with no glance DATA can still say something true about itself.
-const OPENED_KEY = 'bitfield.sidebar.last-opened';
+const OPENED_KEY_PREFIX = 'bitfield.sidebar.last-opened';
+// Kept per signed-in host identity when the page gives one (saved-tabs-account.mjs), so two people on one browser never share it.
+const openedKey = (): string => (hostAccountRef() ? `${OPENED_KEY_PREFIX}::${hostAccountRef()}` : OPENED_KEY_PREFIX);
 function readOpenedMap(): Record<string, number> {
-  try { const value = JSON.parse(localStorage.getItem(OPENED_KEY) || '{}'); return value && typeof value === 'object' ? value : {}; } catch { return {}; }
+  try { const value = JSON.parse(localStorage.getItem(openedKey()) || '{}'); return value && typeof value === 'object' ? value : {}; } catch { return {}; }
 }
 function readOpened(id: string): number | undefined {
   const value = readOpenedMap()[id];
   return typeof value === 'number' ? value : undefined;
 }
 function rememberOpened(id: string): void {
-  try { localStorage.setItem(OPENED_KEY, JSON.stringify({ ...readOpenedMap(), [id]: Date.now() })); } catch { /* storage unavailable: the time is simply not remembered */ }
+  try { localStorage.setItem(openedKey(), JSON.stringify({ ...readOpenedMap(), [id]: Date.now() })); } catch { /* storage unavailable: the time is simply not remembered */ }
 }
 
 // ============================================================================
