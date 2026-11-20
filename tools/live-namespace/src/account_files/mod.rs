@@ -249,6 +249,14 @@ pub const FILE_SHARE_KIND: &str = "namespace-file-share";
 pub const SHARE_ROUTE: &str = "@namespace/share-route";
 pub const SHARE_ROUTE_ID: &str = "origin";
 pub const SHARE_ROUTE_KIND: &str = "namespace-share-route";
+/// The person's own look (`LOOK`, id `LOOK_ID`): `{kind, look}`, where `look` has the shape of settings `site` (`name`, `theme`
+/// {data_theme, scheme, theme_color}, `look_css`). Kept by `keep_look`, worn by every share page the person's route draws, so a share
+/// carries the sharer's name and look from their own rows and never the look of whoever runs the computer.
+pub const LOOK: &str = "@namespace/look";
+pub const LOOK_ID: &str = "look";
+pub const LOOK_KIND: &str = "namespace-look";
+/// The most bytes a kept look may hold (its look_css is the largest part).
+pub const MOST_LOOK_BYTES: usize = 256 * 1024;
 pub const SET_ASIDE_KIND: &str = "namespace-set-aside";
 pub const HOME_KIND: &str = "namespace-home";
 pub const USAGE_KIND: &str = "namespace-usage-day";
@@ -1283,6 +1291,23 @@ impl AccountFiles {
         Ok(json!({"share": id, "stopped": true, "already": false}))
     }
 
+    /// `keep_look`: keep the person's own look (`LOOK`), worn by every share page their route draws from the next request on.
+    /// `look` is an object shaped like settings `site`; null takes the kept look away, so pages wear the computer's look or none.
+    pub fn keep_look(&mut self, look: &Value) -> Answer<Value> {
+        let deleted = match look {
+            Value::Null => true,
+            Value::Object(_) if serde_json::to_vec(look).map_or(usize::MAX, |bytes| bytes.len()) <= MOST_LOOK_BYTES => false,
+            Value::Object(_) => return Err(AccountFilesError::Invalid("a look holds at most 256 KiB", crate::cause!())),
+            _ => return Err(AccountFilesError::Invalid("look is an object shaped like settings site (name, theme, look_css), or null", crate::cause!())),
+        };
+        let (version, _) = self.store.held_record_with_version(LOOK, LOOK_ID)?;
+        let value = if deleted { Value::Null } else { json!({"kind": LOOK_KIND, "look": look}) };
+        let key = format!("look:{}", content_crypto::advanced::blake3::hash(format!("{version}:{value}").as_bytes()).to_hex());
+        self.check_current()?;
+        self.mutate(LOOK, Mutation { id: LOOK_ID.to_owned(), expected_version: version, request_key: key, deleted, value })?;
+        Ok(json!({"look": if deleted { "taken away" } else { "kept" }}))
+    }
+
     /// `list_shares`: the person's shares of files, a page in id order. A key is never answered (only its BLAKE3 is kept).
     pub fn list_shares(&self, after: Option<&str>, limit: Option<usize>) -> Answer<Value> {
         let page = self.store.list_page(FILE_SHARES, after.unwrap_or(""), limit.unwrap_or(100).clamp(1, 500))?;
@@ -2105,6 +2130,8 @@ impl AccountFiles {
                 .ok_or(AccountFilesError::Invalid("id is required", crate::cause!()))
                 .and_then(|id| self.stop_share(id)),
             "list_shares" => self.list_shares(field("after"), number("limit").map(|limit| limit as usize)),
+            "keep_look" => input.get("look").ok_or(AccountFilesError::Invalid("look is required (an object, or null to take it away)", crate::cause!()))
+                .and_then(|look| self.keep_look(&look.clone())),
             "share_file" => {
                 let seconds = number("seconds").ok_or(AccountFilesError::Invalid("seconds is required", crate::cause!()));
                 let forms_of = |value: Option<&Value>| -> Answer<BTreeMap<String, String>> {

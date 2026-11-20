@@ -13,6 +13,7 @@
     "share_file",
     "stop_share",
     "list_shares",
+    "keep_look",
     "write_file",
     "find_names",
     "move_names",

@@ -150,6 +150,10 @@ pub struct Unavailable;
 pub trait Grants: Send + Sync {
     /// The share row `id`, or None when there is none.
     fn share(&self, id: &str) -> Result<Option<Value>, Unavailable>;
+    /// The person's own look (`@namespace/look`, kept by `keep_look`), or None when they keep none.
+    fn look(&self) -> Result<Option<Value>, Unavailable> {
+        Ok(None)
+    }
 }
 
 /// Ranged bytes of the person's files, each read through the account files' byte check.
@@ -536,15 +540,21 @@ async fn serve_form(State(route): State<Arc<Route>>, Path((id, key, n, form)): P
 async fn page(route: Arc<Route>, id: String, key: String) -> Response {
     let admitted = {
         let (route, id, key) = (route.clone(), id.clone(), key.clone());
-        tokio::task::spawn_blocking(move || admit_share(route.grants.as_ref(), &id, &key, Utc::now())).await
+        // The sharer's own look is read with the share on every page, so a look they keep shows on the next page drawn; a person who
+        // keeps none wears the computer's look (settings `site`), and with neither the page shows its plain one.
+        tokio::task::spawn_blocking(move || {
+            let share = admit_share(route.grants.as_ref(), &id, &key, Utc::now())?;
+            Ok::<_, Refusal>((share, route.grants.look()?))
+        })
+        .await
     };
-    let share = match admitted {
-        Ok(Ok(share)) => share,
+    let (share, own_look) = match admitted {
+        Ok(Ok(read)) => read,
         Ok(Err(Refusal::NotFound)) => return refuse(StatusCode::NOT_FOUND),
         _ => return refuse(StatusCode::SERVICE_UNAVAILABLE),
     };
     let Some(page) = route.page.as_ref() else { return refuse(StatusCode::NOT_FOUND) };
-    let drawn = page.draw(&route.config, &route.look, &share, &format!("/share/{id}/{key}"));
+    let drawn = page.draw(&route.config, own_look.as_ref().unwrap_or(&route.look), &share, &format!("/share/{id}/{key}"));
     let mut response = Response::new(Body::from(drawn));
     let out = response.headers_mut();
     out.insert(header::CONTENT_TYPE, HeaderValue::from_static("text/html; charset=utf-8"));
@@ -690,5 +700,9 @@ impl RowGrants {
 impl Grants for RowGrants {
     fn share(&self, id: &str) -> Result<Option<Value>, Unavailable> {
         self.rows.get(crate::account_files::FILE_SHARES, id).map(|read| read.record.map(|record| record.value)).map_err(|_| Unavailable)
+    }
+    fn look(&self) -> Result<Option<Value>, Unavailable> {
+        let kept = self.rows.get(crate::account_files::LOOK, crate::account_files::LOOK_ID).map_err(|_| Unavailable)?;
+        Ok(kept.record.and_then(|record| record.value.get("look").filter(|look| look.is_object()).cloned()))
     }
 }

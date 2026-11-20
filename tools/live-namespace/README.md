@@ -59,6 +59,11 @@ random hex digits: `{ kind, identity, name, byte_length, media_type, key_blake3,
 never a key. No link to the store is made: the byte route (`serve-shares`, below) serves that address. It needs `settings.json` `share.origin` (the https
 address the share opens at) and is refused without it. Nothing else is needed: no records door, no other tool.
 
+`keep_look {look}` keeps the person's own look in their own store (`@namespace/look`, id `look`): an object shaped like settings `site` (`name`,
+`theme` {data_theme, scheme, theme_color}, `look_css`), at most 256 KiB; `null` takes it away. Every share page the person's route draws reads it with the
+share, so a page carries the sharer's name and look from the next request on. A person who keeps none wears the computer's settings `site`, and with
+neither the page shows its plain look: a share never wears the look of whoever runs the computer unless that computer's row says so.
+
 ## The share byte route
 
 `live-namespace serve-shares --state FOLDER` (`src/share_bytes`, `src/serve/shares.rs`) answers `GET` and `HEAD` at `/share/<id>/<key>` on the

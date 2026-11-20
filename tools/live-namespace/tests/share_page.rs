@@ -237,3 +237,28 @@ fn fill_escapes_words_gives_raw_only_when_asked_and_takes_the_first_that_says_so
     assert_eq!(fill("[{{missing}}][{{a|missing|c}}]", &field), "[][x]");
     assert_eq!(fill("an {{ unclosed", &field), "an {{ unclosed");
 }
+
+#[test]
+fn the_page_wears_the_sharers_own_look_over_the_computers() {
+    // The computer's look (settings `site`, here `look()`) is whoever runs the computer; the sharer's own look is kept in their rows.
+    let mut files = files();
+    let own = json!({"name": "A sharer's films", "theme": {"data_theme": "dusk", "scheme": "dark", "theme_color": "#101010"}, "look_css": ":root{--bg-primary:#101010}"});
+    assert_eq!(files.call("keep_look", &json!({"look": own})).unwrap().unwrap(), json!({"look": "kept"}));
+    for refused in [json!({"look": "a word"}), json!({}), json!({"look": {"look_css": "x".repeat(300 * 1024)}})] {
+        assert!(files.call("keep_look", &refused).unwrap().is_err(), "{refused:.60}");
+    }
+    let (served, _) = serve(files, many(), true);
+    let html = String::from_utf8(ask(&served, &served.base, BROWSER).body).unwrap();
+    assert!(html.contains(r#"data-theme="dusk" data-look-scheme="dark""#) && html.contains("A sharer&#39;s films"), "the sharer's own look");
+    assert!(!html.contains("Someone") && !html.contains("meadow"), "and nothing of the computer's");
+}
+
+#[test]
+fn a_look_taken_away_leaves_the_computers_look() {
+    let mut files = files();
+    files.call("keep_look", &json!({"look": {"name": "Gone soon"}})).unwrap().unwrap();
+    assert_eq!(files.call("keep_look", &json!({"look": null})).unwrap().unwrap(), json!({"look": "taken away"}));
+    let (served, _) = serve(files, many(), true);
+    let html = String::from_utf8(ask(&served, &served.base, BROWSER).body).unwrap();
+    assert!(!html.contains("Gone soon") && html.contains(r#"data-theme="meadow""#));
+}

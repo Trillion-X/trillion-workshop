@@ -516,6 +516,23 @@
       }
     },
     {
+      "name": "keep_look",
+      "description": "Keep your own look, worn by every share page your share route draws: your name and colours, never those of whoever runs the computer. look is shaped like a site setting (name, theme {data_theme, scheme, theme_color}, look_css); null takes it away.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "look": {
+            "type": ["object", "null"],
+            "description": "{name, theme: {data_theme, scheme, theme_color}, look_css}, at most 256 KiB; null takes the kept look away"
+          }
+        },
+        "required": [
+          "look"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
       "name": "find_names",
       "description": "The names in a folder that start with a prefix.",
       "input_schema": {
