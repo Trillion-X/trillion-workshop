@@ -1,0 +1,35 @@
+{
+ "drafted_from": "tool:keep-the-shared-checkout-current's own row (its words, input schema, wake and steps) and the procedure in its README; read it before relying on it",
+ "start_here": "Nothing to say: the engine runs tool:keep-the-shared-checkout-current every 5 minutes on the Mac that holds the shared Workshop checkout. To read its last pass, say to your AI: \"Show the last pass that kept the shared Workshop checkout current.\" It answers {\"outcome\":\"ran\",\"behind_before\":12,\"behind_after\":0,\"rescue_ref\":\"refs/rescue/workshop-shared-20261120-003000\",\"kept\":[],\"trashed\":[],\"skipped\":[]}.",
+ "lists": [],
+ "no_lists_because": "It keeps no row: it reads and moves files in one granted checkout and answers what it did.",
+ "workflows": [],
+ "tools": [
+  "tool:keep-the-shared-checkout-current"
+ ],
+ "instructions": [
+  "1. Leave it on: the wake every-five-minutes runs the tool at the Mac that holds the checkout, with the checkout as its granted change-a-folder folder.",
+  "2. Read each pass: outcome ran means the checkout is at origin/main when behind_after is 0; refused or stopped means nothing in the working tree was written, and why says what held it.",
+  "3. Look at kept first: each path there is someone's work that the pass left in place, with why. Commit or move it yourself; the next pass does not touch it.",
+  "4. Find a saved state under refs/rescue/workshop-shared-<time>: it is local only and never pushed; delete it only after its contents are safe elsewhere."
+ ],
+ "worked_examples": [
+  {
+   "title": "Read the last pass",
+   "ask": "Show the last pass that kept the shared Workshop checkout current.",
+   "mcp": {
+    "server": "{cli}",
+    "tool": "do_one_thing_in_my_account",
+    "input": {
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:keep-the-shared-checkout-current",
+      "input": {}
+     }
+    }
+   },
+   "given": "An empty input: the tool reads its granted checkout, not the input.",
+   "hands_back": "A JSON pass result such as {\"outcome\":\"ran\",\"behind_before\":12,\"behind_after\":0,\"kept\":[{\"path\":\"tools/example/x.mjs\",\"why\":\"changed here\"}],\"trashed\":[],\"skipped\":[]}, where every kept or skipped path carries its why."
+  }
+ ]
+}
