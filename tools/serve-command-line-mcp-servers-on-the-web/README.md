@@ -14,6 +14,8 @@ The apps and their config are the config file `do-work/serve.mjs` is given; the 
 | `part.json` | Which files other code may import (`do-work/gateway.mjs`, `do-work/serve.mjs`) |
 | `do-work/gateway.mjs` | `createGateway({ apps, ... })`: the request handler above |
 | `do-work/serve.mjs` | The gateway as a web server over a config file |
+| `do-work/gateway-pass.mjs` | The pass in front of the port: `Authorization: Bearer <pass>`. The pass is a vault value named by the config row (`pass_vault`) and mounted on descriptor 4, read the way the Composio connection reads its key; never a file or an argument. Only a pipe on descriptor 4 is read as the pass (anything else is refused), and the read gives up after 2 seconds. With no pass, serve.mjs prints `no pass was given on descriptor 4, so the gateway does not start` and exits with code 2. A request without the right pass gets 401 before any app starts. The port listens on `127.0.0.1` unless the config's `host` says otherwise. |
+| `test/gateway-pass.test.mjs` | Descriptor 4 is the only place the pass is read, within the bound; nothing on descriptor 4 refuses to start; a bad pass and a good pass at the port (5 tests). |
 | `do-work/ask-a-stdio-server-once.mjs` | `askAStdioMcpServerOnce({ cli, args, env, app, request, protocol_version, timeout_seconds })`: the gateway's one-off flow as one run, a POST with no session id handed to the handler in-process with no port opened (what `tool-rows.json` runs) |
 | `test/echo-mcp-server.mjs` | A made-up stdio MCP server with one tool, `echo`, for the row's sample |
 | `tool-rows.json` | The row `tool:ask-a-command-line-mcp-server-once`, with a sample that asks the made-up echo server's `echo` tool |

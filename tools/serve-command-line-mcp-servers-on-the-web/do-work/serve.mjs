@@ -7,6 +7,7 @@
 import { readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { createGateway } from './gateway.mjs';
+import { gatewayPass, guarded, heldPass } from './gateway-pass.mjs';
 
 const configPath = process.argv[2] ?? process.env.GATEWAY_CONFIG;
 if (!configPath) throw new Error('usage: node serve.mjs <config.json>');
@@ -22,9 +23,16 @@ const gateway = createGateway({
   queueMs: seconds(config.queue_seconds, 15_000),
   log: line => process.stdout.write(`${new Date().toISOString()} ${line}\n`),
 });
-const server = createServer((request, response) => { void gateway.handle(request, response); });
+const held = await heldPass();
+if (!held) {
+  process.stderr.write('no pass was given on descriptor 4, so the gateway does not start\n');
+  process.exit(2);
+}
+const pass = gatewayPass(held);
+const server = createServer(guarded(gateway, pass));
 server.requestTimeout = 0;
 server.headersTimeout = 30_000;
 const port = Number(process.env.PORT ?? config.port ?? 8080);
-server.listen(port, '0.0.0.0', () => process.stdout.write(`stdio-mcp-gateway on ${port}: ${Object.keys(config.apps).join(', ')}\n`));
+const host = config.host ?? '127.0.0.1';
+server.listen(port, host, () => process.stdout.write(`stdio-mcp-gateway on ${host}:${port}: ${Object.keys(config.apps).join(', ')}\n`));
 for (const signal of ['SIGTERM', 'SIGINT']) process.on(signal, () => { gateway.close(); server.close(() => process.exit(0)); setTimeout(() => process.exit(0), 2000).unref(); });
