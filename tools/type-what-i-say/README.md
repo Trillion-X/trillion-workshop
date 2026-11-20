@@ -26,7 +26,7 @@ Dictation on the person's own computer. The words a hearing program returns for 
 ## Moved from Trillion
 
 `computer/dictation.mjs`, `computer/dictation.json` and `test/dictation.test.mjs` of Trillion-X/trillion (deleted there in `dc79bb0a`), moved one to one. What changed:
-- The rows file and the history were under `~/.trillion/dictation`. They are now in the folder the person grants: `state` is filled in by the run.
+- The rows file and the history were under `~/.trillion/dictation`. They are now in the folder its run names at `computer.change-a-folder`: `state` is filled in by the run.
 - When no model was handed in, `polish` and `command` imported the Mac app's local model (`computer/local-models.mjs`). Its port is `tools/models-on-this-computer` (`askLocal`), and the `dictate` export hands it in: both steps are asked of that folder's `dictation-polish` job (a JSON-object answer, temperature 0). When no model server answers, both leave the text as it was and say so (`modelStep`'s own rule); the answer's `model.by` names the model that changed it.
 - The two named exports were added for the function runner (`do-work/run-a-function.mjs`).
 

@@ -29,4 +29,4 @@ Several documents each claim to reflect one source (summaries, translations, cop
 
 **Depends on:** nothing (Node 24 in the engine's run).
 
-**Depended on by:** `tool-rows.json`. The local engine runs the row on the person's computer (`computer` kind) after the person grants `read-a-folder`.
+**Depended on by:** `tool-rows.json`. The local engine runs the row on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.read-a-folder`.

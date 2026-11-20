@@ -25,7 +25,7 @@ See and commit the changes in a project folder on the person's own computer: whi
 
 **Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`), Node's standard library, and the `git` command on the computer.
 
-**Depended on by:** `tool-rows.json`. The local engine runs the rows on the person's computer (`computer` kind) after the person grants `use-git-in-a-folder` for a folder.
+**Depended on by:** `tool-rows.json`. The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes).
 
 ## Invariants
 

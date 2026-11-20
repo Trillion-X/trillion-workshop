@@ -36,4 +36,4 @@ It judges the bundler's own report (an esbuild-shaped metafile), so what is judg
 
 **Depends on:** Node's `fs` and `path` only.
 
-**Depended on by:** `tool-rows.json`. The local engine runs the row on the person's computer (`computer` kind) after the person grants `read-a-folder`.
+**Depended on by:** `tool-rows.json`. The local engine runs the row on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.read-a-folder`.

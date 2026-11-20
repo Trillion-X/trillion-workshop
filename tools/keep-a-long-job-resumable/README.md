@@ -21,7 +21,7 @@ Keeps a long job on the person's own computer (a meeting summary, a transcriptio
 
 ## Moved from Trillion
 
-`computer/durable-job.mjs` and `computer/durable-job.json` of Trillion-X/trillion (deleted there in `dc79bb0a`), moved one to one. What changed: the jobs file was `~/.trillion/jobs/jobs.json` in the Mac app's own folder; it is now `jobs.json` in the folder the person grants, so `jobTools.job` takes the file and `job` is the export `run-an-export.mjs` calls. The old app had no test of this module; the tests here check its four written invariants.
+`computer/durable-job.mjs` and `computer/durable-job.json` of Trillion-X/trillion (deleted there in `dc79bb0a`), moved one to one. What changed: the jobs file was `~/.trillion/jobs/jobs.json` in the Mac app's own folder; it is now `jobs.json` in the folder its run names at `computer.change-a-folder`, so `jobTools.job` takes the file and `job` is the export `run-an-export.mjs` calls. The old app had no test of this module; the tests here check its four written invariants.
 
 ## Not yet
 
@@ -31,4 +31,4 @@ Keeps a long job on the person's own computer (a meeting summary, a transcriptio
 
 **Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`), `@noble/hashes` (BLAKE3) and Node's standard library.
 
-**Depended on by:** `tool-rows.json`. The engine runs the row on the person's computer (`computer` kind) after the person grants `change-a-folder`.
+**Depended on by:** `tool-rows.json`. The engine runs the row on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.change-a-folder`.

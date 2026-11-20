@@ -2,7 +2,7 @@
 
 Sorts the tabs a person pinned in their browser into folders by rules they wrote, keeps every tab, makes a backup of the file first, and can put the backup back. Ported from the `browser-saved-items` package, which did this for one person's design bookmarks with their categories, sites and words inside the code; here the categories, sites and words are the person's rules, given with each request, and the tool names none.
 
-It reads only the browser's sidebar file (the Arc layout: spaces, pinned folders, tabs, split views) in a folder the person grants for change. It does not read history, cookies, passwords or page content. The browser rewrites the file while it runs, so it is closed first.
+It reads only the browser's sidebar file (the Arc layout: spaces, pinned folders, tabs, split views) in the folder its run names at `computer.change-a-folder`. It does not read history, cookies, passwords or page content. The browser rewrites the file while it runs, so it is closed first.
 
 ## Files
 
@@ -26,4 +26,4 @@ It reads only the browser's sidebar file (the Arc layout: spaces, pinned folders
 
 **Depends on:** nothing (Python 3 standard library).
 
-**Depended on by:** `tool-rows.json`. The local engine runs the row on the person's computer (`computer` kind) after the person grants `change-a-folder`.
+**Depended on by:** `tool-rows.json`. The local engine runs the row on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.change-a-folder`.

@@ -31,7 +31,7 @@ echo '{"sources":["claude-skills"]}' | node tools/workflows/do-work/run-a-functi
 
 ## Not yet
 
-- The places are under the person's home folder, so the person grants `read-a-folder` on their home folder. The engine's capabilities list has no narrower grant over several dot-folders at once, and none that names a set of files. Reading still refuses keys and credentials by name (`file-arguments.json` `protected_names`), whatever the grant allows.
+- The places are under the person's home folder, so its run names their home folder at `computer.read-a-folder`. The engine's capabilities list has no narrower target over several dot-folders at once, and none that names a set of files. Reading still refuses keys and credentials by name (`file-arguments.json` `protected_names`), whatever the grant allows.
 - `read` takes the home folder from the system (`os.homedir()`, so `HOME`). It has not been proved on the engine that a `computer` run keeps the person's `HOME` rather than a private folder of the run.
 - Saving the items is the account's job, not this folder's: `saved_instructions` with `add_instructions` (Trillion-X/trillion `src/agents.mjs`). Its add-only test was the second test of the old `test/ai-setups-import.test.mjs`. That file was deleted in dc79bb0a87, so the test has no home in either repository yet.
 

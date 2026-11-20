@@ -30,7 +30,7 @@ echo '{"app":"/Applications/Sample.app"}' | node tools/records-door/do-work/run-
 
 ## Not yet
 
-- The row asks only for `read-a-folder` (the person grants the app, or the folder holding it). It also starts `/usr/bin/codesign`, which the engine's `base` sandbox lets a run execute, but whether `codesign -dv` and `--entitlements` can reach the Security services they look up under `deny default` has not been measured on the engine. No capability in the engine's `src/runtime/workshop/computer-capabilities.json` grants those lookups yet. If they are denied, `signingFacts` reads the bundle as unsigned, and the check says so in words rather than passing it.
+- The row asks only for `read-a-folder` (its run names the app, or the folder holding it, at `computer.read-a-folder`). It also starts `/usr/bin/codesign`, which the engine's `base` sandbox lets a run execute, but whether `codesign -dv` and `--entitlements` can reach the Security services they look up under `deny default` has not been measured on the engine. No capability in the engine's `src/runtime/workshop/computer-capabilities.json` grants those lookups yet. If they are denied, `signingFacts` reads the bundle as unsigned, and the check says so in words rather than passing it.
 - The run has not been proved end to end on the engine.
 
 ## Tests

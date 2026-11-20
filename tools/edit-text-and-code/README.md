@@ -42,4 +42,4 @@ The screen's data layer (`@bitfield/runtime-kit` and its React hooks, and `@bitf
 
 **Depends on:** nothing (Node's own modules).
 
-**Depended on by:** `tool-rows.json`. The local engine runs the rows on the person's computer (`computer` kind) after the person grants `change-a-folder`.
+**Depended on by:** `tool-rows.json`. The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.change-a-folder`.

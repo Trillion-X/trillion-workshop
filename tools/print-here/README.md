@@ -27,4 +27,4 @@ Trillion's Mac kept its own copy of these two tools (`computer/print-here.mjs`, 
 
 **Depends on:** the workflows `run-a-function.mjs` runner and its `read-data/host-actions.mjs`, Node's standard library, and the Mac's `lpstat` and `lp`.
 
-**Depended on by:** `tool-rows.json`; the Trillion Mac app's tool host (`computer/mac-tools.json` in Trillion-X/trillion), which runs `printers` and `print` on placement:your-computer and hands `print` its host actions (the file read) and its effect journal. The local engine runs the rows on the person's computer (`computer` kind) after the person grants `use-the-print-system`.
+**Depended on by:** `tool-rows.json`; the Trillion Mac app's tool host (`computer/mac-tools.json` in Trillion-X/trillion), which runs `printers` and `print` on placement:your-computer and hands `print` its host actions (the file read) and its effect journal. The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes).

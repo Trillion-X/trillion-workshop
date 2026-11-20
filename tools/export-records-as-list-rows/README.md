@@ -83,7 +83,7 @@ python3 -I do-work/build_record_write.py --mapping FILE --as-setting account~mai
 
 When the mapping reads `kind: records` (or `lists_read`), the records come in as the records the person's AI read from their own store, with `--records-from FILE`: the builder reads no account and holds no credential.
 
-When `tool:build-records-to-write` runs through Workshop, it is a `computer` row. The person grants it one read folder for the mapping and local sources. It declares no store access: the records the mapping reads come in as the `records` input (`[{ id, type, value }]`, read from the person's store by their AI), and each source takes only the records of its declared type and id prefix. The managed wrapper never reads a Keychain item; it returns the payload as result data and writes only in the run's private temporary folder.
+When `tool:build-records-to-write` runs through Workshop, it is a `computer` row. Its run names one read folder for the mapping and local sources at `computer.read-a-folder`. It declares no store access: the records the mapping reads come in as the `records` input (`[{ id, type, value }]`, read from the person's store by their AI), and each source takes only the records of its declared type and id prefix. The managed wrapper never reads a Keychain item; it returns the payload as result data and writes only in the run's private temporary folder.
 
 `tool:put-records-into-my-account` takes that result directly as its `payload`, and the one record type and id prefix it covers. It is planned in the next section.
 

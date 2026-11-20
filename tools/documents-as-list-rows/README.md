@@ -13,7 +13,7 @@ This is the `documents` row source of the lists, ported from the earlier Trillio
 
 ## Running it
 
-The local engine runs the rows on the person's computer (`computer` kind) after the person grants the tool a folder:
+The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes), on the folder its run input names at `computer.read-a-folder`:
 - `tool:read-documents-as-list-rows` needs `read-a-folder`.
 - `tool:change-a-document-row` needs `change-a-folder`.
 

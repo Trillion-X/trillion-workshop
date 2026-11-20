@@ -34,4 +34,4 @@ The folder also holds the deciding and stopping steps of `workflow:stop-programs
 
 **Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`), Node's standard library, and one reader the computer has: a process table folder, or `osascript` with libproc.
 
-**Depended on by:** `tool-rows.json`. The local engine runs the rows on the person's computer (`computer` kind) after the person grants `read-processes` (and `close-apps` for the stop row). `tools/workflows/recipes/stop-programs-left-running.json` asks the three rows in order.
+**Depended on by:** `tool-rows.json`. The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes) (the stop row also holds `close-apps`). `tools/workflows/recipes/stop-programs-left-running.json` asks the three rows in order.

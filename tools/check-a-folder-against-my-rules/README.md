@@ -34,4 +34,4 @@ This is a different job from `tools/judge-words`. That tool judges the words a p
 
 **Depends on:** nothing (Node 24 in the engine's run; git is used when it is there).
 
-**Depended on by:** `tool-rows.json`. The local engine runs the rows on the person's computer (`computer` kind) after the person grants `read-a-folder` (and `change-a-folder` for the repair).
+**Depended on by:** `tool-rows.json`. The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.read-a-folder` (`computer.change-a-folder` for the repair).

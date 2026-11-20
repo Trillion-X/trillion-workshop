@@ -64,7 +64,7 @@ History proof checks every relevant content event not strictly descended from th
 
 **Depends on:** `tools/content-identity` (BLAKE3), Node's `zlib`, `git` for the repository judge.
 
-**Depended on by:** `tool-rows.json`. The local engine runs the row on the person's computer (`computer` kind) after the person grants `read-a-folder`. `test/every-feature-file-has-a-port-contract.test.mjs` at the root of this repository runs the repository judge wherever the tests run; the check row in the person's check lists (rules-and-their-checks) runs it at commit and push with the full search.
+**Depended on by:** `tool-rows.json`. The local engine runs the row on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.read-a-folder`. `test/every-feature-file-has-a-port-contract.test.mjs` at the root of this repository runs the repository judge wherever the tests run; the check row in the person's check lists (rules-and-their-checks) runs it at commit and push with the full search.
 
 ## A baseline at a different path
 
