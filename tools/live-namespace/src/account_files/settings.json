@@ -48,5 +48,63 @@
     "rank": 1,
     "secret_service": "files-store",
     "secret_field": "secret"
+  },
+  "media_type": {
+    "_what": "What type a file is (src/account_files/media_type.rs, its one owner): the type its first bytes say (`types_by_content`, in order; the first rule that matches wins; a rule with `refine` answers the first refinement that matches, else its own `type`; `find` searches the head for the bytes rather than reading them at `offset`), else the type of its name's ending (`types_by_ending`, the longest ending that matches, without regard to case), else application/octet-stream. `head_bytes` is how much of a file's start is read to decide. The share route reads the same ending map (src/share_bytes).",
+    "head_bytes": 64,
+    "retype_page": 100,
+    "types_by_content": [
+      { "offset": 4, "hex": "66747970", "type": "video/mp4", "refine": [
+          { "offset": 8, "hex": "71742020", "type": "video/quicktime" },
+          { "offset": 8, "hex": "4d344120", "type": "audio/mp4" },
+          { "offset": 8, "hex": "6d696631", "type": "image/heic" },
+          { "offset": 8, "hex": "68656963", "type": "image/heic" }
+        ] },
+      { "offset": 0, "hex": "ffd8ff", "type": "image/jpeg" },
+      { "offset": 0, "hex": "89504e470d0a1a0a", "type": "image/png" },
+      { "offset": 0, "hex": "47494638", "type": "image/gif" },
+      { "offset": 0, "hex": "52494646", "refine": [
+          { "offset": 8, "hex": "57454250", "type": "image/webp" },
+          { "offset": 8, "hex": "57415645", "type": "audio/wav" },
+          { "offset": 8, "hex": "41564920", "type": "video/x-msvideo" }
+        ] },
+      { "offset": 0, "hex": "25504446", "type": "application/pdf" },
+      { "offset": 0, "hex": "494433", "type": "audio/mpeg" },
+      { "offset": 0, "hex": "4f676753", "type": "audio/ogg" },
+      { "offset": 0, "hex": "664c6143", "type": "audio/flac" },
+      { "offset": 0, "hex": "1a45dfa3", "type": "video/x-matroska", "refine": [
+          { "offset": 0, "hex": "7765626d", "find": true, "type": "video/webm" }
+        ] },
+      { "offset": 0, "hex": "504b0304", "type": "application/zip" }
+    ],
+    "types_by_ending": {
+      ".mp4": "video/mp4",
+      ".m4v": "video/mp4",
+      ".mov": "video/quicktime",
+      ".webm": "video/webm",
+      ".mkv": "video/x-matroska",
+      ".mp3": "audio/mpeg",
+      ".m4a": "audio/mp4",
+      ".wav": "audio/wav",
+      ".aac": "audio/aac",
+      ".ogg": "audio/ogg",
+      ".flac": "audio/flac",
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".png": "image/png",
+      ".gif": "image/gif",
+      ".webp": "image/webp",
+      ".heic": "image/heic",
+      ".pdf": "application/pdf",
+      ".txt": "text/plain",
+      ".html": "text/html",
+      ".htm": "text/html",
+      ".js": "text/javascript",
+      ".css": "text/css",
+      ".woff2": "font/woff2",
+      ".svg": "image/svg+xml",
+      ".vtt": "text/vtt",
+      ".json": "application/json"
+    }
   }
 }

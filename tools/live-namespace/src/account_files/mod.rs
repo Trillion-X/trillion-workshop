@@ -58,6 +58,7 @@ pub mod counters;
 pub mod folder;
 pub mod import_index;
 pub(crate) mod names;
+pub mod media_type;
 pub mod objects;
 mod paged_spans;
 pub mod recent;
@@ -1830,6 +1831,43 @@ impl AccountFiles {
         self.write_file_expecting(name, bytes, media_type, origins, None)
     }
 
+    /// `retype_files`: decide the type of each file record that kept none (a missing or octet-stream type), from its first bytes and
+    /// the ending of its first name (`media_type::decide`), and write it through the store's versioned mutate. A record with a stated
+    /// type is left as it is, so a second pass changes nothing. Records are read a page at a time from `after`. Before each record the
+    /// call's control is checked: when it stops, the answer has `stopped` true and `next_after` names the last record done (the cursor
+    /// to resume from, or the caller's own `after` when none was done). `done` is true only when the last page is finished.
+    pub fn retype_files(&mut self, after: Option<&str>, limit: Option<usize>) -> Answer<Value> {
+        let page = self.store.list_page(FILES, after.unwrap_or(""), limit.unwrap_or(media_type::retype_page()).clamp(1, MAX_PAGE_ITEMS))?;
+        let (mut examined, mut retyped, mut unchanged) = (0usize, 0usize, 0usize);
+        let mut resume = after.map(str::to_owned);
+        let mut stopped = false;
+        for record in &page.items {
+            if self.check_current().is_err() {
+                stopped = true;
+                break;
+            }
+            examined += 1;
+            if media_type::is_unknown(text(&record.value, "media_type").unwrap_or_default()) {
+                let size = record.value.get("byte_length").and_then(Value::as_u64).unwrap_or(0);
+                let head = if size == 0 { Vec::new() } else { self.read_range(record, 0, size.min(media_type::head_length() as u64))? };
+                let name = record.value.get("names").and_then(Value::as_array).and_then(|names| names.first()).and_then(Value::as_str).unwrap_or_default();
+                let decided = media_type::decide(name, &head);
+                if media_type::is_unknown(&decided) {
+                    unchanged += 1;
+                } else {
+                    let mut value = record.value.clone();
+                    value["media_type"] = json!(decided);
+                    self.mutate(FILES, Mutation { id: record.id.clone(), expected_version: record.version, request_key: format!("retype:{}:{decided}", record.id), deleted: false, value })?;
+                    retyped += 1;
+                }
+            }
+            resume = Some(record.id.clone());
+        }
+        let next_after = if stopped { resume } else { page.next };
+        let done = !stopped && next_after.is_none();
+        Ok(json!({"examined": examined, "retyped": retyped, "unchanged": unchanged, "next_after": next_after, "stopped": stopped, "done": done}))
+    }
+
     /// The same write. When `expected` is given it is the name's version the caller read (0: the name must not be there): a name
     /// that is another version now is refused with a conflict before any byte is sent, and the name is written only at that version.
     pub fn write_file_expecting(
@@ -1841,6 +1879,8 @@ impl AccountFiles {
         expected: Option<i64>,
     ) -> Answer<Value> {
         self.check_current()?;
+        let recorded = media_type::recorded(name, bytes, media_type);
+        let media_type = recorded.as_str();
         if !name.starts_with('/') || name.ends_with('/') || name.contains('\0') {
             return Err(AccountFilesError::Invalid(
                 "name must be an absolute file path",
@@ -2173,6 +2213,7 @@ impl AccountFiles {
                 Some(_) => Err(AccountFilesError::Invalid("ids is a list of suggestion ids, or left out to apply every accepted one", crate::cause!())),
             },
             "tidy_undo" => self.tidy_undo(field("id")),
+            "retype_files" => self.retype_files(field("after"), number("limit").map(|limit| limit as usize)),
             "tidy_history" => self.tidy_history(number("limit").map(|limit| limit as usize)),
             "keep_look" => input.get("look").ok_or(AccountFilesError::Invalid("look is required (an object, or null to take it away)", crate::cause!()))
                 .and_then(|look| self.keep_look(&look.clone())),

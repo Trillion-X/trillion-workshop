@@ -25,6 +25,7 @@ pub struct Settings {
     pub transfer: Transfer,
     pub described: Described,
     pub new_account_files: NewAccountFilesSettings,
+    pub media_type: super::media_type::MediaTypes,
 }
 
 /// The chunk size of a known-length upload (`chunks-v1`, paged_spans.rs): the most bytes one stored chunk holds.
@@ -121,6 +122,7 @@ impl Settings {
             && page.contains(&self.release.claim_walk)
             && self.release.claim_stale_minutes > 0
             && self.retire.items_per_request > 0
+            && self.media_type.valid()
             && self.results.max_value_bytes > 0
             && self.results.page_bytes >= self.results.max_value_bytes
             && (1..=self.results.max_page_limit).contains(&self.results.default_page_limit)

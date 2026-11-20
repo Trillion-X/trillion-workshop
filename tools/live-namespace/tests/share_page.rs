@@ -38,9 +38,8 @@ impl Reader for Files {
 }
 
 fn config() -> Config {
-    let shipped: Value = serde_json::from_str(include_str!("../settings.json")).unwrap();
     serde_json::from_value(json!({"_what": "t", "listen": "127.0.0.1:1", "window_bytes": 7, "recheck_seconds": 0,
-        "inline_types": ["video/", "image/"], "types_by_ending": shipped["share_bytes"]["types_by_ending"],
+        "inline_types": ["video/", "image/"],
         "page": concat!(env!("CARGO_MANIFEST_DIR"), "/on-a-computer/share-page")})).unwrap()
 }
 

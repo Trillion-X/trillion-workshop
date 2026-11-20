@@ -49,11 +49,10 @@ impl Reader for Files {
     }
 }
 
-/// The route's numbers for a test, with the shipped settings' types by name ending (settings.json `share_bytes.types_by_ending`).
+/// The route's numbers for a test (the types by name ending are the account files' `media_type` rules, read by the route itself).
 fn config(window_bytes: u64) -> Config {
-    let shipped: Value = serde_json::from_str(include_str!("../settings.json")).unwrap();
     serde_json::from_value(json!({"_what": "t", "listen": "127.0.0.1:1", "window_bytes": window_bytes, "recheck_seconds": 0,
-        "inline_types": ["video/", "application/pdf", "text/html"], "types_by_ending": shipped["share_bytes"]["types_by_ending"]})).unwrap()
+        "inline_types": ["video/", "application/pdf", "text/html"]})).unwrap()
 }
 
 struct Served {

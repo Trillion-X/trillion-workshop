@@ -56,7 +56,8 @@
     "tidy_decide",
     "tidy_apply",
     "tidy_undo",
-    "tidy_history"
+    "tidy_history",
+    "retype_files"
   ],
   "search": {
     "_what": "The words in the person's file names, searched with one question (src/account_files/mod.rs AccountFiles::search, the port of old trillion src/search.mjs:1364 `words-in-names`, the `file-names` lane of src/search.json). Input {question, limit?}: the question cut to `question_chars`, its distinct words of at least `min_word_length`; candidates are the files the record store word index holds (every text of a `@namespace/files` record is indexed at write time, its `names` among them) for every uncommon asked word (a word with `word_hits` postings narrows nothing), and a file is kept when every asked word starts a word of the last part of one of its names. Answers {question, terms, results: [{id, source, identity, name, path, title, media_type, byte_length, found_in, places, said, address: {resource, operation, input}, score}], unavailable, pending}; the score is `rank` over (`k` + the file's rank), the weight the old lane had, so a caller merges it with the records' answer (records-routes.json `search`) by rank: a Workshop tool does, as old trillion src/search.mjs:1750 `finish` did; the engine merges nothing. `limit` is 1..`most`.",

@@ -1443,6 +1443,24 @@
         },
         "additionalProperties": false
       }
+    },
+    {
+      "name": "retype_files",
+      "description": "Decide the type of each file that kept none (a missing or octet-stream type) from its first bytes and its name's ending, a page at a time from after. Answers how many were retyped and how many stayed unknown, and next_after: the id to resume after, or null when the last page is done.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "after": {
+            "type": "string",
+            "description": "The id the page starts after (the next_after of the last answer; left out for the first page)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "At most this many records, 1 to 1000"
+          }
+        },
+        "additionalProperties": false
+      }
     }
   ]
 }

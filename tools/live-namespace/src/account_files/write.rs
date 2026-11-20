@@ -9,7 +9,7 @@
 use base64::Engine as _;
 use super::{
     AccountFiles, AccountFilesError, Answer, CHUNK_KIND, CHUNKS, FILE_KIND, FILES, LIVE, SPANS,
-    UPLOAD_KIND, UPLOADS, names_scope, now_iso,
+    UPLOAD_KIND, UPLOADS, media_type, names_scope, now_iso,
     objects::{ObjectError, Origin},
     paged_spans::{self, Span},
     parent, text,
@@ -263,6 +263,7 @@ impl AccountFiles {
 
         let mut value = upload.value.clone();
         value["next_offset"] = json!(end);
+        keep_first_head(&mut value, offset, bytes);
         value["checkpoint"] = serde_json::to_value(accumulator.checkpoint())
             .map_err(|_| AccountFilesError::Invalid("upload checkpoint cannot be stored", crate::cause!()))?;
         if value.get("origin").and_then(Value::as_str).is_none() {
@@ -464,6 +465,7 @@ impl AccountFiles {
         }
         let mut value = upload.value.clone();
         value["next_offset"] = json!(end);
+        keep_first_head(&mut value, offset, bytes);
         if let Some((new_checkpoint, tail)) = new_state {
             value["checkpoint"] = new_checkpoint;
             value["tail"] = json!(crate::account_files::BASE64.encode(tail));
@@ -648,6 +650,7 @@ impl AccountFiles {
         if text(&upload.value, "status") != Some("open") {
             return Err(AccountFilesError::Invalid("upload is not open", crate::cause!()));
         }
+        let media_type = upload_media_type(&upload.value, name);
         let layout = text(&upload.value, "span_layout").unwrap_or(paged_spans::LAYOUT).to_owned();
         let append_layout = layout == paged_spans::APPEND_LAYOUT;
         let (byte_length, identity, span_count) = if append_layout {
@@ -707,11 +710,7 @@ impl AccountFiles {
         } else if byte_length == 0 {
             self.ensure_name_version_for_identity(&upload.value, name, &identity)?;
             let origins = self.origins()?;
-            let (origin, key) = self.keep_empty_file(
-                &identity,
-                text(&upload.value, "media_type").unwrap_or("application/octet-stream"),
-                &origins,
-            )?;
+            let (origin, key) = self.keep_empty_file(&identity, &media_type, &origins)?;
             let (version, record) = self.held(FILES, &identity)?;
             if record.is_some() {
                 return Err(AccountFilesError::Invalid(
@@ -720,7 +719,7 @@ impl AccountFiles {
             }
             self.mutate(FILES, Mutation {
                 id: identity.clone(), expected_version: version, request_key: request_key(upload_id, "file", 0), deleted: false,
-                value: json!({"kind":FILE_KIND,"byte_length":0,"media_type":upload.value["media_type"],"origin":origin,"key":key,
+                value: json!({"kind":FILE_KIND,"byte_length":0,"media_type":media_type,"origin":origin,"key":key,
                     "stored_at":now,"checked_at":now,"spans":0,"aliases":[],"names":[]}),
             })?;
         } else {
@@ -736,7 +735,7 @@ impl AccountFiles {
             }
             self.mutate(FILES, Mutation {
                 id: identity.clone(), expected_version: version, request_key: request_key(upload_id, "file", 0), deleted: false,
-                value: json!({"kind":FILE_KIND,"byte_length":byte_length,"media_type":upload.value["media_type"],"origin":origin,"key":"",
+                value: json!({"kind":FILE_KIND,"byte_length":byte_length,"media_type":media_type,"origin":origin,"key":"",
                     "stored_at":now,"checked_at":now,"spans":span_count,"span_layout":layout,"span_set":upload_id,
                     "aliases":[],"names":[]}),
             })?;
@@ -1590,6 +1589,22 @@ fn piece_in_bounds(length: u64) -> Answer<()> {
          crate::cause!()));
     }
     Ok(())
+}
+
+/// The first piece of an upload that named no type (or octet-stream) keeps its head on the upload row, in the change that moves the
+/// upload past it, so the finish decides the type from it (`media_type::decide`). Later pieces keep nothing new.
+fn keep_first_head(upload: &mut Value, offset: u64, first: &[u8]) {
+    if offset == 0 && upload.get("head").is_none() && media_type::is_unknown(text(upload, "media_type").unwrap_or_default()) {
+        upload["head"] = json!(media_type::head_hex(media_type::head_of(first)));
+    }
+}
+
+/// The type a pieced upload's file is recorded with: the type the upload started with when it says something, else the type decided
+/// from the head its first piece kept and its name.
+fn upload_media_type(upload: &Value, name: &str) -> String {
+    let given = text(upload, "media_type").unwrap_or(media_type::UNKNOWN);
+    let head = media_type::head_from_hex(text(upload, "head").unwrap_or_default());
+    media_type::recorded(name, &head, given)
 }
 
 fn checkpoint(value: &Value) -> Answer<Checkpoint> {
