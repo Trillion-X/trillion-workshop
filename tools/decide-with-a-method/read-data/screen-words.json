@@ -1,0 +1,49 @@
+{
+  "what_this_is": "The words a person reads for a decision's status, its settled result, what the AI did for it, and the free-plan allowance lines. Copied from the old app's src/screen-words.json (keys statuses, results, carried_out, allowance, free) and used only by read-data/report.mjs and read-data/allowance.mjs. A status with no row here shows its own name. `{name}` parts are filled by the caller from facts the decision holds; no number is typed into a sentence.",
+  "statuses": {
+    "needs_decision": {
+      "label": "Open: not decided yet",
+      "short": "Open",
+      "tone": "quiet"
+    },
+    "needs_outcome": {
+      "label": "Decided: waiting to hear how it went",
+      "short": "Waiting for the result",
+      "tone": "quiet"
+    },
+    "outcome_verified": {
+      "label": "Decided: the result was checked and it worked",
+      "short": "It worked",
+      "tone": "good"
+    },
+    "correction_needed": {
+      "label": "Decided, and a new decision is needed: what showed it (a result that did not work, or your disagreement) is a finding the next decision starts from",
+      "short": "Needs a new decision",
+      "tone": "attention"
+    }
+  },
+  "results": {
+    "met": "it worked",
+    "failed": "it did not work",
+    "unknown": "not sure yet"
+  },
+  "carried_out": {
+    "done": "Decided and carried out: {what}. Waiting to hear how it went for you.",
+    "wall": "Decided; the AI stopped at a wall: {what}"
+  },
+  "allowance": {
+    "left": "{left} of {count} free decisions left this {per}.",
+    "used_up": "You have used the {count} free decisions you get each {per}. To keep deciding now, {offer} is {price}: {url}. {paid_worth} Your free decisions start again on {resets_on}.",
+    "per_words": {
+      "day": "day",
+      "month": "month",
+      "year": "year",
+      "week": "week"
+    }
+  },
+  "free": {
+    "keeps": "Nothing from this decision is kept on the free plan. {offer}, {price}, keeps your decisions and what you are working toward, so each one builds on the last: {url}",
+    "withheld": "This is part of {offer} ({price}), not the free plan: {feature}. The free plan is {count} decisions a {per} and nothing else. {offer} adds: {adds}. Upgrade here: {url}",
+    "paid_worth": "It keeps every decision and what you are working toward, so nothing is lost between chats or when a long conversation is shortened, and every AI you use (Claude, ChatGPT, Grok, Gemini, Muse or any other that connects) reads the same account. It also shows how other people's similar decisions turned out, and your AI can run the tools in the Marketplace for you."
+  }
+}
