@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
-# packages/gmail-mailbox-decoder/do-work/__tests__/test_gmail_snapshot_store.py
+# tools/conversations/test/python/test_gmail_snapshot_store.py (was do-work/__tests__/*.py.held, port of the gmail-mailbox-decoder test)
 #
 # Characterization tests written BEFORE this store adopted the shared fold, so
 # they describe the behavior that existed and must survive the adoption:
 # existing wins on a collision, ordering is by the dedup field as text, entries
 # without that field are dropped, and folding twice changes nothing.
 #
-# Run: python3 test_gmail_snapshot_store.py   (exit 0 = pass)
+# Run: python3 tools/conversations/test/python/test_gmail_snapshot_store.py   (exit 0 = pass)
 
 import importlib.util
 import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DO_WORK = os.path.dirname(HERE)
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(DO_WORK)),
-                                "conversation-snapshot-fold", "do-work"))
+DO_WORK = os.path.join(HERE, "..", "..", "do-work")
 
 spec = importlib.util.spec_from_file_location(
     "gmail_snapshot_store", os.path.join(DO_WORK, "gmail_snapshot_store.py"))

@@ -24,8 +24,8 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import conversation_snapshot_fold as csf  # noqa: E402  (co-mounted pure leaf)
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "read-data"))
+import snapshot_fold as csf  # noqa: E402  (the shared fold, read-data/snapshot_fold.py)
 
 
 def merge_snapshot(existing_messages, new_messages, dedup_by="id"):
