@@ -5211,7 +5211,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "internet": true,
      "stdout": "json",
      "argv": [
       "node",

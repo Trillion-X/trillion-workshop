@@ -41,7 +41,7 @@
           "kind": "computer",
           "capabilities": ["use-git-in-a-folder"],
           "workdir": "/opt/keep-the-shared-checkout-current",
-          "internet": true, "public_read": true,
+          "internet": true, "hosts": ["github.com"],
           "stdout": "json",
           "argv": [
             "node",
