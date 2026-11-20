@@ -58,7 +58,7 @@ test('the memory outbox confirms a send in a later turn, to the listener and to 
   assert.deepEqual(await source.read(['k']), { records: { k: 'v' } });
 });
 
-test('the engine names no server, no Worker store module and no socket: those live in records-worker-source.ts', () => {
+test('the engine names no server, no Worker store module and no socket: a source keeps its own', () => {
   const engine = readFileSync(new URL('./records.ts', import.meta.url), 'utf8');
   for (const forbidden of [/\/work\//, /quiet-writes/, /store-changes/, /live-room/, /from '\.\/api'/]) {
     assert.doesNotMatch(engine, forbidden);

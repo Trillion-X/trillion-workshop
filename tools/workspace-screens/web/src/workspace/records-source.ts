@@ -5,7 +5,7 @@
 //   engine reads records by label, sends write batches, keeps small writes until a store accepts them, and follows
 //   changes made elsewhere. The page mounts the source it uses once, at its entry (setWorkspaceRecordsSource). Nothing
 //   in the engine names a server or an address: a source that talks to a server keeps its addresses to itself
-//   (records-worker-source.ts is the Workshop Worker's source). Two sources need no server: memoryRecordsSource() keeps
+//   (remoteRecordsSource(transport) takes the host's own reads and writes). Two sources need no server: memoryRecordsSource() keeps
 //   records in this page's memory, and seededRecordsSource(rows) starts that memory from rows the page gives at mount.
 //
 // SHAPE (the smallest set the sidebar and the screen arrangement call, plus what the engine keeps for its own writes)

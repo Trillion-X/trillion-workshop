@@ -1,5 +1,5 @@
-// The page the records default test builds: it imports the records engine and nothing else, and reads one label. With no
-// source mounted, the engine's own default (the Workshop Worker's store) must answer it.
+// The page the records no-source test builds: it imports the records engine and nothing else, mounts no source, and reads
+// one label. The read must fail with the engine's plain words, and nothing may leave the page.
 import { readSavedLabels } from '../../web/src/workspace/records.ts';
 
 (window as unknown as { readSettled: Promise<unknown> }).readSettled = readSavedLabels(['record-a']).then(

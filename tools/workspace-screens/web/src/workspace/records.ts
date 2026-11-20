@@ -5,7 +5,7 @@
 //   person's saved state. Those screens ask for records by name (`useBitfieldData('layout-state')`) and change them with
 //   label-addressed read and write requests (`sendRequestToBitfieldTarget`). Here those two calls are answered: records
 //   are held in memory, and every read and write goes to the source the page mounted (records-source.ts). This file
-//   names no server; the Workshop Worker's source (records-worker-source.ts) keeps each write in the person's own store.
+//   names no server, and mounts no source: a page that never mounts one fails in plain words (records-source.ts, invariant 1).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. One record per address label. A read and a write of the same label reach the same value, whatever address
@@ -47,11 +47,10 @@ import { makeHashCodeHexFromBytes } from './content-identity.mjs';
 export { makeHashCodeHexFromBytes } from './content-identity.mjs';
 import { jsonExpansionBytes } from 'trillion-workshop/tools/json-expansion.mjs';
 import inputs from './inputs.json' with { type: 'json' };
-import { activeRecordsSource, onRecordsSourceMounted, RECORDS_OP, setWorkspaceRecordsSource, type RecordsAdmin, type RecordsLiveRoom, type RecordsOutbox, type RecordsReceipt, type WorkspaceDocumentRevision } from './records-source.ts';
+import { activeRecordsSource, onRecordsSourceMounted, RECORDS_OP, type RecordsAdmin, type RecordsLiveRoom, type RecordsOutbox, type RecordsReceipt, type WorkspaceDocumentRevision } from './records-source.ts';
 import recordPlaces from './record-places.json' with { type: 'json' };
 import cacheData from './record-cache.json' with { type: 'json' };
 import { startupRecordLabels } from './startup-records.mjs';
-import { workerRecordsSource } from './records-worker-source.ts';
 export type { WorkspaceDocumentRevision } from './records-source.ts';
 
 type Selector = string | { input: string; params?: Record<string, unknown> } | undefined;
@@ -1196,11 +1195,6 @@ async function writePlaced(writes: Write[], conflictPolicy?: 'preserve' | 'retry
   notify();
   return written;
 }
-
-// Until a host mounts its own source (setWorkspaceRecordsSource), the page's records are the Workshop Worker's store, the
-// same road every signed-in page has always taken. Mounted here, after the hooks above are registered, so each hook
-// attaches to it.
-setWorkspaceRecordsSource(workerRecordsSource());
 
 // Label-addressed reads and writes of the person's records (and of records placed in a room, invariant 9).
 answerTarget(LABEL_ADDRESSED, request => {
