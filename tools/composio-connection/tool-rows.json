@@ -1,0 +1,167 @@
+{
+  "kind": "tool-rows",
+  "record_set": "composio-connection-tool-rows",
+  "what_this_is": "The Workshop rows for the tools in tools/composio-connection: the Composio connection every Composio tool reaches its account through, and the list of connected accounts that finds each account's owning user id.",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::tool::list-my-connected-accounts",
+      "address": "package::ai-tool-catalog::tool::list-my-connected-accounts",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-my-connected-accounts",
+        "label": "List my connected accounts in Composio",
+        "job": "Find which Composio account each connected app belongs to, and the user id that owns it, so a tool can run as that user",
+        "description": "Asks Composio, with the vault's Composio key, for the connected accounts that key can see (of one app when a toolkit is named): each account's id, the user id that owns it, its app, alias and status. It reads only: nothing is created, changed or removed. The key goes only to Composio's own host and appears in no answer.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "toolkit": {
+              "type": "string",
+              "description": "The app's lower-case slug, for example twitter; every app's accounts when absent"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "toolkit",
+            "count",
+            "accounts"
+          ],
+          "properties": {
+            "toolkit": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "count": {
+              "type": "integer"
+            },
+            "accounts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "user_id",
+                  "toolkit",
+                  "status"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "user_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "toolkit": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "alias": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "status": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/composio-connection",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/composio-connection/do-work/list-connected-accounts.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "composio-api-key",
+              "fd": 4
+            }
+          ],
+          "files": {
+            "package_files": [
+              {
+                "package": "composio-connection",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/composio-connection"
+              }
+            ]
+          },
+          "connection": null
+        },
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true
+        },
+        "maker": "maker:composio-connection",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "toolkit": "twitter"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://backend.composio.dev/api/v3/connected_accounts?toolkit_slugs=twitter"
+                },
+                "status": 200,
+                "body": {
+                  "items": [
+                    {
+                      "id": "twitter_sample_account",
+                      "user_id": "sample-owner",
+                      "toolkit": {
+                        "slug": "twitter"
+                      },
+                      "alias": "x-account",
+                      "status": "ACTIVE"
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-20"
+          }
+        ]
+      }
+    }
+  ]
+}

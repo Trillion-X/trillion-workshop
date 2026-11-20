@@ -50428,5 +50428,15 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": []
+ "tool:your-files-names": [],
+ "tool:list-my-connected-accounts": [
+  {
+   "package": "composio-connection",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/composio-connection"
+  }
+ ]
 }

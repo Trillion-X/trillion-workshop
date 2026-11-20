@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tool:list-my-connected-accounts's own row (its words, input schema and sample run) and the stand-in test in tools/composio-connection/test/composio-accounts.test.mjs; no live Composio call was made when this was written",
+  "start_here": "Say to your AI: \"List my connected accounts in Composio\", with the app (for example twitter). It answers each account with the user id that owns it.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it reads Composio's account list.",
+  "workflows": [],
+  "tools": [
+    "tool:list-my-connected-accounts",
+    "tool:tell-the-person"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"List my connected accounts in Composio\", and give it the app's slug (twitter).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:list-my-connected-accounts and its input (the worked example shows one).",
+    "3. Read the answer: each account's id, the user_id that owns it, and its status."
+  ],
+  "worked_examples": [
+    {
+      "title": "List my connected accounts in Composio",
+      "ask": "List my connected accounts in Composio",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-my-connected-accounts",
+            "input": {
+              "toolkit": "twitter"
+            }
+          }
+        }
+      },
+      "given": "The input {\"toolkit\":\"twitter\"} with a stand-in Composio answer of one made-up account in the test.",
+      "hands_back": "The stand-in test answered count 1 with the account twitter_sample_account and its owner sample-owner; no live Composio call was made, so the real account list is not yet read."
+    }
+  ]
+}
