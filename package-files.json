@@ -41510,7 +41510,7 @@
   {
    "package": "workflows",
    "paths": [
-    "do-work/resolve-citations-here.mjs",
+    "do-work/run-a-function.mjs",
     "read-data/resolve-citations.mjs",
     "read-data/citation-resolvers.mjs",
     "citation-resolvers.json"
@@ -54448,5 +54448,21 @@
   }
  ],
  "tool:your-files": [],
- "tool:your-files-names": []
+ "tool:your-files-names": [],
+ "tool:list-posts-by-status": [
+  {
+   "package": "social-posts",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/social-posts"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ]
 }

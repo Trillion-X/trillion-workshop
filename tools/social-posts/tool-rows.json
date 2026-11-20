@@ -6193,6 +6193,112 @@
         ],
         "result_selector": "$"
       }
+    },
+    {
+      "id": "package::social-posts::tool::list-posts-by-status",
+      "address": "package::social-posts::tool::list-posts-by-status",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:social-posts",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:list-posts-by-status",
+        "label": "List my posts by status",
+        "job": "List this person's posts with one status (draft, approved, scheduled, posted or failed), earliest scheduled first",
+        "description": "Give status (one of draft, approved, scheduled, posted, failed) and records (the person's post records, as the caller read them from a store: { id, type: 'post', value }). Returns posts: each with post_id, status, scheduled_for and caption. Reads only what it is given; changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "records"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "approved",
+                "scheduled",
+                "posted",
+                "failed"
+              ]
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The person's post records as the caller read them: { id, type: 'post', value }."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "posts"
+          ],
+          "properties": {
+            "posts": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/social-posts",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/social-posts/read-data/posts-by-status.mjs",
+            "listForInput"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "social-posts",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/social-posts"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "the posting owner's status list (read-data/native-post-lifecycle.mjs statuses), made into a read-only row so an AI can list posts by status again"
+        },
+        "verify": [],
+        "result_selector": "$.result"
+      }
     }
   ]
 }

@@ -17,3 +17,8 @@ export function listPostsByStatus(records, status) {
     .map(post => ({ post_id: post.post_id ?? null, status: post.status, scheduled_for: post.scheduled_for ?? null, caption: post.caption ?? '' }));
   return posts.sort((left, right) => timeOf(left) - timeOf(right) || String(left.post_id).localeCompare(String(right.post_id)));
 }
+
+/** The entry tool:list-posts-by-status calls: { records, status } in, { posts } out. Read-only; changes nothing. */
+export function listForInput(input) {
+  return { posts: listPostsByStatus(input?.records, input?.status) };
+}

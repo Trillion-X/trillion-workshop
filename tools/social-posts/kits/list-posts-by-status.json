@@ -1,0 +1,62 @@
+{
+  "drafted_from": "tool:list-posts-by-status's own row (its words, input schema and steps); the posting owner's statuses",
+  "start_here": "Say to your AI: \"List my posts that are scheduled\", and give it the status and the person's post records.",
+  "lists": [],
+  "no_lists_because": "It takes the post records it is given and keeps nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:list-posts-by-status"
+  ],
+  "instructions": [
+    "1. Say to your AI which status to list (draft, approved, scheduled, posted or failed) and give it the person's post records.",
+    "2. The AI calls tool:list-posts-by-status with status and records.",
+    "3. Read what comes back: posts, each with post_id, status, scheduled_for and caption."
+  ],
+  "worked_examples": [
+    {
+      "title": "List made-up scheduled posts",
+      "ask": "List my posts that are scheduled",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-posts-by-status",
+            "input": {
+              "status": "scheduled",
+              "records": [
+                {
+                  "id": "post:sample-1",
+                  "type": "post",
+                  "value": {
+                    "post_id": "post:sample-1",
+                    "status": "scheduled",
+                    "scheduled_for": "2099-06-01T09:00:00Z",
+                    "caption": "A made-up post."
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": {
+        "status": "scheduled",
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "status": "scheduled",
+              "scheduled_for": "2099-06-01T09:00:00Z",
+              "caption": "A made-up post."
+            }
+          }
+        ]
+      },
+      "hands_back": "It answered {\"posts\":[{\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"scheduled_for\":\"2099-06-01T09:00:00Z\",\"caption\":\"A made-up post.\"}]} (run on the test's made-up records; not yet run on the Mac)."
+    }
+  ]
+}
