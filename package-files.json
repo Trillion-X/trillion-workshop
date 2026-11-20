@@ -17140,6 +17140,53 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:keep-hearing-session": [
+  {
+   "package": "listen-for-a-while",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/listen-for-a-while"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  }
+ ],
  "tool:hear-for-a-device": [
   {
    "package": "listen-for-a-while",

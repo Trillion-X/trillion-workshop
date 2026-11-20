@@ -1,0 +1,47 @@
+{
+  "drafted_from": "tool:keep-hearing-session row in tools/listen-for-a-while/tool-rows.json and keepHearingSession in read-data/keep-hearing-session.mjs (the keep step of tool:hear-sources; the old automatic keeping, computer/hearing-sources.mjs:50-57 @b7dc53d08a)",
+  "start_here": "Say to your AI: \"Keep the session tool:hear-sources answered in my proofs database.\" It runs tool:keep-hearing-session with the session record and the database name.",
+  "lists": [],
+  "no_lists_because": "It names no list: it writes the session record it is given into the hearing_sessions table of the database named in its input, and nothing else.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-hearing-session",
+    "tool:hear-sources"
+  ],
+  "instructions": [
+    "1. Run tool:hear-sources first and keep its `session` answer.",
+    "2. Say \"Keep that session in <database>\" and call do_one_thing_in_my_account at @tools with method tools:run and tool tool:keep-hearing-session (session is required; database names the person's database).",
+    "3. Read the answer: kept_in is the table and kept is the number of records written."
+  ],
+  "worked_examples": [
+    {
+      "title": "A session record is kept in the person's database",
+      "ask": "Keep the session the hearing answered in my proofs database.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-hearing-session",
+            "input": {
+              "database": "proofs_for_who_runs_it",
+              "session": {
+                "id": "bd435513d5990856",
+                "program": "whisper-cli",
+                "flags": {},
+                "sources": [
+                  "system-audio",
+                  "microphone"
+                ],
+                "at": 1795164697204
+              }
+            }
+          }
+        }
+      },
+      "given": "The session record tool:hear-sources answered for two recordings (bd435513d5990856).",
+      "hands_back": "The answer names kept_in hearing_sessions and kept 1; the record is one row in that table, its id bd435513d5990856. A session already kept under the same id is refused, and nothing is written."
+    }
+  ]
+}
