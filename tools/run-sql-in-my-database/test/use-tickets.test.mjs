@@ -47,6 +47,8 @@ before(async () => {
   await admin.query(`CREATE ROLE ${BYPASSER} LOGIN BYPASSRLS`);
   await admin.query(`CREATE DATABASE ${DATABASE} OWNER ${OWNER}`);
   await admin.query(`REVOKE ALL ON DATABASE ${DATABASE} FROM PUBLIC`);
+  // PUBLIC may make temporary tables here, as on a database made without own-database: the recipe must take that away.
+  await admin.query(`GRANT TEMPORARY ON DATABASE ${DATABASE} TO PUBLIC`);
   await admin.query(`GRANT CONNECT ON DATABASE ${DATABASE} TO ${MAKER}`);
   await admin.end();
   // The reader is a standing login made by the computer's login maker (a-login), with the password the computer holds.
@@ -134,6 +136,8 @@ test('the reader cannot read the keys or the claims, add a claim, drop or loosen
     ["CREATE OR REPLACE FUNCTION use_binding.run_purpose() RETURNS text LANGUAGE sql AS $$ SELECT 'coach/review' $$", /permission denied for schema use_binding/],
     ['CREATE TABLE mine (a int)', /permission denied for schema public/],
     ['CREATE TEMP TABLE mine (a int)', /permission denied to create temporary tables/],
+    ['CREATE TEMP TABLE use_settings (name text, value text)', /permission denied to create temporary tables/],
+    ['CREATE TEMP TABLE use_grants (subject text)', /permission denied to create temporary tables/],
     ["UPDATE clip SET allowed = 'publish:social/instagram'", /permission denied for table clip/],
   ]) await assert.rejects(under(publish, sql), refused, sql);
   const flags = await runSql({ connection: owner, input: { sql: 'SELECT rolsuper, rolbypassrls, rolcreaterole, rolcreatedb FROM pg_roles WHERE rolname = $1', params: [READER] } });
