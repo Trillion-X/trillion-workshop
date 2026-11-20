@@ -1876,7 +1876,9 @@ export async function main(argv, seams = {}) {
   const requestKey = randomUUID();
   const call = TASK_COMMANDS.has(command) ? argumentsFor(command, { words, flags }, { me: context.me, held: context.state.held(), requestKey }) : null;
   const client = await signedInClient(context);
-  if (call) return taskCommand(client, context, { command, call, flags, requestKey, stdinBytes, stdout: seams.stdout ?? process.stdout, print });
+  // A move the task rows do not allow is said in the rows' own words, as a refusal (status 1), never as a program failure.
+  if (call) return taskCommand(client, context, { command, call, flags, requestKey, stdinBytes, stdout: seams.stdout ?? process.stdout, print })
+    .catch(error => { throw error?.code === 'tool_refused' ? new CommandError(error.message, { status: 1 }) : error; });
   if (command === 'publish') {
     const held = words[0] === undefined ? null : await readJson(words[0], '{"kind": "cli"}');
     return JSON.stringify(await publishRecord(client, context, { held }), null, 2);

@@ -22,11 +22,11 @@ const RECORDS = '@own-records';
 const TOOLS = '@tools';
 
 // Every record of `type` (whose `where` fields equal), page after page, at most `most` of them.
-async function every(resource, type, where, most) {
+async function every(resource, type, where, most, pageSize) {
   const found = [];
   let after = null;
   do {
-    const page = await resource(RECORDS, 'records:list', { type, ...(where ? { where } : {}), limit: Math.min(100, most - found.length), ...(after ? { after } : {}) });
+    const page = await resource(RECORDS, 'records:list', { type, ...(where ? { where } : {}), limit: Math.min(pageSize, most - found.length), ...(after ? { after } : {}) });
     if (!Array.isArray(page?.records)) throw new Error(`The account did not return its ${type} records.`);
     for (const row of page.records) found.push({ id: row.id, type, value: row.value ?? null });
     after = page.next ?? null;
@@ -37,13 +37,14 @@ async function every(resource, type, where, most) {
 /** The records one move needs, read through the caller's transport. */
 export async function readFor(resource, read = {}, { rules = RULES } = {}) {
   const most = rules.most_tasks_read;
+  const pageSize = rules.page_size ?? 100;
   const held = new Map();
   const add = rows => { for (const row of rows) if (!held.has(row.id)) held.set(row.id, row); };
   if (read.tasks) {
     const statuses = read.tasks.statuses ?? [null];
-    for (const status of statuses) add(await every(resource, rules.task_kind, status === null ? read.tasks.where : { ...read.tasks.where, status }, most));
+    for (const status of statuses) add(await every(resource, rules.task_kind, status === null ? read.tasks.where : { ...read.tasks.where, status }, most, pageSize));
   }
-  for (const type of read.types ?? []) add(await every(resource, type, null, rules.most_people_read));
+  for (const type of read.types ?? []) add(await every(resource, type, null, rules.most_people_read, pageSize));
   // records:read answers the record's own value (the engine's read is the value, native-record-consumers.mjs), or null.
   for (const { type, id } of read.ids ?? []) {
     if (held.has(id)) continue;
@@ -151,13 +152,20 @@ export function wordsOfStates(states, rules = RULES) {
 export const statesFrom = (action, rules = RULES) => [...new Set(rules.transitions.filter(edge => edge.action === action).map(edge => edge.from))];
 
 /** One task row run over the records it needs, its writes kept where they were read. */
+/** What a tool said on its error output: the `error` of the JSON it wrote there, else the text itself. */
+function saidIn(text) {
+  if (typeof text !== 'string' || !text.trim()) return null;
+  try { const said = JSON.parse(text); return typeof said?.error === 'string' ? said.error : text.trim(); } catch { return text.trim(); }
+}
+
 /** One tool run to its answer: tools:run, read again while it is still running. Answers the tool's own result. */
 async function toolResult(resource, tool, input, key, { reads = 5, waitSeconds = 10 } = {}) {
   let answer = await resource(TOOLS, 'tools:run', { tool, input }, key);
   for (let attempt = 0; answer?.task_id && !['completed', 'failed'].includes(answer.state) && attempt < reads; attempt += 1) {
     answer = await resource(TOOLS, 'tools:read', { task_id: answer.task_id, wait_seconds: waitSeconds });
   }
-  if (answer?.state === 'failed' || (answer?.exit_code && answer.exit_code !== 0)) throw new Error(answer.error ?? answer.stderr ?? `${tool} failed.`);
+  // A tool that answers with its own refusal (a rule that does not allow the move) is said as that refusal, code tool_refused.
+  if (answer?.state === 'failed' || (answer?.exit_code && answer.exit_code !== 0)) throw Object.assign(new Error(answer.error ?? saidIn(answer.stderr) ?? `${tool} failed.`), { code: 'tool_refused' });
   if (answer?.task_id && answer.state !== 'completed') throw new Error(`${tool} is still running; its request key ${key} reads it again.`);
   const output = answer?.output ?? answer;
   return output?.result ?? output;
