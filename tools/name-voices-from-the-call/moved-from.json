@@ -7,17 +7,19 @@
     {
       "from": "src/voice-guesses.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/name-voices-from-the-call/from-an-older-version/src/voice-guesses.mjs",
+      "to": "tools/name-voices-from-the-call/read-data/guess-voices.mjs",
       "source_identity": "1f:c6360134bec437cb571c5cfbb2bde4352568e1e63e1ce68613e60b116008495f",
-      "identity": "1f:c6360134bec437cb571c5cfbb2bde4352568e1e63e1ce68613e60b116008495f"
+      "identity": "1f:803fa349aa770f1dae072d2d55afc5bb2a917283313ef34d8859208732627a36",
+      "moved_by": "L07 reorganize: part of the tool at read-data/guess-voices.mjs (header line changed; identity is of the bytes here)"
     },
     {
       "from": "src/voice-guesses.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/name-voices-from-the-call/from-an-older-version/src/voice-guesses.mjs",
+      "to": "tools/name-voices-from-the-call/read-data/guess-voices.mjs",
       "source_identity": "1f:c6360134bec437cb571c5cfbb2bde4352568e1e63e1ce68613e60b116008495f",
-      "identity": "1f:c6360134bec437cb571c5cfbb2bde4352568e1e63e1ce68613e60b116008495f",
-      "reused": true
+      "identity": "1f:803fa349aa770f1dae072d2d55afc5bb2a917283313ef34d8859208732627a36",
+      "reused": true,
+      "moved_by": "L07 reorganize: part of the tool at read-data/guess-voices.mjs (header line changed; identity is of the bytes here)"
     },
     {
       "from": "test/voice-guesses.test.mjs",

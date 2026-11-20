@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import waiting from '../../keep-and-wake-ai-sessions-on-this-computer/src/waiting-on-you.json' with { type: 'json' };
-import { guessVoices } from '../from-an-older-version/src/voice-guesses.mjs';
+import { guessVoices } from '../read-data/guess-voices.mjs';
 
 const section = waiting.sources.voices;
 const people = [
