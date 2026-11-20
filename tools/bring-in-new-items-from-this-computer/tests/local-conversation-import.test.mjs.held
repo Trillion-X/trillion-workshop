@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 
 const root = new URL('../../../', import.meta.url).pathname;
-const packageRoot = join(root, 'packages', 'observed-content');
+const packageRoot = join(root, 'tools', 'bring-in-new-items-from-this-computer');
 const fixture = (name) => readFileSync(join(packageRoot, 'tests', 'fixtures', name));
 const script = join(packageRoot, 'do-work', 'process-scripts', 'prepare-local-conversation-import.py');
 // Ported from Python to Node; the test kept shelling `python3` at the old `.py` path, which had
@@ -15,7 +15,7 @@ const script = join(packageRoot, 'do-work', 'process-scripts', 'prepare-local-co
 // than a completed port. The argument contract is unchanged: the module takes the same three
 // positional paths (`process.argv.slice(2)` -> request, evidence, receipt), which is why only the
 // interpreter and the extension move here.
-const custodyScript = join(root, 'packages', 'local-files', 'do-work', 'verify-selected-addressed-evidence.mjs');
+const custodyScript = join(root, 'tools', 'choose-and-save-local-files', 'do-work', 'verify-selected-addressed-evidence.mjs');
 const packageManifest = JSON.parse(readFileSync(join(packageRoot, 'things-to-store-and-run.json'), 'utf8'));
 const localFilesManifest = JSON.parse(readFileSync(join(root, 'packages', 'local-files', 'things-to-store-and-run.json'), 'utf8'));
 const geminiDecoder = join(root, 'packages', 'gemini-logs-decoder', 'do-work', 'process-scripts', 'decode-gemini-logs.py');

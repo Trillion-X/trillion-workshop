@@ -7,9 +7,8 @@ import sqlite3
 import sys
 
 
-PACKAGES = Path(__file__).parents[2]
-SCRIPT = PACKAGES / "observed-content/do-work/process-scripts/decode-apple-notes-sqlite.py"
-sys.path.insert(0, str(PACKAGES / "transcript-mapper/do-work/process-scripts"))
+TOOL = Path(__file__).parents[1]
+SCRIPT = TOOL / "do-work/process-scripts/decode-apple-notes-sqlite.py"
 spec = importlib.util.spec_from_file_location("decode_apple_notes_sqlite", SCRIPT)
 decoder = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(decoder)
@@ -155,7 +154,8 @@ def test_committed_wal_revision_is_visible_without_mutating_any_store_file(tmp_p
 
 
 def test_sidecar_observations_collapse_to_one_stable_store_revision():
-    from bitfield_crypto import content_hash
+    sys.path.insert(0, str(TOOL.parent / "conversations" / "read-data"))
+    from content_identity import content_hash
 
     observations = [
         {"native_ref": "/notes/NoteStore.sqlite", "content_multihash": "1f:main"},

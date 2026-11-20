@@ -242,9 +242,17 @@ def _store_path(native_ref):
     return text
 
 
+def _mount_conversations_owner():
+    """content_identity.py and transcript_mapper.py are owned by the conversations tool: mount that folder, never copy it."""
+    folder = str(pathlib.Path(__file__).resolve().parents[3] / "conversations" / "read-data")
+    if folder not in sys.path:
+        sys.path.insert(0, folder)
+
+
 def _one_store_observation(observations):
     """Collapse one store's sidecar observations into one revisioned event."""
-    from bitfield_crypto import content_hash
+    _mount_conversations_owner()
+    from content_identity import content_hash
 
     first = dict(observations[0])
     main = _store_path(first.get("native_ref"))
@@ -261,6 +269,7 @@ def _one_store_observation(observations):
 
 def decode(observation, descriptor):
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+    _mount_conversations_owner()
     import transcript_mapper as tm
 
     source_ref = observation.get("source_ref") or descriptor.get("source_ref") or "source:apple-notes"

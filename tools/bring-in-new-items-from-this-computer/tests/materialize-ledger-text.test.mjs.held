@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { prepareLedgerTextAtom, verifyLedgerTextAtom } from '../do-work/materialize-ledger-text.mjs';
-import { prepareObservedQuestion } from '../../content-generation/do-work/prepare-observed-question.mjs';
+import { prepareObservedQuestion } from '../../write-from-a-recipe/packages/content-generation/do-work/prepare-observed-question.mjs';
 
 function input(venture) {
   const sourceRef = `source:${venture}:audience`;
