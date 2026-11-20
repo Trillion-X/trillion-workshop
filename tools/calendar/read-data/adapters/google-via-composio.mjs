@@ -5,7 +5,7 @@
 
 import { eventOf } from './google.mjs';
 
-export async function readEvents({ execute, accountId, userId }, { calendarId, rangeStart, rangeEnd, maxResults }) {
+export async function readEvents({ execute, accountId, userId, projectId }, { calendarId, rangeStart, rangeEnd, maxResults }) {
   const data = await execute('GOOGLECALENDAR_EVENTS_LIST', accountId, {
     calendarId: calendarId ?? 'primary',
     timeMin: rangeStart,
@@ -13,6 +13,6 @@ export async function readEvents({ execute, accountId, userId }, { calendarId, r
     singleEvents: true,
     orderBy: 'startTime',
     maxResults,
-  }, userId);
+  }, userId, projectId);
   return (Array.isArray(data?.items) ? data.items : []).map(eventOf);
 }

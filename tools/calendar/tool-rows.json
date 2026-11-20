@@ -719,6 +719,14 @@
                 "connected_at": {
                   "type": "string",
                   "description": "When that account was connected (not read by the run)"
+                },
+                "user_id": {
+                  "type": "string",
+                  "description": "The Composio user id that owns the account, when the connection names one (a Composio connection needs it with a person's own key)"
+                },
+                "project_id": {
+                  "type": "string",
+                  "description": "The Composio project id, when the connection names one (a person's own Composio key needs it)"
                 }
               }
             },
