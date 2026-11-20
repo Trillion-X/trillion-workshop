@@ -137124,20 +137124,21 @@
         "produces": "A list of everything the old home let a person do and see, each checked in the new home, and every missing one brought back.",
         "input_schema": {
           "type": "object",
-          "required": [
-            "old",
-            "new"
-          ],
+          "required": [],
           "properties": {
             "old": {
               "type": "string",
               "minLength": 3,
-              "description": "Where the old one is"
+              "description": "Where the old one is. Left out when a fact is given: then old is the moved-from paths and removed folders in input.fact.after"
             },
             "new": {
               "type": "string",
               "minLength": 3,
-              "description": "Where it moves to"
+              "description": "Where it moves to. Left out when a fact is given: then new is each moves[].new path, or none when nothing took the code"
+            },
+            "fact": {
+              "type": "object",
+              "description": "The workflow-chosen fact's something-changed fact when a main line moved: after is JSON text {counts, moves: [{old, new}], removed: [paths], cut}, where is the repository, key the new head commit, kinds the kinds that held"
             }
           }
         },
@@ -137168,7 +137169,9 @@
                     "operator": "has_any_of",
                     "params": {
                       "values": [
-                        "design-request"
+                        "design-request",
+                        "old-code-parked",
+                        "old-code-removed"
                       ]
                     }
                   }
@@ -137177,14 +137180,14 @@
             },
             "made_by": "derived",
             "state": "On",
-            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch). Changed 2026-11-19 (lane class-fix-port-without-losing-anything): old-code-parked and old-code-removed are the kinds tools/notice-when-something-shows-up's repository-main-line waiter sets when a main line parks or removes past its thresholds; the label is the condition in words."
           }
         ],
         "steps": [
           {
             "id": "inventory",
             "title": "List everything the old one does",
-            "do": "Use the old one yourself (or read its source) and list every action, piece of information, layout and way in it offered, including what only shows on hover, selection or right-click.",
+            "do": "If the input has old and new, use them. If it has a fact instead, read fact.after (JSON text: moves as old -> new paths, removed paths, counts). Then use the old one yourself (or read its source) and list every action, piece of information, layout and way in it offered, including what only shows on hover, selection or right-click.",
             "submit": {
               "type": "object",
               "required": [

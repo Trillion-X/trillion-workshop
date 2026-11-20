@@ -690,6 +690,65 @@
               "steps": 2,
               "wall_ms": 600000
             }
+          },
+          {
+            "id": "keep-noticing-main-line",
+            "on": {
+              "running": {}
+            },
+            "budget": {
+              "steps": 2,
+              "wall_ms": 600000
+            },
+            "retry": {
+              "attempts": 64,
+              "factor": 2,
+              "first_ms": 30000,
+              "most_ms": 600000
+            },
+            "input": {
+              "waiters": [
+                {
+                  "kind": "notice-when-something-shows-up.waiter-descriptor",
+                  "id": "waiter:repository-main-line",
+                  "is_active": true,
+                  "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
+                  "mechanism_leaf": "repository-main-line.mjs",
+                  "mechanism_settings": {
+                    "repository": "https://github.com/Trillion-X/trillion-workshop",
+                    "where": "workshop-main-line",
+                    "branch": "main",
+                    "park_folders": [
+                      "from-*"
+                    ],
+                    "removed_lines_at_least": 40,
+                    "removed_files_at_least": 2,
+                    "park_at_least": 1,
+                    "look_again_seconds": 300
+                  },
+                  "emitted_record": {
+                    "change_kind": "something-changed",
+                    "address_label": "where::something-changed",
+                    "path_labels": [
+                      "current-item",
+                      "something-changed"
+                    ],
+                    "payload_fields": [
+                      "where",
+                      "place",
+                      "change",
+                      "at",
+                      "key",
+                      "before",
+                      "after",
+                      "kinds"
+                    ]
+                  },
+                  "candidate_identity_feed": null,
+                  "why": "A repository's main line moved (GitHub compare API, public repository, no credential). A move is told only when a kind holds: old-code-parked (a park folder took code in or lost code) or old-code-removed (lines or files removed past the thresholds in this row). Thresholds are DATA here so a small edit never wakes a run."
+                }
+              ]
+            }
           }
         ],
         "provenance": {

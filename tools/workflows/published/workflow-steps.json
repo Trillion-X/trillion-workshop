@@ -5601,7 +5601,7 @@
    "id": "port-without-losing-anything--inventory",
    "values": {
     "checks": "[{\"kind\":\"distinct-at-least\",\"path\":[\"this\",\"capabilities\",\"*\",\"id\"],\"count\":3,\"says\":\"At least three separate capabilities are listed\"}]",
-    "do": "Use the old one yourself (or read its source) and list every action, piece of information, layout and way in it offered, including what only shows on hover, selection or right-click.",
+    "do": "If the input has old and new, use them. If it has a fact instead, read fact.after (JSON text: moves as old -> new paths, removed paths, counts). Then use the old one yourself (or read its source) and list every action, piece of information, layout and way in it offered, including what only shows on hover, selection or right-click.",
     "flags": [
      "public"
     ],
