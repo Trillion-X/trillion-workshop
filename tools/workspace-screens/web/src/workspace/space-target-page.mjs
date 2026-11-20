@@ -7,11 +7,20 @@ export const spacePageKey = kinds => JSON.stringify([...new Set(kinds ?? [])].so
 // A list's declared kinds select its owner rows before pagination. Several kinds share one chronological
 // cursor: merge their bounded pages, and continue strictly before the last returned owner row.
 const encoder = new TextEncoder();
-// Protective page limits (space-target-page.json). A page over either limit is refused as a whole.
-function checkedPage(page) {
-  if (!Array.isArray(page?.items) || page.items.length > limits.max_items) throw new Error('This list page has too many items.');
-  if (encoder.encode(JSON.stringify(page)).byteLength > limits.max_page_bytes) throw new Error('This list page is too large to show.');
-  return page;
+const cursorOf = row => `${row.provenance.added_at}${row.item_id}`;
+
+// Protective page limits (space-target-page.json). A page over either limit is cut, not refused: the longest run of
+// rows from the top that fits at most max_items rows and max_page_bytes of JSON. A single row over the byte cap is
+// still returned alone, so the caller can page on past it.
+function fitRows(page, rows) {
+  let count = Math.min(rows.length, limits.max_items);
+  while (count > 1 && encoder.encode(JSON.stringify({ ...page, items: rows.slice(0, count) })).byteLength > limits.max_page_bytes) count -= 1;
+  return rows.slice(0, count);
+}
+
+function pageItems(page) {
+  if (!Array.isArray(page?.items)) throw new Error('This list page has no items.');
+  return page.items;
 }
 
 export async function readSpaceListPage(address, read, { kinds, before, limit = limits.default_limit } = {}) {
@@ -25,13 +34,25 @@ export async function readSpaceListPage(address, read, { kinds, before, limit = 
     if (selected.length) query.set('limit', String(limit));
     return `${address}/items${query.size ? `?${query}` : ''}`;
   };
-  if (selected.length < 2) return checkedPage(await read(path(selected[0])));
-  const pages = await Promise.all(selected.map(kind => read(path(kind)).then(checkedPage)));
-  const cursorOf = row => `${row.provenance.added_at}${row.item_id}`;
-  const rows = [...new Map(pages.flatMap(page => page.items).map(row => [row.item_id, row])).values()]
+  if (selected.length < 2) {
+    const page = await read(path(selected[0]));
+    const items = fitRows(page, pageItems(page));
+    return items.length === page.items.length ? page : { ...page, items, next_before: cursorOf(items.at(-1)) };
+  }
+  const pages = await Promise.all(selected.map(kind => read(path(kind))));
+  const kept = pages.map(page => {
+    const items = fitRows(page, pageItems(page));
+    return { items, cut: items.length < page.items.length };
+  });
+  // A kind page cut short leaves its older rows unread, so only rows at or above the highest such cut are safe to show.
+  const floor = kept.filter(part => part.cut).map(part => cursorOf(part.items.at(-1)))
+    .reduce((high, key) => high === null || key > high ? key : high, null);
+  const rows = [...new Map(kept.flatMap(part => part.items).map(row => [row.item_id, row])).values()]
+    .filter(row => floor === null || cursorOf(row) >= floor)
     .sort((a, b) => cursorOf(a) < cursorOf(b) ? 1 : cursorOf(a) > cursorOf(b) ? -1 : 0);
-  const items = rows.slice(0, limit);
-  return { ...pages[0], items, next_before: items.length && (rows.length > limit || pages.some(page => page.next_before)) ? cursorOf(items.at(-1)) : null };
+  const items = fitRows(pages[0], rows.slice(0, limit));
+  const more = rows.length > items.length || floor !== null || pages.some(page => page.next_before);
+  return { ...pages[0], items, next_before: items.length && more ? cursorOf(items.at(-1)) : null };
 }
 
 export async function readSpaceTargetPage(address, itemId, read, options) {
