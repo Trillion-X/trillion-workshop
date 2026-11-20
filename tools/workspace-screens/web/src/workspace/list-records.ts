@@ -29,7 +29,9 @@ import data from 'trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-comp
 export type Field = { id: string; label: string; kind: string; links_to?: string; choices?: string[] } & Record<string, unknown>;
 export type Kind = { id: string; label: string; icon?: string; kind: string; ruleKind: string; value: string; record_pick?: boolean; links?: boolean; document?: boolean; media?: boolean; carries?: { key: string } };
 export type View = { id: string; label: string; search: string; rules?: unknown; sort?: {field: string; direction: 'asc' | 'desc'}[]; groups?: {field: string; bucket?: string}[]; columns?: {order?: string[]; hidden?: string[]}; time?: {field: string; after?: unknown; before?: unknown}; display?: {as: string; settings?: Record<string, unknown>} };
-export type List = { scope?: RecordScope; context?: RecordContext; managed_rows?: {open_field?: string; create_on_screen?: boolean; share_record?: boolean}; id: string; label: string; icon?: string; about?: string; row_type: string; title_field: string | null; fields: Field[]; views?: View[] };
+// `offered_views`: the view ids this list offers, in bar order (none named: every view its fields can draw). `add_label`: the words
+// of its add-a-row button (none: "Add row").
+export type List = { scope?: RecordScope; context?: RecordContext; managed_rows?: {open_field?: string; create_on_screen?: boolean; share_record?: boolean}; id: string; label: string; icon?: string; about?: string; row_type: string; title_field: string | null; fields: Field[]; views?: View[]; offered_views?: string[]; add_label?: string };
 export type Row = { scope?: RecordScope; context?: RecordContext; id: string; title: string | null; values: Record<string, unknown>; links: Record<string, { id: string; title: string; scope?: RecordScope }[]> };
 export type Read = { list: List; rows: Row[]; next: string | null; where: Record<string, unknown> | null; field_kinds: Kind[]; depends: ReadDepends | null };
 export type RowPut = { id?: string; values: Record<string, unknown> };

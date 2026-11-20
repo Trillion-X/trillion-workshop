@@ -28,6 +28,7 @@ import { sidebarCollections, type ScreenRow, type SidebarListsData } from '../sr
 import { activeRecordsSource } from '../src/workspace/records-source';
 import { setLiveChangesOffered } from '../src/workspace/store-changes';
 import { setSavedViewsOffered } from '../src/workspace/record-configurations';
+import { keepRecordViewPreferencesOnThisPage } from '../../../ui/show/record-views/record-view-preferences';
 import { readSavedLabels } from '../src/workspace/records';
 import { keepShowRules } from '../src/workspace/show-rules-live';
 import { applyChosenScreenLook } from '../../../screen-look/show/apply-chosen-screen-look';
@@ -51,6 +52,8 @@ if (host.site_look) applyScreenLookValues(host.site_look.id, customPropertiesOf(
 // neither. Its screens keep what they show from the host's answers.
 setLiveChangesOffered(false);
 setSavedViewsOffered(false);
+// The page keeps each list's view choice on the page and the device, with no account store behind it (no save error).
+keepRecordViewPreferencesOnThisPage();
 const hostValues = await subjectOf(host);
 const LIST = `placeable-surface-list::${host.placement}`;
 

@@ -29,7 +29,7 @@
 
 export { cn } from './show/cn';
 // Saved screens may install their own declared preference read/write owner.
-export { keepRecordViewPreferencesIn, useRecordViewPreference, writeRecordViewPreference } from './show/record-views/record-view-preferences';
+export { keepRecordViewPreferencesIn, keepRecordViewPreferencesOnThisPage, useRecordViewPreference, writeRecordViewPreference } from './show/record-views/record-view-preferences';
 export type { RecordViewPreferenceStore } from './show/record-views/record-view-preferences';
 export { applySceneStyleToElement, realizeSceneStyle, sceneStyleToCss, measureNaturalTextWidth } from './show/composition-scene-style';
 export type { CompositionSceneStyle, SceneStyleRealization } from './show/composition-scene-style';

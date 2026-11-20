@@ -408,6 +408,8 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
       status: !read.next ? undefined : readingEvery ? `Read ${rows.length.toLocaleString()} rows so far; reading the rest for the search, filter, sort or selection.`
         : `Showing the first ${rows.length.toLocaleString()} rows. More are read as you scroll.`,
       views: [{ id: 'table', label: 'Table' }, { id: 'board', label: 'Board' }, { id: 'gallery', label: 'Gallery' }], view: named ?? drawnAs,
+      // The views this list's own row names (none named: every view its fields can draw, as before).
+      offeredViewIds: list.offered_views,
       ...(row ? { reveal: { id: row, nonce: 1 } } : {}),
       // A kind that carries how its value is worked out (a formula, a button) is added by the person's AI (save_list), which
       // writes what it carries; the add-field form offers the kinds a name alone makes.
@@ -476,7 +478,7 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
         const link = new URL(`/lists/${encodeURIComponent(id)}`, location.origin); link.searchParams.set('saved_view', viewId);
         await navigator.clipboard.writeText(link.href); notify('Saved view link copied', {kind: 'done'});
       },
-      primaryAction: list.managed_rows?.create_on_screen ? undefined : { label: 'Add row', icon: 'Plus', onSelect: () => change('The row could not be added', () => keep([{ values: list.title_field ? { [list.title_field]: 'New row' } : {} }])) },
+      primaryAction: list.managed_rows?.create_on_screen ? undefined : { label: list.add_label ?? 'Add row', icon: 'Plus', onSelect: () => change('The row could not be added', () => keep([{ values: list.title_field ? { [list.title_field]: 'New row' } : {} }])) },
       emptyMessage: 'No rows yet. Add one, or ask your AI to fill this list.',
     };
     if (views) views.update(options); else views = mountRecordViews(host, options);

@@ -104,6 +104,7 @@ const NotesDocument = lazyPart(() => import('../notes-document/NotesDocument'), 
 import {allOf, effectiveRule, type NodeRuleStore} from '../rule-filter/focus-chain'
 import {nodeRulePath, nodeRuleStore} from '../rule-filter/focus-records'
 import {viewsOfferedToEveryList} from './every-list-views'
+import {pickOfferedViews} from './offered-views'
 import {DESIGNED_VIEWS_PREFERENCE, designedRecordView, keptRows, type DesignedViewRow} from './view-designs'
 import type {GroupGraph} from 'trillion-workshop/tools/turn-frames-into-slides/read-data/group-graph.ts'
 import type {AddressRef} from 'trillion-workshop/tools/turn-frames-into-slides/read-data/visual-layer-types.ts'
@@ -468,6 +469,10 @@ export type RecordViewsOptions = {
    *  public page), where a sheet to edit or a history of changes has nothing
    *  to show. */
   onlyTheseViews?: boolean
+  /** The ids of the views this list offers, in bar order (DATA: a list's own row names them). Named, only these views are offered,
+   *  each one the views above and every view offered to every list that the list's fields can draw. Not named, every view
+   *  offered is offered, as before. An id the list cannot draw is left out. */
+  offeredViewIds?: string[]
   /** Show how many records there are beside the title (on unless false). A list whose view already shows its whole
    *  window (a calendar's week) leaves it off, where a number beside the name says nothing. */
   count?: boolean
@@ -1238,6 +1243,7 @@ export function RecordViews({
   designAction,
   views: givenViews = DEFAULT_VIEWS,
   onlyTheseViews = false,
+  offeredViewIds,
   count: showCount = true,
   view: givenView,
   defaultView,
@@ -1365,8 +1371,10 @@ export function RecordViews({
     // A view the caller only names (no render of its own) that a part draws is drawn by that part: the caller chooses
     // which views lead and in what order, the part draws them (the one Draw wherever a list names its canvas).
     const drawn = (mine: RecordView) => (mine.render || mine.mount ? mine : offered.find(option => option.id === mine.id && (option.render || option.mount)) ?? mine)
-    return [...givenViews.map(drawn), ...offered.filter((option, index) => !givenViews.some(mine => mine.id === option.id) && offered.findIndex(other => other.id === option.id) === index)]
-  }, [givenViews, onlyTheseViews, fields, nesting, keptDesigns])
+    const all = [...givenViews.map(drawn), ...offered.filter((option, index) => !givenViews.some(mine => mine.id === option.id) && offered.findIndex(other => other.id === option.id) === index)]
+    if (!offeredViewIds) return all
+    return pickOfferedViews(all, offeredViewIds)
+  }, [givenViews, onlyTheseViews, offeredViewIds, fields, nesting, keptDesigns])
   const savedView = readPreferences().view
   const offeredView = (id: string | undefined) => (id && views.some(option => option.id === id) ? id : undefined)
   const firstView = givenView ?? offeredView(savedView) ?? offeredView(defaultView) ?? views[0]?.id ?? 'table'
