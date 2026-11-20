@@ -17,21 +17,23 @@ const fail = (message, status) => Object.assign(new Error(message), { status });
 // The old tables, under the old names, so rows kept before this port still read.
 const TABLES = [
   'CREATE TABLE IF NOT EXISTS labels(relay TEXT NOT NULL,label TEXT NOT NULL,by_relay TEXT NOT NULL,at TEXT NOT NULL,PRIMARY KEY(relay,label,by_relay))',
-  'CREATE TABLE IF NOT EXISTS native_moderation_history(sequence INTEGER PRIMARY KEY AUTOINCREMENT,relay TEXT NOT NULL,label TEXT NOT NULL,by_relay TEXT NOT NULL,at TEXT NOT NULL,action TEXT NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS native_moderation_history(relay TEXT NOT NULL,label TEXT NOT NULL,by_relay TEXT NOT NULL,at TEXT NOT NULL,action TEXT NOT NULL,PRIMARY KEY(relay,label,by_relay,at,action))',
   'CREATE TABLE IF NOT EXISTS native_moderation_erased_relays(relay TEXT PRIMARY KEY)',
 ];
 
-// `db.exec(sql, ...values)` answers the rows of a select (an empty list for a write).
-export function labelAPerson({ db, input, now = () => new Date().toISOString() }) {
+// `db.exec(sql, ...values)` answers (a promise of) the rows of a select, an empty list for a write. The DDL is the same in
+// SQLite and Postgres, so the same code runs on the person's Postgres database and on a test database.
+export async function labelAPerson({ db, input, now = () => new Date().toISOString() }) {
   const { relay, label, by } = input ?? {};
   if (typeof relay !== 'string' || !relay || typeof by !== 'string' || !by) throw fail('Give the target and the labeler.', 400);
   if (!declared.has(label)) throw fail(`label is one of: ${[...declared].join(', ')}`, 400);
-  for (const sql of TABLES) db.exec(sql);
-  if (db.exec('SELECT 1 FROM native_moderation_erased_relays WHERE relay IN(?,?) LIMIT 1', relay, by).length)
+  for (const sql of TABLES) await db.exec(sql);
+  if ((await db.exec('SELECT 1 FROM native_moderation_erased_relays WHERE relay IN(?,?) LIMIT 1', relay, by)).length)
     throw fail('An erased moderation identity cannot publish another label.', 410);
-  if (!db.exec('SELECT 1 FROM labels WHERE relay=? AND label=? AND by_relay=?', relay, label, by).length) {
-    db.exec('INSERT INTO labels(relay,label,by_relay,at) VALUES(?,?,?,?)', relay, label, by, now());
-    db.exec('INSERT INTO native_moderation_history(relay,label,by_relay,at,action) VALUES(?,?,?,?,?)', relay, label, by, now(), 'label');
+  if (!(await db.exec('SELECT 1 FROM labels WHERE relay=? AND label=? AND by_relay=?', relay, label, by)).length) {
+    const at = now();
+    await db.exec('INSERT INTO labels(relay,label,by_relay,at) VALUES(?,?,?,?)', relay, label, by, at);
+    await db.exec('INSERT INTO native_moderation_history(relay,label,by_relay,at,action) VALUES(?,?,?,?,?)', relay, label, by, at, 'label');
   }
   return { labelled: relay, label };
 }

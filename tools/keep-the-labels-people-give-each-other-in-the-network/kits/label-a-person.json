@@ -1,0 +1,40 @@
+{
+  "start_here": "Say to your AI: \"Label Sam as unsafe in my shop database, from me.\" Your AI calls tool:label-a-person with the database, the person and the label, and reports that the label was written once.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it writes rows of the labels table and its history in the database named in the input, and no list row.",
+  "workflows": [],
+  "tools": [
+    "tool:label-a-person"
+  ],
+  "instructions": [
+    "1. Name the database the label is written in, such as shop_for_who_runs_it. Its connection must be held in your vault under that name with -connection.",
+    "2. Say the person being labelled (relay), the label (unwanted-requests, unsafe or vouched) and who gives it (by).",
+    "3. Read the answer: labelled and label say what was written. A label you already gave writes nothing new."
+  ],
+  "worked_examples": [
+    {
+      "title": "Give a person the vouched label",
+      "ask": "Vouch for Sam in my shop database.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:label-a-person",
+            "input": {
+              "database": "shop_for_who_runs_it",
+              "relay": "sam@example.com",
+              "label": "vouched",
+              "by": "me@example.com"
+            }
+          }
+        }
+      },
+      "given": "Sam has not been labelled by you before.",
+      "hands_back": "{\"result\":{\"labelled\":\"sam@example.com\",\"label\":\"vouched\",\"database\":\"shop_for_who_runs_it\"}}"
+    }
+  ],
+  "drafted_from": "tools/keep-the-labels-people-give-each-other-in-the-network/do-work/label-a-person.mjs and test/label-a-person.test.mjs"
+}
