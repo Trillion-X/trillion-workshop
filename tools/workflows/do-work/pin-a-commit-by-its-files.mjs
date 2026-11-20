@@ -115,17 +115,34 @@ export function duplicateLayouts(rows) {
   return duplicates;
 }
 
-/** What in the commit's package-files.json would stop a run, as readable lines (none when it has no such file): a laid-out
- *  path of a package item that is neither a file of the commit nor a folder holding one, and a place one row lays twice
- *  (duplicateLayouts). The same rules as test/package-files.test.mjs, judged on the commit's own files. */
+/** The ids of the container tool rows that name package files (invoke.files.package_files), read from every tools/<tool>/tool-rows.json
+ *  of the commit. A row that cannot be read is skipped here, as the tool's own loader reports it. */
+export function toolRowsNeedingPackageFiles(files) {
+  const ids = [];
+  for (const [path, bytes] of files) {
+    if (!/^tools\/[^/]+\/tool-rows\.json$/.test(path)) continue;
+    let records;
+    try { records = JSON.parse(bytes.toString('utf8')).records ?? []; } catch { continue; }
+    for (const { payload } of records) {
+      if (payload?.kind === 'ai-tool-descriptor' && payload.invoke?.kind === 'container' && (payload.invoke.files?.package_files ?? []).length) ids.push(payload.id);
+    }
+  }
+  return ids;
+}
+
+/** What in the commit's package-files.json would stop a run, as readable lines: a container tool row that names package files and
+ *  has no key of its own in package-files.json (the Mac then fails its run with Cannot find module), a laid-out path of a package
+ *  item that is neither a file of the commit nor a folder holding one, and a place one row lays twice (duplicateLayouts). The same
+ *  rules as test/package-files.test.mjs, judged on the commit's own files. */
 export function layoutProblems(files) {
   const layout = files.find(([path]) => path === LAYOUT_FILE);
-  if (!layout) return [];
+  const rows = layout ? JSON.parse(layout[1].toString('utf8')) : {};
+  const problems = toolRowsNeedingPackageFiles(files).filter(id => !(id in rows))
+    .map(id => `${id} is a container tool that names package files, and package-files.json has no key for it`);
+  if (!layout) return problems;
   const paths = new Set(files.map(([path]) => path));
   const folders = new Set();
   for (const path of paths) for (let cut = path.lastIndexOf('/'); cut > 0; cut = path.lastIndexOf('/', cut - 1)) folders.add(path.slice(0, cut));
-  const rows = JSON.parse(layout[1].toString('utf8'));
-  const problems = [];
   for (const [row, items] of Object.entries(rows)) {
     for (const item of items) {
       if (item.package) for (const path of item.paths ?? []) {

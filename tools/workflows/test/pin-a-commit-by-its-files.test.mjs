@@ -98,3 +98,30 @@ test('a commit whose paths entry lays one path twice is not pinned', () => {
     (error) => error.problems?.[0] === 'tool:a lays /opt/kit/do-work/run.mjs twice');
 });
 
+
+test('a container tool row that names package files needs its key in package-files.json, and a row that names none needs none', () => {
+  const address = 'https://archives.example.com/{commit}.tar.gz';
+  const container = (id, packageFiles) => JSON.stringify({ records: [{ payload: { kind: 'ai-tool-descriptor', id,
+    invoke: { kind: 'container', files: packageFiles === undefined ? {} : { package_files: packageFiles } } } }] });
+  const laid = [{ package: 'kit', paths: ['do-work/run.mjs'], at: '/opt/kit' }];
+  const commitOf = (name, files) => {
+    const repository = mkdtempSync(join(tmpdir(), `pin-a-container-${name}-`));
+    const git = (...args) => execFileSync('git', ['-C', repository, ...args], { encoding: 'utf8' }).trim();
+    git('init', '-q');
+    for (const [path, text] of Object.entries(files)) { mkdirSync(join(repository, path, '..'), { recursive: true }); writeFileSync(join(repository, path), text); }
+    git('add', '-A');
+    git('-c', 'user.name=Example', '-c', 'user.email=maker@example.com', 'commit', '-q', '-m', name);
+    return { repository, commit: git('rev-parse', 'HEAD') };
+  };
+  const base = { 'tools/kit/do-work/run.mjs': 'export {}' };
+  const noKey = commitOf('no-key', { ...base, 'tools/kit/tool-rows.json': container('tool:needs-files', laid), 'package-files.json': '{}' });
+  assert.throws(() => pinOf(noKey.repository, noKey.commit, address), (error) =>
+    error.problems?.length === 1 && error.problems[0] === 'tool:needs-files is a container tool that names package files, and package-files.json has no key for it');
+  const noLayoutFile = commitOf('no-layout-file', { ...base, 'tools/kit/tool-rows.json': container('tool:needs-files', laid) });
+  assert.throws(() => pinOf(noLayoutFile.repository, noLayoutFile.commit, address), (error) => error.problems?.[0] === 'tool:needs-files is a container tool that names package files, and package-files.json has no key for it');
+  const withKey = commitOf('with-key', { ...base, 'tools/kit/tool-rows.json': container('tool:needs-files', laid),
+    'package-files.json': JSON.stringify({ 'tool:needs-files': laid }) });
+  assert.equal(pinOf(withKey.repository, withKey.commit, address).files, 3, 'a row with its key is pinned');
+  const noPackageFiles = commitOf('no-package-files', { ...base, 'tools/kit/tool-rows.json': container('tool:plain', undefined) });
+  assert.equal(pinOf(noPackageFiles.repository, noPackageFiles.commit, address).files, 2, 'a container row that names no package files needs no key');
+});
