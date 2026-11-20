@@ -178,7 +178,10 @@ export function changesOf(event, data, context) {
     const event_key = change === "changed" ? `${key}:changed:${wordsIdentity(parts)}` : `${key}:${change}`;
     changes.push({ event_key, at, detail: { where: own.where, place: "message", change, at, key, by: by ?? null, after, kinds: JSON.stringify(own.kinds) } });
   };
-  const senderOf = (item) => (item.key.fromMe ? account : item.key.participant ?? item.participant ?? item.key.remoteJid);
+  // The first of these that names someone: Baileys 7 gives a message in a chat with one person an empty participant (""), so a
+  // fall back on null alone told an empty sender for every such message (the first live one, 9:55:51 PM CST Nov 19).
+  const named = (...values) => values.find((value) => typeof value === "string" && value.trim() !== "") ?? null;
+  const senderOf = (item) => (item.key.fromMe ? named(account) : named(item.key.participant, item.participant, item.key.remoteJid));
   const wanted = (item) => item?.key?.id && item.key.remoteJid && item.key.remoteJid !== "status@broadcast" && (own.include_own || !item.key.fromMe);
   if (event === "messages.upsert" || event === "messaging-history.set") {
     const live = event === "messages.upsert" && data.type === "notify";

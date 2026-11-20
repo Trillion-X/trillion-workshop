@@ -292,3 +292,12 @@ test('linked is told once when the socket opens after WhatsApp restarts it (515)
   assert.equal(facts.filter(fact => fact.detail.change === 'added' && fact.detail.place === 'link').length, 1, 'no second code was asked for');
   assert.equal(JSON.parse(facts.at(-1).detail.after).state, 'connected');
 });
+
+test('a message in a chat with one person whose participant is empty is from the friend', () => {
+  const said = { key: { id: 'E1', remoteJid: FRIEND, participant: '', fromMe: false }, participant: '', messageTimestamp: AT, message: { conversation: 'hello' } };
+  const [change] = changesOf(...upsert([said]), context());
+  assert.equal(change.detail.by, FRIEND);
+  assert.equal(JSON.parse(change.detail.after).from, FRIEND);
+  const [removed] = changesOf('messages.update', [{ key: { id: 'E1', remoteJid: FRIEND, participant: '' }, update: { message: null, messageStubType: 1 } }], context());
+  assert.equal(JSON.parse(removed.detail.after).from, FRIEND);
+});
