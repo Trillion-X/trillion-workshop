@@ -244,7 +244,7 @@
       },
       "toolkit_choice": {
        "type": "object",
-       "description": "The person's pick over the toolkit rows: { toolkit, drop?, add? }, the id of one offered toolkit, tool ids to drop from it and tool ids to add"
+       "description": "The person's pick over the toolkit rows: { toolkit, drop?, add?, swap? }, the id of one offered toolkit, tool ids to drop from it, tool ids to add, and swap { slot: [pointer] }: parts that replace the toolkit's own in those slots (a slot it lacks is added), as a swap row read with read_toolkit_swaps_call (type record:toolkit-swap) carries them in value.swap"
       },
       "known_tools": {
        "type": "array",
@@ -935,6 +935,21 @@
       "package": "walk-a-new-person-through-first-setup",
       "kind": "toolkit",
       "file": "toolkits"
+     }
+    },
+    "invoke_with": "tool:walk-a-new-person-through-first-setup"
+   }
+  },
+  {
+   "payload": {
+    "kind": "tool-row-source",
+    "id": "source:starter-toolkit-swaps",
+    "label": "Starter swaps: parts a person swaps into any toolkit's cart for another way of setting up (their own domain, no domain, a machine they already run), one file in swaps/",
+    "list": {
+     "records": {
+      "package": "walk-a-new-person-through-first-setup",
+      "kind": "toolkit-swap",
+      "file": "swaps"
      }
     },
     "invoke_with": "tool:walk-a-new-person-through-first-setup"

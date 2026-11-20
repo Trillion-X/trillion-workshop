@@ -20,6 +20,10 @@ const TOOLKIT_TYPE = 'record:toolkit';
 /** The one read that finds the toolkit rows: every list is read with records:list at the person's own records. */
 export const TOOLKITS_READ = { address: '@own-records', method: 'records:list', input: { type: TOOLKIT_TYPE } };
 
+/** The read that finds swap rows (type record:toolkit-swap, swaps/): parts a person swaps into any toolkit's cart. A swap row's
+ *  value.swap is handed in as choice.swap as it stands, so a way of setting up is picked apart from the toolkit. */
+export const TOOLKIT_SWAPS_READ = { address: '@own-records', method: 'records:list', input: { type: 'record:toolkit-swap' } };
+
 const idList = (value, name) => {
   if (value === undefined) return [];
   if (!Array.isArray(value) || !value.every(id => typeof id === 'string' && TOOL_ID.test(id))) {

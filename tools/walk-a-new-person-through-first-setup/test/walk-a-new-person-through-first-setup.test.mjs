@@ -74,6 +74,7 @@ const toolkits = [
 test('the plan names the one read that finds the toolkit rows: records:list of type record:toolkit at the person\'s own records', () => {
   const plan = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted });
   assert.deepEqual(plan.read_toolkits_call, { address: '@own-records', method: 'records:list', input: { type: 'record:toolkit' } });
+  assert.deepEqual(plan.read_toolkit_swaps_call, { address: '@own-records', method: 'records:list', input: { type: 'record:toolkit-swap' } });
 });
 
 test('a row that is not a toolkit row, or has no value, is refused', () => {
