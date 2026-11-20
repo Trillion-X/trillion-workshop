@@ -11308,6 +11308,14 @@
                   "value": {}
                 }
               }
+            },
+            "method_row": {
+              "type": "object",
+              "description": "The method's old_store.method row (its id, name and steps), read by the caller's own SQL; with checklist_rows it replaces records"
+            },
+            "checklist_rows": {
+              "type": "array",
+              "description": "The old_store.w_decision_step_checklist rows that hold the method's checks, read by the caller's own SQL"
             }
           }
         },
@@ -11341,8 +11349,8 @@
           "argv": [
             "node",
             "/opt/records-door/do-work/run-an-export.mjs",
-            "/opt/decide-with-a-method/method-rows/view.mjs",
-            "readAMethod"
+            "/opt/decide-with-a-method/method-rows/read-a-method-input.mjs",
+            "readAMethodInput"
           ],
           "stdin": {
             "fill": {
@@ -11357,6 +11365,8 @@
                   "method-rows/view.mjs",
                   "method-rows/answers.mjs",
                   "method-rows/settings.json",
+                  "method-rows/read-a-method-input.mjs",
+                  "method-rows/store-records.mjs",
                   "read-data/decide-with-a-method.json"
                 ],
                 "at": "/opt/decide-with-a-method"

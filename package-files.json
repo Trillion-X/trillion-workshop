@@ -37864,6 +37864,8 @@
     "method-rows/view.mjs",
     "method-rows/answers.mjs",
     "method-rows/settings.json",
+    "method-rows/read-a-method-input.mjs",
+    "method-rows/store-records.mjs",
     "read-data/decide-with-a-method.json"
    ],
    "at": "/opt/decide-with-a-method"
