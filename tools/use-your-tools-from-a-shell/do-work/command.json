@@ -82,8 +82,8 @@
     }
   },
   "site_clients": {
-    "_what": "Other OAuth client documents the site serves beside the command's own, each a page of the site written from a tool's own file (path from this folder), filled like client-metadata.json: a page a person's computer serves on its loopback door signs in with one of these. A loopback redirect names no port (application_type native: the sign-in matches it at any port, RFC 8252 section 8.3).",
-    "pages": [{"page": "pages/tool:serve-the-task-pages/client.json", "file": "../../see-what-is-being-worked-on/task-page/client-metadata.json"}]
+    "_what": "Other OAuth client documents the site serves beside the command's own, each a page of the site written from a tool's own file (path from this folder), filled like client-metadata.json: a page a person's computer serves on its loopback door signs in with one of these, and so does the phone app (its account-origin.json `client_id`), whose redirect is its own private-use scheme, {cli}-share. A loopback redirect names no port (application_type native: the sign-in matches it at any port, RFC 8252 section 8.3).",
+    "pages": [{"page": "pages/tool:serve-the-task-pages/client.json", "file": "../../see-what-is-being-worked-on/task-page/client-metadata.json"}, {"page": "iphone/client.json", "file": "../../better-auth-official/clients/iphone.json"}]
   },
   "install": {
     "follow": {

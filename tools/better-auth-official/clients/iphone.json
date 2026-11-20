@@ -1,0 +1,16 @@
+{
+  "client_id": "{origin}/iphone/client.json",
+  "client_name": "{site_name} for iPhone",
+  "application_type": "native",
+  "redirect_uris": [
+    "{cli}-share://oauth/callback"
+  ],
+  "grant_types": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "response_types": [
+    "code"
+  ],
+  "token_endpoint_auth_method": "none"
+}
