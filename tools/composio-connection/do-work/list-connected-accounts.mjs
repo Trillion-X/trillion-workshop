@@ -10,7 +10,7 @@ import { makeComposioAccounts } from '../read-data/composio-accounts.mjs';
 
 /** The accounts answer: the count and the accounts, with no key in it. */
 export async function listConnectedAccounts(request = {}, { list = makeComposioAccounts() } = {}) {
-  const accounts = await list({ toolkit: request.toolkit });
+  const accounts = await list({ toolkit: request.toolkit, projectId: request.project_id });
   return { toolkit: request.toolkit ?? null, count: accounts.length, accounts };
 }
 

@@ -49,3 +49,13 @@ test('the tool answers the count and the accounts, and no answer carries the key
   assert.deepEqual(answer, { toolkit: 'twitter', count: 1, accounts: [{ id: 'x1', user_id: 'owner-1', toolkit: 'twitter', alias: null, status: 'ACTIVE' }] });
   assert.equal(JSON.stringify(answer).includes(STAND_IN_KEY), false);
 });
+
+test('a person\'s own key is sent as the user key header with the project id, and the project id is never a guess', async () => {
+  const sent = [];
+  const send = async (url, init) => { sent.push(init); return reply(200, { items: [] }); };
+  const listAccounts = makeComposioAccounts({ read: () => 'uak_stand-in-not-real', send });
+  await listAccounts({ projectId: 'pr_stand_in_not_real' });
+  assert.equal(sent[0].headers['x-user-api-key'], 'uak_stand-in-not-real');
+  assert.equal(sent[0].headers['x-project-id'], 'pr_stand_in_not_real');
+  assert.equal(sent[0].headers['x-api-key'], undefined);
+});

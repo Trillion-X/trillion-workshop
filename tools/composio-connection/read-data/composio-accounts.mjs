@@ -5,13 +5,14 @@
 // nothing is created, changed or removed. Every Composio tool finds the owning user id of an account here, not by a guess.
 //
 // Non-Negotiable Invariants:
-// 1. The key is read from descriptor 4 only, when a request needs it, and sent only in the x-api-key header of a request to
+// 1. The key is read from descriptor 4 only, when a request needs it, and sent only in its auth headers (keyHeaders) of a request to
 //    the Composio host, over https, never followed by a redirect (the same rule as composio-call.mjs).
 // 2. A reply Composio refuses is refused with its own words; an answer that is not JSON is refused, never read as an empty list.
 // 3. A toolkit name that is not a lower-case slug is refused before any request leaves.
 // 4. No answer or error carries the key.
 
 import { readFileSync } from 'node:fs';
+import { keyHeaders } from './composio-call.mjs';
 
 const HELD_DESCRIPTOR = 4;
 const SAID = 300;
@@ -39,12 +40,12 @@ export function makeComposioAccounts({ read = descriptor => readFileSync(descrip
     if (!key) throw new Refused('The Composio key is not held: add composio-api-key to the vault, then run again.');
     return key;
   };
-  return async function listAccounts({ toolkit } = {}) {
+  return async function listAccounts({ toolkit, projectId } = {}) {
     if (toolkit !== undefined && (typeof toolkit !== 'string' || !/^[a-z0-9_-]+$/.test(toolkit))) throw new Refused(`A toolkit is named by its lower-case slug, not ${JSON.stringify(toolkit)}.`);
     const url = new URL(LIST);
     if (toolkit) url.searchParams.set('toolkit_slugs', toolkit);
     if (url.protocol !== 'https:' || url.hostname !== HOST) throw new Refused(`A Composio key goes only to ${HOST}, so nothing was sent to ${url.hostname}.`);
-    const reply = await send(url, { method: 'GET', redirect: 'manual', headers: { 'x-api-key': held(), Accept: 'application/json' } });
+    const reply = await send(url, { method: 'GET', redirect: 'manual', headers: { ...keyHeaders(held(), projectId), Accept: 'application/json' } });
     const text = await reply.text();
     if (!reply.ok) throw new Refused(`Composio refused the account list (${reply.status}): ${text.replace(/\s+/g, ' ').trim().slice(0, SAID)}`);
     let parsed;

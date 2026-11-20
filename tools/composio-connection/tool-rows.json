@@ -24,6 +24,10 @@
             "toolkit": {
               "type": "string",
               "description": "The app's lower-case slug, for example twitter; every app's accounts when absent"
+            },
+            "project_id": {
+              "type": "string",
+              "description": "The Composio project the person's own key lives in (a key that starts uak_ reaches only its project)"
             }
           }
         },
