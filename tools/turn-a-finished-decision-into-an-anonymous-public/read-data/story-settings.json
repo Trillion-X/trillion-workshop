@@ -1,0 +1,182 @@
+{
+  "about": "DATA for tools/turn-a-finished-decision-into-an-anonymous-public. Copied from the old app (src/story-settings.json, commit b6ae0ebf815f) with the operator-only fields left out: privacy.never_publish (this service's own names; a person keeps theirs in their own never-publish list), privacy.operator_held_kinds (the operator account's default; the caller passes it), and canonical_origin (the address a deployment names as its own; the caller passes it). Model ids are the caller's (models.rewrite, models.check). prompts.story and prompts.check are the old writer's and checker's words; {kinds} is filled from kinds. The product words (screen copy, the held-kind sentence) are not DATA here: the caller passes them, and a call without them is refused.",
+  "kinds": [
+    {
+      "id": "work-and-career",
+      "label": "Work and career"
+    },
+    {
+      "id": "building-a-business",
+      "label": "Building a business"
+    },
+    {
+      "id": "products-and-launches",
+      "label": "Products and launches"
+    },
+    {
+      "id": "sport-and-training",
+      "label": "Sport and training"
+    },
+    {
+      "id": "health-and-habits",
+      "label": "Health and habits"
+    },
+    {
+      "id": "money",
+      "label": "Money"
+    },
+    {
+      "id": "learning",
+      "label": "Learning"
+    },
+    {
+      "id": "life-direction",
+      "label": "Life direction"
+    },
+    {
+      "id": "people",
+      "label": "People and relationships"
+    },
+    {
+      "id": "everything-else",
+      "label": "Everything else",
+      "fallback": true
+    }
+  ],
+  "privacy": {
+    "not_identifying": [
+      "I",
+      "I'm",
+      "I've",
+      "I'd",
+      "I'll",
+      "AI",
+      "OK",
+      "TV",
+      "CEO",
+      "CTO",
+      "COO",
+      "CFO",
+      "PDF",
+      "FAQ",
+      "API",
+      "APIs",
+      "URL",
+      "UI",
+      "UX",
+      "MVP",
+      "SaaS",
+      "B2B",
+      "B2C",
+      "PR",
+      "HR",
+      "Q&A"
+    ],
+    "entity_words": [
+      "LLC",
+      "L.L.C.",
+      "Inc",
+      "Inc.",
+      "Incorporated",
+      "Corp",
+      "Corp.",
+      "Corporation",
+      "Ltd",
+      "Ltd.",
+      "Limited",
+      "GmbH",
+      "PLC",
+      "LLP",
+      "LP",
+      "S corp",
+      "S-corp",
+      "C corp",
+      "C-corp",
+      "sole proprietorship",
+      "holding company",
+      "DBA",
+      "EIN",
+      "501(c)(3)"
+    ],
+    "places": [
+      "Alabama",
+      "Alaska",
+      "Arizona",
+      "Arkansas",
+      "California",
+      "Colorado",
+      "Connecticut",
+      "Delaware",
+      "Florida",
+      "Georgia",
+      "Hawaii",
+      "Idaho",
+      "Illinois",
+      "Indiana",
+      "Iowa",
+      "Kansas",
+      "Kentucky",
+      "Louisiana",
+      "Maine",
+      "Maryland",
+      "Massachusetts",
+      "Michigan",
+      "Minnesota",
+      "Mississippi",
+      "Missouri",
+      "Montana",
+      "Nebraska",
+      "Nevada",
+      "New Hampshire",
+      "New Jersey",
+      "New Mexico",
+      "New York",
+      "North Carolina",
+      "North Dakota",
+      "Ohio",
+      "Oklahoma",
+      "Oregon",
+      "Pennsylvania",
+      "Rhode Island",
+      "South Carolina",
+      "South Dakota",
+      "Tennessee",
+      "Texas",
+      "Utah",
+      "Vermont",
+      "Virginia",
+      "Washington",
+      "West Virginia",
+      "Wisconsin",
+      "Wyoming",
+      "District of Columbia",
+      "Wyoming",
+      "Puerto Rico",
+      "San Francisco",
+      "Los Angeles",
+      "Miami",
+      "Austin",
+      "Seattle",
+      "Boston",
+      "Chicago",
+      "London",
+      "Toronto",
+      "Dubai",
+      "Singapore",
+      "Bali"
+    ],
+    "publisher_context": "These stories are published on the website of an AI product that helps people find and make the decision that matters most. A story about building, launching, naming, pricing or funding a product like that, or about the company, founder or team that makes it, points to the people who run this website and is identifying."
+  },
+  "rewrite": {
+    "max_tokens": 1400,
+    "facts_limit_characters": 6000,
+    "rounds": 3,
+    "check_max_tokens": 800
+  },
+  "page_size": 12,
+  "fresh_seconds": 60,
+  "prompts": {
+    "story": "You turn one person's decision into a short public story that a stranger can learn from. No one may be able to tell who it was. Remove or generalize every name, nickname, company, product, brand, place, event, date, month, age, number, amount of money, job title, and any unusual detail that could point to one person. Say sizes and shares in words (\"most of the points\", \"a few hours a week\"), never as figures. Never write [removed]; write around anything missing in plain general words. Keep what makes it worth reading: the concrete stakes, what was pulling each way, why the tempting options were tempting, what was chosen and the reasoning that decided it, the first step, how success would be measured, and how it turned out if that is given. Write in the third person (\"they\"), in plain everyday words, warm and specific about the thinking, general about the facts. No advice to the reader, no headings, no lists inside strings, no filler such as \"meaningful\" or \"authentic\". Pick the one kind that fits best from these ids: {kinds}. Reply with JSON only: {\"kind\": string, \"title\": string (a specific headline of 6 to 12 words that names the dilemma and the choice, in sentence case, for example \"Keeping the day job while the side business proves itself\"; never a two- or three-word label), \"summary\": string (one sentence under 160 characters that makes a stranger want to read on: the tension and the choice), \"situation\": string (3 to 5 sentences), \"options\": [string] (each option as a phrase of 4 to 12 words), \"chosen\": string (the chosen option, exactly as written in options), \"why\": string (2 to 4 sentences), \"next_step\": string, \"measured_by\": string, \"outcome\": string or null (what happened, only if the facts give an outcome)}.",
+    "check": "You try to re-identify who wrote a shared decision. List every detail that could point to a specific person, company, product, brand, place, event, or date, or that is unusual enough to recognize. Ordinary words for common activities, roles and equipment are not identifying. Reply with JSON only: {\"identifying\": [string]}. Use an empty list if there is nothing."
+  }
+}
