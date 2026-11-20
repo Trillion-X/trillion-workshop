@@ -28,10 +28,11 @@
   "banned_substitutions": ["A fixture-only selector", "A second host matching implementation", "A bundled list of account actions or site defaults"],
   "baseline": {
     "path": "tools/choose-where-shares-from-the-phone-browser/from-an-older-version/src/share-starting-action.mjs.held",
-    "commit": "ae875b9b01543aead2efd4fca4b373e9a4381cdd",
+    "commit": "3e94a853eb9574a539eecae86541a3b5b08ca571",
     "copied_before_adaptation": true,
     "source_multihash": "1f:584f0003e73fe14053c54a6e4ff6b1de5a5df4c02ab9f10b6edc0ac8b93ca70c",
-    "target_multihash_at_baseline": "1f:584f0003e73fe14053c54a6e4ff6b1de5a5df4c02ab9f10b6edc0ac8b93ca70c",
+    "target_multihash_at_baseline": "1f:e82c90861484a818dade38e49b313f4556a7ce4f606e09dc2a9fa3800923d70c",
+    "why": "The baseline bytes at this commit (3e94a853e, the commit before a3a988c8 removed the held copy) differ from ae875b9b0's copy on the claude/* branch only by one import path, rewritten by the rename a6b9518c1; the original is on the claude/* branch.",
     "recorded_at": "2026-11-04T15:15:08Z"
   },
   "proof": {
