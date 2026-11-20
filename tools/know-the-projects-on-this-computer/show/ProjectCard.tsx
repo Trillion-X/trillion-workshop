@@ -48,7 +48,7 @@ import { Card, Badge, Button, Text, Icon } from '../../ui';
 import type {
   ProjectCardData,
   ProjectCardMode,
-} from '@/packages/projects/read-data/project-card-types';
+} from '../read-data/project-card-types';
 
 // ============================================================================
 // TYPES

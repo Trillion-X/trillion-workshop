@@ -2,7 +2,7 @@
 //
 // Pure package-feed decoder for known project records.
 
-import type { ProjectCardData } from '@/packages/projects/read-data/project-card-types';
+import type { ProjectCardData } from './project-card-types';
 import {
   readBooleanPayload,
   readJsonPayload,
