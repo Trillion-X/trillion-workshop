@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "space-members-tool-rows",
-  "what_this_is": "The Workshop rows of tools/network-people: a person changes how they show in the Network, finds people by the words of a need, and sees people on the same pursuits. A profile is a record the caller stores; the rows read and write no store.",
+  "what_this_is": "The Workshop rows of tools/network-people: a person's Network profile, the search by meaning, the shared-pursuit path, and the contact released after an introduction. Each row runs one process that reads and writes the network_records rows of the database the caller names through its held connection.",
   "records": [
     {
       "id": "package::network-people::tool::network-profile",
@@ -15,26 +15,28 @@
         "id": "tool:network-profile",
         "label": "Set how people can find me",
         "status": "active",
-        "job": "Change how this person shows in the Network: the name, handle, what they offer and seek, whether they are findable, and their pursuits",
-        "description": "Answers the person's record:network-profile row under `keep` for the caller to store, with only the fields sent changed. A field a person wrote is listed under written. A handle is 3 to 30 letters, digits or underscores and is unique among the profiles handed in. A contact is kept on the person's own row and is never answered by this tool or the search tools.",
+        "job": "Change how this person shows in the Network: the name, handle, what they offer and seek, whether they are findable, their pursuits and their meaning vectors",
+        "description": "Saves the person's network_records profile row in the database named (or the held connection named), changing only the fields sent. A field a person wrote is listed under written. A handle is 3 to 30 letters, digits or underscores and is unique among the profiles. A contact is kept on the person's own row and is never answered by the search or path tools; read-a-network-contact answers it only while an introduction is released.",
         "input_schema": {
           "type": "object",
+          "additionalProperties": false,
           "required": [
             "subject",
-            "records"
+            "database"
           ],
-          "additionalProperties": false,
           "properties": {
             "subject": {
               "type": "string",
               "description": "The person, the way the Network names them"
             },
-            "records": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              },
-              "description": "The profile rows the ask reads, as the caller read them from a store ({ id, type, value }). The run keeps nothing except a profile row to store, which comes back as `keep`."
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The name of the person's pursuit database that holds the network_records table, such as sample_for_who_runs_it. The computer opens it with the login its vault holds as that name and -connection."
+            },
+            "credential_name": {
+              "type": "string",
+              "description": "The vault name of the connection, when it is not the database's own name"
             },
             "findable": {
               "type": "boolean"
@@ -63,7 +65,13 @@
             "pursuits": {
               "type": "array",
               "items": {
-                "type": "string"
+                "type": "object"
+              }
+            },
+            "embedding": {
+              "type": "array",
+              "items": {
+                "type": "number"
               }
             },
             "open_to_messages": {
@@ -82,8 +90,7 @@
               "type": "boolean"
             },
             "contact": {
-              "type": "string",
-              "description": "Email, phone or handle; kept on the person's row and never answered by the search tools"
+              "type": "string"
             }
           }
         },
@@ -107,16 +114,26 @@
             "profile": {
               "type": "object"
             },
-            "keep": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              }
+            "stored": {
+              "type": "integer"
             }
           }
         },
         "invoke": {
           "kind": "container",
+          "internet": true,
+          "workdir": "/opt/network-people",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/network-people/do-work/network-profile-sql.mjs",
+            "networkProfile"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
           "files": {
             "package_files": [
               {
@@ -126,26 +143,269 @@
                   "read-data"
                 ],
                 "at": "/opt/network-people"
+              },
+              {
+                "package": "run-sql-in-my-database",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/run-sql-in-my-database"
+              },
+              {
+                "package": "introduce-two-people",
+                "paths": [
+                  "src"
+                ],
+                "at": "/opt/introduce-two-people"
+              },
+              {
+                "packages": [
+                  "pg"
+                ],
+                "at": "/opt/node_modules/pg"
+              },
+              {
+                "packages": [
+                  "pg-connection-string"
+                ],
+                "at": "/opt/node_modules/pg-connection-string"
+              },
+              {
+                "packages": [
+                  "pg-pool"
+                ],
+                "at": "/opt/node_modules/pg-pool"
+              },
+              {
+                "packages": [
+                  "pg-protocol"
+                ],
+                "at": "/opt/node_modules/pg-protocol"
+              },
+              {
+                "packages": [
+                  "pg-types"
+                ],
+                "at": "/opt/node_modules/pg-types"
+              },
+              {
+                "packages": [
+                  "pg-int8"
+                ],
+                "at": "/opt/node_modules/pg-int8"
+              },
+              {
+                "packages": [
+                  "postgres-array"
+                ],
+                "at": "/opt/node_modules/postgres-array"
+              },
+              {
+                "packages": [
+                  "postgres-bytea"
+                ],
+                "at": "/opt/node_modules/postgres-bytea"
+              },
+              {
+                "packages": [
+                  "postgres-date"
+                ],
+                "at": "/opt/node_modules/postgres-date"
+              },
+              {
+                "packages": [
+                  "postgres-interval"
+                ],
+                "at": "/opt/node_modules/postgres-interval"
+              },
+              {
+                "packages": [
+                  "xtend"
+                ],
+                "at": "/opt/node_modules/xtend"
+              },
+              {
+                "packages": [
+                  "pgpass"
+                ],
+                "at": "/opt/node_modules/pgpass"
+              },
+              {
+                "packages": [
+                  "split2"
+                ],
+                "at": "/opt/node_modules/split2"
               }
             ]
           },
-          "workdir": "/opt/network-people",
-          "internet": false,
-          "stdout": "json",
-          "argv": [
-            "node",
-            "/opt/network-people/do-work/network-people-run.mjs",
-            "networkProfile"
-          ],
-          "stdin": {
-            "fill": {
-              "from": "input"
+          "packages": {
+            "pg": {
+              "version": "8.23.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+                }
+              }
+            },
+            "pg-connection-string": {
+              "version": "2.14.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+                }
+              }
+            },
+            "pg-pool": {
+              "version": "3.14.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+                }
+              }
+            },
+            "pg-protocol": {
+              "version": "1.16.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+                }
+              }
+            },
+            "pg-types": {
+              "version": "2.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+                }
+              }
+            },
+            "pg-int8": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+                }
+              }
+            },
+            "postgres-array": {
+              "version": "2.0.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+                }
+              }
+            },
+            "postgres-bytea": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+                }
+              }
+            },
+            "postgres-date": {
+              "version": "1.0.7",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+                }
+              }
+            },
+            "postgres-interval": {
+              "version": "1.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+                }
+              }
+            },
+            "xtend": {
+              "version": "4.0.2",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+                }
+              }
+            },
+            "pgpass": {
+              "version": "1.0.5",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+                }
+              }
+            },
+            "split2": {
+              "version": "4.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+                }
+              }
             }
-          }
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_input": "credential_name",
+              "fd": 3,
+              "only_when": {
+                "input": "credential_name",
+                "present": true
+              }
+            },
+            {
+              "secret_name_from_database": "database",
+              "fd": 3,
+              "only_when": {
+                "input": "database",
+                "present": true
+              }
+            }
+          ]
         },
         "needs": {
-          "expected_seconds": 3,
-          "network_egress": false
+          "expected_seconds": 10,
+          "memory_mb": 256
         },
         "licence_class": "licence:maker-own",
         "placements": [
@@ -154,41 +414,8 @@
         "maker": "maker:network-people",
         "result_selector": "$.result",
         "provenance": {
-          "source": "the old network_profile (tools/list-and-run-my-tools-for-any-ai/source-baselines/tools.mjs.held:295@a476dd597): the person's own Network profile, shown to other people only when findable"
-        },
-        "verify": [
-          {
-            "kind": "sample-run",
-            "input": {
-              "subject": "person:sample-ana",
-              "handle": "sample_ana",
-              "offering": "Sourdough baking classes at home",
-              "records": [
-                {
-                  "id": "record:network-profile:person%3Asample-ana",
-                  "type": "record:network-profile",
-                  "value": {
-                    "subject": "person:sample-ana",
-                    "handle": "sample_ana",
-                    "name": "Sample Ana",
-                    "offering": "Sourdough baking classes at home",
-                    "seeking": "Pastry sales help",
-                    "findable": true,
-                    "open_to_messages": true,
-                    "show_pursuits": true,
-                    "pursuits": [
-                      "sourdough bread classes"
-                    ],
-                    "links": [],
-                    "written": []
-                  }
-                }
-              ]
-            },
-            "output_selector": "$.result.subject",
-            "contains": false
-          }
-        ]
+          "source": "the old network_profile (an older tag of the old worker tools, tools.mjs.held:295 at a476dd597): the person's own Network profile, shown to other people only when findable"
+        }
       }
     },
     {
@@ -203,31 +430,40 @@
         "id": "tool:find-network-people",
         "label": "Find people in the Network",
         "status": "active",
-        "job": "Find people in the Network whose profiles say what they offer and seek, matched by the words of a need",
-        "description": "Answers the findable people whose offering, seeking or about share words with the need, best match first, each by handle and never by contact. A person who labelled the searcher unwanted-requests or unsafe is left out. Matching is by shared words, not by meaning. It replaces the old find_people, which matched by meaning and charged credits; neither is kept here.",
+        "job": "Find people in the Network whose listings are close in meaning to a need, or share its words when there is no meaning vector",
+        "description": "Answers the findable people, by handle and never by contact, whose listing embedding is at least the Network's min_similarity close to the need's embedding (sent as embedding); with no embedding, a listing answers when it shares a word with the need. A person who labelled the searcher unwanted-requests or unsafe is left out. Reads the network_records rows of the database named.",
         "input_schema": {
           "type": "object",
+          "additionalProperties": false,
           "required": [
             "subject",
-            "records",
+            "database",
             "need"
           ],
-          "additionalProperties": false,
           "properties": {
             "subject": {
               "type": "string",
               "description": "The person, the way the Network names them"
             },
-            "records": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              },
-              "description": "The profile rows the ask reads, as the caller read them from a store ({ id, type, value }). The run keeps nothing except a profile row to store, which comes back as `keep`."
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The name of the person's pursuit database that holds the network_records table, such as sample_for_who_runs_it. The computer opens it with the login its vault holds as that name and -connection."
+            },
+            "credential_name": {
+              "type": "string",
+              "description": "The vault name of the connection, when it is not the database's own name"
             },
             "need": {
               "type": "string",
               "description": "What you are looking for, in your own words, 300 characters at most"
+            },
+            "embedding": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "description": "The meaning vector of the need, made by your AI; left out, the search matches words"
             }
           }
         },
@@ -236,6 +472,7 @@
           "required": [
             "subject",
             "need",
+            "matched_by",
             "people"
           ],
           "properties": {
@@ -243,6 +480,9 @@
               "type": "string"
             },
             "need": {
+              "type": "string"
+            },
+            "matched_by": {
               "type": "string"
             },
             "people": {
@@ -255,6 +495,19 @@
         },
         "invoke": {
           "kind": "container",
+          "internet": true,
+          "workdir": "/opt/network-people",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/network-people/do-work/network-profile-sql.mjs",
+            "findNetworkPeople"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
           "files": {
             "package_files": [
               {
@@ -264,26 +517,269 @@
                   "read-data"
                 ],
                 "at": "/opt/network-people"
+              },
+              {
+                "package": "run-sql-in-my-database",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/run-sql-in-my-database"
+              },
+              {
+                "package": "introduce-two-people",
+                "paths": [
+                  "src"
+                ],
+                "at": "/opt/introduce-two-people"
+              },
+              {
+                "packages": [
+                  "pg"
+                ],
+                "at": "/opt/node_modules/pg"
+              },
+              {
+                "packages": [
+                  "pg-connection-string"
+                ],
+                "at": "/opt/node_modules/pg-connection-string"
+              },
+              {
+                "packages": [
+                  "pg-pool"
+                ],
+                "at": "/opt/node_modules/pg-pool"
+              },
+              {
+                "packages": [
+                  "pg-protocol"
+                ],
+                "at": "/opt/node_modules/pg-protocol"
+              },
+              {
+                "packages": [
+                  "pg-types"
+                ],
+                "at": "/opt/node_modules/pg-types"
+              },
+              {
+                "packages": [
+                  "pg-int8"
+                ],
+                "at": "/opt/node_modules/pg-int8"
+              },
+              {
+                "packages": [
+                  "postgres-array"
+                ],
+                "at": "/opt/node_modules/postgres-array"
+              },
+              {
+                "packages": [
+                  "postgres-bytea"
+                ],
+                "at": "/opt/node_modules/postgres-bytea"
+              },
+              {
+                "packages": [
+                  "postgres-date"
+                ],
+                "at": "/opt/node_modules/postgres-date"
+              },
+              {
+                "packages": [
+                  "postgres-interval"
+                ],
+                "at": "/opt/node_modules/postgres-interval"
+              },
+              {
+                "packages": [
+                  "xtend"
+                ],
+                "at": "/opt/node_modules/xtend"
+              },
+              {
+                "packages": [
+                  "pgpass"
+                ],
+                "at": "/opt/node_modules/pgpass"
+              },
+              {
+                "packages": [
+                  "split2"
+                ],
+                "at": "/opt/node_modules/split2"
               }
             ]
           },
-          "workdir": "/opt/network-people",
-          "internet": false,
-          "stdout": "json",
-          "argv": [
-            "node",
-            "/opt/network-people/do-work/network-people-run.mjs",
-            "findNetworkPeople"
-          ],
-          "stdin": {
-            "fill": {
-              "from": "input"
+          "packages": {
+            "pg": {
+              "version": "8.23.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+                }
+              }
+            },
+            "pg-connection-string": {
+              "version": "2.14.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+                }
+              }
+            },
+            "pg-pool": {
+              "version": "3.14.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+                }
+              }
+            },
+            "pg-protocol": {
+              "version": "1.16.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+                }
+              }
+            },
+            "pg-types": {
+              "version": "2.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+                }
+              }
+            },
+            "pg-int8": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+                }
+              }
+            },
+            "postgres-array": {
+              "version": "2.0.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+                }
+              }
+            },
+            "postgres-bytea": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+                }
+              }
+            },
+            "postgres-date": {
+              "version": "1.0.7",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+                }
+              }
+            },
+            "postgres-interval": {
+              "version": "1.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+                }
+              }
+            },
+            "xtend": {
+              "version": "4.0.2",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+                }
+              }
+            },
+            "pgpass": {
+              "version": "1.0.5",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+                }
+              }
+            },
+            "split2": {
+              "version": "4.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+                }
+              }
             }
-          }
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_input": "credential_name",
+              "fd": 3,
+              "only_when": {
+                "input": "credential_name",
+                "present": true
+              }
+            },
+            {
+              "secret_name_from_database": "database",
+              "fd": 3,
+              "only_when": {
+                "input": "database",
+                "present": true
+              }
+            }
+          ]
         },
         "needs": {
-          "expected_seconds": 3,
-          "network_egress": false
+          "expected_seconds": 10,
+          "memory_mb": 256
         },
         "licence_class": "licence:maker-own",
         "placements": [
@@ -292,59 +788,8 @@
         "maker": "maker:network-people",
         "result_selector": "$.result",
         "provenance": {
-          "source": "the old find_people (tools/list-and-run-my-tools-for-any-ai/source-baselines/tools.mjs.held:297@a476dd597): people in the Network found for a need; the meaning match and the credit cost are not in this port"
-        },
-        "verify": [
-          {
-            "kind": "sample-run",
-            "input": {
-              "subject": "person:sample-bo",
-              "need": "where can I learn sourdough baking",
-              "records": [
-                {
-                  "id": "record:network-profile:person%3Asample-ana",
-                  "type": "record:network-profile",
-                  "value": {
-                    "subject": "person:sample-ana",
-                    "handle": "sample_ana",
-                    "name": "Sample Ana",
-                    "offering": "Sourdough baking classes at home",
-                    "seeking": "Pastry sales help",
-                    "findable": true,
-                    "open_to_messages": true,
-                    "show_pursuits": true,
-                    "pursuits": [
-                      "sourdough bread classes"
-                    ],
-                    "links": [],
-                    "written": []
-                  }
-                },
-                {
-                  "id": "record:network-profile:person%3Asample-bo",
-                  "type": "record:network-profile",
-                  "value": {
-                    "subject": "person:sample-bo",
-                    "handle": "sample_bo",
-                    "name": "Sample Bo",
-                    "offering": "Flour milling",
-                    "seeking": "Sourdough baking teachers",
-                    "findable": true,
-                    "open_to_messages": true,
-                    "show_pursuits": true,
-                    "pursuits": [
-                      "grain milling for bakers"
-                    ],
-                    "links": [],
-                    "written": []
-                  }
-                }
-              ]
-            },
-            "output_selector": "$.result.subject",
-            "contains": false
-          }
-        ]
+          "source": "the old find (an older tag of the old worker tools, tools.mjs.held:297 at a476dd597 and src/network.mjs:2009-2017): matched by meaning, cosine at the network settings' min_similarity"
+        }
       }
     },
     {
@@ -359,26 +804,28 @@
         "id": "tool:on-my-path",
         "label": "Who is on my path",
         "status": "active",
-        "job": "Show people whose shown pursuits share words with this person's own pursuits, each with both pursuits beside each other",
-        "description": "Answers the people who chose to show their pursuits and share words with one of this person's pursuits, each with their pursuit and this person's pursuit beside each other, best match first. Open pursuits are not answered here yet.",
+        "job": "Show people whose shown pursuits are close in meaning to one of this person's pursuits",
+        "description": "Answers the people who chose to show their pursuits and whose pursuit is at least on_your_path.min_similarity close, by cosine, to one of this person's pursuits (each pursuit carries its embedding), each with both pursuits beside each other. Open pursuits are not answered here yet.",
         "input_schema": {
           "type": "object",
+          "additionalProperties": false,
           "required": [
             "subject",
-            "records"
+            "database"
           ],
-          "additionalProperties": false,
           "properties": {
             "subject": {
               "type": "string",
               "description": "The person, the way the Network names them"
             },
-            "records": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              },
-              "description": "The profile rows the ask reads, as the caller read them from a store ({ id, type, value }). The run keeps nothing except a profile row to store, which comes back as `keep`."
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The name of the person's pursuit database that holds the network_records table, such as sample_for_who_runs_it. The computer opens it with the login its vault holds as that name and -connection."
+            },
+            "credential_name": {
+              "type": "string",
+              "description": "The vault name of the connection, when it is not the database's own name"
             }
           }
         },
@@ -402,6 +849,19 @@
         },
         "invoke": {
           "kind": "container",
+          "internet": true,
+          "workdir": "/opt/network-people",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/network-people/do-work/network-profile-sql.mjs",
+            "onMyPath"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
           "files": {
             "package_files": [
               {
@@ -411,26 +871,269 @@
                   "read-data"
                 ],
                 "at": "/opt/network-people"
+              },
+              {
+                "package": "run-sql-in-my-database",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/run-sql-in-my-database"
+              },
+              {
+                "package": "introduce-two-people",
+                "paths": [
+                  "src"
+                ],
+                "at": "/opt/introduce-two-people"
+              },
+              {
+                "packages": [
+                  "pg"
+                ],
+                "at": "/opt/node_modules/pg"
+              },
+              {
+                "packages": [
+                  "pg-connection-string"
+                ],
+                "at": "/opt/node_modules/pg-connection-string"
+              },
+              {
+                "packages": [
+                  "pg-pool"
+                ],
+                "at": "/opt/node_modules/pg-pool"
+              },
+              {
+                "packages": [
+                  "pg-protocol"
+                ],
+                "at": "/opt/node_modules/pg-protocol"
+              },
+              {
+                "packages": [
+                  "pg-types"
+                ],
+                "at": "/opt/node_modules/pg-types"
+              },
+              {
+                "packages": [
+                  "pg-int8"
+                ],
+                "at": "/opt/node_modules/pg-int8"
+              },
+              {
+                "packages": [
+                  "postgres-array"
+                ],
+                "at": "/opt/node_modules/postgres-array"
+              },
+              {
+                "packages": [
+                  "postgres-bytea"
+                ],
+                "at": "/opt/node_modules/postgres-bytea"
+              },
+              {
+                "packages": [
+                  "postgres-date"
+                ],
+                "at": "/opt/node_modules/postgres-date"
+              },
+              {
+                "packages": [
+                  "postgres-interval"
+                ],
+                "at": "/opt/node_modules/postgres-interval"
+              },
+              {
+                "packages": [
+                  "xtend"
+                ],
+                "at": "/opt/node_modules/xtend"
+              },
+              {
+                "packages": [
+                  "pgpass"
+                ],
+                "at": "/opt/node_modules/pgpass"
+              },
+              {
+                "packages": [
+                  "split2"
+                ],
+                "at": "/opt/node_modules/split2"
               }
             ]
           },
-          "workdir": "/opt/network-people",
-          "internet": false,
-          "stdout": "json",
-          "argv": [
-            "node",
-            "/opt/network-people/do-work/network-people-run.mjs",
-            "onMyPath"
-          ],
-          "stdin": {
-            "fill": {
-              "from": "input"
+          "packages": {
+            "pg": {
+              "version": "8.23.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+                }
+              }
+            },
+            "pg-connection-string": {
+              "version": "2.14.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+                }
+              }
+            },
+            "pg-pool": {
+              "version": "3.14.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+                }
+              }
+            },
+            "pg-protocol": {
+              "version": "1.16.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+                }
+              }
+            },
+            "pg-types": {
+              "version": "2.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+                }
+              }
+            },
+            "pg-int8": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+                }
+              }
+            },
+            "postgres-array": {
+              "version": "2.0.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+                }
+              }
+            },
+            "postgres-bytea": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+                }
+              }
+            },
+            "postgres-date": {
+              "version": "1.0.7",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+                }
+              }
+            },
+            "postgres-interval": {
+              "version": "1.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+                }
+              }
+            },
+            "xtend": {
+              "version": "4.0.2",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+                }
+              }
+            },
+            "pgpass": {
+              "version": "1.0.5",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+                }
+              }
+            },
+            "split2": {
+              "version": "4.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+                }
+              }
             }
-          }
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_input": "credential_name",
+              "fd": 3,
+              "only_when": {
+                "input": "credential_name",
+                "present": true
+              }
+            },
+            {
+              "secret_name_from_database": "database",
+              "fd": 3,
+              "only_when": {
+                "input": "database",
+                "present": true
+              }
+            }
+          ]
         },
         "needs": {
-          "expected_seconds": 3,
-          "network_egress": false
+          "expected_seconds": 10,
+          "memory_mb": 256
         },
         "licence_class": "licence:maker-own",
         "placements": [
@@ -439,58 +1142,372 @@
         "maker": "maker:network-people",
         "result_selector": "$.result",
         "provenance": {
-          "source": "the old on_my_path (tools/list-and-run-my-tools-for-any-ai/source-baselines/tools.mjs.held:298@a476dd597): people and open pursuits on the same pursuits as this person; open pursuits and the credit cost are not in this port"
-        },
-        "verify": [
-          {
-            "kind": "sample-run",
-            "input": {
-              "subject": "person:sample-bo",
-              "records": [
-                {
-                  "id": "record:network-profile:person%3Asample-ana",
-                  "type": "record:network-profile",
-                  "value": {
-                    "subject": "person:sample-ana",
-                    "handle": "sample_ana",
-                    "name": "Sample Ana",
-                    "offering": "Sourdough baking classes at home",
-                    "seeking": "Pastry sales help",
-                    "findable": true,
-                    "open_to_messages": true,
-                    "show_pursuits": true,
-                    "pursuits": [
-                      "sourdough bread classes"
-                    ],
-                    "links": [],
-                    "written": []
-                  }
-                },
-                {
-                  "id": "record:network-profile:person%3Asample-bo",
-                  "type": "record:network-profile",
-                  "value": {
-                    "subject": "person:sample-bo",
-                    "handle": "sample_bo",
-                    "name": "Sample Bo",
-                    "offering": "Flour milling",
-                    "seeking": "Sourdough baking teachers",
-                    "findable": true,
-                    "open_to_messages": true,
-                    "show_pursuits": true,
-                    "pursuits": [
-                      "grain milling for bakers"
-                    ],
-                    "links": [],
-                    "written": []
-                  }
-                }
-              ]
+          "source": "the old on_my_path (an older tag of the old worker tools, tools.mjs.held:298 at a476dd597 and src/network.mjs:2022-2060)"
+        }
+      }
+    },
+    {
+      "id": "package::network-people::tool::read-a-network-contact",
+      "address": "package::network-people::tool::read-a-network-contact",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-network-contact",
+        "label": "Read a network contact",
+        "status": "active",
+        "job": "Give a person another person's contact, only once an introduction between them is released",
+        "description": "Answers the contact of the person named by `of`, to the person named by `subject`, only while an introduction between the two is in a released state: accepted, waiting for AIs, introduced or talked. Proposed, one yes, sent, declined, passed and expired are refused, and so is a stranger.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "subject",
+            "of",
+            "database"
+          ],
+          "properties": {
+            "subject": {
+              "type": "string",
+              "description": "The person, the way the Network names them"
             },
-            "output_selector": "$.result.subject",
-            "contains": false
+            "of": {
+              "type": "string",
+              "description": "The person whose contact is asked for"
+            },
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The name of the person's pursuit database that holds the network_records table, such as sample_for_who_runs_it. The computer opens it with the login its vault holds as that name and -connection."
+            },
+            "credential_name": {
+              "type": "string",
+              "description": "The vault name of the connection, when it is not the database's own name"
+            }
           }
-        ]
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "subject",
+            "of",
+            "state",
+            "contact"
+          ],
+          "properties": {
+            "subject": {
+              "type": "string"
+            },
+            "of": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "contact": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/network-people",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/network-people/do-work/network-profile-sql.mjs",
+            "readNetworkContact"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "network-people",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/network-people"
+              },
+              {
+                "package": "run-sql-in-my-database",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/run-sql-in-my-database"
+              },
+              {
+                "package": "introduce-two-people",
+                "paths": [
+                  "src"
+                ],
+                "at": "/opt/introduce-two-people"
+              },
+              {
+                "packages": [
+                  "pg"
+                ],
+                "at": "/opt/node_modules/pg"
+              },
+              {
+                "packages": [
+                  "pg-connection-string"
+                ],
+                "at": "/opt/node_modules/pg-connection-string"
+              },
+              {
+                "packages": [
+                  "pg-pool"
+                ],
+                "at": "/opt/node_modules/pg-pool"
+              },
+              {
+                "packages": [
+                  "pg-protocol"
+                ],
+                "at": "/opt/node_modules/pg-protocol"
+              },
+              {
+                "packages": [
+                  "pg-types"
+                ],
+                "at": "/opt/node_modules/pg-types"
+              },
+              {
+                "packages": [
+                  "pg-int8"
+                ],
+                "at": "/opt/node_modules/pg-int8"
+              },
+              {
+                "packages": [
+                  "postgres-array"
+                ],
+                "at": "/opt/node_modules/postgres-array"
+              },
+              {
+                "packages": [
+                  "postgres-bytea"
+                ],
+                "at": "/opt/node_modules/postgres-bytea"
+              },
+              {
+                "packages": [
+                  "postgres-date"
+                ],
+                "at": "/opt/node_modules/postgres-date"
+              },
+              {
+                "packages": [
+                  "postgres-interval"
+                ],
+                "at": "/opt/node_modules/postgres-interval"
+              },
+              {
+                "packages": [
+                  "xtend"
+                ],
+                "at": "/opt/node_modules/xtend"
+              },
+              {
+                "packages": [
+                  "pgpass"
+                ],
+                "at": "/opt/node_modules/pgpass"
+              },
+              {
+                "packages": [
+                  "split2"
+                ],
+                "at": "/opt/node_modules/split2"
+              }
+            ]
+          },
+          "packages": {
+            "pg": {
+              "version": "8.23.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+                }
+              }
+            },
+            "pg-connection-string": {
+              "version": "2.14.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+                }
+              }
+            },
+            "pg-pool": {
+              "version": "3.14.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+                }
+              }
+            },
+            "pg-protocol": {
+              "version": "1.16.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+                }
+              }
+            },
+            "pg-types": {
+              "version": "2.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+                }
+              }
+            },
+            "pg-int8": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+                }
+              }
+            },
+            "postgres-array": {
+              "version": "2.0.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+                }
+              }
+            },
+            "postgres-bytea": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+                }
+              }
+            },
+            "postgres-date": {
+              "version": "1.0.7",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+                }
+              }
+            },
+            "postgres-interval": {
+              "version": "1.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+                }
+              }
+            },
+            "xtend": {
+              "version": "4.0.2",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+                }
+              }
+            },
+            "pgpass": {
+              "version": "1.0.5",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+                }
+              }
+            },
+            "split2": {
+              "version": "4.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+                }
+              }
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_input": "credential_name",
+              "fd": 3,
+              "only_when": {
+                "input": "credential_name",
+                "present": true
+              }
+            },
+            {
+              "secret_name_from_database": "database",
+              "fd": 3,
+              "only_when": {
+                "input": "database",
+                "present": true
+              }
+            }
+          ]
+        },
+        "needs": {
+          "expected_seconds": 10,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:network-people",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "the old contact release (an older tag of the old worker tools, tools.mjs.held:295 network_profile: 'Contact is released only after both people agree to meet and while both stay connected')"
+        }
       }
     }
   ]

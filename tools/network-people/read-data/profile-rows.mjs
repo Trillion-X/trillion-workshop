@@ -10,6 +10,7 @@ import { isDeepStrictEqual } from 'node:util';
 export const KINDS = {
   profile: 'record:network-profile',
   label: 'record:network-label',
+  introduction: 'record:network-introduction',
 };
 
 const part = value => encodeURIComponent(String(value));

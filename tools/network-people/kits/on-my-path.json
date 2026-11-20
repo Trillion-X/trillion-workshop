@@ -1,21 +1,21 @@
 {
-  "drafted_from": "tool:on-my-path's own row (its words, input schema, sample run and steps) and what its sample run answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Show people whose shown pursuits share words with mine\", with {\"subject\":\"person:sample-bo\",\"records\":[{\"id\":\"record:network-profile:person%3Asample-ana\",\"type\":\"record:network-profile\",\"value\":{\"subject\":\"person:sample-ana\",\"handle\":\"sample_ana\",\"name\":\"Sample Ana\",\"offering\":\"Sourdough baking classes at home\",\"seeking\":\"Pastry sales help\",\"findable\":true,\"open_to_messages\":true,\"show_pursuits\":true,\"pursuits\":[\"sourdough bread classes\"],\"links\":[],\"written\":[]}},{\"id\":\"record:network-profile:person%3Asample-bo\",\"type\":\"record:network-profile\",\"value\":{\"subject\":\"person:sample-bo\",\"handle\":\"sample_bo\",\"name\":\"Sample Bo\",\"offering\":\"Flour milling\",\"seeking\":\"Sourdough baking teachers\",\"findable\":true,\"open_to_messages\":true,\"show_pursuits\":true,\"pursuits\":[\"grain milling for bakers\"],\"links\":[],\"written\":[]}}]}",
+  "drafted_from": "tool:on-my-path's own row (its words, input schema, sample run and steps) and what its sample answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show people whose shown pursuits are close to mine\", with {\"subject\":\"person:sample-ana\",\"database\":\"sample_for_who_runs_it\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row except a profile row it hands back under keep.",
+  "no_lists_because": "It names no list of yours: it reads and writes the network_records rows of the database named, and answers the rows it changed.",
   "workflows": [],
   "tools": [
     "tool:on-my-path"
   ],
   "instructions": [
-    "1. Say to your AI: \"Show people whose shown pursuits share words with mine\", and give it subject (this person, the way the Network names them); records (the profile rows the caller read from its own store, each { id, type, value }); and the fields the ask needs.",
+    "1. Say to your AI: \"Show people whose shown pursuits are close to mine\", and give it subject (this person), database (the pursuit database that holds the network_records table), and the fields the ask needs.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, the tool id and its input (the worked example shows one).",
-    "3. Read the answer: a profile row under keep is stored by the caller; a search names people by handle, never by contact."
+    "3. Read the answer: a profile saved is named by stored; a search names people by handle, never by contact; a contact is answered only while an introduction is released."
   ],
   "worked_examples": [
     {
-      "title": "Show people whose shown pursuits share words with mine",
-      "ask": "Show people whose shown pursuits share words with mine",
+      "title": "Show people whose shown pursuits are close to mine",
+      "ask": "Show people whose shown pursuits are close to mine",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -24,53 +24,14 @@
           "input": {
             "tool": "tool:on-my-path",
             "input": {
-              "subject": "person:sample-bo",
-              "records": [
-                {
-                  "id": "record:network-profile:person%3Asample-ana",
-                  "type": "record:network-profile",
-                  "value": {
-                    "subject": "person:sample-ana",
-                    "handle": "sample_ana",
-                    "name": "Sample Ana",
-                    "offering": "Sourdough baking classes at home",
-                    "seeking": "Pastry sales help",
-                    "findable": true,
-                    "open_to_messages": true,
-                    "show_pursuits": true,
-                    "pursuits": [
-                      "sourdough bread classes"
-                    ],
-                    "links": [],
-                    "written": []
-                  }
-                },
-                {
-                  "id": "record:network-profile:person%3Asample-bo",
-                  "type": "record:network-profile",
-                  "value": {
-                    "subject": "person:sample-bo",
-                    "handle": "sample_bo",
-                    "name": "Sample Bo",
-                    "offering": "Flour milling",
-                    "seeking": "Sourdough baking teachers",
-                    "findable": true,
-                    "open_to_messages": true,
-                    "show_pursuits": true,
-                    "pursuits": [
-                      "grain milling for bakers"
-                    ],
-                    "links": [],
-                    "written": []
-                  }
-                }
-              ]
+              "subject": "person:sample-ana",
+              "database": "sample_for_who_runs_it"
             }
           }
         }
       },
-      "given": "The input {\"subject\":\"person:sample-bo\",\"records\":[{\"id\":\"record:network-profile:person%3Asample-ana\",\"type\":\"record:network-profile\",\"value\":{\"subject\":\"person:sample-ana\",\"handle\":\"sample_ana\",\"name\":\"Sample Ana\",\"offering\":\"Sourdough baking classes at home\",\"seeking\":\"Pastry sales help\",\"findable\":true,\"open_to_messages\":true,\"show_pursuits\":true,\"pursuits\":[\"sourdough bread classes\"],\"links\":[],\"written\":[]}},{\"id\":\"record:network-profile:person%3Asample-bo\",\"type\":\"record:network-profile\",\"value\":{\"subject\":\"person:sample-bo\",\"handle\":\"sample_bo\",\"name\":\"Sample Bo\",\"offering\":\"Flour milling\",\"seeking\":\"Sourdough baking teachers\",\"findable\":true,\"open_to_messages\":true,\"show_pursuits\":true,\"pursuits\":[\"grain milling for bakers\"],\"links\":[],\"written\":[]}}]}.",
-      "hands_back": "It answered {\"subject\":\"person:sample-bo\",\"people\":[]}."
+      "given": "The input {\"subject\":\"person:sample-ana\",\"database\":\"sample_for_who_runs_it\"}.",
+      "hands_back": "It answered {\"subject\":\"person:sample-ana\",\"people\":[]}."
     }
   ]
 }

@@ -1,0 +1,38 @@
+{
+  "drafted_from": "tool:read-a-network-contact's own row (its words, input schema, sample run and steps) and what its sample answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Give me a contact that an introduction has released\", with {\"subject\":\"person:sample-bo\",\"of\":\"person:sample-ana\",\"database\":\"sample_for_who_runs_it\"}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it reads and writes the network_records rows of the database named, and answers the rows it changed.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-network-contact"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Give me a contact that an introduction has released\", and give it subject (this person), database (the pursuit database that holds the network_records table), and the fields the ask needs.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, the tool id and its input (the worked example shows one).",
+    "3. Read the answer: a profile saved is named by stored; a search names people by handle, never by contact; a contact is answered only while an introduction is released."
+  ],
+  "worked_examples": [
+    {
+      "title": "Give me a contact that an introduction has released",
+      "ask": "Give me a contact that an introduction has released",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-network-contact",
+            "input": {
+              "subject": "person:sample-bo",
+              "of": "person:sample-ana",
+              "database": "sample_for_who_runs_it"
+            }
+          }
+        }
+      },
+      "given": "The input {\"subject\":\"person:sample-bo\",\"of\":\"person:sample-ana\",\"database\":\"sample_for_who_runs_it\"}.",
+      "hands_back": "It refused: \"Contact is released only after both people agree to meet.\"."
+    }
+  ]
+}
