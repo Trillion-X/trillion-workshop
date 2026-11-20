@@ -1,4 +1,5 @@
 import { canonical, identityOf, workshopTaskId, workshopToolVersion, workshopToolDefinition, schemaProblems } from '../../shared-code/src/typed-operation-contract.mjs';
+import { aliasProblems } from './input-alias-refusal.mjs';
 export { workshopTaskId, workshopToolVersion, workshopToolDefinition, schemaProblems } from '../../shared-code/src/typed-operation-contract.mjs';
 import { bindAdmittedTool, boundToolId, boundToolParts, connectionVendor, requireCurrentConnection } from './source-connection.mjs';
 // A concrete connection identity is private execution authority, never shared
@@ -2046,6 +2047,8 @@ export function makeWorkshop({ data, store, pool, executors, host, handedToCalle
     const through = open.task.payer.through;
     if (tool?.invoke?.kind !== 'gateway-call' || tool.invoke.gateway !== through) throw new WorkshopError(`${tool_id} is not a call through ${open.task.payer.through_label}.`);
     open.tools.set(tool_id, tool);
+    const aliased = aliasProblems(input, tool.input_schema);
+    if (aliased.length) throw new WorkshopError(aliased.join('; '));
     const problems = schemaProblems(input, tool.input_schema, 'input');
     if (problems.length) throw new WorkshopError(`${problems.join('; ')}. The input must match ${tool_id}'s input_schema.`);
     const payer = await payers.plan({ tool });
@@ -2191,6 +2194,8 @@ export function makeWorkshop({ data, store, pool, executors, host, handedToCalle
   async function readOnce({ tool, task_id, input, shared }) {
     const startedAt = now();
     const resolved = await resolveRefs(input);
+    const aliased = aliasProblems(resolved, tool.input_schema);
+    if (aliased.length) throw new WorkshopError(aliased.join('; '));
     const problems = schemaProblems(resolved, tool.input_schema, 'input');
     if (problems.length) throw new WorkshopError(`${problems.join('; ')}. The input must match this tool's input_schema.`);
     const { place } = choosePlacement(tool, shared);
@@ -2407,7 +2412,10 @@ export function makeWorkshop({ data, store, pool, executors, host, handedToCalle
         }
         input = task.input;
       } else input = await resolveRefs(task.input);
-      const problems = schemaProblems(joinHeld(input, held), tool.input_schema, 'input');
+      const joinedInput = joinHeld(input, held);
+      const aliased = aliasProblems(joinedInput, tool.input_schema);
+      if (aliased.length) throw new WorkshopError(aliased.join('; '));
+      const problems = schemaProblems(joinedInput, tool.input_schema, 'input');
       if (problems.length) {
         const missing = !task.public_run_limits && !task.space_authorization && !task.share && !task.due_at && !task.repeat_every_hours
           ? pendingInputFields(problems, tool.input_schema) : null;
