@@ -6,7 +6,7 @@
 // through the carrier door (what read_setup counts as arrived) for source intake. No check here accepts a message an
 // AI wrote to describe those records, and none promotes them past what they show.
 import harnessSetup from '../../../keep-and-wake-ai-sessions-on-this-computer/harness/setup.json' with { type: 'json' };
-import { workResultWords } from '../../../see-what-my-ais-did/from-an-older-version/src/work-results.mjs';
+import { workResultWords } from '../../../see-what-my-ais-did/do-work/work-results.mjs';
 
 const list = value => Array.isArray(value) ? value : [];
 const text = value => typeof value === 'string' && value.trim().length > 0;

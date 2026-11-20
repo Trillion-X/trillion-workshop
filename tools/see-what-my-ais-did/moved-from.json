@@ -7,7 +7,7 @@
     {
       "from": "src/work-results.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/see-what-my-ais-did/from-an-older-version/src/work-results.mjs",
+      "to": "tools/see-what-my-ais-did/do-work/work-results.mjs",
       "source_identity": "1f:bbe57684db56b08bb9ab4be9e39fa37749076cce22378fd7509d18d322239339",
       "identity": "1f:bbe57684db56b08bb9ab4be9e39fa37749076cce22378fd7509d18d322239339"
     },

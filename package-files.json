@@ -33215,7 +33215,7 @@
   {
    "package": "see-what-my-ais-did",
    "paths": [
-    "from-an-older-version/src/work-results.mjs"
+    "do-work/work-results.mjs"
    ],
    "at": "/opt/see-what-my-ais-did"
   },
