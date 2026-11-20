@@ -22,7 +22,8 @@
  *     (CARRIED_BYTES): where, place ("message"), change, at (the message's own
  *     time), key (<chat>/<message id>, the same for its edit and its delete), by
  *     (who sent it), after (JSON text {chat, chat_name, group, words, media,
- *     reply_to}), kinds (JSON text of the row's kinds). Words too long for after
+ *     reply_to, from}, from repeating by, since a chosen workflow is
+ *     given the fact as the router passes it), kinds (JSON text of the row's kinds). Words too long for after
  *     are cut and marked `words_cut` with their full length; media is told by
  *     WhatsApp's own identity of its bytes (`identity`, the file's SHA-256 as
  *     WhatsApp names it), never its bytes.
@@ -40,7 +41,9 @@
  *   - Linking is a fact too: each 8-character phone code is told at place "link"
  *     (kinds ["whatsapp-link-code"]) for as long as WhatsApp keeps it, then a new
  *     one, until the person enters one; linked and logged out are told the same
- *     way. A waiter that is not linked and names no `phone` cannot wait and says so.
+ *     way: linked the first time the socket opens registered after a code, however long after the code's window that is
+ *     (WhatsApp restarts the socket with 515 once a code is entered). A waiter that is not linked and names no `phone`
+ *     cannot wait and says so.
  *
  * Settings (mechanism_settings)
  *   where            the name of this connection, told as each fact's where (default "whatsapp")
@@ -132,9 +135,9 @@ export function partsOf(body) {
 
 /** `after` as JSON text within CARRIED_BYTES. Over it, media keeps only its kind, identity and length, then the words are cut
  *  to fit and marked `words_cut` (their whole length in bytes), then media past what fits is left out and counted. */
-export function afterOf({ chat, chat_name, group, words, media, reply_to }) {
+export function afterOf({ chat, chat_name, group, from = null, words, media, reply_to }) {
   const fits = (value) => Buffer.byteLength(JSON.stringify(value)) <= CARRIED_BYTES;
-  const whole = { chat, chat_name: chat_name ?? null, group, words, media, reply_to: reply_to ? `${chat}/${reply_to}` : null };
+  const whole = { chat, chat_name: chat_name ?? null, group, from, words, media, reply_to: reply_to ? `${chat}/${reply_to}` : null };
   if (fits(whole)) return JSON.stringify(whole);
   let lean = { ...whole, media: media.map(({ kind, identity, seconds }) => Object.fromEntries(Object.entries({ kind, identity, seconds }).filter(([, value]) => value !== undefined))) };
   if (fits(lean)) return JSON.stringify(lean);
@@ -169,7 +172,9 @@ export function changesOf(event, data, context) {
     const chat = item.key.remoteJid;
     const key = `${chat}/${item.key.id}`;
     const group = chat.endsWith("@g.us");
-    const after = parts ? afterOf({ chat, chat_name: context.names?.get(chat) ?? (group ? null : item.pushName ?? null), group, ...parts }) : JSON.stringify({ chat, group });
+    // The sender rides in after as well as by: a chosen workflow is given only the fact's own fields as the router passes
+    // them, and readers such as the history keeper find who a message is from at $.after.from.
+    const after = parts ? afterOf({ chat, chat_name: context.names?.get(chat) ?? (group ? null : item.pushName ?? null), group, from: by ?? null, ...parts }) : JSON.stringify({ chat, group, from: by ?? null });
     const event_key = change === "changed" ? `${key}:changed:${wordsIdentity(parts)}` : `${key}:${change}`;
     changes.push({ event_key, at, detail: { where: own.where, place: "message", change, at, key, by: by ?? null, after, kinds: JSON.stringify(own.kinds) } });
   };
@@ -298,15 +303,29 @@ export async function watchForTransitions(settings, handlers) {
     log: (entry) => process.stderr.write(`${JSON.stringify(entry)}\n`),
   });
 
+  // A pairing told a code: the first time the socket then opens registered, however long after the code's window (WhatsApp
+  // restarts the socket with 515 once the code is entered), linking is told, once.
+  let pairing = false;
+  const linked = async () => {
+    state = { ...state, linked_at: state.linked_at ?? new Date(now()).toISOString() };
+    if (!pairing) return;
+    pairing = false;
+    await tell(linkChange(own, { state: "connected", account: connection.status().account }, new Date(now()).toISOString()));
+  };
+
   try {
     while (!signal?.aborted) {
       const status = connection.status();
-      if (status.state === "connected") { await wait(look, signal); continue; }
+      if (status.state === "connected") { await linked(); await wait(look, signal); continue; }
       // Logged out: WhatsApp no longer takes this session; it is told, and linking starts again with a new code.
       if (status.logged_out) await tell(linkChange(own, { state: "logged_out", account: status.account }, new Date(now()).toISOString()));
       else if (status.linked) {
         const started = await connection.start();
-        if (started.carried && !state.linked_at) { state = { ...state, linked_at: new Date(now()).toISOString() }; await handlers.keepState?.(state); }
+        if (started.carried) {
+          const first = !state.linked_at;
+          await linked();
+          if (first) await handlers.keepState?.(state);
+        }
         if (!started.carried) await wait(look, signal);
         continue;
       }
@@ -316,17 +335,15 @@ export async function watchForTransitions(settings, handlers) {
       const at = new Date(now()).toISOString();
       if (step.state === "pairing_required") {
         await tell(linkChange(own, step, at));
+        pairing = true;
         const until = now() + Math.max(1, Number(step.expires_after_seconds) || 60) * 1000;
-        while (!signal?.aborted && now() < until && connection.status().state !== "connected") await wait(Math.min(look, 1000), signal);
-        if (connection.status().state === "connected") {
-          state = { ...state, linked_at: state.linked_at ?? new Date(now()).toISOString() };
-          await tell(linkChange(own, { state: "connected", account: connection.status().account }, new Date(now()).toISOString()));
-        }
+        // Wait out the code's window, or until WhatsApp takes it: registered (the 515 restart that follows) or open.
+        while (!signal?.aborted && now() < until && connection.status().state !== "connected" && !connection.status().linked) await wait(Math.min(look, 1000), signal);
         continue;
       }
       if (step.state === "connected") {
-        state = { ...state, linked_at: state.linked_at ?? at };
-        await tell(linkChange(own, step, at));
+        pairing = true;
+        await linked();
         continue;
       }
       await wait(look, signal);

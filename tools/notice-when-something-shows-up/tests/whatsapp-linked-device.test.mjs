@@ -44,7 +44,7 @@ test('a text from a friend is one added message fact carrying its words, sender 
   assert.equal(change.detail.key, `${FRIEND}/A1`);
   assert.equal(change.detail.by, FRIEND);
   assert.deepEqual(JSON.parse(change.detail.kinds), ['seed']);
-  assert.deepEqual(JSON.parse(change.detail.after), { chat: FRIEND, chat_name: 'Friend', group: false, words: 'can you share the footage you have of me?', media: [], reply_to: null });
+  assert.deepEqual(JSON.parse(change.detail.after), { chat: FRIEND, chat_name: 'Friend', group: false, from: FRIEND, words: 'can you share the footage you have of me?', media: [], reply_to: null });
   for (const value of Object.values(change.detail)) assert.ok(value === null || Buffer.byteLength(value) <= 1024);
 });
 
@@ -84,7 +84,7 @@ test('a group message names the group and its sender', () => {
   const said = { key: { id: 'G1', remoteJid: GROUP, participant: FRIEND }, messageTimestamp: AT, pushName: 'Friend', message: { extendedTextMessage: { text: 'Thursday 7pm with both of us?', contextInfo: { stanzaId: 'G0' } } } };
   const [change] = changesOf(...upsert([said]), context({ names: new Map([[GROUP, 'Tennis crew']]) }));
   assert.equal(change.detail.by, FRIEND);
-  assert.deepEqual(JSON.parse(change.detail.after), { chat: GROUP, chat_name: 'Tennis crew', group: true, words: 'Thursday 7pm with both of us?', media: [], reply_to: `${GROUP}/G0` });
+  assert.deepEqual(JSON.parse(change.detail.after), { chat: GROUP, chat_name: 'Tennis crew', group: true, from: FRIEND, words: 'Thursday 7pm with both of us?', media: [], reply_to: `${GROUP}/G0` });
 });
 
 test('a message over 1,024 bytes is cut to fit and says how long it was', () => {
@@ -92,6 +92,7 @@ test('a message over 1,024 bytes is cut to fit and says how long it was', () => 
   const [change] = changesOf(...upsert([text('L1', long)]), context());
   assert.ok(Buffer.byteLength(change.detail.after) <= CARRIED_BYTES);
   const after = JSON.parse(change.detail.after);
+  assert.equal(after.from, FRIEND, 'the sender stays when the words are cut');
   assert.equal(after.words_cut, Buffer.byteLength(long));
   assert.ok(long.startsWith(after.words) && after.words.length > 300);
   const many = afterOf({ chat: FRIEND, group: false, words: null, reply_to: null, media: Array.from({ length: 40 }, (_, index) => ({ kind: 'photo', identity: `${index}`.padStart(44, 'x') })) });
@@ -253,4 +254,41 @@ test('the proxy agent opens each connection as a CONNECT tunnel to the named hos
   const said = await new Promise(resolve => { let all = ''; socket.on('data', chunk => { all += chunk; }); socket.on('end', () => resolve(all)); });
   assert.deepEqual(asked, ['web.whatsapp.com:443']);
   assert.equal(said, 'hello');
+});
+
+test('the sender rides in after as from, for a group participant, a friend and a delete', () => {
+  const said = { key: { id: 'G2', remoteJid: GROUP, participant: FRIEND }, messageTimestamp: AT, message: { conversation: 'see you' } };
+  assert.equal(JSON.parse(changesOf(...upsert([said]), context())[0].detail.after).from, FRIEND);
+  assert.equal(JSON.parse(changesOf(...upsert([text('F1', 'hi')]), context())[0].detail.after).from, FRIEND);
+  const [removed] = changesOf('messages.update', [{ key: { id: 'F1', remoteJid: FRIEND }, update: { message: null, messageStubType: 1 } }], context());
+  assert.equal(JSON.parse(removed.detail.after).from, FRIEND);
+});
+
+test('linked is told once when the socket opens after WhatsApp restarts it (515), even after the code ran out', async t => {
+  let clock = AT * 1000;
+  const folder = mkdtempSync(path.join(tmpdir(), 'whatsapp-waiter-'));
+  t.after(() => rmSync(folder, { recursive: true, force: true }));
+  const baileys = fakeBaileys({ registered: false });
+  const facts = [];
+  const controller = new AbortController();
+  const done = watchForTransitions({ where: 'whatsapp-of-the-person', phone: '15555550100' }, {
+    signal: controller.signal, folder, proxy: null, look_ms: 5, load: async () => baileys.module, now: () => clock,
+    keepState: async () => {}, onTransition: async transition => { facts.push(transition); return true; },
+  });
+  t.after(async () => { controller.abort(); await done; });
+  await until(() => baileys.sockets.length, 'the socket');
+  baileys.sockets[0].emit('connection.update', { qr: 'qr-data' });
+  await until(() => facts.length === 1, 'the code');
+  // The person enters the code: WhatsApp registers the session and restarts the socket (515) after the code's window.
+  mkdirSync(path.join(folder, 'session'), { recursive: true });
+  writeFileSync(path.join(folder, 'session', 'creds.json'), JSON.stringify({ registered: true }));
+  clock += 61_000;
+  baileys.sockets[0].emit('connection.update', { connection: 'close', lastDisconnect: { error: { output: { statusCode: 515 } } } });
+  await until(() => baileys.sockets.length === 2, 'the reconnect');
+  baileys.sockets[1].emit('connection.update', { connection: 'open' });
+  await until(() => facts.some(fact => fact.detail.place === 'link' && fact.detail.change === 'changed'), 'linked');
+  await turn(); await turn(); await turn();
+  assert.equal(facts.filter(fact => fact.detail.place === 'link' && fact.detail.change === 'changed').length, 1, 'linked once');
+  assert.equal(facts.filter(fact => fact.detail.change === 'added' && fact.detail.place === 'link').length, 1, 'no second code was asked for');
+  assert.equal(JSON.parse(facts.at(-1).detail.after).state, 'connected');
 });
