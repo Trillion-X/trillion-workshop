@@ -6,6 +6,9 @@ import path from 'node:path';
 import test from 'node:test';
 import { hearSourcesOfACall, sourcesSettings } from '../read-data/hearing-sources.mjs';
 
+const ROW = { id: 'whisper-test', label: 'whisper test', check: ['whisper-cli', '--version'] };
+const runnable = { exists: () => true, run: () => {} };
+
 const settings = sourcesSettings();
 const fakeHearer = calls => async (recording, hearing) => {
   calls.push({ recording, hearing });
@@ -19,7 +22,7 @@ test('each source recording is heard once with the hearing options, and the word
   const file = path.join(mkdtempSync(path.join(os.tmpdir(), 'hear-method-')), 'sessions.json');
   const { words, session } = await hearSourcesOfACall(
     { sources: [{ source: 'system-audio', path: '/sys.wav' }, { source: 'microphone', path: '/mic.wav' }] },
-    { settings, at: 1000, hear: fakeHearer(calls), hearing: { modelPath: '/m.bin', produced_by: 'whisper-test' }, file },
+    { settings, at: 1000, hear: fakeHearer(calls), hearing: { modelPath: '/m.bin', produced_by: 'whisper-test', rows: [ROW] }, picking: runnable, file },
   );
   assert.deepEqual(calls.map(call => call.recording).sort(), ['/mic.wav', '/sys.wav'], 'one pass per source file');
   assert.ok(calls.every(call => call.hearing.modelPath === '/m.bin'), 'the hearing options reach the hearer');
@@ -30,6 +33,27 @@ test('each source recording is heard once with the hearing options, and the word
 
 test('an empty request is refused before any recording is heard', async () => {
   const calls = [];
-  await assert.rejects(hearSourcesOfACall({ sources: [] }, { settings, hear: fakeHearer(calls) }), /Give sources/);
+  await assert.rejects(hearSourcesOfACall({ sources: [] }, { settings, hear: fakeHearer(calls), hearing: { rows: [ROW] }, picking: runnable }), /Give sources/);
   assert.equal(calls.length, 0);
+});
+
+test('a computer with no hearing program that runs is refused before any recording is heard', async () => {
+  const calls = [];
+  await assert.rejects(
+    hearSourcesOfACall({ sources: [{ source: 'microphone', path: '/mic.wav' }] }, { settings, hear: fakeHearer(calls), hearing: { rows: [ROW] }, picking: { exists: () => false } }),
+    /no program that hears recordings/,
+  );
+  assert.equal(calls.length, 0);
+});
+
+test('the first hearing program that runs here is picked and named in the session record', async () => {
+  const calls = [];
+  const file = path.join(mkdtempSync(path.join(os.tmpdir(), 'hear-method-')), 'sessions.json');
+  const missing = { id: 'not-installed', label: 'not installed', check: ['nope-cli'] };
+  const { session } = await hearSourcesOfACall(
+    { sources: [{ source: 'microphone', path: '/mic.wav' }] },
+    { settings, hear: fakeHearer(calls), hearing: { rows: [missing, ROW] }, picking: { exists: file => file.endsWith('/whisper-cli'), run: () => {} }, file },
+  );
+  assert.equal(calls[0].hearing.program.id, 'whisper-test');
+  assert.equal(session.program, 'whisper-test');
 });

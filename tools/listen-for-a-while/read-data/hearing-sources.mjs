@@ -18,6 +18,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { hearFile } from '../../audio-transcription/read-data/hear-here.mjs';
+import { hearingHere } from '../../computer-programs/read-data/program-here.mjs';
 import { bytesToHex } from '@noble/hashes/utils.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -60,15 +61,19 @@ export function recordSession({ program, flags = {}, sources, at = Date.now() },
 }
 
 /**
- * The hear step: each source's recording is heard by `hear` (default: audio-transcription's hearFile, which reads its options
- * from `hearing`), the words come back in time order labelled by source, and the session is recorded. Sources, labels and the
- * record file are the same DATA as above. `file` overrides where the session record goes (default: settings.session_file).
+ * The hear step: the first hearing program of `hearing.rows` that runs on this computer is picked (`picking` passes the machine
+ * facts and the program checks in, for tests); each source's recording is heard by `hear` with the hearing options and the
+ * picked program, the words come back in time order labelled by source, and the session is recorded with the program's id.
+ * Sources, labels and the record file are the same DATA as above. `file` overrides where the session record goes (default:
+ * settings.session_file). A computer with no program that runs is refused with settings.words.no_hearing.
  */
-export async function hearSourcesOfACall(input, { hear = hearFile, hearing = {}, settings = sourcesSettings(), at = 0, file } = {}) {
+export async function hearSourcesOfACall(input, { hear = hearFile, hearing = {}, settings = sourcesSettings(), at = 0, file, picking = {} } = {}) {
+  const program = hearingHere(hearing.rows ?? [], picking);
+  if (!program) throw fail(settings.words.no_hearing);
   const words = await hearSources((input.sources ?? []).map(entry => ({ source: entry.source, path: expand(entry.path) })), {
-    hear: recording => hear(recording, hearing), settings, at,
+    hear: recording => hear(recording, { ...hearing, program }), settings, at,
   });
-  const session = recordSession({ program: hearing.produced_by ?? 'hearFile', flags: input.flags ?? {}, sources: [...new Set(words.map(word => word.source))] }, { settings, file });
+  const session = recordSession({ program: program.id, flags: input.flags ?? {}, sources: [...new Set(words.map(word => word.source))] }, { settings, file });
   return { words, session };
 }
 
