@@ -11,11 +11,12 @@
     "workflow:tell-me-when-something-changes"
   ],
   "tools": [
-    "tool:choose-the-workflows-that-fire"
+    "tool:choose-the-workflows-that-fire",
+    "tool:run-sql-in-my-database"
   ],
   "instructions": [
     "1. Have the person's store tell its changes as something-changed facts {where, place, change, at, key, before, after}: run workflow:tell-me-when-something-changes for the store and the things to watch. In a Postgres database made by workflow:make-a-database-for-each-pursuit, the person's own choice can be record_row_change() on the table and tool:notice-when-something-shows-up's wake keep-noticing-row-changes.",
-    "2. Turn on this workflow's wake a-row-changed.",
+    "2. Turn on this workflow's wake a-row-changed, with own.credential_name the login to the database that holds the person's workflow_recipes rows, so their own workflows are chosen too.",
     "3. Give a workflow a fires_when condition over the change's place and change (fields of kind choice, rule is_any_of), or over fields of before or after, and, in its input, the step it starts at; turn on that workflow's own workflow-chosen wake.",
     "4. Add an entry and read the run of this workflow: it is woken with the change, names the workflows chosen, and tells each one; each chosen workflow then runs from its own wake."
   ],

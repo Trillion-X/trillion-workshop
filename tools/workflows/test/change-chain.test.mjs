@@ -48,6 +48,29 @@ test('a labelled change is routed under the event id it was told by, so two chan
   assert.ok(told.some(fact => fact.payload.workflow === 'workflow:contact-a-booker-right-after-they-book'), 'call-booked chooses the booking workflows by their own fires_when');
 });
 
+test("the person's own workflow rows are read where their switch says and chosen beside the installed ones", async () => {
+  const own = { recipe: 'workflow:send-a-friend-the-footage-they-ask-for', title: 'Send a friend the footage they ask for',
+    fires_when: [{ label: 'a friend asks for footage', made_by: 'person', condition: { fields: [{ id: 'kinds', kind: 'tags', path: ['kinds'] }], tree: { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'kinds', operator: 'has_any_of', params: { values: ['asks-for-footage'] } }] } } }] };
+  const d = door((name, input) => (name === 'tool:run-sql-in-my-database' && /FROM workflow_recipes/.test(input.sql) ? { columns: ['id', 'value'], rows: [{ id: own.recipe, value: own }], row_count: 1 } : {}));
+  const fact = { kind: 'something-changed', where: 'my-messages', place: 'message', change: 'added', at: '2026-11-19T13:00:00.000Z', key: 'm-1', after: '{}', kinds: JSON.stringify(['asks-for-footage']) };
+  const run = await runAsTheTool(wake(ROUTER, 'a-row-changed', fact, 'where::something-changed@my-messages:message:m-1:added', { own: { credential_name: 'my-workflows-connection' } }), d);
+  assert.equal(run.status, 'completed', run.error_message);
+  const read = d.calls.find(call => call.name === 'tool:run-sql-in-my-database');
+  assert.equal(read.input.credential_name, 'my-workflows-connection', 'the rows are read with the login the switch names');
+  const chosen = d.calls.find(call => call.name === 'tool:choose-the-workflows-that-fire');
+  assert.equal(chosen.input.own.length, 1);
+  assert.ok(d.calls.some(call => call.name === 'wake:arrive' && call.input.payload.workflow === own.recipe), 'the own row is chosen by its own fires_when');
+});
+
+test('with no own rows named on the switch, the router chooses from the installed workflows alone', async () => {
+  const d = door(() => { throw Object.assign(new Error('no login named'), { code: 'tools_run_input_refused' }); });
+  const fact = { kind: 'something-changed', where: 'w', place: 'booking', change: 'added', at: '2026-11-19T13:00:00.000Z', key: 'k-2', after: '{}', kinds: '["call-booked"]' };
+  const run = await runAsTheTool(wake(ROUTER, 'a-row-changed', fact, 'where::something-changed@w:booking:k-2:added'), d);
+  assert.equal(run.status, 'completed', run.error_message);
+  assert.deepEqual(d.calls.find(call => call.name === 'tool:choose-the-workflows-that-fire').input.own, []);
+  assert.ok(d.calls.some(call => call.name === 'wake:arrive' && call.input.payload.workflow === KEEP.id));
+});
+
 test('a change handed to the router directly, with no fact behind it, is named by its own key', async () => {
   const d = door(() => ({}));
   const run = await runAsTheTool({ run: { row: ROUTER.id, start_at: 'choose', fact: { where: 'w', place: 'booking', change: 'added', key: 'k-1', kinds: '["call-booked"]' } } }, d);
