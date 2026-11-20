@@ -1,12 +1,12 @@
 import { withSharedCargoTargetLock } from './shared-cargo-target.mjs';
+import { BUILD_TOOL, outputRoot } from './output-root.mjs';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { dirname, join, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 // This tool's folder, the Workshop's tools/ folder every crate directory is named from (a tool's crate is
 // <tool>/crates/<crate>; an engine crate is ../../trillion-rust/crates/<crate>, the engine checkout beside the Workshop)
 // and the Workshop checkout, from which the identity names every file.
-export const BUILD_TOOL = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+export { BUILD_TOOL };
 export const TOOLS = dirname(BUILD_TOOL);
 export const WORKSHOP = dirname(TOOLS);
 // Each compiled module the Workers load and the folder under dist/ it goes in, beside the bundle: the locked box's two,
@@ -38,14 +38,15 @@ export const ENGINE_COMPONENTS = [
   { crate: 'workflow-component', target: 'wasm32-wasip2', folder: 'workflow-component' },
 ];
 
-// The crate-built modules are committed under BUILT_CRATES_FOLDER, so a build (Cloudflare's included) never needs Rust:
+// The crate-built modules are committed under built-stored-bytes (builtCratesFolder()), so a build (Cloudflare's included) never needs Rust:
 // build-compiled-modules.mjs compiles them once when a crate changes and writes fingerprint.json, the BLAKE3
 // identity of every source file of every crate they are built from (the crates in their dependency closure, named
 // below tools/, listed there, which include the engine crates its manifests reach by path) plus Cargo.toml and Cargo.lock
 // of every crate workspace (the `crates/` folder of each tool, and the engine's beside the Workshop). A build whose
 // sources no longer match that identity builds them again where cargo is present, and stops with the command where it
 // is not; a hosted build without the engine checkout beside it stops the same way.
-export const BUILT_CRATES_FOLDER = join(BUILD_TOOL, 'built-stored-bytes');
+/** The folder the committed crate-built modules are published to: built-stored-bytes under the output root (build/output-root.mjs). */
+export function builtCratesFolder() { return join(outputRoot(), 'built-stored-bytes'); }
 const BUILD_COMMAND = join(BUILD_TOOL, 'build/build-compiled-modules.mjs');
 export async function crateSourceFingerprint(crateDirs, sourceFiles = []) {
   const { readdirSync, readFileSync, statSync, lstatSync, realpathSync, openSync, fstatSync, closeSync, constants } = await import('node:fs');
@@ -195,7 +196,7 @@ export function compiledModuleFiles() {
   return rows.flatMap(({ crate, folder, target }) => {
     const name = crate.replaceAll('-', '_');
     return (target ? [`${name}.wasm`] : [`${name}.js`, `${name}_bg.wasm`])
-      .map(file => `${BUILT_CRATES_FOLDER}/${folder}/${file}`);
+      .map(file => `${builtCratesFolder()}/${folder}/${file}`);
   });
 }
 
@@ -203,7 +204,7 @@ export function compiledModuleFiles() {
 async function currentCommittedModules(expectedCrateDirs = null, expectedSourceFiles = null) {
   const { readFileSync, statSync } = await import('node:fs');
   let built;
-  try { built = JSON.parse(readFileSync(`${BUILT_CRATES_FOLDER}/fingerprint.json`, 'utf8')); }
+  try { built = JSON.parse(readFileSync(`${builtCratesFolder()}/fingerprint.json`, 'utf8')); }
   catch { return null; }
   if (!Array.isArray(built.crate_dirs) || !built.crate_dirs.every(dir => typeof dir === 'string') || typeof built.fingerprint !== 'string') return null;
   if (expectedCrateDirs && JSON.stringify([...built.crate_dirs].sort()) !== JSON.stringify([...expectedCrateDirs].sort())) return null;
@@ -231,7 +232,7 @@ export async function committedModulesCurrent(expectedCrateDirs = null, expected
 export async function recoverCompiledModulePublication() {
   const { existsSync, lstatSync, readFileSync, readdirSync, renameSync, rmSync } = await import('node:fs');
   const { basename, dirname, join, resolve } = await import('node:path');
-  const destination = resolve(BUILT_CRATES_FOLDER);
+  const destination = resolve(builtCratesFolder());
   const parent = dirname(destination);
   if (!existsSync(parent)) return [];
   const stages = [];
@@ -305,7 +306,7 @@ export async function withCommittedModules(read) {
   let result = await attempt();
   if (result.current) return result.value;
   if (process.env.WORKERS_CI) {
-    process.stderr.write(`\nBUILD STOPPED: a compiled module is missing or its crate sources changed, and ${BUILT_CRATES_FOLDER} was not rebuilt. Run node ${BUILD_COMMAND} and commit ${BUILT_CRATES_FOLDER}.\n`);
+    process.stderr.write(`\nBUILD STOPPED: a compiled module is missing or its crate sources changed, and ${builtCratesFolder()} was not rebuilt. Run node ${BUILD_COMMAND} and commit ${builtCratesFolder()}.\n`);
     process.exit(1);
   }
   const { execFileSync } = await import('node:child_process');
@@ -362,7 +363,7 @@ async function copyModules(modules, destination) {
     if (folders.has(folder)) continue;
     folders.add(folder);
     mkdirSync(join(destination, folder), { recursive: true });
-    cpSync(copyFrom ?? join(BUILT_CRATES_FOLDER, folder), join(destination, folder), { recursive: true });
+    cpSync(copyFrom ?? join(builtCratesFolder(), folder), join(destination, folder), { recursive: true });
     await writeFreshGlue(join(destination, folder));
   }
 }

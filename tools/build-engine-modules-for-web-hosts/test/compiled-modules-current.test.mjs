@@ -12,7 +12,10 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { BUILD_TOOL, BUILT_CRATES_FOLDER, TOOLS, WORKSHOP, committedModulesCurrent } from '../build/compiled-modules.mjs';
+import { BUILD_TOOL, TOOLS, WORKSHOP, builtCratesFolder, committedModulesCurrent } from '../build/compiled-modules.mjs';
+import { isolateOutput } from './isolated-output.mjs';
+
+isolateOutput();
 
 const engineCrates = join(WORKSHOP, '../trillion-rust/crates');
 const hasCargo = (() => { try { execFileSync('cargo', ['--version'], { stdio: 'ignore' }); return true; } catch { return false; } })();
@@ -22,7 +25,7 @@ test('the committed crate modules match their crates\' sources', { skip: !exists
 });
 
 test('the composition engine slot takes its two host calls from the env import module', () => {
-  const module = new WebAssembly.Module(readFileSync(join(BUILT_CRATES_FOLDER, 'composition-engine/composition_engine.wasm')));
+  const module = new WebAssembly.Module(readFileSync(join(builtCratesFolder(), 'composition-engine/composition_engine.wasm')));
   const fromHost = WebAssembly.Module.imports(module).filter(entry => entry.name.startsWith('__')).map(entry => `${entry.module}.${entry.name}`).sort();
   assert.deepEqual(fromHost, ['env.__init_buffers', 'env.__notify_ready']);
 });

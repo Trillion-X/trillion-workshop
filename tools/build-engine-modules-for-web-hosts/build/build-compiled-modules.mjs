@@ -20,12 +20,13 @@ import { execFileSync } from 'node:child_process';
 import { copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { crateWorkspaces, withCrateBuilds, workspaceOf } from './build-crate-for-a-web-host.mjs';
-import { BUILT_CRATES_FOLDER, COMPILED_MODULES, ENGINE_COMPONENTS, PAGE_COMPILED_MODULES, TOOLS, WORKSHOP, committedModulesCurrent, crateSourceFingerprint, recoverCompiledModulePublication } from './compiled-modules.mjs';
+import { builtCratesFolder, COMPILED_MODULES, ENGINE_COMPONENTS, PAGE_COMPILED_MODULES, TOOLS, WORKSHOP, committedModulesCurrent, crateSourceFingerprint, recoverCompiledModulePublication } from './compiled-modules.mjs';
 
 // One existing target ownership scope covers source validation, every crate and
 // publication. A caller that waited for an identical build rechecks only after
 // acquiring ownership and does not delete or rebuild that completed output.
 await withCrateBuilds(async builds => {
+  const published = builtCratesFolder();
   await recoverCompiledModulePublication();
   const crateRows = [...COMPILED_MODULES, ...PAGE_COMPILED_MODULES, ...ENGINE_COMPONENTS].filter(row => row.crate);
   // Each crate's closure comes from its own workspace's resolution (an engine crate resolves in the engine's workspace).
@@ -74,7 +75,7 @@ await withCrateBuilds(async builds => {
     return;
   }
   const fingerprint = await crateSourceFingerprint(crateDirs, sourceFiles);
-  const stageParent = dirname(resolve(BUILT_CRATES_FOLDER));
+  const stageParent = dirname(resolve(published));
   mkdirSync(stageParent, { recursive: true });
   const stage = mkdtempSync(join(stageParent, '.compiled-modules-'));
   const next = join(stage, 'next');
@@ -82,7 +83,7 @@ await withCrateBuilds(async builds => {
   let retainStage = false;
   try {
     // Preserve entries this builder does not own, including unrelated siblings.
-    if (existsSync(BUILT_CRATES_FOLDER)) cpSync(BUILT_CRATES_FOLDER, next, { recursive: true, verbatimSymlinks: true, preserveTimestamps: true });
+    if (existsSync(published)) cpSync(published, next, { recursive: true, verbatimSymlinks: true, preserveTimestamps: true });
     else mkdirSync(next);
     if (!lstatSync(next).isDirectory()) throw new Error('The compiled-module output must be an owned directory');
     for (const folder of new Set(crateRows.map(row => row.folder))) rmSync(join(next, folder), { recursive: true, force: true });
@@ -111,18 +112,18 @@ await withCrateBuilds(async builds => {
       return [relative(TOOLS, workspace), git(workspace, ['log', '-1', '--format=%H', '--', '.'])];
     }));
     writeFileSync(join(next, 'fingerprint.json'), `${JSON.stringify({ crate_dirs: crateDirs, source_files: sourceFiles, fingerprint, workspace_commits }, null, 2)}\n`);
-    const hadPrevious = existsSync(BUILT_CRATES_FOLDER);
+    const hadPrevious = existsSync(published);
     // Write recovery facts before retiring the current tree. Process exit at
     // either rename leaves enough information for the ordinary next owner.
     writeFileSync(join(stage, 'publication.json'), `${JSON.stringify({
-      schema: 'compiled-modules-publication/v1', destination: resolve(BUILT_CRATES_FOLDER), hadPrevious,
+      schema: 'compiled-modules-publication/v1', destination: resolve(published), hadPrevious,
     })}\n`);
-    if (hadPrevious) renameSync(BUILT_CRATES_FOLDER, previous);
+    if (hadPrevious) renameSync(published, previous);
     try {
-      renameSync(next, BUILT_CRATES_FOLDER);
+      renameSync(next, published);
     } catch (publicationError) {
       if (hadPrevious) {
-        try { renameSync(previous, BUILT_CRATES_FOLDER); }
+        try { renameSync(previous, published); }
         catch (recoveryError) {
           retainStage = true;
           throw new AggregateError([publicationError, recoveryError], `Compiled-module publication failed; original output is preserved at ${previous}`);
