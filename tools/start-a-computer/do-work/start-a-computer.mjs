@@ -69,6 +69,10 @@ function sshOnce({ ssh, address }, command, input, spawnImpl) {
     child.stdout.on('data', bytes => { out += bytes; });
     child.stderr.on('data', bytes => { err += bytes; });
     child.on('error', reject);
+    // A command that ends before it reads all its input (ssh that never connected, say) closes its standard input: the write's
+    // EPIPE is that same failure, which `close` reports with ssh's own words, so it is not thrown on its own and the process
+    // does not crash with no command named (Nov 20 2026: `differences` with no machine address died "write EPIPE").
+    child.stdin.on('error', () => {});
     child.on('close', code => (code === 0 ? resolve(out) : reject(Object.assign(new Error(`On the machine, \`${command.split(' ')[0]}\` exited ${code}: ${err.trim().split('\n').slice(-3).join(' | ')}`), { code }))));
     if (input?.pipe) input.pipe(child.stdin); else child.stdin.end(input ?? '');
   });

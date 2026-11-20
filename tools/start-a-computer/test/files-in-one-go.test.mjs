@@ -65,3 +65,17 @@ test('one write sends the whole archive in one command, and nothing when there i
   assert.match(sent[0].command, /tar -x -f - -C \/ --no-same-owner --no-same-permissions/);
   assert.ok(Buffer.isBuffer(sent[0].input) && sent[0].input.length % 512 === 0);
 });
+
+test('a command that ends before reading its input is a refusal naming ssh\'s words, never a crash on the write', async () => {
+  const { onMachine } = await import('../do-work/start-a-computer.mjs');
+  const { EventEmitter } = await import('node:events');
+  const { PassThrough, Writable } = await import('node:stream');
+  const spawnImpl = () => {
+    const child = new EventEmitter();
+    child.stdout = new PassThrough(); child.stderr = new PassThrough();
+    child.stdin = new Writable({ write(_chunk, _encoding, done) { done(Object.assign(new Error('write EPIPE'), { code: 'EPIPE' })); } });
+    setTimeout(() => { child.stderr.end('ssh: Could not resolve hostname undefined'); child.emit('close', 255); }, 10);
+    return child;
+  };
+  await assert.rejects(onMachine({ ssh: { known_hosts: '/tmp/known' }, address: undefined }, 'sha256sum', Buffer.alloc(1 << 20), spawnImpl), /exited 255: ssh: Could not resolve hostname undefined/);
+});
