@@ -11,7 +11,7 @@
   "1. Keep the workflow as a row of your own (its definition: id, name, kind workflow, is_active, version, steps, edges).",
   "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:run-a-workflow and input {definition, and the workflow's own input fields}.",
   "3. Read result.status and result.waiting: each step that names a tool is started for you, and each other step waits for whoever it names, with told_as saying how its answer comes back.",
-  "4. To have it run by itself, switch on its wakes: a-workflow-was-chosen (a router tells the chosen row), a-step-was-answered (answers come back), a-step-is-waiting (your switch input carries the definition that gives a waiting step to whoever it names, such as a task row) and a-row-changed (your switch input carries the definition to run on every change)."
+  "4. To have it run by itself, switch on its wakes: a-workflow-was-chosen (a router tells the chosen row), a-step-was-answered (answers come back), a-step-is-waiting (your switch input carries the definition that gives a waiting step to whoever it names, such as a task row) a-row-changed (your switch input carries the definition to run on every change), a-workflow-was-picked (the chooser's workflow-chosen facts) and a-kept-workflow-is-due (kept-workflow-due times a noticer tells); for those two your switch input carries the definition that says which kept workflow each fact starts."
  ],
  "worked_examples": [
   {

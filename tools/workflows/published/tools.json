@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:5e6062e5856d3841bc23c254894eea891148a81bd373ba30d5dd207e62512288"
+  "blake3": "1f:b9e033de472effdc71e0185b8042fc14243a6343ed3cf744a40b91959fc5c736"
  },
  "fields": [
   {
@@ -683,8 +683,8 @@
    "id": "tool:ask-a-model",
    "values": {
     "title": "Ask a model",
-    "job": "Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word",
-    "description": "Runs on the person's computer with the models it serves (read-data/models-on-this-computer.json: Ollama for conversations, a small classifier for yes-or-no questions). messages asks a conversation and answers in the chat-completions shape; job picks a job row (which models, how many words, what answer format); tools optionally supplies the functions it may call, whose calls are returned for the caller to execute through its normal permissions; parts true also returns the answer as keyed parts. state and questions ask the classifier and answer its probabilities. Answers error in words, with each model tried and why it did not answer, when no model on the computer is running.",
+    "job": "Ask a model served on the person's own computer (a local model, free to run) a conversation, a yes-or-no question about some words, or for vectors that compare words by meaning, instead of a service billed per word",
+    "description": "Runs on the person's computer with the models it serves (read-data/models-on-this-computer.json: Ollama for conversations, a small classifier for yes-or-no questions). messages asks a conversation and answers in the chat-completions shape; job picks a job row (which models, how many words, what answer format); tools optionally supplies the functions it may call, whose calls are returned for the caller to execute through its normal permissions; parts true also returns the answer as keyed parts. state and questions ask the classifier and answer its probabilities. texts answers one vector per text from the embedding model its job names (meaning when it names none), with that model's name, since vectors compare only with vectors from the same model. Answers error in words, with each model tried and why it did not answer, when no model on the computer is running.",
     "status": "active",
     "maker": "maker:models-on-this-computer",
     "licence_class": "licence:maker-own",
@@ -1098,6 +1098,21 @@
      "placement:small-container"
     ],
     "folder": "book-time"
+   }
+  },
+  {
+   "id": "tool:cancel-a-codex-run-on-this-computer",
+   "values": {
+    "title": "Cancel a Codex run on this computer",
+    "job": "End a running Codex run's process group and read back that it is cancelled (harness/codex-runs.mjs cancelCodexRun)",
+    "description": "Ends the run only while it is still the same running process (its start time is checked). Answers the state and cancelled true when it was running; a run that is not running answers cancelled false.",
+    "status": "active",
+    "maker": "maker:keep-and-wake-ai-sessions-on-this-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-and-wake-ai-sessions-on-this-computer"
    }
   },
   {
@@ -4023,6 +4038,21 @@
    }
   },
   {
+   "id": "tool:find-network-people",
+   "values": {
+    "title": "Find people in the Network",
+    "job": "Find people in the Network whose listings are close in meaning to a need, or share its words when there is no meaning vector",
+    "description": "Answers the findable people, by handle and never by contact, whose listing embedding is at least the Network's min_similarity close to the need's embedding (sent as embedding); with no embedding, a listing answers when it shares a word with the need. A person who labelled the searcher unwanted-requests or unsafe is left out. Reads the network_records rows of the database named.",
+    "status": "active",
+    "maker": "maker:network-people",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "network-people"
+   }
+  },
+  {
    "id": "tool:find-new-or-changed-files",
    "values": {
     "title": "Find new or changed files",
@@ -5031,6 +5061,21 @@
    }
   },
   {
+   "id": "tool:hand-over-a-space",
+   "values": {
+    "title": "Hand a space over",
+    "job": "Make a one-time code that hands this space to whoever opens it signed in, good for 14 days",
+    "description": "Only the person who runs the space can make the code. The code is shown once; only its hash is kept, as a record:space-handover row the caller stores. It replaces the old hand_over_community.",
+    "status": "active",
+    "maker": "maker:space-members",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "space-members"
+   }
+  },
+  {
    "id": "tool:hear-a-link",
    "values": {
     "title": "Hear the words of a video or recording at a link",
@@ -5240,6 +5285,21 @@
      "placement:your-computer"
     ],
     "folder": "edit-a-copy-of-a-premiere-project"
+   }
+  },
+  {
+   "id": "tool:install-a-tool-source",
+   "values": {
+    "title": "Install a tool source my rows name",
+    "job": "Install on this computer the tool source one of my rows names (its label, the https archive of its tool folders and the pin of their files), or take it away when the row was removed, so every computer of mine runs the tools my own rows say and none needs a hand step",
+    "description": "One step of the person's own workflow that keeps each of their computers on what their rows say each tool source is. Given {source, address, files_blake3} it installs that archive as the source of that label through the engine's tools:update at the Workshop's address (a new label becomes a new source; the same label moves to the new pin); given {source, removed: true} it takes the source away. The source may be any https archive of tool folders, a teammate's as well as the Workshop's. The run may install only because its row declares the right {at: \"@tools\", id: \"*\", operations: [\"tools:update\"]}, which the person grants by switching on the wake that runs it. It answers the engine's answer with the label: changed, files_blake3, previous, removed, switch_again.",
+    "status": "active",
+    "maker": "maker:install-a-tool-source",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "install-a-tool-source"
    }
   },
   {
@@ -5636,7 +5696,7 @@
    "values": {
     "title": "Keep the shared Workshop checkout on origin/main",
     "job": "Every five minutes, bring the shared Workshop checkout on this computer up to origin/main, keeping every file someone is changing, every untracked file, and every commit not on origin, and saving the whole working state on a local rescue ref first.",
-    "description": "One pass over the granted checkout (--root). It refuses, touching nothing, when the checkout is not on branch main, when .git/index.lock exists, when a merge, rebase, cherry-pick or revert is in progress, or when git fetch fails. Otherwise it saves the whole working state (tracked changes, untracked files, and commits not on origin/main) as a local refs/rescue/workshop-shared-<time> commit that is never pushed, then keeps every path whose bytes differ from both HEAD and origin, and every path changed in the last 120 seconds, skips the clean ones changed in the last 120 seconds until the next pass, moves HEAD and the index to origin/main with git reset --mixed, writes origin's bytes over the clean paths, and moves the clean paths origin deleted into <git-dir>/keep-the-shared-checkout-current-trash/<time>/. It never deletes a file and never runs git reset --hard, git clean or git push. Returns outcome (ran, refused or stopped), behind_before and behind_after, the rescue_ref, local_commits, updated, trashed, kept and skipped (each with why).",
+    "description": "One pass over the granted checkout (--root). It refuses, touching nothing, when the checkout is not on branch main, when .git/index.lock exists, when a merge, rebase, cherry-pick or revert is in progress, or when git fetch fails. Otherwise it saves the whole working state (tracked changes, untracked files, and commits not on origin/main) as a local refs/rescue/workshop-shared-<time> commit that is never pushed, then keeps every path whose bytes differ from both HEAD and origin, and every path changed in the last 120 seconds, skips the clean ones changed in the last 120 seconds until the next pass, moves HEAD and the index to origin/main with git reset --mixed, writes origin's bytes over the clean paths, and names the files origin deleted (with a removal proof) for disk-guard's removal list. It never deletes a file and never runs git reset --hard, git clean or git push. Returns outcome (ran, refused or stopped), behind_before and behind_after, the rescue_ref, local_commits, updated, removal_entries, kept and skipped (each with why).",
     "status": "active",
     "maker": "maker:keep-the-shared-checkout-current",
     "licence_class": "licence:maker-own",
@@ -5726,6 +5786,21 @@
    }
   },
   {
+   "id": "tool:label-a-person",
+   "values": {
+    "title": "Label a person",
+    "job": "Give a person in the network one label (unwanted-requests, unsafe or vouched) in the database named in the input.",
+    "description": "Gives a person in the network a label: unwanted-requests, unsafe or vouched. It writes one label row for the labeler, once, and one history row, in the database named by `database`, through the connection the person's vault holds under that name. Enough different labelers hide a listing; this tool only records the label.",
+    "status": "active",
+    "maker": "maker:run-sql-in-my-database",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-the-labels-people-give-each-other-in-the-network"
+   }
+  },
+  {
    "id": "tool:label-video-frames-with-small-local-models",
    "values": {
     "title": "Label frames of my videos with a small model on my computer (runs on your computer)",
@@ -5798,6 +5873,21 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:leave-a-shared-pursuit",
+   "values": {
+    "title": "Leave a shared pursuit",
+    "job": "A person leaves a pursuit they share with other people: their own membership of its space is marked left, what they put there stays, and the pursuit ends for them",
+    "description": "Give the pursuit's id, the person, and the rows read from the store ([{ id, type, value }]: the pursuit, its space, the space's member rows). Refuses a pursuit that is not theirs or has ended, and refuses the person who runs the space (hand it over first). Answers the membership change and the pursuit ended, under `keep` ([{ id, type, value, expected }]) for the caller to store. It changes only the caller's own rows. The network's room leave is not a row change and is not done here.",
+    "status": "active",
+    "maker": "maker:leave-a-shared-pursuit",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "leave-a-shared-pursuit"
    }
   },
   {
@@ -7627,6 +7717,21 @@
    }
   },
   {
+   "id": "tool:move-static-items-into-a-space",
+   "values": {
+    "title": "Move static items into a space",
+    "job": "Move the static items a space held into its own posts, once: the owner moves them and asking again keeps nothing",
+    "description": "Each item of the static projection becomes a record:space-item row keyed by where it came from. Only the person who runs the space may move them. It replaces the one-time migrate-static-projection-items.",
+    "status": "active",
+    "maker": "maker:space-members",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "space-members"
+   }
+  },
+  {
    "id": "tool:move-word-starts-to-where-the-voice-starts",
    "values": {
     "title": "Time each word of a voice take from where the voice really starts, for graphics on the word (runs on your computer)",
@@ -7848,6 +7953,21 @@
    }
   },
   {
+   "id": "tool:network-profile",
+   "values": {
+    "title": "Set how people can find me",
+    "job": "Change how this person shows in the Network: the name, handle, what they offer and seek, whether they are findable, their pursuits and their meaning vectors",
+    "description": "Saves the person's network_records profile row in the database named (or the held connection named), changing only the fields sent. A field a person wrote is listed under written. A handle is 3 to 30 letters, digits or underscores and is unique among the profiles. A contact is kept on the person's own row and is never answered by the search or path tools; read-a-network-contact answers it only while an introduction is released.",
+    "status": "active",
+    "maker": "maker:network-people",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "network-people"
+   }
+  },
+  {
    "id": "tool:notice-messages-on-this-mac",
    "values": {
     "title": "Notice each message on this Mac, and tell the engine",
@@ -7920,6 +8040,21 @@
      "placement:small-container"
     ],
     "folder": "save-what-you-watch-and-read"
+   }
+  },
+  {
+   "id": "tool:on-my-path",
+   "values": {
+    "title": "Who is on my path",
+    "job": "Show people whose shown pursuits are close in meaning to one of this person's pursuits",
+    "description": "Answers the people who chose to show their pursuits and whose pursuit is at least on_your_path.min_similarity close, by cosine, to one of this person's pursuits (each pursuit carries its embedding), each with both pursuits beside each other. Open pursuits: spaces you are not in whose join rows let anyone in (a free row) and whose embedding is close to one of your pursuits, at most the settings cap (6).",
+    "status": "active",
+    "maker": "maker:network-people",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "network-people"
    }
   },
   {
@@ -8890,6 +9025,21 @@
    }
   },
   {
+   "id": "tool:publish-tool",
+   "values": {
+    "title": "Publish a saved tool",
+    "job": "Publish one of my saved tools as my listing, so anyone can find it in the marketplace",
+    "description": "Lists one saved tool as this maker's listing in the database the request names. Only the saved version is listed, with its price (price_ref or a usage_price) and show_on_public_site (default false, so it is not on the public site). A saved tool with no sample-run check, or one that changed since it was checked, is refused.",
+    "status": "active",
+    "maker": "maker:list-and-run-my-tools-for-any-ai",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "list-and-run-my-tools-for-any-ai"
+   }
+  },
+  {
    "id": "tool:publish_site",
    "values": {
     "title": "Publish a site",
@@ -9241,6 +9391,21 @@
    }
   },
   {
+   "id": "tool:read-a-codex-run-on-this-computer",
+   "values": {
+    "title": "Read a Codex run on this computer",
+    "job": "Read a Codex run's output after a byte position and its state (harness/codex-runs.mjs readCodexRun)",
+    "description": "Answers the run's state (running, exited with exit_code, ended or cancelled), the output bytes after the given position (whole UTF-8 characters only), and next, the position to read from next time. Refuses a run id that is not a codex run.",
+    "status": "active",
+    "maker": "maker:keep-and-wake-ai-sessions-on-this-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-and-wake-ai-sessions-on-this-computer"
+   }
+  },
+  {
    "id": "tool:read-a-computer",
    "values": {
     "title": "Read a computer",
@@ -9398,6 +9563,21 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:read-a-network-contact",
+   "values": {
+    "title": "Read a network contact",
+    "job": "Give a person another person's contact, only once an introduction between them is released",
+    "description": "Answers the contact of the person named by `of`, to the person named by `subject`, only while an introduction between the two is in a released state: accepted, waiting for AIs, introduced or talked. Proposed, one yes, sent, declined, passed and expired are refused, and so is a stranger.",
+    "status": "active",
+    "maker": "maker:network-people",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "network-people"
    }
   },
   {
@@ -9638,7 +9818,7 @@
    "values": {
     "title": "Read this account's business this month",
     "job": "Read what this account's business took in this month on the payment services it connected",
-    "description": "The one read of the Business screen (tool:business). Returns since_words (the first of this month), service_names (the payment services whose money can be read), connected ([{label, state: read | none | unread, currencies: [{currency, code, multi, service_label, money_in, fees, refunded, net}] written in each currency, payments, more, at_most}], one per payment service, each read with this account's own connection by running its money read, tool:stripe-events-read_money_since; a read that fails is unread, with no number) and operator (null: the operator's part has no owner here). Which services this account connected is read by running tool:list-connections with the connection_records and held_connections it is handed: a service it did not connect is not read and is drawn as not connected; when either list is not handed in or the listing cannot be read, each service is read and a failed read says the money could not be read. Reads only.",
+    "description": "The one read of the Business screen (tool:business). Returns since_words (the first of this month), service_names (the payment services whose money can be read), connected ([{label, state: read | none | unread, currencies: [{currency, code, multi, service_label, money_in, fees, refunded, net}] written in each currency, payments, more, at_most}], one per payment service, each read with the person's own account of it by running its money read, tool:stripe-events-read_money_since; a read that fails is unread, with no number) and operator (null: the operator's part has no owner here). Which services this account connected is read by running tool:list-connections with the connection_records and held_connections it is handed: a service it did not connect is not read and is drawn as not connected; when either list is not handed in or the listing cannot be read, no account is known to name, so each service says its money could not be read. A person who holds more than one account of a service is refused, with the accounts named. Reads only.",
     "status": "active",
     "maker": "maker:see-what-my-business-took-in-this-month",
     "licence_class": "licence:maker-own",
@@ -11371,6 +11551,21 @@
    }
   },
   {
+   "id": "tool:run-a-composio-action",
+   "values": {
+    "title": "Run one Composio action for a connected account",
+    "job": "Do one thing in an app the person connected through Composio, as that account: run a Composio tool by its slug, or send one request to the app's own API for a field Composio's tools do not carry",
+    "description": "Runs, with the vault's Composio key, either one Composio tool for one connected account ({action, arguments}) or one request to the connected app's own API that Composio sends with the account's held sign-in ({proxy: {endpoint, method, body, parameters}}), for example a post's trial settings that Composio's named tool has no field for. The account is named by its connection id, with the user id that owns it and, for a person's own user key, the project the connection lives in. Nothing here names an app, a tool or an account: the caller names them. The key goes only to Composio's own host and appears in no answer. What the action does is the action's: a publish publishes and a send sends, so a caller puts its own checks in front.",
+    "status": "active",
+    "maker": "maker:composio-connection",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "composio-connection"
+   }
+  },
+  {
    "id": "tool:run-a-poker-table",
    "values": {
     "title": "Run a game of Texas Hold'em at a table",
@@ -11405,7 +11600,7 @@
    "values": {
     "title": "Run a workflow on the workflow engine, one step at a time",
     "job": "Run one of my workflows from its definition: walk its steps with the answers held so far, start the tool each next step names, tell every other step as waiting, and run again when an answer is told",
-    "description": "The workflow engine as one WebAssembly component (tools/workflows/crates/workflow-component), run with no network, no secret and no door. A run is handed its definition by whatever started it, from where the person keeps their workflows: in its input, in its wake's switch input, or in the fact that woke it (definition and start_at). The engine walks it from the start with the answers held. A step that names a tool starts that tool as a wake effect, whose result (or why it failed) is told back as the fact workflow-step-answered, which runs this again with the answer. Any other step is told as the fact workflow-step-waiting with what it asks, whom, and told_as, the envelope its answer comes back in; the person's own wakes decide what it becomes (its wake a-step-is-waiting runs the definition its switch input carries, such as one that gives the step to its answerer as a task). A step that asks wake:arrive, the engine's own operation, is answered at once and told as the fact it gives ({kind, event_id?, payload}) when the run ends; a step inside a loop or a used workflow waits under its place in the run, so each item is a step of its own. Nothing is kept here and no store or tool is named. A walk that failed ends the run failed, in the engine's words.",
+    "description": "The workflow engine as one WebAssembly component (tools/workflows/crates/workflow-component), run with no network, no secret and no door. A run is handed its definition by whatever started it, from where the person keeps their workflows: in its input, in its wake's switch input, or in the fact that woke it (definition and start_at). The engine walks it from the start with the answers held. A step that names a tool starts that tool as a wake effect, whose result (or why it failed) is told back as the fact workflow-step-answered, which runs this again with the answer. Any other step is told as the fact workflow-step-waiting with what it asks, whom, and told_as, the envelope its answer comes back in; the person's own wakes decide what it becomes (its wake a-step-is-waiting runs the definition its switch input carries, such as one that gives the step to its answerer as a task). A step that asks wake:arrive, the engine's own operation, is answered at once and told as the fact it gives ({kind, event_id?, payload}) when the run ends; a step inside a loop or a used workflow waits under its place in the run, so each item is a step of its own. Nothing is kept here and no store or tool is named. A walk that failed ends the run failed, in the engine's words. Its wake a-workflow-was-picked hears the chooser's workflow-chosen facts (a message seed, a matched condition) and a-kept-workflow-is-due the times a noticer tells for kept workflows (kept-workflow-due, a due-time waiter's change_kind); the definition their switch input carries decides which kept workflow, if any, each fact starts.",
     "status": "active",
     "maker": "maker:workflows",
     "licence_class": "licence:maker-own",
@@ -11579,6 +11774,21 @@
      "placement:small-container"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:save-tool",
+   "values": {
+    "title": "Save a tool",
+    "job": "Save a tool I built, so any AI signed in to this account can find it and run it later",
+    "description": "Saves one tool (its descriptor and its code files) as a row of the saved_tools table in the database the request names. The table is made when missing. The descriptor is checked the same way a catalog tool is.",
+    "status": "active",
+    "maker": "maker:list-and-run-my-tools-for-any-ai",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "list-and-run-my-tools-for-any-ai"
    }
   },
   {
@@ -13117,6 +13327,21 @@
    }
   },
   {
+   "id": "tool:start-a-codex-run-on-this-computer",
+   "values": {
+    "title": "Start a Codex run on this computer",
+    "job": "Start one fresh Codex run in a folder on this computer and get its run id (harness/codex-runs.mjs startCodexRun)",
+    "description": "Starts `codex exec` detached in the given folder, with the prompt read from the message file (never on the command line). Answers the run id and state running. Read the run with tool:read-a-codex-run-on-this-computer; end it with tool:cancel-a-codex-run-on-this-computer. Codex uses the person's own login; nothing here reads a credential.",
+    "status": "active",
+    "maker": "maker:keep-and-wake-ai-sessions-on-this-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-and-wake-ai-sessions-on-this-computer"
+   }
+  },
+  {
    "id": "tool:start-a-computer",
    "values": {
     "title": "Start a computer",
@@ -13286,7 +13511,7 @@
    "values": {
     "title": "Read the money on my Stripe account since a moment",
     "job": "List the money that moved on this Stripe account since a moment, newest first, at most 100 entries",
-    "description": "Lists what moved this Stripe account's balance at or after `since` (seconds since 1970, UTC), newest first, at most 100 entries: Stripe's own answer ({ data: [balance transactions, each with amount, fee and net in the currency's smallest unit, currency and reporting_category], has_more }), read with this account's own Stripe connection. Business's read (tool:read-business) sums it. Reads only.",
+    "description": "Lists what moved this Stripe account's balance at or after `since` (seconds since 1970, UTC), newest first, at most 100 entries: Stripe's own answer ({ data: [balance transactions, each with amount, fee and net in the currency's smallest unit, currency and reporting_category], has_more }), read with the Stripe account `connection` names (the person may hold more than one). Business's read (tool:read-business) sums it. Reads only.",
     "status": "active",
     "maker": "maker:see-what-my-business-took-in-this-month",
     "licence_class": "licence:maker-own",
@@ -13495,6 +13720,21 @@
      "placement:small-container"
     ],
     "folder": "take-me-there"
+   }
+  },
+  {
+   "id": "tool:take-over-a-space",
+   "values": {
+    "title": "Take over a space",
+    "job": "Take over a space with a code someone handed you: you become its owner, and the owner before stays a member",
+    "description": "The code works once. The answer marks its record:space-handover row used, and a later use is refused in the words for a lapsed link. A code past its 14 days is refused the same way. It replaces the old take_over.",
+    "status": "active",
+    "maker": "maker:space-members",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "space-members"
    }
   },
   {
@@ -14017,6 +14257,21 @@
    }
   },
   {
+   "id": "tool:unpublish-tool",
+   "values": {
+    "title": "Unpublish a tool",
+    "job": "Take one of my published tools back out of the marketplace",
+    "description": "Withdraws this maker's listing of one tool. The listing body is removed; the content-free evidence (maker, fingerprint, times) stays, so no other maker can take the id.",
+    "status": "active",
+    "maker": "maker:list-and-run-my-tools-for-any-ai",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "list-and-run-my-tools-for-any-ai"
+   }
+  },
+  {
    "id": "tool:unstage-changes",
    "values": {
     "title": "Take files out of the next commit",
@@ -14245,6 +14500,21 @@
      "placement:small-container"
     ],
     "folder": "what-is-waiting-on-me"
+   }
+  },
+  {
+   "id": "tool:what-would-it-do",
+   "values": {
+    "title": "What would it do for my pursuit",
+    "job": "Say what the platform would do for a pursuit in the person's own words: the closest tools and workflows, and where to start",
+    "description": "Checks the pursuit's words (3 to 300 characters), then picks the Marketplace tools and workflows closest to it from the moves table, with each recording that shows it working. Give pursuit and pursuit_vector (the pursuit's own embedding, from the caller), moves (the moves table with its rows), rows (the Marketplace rows the answer may name) and recordings. Give person and database to keep the answer one day in the person's own database; without them nothing is kept. It changes nothing else.",
+    "status": "active",
+    "maker": "maker:what-would-it-do-for-a-pursuit",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "what-would-it-do-for-a-pursuit"
    }
   },
   {
