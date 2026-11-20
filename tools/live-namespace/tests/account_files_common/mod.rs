@@ -91,7 +91,11 @@ pub fn origin(takes_new_bytes: bool) -> Value {
 
 /// Empty account files with one loopback store, its bytes in `Held`, and a clock the test moves.
 pub fn account_files() -> (AccountFiles, Arc<Held>, Clock) {
-    let store: Store = Arc::new(SqlStore::memory().unwrap());
+    account_files_over(Arc::new(SqlStore::memory().unwrap()))
+}
+
+/// Account files over the record store `store` (a counting or otherwise wrapped one), with the same origin, bytes and clock.
+pub fn account_files_over(store: Store) -> (AccountFiles, Arc<Held>, Clock) {
     store.mutate(ORIGINS, Mutation { id: ORIGIN.into(), expected_version: 0, request_key: "origin".into(), deleted: false, value: origin(true) }).unwrap();
     let held = Arc::new(Held::default());
     let time = Arc::new(AtomicU64::new(1_790_000_000_000));

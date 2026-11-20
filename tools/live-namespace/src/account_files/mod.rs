@@ -589,26 +589,56 @@ impl AccountFiles {
 
     /// The file a name or identity points at (an alias is followed once).
     fn resolve(&self, name_or_identity: &str) -> Answer<Found> {
-        let (name, identity) = if name_or_identity.starts_with('/') {
-            let named = self
-                .get(&names_scope(parent(name_or_identity)), name_or_identity)?
-                .ok_or(crate::cause!(AccountFilesError::NotFound))?;
-            let file = text(&named.value, "file").ok_or(crate::cause!(AccountFilesError::NotFound))?;
-            (Some(name_or_identity.to_owned()), file.to_owned())
-        } else {
-            (None, name_or_identity.to_owned())
-        };
-        if let Some(file) = self.get(FILES, &identity)? {
-            return Ok(Found { name, file });
+        self.resolve_many(&[name_or_identity])?.pop().ok_or(crate::cause!(AccountFilesError::NotFound))
+    }
+
+    /// The file each name or identity points at, in the order asked (an alias is followed once). The lookups go level by level for all
+    /// of them at once: each folder's names in one read, the identities in one read of the files, the aliases still missing in one
+    /// read, and the files they name in one more. Any name or identity with no file refuses the whole call with NotFound.
+    fn resolve_many(&self, names_or_identities: &[&str]) -> Answer<Vec<Found>> {
+        let mut named: Vec<Option<String>> = vec![None; names_or_identities.len()];
+        let mut identities: Vec<String> = names_or_identities.iter().map(|item| (*item).to_owned()).collect();
+        let mut by_folder: BTreeMap<String, Vec<usize>> = BTreeMap::new();
+        for (at, item) in names_or_identities.iter().enumerate().filter(|(_, item)| item.starts_with('/')) {
+            by_folder.entry(names_scope(parent(item))).or_default().push(at);
         }
-        let alias = self
-            .get(ALIASES, &identity)?
-            .ok_or(crate::cause!(AccountFilesError::NotFound))?;
-        let target = text(&alias.value, "identity").ok_or(crate::cause!(AccountFilesError::NotFound))?;
-        let file = self
-            .get(FILES, target)?
-            .ok_or(crate::cause!(AccountFilesError::NotFound))?;
-        Ok(Found { name, file })
+        for (scope, at) in &by_folder {
+            let ids: Vec<&str> = at.iter().map(|&n| names_or_identities[n]).collect();
+            for (&n, record) in at.iter().zip(self.store.get_many(scope, &ids)?) {
+                let entry = record.ok_or(crate::cause!(AccountFilesError::NotFound))?;
+                let file = text(&entry.value, "file").ok_or(crate::cause!(AccountFilesError::NotFound))?;
+                named[n] = Some(names_or_identities[n].to_owned());
+                identities[n] = file.to_owned();
+            }
+        }
+        let wanted: Vec<String> = identities.iter().cloned().collect::<BTreeSet<_>>().into_iter().collect();
+        let mut files: BTreeMap<String, Record> = BTreeMap::new();
+        for (id, record) in wanted.iter().zip(self.store.get_many(FILES, &refs(&wanted))?) {
+            if let Some(record) = record {
+                files.insert(id.clone(), record);
+            }
+        }
+        let missing: Vec<String> = wanted.iter().filter(|id| !files.contains_key(*id)).cloned().collect();
+        let mut targets: BTreeMap<String, String> = BTreeMap::new();
+        if !missing.is_empty() {
+            for (id, alias) in missing.iter().zip(self.store.get_many(ALIASES, &refs(&missing))?) {
+                let alias = alias.ok_or(crate::cause!(AccountFilesError::NotFound))?;
+                targets.insert(id.clone(), text(&alias.value, "identity").ok_or(crate::cause!(AccountFilesError::NotFound))?.to_owned());
+            }
+            let aimed: Vec<String> = targets.values().cloned().collect::<BTreeSet<_>>().into_iter().collect();
+            for (id, record) in aimed.iter().zip(self.store.get_many(FILES, &refs(&aimed))?) {
+                if let Some(record) = record {
+                    files.insert(id.clone(), record);
+                }
+            }
+        }
+        identities.iter().zip(named).map(|(identity, name)| {
+            let file = match targets.get(identity) {
+                Some(target) => files.get(target),
+                None => files.get(identity),
+            };
+            Ok(Found { name, file: file.ok_or(crate::cause!(AccountFilesError::NotFound))?.clone() })
+        }).collect()
     }
 
     /// `list_files`: one page of a folder's names, and on the first page its child folders. With `device`, each name says
@@ -1212,12 +1242,19 @@ impl AccountFiles {
         if asked.iter().any(|(_, forms)| forms.len() > 16 || forms.keys().any(|form| !plain_form(form))) {
             return Err(AccountFilesError::Invalid("an item has at most 16 forms, each named with letters, digits, - or _", crate::cause!()));
         }
-        let mut items = Vec::with_capacity(asked.len());
+        let mut every: Vec<&str> = Vec::with_capacity(asked.len());
         for (name_or_identity, forms) in asked {
-            let mut item = self.shared_facts(name_or_identity)?;
+            every.push(name_or_identity);
+            every.extend(forms.values().map(String::as_str));
+        }
+        let found = self.resolve_many(&every)?;
+        let mut found = found.iter();
+        let mut items = Vec::with_capacity(asked.len());
+        for (_, forms) in asked {
+            let mut item = shared_facts(found.next().ok_or(crate::cause!(Error::Unavailable))?)?;
             let mut kept = serde_json::Map::new();
-            for (form, file) in forms {
-                kept.insert(form.clone(), self.shared_facts(file)?);
+            for (form, _) in forms {
+                kept.insert(form.clone(), shared_facts(found.next().ok_or(crate::cause!(Error::Unavailable))?)?);
             }
             if !kept.is_empty() {
                 item["forms"] = Value::Object(kept);
@@ -1265,17 +1302,6 @@ impl AccountFiles {
             answer["items"] = json!(items.len());
         }
         Ok(answer)
-    }
-
-    /// The facts a share keeps of one file of the person's: its identity, name, size and type.
-    fn shared_facts(&self, name_or_identity: &str) -> Answer<Value> {
-        let found = self.resolve(name_or_identity)?;
-        let file = &found.file;
-        let size = file.value.get("byte_length").and_then(Value::as_u64).ok_or(crate::cause!(Error::Unavailable))?;
-        Ok(json!({
-            "identity": file.id, "name": found.name.clone().unwrap_or_else(|| file.id.clone()), "byte_length": size,
-            "media_type": text(&file.value, "media_type").unwrap_or("application/octet-stream"),
-        }))
     }
 
     /// `stop_share`: end one share now. The next request for it is refused. Stopping a stopped share answers the same.
@@ -2546,6 +2572,21 @@ fn file_row(file: &Record) -> Value {
     );
     row.insert("names".into(), json!(names));
     Value::Object(row)
+}
+
+/// The ids as the store takes them.
+/// The facts a share keeps of one file of the person's: its identity, name, size and type.
+fn shared_facts(found: &Found) -> Answer<Value> {
+    let file = &found.file;
+    let size = file.value.get("byte_length").and_then(Value::as_u64).ok_or(crate::cause!(Error::Unavailable))?;
+    Ok(json!({
+        "identity": file.id, "name": found.name.clone().unwrap_or_else(|| file.id.clone()), "byte_length": size,
+        "media_type": text(&file.value, "media_type").unwrap_or("application/octet-stream"),
+    }))
+}
+
+fn refs(ids: &[String]) -> Vec<&str> {
+    ids.iter().map(String::as_str).collect()
 }
 
 fn text<'a>(value: &'a Value, field: &str) -> Option<&'a str> {
