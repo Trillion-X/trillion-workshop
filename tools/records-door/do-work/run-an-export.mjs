@@ -18,11 +18,17 @@
 import { text } from 'node:stream/consumers';
 import { pathToFileURL } from 'node:url';
 import { openBearerDoor } from '../read-data/records-door.mjs';
-import { openHostActions } from '../../workflows/read-data/host-actions.mjs';
 import { valuesDoor } from '../read-data/values-door.mjs';
 
 const EFFECTS = 'wake_effects';
-const [file, name, ...options] = process.argv.slice(2);
+
+// The host actions module loads at the first parent action a function uses, not when this command starts: a run that
+// asks for none never loads it, so a row that packs only its own module still loads. The module reads the descriptor at
+// its own first use, as before.
+const parentActionsAtFirstUse = descriptor => new Proxy({}, { get: (_, method) => typeof method === 'string' ? async (...args) => {
+  const { openHostActions } = await import('../../workflows/read-data/host-actions.mjs');
+  return openHostActions({ descriptor }).parentActions[method](...args);
+} : undefined });const [file, name, ...options] = process.argv.slice(2);
 try {
   if (!file || !name) throw new Error('usage: run-an-export.mjs <module file> <export name> < input.json');
   const parentActionsFd = options.length === 0 ? 3
@@ -40,7 +46,7 @@ try {
   const values = valuesDoor(stored, { other: (...asked) => (own ??= openBearerDoor()).call(...asked) });
   const context = {
     door: values.door,
-    get parentActions() { return (parentActions ??= openHostActions({ descriptor: parentActionsFd }).parentActions); },
+    get parentActions() { return (parentActions ??= parentActionsAtFirstUse(parentActionsFd)); },
   };
   const answered = await fn(input, context);
   const keep = values.keep();
