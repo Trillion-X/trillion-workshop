@@ -54,7 +54,15 @@
 	handle @page {
 		@not_read not method GET HEAD
 		respond @not_read 403
-		header Cache-Control "public, max-age=300"
+		# A page is sent compressed, and a file under a `named/` folder is content-named (a changed file gets a new name), so a
+		# browser keeps it and never asks for it again; any other page is asked again after 300 s. On Nov 20 2026 the Mac app's
+		# window took about 4 s to draw /workspace: its 720 KB stylesheet came uncompressed in 2.7 s, and each of its 120
+		# content-named parts was asked for again on every open after five minutes.
+		encode zstd gzip
+		@named path */named/*
+		@not_named not path */named/*
+		header @named Cache-Control "public, max-age=31536000, immutable"
+		header @not_named Cache-Control "public, max-age=300"
 		root * {{pages_root}}
 		rewrite @page {file_match.relative}
 		file_server
