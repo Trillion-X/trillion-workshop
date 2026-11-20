@@ -1,0 +1,8 @@
+{
+  "_what": "Finding posts in a shared space by their words, as the asker reads them (do-work/search-a-spaces-posts.mjs). Ported from src/space-settings.json `search` and `page` at b6ae0ebf815f (the older source repo). `terms_most`: how many distinct words a query uses (every one must be in the post); `term_chars_most`: the longest word kept; `scan_batches`: how many pages of `size` posts one call may scan to fill a page, after which it answers what it has with next_before so the caller goes on; `page_default` and `page_most`: the page size when none is asked and the largest one allowed.",
+  "terms_most": 8,
+  "term_chars_most": 64,
+  "scan_batches": 4,
+  "page_default": 30,
+  "page_most": 100
+}
