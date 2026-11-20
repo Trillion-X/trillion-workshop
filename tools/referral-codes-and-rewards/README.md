@@ -23,7 +23,7 @@ A friend's discount is the referral code itself as a checkout code (typed at che
 
 | File | Purpose |
 |------|---------|
-| `read-data/referral-codes.mjs` | The pure parts: `makeReferralCode`, `normalizeReferralCode`, the created and withdrawn events, `referralCodesFromEvents` (first maker keeps a code, only the maker can withdraw it, order does not matter), `referralCodeFor`, `referralCodeApplies`, `referralStateFor` (newest code and accepted referrals of one account), `shareEarned`. |
+| `read-data/referral-codes.mjs` | The pure parts: `makeReferralCode`, `normalizeReferralCode`, the created and withdrawn events, `referralCodesFromEvents` (first maker keeps a code, only the maker can withdraw it, order does not matter), `referralCodeFor`, `referralCodeApplies`, `referralStateFor` (newest live code and accepted referrals of one account), `shareEarned`. |
 | `read-data/referral-reward-rules.mjs` | The rows as rules (`readRewardRules`, every problem listed), the arm a referrer lands on, and what a code gives a friend (`rewardsForCode`) or a sale earns (`rewardsForSale`). A `credit` is a whole-cent customer credit for the referrer, one per sale, with its id. |
 | `read-data/referral-reward-list.json` | The list and its columns, as data. |
 | `do-work/referral-rewards.mjs` | `makeAReferralCode`, `workOutReferralCodes` and `giveReferralRewards`, run through the export command with the business's rule rows given in the request (`rules`). `giveReferralRewards` also answers the `credits`, once each by id, for take-payments' `giveACustomerCredit`. |
@@ -44,7 +44,7 @@ A friend's discount is the referral code itself as a checkout code (typed at che
 | `referralCodesFromEvents` | `(events) => Map<code, { code, referrer, target, created_at, withdrawn_at? }>` | The fold. |
 | `referralCodeApplies` | `(code, sale) => boolean` | A sale earns a code its share when the target attribute has the target value. |
 | `shareEarned` | `(sale, { amount_field, basis_points }) => cents` | The share a sale earns, rounded down to whole cents; the rule row gives the field and the basis points. |
-| `referralStateFor` | `(account, events) => { referral_code, accepted_referral_count }` | Give it that account's own events; signups are counted only when they name the account as the referrer. |
+| `referralStateFor` | `(account, events) => { referral_code, accepted_referral_count }` | The newest code the account made and has not withdrawn (other accounts' codes are ignored, so the events may be all the business's); signups are counted only when they name the account as the referrer. |
 
 ## Invariants
 

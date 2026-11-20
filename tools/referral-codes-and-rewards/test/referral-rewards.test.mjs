@@ -13,6 +13,7 @@ const rows = { records: records.things };
 const make = rowOf(rows, 'tool:make-a-referral-code');
 const workOut = rowOf(rows, 'tool:work-out-referral-codes');
 const give = rowOf(rows, 'tool:give-referral-rewards');
+const work = rowOf(rows, 'tool:work-out-referral-codes');
 const withdraw = rowOf(rows, 'tool:withdraw-a-referral-code');
 
 // A run's answer with its fields at the top: the function's result, any error, the records kept afterwards, the door's calls.
@@ -57,6 +58,14 @@ test('a code points only at what an active rule names, and with no active rule i
   const off = await answerOf(make, input, { records: [rule('old', { ...share(1000).value, state: 'inactive' })] });
   assert.match(off.error, /no active referral reward rule/);
   assert.match((await answerOf(make, input, { records: [] })).error, /no active referral reward rule/);
+});
+
+test('the account state runs through the work-out row: its own live code and its accepted referrals, never another account\'s code', async () => {
+  const other = { kind: 'referral_code_created', subject: 'bo@example.com', material: { event_type: 'referral_code_created', referral_code: 'BOB-9999', target: { on: 'product_id', value: 'loaf' }, occurred_at: '2026-02-01T00:00:00Z' } };
+  const signup = { kind: 'referral_signup', subject: 'cy@example.com', material: { event_type: 'referral_signup', referrer_account_id: 'ada@example.com', occurred_at: '2026-02-02T00:00:00Z' } };
+  const out = await answerOf(work, { events: [other, created, signup], account: 'ada@example.com' }, { records: [share(1000)] });
+  assert.equal(out.status, 0, out.error);
+  assert.deepEqual(out.state, { referral_code: 'LOAF-1234', accepted_referral_count: 1 });
 });
 
 test('a friend\'s discount is the referral code itself as a checkout code row take-payments reads, held in the answer', async () => {

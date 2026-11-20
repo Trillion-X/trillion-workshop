@@ -69,8 +69,8 @@ test('the account state: no events, newest code across spellings, signups scoped
   const ACCOUNT = 'account:ada';
   assert.deepEqual(referralStateFor(ACCOUNT, []), { referral_code: null, accepted_referral_count: 0 });
   assert.equal(referralStateFor(ACCOUNT, [
-    { kind: 'referral.code', material: { occurred_at: '2026-07-01T00:00:00Z', referral_code: 'REF-OLD111' } },
-    { material: { event_type: 'referral_code_created', occurred_at: '2026-07-10T00:00:00Z', referral_code: 'REF-NEW222' } },
+    { kind: 'referral.code', subject: ACCOUNT, material: { occurred_at: '2026-07-01T00:00:00Z', referral_code: 'REF-OLD111' } },
+    { subject: ACCOUNT, material: { event_type: 'referral_code_created', occurred_at: '2026-07-10T00:00:00Z', referral_code: 'REF-NEW222' } },
   ]).referral_code, 'REF-NEW222');
   assert.equal(referralStateFor(ACCOUNT, [
     { material: { event_type: 'referral_signup', occurred_at: '2026-07-02T00:00:00Z', referrer_account_id: ACCOUNT } },
@@ -82,6 +82,18 @@ test('the account state: no events, newest code across spellings, signups scoped
     { kind: 'plan.lifecycle', material: { event_type: 'plan_cancelled' } },
     { material: { event_type: 'referral_code_created', occurred_at: '2026-07-05T00:00:00Z', referral_code: '   ' } },
   ]), { referral_code: null, accepted_referral_count: 0 });
+});
+
+test('the account state reads only its own codes, and drops a code it withdrew', () => {
+  const ADA = 'account:ada';
+  const BOB = 'account:bob';
+  const adaOld = made(ADA, 'ADA-OLD1', { on: 'product_id', value: 'p1' }, '2026-01-01T00:00:00Z');
+  const adaNew = made(ADA, 'ADA-NEW2', { on: 'product_id', value: 'p1' }, '2026-02-01T00:00:00Z');
+  const bobNewer = made(BOB, 'BOB-NEW3', { on: 'product_id', value: 'p2' }, '2026-03-01T00:00:00Z');
+  assert.equal(referralStateFor(ADA, [adaOld, adaNew, bobNewer]).referral_code, 'ADA-NEW2');
+  assert.equal(referralStateFor(ADA, [bobNewer]).referral_code, null);
+  assert.equal(referralStateFor(ADA, [adaOld, adaNew, referralCodeWithdrawnEvent({ referrer: ADA, code: 'ADA-NEW2', occurredAt: '2026-02-02T00:00:00Z' })]).referral_code, 'ADA-OLD1');
+  assert.equal(referralStateFor(ADA, [adaOld, adaNew, referralCodeWithdrawnEvent({ referrer: BOB, code: 'ADA-NEW2', occurredAt: '2026-02-02T00:00:00Z' })]).referral_code, 'ADA-NEW2');
 });
 
 test('the share is whole cents rounded down, and a sale without a whole-number amount earns nothing', () => {

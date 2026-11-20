@@ -86,16 +86,22 @@ export function referralCodeApplies(code, sale) {
 }
 
 /**
- * One account's referral state: the newest code it made, and how many accepted referrals name it as the referrer.
- * A signup event carries material.referrer_account_id; the count is scoped to this account.
+ * One account's referral state: the newest live code it made, and how many accepted referrals name it as the referrer.
+ * A code counts only for the account that made it (the event's subject) and only until that account withdraws it. A signup
+ * event carries material.referrer_account_id; the count is scoped to this account.
  */
 export function referralStateFor(accountId, events) {
   const mine = events.filter(isRecord);
+  const withdrawn = new Set(mine
+    .filter(event => eventType(event) === 'referral_code_withdrawn' && text(event.subject) === accountId)
+    .map(event => normalizeReferralCode(event.material?.referral_code)));
   const referralCode = [...mine]
+    .filter(event => text(event.subject) === accountId)
     .sort((a, b) => at(b).localeCompare(at(a)))
     .map(event => {
       const type = eventType(event);
-      return type === 'referral_code_created' || type === 'referral.code' ? text(event.material?.referral_code) : null;
+      const code = normalizeReferralCode(event.material?.referral_code);
+      return (type === 'referral_code_created' || type === 'referral.code') && !withdrawn.has(code) ? code : null;
     })
     .find(code => Boolean(code)) ?? null;
   const acceptedReferralCount = mine.filter(event => {

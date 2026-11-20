@@ -27,12 +27,12 @@ function rulesFrom(input) {
 }
 
 /** tool:make-a-referral-code: the code and its event; `allowed_on` is the attributes the business's active rules name. */
-export function makeAReferralCode(input, random = count => randomBytes(count)) {
+export function makeAReferralCode(input) {
   if (!object(input)) throw new Error('Give { referrer, target, rules }.');
   const { rules } = rulesFrom(input);
   const allowedOn = allowedOnFrom(rules);
   if (allowedOn.length === 0) throw new Error('This business has no active referral reward rule yet, so a code would earn nothing: add a row to its referral reward rules list first.');
-  const code = input.code === undefined ? makeReferralCode({ prefix: input.prefix, randomBytes: random }) : normalizeReferralCode(input.code);
+  const code = input.code === undefined ? makeReferralCode({ prefix: input.prefix, randomBytes }) : normalizeReferralCode(input.code);
   const event = referralCodeCreatedEvent({ referrer: input.referrer, code, target: input.target, occurredAt: input.occurred_at ?? new Date().toISOString(), allowedOn });
   return { code: event.material.referral_code, event };
 }
