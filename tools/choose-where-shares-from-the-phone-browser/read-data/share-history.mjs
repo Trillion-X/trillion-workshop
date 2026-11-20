@@ -1,11 +1,11 @@
-// src/share-history.mjs
+// read-data/share-history.mjs (ported from src/share-history.mjs, the held copy under from-an-older-version)
 //
 // PURPOSE
 //   What a person shared before, read where their Files can be read (this Worker): before the share list is answered
 //   (the shares_sent tool, GET /work/api/shares), every share a device kept in their Files without the delivery road
 //   (records/share-destination-starters.json kept_share_folders: the iPhone Share sheet keeps each share as
 //   /Shared from iPhone/<key>/share.json; an Android share is kept before it is sent) and that the list has not seen
-//   yet is read once and added to it. The list itself is the person store's (src/share-destinations.mjs history), so
+//   yet is read once and added to it. The list itself is the person store's (read-data/share-destinations.mjs history), so
 //   the Sharing screen, the iPhone and every AI read the same shares, from every device.
 //
 // NON-NEGOTIABLE INVARIANTS
@@ -15,9 +15,10 @@
 //
 // person: the person store stub ({ namespaceChildFolders(folder), namespaceListNames(folder, after, limit), fetch })
 // readText(name): the text of one file in the person's Files, or null
+// handleNamespaceApi(request, env, userId, origin): the namespace contents read, passed to filesText by its caller
+//   (the old ./namespace.mjs is not in this repository).
 
-import starters from '../records/share-destination-starters.json' with { type: 'json' };
-import { handleNamespaceApi } from './namespace.mjs';
+import starters from './share-destination-starters.json' with { type: 'json' };
 import { SHARES_PATH } from './share-destinations.mjs';
 
 const FILES_PER_SHARE = 20;
@@ -90,7 +91,7 @@ export async function sharesSent({ person, readText, search = '' }) {
 }
 
 /** readText for one person: a kept file's words from their Files, through the namespace road every file read takes. */
-export const filesText = (env, userId, origin) => async name => {
+export const filesText = (handleNamespaceApi, env, userId, origin) => async name => {
   const answer = await handleNamespaceApi(new Request(`${origin}/mcp/api/namespace/contents/read`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name }) }), env, userId, origin);
   const file = await answer.json().catch(() => ({}));
   return answer.ok && file.encoding === 'utf-8' ? file.content : null;
