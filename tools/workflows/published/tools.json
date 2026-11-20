@@ -6465,21 +6465,6 @@
    }
   },
   {
-   "id": "tool:look",
-   "values": {
-    "title": "Look",
-    "job": "Show how Trillion looks and feels on every screen this account opens it on: the look it wears, how panes size and snap, and how each moment feels",
-    "description": "A screen with no facts to read: three sections that lend the shared parts that keep their own choice in the account’s records (Screen look, Panes, Feel). It runs nothing: the screen host draws its layout as it is (GET /work/api/screens/look).",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "folder": "show-my-screens-from-a-catalogue-of-reads-and-layouts",
-    "flags": [
-     "has-a-screen"
-    ]
-   }
-  },
-  {
    "id": "tool:look-at-screen",
    "values": {
     "title": "Look at my screen",
