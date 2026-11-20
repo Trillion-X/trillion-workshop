@@ -1,0 +1,197 @@
+{
+  "kind": "tool-rows",
+  "record_set": "correct-a-message-recorded-as-the-person-tool-rows",
+  "what_this_is": "The Workshop row for tools/correct-a-message-recorded-as-the-person: a kept person message that was really said by a diagnostic, a peer or generated context is corrected to that speaker, with its arrivals and thread row retired. Rows in, rows out: the run reads no store.",
+  "records": [
+    {
+      "id": "package::correct-a-message-recorded-as-the-person::tool::correct-a-message-recorded-as-the-person",
+      "address": "package::correct-a-message-recorded-as-the-person::tool::correct-a-message-recorded-as-the-person",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/content-identity",
+          "trillion-workshop/decide-with-a-method"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:correct-a-message-recorded-as-the-person",
+        "label": "Correct a message recorded as the person",
+        "status": "active",
+        "job": "Correct a message kept as the person's own words when it was really said by a diagnostic, a peer or generated context: the corrected message keeps its text and time, and the false row, its arrivals and its thread row retire",
+        "description": "Give the kept message's id, the speaker it really came from (sdk diagnostic, peer or generated context), the evidence, and the rows read from the store ([{ id, type, value }]: the message, its arrival rows and its thread index row when there is one). Answers the correction under `correction` and the rows that change under `keep` ([{ id, type, value, expected }]) for the caller to store. Only a kept person message can be corrected, and the same correction again answers the first one.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "records",
+            "message_id",
+            "speaker",
+            "evidence"
+          ],
+          "properties": {
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type"
+                ]
+              },
+              "description": "The rows the ask reads, as the caller read them from its store: the message, its arrival rows, and its thread index row when one exists."
+            },
+            "message_id": {
+              "type": "string",
+              "description": "The kept person message's id."
+            },
+            "speaker": {
+              "type": "string",
+              "enum": [
+                "sdk diagnostic",
+                "peer",
+                "generated context"
+              ],
+              "description": "The speaker the message really came from."
+            },
+            "evidence": {
+              "type": "string",
+              "description": "The source evidence (the transcript or source) that shows who said it."
+            },
+            "now": {
+              "type": "string",
+              "description": "The time the correction is stamped, as ISO text; left out, the current time."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "correction",
+            "keep"
+          ],
+          "properties": {
+            "correction": {
+              "type": "object",
+              "description": "The correction, kept under message-provenance-correction:<message_id>."
+            },
+            "keep": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The rows to change, each { id, type, value, expected }; value null retires the row."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "correct-a-message-recorded-as-the-person",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/correct-a-message-recorded-as-the-person"
+              },
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data/decision-records.mjs",
+                  "read-data/decide-with-a-method.json"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/identity.mjs",
+                  "read-data/blake3.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/correct-a-message-recorded-as-the-person",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/correct-a-message-recorded-as-the-person/do-work/correct-a-message-recorded-as-the-person-run.mjs",
+            "correctAMessageRecordedAsThePerson"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:correct-a-message-recorded-as-the-person",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "the old tool list tools/list-and-run-my-tools-for-any-ai/source-baselines/tools.mjs.held:230 at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04 (correct_message_provenance); the same rule had no caller and no tests on origin/main (keep-and-wake src/messages.mjs correctProvenance at 848), rows in and keep out here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "records": [
+                {
+                  "type": "message",
+                  "id": "message:2026-10-03T05:04:29Z:40bc3142e1ff737271e6b7a8",
+                  "value": {
+                    "app": "Codex",
+                    "conversation_id": "codex:one",
+                    "speaker": "person",
+                    "text": "Please check the build.",
+                    "at": "2026-10-03T05:04:29Z",
+                    "recorded_at": "2026-10-03T05:04:30Z"
+                  }
+                },
+                {
+                  "type": "arrival",
+                  "id": "arrival:sample-1",
+                  "value": {
+                    "message_id": "message:2026-10-03T05:04:29Z:40bc3142e1ff737271e6b7a8"
+                  }
+                }
+              ],
+              "message_id": "message:2026-10-03T05:04:29Z:40bc3142e1ff737271e6b7a8",
+              "speaker": "peer",
+              "evidence": "The transcript names the reviewer as the author of this message",
+              "now": "2026-10-03T06:00:00Z"
+            },
+            "output_selector": "$.result.correction.corrected_message_id",
+            "contains": false
+          }
+        ]
+      }
+    }
+  ]
+}

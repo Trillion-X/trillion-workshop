@@ -1,0 +1,60 @@
+{
+  "drafted_from": "tool:correct-a-message-recorded-as-the-person's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Correct the message I kept as my own words: it was really said by a peer\", with {\"records\": [{\"type\": \"message\", \"id\": \"message:2026-10-03T05:04:29Z:40bc3142e1ff737271e6b7a8\", \"value\": {\"app\": \"Codex\", \"conversation_id\": \"codex:one\", \"speaker\": \"person\", \"text\": \"Please check the build.\", \"at\": \"2026-10-03T05:04:29Z\", \"recorded_at\": \"2026-10-03T05:04:30Z\"}}, {\"type\": \"arrival\", \"id\": \"arrival:sample-1\", \"value\": {\"message_id\": \"message:2026-10-03T05:04:29Z:40bc3142e1ff737271e6b7a8\"}}], \"message_id\": \"message:2026-10-03T05:04:29Z:40bc3142e1ff737271e6b7a8\", \"speaker\": \"peer\", \"evidence\": \"The transcript names the reviewer as the author of this message\", \"now\": \"2026-10-03T06:00:00Z\"}. It runs tool:correct-a-message-recorded-as-the-person and answers the correction, with the rows to store under keep.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes the rows it reads as input and answers the rows to change. The caller reads and stores them.",
+  "workflows": [],
+  "tools": [
+    "tool:correct-a-message-recorded-as-the-person"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Correct the message I kept as my own words: it was really said by a peer\", naming the message's id, the speaker, the evidence, and the rows read from the store.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:correct-a-message-recorded-as-the-person and its input (the worked example shows one).",
+    "3. Read the answer: correction says where the message went (corrected_message_id); keep lists each row to change as { id, type, value, expected }. Store each row whose expected still matches; a value of null retires the row."
+  ],
+  "worked_examples": [
+    {
+      "title": "Correct a person message that a peer really wrote, on its own sample",
+      "ask": "Correct the message I kept as my own words: it was really said by a peer",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:correct-a-message-recorded-as-the-person",
+            "input": {
+              "records": [
+                {
+                  "type": "message",
+                  "id": "message:2026-10-03T05:04:29Z:40bc3142e1ff737271e6b7a8",
+                  "value": {
+                    "app": "Codex",
+                    "conversation_id": "codex:one",
+                    "speaker": "person",
+                    "text": "Please check the build.",
+                    "at": "2026-10-03T05:04:29Z",
+                    "recorded_at": "2026-10-03T05:04:30Z"
+                  }
+                },
+                {
+                  "type": "arrival",
+                  "id": "arrival:sample-1",
+                  "value": {
+                    "message_id": "message:2026-10-03T05:04:29Z:40bc3142e1ff737271e6b7a8"
+                  }
+                }
+              ],
+              "message_id": "message:2026-10-03T05:04:29Z:40bc3142e1ff737271e6b7a8",
+              "speaker": "peer",
+              "evidence": "The transcript names the reviewer as the author of this message",
+              "now": "2026-10-03T06:00:00Z"
+            }
+          }
+        }
+      },
+      "given": "The kept person message message:2026-10-03T05:04:29Z:40bc3142e1ff737271e6b7a8 (Codex, 2026-10-03T05:04:29Z, \"Please check the build.\") with one arrival row, the speaker peer, the evidence, and the correction time 2026-10-03T06:00:00Z.",
+      "hands_back": "It answered correction for message:2026-10-03T05:04:29Z:40bc3142e1ff737271e6b7a8 with corrected_message_id message:2026-10-03T05:04:29Z:175a8def568f939f6532491f and retired_arrival_ids [arrival:sample-1]; keep moves the text to the new id with speaker peer and corrected_from message:2026-10-03T05:04:29Z:40bc3142e1ff737271e6b7a8, retires message:2026-10-03T05:04:29Z:40bc3142e1ff737271e6b7a8 and arrival:sample-1, and adds the correction row message-provenance-correction:message:2026-10-03T05:04:29Z:40bc3142e1ff737271e6b7a8."
+    }
+  ]
+}
