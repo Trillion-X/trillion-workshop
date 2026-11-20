@@ -125,7 +125,7 @@ function RowMedia({ input }: { input: RowMediaInput }) {
             </Container>
           ))}
           {body ? <Container maxWidth="prose"><MarkdownWords words={body} /></Container> : null}
-          {!loading && !failed && !source && !body ? <Text variant="body" color="secondary">Nothing to show yet.</Text> : null}
+          {!loading && !failed && !source && !files.length && !body ? <Text variant="body" color="secondary">Nothing to show yet.</Text> : null}
         </Container>
         {withTranscript ? (
           <Container layout="vertical" minWidth="0" className="h-full min-h-0 w-[22rem] shrink-0 p-4 pl-0">

@@ -90,6 +90,8 @@ export async function buildPage({ entry, out, html = join(here, 'index.html'), f
   // The faces the look names (its fonts.css and fonts/), beside the stylesheet, as the workspace build serves them.
   cpSync(join(tools, 'screen-look/show/fonts'), join(out, 'fonts'), { recursive: true });
   console.log(`built ${Object.keys(result.metafile.outputs).length} files into ${out}`);
+  // The bundle's metafile, so a caller can list the packages the page ships (scripts/open-source-notices.mjs).
+  return result.metafile;
 
 }
 
