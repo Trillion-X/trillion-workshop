@@ -21,6 +21,7 @@ import rules from './pages/sign-in-rules.json' with { type: 'json' };
 import { holdLoopbackResources } from './loopback-resource.mjs';
 import { storeDriver } from './store.mjs';
 import { teamIdsOf, teamClaim } from './teams-claim.mjs';
+import { callBeforeDelete } from './before-delete-url.mjs';
 
 const read = readSettings();
 // How an AI product's client metadata document is fetched: Better Auth's own https transport unless the layout names another module.
@@ -95,14 +96,16 @@ function narrowConsent(ctx) {
   ctx.body.scope = asked.filter(scope => !leftOut.includes(scope)).join(' ');
 }
 
-// A person deletes their own account (POST /delete-user, settings.delete_user). Before Better Auth deletes it, the business's own module
-// (settings.delete_user.before_delete_module, a path from this folder) removes that person's rows in the business's own database; a throw
-// there keeps the account. After it is gone, this tool removes the API keys the person held (apikey names its owner by id, with no foreign
-// key). The consent and token rows go with the user by their foreign keys.
+// A person deletes their own account (POST /delete-user, settings.delete_user). Before Better Auth deletes it, the business's own clean-up
+// removes that person's rows in the business's own database, by a module in this folder (settings.delete_user.before_delete_module) or by
+// the local address it names (before_delete_url, before-delete-url.mjs); a throw from either keeps the account. After it is gone, this tool
+// removes the API keys the person held (apikey names its owner by id, with no foreign key). The consent and token rows go with the user by
+// their foreign keys.
 const ownRowsModule = settings.delete_user?.before_delete_module ? new URL(settings.delete_user.before_delete_module, import.meta.url).href : null;
 const ownRowsHook = ownRowsModule ? (await import(ownRowsModule)).beforeDelete : null;
 async function deleteOwnRows(user, request) {
   if (ownRowsHook) await ownRowsHook(user, request);
+  if (settings.delete_user?.before_delete_url) await callBeforeDelete(settings.delete_user, user);
 }
 async function deleteKeysOf(user) {
   await (await auth.$context).adapter.deleteMany({ model: 'apikey', where: [{ field: 'referenceId', value: user.id }] });

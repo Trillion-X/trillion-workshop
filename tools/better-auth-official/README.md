@@ -94,10 +94,20 @@ A signed-in person deletes their own user with `POST /api/auth/delete-user {"pas
 https://www.better-auth.com/docs/concepts/users-accounts#delete-user), on by default (`delete_user.enabled`); a computer that must
 not offer it sets `false`, and the address then answers 404. An account with no password deletes on a sign-in that is fresh
 (`session.fresh_age_seconds`), which the page's Delete step turns into a sign-in and back. Before anything is deleted,
-`delete_user.before_delete_module` (a path from this folder, exporting `beforeDelete(user, request)`) removes the person's rows
-in the business's own database; a throw there keeps the account. The person's API keys are removed once the account is gone.
+the business's own clean-up removes the person's rows in its own database, by one of two ways that name no code of this tool.
+`delete_user.before_delete_module` (a path from this folder, exporting `beforeDelete(user, request)`) is for a business whose code sits
+in this folder. `delete_user.before_delete_url` is for a unit whose copy of this tool is a pinned checkout: an http address on this
+computer, `127.0.0.1` or `localhost` only (any other address stops the server at start, with the reason), that receives
+`POST {user_id, email}` as JSON. The request carries `x-sign-in-timestamp` (whole seconds) and `x-sign-in-signature`, which is
+`sha256=` plus the HMAC-SHA256 in lower-case hex of `<timestamp>.<raw body>` under the secret the unit holds, named by
+`delete_user.before_delete_secret` (a credential in the credentials folder, `CREDENTIALS_DIRECTORY`). The business checks that
+signature over the raw body and refuses a timestamp more than a few minutes old. `before_delete_timeout_ms` (default 10000) bounds
+the wait. A throw from either clean-up, a refused connection, a timeout or any answer other than 2xx keeps the account, and the
+person sees the deletion did not happen. A retry calls the clean-up again, so it must be safe to run twice for one person.
+The person's API keys are removed once the account is gone.
 An admin cannot remove themself, so the last admin of a cleanup deletes itself this way. test/delete-user.test.mjs proves the
-switch, the password, the business hook and the keys.
+switch, the password, the business hook and the keys; test/delete-hook-url.test.mjs proves the address: 2xx deletes, any other answer,
+a timeout or a refused connection keeps, the signature checks, and a non-local address is refused at start.
 
 ## The engine's API key check
 

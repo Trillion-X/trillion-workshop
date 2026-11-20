@@ -104,9 +104,12 @@
     "user_ids": []
   },
   "delete_user": {
-    "_what": "A signed-in person deletes their own account from /account (POST /api/auth/delete-user). enabled: on by default, because a members app must let a person delete their account in the app; a computer that must not offer it sets false (the address then answers 404). before_delete_module: the business's own module (a path, read as an import from this folder) that exports beforeDelete(user, request) and removes that person's rows in the business's own database; it runs before anything is deleted, and a throw keeps the account. null: this tool keeps no rows of the business's own.",
+    "_what": "A signed-in person deletes their own account from /account (POST /api/auth/delete-user). enabled: on by default, because a members app must let a person delete their account in the app; a computer that must not offer it sets false (the address then answers 404). Before anything is deleted the business's own clean-up runs, through either of two ways that name no code of this tool. before_delete_module: a path from this folder, read as an import, exporting beforeDelete(user, request) (for a business whose code sits in this folder). before_delete_url: an http address on this computer (127.0.0.1 or localhost only, refused at start otherwise) that receives POST {user_id, email} signed as before-delete-url.mjs says, with before_delete_secret the name of the credential holding the key (the credentials folder) and before_delete_timeout_ms how long to wait. Either one failing (a throw, a refused connection, a timeout, any answer other than 2xx) keeps the account. null in all three: this tool keeps no rows of the business's own.",
     "enabled": true,
-    "before_delete_module": null
+    "before_delete_module": null,
+    "before_delete_url": null,
+    "before_delete_secret": null,
+    "before_delete_timeout_ms": 10000
   },
   "email_code": {
     "digits": 6,

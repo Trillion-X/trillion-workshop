@@ -25,6 +25,17 @@ function objectIn(file) {
   return value;
 }
 
+// The clean-up address is this computer's own: plain http to 127.0.0.1 or localhost, with the secret that signs it named. Refused at start
+// otherwise, so no request can ever leave the computer with the person's email in it.
+const LOCAL_HOSTS = ['127.0.0.1', 'localhost'];
+function checkBeforeDelete(deleting) {
+  if (!deleting?.before_delete_url) return;
+  let address;
+  try { address = new URL(deleting.before_delete_url); } catch { throw new Error(`settings.delete_user.before_delete_url is not an address: ${deleting.before_delete_url}`); }
+  if (address.protocol !== 'http:' || !LOCAL_HOSTS.includes(address.hostname)) throw new Error(`settings.delete_user.before_delete_url must be an http address on 127.0.0.1 or localhost, not ${deleting.before_delete_url}`);
+  if (!deleting.before_delete_secret) throw new Error('settings.delete_user.before_delete_url needs before_delete_secret, the name of the credential that signs the request');
+}
+
 export function readSettings() {
   const shipped = objectIn(SHIPPED);
   const named = process.env.BETTER_AUTH_SETTINGS ? resolve(process.env.BETTER_AUTH_SETTINGS) : null;
@@ -34,5 +45,6 @@ export function readSettings() {
   settings.session_cookie_name ??= `__Host-${prefix}_session`;
   settings.passkey = { ...settings.passkey, rp_name: settings.passkey?.rp_name ?? name };
   settings.two_factor_issuer ??= name;
+  checkBeforeDelete(settings.delete_user);
   return { settings };
 }
