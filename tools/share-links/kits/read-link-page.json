@@ -1,0 +1,52 @@
+{
+  "drafted_from": "tool:read-link-page's own row (its words, input schema, sample run and steps) and its do-work file; read it before relying on it",
+  "start_here": "Say to your AI: \"Show my link in bio page: is it on, and what is its address.\" It runs tool:read-link-page and answers the page facts.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes the records it is given and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:read-link-page"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Show my link in bio page: is it on, and what is its address.\"",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-link-page and its input (the worked example shows one).",
+    "3. Read what comes back: the page facts, for example on set to true and the address https://app.example/l/Ana.",
+    "4. Ask for the next thing you need from the same facts; this read keeps nothing."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read my link in bio page on its own sample",
+      "ask": "Show my link in bio page: is it on, and what is its address.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-link-page",
+            "input": {
+              "page": {
+                "on": true,
+                "code": "k7x2m9qa",
+                "name": "Ana",
+                "title": "Ana Shop",
+                "links": [
+                  {
+                    "link_id": "link-shop",
+                    "label": "Shop",
+                    "url": "https://shop.example"
+                  }
+                ]
+              },
+              "counts": [],
+              "posts": [],
+              "origin": "https://app.example"
+            }
+          }
+        }
+      },
+      "given": "The input {\"page\":{\"on\":true,\"code\":\"k7x2m9qa\",\"name\":\"Ana\",\"title\":\"Ana Shop\",\"links\":[{\"link_id\":\"link-shop\",\"label\":\"Shop\",\"url\":\"https://shop.example\"}]},\"counts\":[],\"posts\":[],\"origin\":\"https://app.example\"}.",
+      "hands_back": "It answered the page facts, for example on set to true and the address https://app.example/l/Ana."
+    }
+  ]
+}

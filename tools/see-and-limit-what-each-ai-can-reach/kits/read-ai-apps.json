@@ -1,0 +1,81 @@
+{
+  "drafted_from": "tool:read-ai-apps's own row (its words, input schema, sample run and steps) and its do-work file; read it before relying on it",
+  "start_here": "Say to your AI: \"Read my AI apps and keys: which AI apps are connected and what each can reach.\" It runs tool:read-ai-apps and answers the apps with their reach line.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes the records it is given and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:read-ai-apps"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Read my AI apps and keys: which AI apps are connected and what each can reach.\"",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-ai-apps and its input (the worked example shows one).",
+    "3. Read what comes back: the apps with their reach line, the keys by last four characters, the pursuits and the webhooks section, for example the app Claude with its reach line that starts \"Can reach: Everything\".",
+    "4. Ask for the next thing you need from the same facts; this read keeps nothing."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read my AI apps and keys on its own sample",
+      "ask": "Read my AI apps and keys: which AI apps are connected and what each can reach.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-ai-apps",
+            "input": {
+              "keys": [
+                {
+                  "id": "k1",
+                  "ending": "ab12",
+                  "created_at": "2026-09-10T00:00:00Z"
+                },
+                {
+                  "id": "k2",
+                  "name": "Zapier",
+                  "ending": "cd34",
+                  "created_at": "2026-10-02T00:00:00Z"
+                }
+              ],
+              "grants": [
+                {
+                  "id": "g1",
+                  "clientId": "c1",
+                  "userId": "u1",
+                  "createdAt": 1790000000,
+                  "metadata": {
+                    "clientName": "Claude",
+                    "reach": {
+                      "private": true,
+                      "spaces": "all"
+                    },
+                    "ceiling": {
+                      "private": true,
+                      "spaces": "all"
+                    }
+                  }
+                }
+              ],
+              "idles": {
+                "grant:g1": 30
+              },
+              "calls": {
+                "grant:g1": 12
+              },
+              "spaces": [
+                {
+                  "space_id": "membership_snack",
+                  "title": "Snack brand launch"
+                }
+              ],
+              "hooks": []
+            }
+          }
+        }
+      },
+      "given": "The input {\"keys\":[{\"id\":\"k1\",\"ending\":\"ab12\",\"created_at\":\"2026-09-10T00:00:00Z\"},{\"id\":\"k2\",\"name\":\"Zapier\",\"ending\":\"cd34\",\"created_at\":\"2026-10-02T00:00:00Z\"}],\"grants\":[{\"id\":\"g1\",\"clientId\":\"c1\",\"userId\":\"u1\",\"createdAt\":1790000000,\"metadata\":{\"clientName\":\"Claude\",\"reach\":{\"private\":true,\"spaces\":\"all\"},\"ceiling\":{\"private\":true,\"spaces\":\"all\"}}}],\"idles\":{\"grant:g1\":30},\"calls\":{\"grant:g1\":12},\"spaces\":[{\"space_id\":\"membership_snack\",\"title\":\"Snack brand launch\"}],\"hooks\":[]}.",
+      "hands_back": "It answered the apps with their reach line, the keys by last four characters, the pursuits and the webhooks section, for example the app Claude with its reach line that starts \"Can reach: Everything\"."
+    }
+  ]
+}

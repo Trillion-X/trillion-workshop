@@ -30236,6 +30236,135 @@
  "tool:read-a-treg-call": [],
  "tool:read-a-treg-endpoint-and-its-price": [],
  "tool:read-a-videos-captions": [],
+ "tool:read-ai-apps": [
+  {
+   "package": "see-and-limit-what-each-ai-can-reach",
+   "paths": [
+    "src",
+    "web/src",
+    "do-work"
+   ],
+   "at": "/opt/see-and-limit-what-each-ai-can-reach"
+  },
+  {
+   "package": "limit-what-one-sign-in-may-reach-the-persons",
+   "paths": [
+    "src/reach.mjs"
+   ],
+   "at": "/opt/limit-what-one-sign-in-may-reach-the-persons"
+  },
+  {
+   "package": "recently-deleted-and-storage",
+   "paths": [
+    "carry-tables-into-records.mjs"
+   ],
+   "at": "/opt/recently-deleted-and-storage"
+  },
+  {
+   "package": "decide-with-a-method",
+   "paths": [
+    "read-data/decision-records.mjs",
+    "read-data/decide-with-a-method.json"
+   ],
+   "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "http-client",
+   "paths": [
+    "do-work/same-origin.mjs"
+   ],
+   "at": "/opt/http-client"
+  },
+  {
+   "package": "refuse-requests-to-private-addresses",
+   "paths": [
+    "public-address.mjs",
+    "public-address.json"
+   ],
+   "at": "/opt/refuse-requests-to-private-addresses"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/reach-choices.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/tldts"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "dist"
+   ],
+   "at": "/opt/node_modules/tldts"
+  },
+  {
+   "packages": [
+    "node_modules/tldts-core"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "dist"
+   ],
+   "at": "/opt/node_modules/tldts-core"
+  }
+ ],
  "tool:read-ai-setups": [
   {
    "package": "read-other-ais-setups",
@@ -31298,6 +31427,97 @@
     "node_modules/@noble/hashes"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
+ "tool:read-link-page": [
+  {
+   "package": "share-links",
+   "paths": [
+    "do-work",
+    "web/src"
+   ],
+   "at": "/opt/share-links"
+  },
+  {
+   "package": "keep-a-link-in-bio-page",
+   "paths": [
+    "read-data/link-page.mjs"
+   ],
+   "at": "/opt/keep-a-link-in-bio-page"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/tldts"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "dist"
+   ],
+   "at": "/opt/node_modules/tldts"
+  },
+  {
+   "packages": [
+    "node_modules/tldts-core"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "dist"
+   ],
+   "at": "/opt/node_modules/tldts-core"
   }
  ],
  "tool:read-live-matches": [

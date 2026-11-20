@@ -31,7 +31,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 ## The tools
 
 <!-- tool-catalogue:start -->
-Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1460 tools in 314 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
+Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1462 tools in 316 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
 
 | Folder | Tools |
 |---|---|
@@ -273,6 +273,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `screen-looks` | `tool:read-current-worn-look`, `tool:resolve-a-look` |
 | `search-everything-with-one-question` | `tool:answer-the-search-page-route`, `tool:make-a-picture-vector-set-of-my-videos`, `tool:make-a-vector-set-from-picture-vectors-my-apps-kept`, `tool:search-everything-in-a-small-container`, `tool:search-everything-with-one-question`, `tool:search-one-of-my-lists` |
 | `see-a-pursuit-through-the-lens` | `tool:see-a-pursuit-through-the-lens` |
+| `see-and-limit-what-each-ai-can-reach` | `tool:read-ai-apps` |
 | `see-what-is-being-worked-on` | `tool:join-what-is-being-worked-on-into-a-tree` |
 | `see-what-my-ais-did` | `tool:list-what-my-ais-did` |
 | `see-what-my-business-took-in-this-month` | `tool:read-business`, `tool:stripe-events-read_money_since` |
@@ -285,6 +286,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `settle-amounts-and-reconcile` | `tool:post-balanced-entries`, `tool:reconcile-lines-against-a-statement`, `tool:report-on-accrual-or-cash`, `tool:settle-amounts-between-lists`, `tool:total-quote-lines` |
 | `shape-a-thought-into-my-content-formats` | `tool:answer-the-content-formats-page` |
 | `share-anything` | `tool:end-shares-whose-condition-failed`, `tool:share-anything` |
+| `share-links` | `tool:read-link-page` |
 | `show-any-file-as-itself` | `tool:choose-how-each-file-is-shown` |
 | `show-my-screens-from-a-catalogue-of-reads-and-layouts` | `tool:business`, `tool:get-started`, `tool:look` |
 | `show-the-media-library-and-search-what-was` | `tool:answer-the-media-page` |
