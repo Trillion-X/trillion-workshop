@@ -23,20 +23,20 @@
   "source_files": [
     "tools/workflows/ask-rights.json"
   ],
-  "fingerprint": "91ee3dfd8d793b34625a636dd9add5f8b271a25988fef1a709633467177bdc6d",
+  "fingerprint": "0289295853a72eedd5255a562d4af92d334a0f8fbb232390528aae426fc6a1ff",
   "workspace_commits": {
     "../../trillion-rust/crates": "80162eae230c6049c255f949b323ecb8b0de4ab9"
   },
   "files": {
     "held-values/http_client.js": "b943aae9882afe502dc46d8c135ccddb649512a49e6af0849e3428b8184ecb83",
     "held-values/http_client_bg.wasm": "a37e3961dd4887a3030fe08a8b659f3a9f9c5d9052425c8c0b1262267758d912",
-    "workflow-engine/workflow_engine.js": "49ff0519f8a92f4e2c417b531befbe5c556700fe8d9c5eff013aa95fbce18e8f",
-    "workflow-engine/workflow_engine_bg.wasm": "6d2b3a73753ed62ad84b91f659da1f71b563d5d457460d525eb38756f5b71590",
+    "workflow-engine/workflow_engine.js": "84d1b2622b5096a8aa9aa0fdc178f68cb376ca739a3c4c1ad2a1e83a51d489e6",
+    "workflow-engine/workflow_engine_bg.wasm": "5f0e58c24d3855e994b758033343e08b805b8ea332ba8a5316d00b40a7c0af7b",
     "screen-arrangement/screen_arrangement.js": "fdba8dd41246d911f133d038775ae1a564d22dac551e6ba54db757bdc3e1e573",
     "screen-arrangement/screen_arrangement_bg.wasm": "fe021c7de8ab0c6db1c8c9256b92e921f1cff8a9a7c261cdae6c0a6c09835ead",
-    "composition-engine/composition_engine.wasm": "fe253e3d9286d61cb624db12799cb99ab82d970f89859fea2a031c0c0d51309a",
+    "composition-engine/composition_engine.wasm": "7cc1dccb8b257ead6bd8c77a774e898bc5e07ffa777c65aa13491e73ebbf6fe2",
     "composition-engine/composition_engine.js": "e77c96be89e4b4c3286febf0c83952300200a89b103b953153c773ae41c462f4",
-    "composition-engine/composition_engine_bg.wasm": "0031c7d0d40b798be6e3c799bc96d59bc7a1b141ffaa3f1b9bf243599fd5e16a",
-    "workflow-component/workflow_component.wasm": "73dc9d16ab90102410c317de8d6d4b7cd268275332019c3c7c0ae4ca4b2d5660"
+    "composition-engine/composition_engine_bg.wasm": "1aa3536b57f96a9e3bc971a2a80bce6fd6da20f2157233625f3104e7cba0993c",
+    "workflow-component/workflow_component.wasm": "763186d22a9143a6b6292c9b0e0d8205739a154650cdf7303e62fe46d17dbcd6"
   }
 }
