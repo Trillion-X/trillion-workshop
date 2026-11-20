@@ -78,8 +78,8 @@ test('Business is a reads screen the generic screen host answers at /work/api/sc
 });
 
 test('Stripe can be read for money: the read is one tool row on the Stripe connection', () => {
-  const services = moneyServices(rows, [{ vendor: 'stripe' }]);
-  assert.deepEqual(services.map(service => [service.read.tool_id, service.label, service.connected]), [[MONEY_READ, 'Stripe', true]]);
+  const services = moneyServices(rows, [{ vendor: 'stripe', connection_id: 'service_connection:stripe:shop' }, { vendor: 'notion', connection_id: 'service_connection:notion' }]);
+  assert.deepEqual(services.map(service => [service.read.tool_id, service.label, service.connected, service.accounts]), [[MONEY_READ, 'Stripe', true, ['service_connection:stripe:shop']]]);
   assert.equal(moneyServices(rows, [])[0].connected, false);
   assert.equal(moneyServices(rows, null)[0].connected, null, 'connections that cannot be read leave each service unknown');
 });
@@ -183,7 +183,7 @@ test('the screen\'s read hands both lists to tool:list-connections, which answer
   const october = Date.UTC(2026, 9, 1) / 1000;
   assert.deepEqual(runs, [
     { tool: LIST_CONNECTIONS, input: LISTS, options: { key: `${LIST_CONNECTIONS}:${JSON.stringify(LISTS)}` } },
-    { tool: MONEY_READ, input: { since: october }, options: { key: `${MONEY_READ}:{"since":${october}}` } },
+    { tool: MONEY_READ, input: { since: october, connection: { connection_id: 'service_connection:stripe' } }, options: { key: `${MONEY_READ}:${JSON.stringify({ since: october, connection: { connection_id: 'service_connection:stripe' } })}` } },
   ]);
   const listed = await listConnections(runs[0].input);
   assert.deepEqual(listed.connections.map(row => row.vendor), ['stripe'], 'the held Stripe connection is listed, not refused');
@@ -216,13 +216,13 @@ test('with no list of connections, a money read that fails is drawn as a failed 
   await assert.rejects(readBusinessForScreen({ held_connections: 'stripe' }, host), /held_connections is a list/);
 });
 
-test('a list left out is never taken as no connections: the listing is not run, and each service\'s money is still read', async () => {
+test('a list left out is never taken as no connections: the listing is not run, no account is known to name, and each service is drawn as unread', async () => {
   for (const given of [{ connection_records: [] }, { held_connections: HELD }, {}]) {
     const { runs, host } = runAnswering(listing(new Error('no listing without both lists'), () => ({ object: 'list', has_more: false, data: MONTH })));
     const shown = drawCatalogueScreen('tool:business', { business: await readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z', ...given }, host) });
-    assert.deepEqual(runs.map(run => run.tool), [MONEY_READ], JSON.stringify(given));
+    assert.deepEqual(runs.map(run => run.tool), [], JSON.stringify(given));
     assert.equal(shown.sections[0].heading, 'Stripe since October 1', 'never drawn as not connected');
-    assert.equal(shown.sections[0].rows?.[0]?.id === 'connect', false);
+    assert.equal(shown.sections[0].rows?.[0]?.id, 'unread:Stripe');
   }
 });
 
@@ -235,7 +235,8 @@ test('the read row runs only the connections list and the money read, holds no r
   }
   const money = rows.tools.find(row => row.id === MONEY_READ);
   assert.equal(money.invoke.kind, 'http');
-  assert.equal(money.invoke.connection_id, 'service_connection:stripe');
+  assert.equal(money.invoke.connection_id, undefined, 'no bare connection: the input names which Stripe account');
+  assert.deepEqual(money.invoke.connection, { vendor: 'stripe', from_input: 'connection' });
   assert.deepEqual(money.invoke.credential_injections.map(item => [item.field_id, item.hosts]), [['secret_key', ['api.stripe.com']]]);
-  assert.deepEqual(Object.keys(money.input_schema.properties), ['since']);
+  assert.deepEqual(Object.keys(money.input_schema.properties), ['since', 'connection']);
 });
