@@ -7,6 +7,8 @@
 //
 //   The check does not draw the screen a card opens (that needs a read of the screen, a separate step); it checks only
 //   that a card's place is a the app screen by the screens' own DATA (placeOfAddress over the surfaces catalog).
+//   A card that opens its own place (no press, no steps, no does_in) earns its pass only when its source_reference
+//   resolves to a screen the catalog serves, or, for a calendar task, when the task page tool is served.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Read-only and pure: no fetch, no file, no key. The input is the whole answer; the output is the whole result.
@@ -20,14 +22,25 @@ import { placeOfAddress } from '../../hand-off-jobs-between-agents/src/workspace
 import { controlOf } from '../../hold-one-thing-until-done/read-data/needs-you-hold.mjs';
 
 const SELF_PREFIX = 'check:';
+const TASK_PAGE_TOOL = 'tool:serve-the-task-pages';
+const CALENDAR_TASK = 'record:calendar-task:';
 
 /** Whether an address opens a the app screen, judged by the screens' own rows for the origin given. */
 export function opensScreenAt(origin) {
   return address => placeOfAddress(surfaces.surfaces, address, origin) !== null;
 }
 
+/** The place a card that opens its own place (no press, no steps, no does_in) really opens, or null: its source_reference
+ *  as a screen address the catalog serves, or, for a calendar task, the task page tool when `served` names it. */
+export function placeOfOpens(card, answer, opensScreen) {
+  const ref = typeof card.source_reference === 'string' ? card.source_reference.trim() : '';
+  if (ref.startsWith('/') && opensScreen(ref)) return { kind: 'screen', address: ref };
+  if (ref.startsWith(CALENDAR_TASK) && (answer?.served ?? []).includes(TASK_PAGE_TOOL)) return { kind: 'task-page', tool: TASK_PAGE_TOOL };
+  return null;
+}
+
 /** The cards with no working control: [{ id, title, why }], judged over every section's cards.
- *  `answer` is { finishes?, sections: [{ id, batch?, finish?, cards: [{ id, title, does_in?, finish?, response?, detail? }] }] }
+ *  `answer` is { finishes?, served?, sections: [{ id, batch?, finish?, cards: [{ id, title, does_in?, finish?, response?, detail?, source_reference? }] }] }
  *  and `opensScreen(address)` says whether an address opens a screen. */
 export function cardsWithoutControl(answer, opensScreen = () => true) {
   const broken = [];
@@ -37,6 +50,13 @@ export function cardsWithoutControl(answer, opensScreen = () => true) {
       if (String(card.id ?? '').startsWith(SELF_PREFIX)) continue;
       checked += 1;
       const control = controlOf({ finishes: answer.finishes ?? [] }, section, card, opensScreen);
+      if (control?.kind === 'opens') {
+        if (placeOfOpens(card, answer, opensScreen)) continue;
+        const ref = typeof card.source_reference === 'string' ? card.source_reference.trim() : '';
+        const why = ref ? `opens its own place, but source_reference ${ref} resolves to no screen` : 'opens its own place, but names none (no source_reference)';
+        broken.push({ id: card.id, title: card.title ?? section.id ?? '', why });
+        continue;
+      }
       if (control) continue;
       const why = card.does_in ? `does_in ${card.does_in} opens no screen` : 'nothing to press, no place in the app, no steps';
       broken.push({ id: card.id, title: card.title ?? section.id ?? '', why });

@@ -48,3 +48,28 @@ test('the check never counts its own findings', () => {
 test('a screen address is judged by the screens rows, not by a list in this file', () => {
   assert.equal(typeof opensScreenAt('https://example.com')('/work/no-such-screen-here'), 'boolean');
 });
+
+const ownPlace = (card, extra = {}) => ({ sections: [{ id: 'stuck', cards: [{ id: 'k', title: 'Stuck', ...card }] }], ...extra });
+
+test('an opens card whose source_reference is a screen the catalog serves has a control', () => {
+  assert.equal(cardsWithoutControl(ownPlace({ source_reference: '/voices' }), opensScreen).without_control, 0);
+});
+
+test('an opens card whose source_reference resolves to no screen is broken, with that reason', () => {
+  const out = cardsWithoutControl(ownPlace({ source_reference: '/no-such-screen' }), opensScreen);
+  assert.deepEqual(out.broken, [{ id: 'k', title: 'Stuck', why: 'opens its own place, but source_reference /no-such-screen resolves to no screen' }]);
+});
+
+test('an opens card with no source_reference at all is broken', () => {
+  const out = cardsWithoutControl(ownPlace({}), opensScreen);
+  assert.equal(out.without_control, 1);
+  assert.equal(out.broken[0].why, 'opens its own place, but names none (no source_reference)');
+});
+
+test('a calendar-task card opens the task page only when the task page tool is served', () => {
+  const card = { source_reference: 'record:calendar-task:verify-every-port-x' };
+  assert.equal(cardsWithoutControl(ownPlace(card, { served: ['tool:serve-the-task-pages'] }), opensScreen).without_control, 0);
+  const unserved = cardsWithoutControl(ownPlace(card, { served: [] }), opensScreen);
+  assert.equal(unserved.without_control, 1);
+  assert.match(unserved.broken[0].why, /resolves to no screen/);
+});
