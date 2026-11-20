@@ -3,7 +3,7 @@
 // Case: source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { makeAgents } from 'trillion-workshop/tools/shared-code/src/agents.mjs';
+import { handoffIdFor, makeAgents } from 'trillion-workshop/tools/shared-code/src/agents.mjs';
 import { agentStoreForTests } from 'trillion-workshop/tools/shared-code/test/agent-store-for-tests.mjs';
 import { handleShareDestinationsRequest, makeShareDestinations, memoryShareHistory } from '../read-data/share-destinations.mjs';
 import { actionForAddress, routingAction, siteAction, startingAction } from '../read-data/share-starting-action.mjs';
@@ -190,4 +190,29 @@ test('a refused preference update leaves the earlier chosen destination unchange
   assert.ok(refused.status >= 400);
   assert.deepEqual(h.state.choices(), before);
   assert.equal(h.sent.length, 0);
+});
+
+// Ported from from-an-older-version/test/share-destinations.test.mjs.held (old lines 663 and 685), same assertions, against
+// the live shares reader and the in-memory history. Neither calls a route or deliver_share (question 16).
+test('a share kept before actions and runs were lists reads back as lists', async () => {
+  const history = memoryShareHistory();
+  history.keep({ share_id: 'old', at: '2026-10-01T00:00:00.000Z', items: [{ kind: 'link', url: 'https://example.com/' }], action: { id: 'which-pursuit', label: 'Which pursuit is this for?' }, workflow_run: { workflow_id: 'workflow:x', run_id: 'run:1' }, sent_to: [] });
+  const agents = makeAgents({ store: agentStoreForTests(), starters: [action] });
+  const shares = makeShareDestinations({ store: { choices: () => null, putChoices: () => {} }, history, instructions: agents, pursuits: async () => [], send: async () => ({}), readLink: async () => null, later: () => {} });
+  const [row] = shares.shares({}).shares;
+  assert.deepEqual(row.actions, [{ id: 'which-pursuit', label: 'Which pursuit is this for?' }]);
+  assert.deepEqual(row.workflow_runs, [{ workflow_id: 'workflow:x', run_id: 'run:1' }]);
+  assert.equal(row.action, undefined);
+});
+
+test('each listed share says what AI work it became, read by the request key its kept folder is named by', async () => {
+  const history = memoryShareHistory();
+  history.keep({ share_id: 'kept:/Shared from iPhone/KEY-1', at: '2026-10-03T19:00:00.000Z', items: [{ kind: 'file', name: 'IMG_1627.jpeg' }], sent_to: [], kept_in: '/Shared from iPhone/KEY-1' });
+  history.keep({ share_id: 'kept:/Shared from iPhone/KEY-2', at: '2026-10-03T18:00:00.000Z', items: [{ kind: 'text', text: 'note' }], sent_to: [], kept_in: '/Shared from iPhone/KEY-2' });
+  const agents = makeAgents({ store: agentStoreForTests(), starters: [action] });
+  const done = { handoff_id: handoffIdFor('KEY-1'), state: 'finished', taken_by: 'agent-kept-filer', finished_at: '2026-10-03T20:00:00.000Z', outcome: 'Kept and filed.' };
+  const shares = makeShareDestinations({ store: { choices: () => null, putChoices: () => {} }, history, instructions: agents, pursuits: async () => [], send: async () => ({}), readLink: async () => null, later: () => {}, aiWorkOf: id => (id === done.handoff_id ? done : null) });
+  const [taken, waiting] = shares.shares({}).shares;
+  assert.deepEqual(taken.ai_work, done);
+  assert.equal(waiting.ai_work, undefined);
 });

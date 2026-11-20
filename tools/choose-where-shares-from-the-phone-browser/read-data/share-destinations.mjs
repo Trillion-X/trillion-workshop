@@ -66,7 +66,7 @@
 // registered with; an agent id is never shown as a sender.
 // A share a device kept in the person's Files without this road (an iPhone Share sheet, an Android share not sent
 // yet: folders named in records/share-destination-starters.json kept_share_folders) is adopted into the same list by
-// its folder (src/share-history.mjs), and a later delivery of that kept share replaces its row.
+// its folder (read-data/share-history.mjs), and a later delivery of that kept share replaces its row.
 //
 // Invariants
 // - Their own Trillion is always offered: it can be moved or left unpicked, never hidden.
