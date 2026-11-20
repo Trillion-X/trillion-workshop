@@ -535,7 +535,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/check-every-screen-at-every-width/check-given-pages.mjs",
             "checkGivenPages"
           ],
@@ -586,12 +586,9 @@
                 "at": "/opt/page-critic"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               },
               {
                 "package": "content-identity",
