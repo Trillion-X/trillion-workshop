@@ -95,7 +95,10 @@ test('a single-name front door renders its own name, pages, sign-in routes and e
   assert.match(file.text, /^\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}$/m);
   assert.match(file.text, /^\thandle \/\.well-known\/oauth-authorization-server\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}$/m);
   assert.doesNotMatch(file.text, /oauth-protected-resource/, 'the protected-resource document is the engine\'s, carried, never the sign-in tool\'s');
-  assert.match(file.text, /^\thandle \/ \{\n\t\tredir \* \/sign-in 302\n\t\}$/m);
+  // The front page is the signed-in person's own page: a sign-in that ends at / lands there, and a signed-out visit is sent on
+  // to sign in and back (sign-in-client.mjs toSignIn). It went to /sign-in until Nov 20 2026, so a finished sign-in landed on the
+  // email form again and the Mac app's window looped.
+  assert.match(file.text, /^\thandle \/ \{\n\t\tredir \* \/account 302\n\t\}$/m);
   assert.doesNotMatch(file.text, /storage|on_demand|forwarder|old_site|trusted_proxies|tls_server_name/);
   assert.match(file.text, /^\t@page file \{\n\t\troot \/var\/lib\/front-door-pages\n/m);
   assert.match(file.text, /^\thandle \{\n\t\trespond "Not found" 404\n\t\}$/m);
