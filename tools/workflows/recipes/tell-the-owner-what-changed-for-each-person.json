@@ -1103,7 +1103,7 @@
                                                 "path": "output.said"
                                               }
                                             },
-                                            "none"
+                                            "not scored: the voice scorer answered with no score"
                                           ]
                                         }
                                       },
@@ -1140,7 +1140,7 @@
                                                 "path": "output.said"
                                               }
                                             },
-                                            "none"
+                                            "not checked: the phrase check answered with nothing"
                                           ]
                                         }
                                       },
@@ -1416,7 +1416,7 @@
                                                 "path": "output.said"
                                               }
                                             },
-                                            "none"
+                                            "not scored: the voice scorer answered with no score"
                                           ]
                                         }
                                       },
@@ -1453,7 +1453,7 @@
                                                 "path": "output.said"
                                               }
                                             },
-                                            "none"
+                                            "not checked: the phrase check answered with nothing"
                                           ]
                                         }
                                       },

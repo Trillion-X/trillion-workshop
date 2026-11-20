@@ -103,8 +103,9 @@ const SETTINGS = { history: { credential_name: 'my-history-connection' }, addres
   phrase_rules: [{ id: 'no-filler', words: ['just checking in'] }] };
 const due = (soon, extra = {}) => ({ thing_scheme: 'person', thing_value: 'person:bo', through: 9, meanings: ['booked', 'cancelled'], words: 'moved the call', addresses: address('bo'), address: address('bo.work'),
   next_call_at: '2026-11-21T13:00:00.000Z', soon, now_at: '2026-11-19T13:00:00Z', calendar_to: '2026-11-22T13:00:00Z', history: '[]', ...extra });
-function tellDoor({ rows, claimed = true, fail = null }) {
+function tellDoor({ rows, claimed = true, fail = null, answer = {} }) {
   return door((name, input) => {
+    if (name in answer) return answer[name];
     const notice = name === 'tool:run-sql-in-my-database' && input.sql.startsWith('insert into notices');
     if (fail === name || (fail === 'notice' && notice)) throw Object.assign(new Error(`${name} refused`), { code: 'tools_run_input_refused' });
     if (notice) return { rows: [{ notification_id: 'told:1' }], row_count: 1 };
@@ -178,6 +179,9 @@ test('a draft is made from the history when mail, calendar, voice or phrase step
   assert.equal((await tellRun(noMailbox)).status, 'completed');
   assert.deepEqual(asked(noMailbox).slice(-2), ['tool:save-a-mail-draft', 'notice']);
   assert.match(noticeOf(noMailbox.calls.at(-1)).body, /^No mailbox took the draft, so here it is\. Subject: .+\. Text: .+\. Voice score/);
+  const noScore = tellDoor({ rows: [due(false)], answer: { 'tool:score-writing-with-a-voice-adapter': { result: null } } });
+  assert.equal((await tellRun(noScore)).status, 'completed');
+  assert.match(noticeOf(noScore.calls.at(-1)).body, /Voice score \(lowest paragraph\): not scored: the voice scorer answered with no score\./);
   const noModel = tellDoor({ rows: [due(false)], fail: 'tool:ask-a-model' });
   assert.equal((await tellRun(noModel)).status, 'completed');
   assert.deepEqual(asked(noModel).slice(-2), ['tool:ask-a-model', 'notice']);
