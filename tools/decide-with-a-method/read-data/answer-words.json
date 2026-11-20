@@ -1,0 +1,16 @@
+{
+  "what_this_is": "The words a person reads for what was answered at each row of a decision's method (read-data/answer-words.mjs): the label of an answer's row, who answered when a word says so, the rows an answer cites, and how an answer was checked. Words only: the person's own text (a row's question, the answer) is shown as written, never rewritten here.",
+  "label": "Answer",
+  "cites": "Cites",
+  "checked_by": "Checked by",
+  "review": "Review",
+  "review_asked": "An AI reviews this answer too.",
+  "answerers": {
+    "person": "your words"
+  },
+  "checked_from": {
+    "row": "The check this row sets for its own answers.",
+    "method": "The check this view sets for its rows.",
+    "default": "The default check: the answer says something and cites a row or evidence."
+  }
+}
