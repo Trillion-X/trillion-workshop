@@ -49,6 +49,7 @@ function causeProblems(row, fields, where, vocabulary) {
     if (field.only_with && fields[field.only_with] === undefined) problems.push(`${at} is taken only beside ${field.only_with}.`);
     if (field.at_least && whole(fields[field.at_least]) && value < fields[field.at_least]) problems.push(`${at} must be at least ${field.at_least}.`);
     if (field.at_most && value > vocabulary[field.at_most]) problems.push(`${at} must be at most ${vocabulary[field.at_most]} (${field.at_most}).`);
+    if (field.at_most_field && whole(fields[field.at_most_field]) && value > fields[field.at_most_field]) problems.push(`${at} must be at most ${field.at_most_field}.`);
     if (field.keys_in) {
       const allowed = vocabulary[field.keys_in]?.[fields[field.by]] ?? [];
       for (const key of Object.keys(value)) if (!allowed.includes(key)) problems.push(`${at}.${key} is not a field ${fields[field.by]} reports; it reports ${allowed.join(', ') || 'nothing'}.`);
