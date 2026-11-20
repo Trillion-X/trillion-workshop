@@ -27,7 +27,7 @@ form?.addEventListener('submit', async event => {
     });
     const result = await response.json();
     if (!response.ok || result.received !== true) throw new Error(result.error || 'The response was not saved.');
-    status.textContent = 'Your test response was saved for the page owner in Trillion.';
+    status.textContent = 'Your test response was saved for the page owner.';
     form.reset();
     pending = null;
   } catch (error) {
