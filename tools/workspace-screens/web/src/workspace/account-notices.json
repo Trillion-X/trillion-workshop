@@ -1,0 +1,8 @@
+{
+  "_what": "Where the signed-in workspace reads the person's notices for its bell (account-notices.ts): the statements the notice workflows give (tools/workflows/recipes read-my-notices and mark-my-notices-read: table notices), run in the person's own database through the SQL tool with the person's own rights. `most` is how many of the newest the bell holds; a notice's id on the page is `id_prefix` and its number, as those workflows name it.",
+  "list": "select id, kind, title, body, made_at, read_at from notices order by made_at desc, id desc limit $1",
+  "most": 50,
+  "mark_read": "update notices set read_at = now() where id = any($1::bigint[]) and read_at is null",
+  "mark_unread": "update notices set read_at = null where id = any($1::bigint[])",
+  "id_prefix": "told:"
+}

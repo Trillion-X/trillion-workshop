@@ -177,7 +177,7 @@
                     "kept_as": "menu-bar-now"
                   }
                 },
-                "trillion.notifications",
+                "tool:screen-notifications",
                 "trillion.always-recording",
                 "trillion.tray"
               ]

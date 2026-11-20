@@ -24,7 +24,7 @@
     { "id": "screens.tray", "label": "Your tray, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.tray" },
     { "id": "screens.get-started", "label": "Get started, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.get-started" },
     { "id": "screens.tours", "label": "Tours (the guided tours), in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.tours" },
-    { "id": "screens.message-box", "label": "Message your AIs, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.message-box" },
+    { "id": "screens.message-box", "label": "Message your AIs, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row tool:screen-message-box" },
     { "id": "screens.write", "label": "Write, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.write" },
     { "id": "screens.record", "label": "Record, the one recording screen in the sidebar (Record audio is its alias: it has no row of its own, and opens as the meeting recorder from Settings and Calendar)", "drawn_at": "show/AppSidebar.tsx, row trillion.record" },
     { "id": "screens.record-video", "label": "Record video, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.record-video" },

@@ -20,6 +20,8 @@
 import { readJson, setPageDoor } from './api';
 import { answerAtTheDoor } from './account-door';
 import { answerHere } from './account-own-answers';
+import { notificationsAnswers } from './account-notifications';
+import { keepPersonNotifications } from './person-notifications';
 import { pass, takeCallback } from './account-pass';
 import { remoteRecordsSource, setWorkspaceRecordsSource } from './records-source';
 import { sqlRecordsTransport } from './sql-records';
@@ -45,9 +47,10 @@ const screenRows = (page: Listed) =>
 
 await takeCallback();
 await pass();
-setPageDoor(async (path, init) => answerHere(path, init) ?? answerAtTheDoor(path, init));
 const statement = (sql: string, params: unknown[]) =>
   runWorkshopTool<{ rows: Record<string, unknown>[] }>(kept.tool, { credential_name: kept.credential_name, sql, params }).then(ran => ran.result?.rows ?? []);
+const notifications = notificationsAnswers(statement);
+setPageDoor(async (path, init) => answerHere(path, init) ?? await notifications(path, init) ?? answerAtTheDoor(path, init));
 setWorkspaceRecordsSource(remoteRecordsSource(sqlRecordsTransport(statement, kept.table, kept.retry)));
 installScreenRunner(screens, surfaces.address_label);
 await answerTargets();
@@ -62,6 +65,7 @@ await keepShowRules({ rules: [] });
 const root = newWorkspaceRoot();
 document.body.prepend(root);
 const workspace = mountWorkspace(root, offered, { catalogComplete: !page.next });
+keepPersonNotifications();
 while (page.next) {
   page = await listed(page.next);
   tools.push(...screenRows(page));

@@ -7,11 +7,21 @@
 // for the account that has it (src/work-workshop.mjs toolSurfaces). The page carries only the row fields it reads
 // (scripts/browser-json-fields.json): a field read here or in tool-screen.tsx that is not listed there is undefined in the page.
 import settings from './surfaces.json' with { type: 'json' };
+import looks from '../workshop-looks.json' with { type: 'json' };
 
-/** The placeable screen a screen-carrying tool row is: its surface, with its words, icon and the screen it mounts: the
+/** The placeable screen a screen-carrying tool row is: its surface (the page's own placement where the row names none), with its words, icon and the screen it mounts: the
  *  Trillion screen it names (`screen.entry`), or else the one tool screen host (entry `tool-screen`), opened on the
  *  tool itself, which shows the tool's own screen (a screen module's code, src/workspace/tool-screen.tsx). */
 export const surfaceOfScreenTool = tool => ({
+  // A row that leaves out where its screen is placed takes the page's own placement (workshop-looks.json
+  // tool_surface_defaults, as a catalogue tool's screen does), and its surface is named by its tool id.
+  id: tool.id,
+  surface_id: tool.id,
+  kind: 'placeable-surface',
+  placement_labels: [...looks.tool_surface_defaults.placement_labels],
+  placement_order_key: `tool:${tool.id}`,
+  material_target: looks.tool_surface_defaults.material_target,
+  wrap_material: false,
   ...tool.screen.surface,
   label: tool.label,
   icon: tool.screen.icon,

@@ -33,6 +33,57 @@
           "actions": []
         }
       }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-notifications",
+      "listed_on": "2026-09-30T07:29:07Z",
+      "label": "Notifications",
+      "job": "What happened for you: invitations, new things in your pursuits and your AIs' work.",
+      "description": "What happened for you: invitations, new things in your pursuits and your AIs' work.",
+      "status": "active",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "notifications",
+        "icon": "Bell",
+        "surface": {
+          "order": 0.25,
+          "sidebar_place": "controls",
+          "route_paths": [
+            "/notifications"
+          ],
+          "open_placement": {
+            "layer": "overlay",
+            "size": {
+              "width": 420,
+              "height": 620
+            },
+            "chrome": {
+              "header": false
+            }
+          },
+          "preview_surface_id": "tool:screen-notifications-preview",
+          "badge_source": "notifications:unread"
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-notifications-preview",
+      "listed_on": "2026-09-30T07:29:07Z",
+      "label": "Notifications",
+      "job": "Open Notifications",
+      "status": "active",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "notifications-preview",
+        "icon": "Bell",
+        "surface": {
+          "order": 0.26,
+          "listed": false,
+          "tour": "notifications"
+        }
+      }
     }
   ]
 }

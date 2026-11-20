@@ -39,6 +39,38 @@
           "actions": []
         }
       }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-message-box",
+      "listed_on": "2026-10-01T19:54:22Z",
+      "label": "Message your AIs",
+      "job": "Write once to every AI, or to the ones you @mention, a pursuit or an action, with files, links, your voice, your screen or a drawing. It floats over your work; Cmd+Shift+Pursuit opens and closes it from anywhere.",
+      "description": "Write once to every AI, or to the ones you @mention, a pursuit or an action, with files, links, your voice, your screen or a drawing. It floats over your work; Cmd+Shift+Pursuit opens and closes it from anywhere.",
+      "status": "active",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "message-box",
+        "icon": "MessageSquarePlus",
+        "surface": {
+          "sidebar_collection": "things-you-do-as-input",
+          "order": 0.25,
+          "open_placement": {
+            "layer": "overlay",
+            "size": {
+              "width": 520,
+              "height": 460
+            },
+            "chrome": {
+              "header": false,
+              "container.fill-height": false
+            }
+          },
+          "route_paths": [
+            "/message"
+          ]
+        }
+      }
     }
   ]
 }
