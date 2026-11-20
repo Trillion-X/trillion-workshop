@@ -507,6 +507,28 @@
           }
         },
         "invoke": {
+          "programs": {
+            "chrome-headless-shell": {
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://storage.googleapis.com/chrome-for-testing-public/153.0.8010.12/mac-arm64/chrome-headless-shell-mac-arm64.zip",
+                  "version": "153.0.8010.12",
+                  "archive": "zip",
+                  "blake3": "f9daf3404db01b9bd1434183a6a49f1f3e6961ceb921ad2d113d5212c476194a",
+                  "executable": "chrome-headless-shell-mac-arm64/chrome-headless-shell",
+                  "checked_against": "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
+                },
+                "linux-x86_64": {
+                  "url": "https://storage.googleapis.com/chrome-for-testing-public/153.0.8010.12/linux64/chrome-headless-shell-linux64.zip",
+                  "version": "153.0.8010.12",
+                  "archive": "zip",
+                  "blake3": "abccf17437cf7bd491fa423539d416a14ef08a4624215341684bdc3aefc72a47",
+                  "executable": "chrome-headless-shell-linux64/chrome-headless-shell",
+                  "checked_against": "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
+                }
+              }
+            }
+          },
           "kind": "container",
           "internet": false,
           "workdir": "/opt/check-every-screen-at-every-width",

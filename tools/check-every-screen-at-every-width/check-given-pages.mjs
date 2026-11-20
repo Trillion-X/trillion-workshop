@@ -20,7 +20,7 @@
 // Answers { passed, failures, reported, counts, report }: counts is failures per probe.
 // Refuses a screen without an id or html, two screens at the same route, and a width or mode views.json does not name.
 // A request the page makes to any other place is aborted, never sent.
-import { launchChromium } from '../headless-browser/launch.mjs';
+import { launchChromium, onThisPath } from '../headless-browser/launch.mjs';
 import { readViews, runMatrix } from './check-screens.mjs';
 
 const ORIGIN = 'http://given-pages.invalid';
@@ -47,7 +47,8 @@ export async function checkGivenPages({ screens, widths, modes, allowlist = [], 
     return { ...row, route };
   });
 
-  const browser = await launchChromium({ headless: true });
+  // The headless shell the row fetches (its program folder is on this run's PATH); without one, Playwright's own browser.
+  const browser = await launchChromium({ headless: true, executablePath: onThisPath('chrome-headless-shell') });
   const target = {
     origin: ORIGIN,
     newContext: options => browser.newContext(options),

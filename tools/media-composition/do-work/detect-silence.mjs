@@ -72,6 +72,11 @@ export function silencesToCleanupSpans(silences, opts = {}) {
     .filter((s) => s.end > s.start);
 }
 
+/** The named error for a source that cannot be read as audio or video: code `source_not_readable`. */
+export function sourceNotReadable(videoPath) {
+  return Object.assign(new Error(`source_not_readable: ${videoPath} could not be read as audio or video`), { code: 'source_not_readable' });
+}
+
 /**
  * Run ffmpeg silencedetect on a source and return its silent intervals + duration. `thresholdDb` (dBFS below
  * which is "silent") and `minSilenceSec` (a gap must be at least this long to count) are sanitized DATA.
@@ -86,6 +91,8 @@ export function detectSilence(videoPath, opts = {}) {
   ], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   const txt = `${res.stdout ?? ''}${res.stderr ?? ''}`;
   const duration = probeDuration(videoPath);
+  // A source ffmpeg cannot run on, or one with no duration, is not a silent recording: say so instead of an empty answer.
+  if (res.error || res.status !== 0 || duration <= 0) throw sourceNotReadable(videoPath);
   const silences = [];
   let curStart = null;
   for (const line of txt.split('\n')) {
@@ -105,7 +112,14 @@ if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.ar
   const thresholdDb = process.argv[3] !== undefined ? Number(process.argv[3]) : undefined;
   const minSilenceSec = process.argv[4] !== undefined ? Number(process.argv[4]) : undefined;
   const pad = process.argv[5] !== undefined ? Number(process.argv[5]) : undefined;
-  const { silences, duration, thresholdDb: thr, minSilenceSec: minSil } = detectSilence(videoPath, { thresholdDb, minSilenceSec });
+  let found;
+  try {
+    found = detectSilence(videoPath, { thresholdDb, minSilenceSec });
+  } catch (error) {
+    process.stderr.write(`${JSON.stringify({ error: error.code ?? 'failed', message: error.message })}\n`);
+    process.exit(1);
+  }
+  const { silences, duration, thresholdDb: thr, minSilenceSec: minSil } = found;
   const keep = keepSpansFromSilences(silences, duration, { pad });
   process.stdout.write(`${JSON.stringify({ silences, keep, duration, threshold_db: thr, min_silence: minSil, pad: clamp(pad, 0, 0.5, 0.05), count: keep.length })}\n`);
 }

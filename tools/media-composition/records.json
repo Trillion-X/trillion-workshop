@@ -1013,7 +1013,12 @@
       "ffmpeg": {
        "fetch": {
         "macos-aarch64": {
-         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "9220d549857e4d4012133fde5f4ddbeb0576e5385e59ad5d917e1f3dfeb79d23",
+         "executable": "ffmpeg",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip.sha256"
         },
         "macos-x86_64": {
          "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
@@ -1035,7 +1040,12 @@
       "ffprobe": {
        "fetch": {
         "macos-aarch64": {
-         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "6f4839c66c9bde7e8a02fe19d87059265ccd8dcb49b2ce8c6fd8e827b9e6c1e7",
+         "executable": "ffprobe",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip.sha256"
         },
         "macos-x86_64": {
          "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
@@ -1751,7 +1761,12 @@
       "ffmpeg": {
        "fetch": {
         "macos-aarch64": {
-         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "9220d549857e4d4012133fde5f4ddbeb0576e5385e59ad5d917e1f3dfeb79d23",
+         "executable": "ffmpeg",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip.sha256"
         },
         "macos-x86_64": {
          "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
@@ -1773,7 +1788,12 @@
       "ffprobe": {
        "fetch": {
         "macos-aarch64": {
-         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "6f4839c66c9bde7e8a02fe19d87059265ccd8dcb49b2ce8c6fd8e827b9e6c1e7",
+         "executable": "ffprobe",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip.sha256"
         },
         "macos-x86_64": {
          "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
@@ -2229,7 +2249,12 @@
       "ffmpeg": {
        "fetch": {
         "macos-aarch64": {
-         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "9220d549857e4d4012133fde5f4ddbeb0576e5385e59ad5d917e1f3dfeb79d23",
+         "executable": "ffmpeg",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip.sha256"
         },
         "macos-x86_64": {
          "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
@@ -2251,7 +2276,12 @@
       "ffprobe": {
        "fetch": {
         "macos-aarch64": {
-         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "6f4839c66c9bde7e8a02fe19d87059265ccd8dcb49b2ce8c6fd8e827b9e6c1e7",
+         "executable": "ffprobe",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip.sha256"
         },
         "macos-x86_64": {
          "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
@@ -2813,7 +2843,12 @@
       "ffmpeg": {
        "fetch": {
         "macos-aarch64": {
-         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "9220d549857e4d4012133fde5f4ddbeb0576e5385e59ad5d917e1f3dfeb79d23",
+         "executable": "ffmpeg",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip.sha256"
         },
         "macos-x86_64": {
          "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
@@ -2835,7 +2870,12 @@
       "ffprobe": {
        "fetch": {
         "macos-aarch64": {
-         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "6f4839c66c9bde7e8a02fe19d87059265ccd8dcb49b2ce8c6fd8e827b9e6c1e7",
+         "executable": "ffprobe",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip.sha256"
         },
         "macos-x86_64": {
          "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
@@ -3566,7 +3606,12 @@
       "ffmpeg": {
        "fetch": {
         "macos-aarch64": {
-         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "9220d549857e4d4012133fde5f4ddbeb0576e5385e59ad5d917e1f3dfeb79d23",
+         "executable": "ffmpeg",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip.sha256"
         },
         "macos-x86_64": {
          "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
@@ -3810,7 +3855,12 @@
       "ffmpeg": {
        "fetch": {
         "macos-aarch64": {
-         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "9220d549857e4d4012133fde5f4ddbeb0576e5385e59ad5d917e1f3dfeb79d23",
+         "executable": "ffmpeg",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip.sha256"
         },
         "macos-x86_64": {
          "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
@@ -3832,7 +3882,12 @@
       "ffprobe": {
        "fetch": {
         "macos-aarch64": {
-         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "6f4839c66c9bde7e8a02fe19d87059265ccd8dcb49b2ce8c6fd8e827b9e6c1e7",
+         "executable": "ffprobe",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip.sha256"
         },
         "macos-x86_64": {
          "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
@@ -4139,7 +4194,12 @@
       "ffmpeg": {
        "fetch": {
         "macos-aarch64": {
-         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "9220d549857e4d4012133fde5f4ddbeb0576e5385e59ad5d917e1f3dfeb79d23",
+         "executable": "ffmpeg",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip.sha256"
         },
         "macos-x86_64": {
          "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
@@ -4161,7 +4221,12 @@
       "ffprobe": {
        "fetch": {
         "macos-aarch64": {
-         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "6f4839c66c9bde7e8a02fe19d87059265ccd8dcb49b2ce8c6fd8e827b9e6c1e7",
+         "executable": "ffprobe",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip.sha256"
         },
         "macos-x86_64": {
          "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
