@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { keepCurrent } from '../do-work/keep-the-shared-checkout-current.mjs';
@@ -219,4 +219,19 @@ test('a dirty file holding old HEAD bytes after an origin move gets origin versi
   const edit = keepCurrent(env.shared, { now: LATER() });
   assert.equal(read(env, 'a.txt'), 'a brand new edit\n');
   assert.equal(edit.kept.find((k) => k.path === 'a.txt').why, 'changed here');
+});
+
+test('an unreadable file is kept and reported, and the rest of the pass still runs', () => {
+  const env = setup();
+  publish(env, { 'b.txt': 'b origin\n' }, 'change b');
+  write(env.shared, { 'secret.txt': 'hidden\n' });
+  chmodSync(join(env.shared, 'secret.txt'), 0o000);
+  try {
+    const result = keepCurrent(env.shared, { now: LATER() });
+    assert.equal(result.outcome, 'ran');
+    assert.deepEqual(result.updated, ['b.txt']);
+    assert.match(result.kept.find((k) => k.path === 'secret.txt').why, /untracked/);
+  } finally {
+    chmodSync(join(env.shared, 'secret.txt'), 0o600);
+  }
 });

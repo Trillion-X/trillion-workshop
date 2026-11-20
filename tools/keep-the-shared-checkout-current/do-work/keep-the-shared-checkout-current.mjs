@@ -6,7 +6,7 @@
 // index to origin/main, write the clean paths from origin, and move the clean paths origin deleted into the repository's git folder.
 // Nothing is deleted: a file that cannot be moved stays where it is and is reported.
 import { createHash } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -107,10 +107,24 @@ function removalProof(root, path, oid) {
   return { path, size: data.length, proof: { samples: [{ offset: 0, length: data.length, sha256: createHash('sha256').update(data).digest('hex') }] } };
 }
 
+// Adds every readable file to the private index. A file git cannot read (a permission the sandbox refuses) is left out
+// and named in `unsaved`; it is never touched, and its path is kept by the classification below. Any other failure stops
+// the pass, since a rescue that misses bytes it could have saved is not a rescue.
+function addWorkingState(root, env, result) {
+  const added = spawnSync('git', ['-C', root, 'add', '-A', '--ignore-errors', '--', '.'], { env: { ...BASE_ENV, ...env }, encoding: 'utf8' });
+  if (added.status === 0) return;
+  const lines = (added.stderr ?? '').split('\n').filter(Boolean);
+  const readFailures = /^error: (open|unable to index file|unable to read)/;
+  if (lines.length === 0 || !lines.every((line) => readFailures.test(line) || line === 'fatal: adding files failed')) {
+    throw new Error(`git add failed: ${lines.join(' | ')}`);
+  }
+  result.unsaved = lines.map((line) => line.match(/^error: open\("(.*)"\)/)?.[1]).filter(Boolean);
+}
+
 // The whole pass. Refusals and a moved HEAD return before anything in the working tree is written.
 export function keepCurrent(root, { now = new Date(), beforeReset = () => {} } = {}) {
   const gitPath = (name) => gitPathIn(root, name);
-  const result = { at: stampWords(now), outcome: 'ran', branch: null, head_before: null, head_after: null, origin: null, behind_before: null, behind_after: null, local_commits: [], rescue_ref: null, updated: [], removal_entries: [], kept: [], skipped: [], why: null };
+  const result = { at: stampWords(now), outcome: 'ran', branch: null, head_before: null, head_after: null, origin: null, behind_before: null, behind_after: null, local_commits: [], rescue_ref: null, updated: [], removal_entries: [], unsaved: [], kept: [], skipped: [], why: null };
   const refuse = (why, outcome = 'refused') => ({ ...result, outcome, why });
   const refusal = refusingState(root);
   if (refusal) return refuse(refusal);
@@ -132,7 +146,7 @@ export function keepCurrent(root, { now = new Date(), beforeReset = () => {} } =
   const privateIndex = { GIT_INDEX_FILE: gitPath(INDEX_FILE) };
   if (dirty.length || result.local_commits.length) {
     copyFileSync(gitPath('index'), privateIndex.GIT_INDEX_FILE);
-    git(root, ['add', '-A', '--', '.'], { env: privateIndex });
+    addWorkingState(root, privateIndex, result);
     const tree = git(root, ['write-tree'], { env: privateIndex }).trim();
     if (tree !== git(root, ['rev-parse', `${head}^{tree}`]).trim() || result.local_commits.length) {
       const newest = rescueRefs(root)[0] ?? null;

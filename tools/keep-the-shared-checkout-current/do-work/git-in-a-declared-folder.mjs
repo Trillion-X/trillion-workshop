@@ -36,6 +36,16 @@ export function blobsAt(root, rev) {
   return blobs;
 }
 
+// Blob ids of regular files, in order. One batch is the fast path; when git cannot read one of them (a permission the
+// sandbox refuses, a file that vanished) the batch fails, so each file is hashed alone and an unreadable one is 'unreadable'.
+function hashRegularFiles(root, paths) {
+  try {
+    return git(root, ['hash-object', '--no-filters', '--stdin-paths'], { input: `${paths.join('\n')}\n` }).trim().split('\n');
+  } catch {
+    return paths.map((p) => gitOrNull(root, ['hash-object', '--no-filters', '--', p])?.trim() ?? 'unreadable');
+  }
+}
+
 // Blob ids of the bytes on disk, hashed as they are (no clean filters). A symlink is hashed as its target text.
 export function workingState(root, paths, now) {
   const state = new Map();
@@ -60,7 +70,7 @@ export function workingState(root, paths, now) {
     }
   }
   if (regular.length) {
-    const oids = git(root, ['hash-object', '--no-filters', '--stdin-paths'], { input: `${regular.join('\n')}\n` }).trim().split('\n');
+    const oids = hashRegularFiles(root, regular);
     regular.forEach((p, i) => state.set(p, { oid: oids[i], recent: state.get(p).recent }));
   }
   return state;
