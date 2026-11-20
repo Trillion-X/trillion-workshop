@@ -1,4 +1,4 @@
-// tools/sign-in-build-and-hold/read-data/verify-every-port-sign-in-keys-list-turn-off.mjs
+// tools/sign-in-build-and-hold/read-data/keys-list-turn-off.mjs
 //
 // Listing a person's personal keys and turning one off. Ported from the earlier code base's src/personal-keys.mjs
 // (b6ae0ebf815f): keyRow (what any road may answer about a key), personalKeysOf (the list), expiryFrom and expiryOfChoice
@@ -16,7 +16,7 @@
 //   4. A key is turned off only for its own account (or by holding the key itself); a key the caller may not reach is
 //      refused. The sign-in that key makes is ended by the caller at the account's policy owner, before the record goes.
 //   5. Reads are bounded: a list answers at most `list_max` entries.
-import settings from './verify-every-port-sign-in-keys-list-turn-off.json' with { type: 'json' };
+import settings from './keys-list-turn-off.json' with { type: 'json' };
 
 export const PERSONAL_KEYS = settings;
 const KEY_ID = /^[0-9a-f]{64}$/;

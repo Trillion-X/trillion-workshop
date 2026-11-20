@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import {
   accountConfirmationMatches, changeKey, confirmationBy, confirmationEnds, confirmationRecord, confirmedNotice,
   confirmWords, guardedChangeRefusal, NOT_A_CHANGE, PASSKEY_CONFIRMATION, removalRefusal,
-} from '../read-data/verify-every-port-sign-in-guarded-change-confirm.mjs';
+} from '../read-data/guarded-change-confirm.mjs';
 
 const none = { known: [], pending: false };
 const known = { known: ['pk-1'], pending: false };

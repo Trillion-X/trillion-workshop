@@ -1,4 +1,4 @@
-// tools/sign-in-build-and-hold/read-data/verify-every-port-sign-in-hosting-window.mjs
+// tools/sign-in-build-and-hold/read-data/hosting-window.mjs
 //
 // The hosting app's own browser window as a session of the account. The window signs in by a token; its session row is
 // keyed by the hash of that token (the caller makes the hash, with the BLAKE3 owner, and passes the id in). Ported from
@@ -16,7 +16,7 @@
 //   moves to `now` plus the account's session length. With no settings row it does not slide: its expiry stays as it is.
 // - Starting the window keeps a row that is still live and makes a new one otherwise, so a new start replaces an expired
 //   row.
-import settings from './verify-every-port-sign-in-hosting-window.json' with { type: 'json' };
+import settings from './hosting-window.json' with { type: 'json' };
 
 export const RENEW_AFTER_MS = settings.renew_after_seconds * 1000;
 export const WINDOW_METHOD = settings.method;

@@ -1,0 +1,20 @@
+{
+  "_what": "How many calls one sign-in (a personal key, an AI app's grant, or the account itself) may make before it is asked to wait (read-data/call-limits.mjs). A tier's limit counts calls in its period, by sign-in, never by network address. The first rule whose `when` all hold picks the tier: `holds` is an access the person's plan gives, `caller` is what signed in (key, app, account), `approved_by` how an app's grant was approved. A rule with no `when` is the default and must be last. Host plumbing is not here: the rate limiting bindings and their namespace ids belong to the deploy that counts the calls. Ported from the earlier code base's src/sign-in-calls.json (b6ae0ebf815f). Decision source: security-hardening-revocation-and-ingress-2026-10-05.",
+  "tiers": [
+    { "id": "plan", "limit": 3000, "period_seconds": 60 },
+    { "id": "standard", "limit": 1200, "period_seconds": 60 },
+    { "id": "weaker", "limit": 300, "period_seconds": 60 }
+  ],
+  "rules": [
+    { "when": { "approved_by": ["email", "phone", "password", "unknown"], "caller": ["app"] }, "tier": "weaker" },
+    { "when": { "holds": "access:decision-kept" }, "tier": "plan" },
+    { "tier": "standard" }
+  ],
+  "retry_after_seconds": 60,
+  "most_counted": 2000,
+  "words": {
+    "refused": "This sign-in made more than {limit} calls in {seconds} seconds. Wait a minute, or ask for several things in one call.",
+    "line": "Up to {limit} calls a minute",
+    "used": "{used} in the last minute"
+  }
+}

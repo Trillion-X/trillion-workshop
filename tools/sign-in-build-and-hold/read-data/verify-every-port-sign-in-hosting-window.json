@@ -1,5 +1,0 @@
-{
-  "_what": "The hosting app's own browser window, when it signs in to the account, is a session row like a browser cookie session: it lives as long as the account's session length and slides while it is used (read-data/verify-every-port-sign-in-hosting-window.mjs). A row is renewed when it was last renewed more than renew_after_seconds ago. The session length itself is the account's setting and is not here. Ported from the earlier Rust code base's src/account/sign_in/sessions.rs (its commit 2b8b821a4): start_window, window_live and renew_if_due. There is no earlier JavaScript counterpart for this window.",
-  "renew_after_seconds": 86400,
-  "method": "window"
-}

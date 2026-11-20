@@ -3,7 +3,7 @@
 // with no session length does not slide a row and cannot start a window.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { expiry, RENEW_AFTER_MS, renewIfDue, startWindow, WINDOW_METHOD, windowLive } from '../read-data/verify-every-port-sign-in-hosting-window.mjs';
+import { expiry, RENEW_AFTER_MS, renewIfDue, startWindow, WINDOW_METHOD, windowLive } from '../read-data/hosting-window.mjs';
 
 const DAY = 86_400_000;
 const SESSION = 1_209_600; // two weeks, in seconds

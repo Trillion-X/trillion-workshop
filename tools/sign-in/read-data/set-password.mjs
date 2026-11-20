@@ -1,4 +1,4 @@
-// tools/sign-in-build-and-hold/read-data/verify-every-port-sign-in-set-password.mjs
+// tools/sign-in-build-and-hold/read-data/set-password.mjs
 //
 // Setting or changing the signed-in account's password. Ported from the earlier code base's setPassword route and its
 // page gate in src/worker.mjs, src/passwords.mjs (passwordProblem), src/password-strength.mjs (passwordScore and
@@ -14,7 +14,7 @@
 //   3. The email the password signs in with must be the account's own confirmed email, and no other account may hold it.
 //   4. Changing (not first setting) a password ends every other browser; the browser saving stays signed in.
 //   5. A new password is one the service accepts only within the length limits, typed twice.
-import settings from './verify-every-port-sign-in-set-password.json' with { type: 'json' };
+import settings from './set-password.json' with { type: 'json' };
 
 export const SET_PASSWORD = settings;
 

@@ -1,4 +1,4 @@
-// tools/sign-in-build-and-hold/read-data/verify-every-port-sign-in-guarded-change-confirm.mjs
+// tools/sign-in-build-and-hold/read-data/guarded-change-confirm.mjs
 //
 // A passkey confirmation for one exact guarded change. A change that moves a way the person is told or signs in by, a
 // passkey, a limit or the account itself needs a confirmation from a known passkey, bound to the sign-in that asked and
@@ -18,7 +18,7 @@
 //   any confirmation is looked at.
 // - On an account with no known passkey nothing only the person can do exists, so the change goes (the risk the DATA
 //   states in passkey-authority.json; not decided here).
-import settings from './verify-every-port-sign-in-guarded-change-confirm.json' with { type: 'json' };
+import settings from './guarded-change-confirm.json' with { type: 'json' };
 
 export const CONFIRMATION_SECONDS = settings.confirmation_seconds;
 export const NOT_A_CHANGE = settings.words.not_a_change;

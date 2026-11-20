@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import {
   endedWords, endKeyDecision, expiredWords, expiryFrom, expiryOfChoice, isKeyId, keyExpired, keyRow, lastsWithin,
   manages, PERSONAL_KEYS, personalKeysPage,
-} from '../read-data/verify-every-port-sign-in-keys-list-turn-off.mjs';
+} from '../read-data/keys-list-turn-off.mjs';
 
 // A reach is a list of scopes; null is the full reach. `within(inner, outer)` is the reach owner's test for these tests.
 const within = (inner, outer) => outer === null || (inner !== null && inner.every(scope => outer.includes(scope)));

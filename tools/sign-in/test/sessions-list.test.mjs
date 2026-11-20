@@ -2,7 +2,7 @@
 // sign-in and the guarded-change answer for another browser, and this browser may always sign itself out.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { dayWords, decideEndSession, sessionRows, SESSIONS_LIST } from '../read-data/verify-every-port-sign-in-sessions-list.mjs';
+import { dayWords, decideEndSession, sessionRows, SESSIONS_LIST } from '../read-data/sessions-list.mjs';
 
 const sessions = [
   { id: 'old', device: 'Safari on a Mac', created_at: '2026-11-01T09:00:00.000Z' },

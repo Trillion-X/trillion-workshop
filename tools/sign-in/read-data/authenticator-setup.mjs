@@ -1,4 +1,4 @@
-// tools/sign-in-build-and-hold/read-data/verify-every-port-sign-in-authenticator-setup.mjs
+// tools/sign-in-build-and-hold/read-data/authenticator-setup.mjs
 //
 // Setting up the ways an account signs in besides its passkeys: new backup codes, and an authenticator app's first right
 // code. Ported from the earlier code base's src/sign-in-methods.mjs (b6ae0ebf815f): the generation of codes, their
@@ -18,7 +18,7 @@
 // Dropped from the earlier code: the issuer label (named by the wiring owner, not here), the sign-in tries per address
 // and per email, the backup-code sign-in and the authenticator sign-in (they are sign-in, not setup), the code hashes
 // (storage), and the TOTP arithmetic (the caller passes `checkStep`, the one time code check).
-import settings from './verify-every-port-sign-in-authenticator-setup.json' with { type: 'json' };
+import settings from './authenticator-setup.json' with { type: 'json' };
 
 export const BACKUP_CODES = settings.backup_codes;
 export const AUTHENTICATOR = settings.authenticator;

@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   allLastMinute, callerOfProps, callsTier, callsWords, lastMinute, noteCall, refusalFor, SIGN_IN_CALLS,
-} from '../read-data/verify-every-port-sign-in-call-limits.mjs';
+} from '../read-data/call-limits.mjs';
 
 const settings = SIGN_IN_CALLS;
 const tierOf = id => settings.tiers.find(tier => tier.id === id);

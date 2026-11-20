@@ -1,4 +1,4 @@
-// tools/sign-in-build-and-hold/read-data/verify-every-port-sign-in-call-limits.mjs
+// tools/sign-in-build-and-hold/read-data/call-limits.mjs
 //
 // How many calls one sign-in makes, counted as each call is admitted, before any work runs. A personal key, an AI app's
 // grant or the account itself may make at most its tier's `limit` calls in `period_seconds`; a caller past it is answered
@@ -10,7 +10,7 @@
 //
 // Invariants:
 // - The count is by sign-in (`signIn`), never by address, so one AI on a shared network never slows another.
-// - Which tier applies is DATA: the first rule whose `when` all hold (read-data/verify-every-port-sign-in-call-limits.json).
+// - Which tier applies is DATA: the first rule whose `when` all hold (read-data/call-limits.json).
 // - A refused call is not counted. A restart forgets every count, which only admits.
 // - The eviction when the Map is full drops the oldest NEW sign-in, never one already counted (the earlier code evicted
 //   on every write once full; here an existing sign-in's count is never discarded by another sign-in's call).
@@ -19,7 +19,7 @@
 // - the Cloudflare rate limiting binding names, namespace ids and `signInCallsBindings` (host plumbing, the deploy's);
 // - `plan_kept_seconds` and the store's kept plan read (a cache of the host, not a rule);
 // - `planMarks` (it reads which accesses a rule asks about, from the host's capability list; the caller passes `holds`).
-import settings from './verify-every-port-sign-in-call-limits.json' with { type: 'json' };
+import settings from './call-limits.json' with { type: 'json' };
 
 export const SIGN_IN_CALLS = settings;
 

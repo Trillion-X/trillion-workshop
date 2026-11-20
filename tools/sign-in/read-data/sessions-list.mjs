@@ -1,4 +1,4 @@
-// tools/sign-in-build-and-hold/read-data/verify-every-port-sign-in-sessions-list.mjs
+// tools/sign-in-build-and-hold/read-data/sessions-list.mjs
 //
 // The account's signed-in browsers: the list the Account & security screen shows, and ending one. Ported from the earlier
 // code base's src/screen-reads.mjs (accountSecurityFacts: this browser first, then newest; the day each was signed in)
@@ -12,7 +12,7 @@
 //   2. Ending a browser that is already gone is refused as gone (404), before anything else is checked.
 //   3. Ending another browser needs a recent sign-in and the guarded-change answer; this browser signing itself out needs
 //      neither. A session's cookie is never listed.
-import settings from './verify-every-port-sign-in-sessions-list.json' with { type: 'json' };
+import settings from './sessions-list.json' with { type: 'json' };
 
 export const SESSIONS_LIST = settings;
 

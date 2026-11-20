@@ -7,7 +7,7 @@ import {
   AUTHENTICATOR, authenticatorRemovedWords, authenticatorSetupEnds, authenticatorSetupWords, backupRemovedWords,
   backupRevealWords, BACKUP_CODES, finishAuthenticatorSetup, formatBackupCode, isFreshSignIn, newBackupCodes,
   normalBackupCode, signInAgainWords,
-} from '../read-data/verify-every-port-sign-in-authenticator-setup.mjs';
+} from '../read-data/authenticator-setup.mjs';
 
 const MINUTE = 60_000;
 // A deterministic byte source for the tests: it cycles 0..255, so the rejection of biased bytes is exercised.

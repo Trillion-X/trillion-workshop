@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   decideSetPassword, decideSetPasswordPage, passwordProblemKey, passwordScore, passwordStrengthSaid, SET_PASSWORD,
-} from '../read-data/verify-every-port-sign-in-set-password.mjs';
+} from '../read-data/set-password.mjs';
 
 const GOOD = 'correct-horse-9';
 const calls = () => ({ kept: [], ended: 0 });
