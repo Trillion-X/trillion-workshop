@@ -79,7 +79,7 @@ test('an inner door is a loopback address Caddy holds for programs on this compu
 const single = {
   site_file: 'single-name-front-door', door_host: 'door.example.test', engine_paths: ['/a/*'], request_max: '4MB', upload_max: '32MiB',
   pages_root: '/var/lib/front-door-pages', routes: ['tools/better-auth-official/on-a-computer/caddy-route-better-auth.caddy', 'tools/better-auth-official/on-a-computer/caddy-route-better-auth-pages.mjs', 'tools/better-auth-official/on-a-computer/caddy-route-better-auth-discovery.caddy', 'tools/better-auth-official/on-a-computer/caddy-route-better-auth-home.caddy'], engine_routes: [ENGINE],
-  grace_period: '150s', pools: { auth: { listen: ['127.0.0.1:8792'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' },
+  grace_period: '150s', home_page: '/workspace', pools: { auth: { listen: ['127.0.0.1:8792'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' },
     engine: { listen: ['127.0.0.1:7199', '127.0.0.1:7198'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s', lines: ['header_up Host {door_host}', 'flush_interval -1'] } },
 };
 
@@ -95,10 +95,11 @@ test('a single-name front door renders its own name, pages, sign-in routes and e
   assert.match(file.text, /^\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}$/m);
   assert.match(file.text, /^\thandle \/\.well-known\/oauth-authorization-server\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}$/m);
   assert.doesNotMatch(file.text, /oauth-protected-resource/, 'the protected-resource document is the engine\'s, carried, never the sign-in tool\'s');
-  // The front page is the signed-in person's own page: a sign-in that ends at / lands there, and a signed-out visit is sent on
-  // to sign in and back (sign-in-client.mjs toSignIn). It went to /sign-in until Nov 20 2026, so a finished sign-in landed on the
-  // email form again and the Mac app's window looped.
-  assert.match(file.text, /^\thandle \/ \{\n\t\tredir \* \/account 302\n\t\}$/m);
+  // The front page is the signed-in person's own page, the site's `home_page`: a sign-in that ends at / lands there, and a
+  // signed-out visit is sent on to sign in and back (sign-in-client.mjs toSignIn). It went to /sign-in until Nov 20 2026, so a
+  // finished sign-in landed on the email form again and the Mac app's window looped; then to /account, fixed in this file.
+  assert.match(file.text, /^\thandle \/ \{\n\t\tredir \* \/workspace 302\n\t\}$/m);
+  await assert.rejects(siteFile({ ...single, home_page: undefined }), /caddy-route-better-auth-home\.caddy needs home_page/);
   assert.doesNotMatch(file.text, /storage|on_demand|forwarder|old_site|trusted_proxies|tls_server_name/);
   assert.match(file.text, /^\t@page file \{\n\t\troot \/var\/lib\/front-door-pages\n/m);
   assert.match(file.text, /^\thandle \{\n\t\trespond "Not found" 404\n\t\}$/m);
