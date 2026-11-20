@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tool:save-x-bookmarks's own row (its words, input schema, outputs and the reader it packs, tool:read-my-saved-x-posts) and the stand-in test in this folder's test/save-x-posts.test.mjs; no live X call was made when this was written",
+  "start_here": "Say to your AI: \"Save your X bookmarks to your files\", with the account on which X connection to use. It keeps the posts in your files and says how many are new.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it reads X and keeps one file in your files.",
+  "workflows": [],
+  "tools": [
+    "tool:save-x-bookmarks",
+    "tool:read-my-saved-x-posts"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Save your X bookmarks to your files\", and give it account (the X connection).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:save-x-bookmarks and its input (the worked example shows one).",
+    "3. Read the answer: how many were read, how many are not kept yet, the newest key (give it back as since next time) and the file name in your files."
+  ],
+  "worked_examples": [
+    {
+      "title": "Save your X bookmarks to your files",
+      "ask": "Save your X bookmarks to your files",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:save-x-bookmarks",
+            "input": {
+              "account": "service_connection:x"
+            }
+          }
+        }
+      },
+      "given": "The input {\"account\":\"service_connection:x\"} with a stand-in X answer of two made-up posts (keys 9 and 5) in the test.",
+      "hands_back": "The stand-in test answered file \"saved-x-bookmarks.json\", total 3 and newest \"9\"; no live X call was made, so no connected account was read."
+    }
+  ]
+}
