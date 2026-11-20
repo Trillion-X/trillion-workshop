@@ -1,5 +1,5 @@
 {
-  "what_this_is": "The words a person reads for a decision's status, its settled result, what the AI did for it, and the free-plan allowance lines. Copied from the old app's src/screen-words.json (keys statuses, results, carried_out, allowance, free) and used only by read-data/report.mjs and read-data/allowance.mjs. A status with no row here shows its own name. `{name}` parts are filled by the caller from facts the decision holds; no number is typed into a sentence.",
+  "what_this_is": "The words a person reads for a decision's status, its settled result, what the AI did for it, where the person stands on it (the stance block), and the free-plan allowance lines. Copied from the old app's src/screen-words.json (keys statuses, results, carried_out, allowance, free) and src/record-stance.json (the stance block: its words and each stance's list_tone and reopens). Used by read-data/report.mjs and read-data/allowance.mjs; no code reads the stance block yet. The stance rows (label, said, tone, icon) stay in tools/where-a-person-stands/read-data/stances.json. A status with no row here shows its own name. `{name}` parts are filled by the caller from facts the decision holds; no number is typed into a sentence.",
   "statuses": {
     "needs_decision": {
       "label": "Open: not decided yet",
@@ -20,6 +20,19 @@
       "label": "Decided, and a new decision is needed: what showed it (a result that did not work, or your disagreement) is a finding the next decision starts from",
       "short": "Needs a new decision",
       "tone": "attention"
+    }
+  },
+  "stance": {
+    "heading": "Do you agree?",
+    "ask": "Do you agree with this decision?",
+    "why_label": "Why, in your words (optional)",
+    "earlier": "On an earlier version of this decision.",
+    "followed_heading": "What came after",
+    "saved": "Saved. {said}",
+    "reopened": "Saved. {said} One of your AIs makes a new decision from what you said.",
+    "stances": {
+      "agree": { "list_tone": "success" },
+      "disagree": { "list_tone": "warning", "reopens": ["decision"] }
     }
   },
   "results": {
