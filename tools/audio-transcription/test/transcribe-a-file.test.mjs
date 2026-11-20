@@ -77,5 +77,6 @@ test('the tool row requires the granted program, so a run cannot start without o
   const row = rows.find(record => record.payload.id === 'tool:transcribe-file').payload;
   assert.deepEqual(row.input_schema.required, ['file', 'program']);
   assert.ok(row.input_schema.properties.program);
+  assert.deepEqual(Object.keys(row.input_schema.properties.computer.properties['start-a-program'].properties).sort(), ['environment', 'models', 'program', 'program_kind']);
   assert.doesNotMatch(JSON.stringify(row.invoke), /python3/);
 });

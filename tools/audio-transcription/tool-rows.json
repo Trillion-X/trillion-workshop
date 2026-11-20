@@ -1504,6 +1504,25 @@
               "description": "The Python with mlx_whisper that the person granted to this run (computer.start-a-program, program_kind voice-model), for example its path in the granted folder",
               "x-free-text-because": "A file path on this computer."
             },
+            "computer": {
+              "type": "object",
+              "description": "The grant the person gave this run (computer.start-a-program), with exactly these keys",
+              "additionalProperties": false,
+              "required": ["start-a-program"],
+              "properties": {
+                "start-a-program": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["program_kind", "program", "environment", "models"],
+                  "properties": {
+                    "program_kind": {"type": "string", "const": "voice-model"},
+                    "program": {"type": "string", "minLength": 1, "maxLength": 400},
+                    "environment": {"type": "string", "minLength": 1, "maxLength": 400},
+                    "models": {"type": "string", "minLength": 1, "maxLength": 400}
+                  }
+                }
+              }
+            },
             "language": {
               "type": "string",
               "maxLength": 12,
