@@ -8,7 +8,9 @@
 //! composition-engine import from here. No inter-slot dependency.
 
 pub mod ast;
+pub mod cache;
 pub mod evaluator;
+pub mod hash;
 pub mod operators;
 pub mod path;
 pub mod prepared;

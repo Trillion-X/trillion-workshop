@@ -7,6 +7,7 @@
 //! Zero state, zero I/O. Leaf extraction is the correct decoupling pattern.
 
 pub mod core;
+pub mod formula_adapter;
 pub mod registry;
 
 // Re-export commonly used types
