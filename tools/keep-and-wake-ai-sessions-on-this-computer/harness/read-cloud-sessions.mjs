@@ -248,7 +248,7 @@ export function whatItSaid(events) {
   };
 }
 
-export async function dispatchCloudSessions([command, folderName, ...rest], { authenticate = signIn, request = fetch, print = console.log } = {}) {
+export async function dispatchCloudSessions([command, folderName, ...rest], { authenticate = signIn, request = fetch, print = console.log, resolveBrief = briefFrom } = {}) {
   if (command === 'accounts') {
     if (folderName !== undefined || rest.length) throw new Error('usage: accounts');
     const home = homedir();
@@ -320,7 +320,7 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
   if (command === 'send') {
     const [id, from] = rest;
     if (!id) throw new Error('usage: send <config-folder> <session-id> [<record id> | - | <file>]');
-    const text = await briefFrom(from);
+    const text = await resolveBrief(from);
     // One uuid per call, kept across retries, so a retried post is the same message.
     const message = { uuid: randomUUID(), session_id: id, type: 'user', parent_tool_use_id: null, message: { role: 'user', content: text } };
     await get(account, `/v1/sessions/${id}/events`, { events: [message] });
@@ -344,7 +344,7 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
     const [repositories, title, from] = rest;
     const names = (repositories ?? '').split(',').filter(Boolean);
     if (!names.length || !title) throw new Error('usage: start <config-folder> <owner/repo[,owner/repo...]> <title> [<record id> | - | <file>]');
-    const text = await briefFrom(from);
+    const text = await resolveBrief(from);
     // A new session runs where this sign-in's latest cloud session ran.
     const latest = (await get(account, '/v1/sessions?limit=20')).data.find(session => session.environment_kind === 'anthropic_cloud');
     if (!latest) throw new Error(`${folderName}: no earlier cloud session names an environment to start in`);
