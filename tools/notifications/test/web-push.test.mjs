@@ -105,3 +105,30 @@ test('browser notifications expose offered buttons and forward only their stable
   assert.match(PUSH_SERVICE_WORKER, /notice_id: message\.notice_id/);
   assert.match(PUSH_SERVICE_WORKER, /type: 'notice-action', notice_id: data\.notice_id, action/);
 });
+
+// RFC 8291 Appendix A (ported from tools/send-a-push-message-to-a-browser-that-asked-to-be-told, vep-unwired batch 2).
+const point = text => { const raw = fromBase64url(text); return { x: base64url(raw.slice(1, 33)), y: base64url(raw.slice(33, 65)) }; };
+const RFC = {
+  plaintext: 'When I grow up, I want to be a watermelon',
+  as: { d: 'yfWPiYE-n46HLnH0KqZOF1fJJU3MYrct3AELtAQ-oRw', ...point('BP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A8') },
+  ua: { d: 'q1dXpw3UpT5VOmu_cf_v6ih07Aems3njxI-JWgLcM94', public: 'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvTBHm4bjyPjs7Vd8pZGH6SRpkNtoIAiw4' },
+  auth: 'BTBZMqHH6r4Tts7J_aSIgg',
+  salt: 'DGv6ra1nlYgDCS1FRnbzlw',
+  body: 'DGv6ra1nlYgDCS1FRnbzlwAAEABBBP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A_yl95bQpu6cVPTpK4Mqgkf1CXztLVBSt2Ks3oZwbuwXPXLWyouBWLVWGNWQexSgSxsj_Qulcy4a-fN',
+};
+
+test('a pushed message is encrypted exactly as RFC 8291 Appendix A says', async () => {
+  const body = await encryptFor({ endpoint: 'https://push.example/rfc', keys: { p256dh: RFC.ua.public, auth: RFC.auth } }, RFC.plaintext, { ephemeral: { jwk: RFC.as }, salt: fromBase64url(RFC.salt) });
+  assert.equal(base64url(body), RFC.body);
+});
+
+test('the VAPID header is a JWT whose signature verifies with the key it names, with the audience and expiry claims', async () => {
+  const jwk = await makeSigningKey();
+  const header = await vapidAuthorization({ jwk, contact: 'mailto:user-51d1f203@example.com' }, 'https://fcm.googleapis.com', 1_800_000_000);
+  const [, token, key] = header.match(/^vapid t=([^,]+), k=(.+)$/);
+  assert.equal(key, base64url(publicPoint(jwk)));
+  const [head, claims, signature] = token.split('.');
+  assert.deepEqual(JSON.parse(new TextDecoder().decode(fromBase64url(claims))), { aud: 'https://fcm.googleapis.com', exp: 1_800_000_000 + 43_200, sub: 'mailto:user-51d1f203@example.com' });
+  const verifier = await crypto.subtle.importKey('raw', fromBase64url(key), { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']);
+  assert.equal(await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, verifier, fromBase64url(signature), new TextEncoder().encode(`${head}.${claims}`)), true);
+});
