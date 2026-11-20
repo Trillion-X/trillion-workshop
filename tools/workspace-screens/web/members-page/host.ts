@@ -19,6 +19,8 @@ export type HostConfig = {
   door_record: string;
   door_list: string;
   door_write: string;
+  /** The host's own sign-in page; the page returns to `next` after signing in. Without one, the workspace's sign-in address. */
+  sign_in?: string;
 };
 type Json = Record<string, unknown>;
 
@@ -38,7 +40,8 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
 export async function subjectOf(host: HostConfig): Promise<Json> {
   const response = await fetch(host.subject, { cache: 'no-store' });
   if (response.status === 401) {
-    location.assign(signInAddress(`${location.pathname}${location.search}`));
+    const next = `${location.pathname}${location.search}`;
+    location.assign(host.sign_in ? `${host.sign_in}?${new URLSearchParams({ next })}` : signInAddress(next));
     throw new Error('Sign in to see this page.');
   }
   if (!response.ok) throw new Error('The host did not say who is signed in.');
