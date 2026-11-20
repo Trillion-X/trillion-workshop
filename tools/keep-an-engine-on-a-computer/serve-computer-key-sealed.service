@@ -1,0 +1,32 @@
+[Unit]
+Description={description}
+After=network-online.target
+Wants=network-online.target
+[Service]
+# The engine (trillion-rust src/native_entry/computer.rs) serving its computer config {settings_file}, with its computer key kept
+# sealed by systemd at {key_sealed_file} (start-a-computer makes it, or seals the key a plain file already held, then removes
+# that file once this unit has started from the sealed one). systemd unseals it into this unit's own credentials folder (memory,
+# %d) for the life of the unit, and the shell below opens that one line on descriptor 4 for the engine and becomes it. The
+# computer config says `secrets.unlock.key_descriptor: 4` and no key file, so the key is read once into the engine's memory and
+# no file the engine can name holds it. (systemd reads `$$` as `$`.) The unit's other lines are those of serve-computer.service.
+LimitNOFILE=1048576
+Type=simple
+User={user}
+Group={user}
+WorkingDirectory={state}
+LoadCredentialEncrypted=computer-key:{key_sealed_file}
+ExecStart=/bin/sh -c 'exec "$$0" "$$@" 4<"%d/computer-key"' {builds}/{current}/{program} serve {settings_file}
+Restart=always
+RestartSec=3
+KillSignal=SIGTERM
+KillMode=mixed
+TimeoutStopSec={stop_seconds}
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths={writable}
+ProtectHome=true
+PrivateTmp=true
+LimitCORE=0
+[Install]
+WantedBy=multi-user.target

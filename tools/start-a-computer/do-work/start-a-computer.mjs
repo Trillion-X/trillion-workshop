@@ -18,6 +18,7 @@
 import { differences, renderWhatItRuns, dropInName, withPrepared, withSlots, publishedFile } from './render-what-a-computer-runs.mjs';
 import { addressesOfName, dnsClient, keepHealthyRecords } from '../../move-the-public-door/do-work/portable-dns-cutover.mjs';
 import { fill } from './fill-fields.mjs';
+import { keyState, keyDifferences, sealTheKeys, removeThePlainKeys } from './keep-the-key-sealed.mjs';
 import { readFileSync, readdirSync, statSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, relative, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
@@ -98,6 +99,9 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
     const names = (await run(machine, `if [ -d ${q(dir)} ]; then ls -1 ${q(dir)}; fi`)).split('\n').filter(Boolean);
     found.push(...names.filter(name => !(unit.drop_ins ?? []).map(dropInName).includes(name.replace(/\.conf$/, ''))).map(name => ({ path: `${dir}/${name}`, reason: 'not in the computer row' })));
   }
+  // A unit that keeps its key sealed (`key_sealed_file`) is a difference while the computer lacks the sealed file or still holds the plain one.
+  const keys = await keyState(machine, units, run);
+  found.push(...keyDifferences(keys));
   for (const item of runs.unmanaged ?? []) {
     const gone = { path: item.user ? `user ${item.user}` : item.path, reason: 'unmanaged, kept, and missing on the computer' };
     const test = item.user ? `getent passwd ${q(item.user)} >/dev/null` : `test -e ${q(item.path)}`;
@@ -176,7 +180,7 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
     switches.push(group);
     if (reason) found.push({ path: group.of, reason });
   }
-  return { runs, rendered, live, found, present, usersPresent, portsClosed, builds, stale, switches };
+  return { runs, rendered, live, found, present, usersPresent, portsClosed, builds, stale, switches, keys };
 }
 
 /** A unit's `source` with its fields filled from the unit: the git `repository` address the computer fetches from (any host;
@@ -231,7 +235,9 @@ const needsHeld = unit => secretsOf(unit).length > 0 || Boolean(unit.source?.cre
  * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
  * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
 export async function applyWhatItRuns(machine, given, run = onMachine, held = {}, deps = {}) {
-  const { runs, rendered, live, present, usersPresent, portsClosed, builds, stale, switches } = await runsState(machine, given, run, deps);
+  const { runs, rendered, live, present, usersPresent, portsClosed, builds, stale, switches, keys } = await runsState(machine, given, run, deps);
+  // A sealed key the computer lacks is made, and a plain key it still holds is removed once its unit runs from the sealed one: that unit restarts.
+  const keysOwed = keys.filter(({ sealed, plain }) => !sealed || plain).map(({ unit }) => unit.unit);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
   // A file a unit reads (its settings, access file or script) changes that unit, and each unit that names it; a unit file or
   // drop-in changes its own unit. A file that names `then` is applied by those commands instead (a site file a reload reads,
@@ -284,15 +290,17 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   const changed = new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit)]);
   const switching = switches.filter(group => group.reason || group.units.some(unit => changed.has(unit.unit)))
     .map(group => ({ group, target: group.units.find(unit => !group.active.includes(unit)) ?? group.units.at(-1) }));
-  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !triggersOff.length && !builds.length && !stale.length && !usersPresent.length && !present.length && !portsClosed.length && !switching.length) return { written: [], restarted: [] };
+  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !triggersOff.length && !builds.length && !stale.length && !usersPresent.length && !present.length && !portsClosed.length && !switching.length && !keysOwed.length) return { written: [], restarted: [] };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(runs.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
   // The set-up data is settings.json `machine` with the row's own `machine` fields over it (its packages, its firewall). Set-up
   // reads of each unit only what it makes (its account, folders and node), so only those go in its argument: a unit's files
   // and pages (a site's bundles) can be larger than one argument may be.
-  const setUpUnits = runs.units.map(({ unit, user, state, builds, key_file, folders, node_bin }) => ({ unit, user, state, builds, key_file, folders, node_bin }));
+  // A unit that keeps its key sealed has set-up make no plain key file.
+  const setUpUnits = runs.units.map(({ unit, user, state, builds, key_file, key_sealed_file, folders, node_bin }) => ({ unit, user, state, builds, key_file: key_sealed_file ? undefined : key_file, folders, node_bin }));
   if (accounts.includes(false) || nodeMissing || foldersMissing || programsMissing || portsClosed.length) await run(machine, `sh -s -- ${q(JSON.stringify({ units: setUpUnits }))} ${q(JSON.stringify(machineData))}`, readFileSync(SETUP));
+  await sealTheKeys(machine, keys, run);
   for (const unit of missing) {
     await run(machine, `install -d -m 0700 ${q(dirname(unit.secret_file))} && umask 077 && systemd-creds encrypt --name=${q(unit.secret_name)} - ${q(unit.secret_file)}`, held[unit.secret_vault_key]);
   }
@@ -328,7 +336,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     else await run(machine, `${write} ${q(path)}`, text);
   }
   const builtUnits = [...builds.map(({ unit }) => unit.unit), ...stale.map(unit => unit.unit)];
-  const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...triggersOff, ...builtUnits].filter(Boolean))]
+  const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...keysOwed, ...triggersOff, ...builtUnits].filter(Boolean))]
     .filter(unit => !slotted.has(unit));
   // A unit whose file or drop-in was there before is restarted. A new drop-in changes how a running unit starts, so it restarts
   // it too, unless the unit's own file is new as well: a new unit is enabled and started.
@@ -336,7 +344,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   const unitFile = path => path.match(/^(.+)\.d\/[^/]+$/)?.[1];
   const startedBefore = path => live[path] !== undefined || !rendered.some(file => file.path === path);
   const running = new Set([...writes.filter(({ path }) => live[path] !== undefined || (unitFile(path) && startedBefore(unitFile(path)))).flatMap(({ path }) => unitsOf(path)),
-    ...[...missing.map(unit => unit.unit), ...builtUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
+    ...[...missing.map(unit => unit.unit), ...keysOwed, ...builtUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
   if (units.length || switching.length) await run(machine, 'systemctl daemon-reload');
   // The boot check: each restarted unit must answer its own health row (`health`, `health_listen`, and the Host its request
   // names, `health.host`), else the one the computer row
@@ -382,7 +390,8 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     await bootCheck(unit);
     booted.push(unit);
   }
-  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(switched.length ? { switched } : {}), ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...removed };
+  const plainKeysRemoved = await removeThePlainKeys(machine, keys, booted, run);
+  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(plainKeysRemoved.length ? { plain_keys_removed: plainKeysRemoved } : {}), ...(switched.length ? { switched } : {}), ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...removed };
 }
 
 const refused = message => Object.assign(new Error(message), { exit: 2 });
