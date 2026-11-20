@@ -8,6 +8,7 @@
 // list when the words are not the person's own, or are history brought in. The question is asked by the next step, never here.
 import { saidDoneAsks } from '../src/said-done.mjs';
 import { realpathSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 export function nameTheOpenRows(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Give { message, rows, names } as one object.');
@@ -16,6 +17,6 @@ export function nameTheOpenRows(input) {
   return { asks: saidDoneAsks({ message: input.message, rows: input.rows, names: input.names, broughtIn: () => input.brought_in === true }) };
 }
 
-if (process.argv[1] && realpathSync(process.argv[1]) === realpathSync(new URL(import.meta.url).pathname)) {
+if (process.argv[1] && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))) {
   process.stdout.write(`${JSON.stringify(nameTheOpenRows(JSON.parse(process.argv[2] ?? '{}')))}\n`);
 }
