@@ -1210,6 +1210,41 @@
           "description": "the pursuit database the keep list is written to; the connection is mounted from it"
         }
       }
+    },
+    "tool:read-a-decisions-worked-steps": {
+      "type": "object",
+      "required": [
+        "decision_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The id of the decision whose worked steps are read"
+        },
+        "records": {
+          "type": "array",
+          "description": "The records the caller read from its own store for this call, each { id, type, value }: the decision's own records, the method it was opened with and the rows it names. Nothing else is read, and the run writes nothing: it answers the steps only.",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "type",
+              "value"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "value": {}
+            }
+          }
+        }
+      }
     }
   },
   "records": {

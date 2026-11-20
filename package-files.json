@@ -37424,6 +37424,109 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
+ "tool:read-a-decisions-worked-steps": [
+  {
+   "package": "decide-with-a-method",
+   "paths": [
+    "method-rows/view.mjs",
+    "method-rows/answers.mjs",
+    "method-rows/settings.json",
+    "read-data/decide-with-a-method.json",
+    "read-data/decision-outcome.mjs",
+    "read-data/decision-records.mjs",
+    "read-data/decisions.mjs",
+    "read-data/answer-words.mjs",
+    "read-data/answer-words.json",
+    "read-data/legacy-decision.mjs",
+    "read-data/read-worked-steps.mjs"
+   ],
+   "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:read-a-fields-history": [
   {
    "package": "keep-lists-of-rows",

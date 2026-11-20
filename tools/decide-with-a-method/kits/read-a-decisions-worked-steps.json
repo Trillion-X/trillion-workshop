@@ -1,0 +1,38 @@
+{
+  "drafted_from": "tool:read-a-decisions-worked-steps's own row (its words, input schema and the sample run made in its verify) and read-data/read-worked-steps.mjs with its test (test/read-worked-steps.test.mjs); the steps it reads are answered by tool:record-method-answers and tool:start-a-decision, and a decision made before method rows keeps its answers in its own root",
+  "start_here": "Say to your AI: \"Read the worked steps of this decision: what I answered at each step and how each answer was checked\", with its decision_id and its records. It runs tool:read-a-decisions-worked-steps and answers the decision's steps, the steps of a decision made before method rows first, then the steps of the method it was opened with. It changes nothing.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes the decision and the records the caller read for it as input, and keeps nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-decisions-worked-steps",
+    "tool:record-method-answers"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Read the worked steps of this decision: what I answered at each step and how each answer was checked\", and give it decision_id.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-a-decisions-worked-steps and its input (the worked example shows one).",
+    "3. Read what comes back: each step with its question, its labelled answer rows and how the answer was checked. A decision never made is refused.",
+    "4. It reads only the records handed in as `records`. It changes nothing."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the worked steps of a made-up decision made before method rows",
+      "ask": "Read the worked steps of this decision: what I answered at each step and how each answer was checked",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-decisions-worked-steps",
+            "input": {
+              "decision_id": "source:bGVnYWN5OnNhbXBsZS0x"
+            }
+          }
+        }
+      },
+      "given": "A made-up decision made before method rows, its root handed in as records: its answers to the steps scope and outcome, and the method it was made with, which holds both steps.",
+      "hands_back": "It answered {\"case_id\":\"source:bGVnYWN5OnNhbXBsZS0x\",\"steps\":[{\"step_id\":\"scope\",\"question\":\"What is the scope?\",\"rows\":[{\"label\":\"Answer\",\"text\":\"The scope is one room\"}],\"checks\":[{\"label\":\"Checked by\",\"text\":\"The default check: the answer says something and cites a row or evidence.\"}]},{\"step_id\":\"outcome\",\"question\":\"What is the outcome?\",\"rows\":[{\"label\":\"Answer\",\"text\":\"Measured by a made-up note\"}],\"checks\":[{\"label\":\"Checked by\",\"text\":\"The default check: the answer says something and cites a row or evidence.\"}]}]}."
+    }
+  ]
+}

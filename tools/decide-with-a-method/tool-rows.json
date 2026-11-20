@@ -15271,6 +15271,217 @@
           }
         ]
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-decisions-worked-steps",
+        "label": "Read the worked steps of a decision",
+        "job": "Read what a decision answered at each step, each with its question, the answer as the person wrote it and how the answer was checked: a decision made before method rows first, then the steps of its method.",
+        "description": "The worked steps of one decision, worded by read-data/answer-words.mjs. A decision made before method rows (its root holds its answers in `guidance` and its method inline) answers its legacy steps as they were written: the latest answer to each step its method names, read with that method. A decision made with method rows answers each row of the method it was opened with (else the person's default method) that it has an answer for, in the method's order, each with its question, its labelled answer rows and how the answer was checked. Reads only; it writes nothing. A decision that does not exist is refused.",
+        "status": "active",
+        "result_selector": "$.result",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "decision_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "decision_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The id of the decision whose worked steps are read"
+            },
+            "records": {
+              "type": "array",
+              "description": "The records the caller read from its own store for this call, each { id, type, value }: the decision's own records, the method it was opened with and the rows it names. Nothing else is read, and the run writes nothing: it answers the steps only.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "case_id",
+            "steps"
+          ],
+          "properties": {
+            "case_id": {
+              "type": "string"
+            },
+            "steps": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/decide-with-a-method",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/decide-with-a-method/read-data/read-worked-steps.mjs",
+            "readWorkedSteps"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "method-rows/view.mjs",
+                  "method-rows/answers.mjs",
+                  "method-rows/settings.json",
+                  "read-data/decide-with-a-method.json",
+                  "read-data/decision-outcome.mjs",
+                  "read-data/decision-records.mjs",
+                  "read-data/decisions.mjs",
+                  "read-data/answer-words.mjs",
+                  "read-data/answer-words.json",
+                  "read-data/legacy-decision.mjs",
+                  "read-data/read-worked-steps.mjs"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes/formula-engine"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:decide-with-a-method",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "decision_id": "source:bGVnYWN5OnNhbXBsZS0x",
+              "records": [
+                {
+                  "id": "source:bGVnYWN5OnNhbXBsZS0x",
+                  "type": "decision",
+                  "value": {
+                    "source_id": "sample:legacy-1",
+                    "guidance": [
+                      {
+                        "step_id": "scope",
+                        "answer": {
+                          "answer": "The scope is one room"
+                        },
+                        "answered_at": "2026-01-03T00:00:00.000Z"
+                      },
+                      {
+                        "step_id": "outcome",
+                        "answer": {
+                          "note": "Measured by a made-up note"
+                        },
+                        "answered_at": "2026-01-04T00:00:00.000Z"
+                      }
+                    ],
+                    "method": {
+                      "id": "sample-method",
+                      "name": "A made-up method",
+                      "steps": [
+                        {
+                          "id": "scope",
+                          "question": "What is the scope?"
+                        },
+                        {
+                          "id": "outcome",
+                          "question": "What is the outcome?"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "contains": "What is the scope?",
+            "output_selector": "$.steps[0].question"
+          }
+        ]
+      }
     }
   ]
 }
