@@ -1,14 +1,15 @@
 // tools/workflows/test/fires-when-by-source.test.mjs
 // A workflow whose fires_when says a fact's source equals X is chosen for source X, not for Y, for no source at all, or for
 // a source that differs only in case; two facts choose only the X one; extra fields do not stop it. This is the port of the
-// old listen_for_events filter: the fact's source is a condition, so no table or filter is added.
+// old listen_for_events filter: the fact's source is a condition, so no table or filter is added. The field shape is the one
+// the live "Act on feedback" workflow uses (workflow_recipes, a choice field with is_any_of).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { chooseTheWorkflowsThatFire } from '../read-data/choose-the-workflows-that-fire.mjs';
 
 const condition = {
-  fields: [{ id: 'source', kind: 'fact', path: ['source'] }],
-  tree: { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'source', operator: 'equals', params: { value: 'X' } }] },
+  fields: [{ id: 'source', kind: 'choice', path: ['source'] }],
+  tree: { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'source', operator: 'is_any_of', params: { values: ['X'] } }] },
 };
 const own = [{ id: 'source-x-proof', value: { title: 'Source X proof', fires_when: [{ label: 'source is X', condition, made_by: 'fires_when', state: 'On' }] } }];
 const chosen = async parts => (await chooseTheWorkflowsThatFire({ parts, own, installed: false })).chosen.map(c => ({ workflow: c.workflow, part: c.part }));
