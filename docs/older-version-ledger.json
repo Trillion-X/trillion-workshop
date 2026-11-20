@@ -7558,7 +7558,7 @@
   {
    "path": "records/workshop-storage-release-tool-records.json",
    "verdict": "moved",
-   "home": "trillion-workshop/tools/set-storage-release-rules/from-an-older-version/records/workshop-storage-release-tool-records.json",
+   "home": "trillion-workshop/tools/set-storage-release-rules/records/old-storage-release-tool-descriptors.json",
    "group": "records-docs",
    "evidence": "same bytes on main (rescan 2026-11-05)",
    "was": {

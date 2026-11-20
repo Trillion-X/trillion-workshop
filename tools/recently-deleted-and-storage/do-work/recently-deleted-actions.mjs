@@ -15,6 +15,8 @@
 //   putBackFiles                give every name of these items back
 //   setKeepFor                  change how long a state keeps things
 //   sweepRecentlyDeleted        move on what is due: Archived to Recently Deleted, Recently Deleted for good
+//   forgetSetAsideNow           forget these held items for good now (a person's own release rules decide which:
+//                               tools/set-storage-release-rules/do-work/release-by-rules.mjs)
 //
 //   Each is `fn(input, { door })`, run by tools/records-door/do-work/run-an-export.mjs. Nothing here deletes a byte:
 //   forgetting a name notes its file for the byte release (the engine's forget_set_aside), which gives storage back
@@ -62,7 +64,7 @@ async function walk(door, operation, name, first = {}) {
 
 // Every item that is set aside and kept: the items already recorded plus the names another door set aside (adopted
 // into a Recently Deleted item here, at most `adopt_items` a run).
-async function heldItems(door, now) {
+export async function heldItems(door, now) {
   const items = [];
   for await (const row of door.list({ type: live.item_type })) if (row.value?.schema === live.schema && row.value.status === 'held') items.push(row.value);
   const covered = items.flatMap(item => item.names);
@@ -193,6 +195,28 @@ export async function setKeepFor({ after_days } = {}, { door } = {}) {
   return keepForAnswer(next);
 }
 
+// Forget every name of one held item for good (the engine notes each file for the byte release) and mark the item forgotten.
+async function forgetItem(door, record) {
+  for (const name of record.value.names) {
+    try { await walk(door, 'forget_set_aside', name); } catch (error) { if (!gone(error)) throw error; }
+  }
+  await save(door, record.value.id, record, { ...record.value, status: 'forgotten' });
+}
+
+/** Forget these held items for good now, whatever their days: { ids }. The caller decides which (the person's own release rules,
+ *  tools/set-storage-release-rules); an id that is not held is skipped. Answers { removed: [{ id, label }], skipped: [id] }. */
+export async function forgetSetAsideNow({ ids } = {}, { door } = {}) {
+  if (!Array.isArray(ids) || ids.length > settings.items_per_request) throw fail('bad_ids', `Choose from 0 to ${settings.items_per_request} items to forget.`);
+  const removed = [], skipped = [];
+  for (const id of new Set(ids)) {
+    const record = await loadItem(door, id);
+    if (!record || record.value.status !== 'held') { skipped.push(id); continue; }
+    await forgetItem(door, record);
+    removed.push({ id, label: record.value.label });
+  }
+  return { removed, skipped };
+}
+
 /** Move on everything whose time has ended (as of `at`, an ISO time, or now), oldest first, at most `sweep_batch`: Archived to Recently Deleted, Recently Deleted for good.
  *  Answers { moved: [{ id, label, to }], removed: [{ id, label }] }. */
 export async function sweepRecentlyDeleted({ at } = {}, { door, now = Date.now } = {}) {
@@ -206,10 +230,7 @@ export async function sweepRecentlyDeleted({ at } = {}, { door, now = Date.now }
     if (!record || record.value.status !== 'held') continue;
     const target = stateOf(item.state).when_due;
     if (target === null) {
-      for (const name of item.names) {
-        try { await walk(door, 'forget_set_aside', name); } catch (error) { if (!gone(error)) throw error; }
-      }
-      await save(door, item.id, record, { ...record.value, status: 'forgotten' });
+      await forgetItem(door, record);
       removed.push({ id: item.id, label: item.label });
     } else {
       await save(door, item.id, record, { ...record.value, state: stateOf(target).id, entered_at_ms: when, by: 'schedule' });

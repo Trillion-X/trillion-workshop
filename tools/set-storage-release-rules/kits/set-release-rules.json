@@ -1,0 +1,57 @@
+{
+  "drafted_from": "tool:set-release-rules's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Change the rules that give back the storage of deleted files sooner than keep-for: by where it was, kind, size, days since deleted, or while storage is above a size\", with {\"rules\":[{\"id\":\"big\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"size\",\"operator\":\"greater_than\",\"params\":{\"value\":1000000000}}]},\"after_days\":7}]}. It runs tool:set-release-rules and answers {\"rules\":[{\"id\":\"big\",\"label\":\"\",\"on\":true,\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"size\",\"operator\":\"greater_than\",\"params\":{\"value\":1000000000}}]},\"after_days\":7,\"storage_above_bytes\":null,\"order\":\"oldest\"}],\"item_facts\":[{\"id\":\"id\",\"label\":\"Item\",\"kind\":\"choice\",\"icon\":\"FileText\"},{\"id\":\"label\",\"label\":\"Name\",\"kind\":\"text\",\"icon\":\"FileText\"} ...",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and the rows of yours it is given (setting), and answers the rows it makes for your AI to keep.",
+  "workflows": [],
+  "tools": [
+    "tool:set-release-rules"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Change the rules that give back the storage of deleted files sooner than keep-for: by where it was, kind, size, days since deleted, or while storage is above a size\", and give it nothing more: every input is optional.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:set-release-rules and its input (the worked example shows one).",
+    "3. Read what comes back: rules replaces the whole list; each is { id, label, on, when, after_days, storage_above_bytes, order }.",
+    "4. It is given only these rows of the person's, read by the AI from the person's own store: setting (reads and makes); the rows it makes come back under keep, for the AI to keep there."
+  ],
+  "worked_examples": [
+    {
+      "title": "Change when deleted files give back storage on its own sample",
+      "ask": "Change the rules that give back the storage of deleted files sooner than keep-for: by where it was, kind, size, days since deleted, or while storage is above a size",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:set-release-rules",
+            "input": {
+              "rules": [
+                {
+                  "id": "big",
+                  "when": {
+                    "kind": "group",
+                    "combinator": "and",
+                    "negate": false,
+                    "rules": [
+                      {
+                        "kind": "rule",
+                        "field": "size",
+                        "operator": "greater_than",
+                        "params": {
+                          "value": 1000000000
+                        }
+                      }
+                    ]
+                  },
+                  "after_days": 7
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"rules\":[{\"id\":\"big\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"size\",\"operator\":\"greater_than\",\"params\":{\"value\":1000000000}}]},\"after_days\":7}]}.",
+      "hands_back": "It answered {\"rules\":[{\"id\":\"big\",\"label\":\"\",\"on\":true,\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"size\",\"operator\":\"greater_than\",\"params\":{\"value\":1000000000}}]},\"after_days\":7,\"storage_above_bytes\":null,\"order\":\"oldest\"}],\"item_facts\":[{\"id\":\"id\",\"label\":\"Item\",\"kind\":\"choice\",\"icon\":\"FileText\"},{\"id\":\"label\",\"label\":\"Name\",\"kind\":\"text\",\"icon\":\"FileText\"},{\"id\":\"kind\",\"label\":\"Kind\",\"kind\":\"choice\",\"icon\":\"Shapes\"},{\"id\":\"where\",\"label\":\"Was in\",\"kind\":\"choice\",\"icon\":\"Folder\"},{\"id\":\"size\",\"label\":\"Size\",\"kind\":\"bytes\",\"icon\":\"HardDrive\"},{\"id\":\"days_deleted\",\"label\":\"Days since deleted\",\"kind\":\"number\",\"icon\":\"Hourglass\"},{\"id\":\"state\",\"label\":\"In\" ..., and kept setting:release_rules."
+    }
+  ]
+}

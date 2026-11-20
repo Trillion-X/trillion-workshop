@@ -1,0 +1,262 @@
+{
+  "what_this_is": "The three tool descriptors the older repository gave the storage release rules (its records/workshop-storage-release-tool-records.json at 5dc302be37), cut to what the tests and a reader need: each tool's id, words, input and output shape, and the account action it ran. The full file is read with git show 5dc302be37:records/workshop-storage-release-tool-records.json in the older repository.",
+  "records": [
+    {
+      "payload": {
+        "id": "tool:read-storage",
+        "label": "Storage and what leaves when",
+        "job": "Read how much storage this person's files use, what waits in Recently Deleted and Archived and when its storage is given back, and what was given back",
+        "description": "Answers kept (bytes and files by store), waiting, leaving (bytes per day for the next days), each waiting item with when it leaves and which rule or keep-for decides it, given_back in all and per day, and the person's release rules with the facts they can name.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "kept",
+            "waiting",
+            "leaving",
+            "rules"
+          ],
+          "properties": {
+            "kept": {
+              "type": "object"
+            },
+            "waiting": {
+              "type": "object"
+            },
+            "leaving": {
+              "type": "array"
+            },
+            "items": {
+              "type": "array"
+            },
+            "given_back": {
+              "type": "object"
+            },
+            "given_back_by_day": {
+              "type": "array"
+            },
+            "rules": {
+              "type": "array"
+            },
+            "item_facts": {
+              "type": "array"
+            },
+            "orders": {
+              "type": "array"
+            },
+            "keep_for": {
+              "type": "object"
+            },
+            "next_pass_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "old_invoke": {
+          "kind": "account-action",
+          "action": "read-storage"
+        }
+      }
+    },
+    {
+      "payload": {
+        "id": "tool:set-release-rules",
+        "label": "Change when deleted files give back storage",
+        "job": "Change the rules that give back the storage of deleted files sooner than keep-for: by folder, kind, size, days since deleted, or while storage is above a size",
+        "description": "rules replaces the whole list; each is { id, label, on, when, after_days, storage_above_bytes, order }. when is a formula-engine rule tree over label (text), kind (choice), where (choice), size (bytes), days_deleted (number), state (choice), by (choice), count (number), or null for everything. Left out, nothing changes. Answers what tool:read-storage answers.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "on": {
+                    "type": "boolean"
+                  },
+                  "when": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  },
+                  "after_days": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "storage_above_bytes": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": [
+                      "oldest",
+                      "largest"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "kept",
+            "waiting",
+            "leaving",
+            "rules"
+          ],
+          "properties": {
+            "kept": {
+              "type": "object"
+            },
+            "waiting": {
+              "type": "object"
+            },
+            "leaving": {
+              "type": "array"
+            },
+            "items": {
+              "type": "array"
+            },
+            "given_back": {
+              "type": "object"
+            },
+            "given_back_by_day": {
+              "type": "array"
+            },
+            "rules": {
+              "type": "array"
+            },
+            "item_facts": {
+              "type": "array"
+            },
+            "orders": {
+              "type": "array"
+            },
+            "keep_for": {
+              "type": "object"
+            },
+            "next_pass_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "old_invoke": {
+          "kind": "account-action",
+          "action": "set-release-rules"
+        }
+      }
+    },
+    {
+      "payload": {
+        "id": "tool:release-deleted-files",
+        "label": "Give back storage of deleted files now",
+        "job": "Delete for good what this person's release rules say leaves now, or what rules sent with the run say, and give its storage back",
+        "description": "Runs the saved release rules now, or rules given in the input (not saved). dry_run true only lists what would leave. A person's schedule or rule can run it, for example every night, or when a file arrives in a folder.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "on": {
+                    "type": "boolean"
+                  },
+                  "when": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  },
+                  "after_days": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "storage_above_bytes": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": [
+                      "oldest",
+                      "largest"
+                    ]
+                  }
+                }
+              }
+            },
+            "dry_run": {
+              "type": "boolean"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "leaving",
+            "bytes",
+            "dry_run"
+          ],
+          "properties": {
+            "leaving": {
+              "type": "array"
+            },
+            "bytes": {
+              "type": "integer"
+            },
+            "dry_run": {
+              "type": "boolean"
+            }
+          }
+        },
+        "old_invoke": {
+          "kind": "account-action",
+          "action": "release-deleted-files"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "drafted_from": "tool:plan-storage-release's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Say which deleted items give their storage back now and when every other one will, by the person's own release rules and keep-for, for the items the AI read\", with {\"items\":[{\"id\":\"set-aside-item:a\",\"label\":\"year.zip\",\"state\":\"deleted\",\"byte_length\":50000000000,\"set_aside_at\":\"2026-11-01T09:00:00.000Z\",\"due_at\":\"2026-12-01T09:00:00.000Z\",\"where\":\"/Exports\",\"by\":\"me\",\"name_count\":1,\"folder\":false,\"names\":[\"/Exports/year.zip\"]}],\"kept_bytes\":60000000000,\"now\":\"2026-11-12T09:00:00Z\",\"rules\":[{\"id\":\"big\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false .... It runs tool:plan-storage-release and answers {\"now\":[\"set-aside-item:a\"],\"items\":[{\"id\":\"set-aside-item:a\",\"leaves_at\":\"2026-11-06T09:00:00.000Z\",\"because\":\"big\",\"when_storage_above\":null}],\"leaving\":[{\"day\":\"2026-11-12\",\"bytes\":50000000000,\"items\":1},{\"day\":\"2026-11-13\",\"bytes\":0,\"items\":0},{\"day\":\"2026-11-14\",\"bytes\":0,\"items\":0},{\"day\":\"2026-11-15\",\"bytes\":0,\"items\":0},{\"day\":\"2026-11-16\",\"bytes\":0,\"items\":0},{\"day\":\"2026-11-17\" ...",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and the rows of yours it is given (setting), and keeps nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:plan-storage-release"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Say which deleted items give their storage back now and when every other one will, by the person's own release rules and keep-for, for the items the AI read\", and give it items; kept_bytes.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:plan-storage-release and its input (the worked example shows one).",
+    "3. Read what comes back: items are what list_recently_deleted answered, each with byte_length (the bytes of its names); kept_bytes is the bytes the person's files use now (files_summary bytes); now is the ISO time to judge at (left out: now).",
+    "4. It is given only these rows of the person's, read by the AI from the person's own store: setting (reads)."
+  ],
+  "worked_examples": [
+    {
+      "title": "What leaves when, by my release rules on its own sample",
+      "ask": "Say which deleted items give their storage back now and when every other one will, by the person's own release rules and keep-for, for the items the AI read",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:plan-storage-release",
+            "input": {
+              "items": [
+                {
+                  "id": "set-aside-item:a",
+                  "label": "year.zip",
+                  "state": "deleted",
+                  "byte_length": 50000000000,
+                  "set_aside_at": "2026-11-01T09:00:00.000Z",
+                  "due_at": "2026-12-01T09:00:00.000Z",
+                  "where": "/Exports",
+                  "by": "me",
+                  "name_count": 1,
+                  "folder": false,
+                  "names": [
+                    "/Exports/year.zip"
+                  ]
+                }
+              ],
+              "kept_bytes": 60000000000,
+              "now": "2026-11-12T09:00:00Z",
+              "rules": [
+                {
+                  "id": "big",
+                  "when": {
+                    "kind": "group",
+                    "combinator": "and",
+                    "negate": false,
+                    "rules": [
+                      {
+                        "kind": "rule",
+                        "field": "size",
+                        "operator": "greater_than",
+                        "params": {
+                          "value": 1000000000
+                        }
+                      }
+                    ]
+                  },
+                  "after_days": 5
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"items\":[{\"id\":\"set-aside-item:a\",\"label\":\"year.zip\",\"state\":\"deleted\",\"byte_length\":50000000000,\"set_aside_at\":\"2026-11-01T09:00:00.000Z\",\"due_at\":\"2026-12-01T09:00:00.000Z\",\"where\":\"/Exports\",\"by\":\"me\",\"name_count\":1,\"folder\":false,\"names\":[\"/Exports/year.zip\"]}],\"kept_bytes\":60000000000,\"now\":\"2026-11-12T09:00:00Z\",\"rules\":[{\"id\":\"big\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false ....",
+      "hands_back": "It answered {\"now\":[\"set-aside-item:a\"],\"items\":[{\"id\":\"set-aside-item:a\",\"leaves_at\":\"2026-11-06T09:00:00.000Z\",\"because\":\"big\",\"when_storage_above\":null}],\"leaving\":[{\"day\":\"2026-11-12\",\"bytes\":50000000000,\"items\":1},{\"day\":\"2026-11-13\",\"bytes\":0,\"items\":0},{\"day\":\"2026-11-14\",\"bytes\":0,\"items\":0},{\"day\":\"2026-11-15\",\"bytes\":0,\"items\":0},{\"day\":\"2026-11-16\",\"bytes\":0,\"items\":0},{\"day\":\"2026-11-17\",\"bytes\":0,\"items\":0},{\"day\":\"2026-11-18\",\"bytes\":0,\"items\":0},{\"day\":\"2026-11-19\",\"bytes\":0,\"items\":0},{\"day\":\"2026-11-20\",\"bytes\":0,\"items\":0},{\"day\":\"2026-11-21\",\"bytes\":0,\"items\":0},{\"day\":\"2026-11-22\",\"bytes\":0,\"items\":0},{\"day\":\"2026-11-23\",\"bytes\":0,\"items\":0},{\"day\":\"2026-11-24\",\"bytes\":0,\"items\":0} ...."
+    }
+  ]
+}

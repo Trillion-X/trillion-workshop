@@ -14,7 +14,7 @@
     {
       "from": "records/workshop-storage-release-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/set-storage-release-rules/from-an-older-version/records/workshop-storage-release-tool-records.json",
+      "to": "tools/set-storage-release-rules/records/old-storage-release-tool-descriptors.json",
       "source_identity": "1f:05367a7bc8a66a3fb29810183986b4b3836b57b51af8190e6ef030dc984057c8",
       "identity": "1f:05367a7bc8a66a3fb29810183986b4b3836b57b51af8190e6ef030dc984057c8"
     },

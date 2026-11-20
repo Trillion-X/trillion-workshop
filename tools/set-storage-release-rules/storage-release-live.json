@@ -1,0 +1,10 @@
+{
+  "_what": "How do-work/release-by-rules.mjs and do-work/release-rules-setting.mjs keep a person's release rules and give storage back over what the engine really has: the person's files door (tools/live-namespace: files_summary, list_set_aside, forget_set_aside, queue_release, release_gone_bytes, list_released) and their account records. The rules are the person's own setting (rules_id, rules_type), a list of rows checked by src/namespace-release-rules.mjs. The sizes and days of what to give back come from the DATA beside the rules (../organize-my-files/src/namespace-byte-release.json: item_facts, orders, forecast_days, rules_most, choices). `size_calls` bounds the engine reads one run makes to size what is set aside (each page of one folder is one call), `page` is how many names one read asks for, `given_back_pages` bounds the reads of what was already given back, `give_back_rounds` bounds the queue-and-remove rounds one run makes (each round answers `more` while work is left; a run that stops early says so and the next run goes on).",
+  "rules_type": "setting",
+  "rules_id": "setting:release_rules",
+  "size_calls": 400,
+  "page": 200,
+  "given_back_pages": 100,
+  "give_back_rounds": 50,
+  "round_limit": 100
+}
