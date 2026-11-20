@@ -10,7 +10,6 @@ Browser-local graph canvas rendering and interaction primitives.
 | `CanvasView.tsx` | The reusable "observable graph VIEW" primitive (L069): outer Container + `<GraphCanvas>` + camera-tracking dot-grid + `children`/`inspectorSlot` + a `layout` annotation. Caller owns `useGraphCanvas` and threads graph state in. Consumed by `workflow-canvas` (the workflow surface) AND `funnel-offer-graph` (the tornado funnel) so both render through ONE canvas view. Domain-free. |
 | `use-graph-canvas.ts` | Generic interaction hook for pan, zoom, selection, zoom-to-fit, and optional node drag. |
 | `types.ts` | Domain-free camera, node frame, and edge route types. |
-| `DefaultEdge.tsx` | Default edge renderer for callers that do not provide one. |
 
 ## Rules
 
