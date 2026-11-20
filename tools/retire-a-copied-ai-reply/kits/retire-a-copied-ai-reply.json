@@ -1,0 +1,70 @@
+{
+  "drafted_from": "tool:retire-a-copied-ai-reply's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Retire the copy I recorded by hand when the transcript already kept the same reply\", with {\"records\": [{\"type\": \"message\", \"id\": \"message:manual\", \"value\": {\"app\": \"Codex\", \"conversation_id\": \"codex:one\", \"speaker\": \"ai\", \"text\": \"The change is live.\", \"at\": \"2026-10-03T05:04:29Z\", \"about\": [{\"kind\": \"pursuit\", \"id\": \"pursuit:one\"}]}}, {\"type\": \"message\", \"id\": \"message:source\", \"value\": {\"app\": \"Codex\", \"conversation_id\": \"codex:one\", \"speaker\": \"ai\", \"text\": \"The change is live.\", \"at\": \"2026-10-03T05:04:51Z\", \"source_ref\": \"msg_final\"}}], \"duplicate_id\": \"message:manual\", \"kept_id\": \"message:source\", \"evidence\": \"Transcript msg_final at 05:04:51Z matches the manual copy at 05:04:29Z\", \"now\": \"2026-10-03T06:00:00Z\"}. It runs tool:retire-a-copied-ai-reply and answers the correction, with the rows to store under keep.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes the rows it reads as input and answers the rows to change. The caller reads and stores them.",
+  "workflows": [],
+  "tools": [
+    "tool:retire-a-copied-ai-reply"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Retire the copy I recorded by hand when the transcript already kept the same reply\", naming the copy's message id, the transcript reply's message id, the evidence, and the rows read from the store.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:retire-a-copied-ai-reply and its input (the worked example shows one).",
+    "3. Read the answer: correction is the record of the retirement; keep lists each row to change as { id, type, value, expected }. Store each row whose expected still matches; a value of null retires the row."
+  ],
+  "worked_examples": [
+    {
+      "title": "Retire an exact manual copy of a transcript reply on its own sample",
+      "ask": "Retire the copy I recorded by hand when the transcript already kept the same reply",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:retire-a-copied-ai-reply",
+            "input": {
+              "records": [
+                {
+                  "type": "message",
+                  "id": "message:manual",
+                  "value": {
+                    "app": "Codex",
+                    "conversation_id": "codex:one",
+                    "speaker": "ai",
+                    "text": "The change is live.",
+                    "at": "2026-10-03T05:04:29Z",
+                    "about": [
+                      {
+                        "kind": "pursuit",
+                        "id": "pursuit:one"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "message",
+                  "id": "message:source",
+                  "value": {
+                    "app": "Codex",
+                    "conversation_id": "codex:one",
+                    "speaker": "ai",
+                    "text": "The change is live.",
+                    "at": "2026-10-03T05:04:51Z",
+                    "source_ref": "msg_final"
+                  }
+                }
+              ],
+              "duplicate_id": "message:manual",
+              "kept_id": "message:source",
+              "evidence": "Transcript msg_final at 05:04:51Z matches the manual copy at 05:04:29Z",
+              "now": "2026-10-03T06:00:00Z"
+            }
+          }
+        }
+      },
+      "given": "The two messages message:manual (the copy, 05:04:29Z) and message:source (the transcript reply, 05:04:51Z, source_ref msg_final), the evidence, and the correction time 2026-10-03T06:00:00Z.",
+      "hands_back": "It answered {\"correction\":{\"duplicate_id\":\"message:manual\",\"kept_id\":\"message:source\",\"corrected_at\":\"2026-10-03T06:00:00.000Z\"},\"keep\":[message:source kept with its about link to pursuit:one, message:manual retired (value null), and the correction row message-duplicate-correction:message:manual]}."
+    }
+  ]
+}

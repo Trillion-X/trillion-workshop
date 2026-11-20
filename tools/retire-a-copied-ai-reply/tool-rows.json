@@ -1,0 +1,202 @@
+{
+  "kind": "tool-rows",
+  "record_set": "retire-a-copied-ai-reply-tool-rows",
+  "what_this_is": "The Workshop row for tools/retire-a-copied-ai-reply: an AI's hand-recorded copy of a reply the transcript kept is retired, and the transcript reply keeps its links. Rows in, rows out: the run reads no store.",
+  "records": [
+    {
+      "id": "package::retire-a-copied-ai-reply::tool::retire-a-copied-ai-reply",
+      "address": "package::retire-a-copied-ai-reply::tool::retire-a-copied-ai-reply",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/content-identity",
+          "trillion-workshop/decide-with-a-method"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:retire-a-copied-ai-reply",
+        "label": "Retire a copied AI reply",
+        "status": "active",
+        "job": "Retire an AI reply a person recorded by hand when the transcript already kept the same reply, and keep the transcript's reply with its links",
+        "description": "Give the copy's id and the reply's id, the evidence, and the rows read from the store ([{ id, type, value }]: the two messages and the thread index row when there is one). Answers the correction under `correction` and the rows that change under `keep` ([{ id, type, value, expected }]) for the caller to store. Nothing is retired unless the copy and the reply have the same text, app and conversation, are within two minutes of each other, and the reply has a source_ref.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "records",
+            "duplicate_id",
+            "kept_id",
+            "evidence"
+          ],
+          "properties": {
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type"
+                ]
+              },
+              "description": "The rows the ask reads, as the caller read them from its store: the copy, the transcript reply, and the thread index row for the copy when one exists."
+            },
+            "duplicate_id": {
+              "type": "string",
+              "description": "The manual copy's message id (the row that is retired)."
+            },
+            "kept_id": {
+              "type": "string",
+              "description": "The transcript reply's message id (the row that is kept)."
+            },
+            "evidence": {
+              "type": "string",
+              "description": "The source evidence that shows the copy and the reply are the same reply."
+            },
+            "now": {
+              "type": "string",
+              "description": "The time the correction is stamped, as ISO text; left out, the current time."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "correction",
+            "keep"
+          ],
+          "properties": {
+            "correction": {
+              "type": "object",
+              "description": "The correction, kept under message-duplicate-correction:<duplicate_id>."
+            },
+            "keep": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The rows to change, each { id, type, value, expected }; value null retires the row."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "retire-a-copied-ai-reply",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/retire-a-copied-ai-reply"
+              },
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data/decision-records.mjs",
+                  "read-data/decide-with-a-method.json"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/identity.mjs",
+                  "read-data/blake3.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/retire-a-copied-ai-reply",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/retire-a-copied-ai-reply/do-work/retire-a-copied-ai-reply-run.mjs",
+            "retireCopiedAiReply"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:retire-a-copied-ai-reply",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "the old tool list tools/list-and-run-my-tools-for-any-ai/source-baselines/tools.mjs.held:228 at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04 (correct_message_duplicate); the same rule in tools/keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs correctDuplicate, rows in and keep out here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "records": [
+                {
+                  "type": "message",
+                  "id": "message:manual",
+                  "value": {
+                    "app": "Codex",
+                    "conversation_id": "codex:one",
+                    "speaker": "ai",
+                    "text": "The change is live.",
+                    "at": "2026-10-03T05:04:29Z",
+                    "about": [
+                      {
+                        "kind": "pursuit",
+                        "id": "pursuit:one"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "message",
+                  "id": "message:source",
+                  "value": {
+                    "app": "Codex",
+                    "conversation_id": "codex:one",
+                    "speaker": "ai",
+                    "text": "The change is live.",
+                    "at": "2026-10-03T05:04:51Z",
+                    "source_ref": "msg_final"
+                  }
+                }
+              ],
+              "duplicate_id": "message:manual",
+              "kept_id": "message:source",
+              "evidence": "Transcript msg_final at 05:04:51Z matches the manual copy at 05:04:29Z",
+              "now": "2026-10-03T06:00:00Z"
+            },
+            "output_selector": "$.result.correction.duplicate_id",
+            "contains": false
+          }
+        ]
+      }
+    }
+  ]
+}
