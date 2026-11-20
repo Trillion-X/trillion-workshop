@@ -27,7 +27,7 @@ import { readFileSync } from 'node:fs';
 import settings from '../read-data/tours.json' with { type: 'json' };
 import defaults from '../guided-overlay-defaults.json' with { type: 'json' };
 import showRules from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
-import { initSync, filterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+import { initSync, filterRecords } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 import { showDecision } from '../../set-up-my-account/read-data/show-rules.mjs';
 import { foldWalkthroughProgress, foldWalkthroughRecords, tourFacts } from '../read-data/walkthrough-eeaf.ts';
 import { selectTrigger, startEventForWalkthrough } from '../engine/trigger-intake.ts';
@@ -45,7 +45,7 @@ const asRecord = row => (row && typeof row === 'object' ? row : {});
 let loaded = null;
 async function rowFilter() {
   if (!loaded) loaded = (async () => {
-    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    initSync({ module: readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
     return ({ tree, fields, rows }) => filterRecords({ records: rows.map(asRecord), fields, tree });
   })();
   return loaded;
