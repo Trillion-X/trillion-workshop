@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import rows from '../tool-rows.json' with { type: 'json' };
 import introductionStates from '../../introduce-two-people/src/introduction-states.json' with { type: 'json' };
 import { cosine, findNetworkPeople, KNOWN_STATES, networkProfile, onMyPath, readNetworkContact, RELEASED } from '../do-work/network-people.mjs';
-import { runNetworkAction } from '../do-work/network-profile-sql.mjs';
+import { runNetworkAction, WANTED } from '../do-work/network-profile-sql.mjs';
 import { KINDS, rowId } from '../read-data/profile-rows.mjs';
 
 const ANA = 'person:ana';
@@ -142,6 +142,19 @@ test('the four tool rows run the one process with their function named', () => {
     assert.equal(row.payload.invoke.argv.at(-1), fn);
     assert.ok(row.payload.invoke.credential_mounts.some(mount => mount.fd === 3));
   }
+});
+
+test('the action loads the space rows an open pursuit reads, so a path answers the spaces a person is not in', async () => {
+  const space = { id: rowId('space', 'bakers-circle'), type: KINDS.space, value: { title: 'Bakers circle', owner: BO, label: 'group', config: { join: [{ free: true }] }, embedding: NEARBY } };
+  const inside = { id: rowId('space', 'already-in'), type: KINDS.space, value: { title: 'Already in', owner: BO, label: 'group', config: { join: [{ free: true }] }, embedding: NEARBY } };
+  const member = { id: rowId('member', 'already-in', ANA), type: KINDS.member, value: { space: 'already-in', subject: ANA, member_type: 'member', state: 'member' } };
+  const stored = [{ id: rowId('profile', ANA), type: KINDS.profile, value: ana.value }, { id: rowId('profile', BO), type: KINDS.profile, value: bo.value }, space, inside, member];
+  const client = { async query(text) {
+    if (text.startsWith('SELECT')) return { rows: stored.filter(row => WANTED.includes(row.type)), rowCount: stored.length };
+    return { rows: [], rowCount: 0 };
+  } };
+  const answer = await runNetworkAction('onMyPath', { subject: ANA }, client);
+  assert.deepEqual(answer.spaces.map(item => item.space), ['bakers-circle']);
 });
 
 test('the action writes the changed row with the value it read, and refuses a row that moved since', async () => {

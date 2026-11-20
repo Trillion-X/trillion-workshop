@@ -17,7 +17,8 @@ const TABLE_SQL = `CREATE TABLE IF NOT EXISTS ${RECORD_TABLE} (
   type text NOT NULL,
   value jsonb NOT NULL
 )`;
-const WANTED = ['record:network-profile', 'record:network-label', 'record:network-introduction'];
+// The rows the functions read: profiles, labels and introductions, and the spaces and their members that the open pursuits on a path read.
+export const WANTED = ['record:network-profile', 'record:network-label', 'record:network-introduction', 'record:space', 'record:space-member'];
 const FUNCTIONS = { networkProfile, findNetworkPeople, onMyPath, readNetworkContact };
 
 /** One action over the rows of `client` ({ query(text, values) → { rows, rowCount } }): the rows the function needs are read, the
