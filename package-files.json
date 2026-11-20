@@ -50088,5 +50088,28 @@
    ],
    "at": "/opt/close-a-list-row-when-i-say"
   }
+ ],
+ "tool:save-x-bookmarks": [
+  {
+   "package": "save-what-you-watch-and-read",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/save-what-you-watch-and-read"
+  },
+  {
+   "package": "headless-browser",
+   "paths": [
+    "quiet-switches.json"
+   ],
+   "at": "/opt/headless-browser"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/composio-connection"
+  }
  ]
 }
