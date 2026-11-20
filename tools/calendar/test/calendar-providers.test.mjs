@@ -23,7 +23,11 @@ const stand = replies => {
 };
 
 test('the row offers exactly the providers the rows name, each with its own connection and key renewal', () => {
-  const expected = Object.fromEntries(providers.providers.map(p => [p.id, { connection: { vendor: p.connection_vendor, from_input: 'connection' }, refresh: p.refresh }]));
+  // A Composio connection kind holds no vendor connection: it mounts its key from the vault and reads no refresh.
+  const variantOf = p => (p.connection?.kind === 'composio'
+    ? { connection: null, credential_mounts: [{ secret_name: p.connection.secret, fd: 4 }] }
+    : { connection: { vendor: p.connection_vendor, from_input: 'connection' }, refresh: p.refresh });
+  const expected = Object.fromEntries(providers.providers.map(p => [p.id, variantOf(p)]));
   assert.deepEqual(row.invoke.by_input, { input: 'provider', variants: expected });
   assert.deepEqual(row.invoke.credential_mounts, [{ field_id: 'access_token', fd: 4 }]);
   assert.deepEqual(row.input_schema.required, ['provider', 'connection', 'range_start', 'range_end']);
@@ -99,3 +103,34 @@ test('the key goes only to the provider\'s own host, and nothing but reading is 
   assert.doesNotMatch(code, /'(POST|PUT|PATCH|DELETE)'/);
   assert.doesNotMatch(code, /console\.|process\.env/);
 });
+
+test('Composio: one execute call per range for the connected account, its key only in x-api-key, its events read like Google\'s', async () => {
+  const seen = [];
+  const send = async (url, init) => {
+    seen.push({ url: new URL(url), init });
+    const body = { successful: true, error: null, data: { items: [
+      { id: 'c1', summary: 'Composio call', status: 'confirmed', start: { dateTime: '2026-11-20T15:00:00Z' }, end: { dateTime: '2026-11-20T15:30:00Z' } },
+      { id: 'c2', summary: 'Gone', status: 'cancelled', start: { date: '2026-11-20' }, end: { date: '2026-11-21' } },
+    ] } };
+    return { ok: true, status: 200, text: async () => JSON.stringify(body) };
+  };
+  const answer = await readCalendarEvents({ provider: 'google-calendar-via-composio', connection: { connection_id: 'googlecalendar_moon-suku' }, ...range }, undefined, { read: () => KEY, send });
+  assert.equal(seen.length, 1);
+  assert.equal(`${seen[0].url.origin}${seen[0].url.pathname}`, 'https://backend.composio.dev/api/v3/tools/execute/GOOGLECALENDAR_EVENTS_LIST');
+  assert.equal(seen[0].init.method, 'POST');
+  assert.equal(seen[0].init.headers['x-api-key'], KEY);
+  assert.equal(seen[0].init.headers.Authorization, undefined, 'no bearer header goes to Composio');
+  const sent = JSON.parse(seen[0].init.body);
+  assert.equal(sent.connected_account_id, 'googlecalendar_moon-suku');
+  assert.deepEqual(sent.arguments, { calendarId: 'primary', timeMin: '2026-11-20T00:00:00.000Z', timeMax: '2026-11-21T00:00:00.000Z', singleEvents: true, orderBy: 'startTime', maxResults: 50 });
+  assert.equal(answer.blocks.length, 2);
+  assert.equal(answer.blocks[0].display.ownerLabel, 'Google Calendar');
+  assert.deepEqual(answer.blocks[0].relations.account, ['googlecalendar_moon-suku']);
+  assert.equal(answer.blocks[1].state.ref, 'cancelled');
+});
+
+test('Composio: a reply Composio marks unsuccessful is refused with its words, and a key is never sent anywhere else', async () => {
+  const send = async () => ({ ok: true, status: 200, text: async () => JSON.stringify({ successful: false, error: 'connected account not found', data: null }) });
+  await assert.rejects(readCalendarEvents({ provider: 'google-calendar-via-composio', connection: { connection_id: 'nope' }, ...range }, undefined, { read: () => KEY, send }), /connected account not found/);
+});
+

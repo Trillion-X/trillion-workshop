@@ -18547,6 +18547,13 @@
     "read-data"
    ],
    "at": "/opt/parts/calendar"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   }
  ],
  "tool:lay-out-a-diagram": [
@@ -30718,6 +30725,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
+  },
+  {
    "package": "content-identity",
    "paths": [
     "read-data/blake3.mjs",
@@ -32861,6 +32875,13 @@
     "read-data"
    ],
    "at": "/opt/parts/calendar"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   }
  ],
  "tool:read-transcript-files-and-captions-into-timed-words": [],

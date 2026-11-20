@@ -8,11 +8,13 @@
 //
 // Non-Negotiable Invariants:
 // 1. The key is read from descriptor 4 only when a request needs it, kept in this run's memory, and placed only in the
-//    Authorization header of a request to a host of the provider's row, over https, never followed by a redirect.
+//    Authorization header (or, for a Composio connection, the x-api-key header) of a request to a host of the provider's
+//    row, over https, never followed by a redirect.
 // 2. A provider that does not offer an operation is refused before any request leaves, in the words of its row.
 // 3. It reads only: no request it makes creates, changes or removes an event.
 
 import { readFileSync } from 'node:fs';
+import { makeComposioCall } from '../../composio-connection/read-data/composio-call.mjs';
 
 const HELD_DESCRIPTOR = 4;
 const SAID = 300;
@@ -96,7 +98,12 @@ export async function readCalendarEvents(input = {}, _host = undefined, io = {})
   if (problems.length) throw new Refused(problems.join('; '));
   const adapter = await import(`./adapters/${provider.adapter}.mjs`);
   const calendarId = input.calendar_id ?? null;
-  const events = await adapter.readEvents({ call: makeCall(provider, io) }, {
+  // A Composio connection kind reaches the account through one execute call (composio-connection); any other kind is the
+  // provider's own host with the held key as a bearer token.
+  const reach = provider.connection?.kind === 'composio'
+    ? { execute: makeComposioCall(io), accountId: input.connection?.connection_id }
+    : { call: makeCall(provider, io) };
+  const events = await adapter.readEvents(reach, {
     calendarId,
     rangeStart: new Date(input.range_start).toISOString(),
     rangeEnd: new Date(input.range_end).toISOString(),

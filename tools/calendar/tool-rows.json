@@ -813,6 +813,10 @@
                   "when_expiry_unknown": true
                 }
               },
+              "google-calendar-via-composio": {
+                "connection": null,
+                "credential_mounts": [{ "secret_name": "composio-api-key", "fd": 4 }]
+              },
               "outlook-calendar": {
                 "connection": {
                   "vendor": "microsoft-account",

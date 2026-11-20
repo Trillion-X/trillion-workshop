@@ -110,6 +110,23 @@
       "operations": [
         "read-calendar-events"
       ]
+    },
+    {
+      "id": "google-calendar-via-composio",
+      "label": "Google Calendar",
+      "adapter": "google-via-composio",
+      "connection": {
+        "kind": "composio",
+        "secret": "composio-api-key"
+      },
+      "connect_path": "/work/connect/composio",
+      "hosts": [
+        "backend.composio.dev"
+      ],
+      "base_url": "https://backend.composio.dev/api/v3/tools/execute/",
+      "operations": [
+        "read-calendar-events"
+      ]
     }
   ]
 }
