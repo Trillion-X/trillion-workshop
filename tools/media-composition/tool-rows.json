@@ -563,5 +563,4537 @@
     ]
    }
   }
+,
+ {
+  "id": "package::media-composition::tool::make-thumbnail-about-the-video",
+  "address": "package::media-composition::tool::make-thumbnail-about-the-video",
+  "path": [
+   "current-item",
+   "published-record"
+  ],
+  "payload": {
+   "uses_tools": [
+    "trillion-workshop/account-dashboard",
+    "trillion-workshop/account-session",
+    "trillion-workshop/addressed-marks",
+    "trillion-workshop/agents-hub",
+    "trillion-workshop/ai-execution-history",
+    "trillion-workshop/ai-guided-work",
+    "trillion-workshop/ai-memory",
+    "trillion-workshop/ai-records-producer",
+    "trillion-workshop/ai-tool-catalog",
+    "trillion-workshop/ambience",
+    "trillion-workshop/arrange-screens-in-panes",
+    "trillion-workshop/ask-a-small-model-for-a-verdict",
+    "trillion-workshop/audio-transcription",
+    "trillion-workshop/away-summary",
+    "trillion-workshop/background-runner-control",
+    "trillion-workshop/bring-in-new-items-from-this-computer",
+    "trillion-workshop/browse-and-upload-my-files",
+    "trillion-workshop/browse-inspiration-clips",
+    "trillion-workshop/browse-public-page",
+    "trillion-workshop/build-a-screen-from-patches",
+    "trillion-workshop/build-engine-modules-for-web-hosts",
+    "trillion-workshop/calibrate-a-camera-frame",
+    "trillion-workshop/chat",
+    "trillion-workshop/check-a-packages-declared-permissions",
+    "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+    "trillion-workshop/check-bundle-package-boundaries",
+    "trillion-workshop/choose-and-publish-screen-looks",
+    "trillion-workshop/command-palette",
+    "trillion-workshop/composition-scene-renderer",
+    "trillion-workshop/computer-programs",
+    "trillion-workshop/connect-a-service-and-seal-its-key",
+    "trillion-workshop/content-identity",
+    "trillion-workshop/content-media-evidence",
+    "trillion-workshop/conversations",
+    "trillion-workshop/copy-a-site",
+    "trillion-workshop/decide-when-things-show",
+    "trillion-workshop/decide-with-a-method",
+    "trillion-workshop/delight-moments",
+    "trillion-workshop/describe-the-workshop",
+    "trillion-workshop/documents",
+    "trillion-workshop/documents-as-list-rows",
+    "trillion-workshop/draw-lists-on-a-canvas",
+    "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+    "trillion-workshop/drive-the-screen",
+    "trillion-workshop/edit-a-document-together",
+    "trillion-workshop/edit-a-site-visually",
+    "trillion-workshop/feel",
+    "trillion-workshop/file-content-renderer",
+    "trillion-workshop/fill-a-list-from-a-feed",
+    "trillion-workshop/find-anything-from-one-box",
+    "trillion-workshop/formula-engine",
+    "trillion-workshop/founder-growth-engine-screens",
+    "trillion-workshop/funnel-offer-graph",
+    "trillion-workshop/funnels-screen",
+    "trillion-workshop/graph-canvas",
+    "trillion-workshop/guided-overlay",
+    "trillion-workshop/hand-off-jobs-between-agents",
+    "trillion-workshop/hand-work-to-ais",
+    "trillion-workshop/headless-browser",
+    "trillion-workshop/hold-one-thing-until-done",
+    "trillion-workshop/http-client",
+    "trillion-workshop/introduce-two-people",
+    "trillion-workshop/judge-words",
+    "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+    "trillion-workshop/keep-copies-in-step",
+    "trillion-workshop/keep-lists-of-rows",
+    "trillion-workshop/keep-records-only-my-devices-can-read",
+    "trillion-workshop/know-the-projects-on-this-computer",
+    "trillion-workshop/know-who-is-in-this",
+    "trillion-workshop/learn-a-workflow-from-a-job",
+    "trillion-workshop/learn-from-everyones-results",
+    "trillion-workshop/leave-a-makers-private-starting-values-out",
+    "trillion-workshop/lessons-and-learning-paths",
+    "trillion-workshop/let-someone-look-at-my-account-read",
+    "trillion-workshop/list-tools-for-an-ai",
+    "trillion-workshop/listen-for-a-while",
+    "trillion-workshop/live-namespace",
+    "trillion-workshop/local-files",
+    "trillion-workshop/look-at-screen",
+    "trillion-workshop/make-a-video-playable-at-ingest",
+    "trillion-workshop/make-screen-layouts-and-controls",
+    "trillion-workshop/make-things-feel-good",
+    "trillion-workshop/marketplace-defaults",
+    "trillion-workshop/media-identity",
+    "trillion-workshop/media-playback",
+    "trillion-workshop/messages-screen",
+    "trillion-workshop/model-response",
+    "trillion-workshop/models-on-this-computer",
+    "trillion-workshop/move-records-through-declared-states",
+    "trillion-workshop/native-space-source-release",
+    "trillion-workshop/operation-records",
+    "trillion-workshop/organize-my-files",
+    "trillion-workshop/organize-the-sidebar",
+    "trillion-workshop/outside-conversations",
+    "trillion-workshop/paid-access",
+    "trillion-workshop/pair-unknown-senders",
+    "trillion-workshop/permission-lease",
+    "trillion-workshop/person-list",
+    "trillion-workshop/pick-a-screen-as-you-type",
+    "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+    "trillion-workshop/pin-files-by-content",
+    "trillion-workshop/plan-tasks-and-todo-lists",
+    "trillion-workshop/process-session",
+    "trillion-workshop/query-and-change-list-rows",
+    "trillion-workshop/quote-untrusted-words",
+    "trillion-workshop/read-and-write-mail",
+    "trillion-workshop/recently-deleted-and-storage",
+    "trillion-workshop/record-audio",
+    "trillion-workshop/record-graph",
+    "trillion-workshop/record-log",
+    "trillion-workshop/record-video",
+    "trillion-workshop/record-video-with-teleprompter",
+    "trillion-workshop/record-voice-and-meetings",
+    "trillion-workshop/records-door",
+    "trillion-workshop/refuse-requests-to-private-addresses",
+    "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+    "trillion-workshop/review-what-a-list-says",
+    "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+    "trillion-workshop/run-experiments",
+    "trillion-workshop/run-on-a-persons-computer",
+    "trillion-workshop/run-sql-in-my-database",
+    "trillion-workshop/run-tools-in-my-signed-in-browser",
+    "trillion-workshop/run-work-later-or-on-a-repeat",
+    "trillion-workshop/screen-arrangement",
+    "trillion-workshop/screen-look",
+    "trillion-workshop/screen-looks",
+    "trillion-workshop/screen-ready-records",
+    "trillion-workshop/screen-recording",
+    "trillion-workshop/sealed-records",
+    "trillion-workshop/see-a-pursuit-through-the-lens",
+    "trillion-workshop/see-what-is-being-worked-on",
+    "trillion-workshop/see-what-my-ais-did",
+    "trillion-workshop/selected-agent",
+    "trillion-workshop/send-requests-to-an-engine",
+    "trillion-workshop/send-to-trillion-from-my-browser",
+    "trillion-workshop/serialized-content",
+    "trillion-workshop/set-up-my-account",
+    "trillion-workshop/set-up-my-devices-and-cameras",
+    "trillion-workshop/settings",
+    "trillion-workshop/settle-amounts-and-reconcile",
+    "trillion-workshop/shared-code",
+    "trillion-workshop/show-any-file-as-itself",
+    "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+    "trillion-workshop/show-ideas-as-records",
+    "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+    "trillion-workshop/sidebar",
+    "trillion-workshop/slot-table",
+    "trillion-workshop/social-posts",
+    "trillion-workshop/start-from-any-landing-page",
+    "trillion-workshop/starting-set",
+    "trillion-workshop/stream-an-answer-in-keyed-parts",
+    "trillion-workshop/take-pictures-out-of-a-zip-archive",
+    "trillion-workshop/tell-one-person-something-through-every-way-they",
+    "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+    "trillion-workshop/tours-screen",
+    "trillion-workshop/transcript-reader",
+    "trillion-workshop/turn-a-list-column-that-holds-names-into",
+    "trillion-workshop/turn-frames-into-slides",
+    "trillion-workshop/tweak-live-controls",
+    "trillion-workshop/ui",
+    "trillion-workshop/view-as",
+    "trillion-workshop/walk-a-new-person-through-first-setup",
+    "trillion-workshop/walk-nested-input-within-limits",
+    "trillion-workshop/watch-my-sources",
+    "trillion-workshop/what-is-waiting-on-me",
+    "trillion-workshop/where-a-person-stands",
+    "trillion-workshop/who-does-each-step",
+    "trillion-workshop/work-map",
+    "trillion-workshop/workflow-canvas",
+    "trillion-workshop/workflow-interruptions",
+    "trillion-workshop/workflows",
+    "trillion-workshop/workspace-pieces",
+    "trillion-workshop/workspace-screens",
+    "trillion-workshop/write-a-job-done-in-several-steps-have",
+    "trillion-workshop/write-a-post-for-each-place"
+   ],
+   "kind": "ai-tool-descriptor",
+   "id": "tool:make-thumbnail-about-the-video",
+   "label": "A thumbnail about the video",
+   "job": "Make a bold thumbnail picture about a video's topic, with no text, and keep it in your files",
+   "description": "Make a bold thumbnail picture about a video's topic, with no text, and keep it in your files. Each result is a new file kept in your files; the recording itself is never changed.",
+   "status": "active",
+   "input_schema": {
+    "type": "object",
+    "required": [
+     "topic"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "topic": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "description": "What the video is about, in a few words"
+     },
+     "count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "description": "How many to make (default 4)"
+     }
+    }
+   },
+   "output_schema": {
+    "type": "object",
+    "required": [
+     "result",
+     "files"
+    ],
+    "properties": {
+     "result": {
+      "type": "object",
+      "required": [
+       "style",
+       "count",
+       "made"
+      ],
+      "properties": {
+       "count": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "made": {
+        "type": "array",
+        "minItems": 1
+       }
+      }
+     },
+     "files": {
+      "type": "object",
+      "required": [
+       "made"
+      ],
+      "properties": {
+       "made": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "invoke": {
+    "kind": "container",
+    "files": {
+     "package_files": {
+      "package": "media-composition",
+      "paths": [
+       "do-work",
+       "read-data"
+      ],
+      "at": "/opt/media-composition",
+      "exclude": [
+       "__tests__"
+      ]
+     }
+    },
+    "workdir": "/opt/media-composition",
+    "internet": true,
+    "stdout": "json",
+    "argv": [
+     "node",
+     "do-work/make-pictures-and-sounds.mjs",
+     "--style",
+     "thumbnail-about-the-video",
+     "--out",
+     "/opt/media-composition/made",
+     "--work",
+     "/opt/media-composition/making",
+     "--relay",
+     "/run/gateway/relay.json"
+    ],
+    "stdin": {
+     "fill": {
+      "from": "input"
+     }
+    },
+    "outputs": [
+     {
+      "name": "made",
+      "folder": "/opt/media-composition/made",
+      "keep_in": "files",
+      "media_type": "image/png",
+      "max_bytes": 200000000
+     }
+    ],
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ],
+    "gateway_relay": {
+     "mount_path": "/run/gateway/relay.json"
+    }
+   },
+   "billing": {
+    "payers": [
+     "own-account",
+     "gateway-account"
+    ],
+    "gateway": "gateway:treg",
+    "per": "gateway-call"
+   },
+   "needs": {
+    "expected_seconds": 180,
+    "network_egress": true,
+    "memory_mb": 4096
+   },
+   "licence_class": "licence:maker-own",
+   "placements": [
+    "placement:deployed-container"
+   ],
+   "maker": "maker:media-composition",
+   "verify": [
+    {
+     "kind": "output-number-within",
+     "output_selector": "$.result.count",
+     "at_least": 1
+    }
+   ],
+   "provenance": {
+    "record": "package::media-composition::media-generation-style::thumbnail-about-the-video",
+    "source": "source:make-pictures-and-sounds"
+   }
+  }
+ },
+ {
+  "id": "package::media-composition::tool::make-striking-picture-of-you",
+  "address": "package::media-composition::tool::make-striking-picture-of-you",
+  "path": [
+   "current-item",
+   "published-record"
+  ],
+  "payload": {
+   "uses_tools": [
+    "trillion-workshop/account-dashboard",
+    "trillion-workshop/account-session",
+    "trillion-workshop/addressed-marks",
+    "trillion-workshop/agents-hub",
+    "trillion-workshop/ai-execution-history",
+    "trillion-workshop/ai-guided-work",
+    "trillion-workshop/ai-memory",
+    "trillion-workshop/ai-records-producer",
+    "trillion-workshop/ai-tool-catalog",
+    "trillion-workshop/ambience",
+    "trillion-workshop/arrange-screens-in-panes",
+    "trillion-workshop/ask-a-small-model-for-a-verdict",
+    "trillion-workshop/audio-transcription",
+    "trillion-workshop/away-summary",
+    "trillion-workshop/background-runner-control",
+    "trillion-workshop/bring-in-new-items-from-this-computer",
+    "trillion-workshop/browse-and-upload-my-files",
+    "trillion-workshop/browse-inspiration-clips",
+    "trillion-workshop/browse-public-page",
+    "trillion-workshop/build-a-screen-from-patches",
+    "trillion-workshop/build-engine-modules-for-web-hosts",
+    "trillion-workshop/calibrate-a-camera-frame",
+    "trillion-workshop/chat",
+    "trillion-workshop/check-a-packages-declared-permissions",
+    "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+    "trillion-workshop/check-bundle-package-boundaries",
+    "trillion-workshop/choose-and-publish-screen-looks",
+    "trillion-workshop/command-palette",
+    "trillion-workshop/composition-scene-renderer",
+    "trillion-workshop/computer-programs",
+    "trillion-workshop/connect-a-service-and-seal-its-key",
+    "trillion-workshop/content-identity",
+    "trillion-workshop/content-media-evidence",
+    "trillion-workshop/conversations",
+    "trillion-workshop/copy-a-site",
+    "trillion-workshop/decide-when-things-show",
+    "trillion-workshop/decide-with-a-method",
+    "trillion-workshop/delight-moments",
+    "trillion-workshop/describe-the-workshop",
+    "trillion-workshop/documents",
+    "trillion-workshop/documents-as-list-rows",
+    "trillion-workshop/draw-lists-on-a-canvas",
+    "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+    "trillion-workshop/drive-the-screen",
+    "trillion-workshop/edit-a-document-together",
+    "trillion-workshop/edit-a-site-visually",
+    "trillion-workshop/feel",
+    "trillion-workshop/file-content-renderer",
+    "trillion-workshop/fill-a-list-from-a-feed",
+    "trillion-workshop/find-anything-from-one-box",
+    "trillion-workshop/formula-engine",
+    "trillion-workshop/founder-growth-engine-screens",
+    "trillion-workshop/funnel-offer-graph",
+    "trillion-workshop/funnels-screen",
+    "trillion-workshop/graph-canvas",
+    "trillion-workshop/guided-overlay",
+    "trillion-workshop/hand-off-jobs-between-agents",
+    "trillion-workshop/hand-work-to-ais",
+    "trillion-workshop/headless-browser",
+    "trillion-workshop/hold-one-thing-until-done",
+    "trillion-workshop/http-client",
+    "trillion-workshop/introduce-two-people",
+    "trillion-workshop/judge-words",
+    "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+    "trillion-workshop/keep-copies-in-step",
+    "trillion-workshop/keep-lists-of-rows",
+    "trillion-workshop/keep-records-only-my-devices-can-read",
+    "trillion-workshop/know-the-projects-on-this-computer",
+    "trillion-workshop/know-who-is-in-this",
+    "trillion-workshop/learn-a-workflow-from-a-job",
+    "trillion-workshop/learn-from-everyones-results",
+    "trillion-workshop/leave-a-makers-private-starting-values-out",
+    "trillion-workshop/lessons-and-learning-paths",
+    "trillion-workshop/let-someone-look-at-my-account-read",
+    "trillion-workshop/list-tools-for-an-ai",
+    "trillion-workshop/listen-for-a-while",
+    "trillion-workshop/live-namespace",
+    "trillion-workshop/local-files",
+    "trillion-workshop/look-at-screen",
+    "trillion-workshop/make-a-video-playable-at-ingest",
+    "trillion-workshop/make-screen-layouts-and-controls",
+    "trillion-workshop/make-things-feel-good",
+    "trillion-workshop/marketplace-defaults",
+    "trillion-workshop/media-identity",
+    "trillion-workshop/media-playback",
+    "trillion-workshop/messages-screen",
+    "trillion-workshop/model-response",
+    "trillion-workshop/models-on-this-computer",
+    "trillion-workshop/move-records-through-declared-states",
+    "trillion-workshop/native-space-source-release",
+    "trillion-workshop/operation-records",
+    "trillion-workshop/organize-my-files",
+    "trillion-workshop/organize-the-sidebar",
+    "trillion-workshop/outside-conversations",
+    "trillion-workshop/paid-access",
+    "trillion-workshop/pair-unknown-senders",
+    "trillion-workshop/permission-lease",
+    "trillion-workshop/person-list",
+    "trillion-workshop/pick-a-screen-as-you-type",
+    "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+    "trillion-workshop/pin-files-by-content",
+    "trillion-workshop/plan-tasks-and-todo-lists",
+    "trillion-workshop/process-session",
+    "trillion-workshop/query-and-change-list-rows",
+    "trillion-workshop/quote-untrusted-words",
+    "trillion-workshop/read-and-write-mail",
+    "trillion-workshop/recently-deleted-and-storage",
+    "trillion-workshop/record-audio",
+    "trillion-workshop/record-graph",
+    "trillion-workshop/record-log",
+    "trillion-workshop/record-video",
+    "trillion-workshop/record-video-with-teleprompter",
+    "trillion-workshop/record-voice-and-meetings",
+    "trillion-workshop/records-door",
+    "trillion-workshop/refuse-requests-to-private-addresses",
+    "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+    "trillion-workshop/review-what-a-list-says",
+    "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+    "trillion-workshop/run-experiments",
+    "trillion-workshop/run-on-a-persons-computer",
+    "trillion-workshop/run-sql-in-my-database",
+    "trillion-workshop/run-tools-in-my-signed-in-browser",
+    "trillion-workshop/run-work-later-or-on-a-repeat",
+    "trillion-workshop/screen-arrangement",
+    "trillion-workshop/screen-look",
+    "trillion-workshop/screen-looks",
+    "trillion-workshop/screen-ready-records",
+    "trillion-workshop/screen-recording",
+    "trillion-workshop/sealed-records",
+    "trillion-workshop/see-a-pursuit-through-the-lens",
+    "trillion-workshop/see-what-is-being-worked-on",
+    "trillion-workshop/see-what-my-ais-did",
+    "trillion-workshop/selected-agent",
+    "trillion-workshop/send-requests-to-an-engine",
+    "trillion-workshop/send-to-trillion-from-my-browser",
+    "trillion-workshop/serialized-content",
+    "trillion-workshop/set-up-my-account",
+    "trillion-workshop/set-up-my-devices-and-cameras",
+    "trillion-workshop/settings",
+    "trillion-workshop/settle-amounts-and-reconcile",
+    "trillion-workshop/shared-code",
+    "trillion-workshop/show-any-file-as-itself",
+    "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+    "trillion-workshop/show-ideas-as-records",
+    "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+    "trillion-workshop/sidebar",
+    "trillion-workshop/slot-table",
+    "trillion-workshop/social-posts",
+    "trillion-workshop/start-from-any-landing-page",
+    "trillion-workshop/starting-set",
+    "trillion-workshop/stream-an-answer-in-keyed-parts",
+    "trillion-workshop/take-pictures-out-of-a-zip-archive",
+    "trillion-workshop/tell-one-person-something-through-every-way-they",
+    "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+    "trillion-workshop/tours-screen",
+    "trillion-workshop/transcript-reader",
+    "trillion-workshop/turn-a-list-column-that-holds-names-into",
+    "trillion-workshop/turn-frames-into-slides",
+    "trillion-workshop/tweak-live-controls",
+    "trillion-workshop/ui",
+    "trillion-workshop/view-as",
+    "trillion-workshop/walk-a-new-person-through-first-setup",
+    "trillion-workshop/walk-nested-input-within-limits",
+    "trillion-workshop/watch-my-sources",
+    "trillion-workshop/what-is-waiting-on-me",
+    "trillion-workshop/where-a-person-stands",
+    "trillion-workshop/who-does-each-step",
+    "trillion-workshop/work-map",
+    "trillion-workshop/workflow-canvas",
+    "trillion-workshop/workflow-interruptions",
+    "trillion-workshop/workflows",
+    "trillion-workshop/workspace-pieces",
+    "trillion-workshop/workspace-screens",
+    "trillion-workshop/write-a-job-done-in-several-steps-have",
+    "trillion-workshop/write-a-post-for-each-place"
+   ],
+   "kind": "ai-tool-descriptor",
+   "id": "tool:make-striking-picture-of-you",
+   "label": "A striking picture of you from the video",
+   "job": "Make a striking thumbnail of the person in a recording, keeping their face, from frames of the video and a topic",
+   "description": "Make a striking thumbnail of the person in a recording, keeping their face, from frames of the video and a topic. Each result is a new file kept in your files; the recording itself is never changed.",
+   "status": "active",
+   "input_schema": {
+    "type": "object",
+    "required": [
+     "video",
+     "topic"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "video": {
+      "type": "string",
+      "format": "namespace-file",
+      "description": "The recording to take the frame from: its identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+     },
+     "at": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Seconds into the recording for the frame (default: its sharpest, best-lit moment)"
+     },
+     "topic": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "description": "What the video is about, in a few words"
+     },
+     "count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "description": "How many to make (default 4)"
+     }
+    }
+   },
+   "output_schema": {
+    "type": "object",
+    "required": [
+     "result",
+     "files"
+    ],
+    "properties": {
+     "result": {
+      "type": "object",
+      "required": [
+       "style",
+       "count",
+       "made"
+      ],
+      "properties": {
+       "count": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "made": {
+        "type": "array",
+        "minItems": 1
+       }
+      }
+     },
+     "files": {
+      "type": "object",
+      "required": [
+       "made"
+      ],
+      "properties": {
+       "made": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "invoke": {
+    "kind": "container",
+    "files": {
+     "package_files": {
+      "package": "media-composition",
+      "paths": [
+       "do-work",
+       "read-data"
+      ],
+      "at": "/opt/media-composition",
+      "exclude": [
+       "__tests__"
+      ]
+     }
+    },
+    "workdir": "/opt/media-composition",
+    "internet": true,
+    "stdout": "json",
+    "argv": [
+     "node",
+     "do-work/make-pictures-and-sounds.mjs",
+     "--style",
+     "striking-picture-of-you",
+     "--out",
+     "/opt/media-composition/made",
+     "--work",
+     "/opt/media-composition/making",
+     "--relay",
+     "/run/gateway/relay.json"
+    ],
+    "stdin": {
+     "fill": {
+      "from": "input"
+     }
+    },
+    "outputs": [
+     {
+      "name": "made",
+      "folder": "/opt/media-composition/made",
+      "keep_in": "files",
+      "media_type": "image/png",
+      "max_bytes": 200000000
+     }
+    ],
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ],
+    "gateway_relay": {
+     "mount_path": "/run/gateway/relay.json"
+    }
+   },
+   "billing": {
+    "payers": [
+     "own-account",
+     "gateway-account"
+    ],
+    "gateway": "gateway:treg",
+    "per": "gateway-call"
+   },
+   "needs": {
+    "expected_seconds": 180,
+    "network_egress": true,
+    "memory_mb": 4096
+   },
+   "licence_class": "licence:maker-own",
+   "placements": [
+    "placement:deployed-container"
+   ],
+   "maker": "maker:media-composition",
+   "verify": [
+    {
+     "kind": "output-number-within",
+     "output_selector": "$.result.count",
+     "at_least": 1
+    }
+   ],
+   "provenance": {
+    "record": "package::media-composition::media-generation-style::striking-picture-of-you",
+    "source": "source:make-pictures-and-sounds"
+   }
+  }
+ },
+ {
+  "id": "package::media-composition::tool::make-enhanced-frame",
+  "address": "package::media-composition::tool::make-enhanced-frame",
+  "path": [
+   "current-item",
+   "published-record"
+  ],
+  "payload": {
+   "uses_tools": [
+    "trillion-workshop/account-dashboard",
+    "trillion-workshop/account-session",
+    "trillion-workshop/addressed-marks",
+    "trillion-workshop/agents-hub",
+    "trillion-workshop/ai-execution-history",
+    "trillion-workshop/ai-guided-work",
+    "trillion-workshop/ai-memory",
+    "trillion-workshop/ai-records-producer",
+    "trillion-workshop/ai-tool-catalog",
+    "trillion-workshop/ambience",
+    "trillion-workshop/arrange-screens-in-panes",
+    "trillion-workshop/ask-a-small-model-for-a-verdict",
+    "trillion-workshop/audio-transcription",
+    "trillion-workshop/away-summary",
+    "trillion-workshop/background-runner-control",
+    "trillion-workshop/bring-in-new-items-from-this-computer",
+    "trillion-workshop/browse-and-upload-my-files",
+    "trillion-workshop/browse-inspiration-clips",
+    "trillion-workshop/browse-public-page",
+    "trillion-workshop/build-a-screen-from-patches",
+    "trillion-workshop/build-engine-modules-for-web-hosts",
+    "trillion-workshop/calibrate-a-camera-frame",
+    "trillion-workshop/chat",
+    "trillion-workshop/check-a-packages-declared-permissions",
+    "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+    "trillion-workshop/check-bundle-package-boundaries",
+    "trillion-workshop/choose-and-publish-screen-looks",
+    "trillion-workshop/command-palette",
+    "trillion-workshop/composition-scene-renderer",
+    "trillion-workshop/computer-programs",
+    "trillion-workshop/connect-a-service-and-seal-its-key",
+    "trillion-workshop/content-identity",
+    "trillion-workshop/content-media-evidence",
+    "trillion-workshop/conversations",
+    "trillion-workshop/copy-a-site",
+    "trillion-workshop/decide-when-things-show",
+    "trillion-workshop/decide-with-a-method",
+    "trillion-workshop/delight-moments",
+    "trillion-workshop/describe-the-workshop",
+    "trillion-workshop/documents",
+    "trillion-workshop/documents-as-list-rows",
+    "trillion-workshop/draw-lists-on-a-canvas",
+    "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+    "trillion-workshop/drive-the-screen",
+    "trillion-workshop/edit-a-document-together",
+    "trillion-workshop/edit-a-site-visually",
+    "trillion-workshop/feel",
+    "trillion-workshop/file-content-renderer",
+    "trillion-workshop/fill-a-list-from-a-feed",
+    "trillion-workshop/find-anything-from-one-box",
+    "trillion-workshop/formula-engine",
+    "trillion-workshop/founder-growth-engine-screens",
+    "trillion-workshop/funnel-offer-graph",
+    "trillion-workshop/funnels-screen",
+    "trillion-workshop/graph-canvas",
+    "trillion-workshop/guided-overlay",
+    "trillion-workshop/hand-off-jobs-between-agents",
+    "trillion-workshop/hand-work-to-ais",
+    "trillion-workshop/headless-browser",
+    "trillion-workshop/hold-one-thing-until-done",
+    "trillion-workshop/http-client",
+    "trillion-workshop/introduce-two-people",
+    "trillion-workshop/judge-words",
+    "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+    "trillion-workshop/keep-copies-in-step",
+    "trillion-workshop/keep-lists-of-rows",
+    "trillion-workshop/keep-records-only-my-devices-can-read",
+    "trillion-workshop/know-the-projects-on-this-computer",
+    "trillion-workshop/know-who-is-in-this",
+    "trillion-workshop/learn-a-workflow-from-a-job",
+    "trillion-workshop/learn-from-everyones-results",
+    "trillion-workshop/leave-a-makers-private-starting-values-out",
+    "trillion-workshop/lessons-and-learning-paths",
+    "trillion-workshop/let-someone-look-at-my-account-read",
+    "trillion-workshop/list-tools-for-an-ai",
+    "trillion-workshop/listen-for-a-while",
+    "trillion-workshop/live-namespace",
+    "trillion-workshop/local-files",
+    "trillion-workshop/look-at-screen",
+    "trillion-workshop/make-a-video-playable-at-ingest",
+    "trillion-workshop/make-screen-layouts-and-controls",
+    "trillion-workshop/make-things-feel-good",
+    "trillion-workshop/marketplace-defaults",
+    "trillion-workshop/media-identity",
+    "trillion-workshop/media-playback",
+    "trillion-workshop/messages-screen",
+    "trillion-workshop/model-response",
+    "trillion-workshop/models-on-this-computer",
+    "trillion-workshop/move-records-through-declared-states",
+    "trillion-workshop/native-space-source-release",
+    "trillion-workshop/operation-records",
+    "trillion-workshop/organize-my-files",
+    "trillion-workshop/organize-the-sidebar",
+    "trillion-workshop/outside-conversations",
+    "trillion-workshop/paid-access",
+    "trillion-workshop/pair-unknown-senders",
+    "trillion-workshop/permission-lease",
+    "trillion-workshop/person-list",
+    "trillion-workshop/pick-a-screen-as-you-type",
+    "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+    "trillion-workshop/pin-files-by-content",
+    "trillion-workshop/plan-tasks-and-todo-lists",
+    "trillion-workshop/process-session",
+    "trillion-workshop/query-and-change-list-rows",
+    "trillion-workshop/quote-untrusted-words",
+    "trillion-workshop/read-and-write-mail",
+    "trillion-workshop/recently-deleted-and-storage",
+    "trillion-workshop/record-audio",
+    "trillion-workshop/record-graph",
+    "trillion-workshop/record-log",
+    "trillion-workshop/record-video",
+    "trillion-workshop/record-video-with-teleprompter",
+    "trillion-workshop/record-voice-and-meetings",
+    "trillion-workshop/records-door",
+    "trillion-workshop/refuse-requests-to-private-addresses",
+    "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+    "trillion-workshop/review-what-a-list-says",
+    "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+    "trillion-workshop/run-experiments",
+    "trillion-workshop/run-on-a-persons-computer",
+    "trillion-workshop/run-sql-in-my-database",
+    "trillion-workshop/run-tools-in-my-signed-in-browser",
+    "trillion-workshop/run-work-later-or-on-a-repeat",
+    "trillion-workshop/screen-arrangement",
+    "trillion-workshop/screen-look",
+    "trillion-workshop/screen-looks",
+    "trillion-workshop/screen-ready-records",
+    "trillion-workshop/screen-recording",
+    "trillion-workshop/sealed-records",
+    "trillion-workshop/see-a-pursuit-through-the-lens",
+    "trillion-workshop/see-what-is-being-worked-on",
+    "trillion-workshop/see-what-my-ais-did",
+    "trillion-workshop/selected-agent",
+    "trillion-workshop/send-requests-to-an-engine",
+    "trillion-workshop/send-to-trillion-from-my-browser",
+    "trillion-workshop/serialized-content",
+    "trillion-workshop/set-up-my-account",
+    "trillion-workshop/set-up-my-devices-and-cameras",
+    "trillion-workshop/settings",
+    "trillion-workshop/settle-amounts-and-reconcile",
+    "trillion-workshop/shared-code",
+    "trillion-workshop/show-any-file-as-itself",
+    "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+    "trillion-workshop/show-ideas-as-records",
+    "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+    "trillion-workshop/sidebar",
+    "trillion-workshop/slot-table",
+    "trillion-workshop/social-posts",
+    "trillion-workshop/start-from-any-landing-page",
+    "trillion-workshop/starting-set",
+    "trillion-workshop/stream-an-answer-in-keyed-parts",
+    "trillion-workshop/take-pictures-out-of-a-zip-archive",
+    "trillion-workshop/tell-one-person-something-through-every-way-they",
+    "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+    "trillion-workshop/tours-screen",
+    "trillion-workshop/transcript-reader",
+    "trillion-workshop/turn-a-list-column-that-holds-names-into",
+    "trillion-workshop/turn-frames-into-slides",
+    "trillion-workshop/tweak-live-controls",
+    "trillion-workshop/ui",
+    "trillion-workshop/view-as",
+    "trillion-workshop/walk-a-new-person-through-first-setup",
+    "trillion-workshop/walk-nested-input-within-limits",
+    "trillion-workshop/watch-my-sources",
+    "trillion-workshop/what-is-waiting-on-me",
+    "trillion-workshop/where-a-person-stands",
+    "trillion-workshop/who-does-each-step",
+    "trillion-workshop/work-map",
+    "trillion-workshop/workflow-canvas",
+    "trillion-workshop/workflow-interruptions",
+    "trillion-workshop/workflows",
+    "trillion-workshop/workspace-pieces",
+    "trillion-workshop/workspace-screens",
+    "trillion-workshop/write-a-job-done-in-several-steps-have",
+    "trillion-workshop/write-a-post-for-each-place"
+   ],
+   "kind": "ai-tool-descriptor",
+   "id": "tool:make-enhanced-frame",
+   "label": "This frame, enhanced",
+   "job": "Take one frame of a recording and make it a sharp, well-lit, vivid picture that keeps the people and composition",
+   "description": "Take one frame of a recording and make it a sharp, well-lit, vivid picture that keeps the people and composition. Each result is a new file kept in your files; the recording itself is never changed.",
+   "status": "active",
+   "input_schema": {
+    "type": "object",
+    "required": [
+     "video"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "video": {
+      "type": "string",
+      "format": "namespace-file",
+      "description": "The recording to take the frame from: its identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+     },
+     "at": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Seconds into the recording for the frame (default: its sharpest, best-lit moment)"
+     },
+     "count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "description": "How many to make (default 2)"
+     }
+    }
+   },
+   "output_schema": {
+    "type": "object",
+    "required": [
+     "result",
+     "files"
+    ],
+    "properties": {
+     "result": {
+      "type": "object",
+      "required": [
+       "style",
+       "count",
+       "made"
+      ],
+      "properties": {
+       "count": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "made": {
+        "type": "array",
+        "minItems": 1
+       }
+      }
+     },
+     "files": {
+      "type": "object",
+      "required": [
+       "made"
+      ],
+      "properties": {
+       "made": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "invoke": {
+    "kind": "container",
+    "files": {
+     "package_files": {
+      "package": "media-composition",
+      "paths": [
+       "do-work",
+       "read-data"
+      ],
+      "at": "/opt/media-composition",
+      "exclude": [
+       "__tests__"
+      ]
+     }
+    },
+    "workdir": "/opt/media-composition",
+    "internet": true,
+    "stdout": "json",
+    "argv": [
+     "node",
+     "do-work/make-pictures-and-sounds.mjs",
+     "--style",
+     "enhanced-frame",
+     "--out",
+     "/opt/media-composition/made",
+     "--work",
+     "/opt/media-composition/making",
+     "--relay",
+     "/run/gateway/relay.json"
+    ],
+    "stdin": {
+     "fill": {
+      "from": "input"
+     }
+    },
+    "outputs": [
+     {
+      "name": "made",
+      "folder": "/opt/media-composition/made",
+      "keep_in": "files",
+      "media_type": "image/png",
+      "max_bytes": 200000000
+     }
+    ],
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ],
+    "gateway_relay": {
+     "mount_path": "/run/gateway/relay.json"
+    }
+   },
+   "billing": {
+    "payers": [
+     "own-account",
+     "gateway-account"
+    ],
+    "gateway": "gateway:treg",
+    "per": "gateway-call"
+   },
+   "needs": {
+    "expected_seconds": 180,
+    "network_egress": true,
+    "memory_mb": 4096
+   },
+   "licence_class": "licence:maker-own",
+   "placements": [
+    "placement:deployed-container"
+   ],
+   "maker": "maker:media-composition",
+   "verify": [
+    {
+     "kind": "output-number-within",
+     "output_selector": "$.result.count",
+     "at_least": 1
+    }
+   ],
+   "provenance": {
+    "record": "package::media-composition::media-generation-style::enhanced-frame",
+    "source": "source:make-pictures-and-sounds"
+   }
+  }
+ },
+ {
+  "id": "package::media-composition::tool::make-pencil-portrait",
+  "address": "package::media-composition::tool::make-pencil-portrait",
+  "path": [
+   "current-item",
+   "published-record"
+  ],
+  "payload": {
+   "uses_tools": [
+    "trillion-workshop/account-dashboard",
+    "trillion-workshop/account-session",
+    "trillion-workshop/addressed-marks",
+    "trillion-workshop/agents-hub",
+    "trillion-workshop/ai-execution-history",
+    "trillion-workshop/ai-guided-work",
+    "trillion-workshop/ai-memory",
+    "trillion-workshop/ai-records-producer",
+    "trillion-workshop/ai-tool-catalog",
+    "trillion-workshop/ambience",
+    "trillion-workshop/arrange-screens-in-panes",
+    "trillion-workshop/ask-a-small-model-for-a-verdict",
+    "trillion-workshop/audio-transcription",
+    "trillion-workshop/away-summary",
+    "trillion-workshop/background-runner-control",
+    "trillion-workshop/bring-in-new-items-from-this-computer",
+    "trillion-workshop/browse-and-upload-my-files",
+    "trillion-workshop/browse-inspiration-clips",
+    "trillion-workshop/browse-public-page",
+    "trillion-workshop/build-a-screen-from-patches",
+    "trillion-workshop/build-engine-modules-for-web-hosts",
+    "trillion-workshop/calibrate-a-camera-frame",
+    "trillion-workshop/chat",
+    "trillion-workshop/check-a-packages-declared-permissions",
+    "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+    "trillion-workshop/check-bundle-package-boundaries",
+    "trillion-workshop/choose-and-publish-screen-looks",
+    "trillion-workshop/command-palette",
+    "trillion-workshop/composition-scene-renderer",
+    "trillion-workshop/computer-programs",
+    "trillion-workshop/connect-a-service-and-seal-its-key",
+    "trillion-workshop/content-identity",
+    "trillion-workshop/content-media-evidence",
+    "trillion-workshop/conversations",
+    "trillion-workshop/copy-a-site",
+    "trillion-workshop/decide-when-things-show",
+    "trillion-workshop/decide-with-a-method",
+    "trillion-workshop/delight-moments",
+    "trillion-workshop/describe-the-workshop",
+    "trillion-workshop/documents",
+    "trillion-workshop/documents-as-list-rows",
+    "trillion-workshop/draw-lists-on-a-canvas",
+    "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+    "trillion-workshop/drive-the-screen",
+    "trillion-workshop/edit-a-document-together",
+    "trillion-workshop/edit-a-site-visually",
+    "trillion-workshop/feel",
+    "trillion-workshop/file-content-renderer",
+    "trillion-workshop/fill-a-list-from-a-feed",
+    "trillion-workshop/find-anything-from-one-box",
+    "trillion-workshop/formula-engine",
+    "trillion-workshop/founder-growth-engine-screens",
+    "trillion-workshop/funnel-offer-graph",
+    "trillion-workshop/funnels-screen",
+    "trillion-workshop/graph-canvas",
+    "trillion-workshop/guided-overlay",
+    "trillion-workshop/hand-off-jobs-between-agents",
+    "trillion-workshop/hand-work-to-ais",
+    "trillion-workshop/headless-browser",
+    "trillion-workshop/hold-one-thing-until-done",
+    "trillion-workshop/http-client",
+    "trillion-workshop/introduce-two-people",
+    "trillion-workshop/judge-words",
+    "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+    "trillion-workshop/keep-copies-in-step",
+    "trillion-workshop/keep-lists-of-rows",
+    "trillion-workshop/keep-records-only-my-devices-can-read",
+    "trillion-workshop/know-the-projects-on-this-computer",
+    "trillion-workshop/know-who-is-in-this",
+    "trillion-workshop/learn-a-workflow-from-a-job",
+    "trillion-workshop/learn-from-everyones-results",
+    "trillion-workshop/leave-a-makers-private-starting-values-out",
+    "trillion-workshop/lessons-and-learning-paths",
+    "trillion-workshop/let-someone-look-at-my-account-read",
+    "trillion-workshop/list-tools-for-an-ai",
+    "trillion-workshop/listen-for-a-while",
+    "trillion-workshop/live-namespace",
+    "trillion-workshop/local-files",
+    "trillion-workshop/look-at-screen",
+    "trillion-workshop/make-a-video-playable-at-ingest",
+    "trillion-workshop/make-screen-layouts-and-controls",
+    "trillion-workshop/make-things-feel-good",
+    "trillion-workshop/marketplace-defaults",
+    "trillion-workshop/media-identity",
+    "trillion-workshop/media-playback",
+    "trillion-workshop/messages-screen",
+    "trillion-workshop/model-response",
+    "trillion-workshop/models-on-this-computer",
+    "trillion-workshop/move-records-through-declared-states",
+    "trillion-workshop/native-space-source-release",
+    "trillion-workshop/operation-records",
+    "trillion-workshop/organize-my-files",
+    "trillion-workshop/organize-the-sidebar",
+    "trillion-workshop/outside-conversations",
+    "trillion-workshop/paid-access",
+    "trillion-workshop/pair-unknown-senders",
+    "trillion-workshop/permission-lease",
+    "trillion-workshop/person-list",
+    "trillion-workshop/pick-a-screen-as-you-type",
+    "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+    "trillion-workshop/pin-files-by-content",
+    "trillion-workshop/plan-tasks-and-todo-lists",
+    "trillion-workshop/process-session",
+    "trillion-workshop/query-and-change-list-rows",
+    "trillion-workshop/quote-untrusted-words",
+    "trillion-workshop/read-and-write-mail",
+    "trillion-workshop/recently-deleted-and-storage",
+    "trillion-workshop/record-audio",
+    "trillion-workshop/record-graph",
+    "trillion-workshop/record-log",
+    "trillion-workshop/record-video",
+    "trillion-workshop/record-video-with-teleprompter",
+    "trillion-workshop/record-voice-and-meetings",
+    "trillion-workshop/records-door",
+    "trillion-workshop/refuse-requests-to-private-addresses",
+    "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+    "trillion-workshop/review-what-a-list-says",
+    "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+    "trillion-workshop/run-experiments",
+    "trillion-workshop/run-on-a-persons-computer",
+    "trillion-workshop/run-sql-in-my-database",
+    "trillion-workshop/run-tools-in-my-signed-in-browser",
+    "trillion-workshop/run-work-later-or-on-a-repeat",
+    "trillion-workshop/screen-arrangement",
+    "trillion-workshop/screen-look",
+    "trillion-workshop/screen-looks",
+    "trillion-workshop/screen-ready-records",
+    "trillion-workshop/screen-recording",
+    "trillion-workshop/sealed-records",
+    "trillion-workshop/see-a-pursuit-through-the-lens",
+    "trillion-workshop/see-what-is-being-worked-on",
+    "trillion-workshop/see-what-my-ais-did",
+    "trillion-workshop/selected-agent",
+    "trillion-workshop/send-requests-to-an-engine",
+    "trillion-workshop/send-to-trillion-from-my-browser",
+    "trillion-workshop/serialized-content",
+    "trillion-workshop/set-up-my-account",
+    "trillion-workshop/set-up-my-devices-and-cameras",
+    "trillion-workshop/settings",
+    "trillion-workshop/settle-amounts-and-reconcile",
+    "trillion-workshop/shared-code",
+    "trillion-workshop/show-any-file-as-itself",
+    "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+    "trillion-workshop/show-ideas-as-records",
+    "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+    "trillion-workshop/sidebar",
+    "trillion-workshop/slot-table",
+    "trillion-workshop/social-posts",
+    "trillion-workshop/start-from-any-landing-page",
+    "trillion-workshop/starting-set",
+    "trillion-workshop/stream-an-answer-in-keyed-parts",
+    "trillion-workshop/take-pictures-out-of-a-zip-archive",
+    "trillion-workshop/tell-one-person-something-through-every-way-they",
+    "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+    "trillion-workshop/tours-screen",
+    "trillion-workshop/transcript-reader",
+    "trillion-workshop/turn-a-list-column-that-holds-names-into",
+    "trillion-workshop/turn-frames-into-slides",
+    "trillion-workshop/tweak-live-controls",
+    "trillion-workshop/ui",
+    "trillion-workshop/view-as",
+    "trillion-workshop/walk-a-new-person-through-first-setup",
+    "trillion-workshop/walk-nested-input-within-limits",
+    "trillion-workshop/watch-my-sources",
+    "trillion-workshop/what-is-waiting-on-me",
+    "trillion-workshop/where-a-person-stands",
+    "trillion-workshop/who-does-each-step",
+    "trillion-workshop/work-map",
+    "trillion-workshop/workflow-canvas",
+    "trillion-workshop/workflow-interruptions",
+    "trillion-workshop/workflows",
+    "trillion-workshop/workspace-pieces",
+    "trillion-workshop/workspace-screens",
+    "trillion-workshop/write-a-job-done-in-several-steps-have",
+    "trillion-workshop/write-a-post-for-each-place"
+   ],
+   "kind": "ai-tool-descriptor",
+   "id": "tool:make-pencil-portrait",
+   "label": "A pencil portrait from the video",
+   "job": "Draw a black-and-white pencil portrait of the person in a recording, with room above for a title",
+   "description": "Draw a black-and-white pencil portrait of the person in a recording, with room above for a title. Each result is a new file kept in your files; the recording itself is never changed.",
+   "status": "active",
+   "input_schema": {
+    "type": "object",
+    "required": [
+     "video"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "video": {
+      "type": "string",
+      "format": "namespace-file",
+      "description": "The recording to take the frame from: its identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+     },
+     "at": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Seconds into the recording for the frame (default: its sharpest, best-lit moment)"
+     },
+     "count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "description": "How many to make (default 2)"
+     }
+    }
+   },
+   "output_schema": {
+    "type": "object",
+    "required": [
+     "result",
+     "files"
+    ],
+    "properties": {
+     "result": {
+      "type": "object",
+      "required": [
+       "style",
+       "count",
+       "made"
+      ],
+      "properties": {
+       "count": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "made": {
+        "type": "array",
+        "minItems": 1
+       }
+      }
+     },
+     "files": {
+      "type": "object",
+      "required": [
+       "made"
+      ],
+      "properties": {
+       "made": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "invoke": {
+    "kind": "container",
+    "files": {
+     "package_files": {
+      "package": "media-composition",
+      "paths": [
+       "do-work",
+       "read-data"
+      ],
+      "at": "/opt/media-composition",
+      "exclude": [
+       "__tests__"
+      ]
+     }
+    },
+    "workdir": "/opt/media-composition",
+    "internet": true,
+    "stdout": "json",
+    "argv": [
+     "node",
+     "do-work/make-pictures-and-sounds.mjs",
+     "--style",
+     "pencil-portrait",
+     "--out",
+     "/opt/media-composition/made",
+     "--work",
+     "/opt/media-composition/making",
+     "--relay",
+     "/run/gateway/relay.json"
+    ],
+    "stdin": {
+     "fill": {
+      "from": "input"
+     }
+    },
+    "outputs": [
+     {
+      "name": "made",
+      "folder": "/opt/media-composition/made",
+      "keep_in": "files",
+      "media_type": "image/png",
+      "max_bytes": 200000000
+     }
+    ],
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ],
+    "gateway_relay": {
+     "mount_path": "/run/gateway/relay.json"
+    }
+   },
+   "billing": {
+    "payers": [
+     "own-account",
+     "gateway-account"
+    ],
+    "gateway": "gateway:treg",
+    "per": "gateway-call"
+   },
+   "needs": {
+    "expected_seconds": 180,
+    "network_egress": true,
+    "memory_mb": 4096
+   },
+   "licence_class": "licence:maker-own",
+   "placements": [
+    "placement:deployed-container"
+   ],
+   "maker": "maker:media-composition",
+   "verify": [
+    {
+     "kind": "output-number-within",
+     "output_selector": "$.result.count",
+     "at_least": 1
+    }
+   ],
+   "provenance": {
+    "record": "package::media-composition::media-generation-style::pencil-portrait",
+    "source": "source:make-pictures-and-sounds"
+   }
+  }
+ },
+ {
+  "id": "package::media-composition::tool::make-cut-out",
+  "address": "package::media-composition::tool::make-cut-out",
+  "path": [
+   "current-item",
+   "published-record"
+  ],
+  "payload": {
+   "uses_tools": [
+    "trillion-workshop/account-dashboard",
+    "trillion-workshop/account-session",
+    "trillion-workshop/addressed-marks",
+    "trillion-workshop/agents-hub",
+    "trillion-workshop/ai-execution-history",
+    "trillion-workshop/ai-guided-work",
+    "trillion-workshop/ai-memory",
+    "trillion-workshop/ai-records-producer",
+    "trillion-workshop/ai-tool-catalog",
+    "trillion-workshop/ambience",
+    "trillion-workshop/arrange-screens-in-panes",
+    "trillion-workshop/ask-a-small-model-for-a-verdict",
+    "trillion-workshop/audio-transcription",
+    "trillion-workshop/away-summary",
+    "trillion-workshop/background-runner-control",
+    "trillion-workshop/bring-in-new-items-from-this-computer",
+    "trillion-workshop/browse-and-upload-my-files",
+    "trillion-workshop/browse-inspiration-clips",
+    "trillion-workshop/browse-public-page",
+    "trillion-workshop/build-a-screen-from-patches",
+    "trillion-workshop/build-engine-modules-for-web-hosts",
+    "trillion-workshop/calibrate-a-camera-frame",
+    "trillion-workshop/chat",
+    "trillion-workshop/check-a-packages-declared-permissions",
+    "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+    "trillion-workshop/check-bundle-package-boundaries",
+    "trillion-workshop/choose-and-publish-screen-looks",
+    "trillion-workshop/command-palette",
+    "trillion-workshop/composition-scene-renderer",
+    "trillion-workshop/computer-programs",
+    "trillion-workshop/connect-a-service-and-seal-its-key",
+    "trillion-workshop/content-identity",
+    "trillion-workshop/content-media-evidence",
+    "trillion-workshop/conversations",
+    "trillion-workshop/copy-a-site",
+    "trillion-workshop/decide-when-things-show",
+    "trillion-workshop/decide-with-a-method",
+    "trillion-workshop/delight-moments",
+    "trillion-workshop/describe-the-workshop",
+    "trillion-workshop/documents",
+    "trillion-workshop/documents-as-list-rows",
+    "trillion-workshop/draw-lists-on-a-canvas",
+    "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+    "trillion-workshop/drive-the-screen",
+    "trillion-workshop/edit-a-document-together",
+    "trillion-workshop/edit-a-site-visually",
+    "trillion-workshop/feel",
+    "trillion-workshop/file-content-renderer",
+    "trillion-workshop/fill-a-list-from-a-feed",
+    "trillion-workshop/find-anything-from-one-box",
+    "trillion-workshop/formula-engine",
+    "trillion-workshop/founder-growth-engine-screens",
+    "trillion-workshop/funnel-offer-graph",
+    "trillion-workshop/funnels-screen",
+    "trillion-workshop/graph-canvas",
+    "trillion-workshop/guided-overlay",
+    "trillion-workshop/hand-off-jobs-between-agents",
+    "trillion-workshop/hand-work-to-ais",
+    "trillion-workshop/headless-browser",
+    "trillion-workshop/hold-one-thing-until-done",
+    "trillion-workshop/http-client",
+    "trillion-workshop/introduce-two-people",
+    "trillion-workshop/judge-words",
+    "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+    "trillion-workshop/keep-copies-in-step",
+    "trillion-workshop/keep-lists-of-rows",
+    "trillion-workshop/keep-records-only-my-devices-can-read",
+    "trillion-workshop/know-the-projects-on-this-computer",
+    "trillion-workshop/know-who-is-in-this",
+    "trillion-workshop/learn-a-workflow-from-a-job",
+    "trillion-workshop/learn-from-everyones-results",
+    "trillion-workshop/leave-a-makers-private-starting-values-out",
+    "trillion-workshop/lessons-and-learning-paths",
+    "trillion-workshop/let-someone-look-at-my-account-read",
+    "trillion-workshop/list-tools-for-an-ai",
+    "trillion-workshop/listen-for-a-while",
+    "trillion-workshop/live-namespace",
+    "trillion-workshop/local-files",
+    "trillion-workshop/look-at-screen",
+    "trillion-workshop/make-a-video-playable-at-ingest",
+    "trillion-workshop/make-screen-layouts-and-controls",
+    "trillion-workshop/make-things-feel-good",
+    "trillion-workshop/marketplace-defaults",
+    "trillion-workshop/media-identity",
+    "trillion-workshop/media-playback",
+    "trillion-workshop/messages-screen",
+    "trillion-workshop/model-response",
+    "trillion-workshop/models-on-this-computer",
+    "trillion-workshop/move-records-through-declared-states",
+    "trillion-workshop/native-space-source-release",
+    "trillion-workshop/operation-records",
+    "trillion-workshop/organize-my-files",
+    "trillion-workshop/organize-the-sidebar",
+    "trillion-workshop/outside-conversations",
+    "trillion-workshop/paid-access",
+    "trillion-workshop/pair-unknown-senders",
+    "trillion-workshop/permission-lease",
+    "trillion-workshop/person-list",
+    "trillion-workshop/pick-a-screen-as-you-type",
+    "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+    "trillion-workshop/pin-files-by-content",
+    "trillion-workshop/plan-tasks-and-todo-lists",
+    "trillion-workshop/process-session",
+    "trillion-workshop/query-and-change-list-rows",
+    "trillion-workshop/quote-untrusted-words",
+    "trillion-workshop/read-and-write-mail",
+    "trillion-workshop/recently-deleted-and-storage",
+    "trillion-workshop/record-audio",
+    "trillion-workshop/record-graph",
+    "trillion-workshop/record-log",
+    "trillion-workshop/record-video",
+    "trillion-workshop/record-video-with-teleprompter",
+    "trillion-workshop/record-voice-and-meetings",
+    "trillion-workshop/records-door",
+    "trillion-workshop/refuse-requests-to-private-addresses",
+    "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+    "trillion-workshop/review-what-a-list-says",
+    "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+    "trillion-workshop/run-experiments",
+    "trillion-workshop/run-on-a-persons-computer",
+    "trillion-workshop/run-sql-in-my-database",
+    "trillion-workshop/run-tools-in-my-signed-in-browser",
+    "trillion-workshop/run-work-later-or-on-a-repeat",
+    "trillion-workshop/screen-arrangement",
+    "trillion-workshop/screen-look",
+    "trillion-workshop/screen-looks",
+    "trillion-workshop/screen-ready-records",
+    "trillion-workshop/screen-recording",
+    "trillion-workshop/sealed-records",
+    "trillion-workshop/see-a-pursuit-through-the-lens",
+    "trillion-workshop/see-what-is-being-worked-on",
+    "trillion-workshop/see-what-my-ais-did",
+    "trillion-workshop/selected-agent",
+    "trillion-workshop/send-requests-to-an-engine",
+    "trillion-workshop/send-to-trillion-from-my-browser",
+    "trillion-workshop/serialized-content",
+    "trillion-workshop/set-up-my-account",
+    "trillion-workshop/set-up-my-devices-and-cameras",
+    "trillion-workshop/settings",
+    "trillion-workshop/settle-amounts-and-reconcile",
+    "trillion-workshop/shared-code",
+    "trillion-workshop/show-any-file-as-itself",
+    "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+    "trillion-workshop/show-ideas-as-records",
+    "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+    "trillion-workshop/sidebar",
+    "trillion-workshop/slot-table",
+    "trillion-workshop/social-posts",
+    "trillion-workshop/start-from-any-landing-page",
+    "trillion-workshop/starting-set",
+    "trillion-workshop/stream-an-answer-in-keyed-parts",
+    "trillion-workshop/take-pictures-out-of-a-zip-archive",
+    "trillion-workshop/tell-one-person-something-through-every-way-they",
+    "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+    "trillion-workshop/tours-screen",
+    "trillion-workshop/transcript-reader",
+    "trillion-workshop/turn-a-list-column-that-holds-names-into",
+    "trillion-workshop/turn-frames-into-slides",
+    "trillion-workshop/tweak-live-controls",
+    "trillion-workshop/ui",
+    "trillion-workshop/view-as",
+    "trillion-workshop/walk-a-new-person-through-first-setup",
+    "trillion-workshop/walk-nested-input-within-limits",
+    "trillion-workshop/watch-my-sources",
+    "trillion-workshop/what-is-waiting-on-me",
+    "trillion-workshop/where-a-person-stands",
+    "trillion-workshop/who-does-each-step",
+    "trillion-workshop/work-map",
+    "trillion-workshop/workflow-canvas",
+    "trillion-workshop/workflow-interruptions",
+    "trillion-workshop/workflows",
+    "trillion-workshop/workspace-pieces",
+    "trillion-workshop/workspace-screens",
+    "trillion-workshop/write-a-job-done-in-several-steps-have",
+    "trillion-workshop/write-a-post-for-each-place"
+   ],
+   "kind": "ai-tool-descriptor",
+   "id": "tool:make-cut-out",
+   "label": "Cut the person out",
+   "job": "Cut the person out of one frame of a recording and keep them as a picture with a transparent background",
+   "description": "Cut the person out of one frame of a recording and keep them as a picture with a transparent background. Each result is a new file kept in your files; the recording itself is never changed.",
+   "status": "active",
+   "input_schema": {
+    "type": "object",
+    "required": [
+     "video"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "video": {
+      "type": "string",
+      "format": "namespace-file",
+      "description": "The recording to take the frame from: its identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+     },
+     "at": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Seconds into the recording for the frame (default: its sharpest, best-lit moment)"
+     }
+    }
+   },
+   "output_schema": {
+    "type": "object",
+    "required": [
+     "result",
+     "files"
+    ],
+    "properties": {
+     "result": {
+      "type": "object",
+      "required": [
+       "style",
+       "count",
+       "made"
+      ],
+      "properties": {
+       "count": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "made": {
+        "type": "array",
+        "minItems": 1
+       }
+      }
+     },
+     "files": {
+      "type": "object",
+      "required": [
+       "made"
+      ],
+      "properties": {
+       "made": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "invoke": {
+    "kind": "container",
+    "files": {
+     "package_files": {
+      "package": "media-composition",
+      "paths": [
+       "do-work",
+       "read-data"
+      ],
+      "at": "/opt/media-composition",
+      "exclude": [
+       "__tests__"
+      ]
+     }
+    },
+    "workdir": "/opt/media-composition",
+    "internet": true,
+    "stdout": "json",
+    "argv": [
+     "node",
+     "do-work/make-pictures-and-sounds.mjs",
+     "--style",
+     "cut-out",
+     "--out",
+     "/opt/media-composition/made",
+     "--work",
+     "/opt/media-composition/making",
+     "--relay",
+     "/run/gateway/relay.json"
+    ],
+    "stdin": {
+     "fill": {
+      "from": "input"
+     }
+    },
+    "outputs": [
+     {
+      "name": "made",
+      "folder": "/opt/media-composition/made",
+      "keep_in": "files",
+      "media_type": "image/png",
+      "max_bytes": 200000000
+     }
+    ],
+    "gateway_relay": {
+     "mount_path": "/run/gateway/relay.json"
+    }
+   },
+   "billing": {
+    "payers": [
+     "own-account",
+     "gateway-account"
+    ],
+    "gateway": "gateway:treg",
+    "per": "gateway-call"
+   },
+   "needs": {
+    "expected_seconds": 180,
+    "network_egress": true,
+    "memory_mb": 4096
+   },
+   "licence_class": "licence:maker-own",
+   "placements": [
+    "placement:deployed-container"
+   ],
+   "maker": "maker:media-composition",
+   "verify": [
+    {
+     "kind": "output-number-within",
+     "output_selector": "$.result.count",
+     "at_least": 1
+    }
+   ],
+   "provenance": {
+    "record": "package::media-composition::media-generation-style::cut-out",
+    "source": "source:make-pictures-and-sounds"
+   }
+  }
+ },
+ {
+  "id": "package::media-composition::tool::make-background-about-the-video",
+  "address": "package::media-composition::tool::make-background-about-the-video",
+  "path": [
+   "current-item",
+   "published-record"
+  ],
+  "payload": {
+   "uses_tools": [
+    "trillion-workshop/account-dashboard",
+    "trillion-workshop/account-session",
+    "trillion-workshop/addressed-marks",
+    "trillion-workshop/agents-hub",
+    "trillion-workshop/ai-execution-history",
+    "trillion-workshop/ai-guided-work",
+    "trillion-workshop/ai-memory",
+    "trillion-workshop/ai-records-producer",
+    "trillion-workshop/ai-tool-catalog",
+    "trillion-workshop/ambience",
+    "trillion-workshop/arrange-screens-in-panes",
+    "trillion-workshop/ask-a-small-model-for-a-verdict",
+    "trillion-workshop/audio-transcription",
+    "trillion-workshop/away-summary",
+    "trillion-workshop/background-runner-control",
+    "trillion-workshop/bring-in-new-items-from-this-computer",
+    "trillion-workshop/browse-and-upload-my-files",
+    "trillion-workshop/browse-inspiration-clips",
+    "trillion-workshop/browse-public-page",
+    "trillion-workshop/build-a-screen-from-patches",
+    "trillion-workshop/build-engine-modules-for-web-hosts",
+    "trillion-workshop/calibrate-a-camera-frame",
+    "trillion-workshop/chat",
+    "trillion-workshop/check-a-packages-declared-permissions",
+    "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+    "trillion-workshop/check-bundle-package-boundaries",
+    "trillion-workshop/choose-and-publish-screen-looks",
+    "trillion-workshop/command-palette",
+    "trillion-workshop/composition-scene-renderer",
+    "trillion-workshop/computer-programs",
+    "trillion-workshop/connect-a-service-and-seal-its-key",
+    "trillion-workshop/content-identity",
+    "trillion-workshop/content-media-evidence",
+    "trillion-workshop/conversations",
+    "trillion-workshop/copy-a-site",
+    "trillion-workshop/decide-when-things-show",
+    "trillion-workshop/decide-with-a-method",
+    "trillion-workshop/delight-moments",
+    "trillion-workshop/describe-the-workshop",
+    "trillion-workshop/documents",
+    "trillion-workshop/documents-as-list-rows",
+    "trillion-workshop/draw-lists-on-a-canvas",
+    "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+    "trillion-workshop/drive-the-screen",
+    "trillion-workshop/edit-a-document-together",
+    "trillion-workshop/edit-a-site-visually",
+    "trillion-workshop/feel",
+    "trillion-workshop/file-content-renderer",
+    "trillion-workshop/fill-a-list-from-a-feed",
+    "trillion-workshop/find-anything-from-one-box",
+    "trillion-workshop/formula-engine",
+    "trillion-workshop/founder-growth-engine-screens",
+    "trillion-workshop/funnel-offer-graph",
+    "trillion-workshop/funnels-screen",
+    "trillion-workshop/graph-canvas",
+    "trillion-workshop/guided-overlay",
+    "trillion-workshop/hand-off-jobs-between-agents",
+    "trillion-workshop/hand-work-to-ais",
+    "trillion-workshop/headless-browser",
+    "trillion-workshop/hold-one-thing-until-done",
+    "trillion-workshop/http-client",
+    "trillion-workshop/introduce-two-people",
+    "trillion-workshop/judge-words",
+    "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+    "trillion-workshop/keep-copies-in-step",
+    "trillion-workshop/keep-lists-of-rows",
+    "trillion-workshop/keep-records-only-my-devices-can-read",
+    "trillion-workshop/know-the-projects-on-this-computer",
+    "trillion-workshop/know-who-is-in-this",
+    "trillion-workshop/learn-a-workflow-from-a-job",
+    "trillion-workshop/learn-from-everyones-results",
+    "trillion-workshop/leave-a-makers-private-starting-values-out",
+    "trillion-workshop/lessons-and-learning-paths",
+    "trillion-workshop/let-someone-look-at-my-account-read",
+    "trillion-workshop/list-tools-for-an-ai",
+    "trillion-workshop/listen-for-a-while",
+    "trillion-workshop/live-namespace",
+    "trillion-workshop/local-files",
+    "trillion-workshop/look-at-screen",
+    "trillion-workshop/make-a-video-playable-at-ingest",
+    "trillion-workshop/make-screen-layouts-and-controls",
+    "trillion-workshop/make-things-feel-good",
+    "trillion-workshop/marketplace-defaults",
+    "trillion-workshop/media-identity",
+    "trillion-workshop/media-playback",
+    "trillion-workshop/messages-screen",
+    "trillion-workshop/model-response",
+    "trillion-workshop/models-on-this-computer",
+    "trillion-workshop/move-records-through-declared-states",
+    "trillion-workshop/native-space-source-release",
+    "trillion-workshop/operation-records",
+    "trillion-workshop/organize-my-files",
+    "trillion-workshop/organize-the-sidebar",
+    "trillion-workshop/outside-conversations",
+    "trillion-workshop/paid-access",
+    "trillion-workshop/pair-unknown-senders",
+    "trillion-workshop/permission-lease",
+    "trillion-workshop/person-list",
+    "trillion-workshop/pick-a-screen-as-you-type",
+    "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+    "trillion-workshop/pin-files-by-content",
+    "trillion-workshop/plan-tasks-and-todo-lists",
+    "trillion-workshop/process-session",
+    "trillion-workshop/query-and-change-list-rows",
+    "trillion-workshop/quote-untrusted-words",
+    "trillion-workshop/read-and-write-mail",
+    "trillion-workshop/recently-deleted-and-storage",
+    "trillion-workshop/record-audio",
+    "trillion-workshop/record-graph",
+    "trillion-workshop/record-log",
+    "trillion-workshop/record-video",
+    "trillion-workshop/record-video-with-teleprompter",
+    "trillion-workshop/record-voice-and-meetings",
+    "trillion-workshop/records-door",
+    "trillion-workshop/refuse-requests-to-private-addresses",
+    "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+    "trillion-workshop/review-what-a-list-says",
+    "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+    "trillion-workshop/run-experiments",
+    "trillion-workshop/run-on-a-persons-computer",
+    "trillion-workshop/run-sql-in-my-database",
+    "trillion-workshop/run-tools-in-my-signed-in-browser",
+    "trillion-workshop/run-work-later-or-on-a-repeat",
+    "trillion-workshop/screen-arrangement",
+    "trillion-workshop/screen-look",
+    "trillion-workshop/screen-looks",
+    "trillion-workshop/screen-ready-records",
+    "trillion-workshop/screen-recording",
+    "trillion-workshop/sealed-records",
+    "trillion-workshop/see-a-pursuit-through-the-lens",
+    "trillion-workshop/see-what-is-being-worked-on",
+    "trillion-workshop/see-what-my-ais-did",
+    "trillion-workshop/selected-agent",
+    "trillion-workshop/send-requests-to-an-engine",
+    "trillion-workshop/send-to-trillion-from-my-browser",
+    "trillion-workshop/serialized-content",
+    "trillion-workshop/set-up-my-account",
+    "trillion-workshop/set-up-my-devices-and-cameras",
+    "trillion-workshop/settings",
+    "trillion-workshop/settle-amounts-and-reconcile",
+    "trillion-workshop/shared-code",
+    "trillion-workshop/show-any-file-as-itself",
+    "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+    "trillion-workshop/show-ideas-as-records",
+    "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+    "trillion-workshop/sidebar",
+    "trillion-workshop/slot-table",
+    "trillion-workshop/social-posts",
+    "trillion-workshop/start-from-any-landing-page",
+    "trillion-workshop/starting-set",
+    "trillion-workshop/stream-an-answer-in-keyed-parts",
+    "trillion-workshop/take-pictures-out-of-a-zip-archive",
+    "trillion-workshop/tell-one-person-something-through-every-way-they",
+    "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+    "trillion-workshop/tours-screen",
+    "trillion-workshop/transcript-reader",
+    "trillion-workshop/turn-a-list-column-that-holds-names-into",
+    "trillion-workshop/turn-frames-into-slides",
+    "trillion-workshop/tweak-live-controls",
+    "trillion-workshop/ui",
+    "trillion-workshop/view-as",
+    "trillion-workshop/walk-a-new-person-through-first-setup",
+    "trillion-workshop/walk-nested-input-within-limits",
+    "trillion-workshop/watch-my-sources",
+    "trillion-workshop/what-is-waiting-on-me",
+    "trillion-workshop/where-a-person-stands",
+    "trillion-workshop/who-does-each-step",
+    "trillion-workshop/work-map",
+    "trillion-workshop/workflow-canvas",
+    "trillion-workshop/workflow-interruptions",
+    "trillion-workshop/workflows",
+    "trillion-workshop/workspace-pieces",
+    "trillion-workshop/workspace-screens",
+    "trillion-workshop/write-a-job-done-in-several-steps-have",
+    "trillion-workshop/write-a-post-for-each-place"
+   ],
+   "kind": "ai-tool-descriptor",
+   "id": "tool:make-background-about-the-video",
+   "label": "A background about the video",
+   "job": "Make a dramatic wide background picture about a video's topic, with no people and no text",
+   "description": "Make a dramatic wide background picture about a video's topic, with no people and no text. Each result is a new file kept in your files; the recording itself is never changed.",
+   "status": "active",
+   "input_schema": {
+    "type": "object",
+    "required": [
+     "topic"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "topic": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "description": "What the video is about, in a few words"
+     },
+     "count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "description": "How many to make (default 1)"
+     }
+    }
+   },
+   "output_schema": {
+    "type": "object",
+    "required": [
+     "result",
+     "files"
+    ],
+    "properties": {
+     "result": {
+      "type": "object",
+      "required": [
+       "style",
+       "count",
+       "made"
+      ],
+      "properties": {
+       "count": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "made": {
+        "type": "array",
+        "minItems": 1
+       }
+      }
+     },
+     "files": {
+      "type": "object",
+      "required": [
+       "made"
+      ],
+      "properties": {
+       "made": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "invoke": {
+    "kind": "container",
+    "files": {
+     "package_files": {
+      "package": "media-composition",
+      "paths": [
+       "do-work",
+       "read-data"
+      ],
+      "at": "/opt/media-composition",
+      "exclude": [
+       "__tests__"
+      ]
+     }
+    },
+    "workdir": "/opt/media-composition",
+    "internet": true,
+    "stdout": "json",
+    "argv": [
+     "node",
+     "do-work/make-pictures-and-sounds.mjs",
+     "--style",
+     "background-about-the-video",
+     "--out",
+     "/opt/media-composition/made",
+     "--work",
+     "/opt/media-composition/making",
+     "--relay",
+     "/run/gateway/relay.json"
+    ],
+    "stdin": {
+     "fill": {
+      "from": "input"
+     }
+    },
+    "outputs": [
+     {
+      "name": "made",
+      "folder": "/opt/media-composition/made",
+      "keep_in": "files",
+      "media_type": "image/png",
+      "max_bytes": 200000000
+     }
+    ],
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ],
+    "gateway_relay": {
+     "mount_path": "/run/gateway/relay.json"
+    }
+   },
+   "billing": {
+    "payers": [
+     "own-account",
+     "gateway-account"
+    ],
+    "gateway": "gateway:treg",
+    "per": "gateway-call"
+   },
+   "needs": {
+    "expected_seconds": 180,
+    "network_egress": true,
+    "memory_mb": 4096
+   },
+   "licence_class": "licence:maker-own",
+   "placements": [
+    "placement:deployed-container"
+   ],
+   "maker": "maker:media-composition",
+   "verify": [
+    {
+     "kind": "output-number-within",
+     "output_selector": "$.result.count",
+     "at_least": 1
+    }
+   ],
+   "provenance": {
+    "record": "package::media-composition::media-generation-style::background-about-the-video",
+    "source": "source:make-pictures-and-sounds"
+   }
+  }
+ },
+ {
+  "id": "package::media-composition::tool::make-cut-out-on-a-new-background",
+  "address": "package::media-composition::tool::make-cut-out-on-a-new-background",
+  "path": [
+   "current-item",
+   "published-record"
+  ],
+  "payload": {
+   "uses_tools": [
+    "trillion-workshop/account-dashboard",
+    "trillion-workshop/account-session",
+    "trillion-workshop/addressed-marks",
+    "trillion-workshop/agents-hub",
+    "trillion-workshop/ai-execution-history",
+    "trillion-workshop/ai-guided-work",
+    "trillion-workshop/ai-memory",
+    "trillion-workshop/ai-records-producer",
+    "trillion-workshop/ai-tool-catalog",
+    "trillion-workshop/ambience",
+    "trillion-workshop/arrange-screens-in-panes",
+    "trillion-workshop/ask-a-small-model-for-a-verdict",
+    "trillion-workshop/audio-transcription",
+    "trillion-workshop/away-summary",
+    "trillion-workshop/background-runner-control",
+    "trillion-workshop/bring-in-new-items-from-this-computer",
+    "trillion-workshop/browse-and-upload-my-files",
+    "trillion-workshop/browse-inspiration-clips",
+    "trillion-workshop/browse-public-page",
+    "trillion-workshop/build-a-screen-from-patches",
+    "trillion-workshop/build-engine-modules-for-web-hosts",
+    "trillion-workshop/calibrate-a-camera-frame",
+    "trillion-workshop/chat",
+    "trillion-workshop/check-a-packages-declared-permissions",
+    "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+    "trillion-workshop/check-bundle-package-boundaries",
+    "trillion-workshop/choose-and-publish-screen-looks",
+    "trillion-workshop/command-palette",
+    "trillion-workshop/composition-scene-renderer",
+    "trillion-workshop/computer-programs",
+    "trillion-workshop/connect-a-service-and-seal-its-key",
+    "trillion-workshop/content-identity",
+    "trillion-workshop/content-media-evidence",
+    "trillion-workshop/conversations",
+    "trillion-workshop/copy-a-site",
+    "trillion-workshop/decide-when-things-show",
+    "trillion-workshop/decide-with-a-method",
+    "trillion-workshop/delight-moments",
+    "trillion-workshop/describe-the-workshop",
+    "trillion-workshop/documents",
+    "trillion-workshop/documents-as-list-rows",
+    "trillion-workshop/draw-lists-on-a-canvas",
+    "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+    "trillion-workshop/drive-the-screen",
+    "trillion-workshop/edit-a-document-together",
+    "trillion-workshop/edit-a-site-visually",
+    "trillion-workshop/feel",
+    "trillion-workshop/file-content-renderer",
+    "trillion-workshop/fill-a-list-from-a-feed",
+    "trillion-workshop/find-anything-from-one-box",
+    "trillion-workshop/formula-engine",
+    "trillion-workshop/founder-growth-engine-screens",
+    "trillion-workshop/funnel-offer-graph",
+    "trillion-workshop/funnels-screen",
+    "trillion-workshop/graph-canvas",
+    "trillion-workshop/guided-overlay",
+    "trillion-workshop/hand-off-jobs-between-agents",
+    "trillion-workshop/hand-work-to-ais",
+    "trillion-workshop/headless-browser",
+    "trillion-workshop/hold-one-thing-until-done",
+    "trillion-workshop/http-client",
+    "trillion-workshop/introduce-two-people",
+    "trillion-workshop/judge-words",
+    "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+    "trillion-workshop/keep-copies-in-step",
+    "trillion-workshop/keep-lists-of-rows",
+    "trillion-workshop/keep-records-only-my-devices-can-read",
+    "trillion-workshop/know-the-projects-on-this-computer",
+    "trillion-workshop/know-who-is-in-this",
+    "trillion-workshop/learn-a-workflow-from-a-job",
+    "trillion-workshop/learn-from-everyones-results",
+    "trillion-workshop/leave-a-makers-private-starting-values-out",
+    "trillion-workshop/lessons-and-learning-paths",
+    "trillion-workshop/let-someone-look-at-my-account-read",
+    "trillion-workshop/list-tools-for-an-ai",
+    "trillion-workshop/listen-for-a-while",
+    "trillion-workshop/live-namespace",
+    "trillion-workshop/local-files",
+    "trillion-workshop/look-at-screen",
+    "trillion-workshop/make-a-video-playable-at-ingest",
+    "trillion-workshop/make-screen-layouts-and-controls",
+    "trillion-workshop/make-things-feel-good",
+    "trillion-workshop/marketplace-defaults",
+    "trillion-workshop/media-identity",
+    "trillion-workshop/media-playback",
+    "trillion-workshop/messages-screen",
+    "trillion-workshop/model-response",
+    "trillion-workshop/models-on-this-computer",
+    "trillion-workshop/move-records-through-declared-states",
+    "trillion-workshop/native-space-source-release",
+    "trillion-workshop/operation-records",
+    "trillion-workshop/organize-my-files",
+    "trillion-workshop/organize-the-sidebar",
+    "trillion-workshop/outside-conversations",
+    "trillion-workshop/paid-access",
+    "trillion-workshop/pair-unknown-senders",
+    "trillion-workshop/permission-lease",
+    "trillion-workshop/person-list",
+    "trillion-workshop/pick-a-screen-as-you-type",
+    "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+    "trillion-workshop/pin-files-by-content",
+    "trillion-workshop/plan-tasks-and-todo-lists",
+    "trillion-workshop/process-session",
+    "trillion-workshop/query-and-change-list-rows",
+    "trillion-workshop/quote-untrusted-words",
+    "trillion-workshop/read-and-write-mail",
+    "trillion-workshop/recently-deleted-and-storage",
+    "trillion-workshop/record-audio",
+    "trillion-workshop/record-graph",
+    "trillion-workshop/record-log",
+    "trillion-workshop/record-video",
+    "trillion-workshop/record-video-with-teleprompter",
+    "trillion-workshop/record-voice-and-meetings",
+    "trillion-workshop/records-door",
+    "trillion-workshop/refuse-requests-to-private-addresses",
+    "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+    "trillion-workshop/review-what-a-list-says",
+    "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+    "trillion-workshop/run-experiments",
+    "trillion-workshop/run-on-a-persons-computer",
+    "trillion-workshop/run-sql-in-my-database",
+    "trillion-workshop/run-tools-in-my-signed-in-browser",
+    "trillion-workshop/run-work-later-or-on-a-repeat",
+    "trillion-workshop/screen-arrangement",
+    "trillion-workshop/screen-look",
+    "trillion-workshop/screen-looks",
+    "trillion-workshop/screen-ready-records",
+    "trillion-workshop/screen-recording",
+    "trillion-workshop/sealed-records",
+    "trillion-workshop/see-a-pursuit-through-the-lens",
+    "trillion-workshop/see-what-is-being-worked-on",
+    "trillion-workshop/see-what-my-ais-did",
+    "trillion-workshop/selected-agent",
+    "trillion-workshop/send-requests-to-an-engine",
+    "trillion-workshop/send-to-trillion-from-my-browser",
+    "trillion-workshop/serialized-content",
+    "trillion-workshop/set-up-my-account",
+    "trillion-workshop/set-up-my-devices-and-cameras",
+    "trillion-workshop/settings",
+    "trillion-workshop/settle-amounts-and-reconcile",
+    "trillion-workshop/shared-code",
+    "trillion-workshop/show-any-file-as-itself",
+    "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+    "trillion-workshop/show-ideas-as-records",
+    "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+    "trillion-workshop/sidebar",
+    "trillion-workshop/slot-table",
+    "trillion-workshop/social-posts",
+    "trillion-workshop/start-from-any-landing-page",
+    "trillion-workshop/starting-set",
+    "trillion-workshop/stream-an-answer-in-keyed-parts",
+    "trillion-workshop/take-pictures-out-of-a-zip-archive",
+    "trillion-workshop/tell-one-person-something-through-every-way-they",
+    "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+    "trillion-workshop/tours-screen",
+    "trillion-workshop/transcript-reader",
+    "trillion-workshop/turn-a-list-column-that-holds-names-into",
+    "trillion-workshop/turn-frames-into-slides",
+    "trillion-workshop/tweak-live-controls",
+    "trillion-workshop/ui",
+    "trillion-workshop/view-as",
+    "trillion-workshop/walk-a-new-person-through-first-setup",
+    "trillion-workshop/walk-nested-input-within-limits",
+    "trillion-workshop/watch-my-sources",
+    "trillion-workshop/what-is-waiting-on-me",
+    "trillion-workshop/where-a-person-stands",
+    "trillion-workshop/who-does-each-step",
+    "trillion-workshop/work-map",
+    "trillion-workshop/workflow-canvas",
+    "trillion-workshop/workflow-interruptions",
+    "trillion-workshop/workflows",
+    "trillion-workshop/workspace-pieces",
+    "trillion-workshop/workspace-screens",
+    "trillion-workshop/write-a-job-done-in-several-steps-have",
+    "trillion-workshop/write-a-post-for-each-place"
+   ],
+   "kind": "ai-tool-descriptor",
+   "id": "tool:make-cut-out-on-a-new-background",
+   "label": "You, cut out on a new background",
+   "job": "Cut the person out of a recording's frame and place them on a new background made about the video's topic",
+   "description": "Cut the person out of a recording's frame and place them on a new background made about the video's topic. Each result is a new file kept in your files; the recording itself is never changed.",
+   "status": "active",
+   "input_schema": {
+    "type": "object",
+    "required": [
+     "video",
+     "topic"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "video": {
+      "type": "string",
+      "format": "namespace-file",
+      "description": "The recording to take the frame from: its identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+     },
+     "at": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Seconds into the recording for the frame (default: its sharpest, best-lit moment)"
+     },
+     "topic": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "description": "What the video is about, in a few words"
+     },
+     "count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "description": "How many to make (default 2)"
+     }
+    }
+   },
+   "output_schema": {
+    "type": "object",
+    "required": [
+     "result",
+     "files"
+    ],
+    "properties": {
+     "result": {
+      "type": "object",
+      "required": [
+       "style",
+       "count",
+       "made"
+      ],
+      "properties": {
+       "count": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "made": {
+        "type": "array",
+        "minItems": 1
+       }
+      }
+     },
+     "files": {
+      "type": "object",
+      "required": [
+       "made"
+      ],
+      "properties": {
+       "made": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "invoke": {
+    "kind": "container",
+    "files": {
+     "package_files": {
+      "package": "media-composition",
+      "paths": [
+       "do-work",
+       "read-data"
+      ],
+      "at": "/opt/media-composition",
+      "exclude": [
+       "__tests__"
+      ]
+     }
+    },
+    "workdir": "/opt/media-composition",
+    "internet": true,
+    "stdout": "json",
+    "argv": [
+     "node",
+     "do-work/make-pictures-and-sounds.mjs",
+     "--style",
+     "cut-out-on-a-new-background",
+     "--out",
+     "/opt/media-composition/made",
+     "--work",
+     "/opt/media-composition/making",
+     "--relay",
+     "/run/gateway/relay.json"
+    ],
+    "stdin": {
+     "fill": {
+      "from": "input"
+     }
+    },
+    "outputs": [
+     {
+      "name": "made",
+      "folder": "/opt/media-composition/made",
+      "keep_in": "files",
+      "media_type": "image/png",
+      "max_bytes": 200000000
+     }
+    ],
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ],
+    "gateway_relay": {
+     "mount_path": "/run/gateway/relay.json"
+    }
+   },
+   "billing": {
+    "payers": [
+     "own-account",
+     "gateway-account"
+    ],
+    "gateway": "gateway:treg",
+    "per": "gateway-call"
+   },
+   "needs": {
+    "expected_seconds": 180,
+    "network_egress": true,
+    "memory_mb": 4096
+   },
+   "licence_class": "licence:maker-own",
+   "placements": [
+    "placement:deployed-container"
+   ],
+   "maker": "maker:media-composition",
+   "verify": [
+    {
+     "kind": "output-number-within",
+     "output_selector": "$.result.count",
+     "at_least": 1
+    }
+   ],
+   "provenance": {
+    "record": "package::media-composition::media-generation-style::cut-out-on-a-new-background",
+    "source": "source:make-pictures-and-sounds"
+   }
+  }
+ },
+ {
+  "id": "package::media-composition::tool::make-sound-effect",
+  "address": "package::media-composition::tool::make-sound-effect",
+  "path": [
+   "current-item",
+   "published-record"
+  ],
+  "payload": {
+   "uses_tools": [
+    "trillion-workshop/account-dashboard",
+    "trillion-workshop/account-session",
+    "trillion-workshop/addressed-marks",
+    "trillion-workshop/agents-hub",
+    "trillion-workshop/ai-execution-history",
+    "trillion-workshop/ai-guided-work",
+    "trillion-workshop/ai-memory",
+    "trillion-workshop/ai-records-producer",
+    "trillion-workshop/ai-tool-catalog",
+    "trillion-workshop/ambience",
+    "trillion-workshop/arrange-screens-in-panes",
+    "trillion-workshop/ask-a-small-model-for-a-verdict",
+    "trillion-workshop/audio-transcription",
+    "trillion-workshop/away-summary",
+    "trillion-workshop/background-runner-control",
+    "trillion-workshop/bring-in-new-items-from-this-computer",
+    "trillion-workshop/browse-and-upload-my-files",
+    "trillion-workshop/browse-inspiration-clips",
+    "trillion-workshop/browse-public-page",
+    "trillion-workshop/build-a-screen-from-patches",
+    "trillion-workshop/build-engine-modules-for-web-hosts",
+    "trillion-workshop/calibrate-a-camera-frame",
+    "trillion-workshop/chat",
+    "trillion-workshop/check-a-packages-declared-permissions",
+    "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+    "trillion-workshop/check-bundle-package-boundaries",
+    "trillion-workshop/choose-and-publish-screen-looks",
+    "trillion-workshop/command-palette",
+    "trillion-workshop/composition-scene-renderer",
+    "trillion-workshop/computer-programs",
+    "trillion-workshop/connect-a-service-and-seal-its-key",
+    "trillion-workshop/content-identity",
+    "trillion-workshop/content-media-evidence",
+    "trillion-workshop/conversations",
+    "trillion-workshop/copy-a-site",
+    "trillion-workshop/decide-when-things-show",
+    "trillion-workshop/decide-with-a-method",
+    "trillion-workshop/delight-moments",
+    "trillion-workshop/describe-the-workshop",
+    "trillion-workshop/documents",
+    "trillion-workshop/documents-as-list-rows",
+    "trillion-workshop/draw-lists-on-a-canvas",
+    "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+    "trillion-workshop/drive-the-screen",
+    "trillion-workshop/edit-a-document-together",
+    "trillion-workshop/edit-a-site-visually",
+    "trillion-workshop/feel",
+    "trillion-workshop/file-content-renderer",
+    "trillion-workshop/fill-a-list-from-a-feed",
+    "trillion-workshop/find-anything-from-one-box",
+    "trillion-workshop/formula-engine",
+    "trillion-workshop/founder-growth-engine-screens",
+    "trillion-workshop/funnel-offer-graph",
+    "trillion-workshop/funnels-screen",
+    "trillion-workshop/graph-canvas",
+    "trillion-workshop/guided-overlay",
+    "trillion-workshop/hand-off-jobs-between-agents",
+    "trillion-workshop/hand-work-to-ais",
+    "trillion-workshop/headless-browser",
+    "trillion-workshop/hold-one-thing-until-done",
+    "trillion-workshop/http-client",
+    "trillion-workshop/introduce-two-people",
+    "trillion-workshop/judge-words",
+    "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+    "trillion-workshop/keep-copies-in-step",
+    "trillion-workshop/keep-lists-of-rows",
+    "trillion-workshop/keep-records-only-my-devices-can-read",
+    "trillion-workshop/know-the-projects-on-this-computer",
+    "trillion-workshop/know-who-is-in-this",
+    "trillion-workshop/learn-a-workflow-from-a-job",
+    "trillion-workshop/learn-from-everyones-results",
+    "trillion-workshop/leave-a-makers-private-starting-values-out",
+    "trillion-workshop/lessons-and-learning-paths",
+    "trillion-workshop/let-someone-look-at-my-account-read",
+    "trillion-workshop/list-tools-for-an-ai",
+    "trillion-workshop/listen-for-a-while",
+    "trillion-workshop/live-namespace",
+    "trillion-workshop/local-files",
+    "trillion-workshop/look-at-screen",
+    "trillion-workshop/make-a-video-playable-at-ingest",
+    "trillion-workshop/make-screen-layouts-and-controls",
+    "trillion-workshop/make-things-feel-good",
+    "trillion-workshop/marketplace-defaults",
+    "trillion-workshop/media-identity",
+    "trillion-workshop/media-playback",
+    "trillion-workshop/messages-screen",
+    "trillion-workshop/model-response",
+    "trillion-workshop/models-on-this-computer",
+    "trillion-workshop/move-records-through-declared-states",
+    "trillion-workshop/native-space-source-release",
+    "trillion-workshop/operation-records",
+    "trillion-workshop/organize-my-files",
+    "trillion-workshop/organize-the-sidebar",
+    "trillion-workshop/outside-conversations",
+    "trillion-workshop/paid-access",
+    "trillion-workshop/pair-unknown-senders",
+    "trillion-workshop/permission-lease",
+    "trillion-workshop/person-list",
+    "trillion-workshop/pick-a-screen-as-you-type",
+    "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+    "trillion-workshop/pin-files-by-content",
+    "trillion-workshop/plan-tasks-and-todo-lists",
+    "trillion-workshop/process-session",
+    "trillion-workshop/query-and-change-list-rows",
+    "trillion-workshop/quote-untrusted-words",
+    "trillion-workshop/read-and-write-mail",
+    "trillion-workshop/recently-deleted-and-storage",
+    "trillion-workshop/record-audio",
+    "trillion-workshop/record-graph",
+    "trillion-workshop/record-log",
+    "trillion-workshop/record-video",
+    "trillion-workshop/record-video-with-teleprompter",
+    "trillion-workshop/record-voice-and-meetings",
+    "trillion-workshop/records-door",
+    "trillion-workshop/refuse-requests-to-private-addresses",
+    "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+    "trillion-workshop/review-what-a-list-says",
+    "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+    "trillion-workshop/run-experiments",
+    "trillion-workshop/run-on-a-persons-computer",
+    "trillion-workshop/run-sql-in-my-database",
+    "trillion-workshop/run-tools-in-my-signed-in-browser",
+    "trillion-workshop/run-work-later-or-on-a-repeat",
+    "trillion-workshop/screen-arrangement",
+    "trillion-workshop/screen-look",
+    "trillion-workshop/screen-looks",
+    "trillion-workshop/screen-ready-records",
+    "trillion-workshop/screen-recording",
+    "trillion-workshop/sealed-records",
+    "trillion-workshop/see-a-pursuit-through-the-lens",
+    "trillion-workshop/see-what-is-being-worked-on",
+    "trillion-workshop/see-what-my-ais-did",
+    "trillion-workshop/selected-agent",
+    "trillion-workshop/send-requests-to-an-engine",
+    "trillion-workshop/send-to-trillion-from-my-browser",
+    "trillion-workshop/serialized-content",
+    "trillion-workshop/set-up-my-account",
+    "trillion-workshop/set-up-my-devices-and-cameras",
+    "trillion-workshop/settings",
+    "trillion-workshop/settle-amounts-and-reconcile",
+    "trillion-workshop/shared-code",
+    "trillion-workshop/show-any-file-as-itself",
+    "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+    "trillion-workshop/show-ideas-as-records",
+    "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+    "trillion-workshop/sidebar",
+    "trillion-workshop/slot-table",
+    "trillion-workshop/social-posts",
+    "trillion-workshop/start-from-any-landing-page",
+    "trillion-workshop/starting-set",
+    "trillion-workshop/stream-an-answer-in-keyed-parts",
+    "trillion-workshop/take-pictures-out-of-a-zip-archive",
+    "trillion-workshop/tell-one-person-something-through-every-way-they",
+    "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+    "trillion-workshop/tours-screen",
+    "trillion-workshop/transcript-reader",
+    "trillion-workshop/turn-a-list-column-that-holds-names-into",
+    "trillion-workshop/turn-frames-into-slides",
+    "trillion-workshop/tweak-live-controls",
+    "trillion-workshop/ui",
+    "trillion-workshop/view-as",
+    "trillion-workshop/walk-a-new-person-through-first-setup",
+    "trillion-workshop/walk-nested-input-within-limits",
+    "trillion-workshop/watch-my-sources",
+    "trillion-workshop/what-is-waiting-on-me",
+    "trillion-workshop/where-a-person-stands",
+    "trillion-workshop/who-does-each-step",
+    "trillion-workshop/work-map",
+    "trillion-workshop/workflow-canvas",
+    "trillion-workshop/workflow-interruptions",
+    "trillion-workshop/workflows",
+    "trillion-workshop/workspace-pieces",
+    "trillion-workshop/workspace-screens",
+    "trillion-workshop/write-a-job-done-in-several-steps-have",
+    "trillion-workshop/write-a-post-for-each-place"
+   ],
+   "kind": "ai-tool-descriptor",
+   "id": "tool:make-sound-effect",
+   "label": "A sound effect",
+   "job": "Make a sound effect from a description of the sound",
+   "description": "Make a sound effect from a description of the sound. Each result is a new file kept in your files; the recording itself is never changed.",
+   "status": "active",
+   "input_schema": {
+    "type": "object",
+    "required": [
+     "sound"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "sound": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "description": "The sound, described in a few words"
+     },
+     "count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "description": "How many to make (default 2)"
+     }
+    }
+   },
+   "output_schema": {
+    "type": "object",
+    "required": [
+     "result",
+     "files"
+    ],
+    "properties": {
+     "result": {
+      "type": "object",
+      "required": [
+       "style",
+       "count",
+       "made"
+      ],
+      "properties": {
+       "count": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "made": {
+        "type": "array",
+        "minItems": 1
+       }
+      }
+     },
+     "files": {
+      "type": "object",
+      "required": [
+       "made"
+      ],
+      "properties": {
+       "made": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "invoke": {
+    "kind": "container",
+    "files": {
+     "package_files": {
+      "package": "media-composition",
+      "paths": [
+       "do-work",
+       "read-data"
+      ],
+      "at": "/opt/media-composition",
+      "exclude": [
+       "__tests__"
+      ]
+     }
+    },
+    "workdir": "/opt/media-composition",
+    "internet": true,
+    "stdout": "json",
+    "argv": [
+     "node",
+     "do-work/make-pictures-and-sounds.mjs",
+     "--style",
+     "sound-effect",
+     "--out",
+     "/opt/media-composition/made",
+     "--work",
+     "/opt/media-composition/making",
+     "--relay",
+     "/run/gateway/relay.json"
+    ],
+    "stdin": {
+     "fill": {
+      "from": "input"
+     }
+    },
+    "outputs": [
+     {
+      "name": "made",
+      "folder": "/opt/media-composition/made",
+      "keep_in": "files",
+      "media_type": "audio/mpeg",
+      "max_bytes": 200000000
+     }
+    ],
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ],
+    "gateway_relay": {
+     "mount_path": "/run/gateway/relay.json"
+    }
+   },
+   "billing": {
+    "payers": [
+     "own-account",
+     "gateway-account"
+    ],
+    "gateway": "gateway:treg",
+    "per": "gateway-call"
+   },
+   "needs": {
+    "expected_seconds": 180,
+    "network_egress": true,
+    "memory_mb": 4096
+   },
+   "licence_class": "licence:maker-own",
+   "placements": [
+    "placement:deployed-container"
+   ],
+   "maker": "maker:media-composition",
+   "verify": [
+    {
+     "kind": "output-number-within",
+     "output_selector": "$.result.count",
+     "at_least": 1
+    }
+   ],
+   "provenance": {
+    "record": "package::media-composition::media-generation-style::sound-effect",
+    "source": "source:make-pictures-and-sounds"
+   }
+  }
+ },
+ {
+  "id": "package::media-composition::tool::make-music",
+  "address": "package::media-composition::tool::make-music",
+  "path": [
+   "current-item",
+   "published-record"
+  ],
+  "payload": {
+   "uses_tools": [
+    "trillion-workshop/account-dashboard",
+    "trillion-workshop/account-session",
+    "trillion-workshop/addressed-marks",
+    "trillion-workshop/agents-hub",
+    "trillion-workshop/ai-execution-history",
+    "trillion-workshop/ai-guided-work",
+    "trillion-workshop/ai-memory",
+    "trillion-workshop/ai-records-producer",
+    "trillion-workshop/ai-tool-catalog",
+    "trillion-workshop/ambience",
+    "trillion-workshop/arrange-screens-in-panes",
+    "trillion-workshop/ask-a-small-model-for-a-verdict",
+    "trillion-workshop/audio-transcription",
+    "trillion-workshop/away-summary",
+    "trillion-workshop/background-runner-control",
+    "trillion-workshop/bring-in-new-items-from-this-computer",
+    "trillion-workshop/browse-and-upload-my-files",
+    "trillion-workshop/browse-inspiration-clips",
+    "trillion-workshop/browse-public-page",
+    "trillion-workshop/build-a-screen-from-patches",
+    "trillion-workshop/build-engine-modules-for-web-hosts",
+    "trillion-workshop/calibrate-a-camera-frame",
+    "trillion-workshop/chat",
+    "trillion-workshop/check-a-packages-declared-permissions",
+    "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+    "trillion-workshop/check-bundle-package-boundaries",
+    "trillion-workshop/choose-and-publish-screen-looks",
+    "trillion-workshop/command-palette",
+    "trillion-workshop/composition-scene-renderer",
+    "trillion-workshop/computer-programs",
+    "trillion-workshop/connect-a-service-and-seal-its-key",
+    "trillion-workshop/content-identity",
+    "trillion-workshop/content-media-evidence",
+    "trillion-workshop/conversations",
+    "trillion-workshop/copy-a-site",
+    "trillion-workshop/decide-when-things-show",
+    "trillion-workshop/decide-with-a-method",
+    "trillion-workshop/delight-moments",
+    "trillion-workshop/describe-the-workshop",
+    "trillion-workshop/documents",
+    "trillion-workshop/documents-as-list-rows",
+    "trillion-workshop/draw-lists-on-a-canvas",
+    "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+    "trillion-workshop/drive-the-screen",
+    "trillion-workshop/edit-a-document-together",
+    "trillion-workshop/edit-a-site-visually",
+    "trillion-workshop/feel",
+    "trillion-workshop/file-content-renderer",
+    "trillion-workshop/fill-a-list-from-a-feed",
+    "trillion-workshop/find-anything-from-one-box",
+    "trillion-workshop/formula-engine",
+    "trillion-workshop/founder-growth-engine-screens",
+    "trillion-workshop/funnel-offer-graph",
+    "trillion-workshop/funnels-screen",
+    "trillion-workshop/graph-canvas",
+    "trillion-workshop/guided-overlay",
+    "trillion-workshop/hand-off-jobs-between-agents",
+    "trillion-workshop/hand-work-to-ais",
+    "trillion-workshop/headless-browser",
+    "trillion-workshop/hold-one-thing-until-done",
+    "trillion-workshop/http-client",
+    "trillion-workshop/introduce-two-people",
+    "trillion-workshop/judge-words",
+    "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+    "trillion-workshop/keep-copies-in-step",
+    "trillion-workshop/keep-lists-of-rows",
+    "trillion-workshop/keep-records-only-my-devices-can-read",
+    "trillion-workshop/know-the-projects-on-this-computer",
+    "trillion-workshop/know-who-is-in-this",
+    "trillion-workshop/learn-a-workflow-from-a-job",
+    "trillion-workshop/learn-from-everyones-results",
+    "trillion-workshop/leave-a-makers-private-starting-values-out",
+    "trillion-workshop/lessons-and-learning-paths",
+    "trillion-workshop/let-someone-look-at-my-account-read",
+    "trillion-workshop/list-tools-for-an-ai",
+    "trillion-workshop/listen-for-a-while",
+    "trillion-workshop/live-namespace",
+    "trillion-workshop/local-files",
+    "trillion-workshop/look-at-screen",
+    "trillion-workshop/make-a-video-playable-at-ingest",
+    "trillion-workshop/make-screen-layouts-and-controls",
+    "trillion-workshop/make-things-feel-good",
+    "trillion-workshop/marketplace-defaults",
+    "trillion-workshop/media-identity",
+    "trillion-workshop/media-playback",
+    "trillion-workshop/messages-screen",
+    "trillion-workshop/model-response",
+    "trillion-workshop/models-on-this-computer",
+    "trillion-workshop/move-records-through-declared-states",
+    "trillion-workshop/native-space-source-release",
+    "trillion-workshop/operation-records",
+    "trillion-workshop/organize-my-files",
+    "trillion-workshop/organize-the-sidebar",
+    "trillion-workshop/outside-conversations",
+    "trillion-workshop/paid-access",
+    "trillion-workshop/pair-unknown-senders",
+    "trillion-workshop/permission-lease",
+    "trillion-workshop/person-list",
+    "trillion-workshop/pick-a-screen-as-you-type",
+    "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+    "trillion-workshop/pin-files-by-content",
+    "trillion-workshop/plan-tasks-and-todo-lists",
+    "trillion-workshop/process-session",
+    "trillion-workshop/query-and-change-list-rows",
+    "trillion-workshop/quote-untrusted-words",
+    "trillion-workshop/read-and-write-mail",
+    "trillion-workshop/recently-deleted-and-storage",
+    "trillion-workshop/record-audio",
+    "trillion-workshop/record-graph",
+    "trillion-workshop/record-log",
+    "trillion-workshop/record-video",
+    "trillion-workshop/record-video-with-teleprompter",
+    "trillion-workshop/record-voice-and-meetings",
+    "trillion-workshop/records-door",
+    "trillion-workshop/refuse-requests-to-private-addresses",
+    "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+    "trillion-workshop/review-what-a-list-says",
+    "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+    "trillion-workshop/run-experiments",
+    "trillion-workshop/run-on-a-persons-computer",
+    "trillion-workshop/run-sql-in-my-database",
+    "trillion-workshop/run-tools-in-my-signed-in-browser",
+    "trillion-workshop/run-work-later-or-on-a-repeat",
+    "trillion-workshop/screen-arrangement",
+    "trillion-workshop/screen-look",
+    "trillion-workshop/screen-looks",
+    "trillion-workshop/screen-ready-records",
+    "trillion-workshop/screen-recording",
+    "trillion-workshop/sealed-records",
+    "trillion-workshop/see-a-pursuit-through-the-lens",
+    "trillion-workshop/see-what-is-being-worked-on",
+    "trillion-workshop/see-what-my-ais-did",
+    "trillion-workshop/selected-agent",
+    "trillion-workshop/send-requests-to-an-engine",
+    "trillion-workshop/send-to-trillion-from-my-browser",
+    "trillion-workshop/serialized-content",
+    "trillion-workshop/set-up-my-account",
+    "trillion-workshop/set-up-my-devices-and-cameras",
+    "trillion-workshop/settings",
+    "trillion-workshop/settle-amounts-and-reconcile",
+    "trillion-workshop/shared-code",
+    "trillion-workshop/show-any-file-as-itself",
+    "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+    "trillion-workshop/show-ideas-as-records",
+    "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+    "trillion-workshop/sidebar",
+    "trillion-workshop/slot-table",
+    "trillion-workshop/social-posts",
+    "trillion-workshop/start-from-any-landing-page",
+    "trillion-workshop/starting-set",
+    "trillion-workshop/stream-an-answer-in-keyed-parts",
+    "trillion-workshop/take-pictures-out-of-a-zip-archive",
+    "trillion-workshop/tell-one-person-something-through-every-way-they",
+    "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+    "trillion-workshop/tours-screen",
+    "trillion-workshop/transcript-reader",
+    "trillion-workshop/turn-a-list-column-that-holds-names-into",
+    "trillion-workshop/turn-frames-into-slides",
+    "trillion-workshop/tweak-live-controls",
+    "trillion-workshop/ui",
+    "trillion-workshop/view-as",
+    "trillion-workshop/walk-a-new-person-through-first-setup",
+    "trillion-workshop/walk-nested-input-within-limits",
+    "trillion-workshop/watch-my-sources",
+    "trillion-workshop/what-is-waiting-on-me",
+    "trillion-workshop/where-a-person-stands",
+    "trillion-workshop/who-does-each-step",
+    "trillion-workshop/work-map",
+    "trillion-workshop/workflow-canvas",
+    "trillion-workshop/workflow-interruptions",
+    "trillion-workshop/workflows",
+    "trillion-workshop/workspace-pieces",
+    "trillion-workshop/workspace-screens",
+    "trillion-workshop/write-a-job-done-in-several-steps-have",
+    "trillion-workshop/write-a-post-for-each-place"
+   ],
+   "kind": "ai-tool-descriptor",
+   "id": "tool:make-music",
+   "label": "Music",
+   "job": "Make a piece of instrumental music for a video from a mood or style",
+   "description": "Make a piece of instrumental music for a video from a mood or style. Each result is a new file kept in your files; the recording itself is never changed.",
+   "status": "active",
+   "input_schema": {
+    "type": "object",
+    "required": [
+     "mood"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "mood": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "description": "The mood or style of the music"
+     },
+     "count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "description": "How many to make (default 2)"
+     }
+    }
+   },
+   "output_schema": {
+    "type": "object",
+    "required": [
+     "result",
+     "files"
+    ],
+    "properties": {
+     "result": {
+      "type": "object",
+      "required": [
+       "style",
+       "count",
+       "made"
+      ],
+      "properties": {
+       "count": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "made": {
+        "type": "array",
+        "minItems": 1
+       }
+      }
+     },
+     "files": {
+      "type": "object",
+      "required": [
+       "made"
+      ],
+      "properties": {
+       "made": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "invoke": {
+    "kind": "container",
+    "files": {
+     "package_files": {
+      "package": "media-composition",
+      "paths": [
+       "do-work",
+       "read-data"
+      ],
+      "at": "/opt/media-composition",
+      "exclude": [
+       "__tests__"
+      ]
+     }
+    },
+    "workdir": "/opt/media-composition",
+    "internet": true,
+    "stdout": "json",
+    "argv": [
+     "node",
+     "do-work/make-pictures-and-sounds.mjs",
+     "--style",
+     "music",
+     "--out",
+     "/opt/media-composition/made",
+     "--work",
+     "/opt/media-composition/making",
+     "--relay",
+     "/run/gateway/relay.json"
+    ],
+    "stdin": {
+     "fill": {
+      "from": "input"
+     }
+    },
+    "outputs": [
+     {
+      "name": "made",
+      "folder": "/opt/media-composition/made",
+      "keep_in": "files",
+      "media_type": "audio/mpeg",
+      "max_bytes": 200000000
+     }
+    ],
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ],
+    "gateway_relay": {
+     "mount_path": "/run/gateway/relay.json"
+    }
+   },
+   "billing": {
+    "payers": [
+     "own-account",
+     "gateway-account"
+    ],
+    "gateway": "gateway:treg",
+    "per": "gateway-call"
+   },
+   "needs": {
+    "expected_seconds": 180,
+    "network_egress": true,
+    "memory_mb": 4096
+   },
+   "licence_class": "licence:maker-own",
+   "placements": [
+    "placement:deployed-container"
+   ],
+   "maker": "maker:media-composition",
+   "verify": [
+    {
+     "kind": "output-number-within",
+     "output_selector": "$.result.count",
+     "at_least": 1
+    }
+   ],
+   "provenance": {
+    "record": "package::media-composition::media-generation-style::music",
+    "source": "source:make-pictures-and-sounds"
+   }
+  }
+ },
+ {
+  "id": "package::media-composition::tool::make-sound-effect-forged-on-my-computer",
+  "address": "package::media-composition::tool::make-sound-effect-forged-on-my-computer",
+  "path": [
+   "current-item",
+   "published-record"
+  ],
+  "payload": {
+   "uses_tools": [
+    "trillion-workshop/account-dashboard",
+    "trillion-workshop/account-session",
+    "trillion-workshop/addressed-marks",
+    "trillion-workshop/agents-hub",
+    "trillion-workshop/ai-execution-history",
+    "trillion-workshop/ai-guided-work",
+    "trillion-workshop/ai-memory",
+    "trillion-workshop/ai-records-producer",
+    "trillion-workshop/ai-tool-catalog",
+    "trillion-workshop/ambience",
+    "trillion-workshop/arrange-screens-in-panes",
+    "trillion-workshop/ask-a-small-model-for-a-verdict",
+    "trillion-workshop/audio-transcription",
+    "trillion-workshop/away-summary",
+    "trillion-workshop/background-runner-control",
+    "trillion-workshop/bring-in-new-items-from-this-computer",
+    "trillion-workshop/browse-and-upload-my-files",
+    "trillion-workshop/browse-inspiration-clips",
+    "trillion-workshop/browse-public-page",
+    "trillion-workshop/build-a-screen-from-patches",
+    "trillion-workshop/build-engine-modules-for-web-hosts",
+    "trillion-workshop/calibrate-a-camera-frame",
+    "trillion-workshop/chat",
+    "trillion-workshop/check-a-packages-declared-permissions",
+    "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+    "trillion-workshop/check-bundle-package-boundaries",
+    "trillion-workshop/choose-and-publish-screen-looks",
+    "trillion-workshop/command-palette",
+    "trillion-workshop/composition-scene-renderer",
+    "trillion-workshop/computer-programs",
+    "trillion-workshop/connect-a-service-and-seal-its-key",
+    "trillion-workshop/content-identity",
+    "trillion-workshop/content-media-evidence",
+    "trillion-workshop/conversations",
+    "trillion-workshop/copy-a-site",
+    "trillion-workshop/decide-when-things-show",
+    "trillion-workshop/decide-with-a-method",
+    "trillion-workshop/delight-moments",
+    "trillion-workshop/describe-the-workshop",
+    "trillion-workshop/documents",
+    "trillion-workshop/documents-as-list-rows",
+    "trillion-workshop/draw-lists-on-a-canvas",
+    "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+    "trillion-workshop/drive-the-screen",
+    "trillion-workshop/edit-a-document-together",
+    "trillion-workshop/edit-a-site-visually",
+    "trillion-workshop/feel",
+    "trillion-workshop/file-content-renderer",
+    "trillion-workshop/fill-a-list-from-a-feed",
+    "trillion-workshop/find-anything-from-one-box",
+    "trillion-workshop/formula-engine",
+    "trillion-workshop/founder-growth-engine-screens",
+    "trillion-workshop/funnel-offer-graph",
+    "trillion-workshop/funnels-screen",
+    "trillion-workshop/graph-canvas",
+    "trillion-workshop/guided-overlay",
+    "trillion-workshop/hand-off-jobs-between-agents",
+    "trillion-workshop/hand-work-to-ais",
+    "trillion-workshop/headless-browser",
+    "trillion-workshop/hold-one-thing-until-done",
+    "trillion-workshop/http-client",
+    "trillion-workshop/introduce-two-people",
+    "trillion-workshop/judge-words",
+    "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+    "trillion-workshop/keep-copies-in-step",
+    "trillion-workshop/keep-lists-of-rows",
+    "trillion-workshop/keep-records-only-my-devices-can-read",
+    "trillion-workshop/know-the-projects-on-this-computer",
+    "trillion-workshop/know-who-is-in-this",
+    "trillion-workshop/learn-a-workflow-from-a-job",
+    "trillion-workshop/learn-from-everyones-results",
+    "trillion-workshop/leave-a-makers-private-starting-values-out",
+    "trillion-workshop/lessons-and-learning-paths",
+    "trillion-workshop/let-someone-look-at-my-account-read",
+    "trillion-workshop/list-tools-for-an-ai",
+    "trillion-workshop/listen-for-a-while",
+    "trillion-workshop/live-namespace",
+    "trillion-workshop/local-files",
+    "trillion-workshop/look-at-screen",
+    "trillion-workshop/make-a-video-playable-at-ingest",
+    "trillion-workshop/make-screen-layouts-and-controls",
+    "trillion-workshop/make-things-feel-good",
+    "trillion-workshop/marketplace-defaults",
+    "trillion-workshop/media-identity",
+    "trillion-workshop/media-playback",
+    "trillion-workshop/messages-screen",
+    "trillion-workshop/model-response",
+    "trillion-workshop/models-on-this-computer",
+    "trillion-workshop/move-records-through-declared-states",
+    "trillion-workshop/native-space-source-release",
+    "trillion-workshop/operation-records",
+    "trillion-workshop/organize-my-files",
+    "trillion-workshop/organize-the-sidebar",
+    "trillion-workshop/outside-conversations",
+    "trillion-workshop/paid-access",
+    "trillion-workshop/pair-unknown-senders",
+    "trillion-workshop/permission-lease",
+    "trillion-workshop/person-list",
+    "trillion-workshop/pick-a-screen-as-you-type",
+    "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+    "trillion-workshop/pin-files-by-content",
+    "trillion-workshop/plan-tasks-and-todo-lists",
+    "trillion-workshop/process-session",
+    "trillion-workshop/query-and-change-list-rows",
+    "trillion-workshop/quote-untrusted-words",
+    "trillion-workshop/read-and-write-mail",
+    "trillion-workshop/recently-deleted-and-storage",
+    "trillion-workshop/record-audio",
+    "trillion-workshop/record-graph",
+    "trillion-workshop/record-log",
+    "trillion-workshop/record-video",
+    "trillion-workshop/record-video-with-teleprompter",
+    "trillion-workshop/record-voice-and-meetings",
+    "trillion-workshop/records-door",
+    "trillion-workshop/refuse-requests-to-private-addresses",
+    "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+    "trillion-workshop/review-what-a-list-says",
+    "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+    "trillion-workshop/run-experiments",
+    "trillion-workshop/run-on-a-persons-computer",
+    "trillion-workshop/run-sql-in-my-database",
+    "trillion-workshop/run-tools-in-my-signed-in-browser",
+    "trillion-workshop/run-work-later-or-on-a-repeat",
+    "trillion-workshop/screen-arrangement",
+    "trillion-workshop/screen-look",
+    "trillion-workshop/screen-looks",
+    "trillion-workshop/screen-ready-records",
+    "trillion-workshop/screen-recording",
+    "trillion-workshop/sealed-records",
+    "trillion-workshop/see-a-pursuit-through-the-lens",
+    "trillion-workshop/see-what-is-being-worked-on",
+    "trillion-workshop/see-what-my-ais-did",
+    "trillion-workshop/selected-agent",
+    "trillion-workshop/send-requests-to-an-engine",
+    "trillion-workshop/send-to-trillion-from-my-browser",
+    "trillion-workshop/serialized-content",
+    "trillion-workshop/set-up-my-account",
+    "trillion-workshop/set-up-my-devices-and-cameras",
+    "trillion-workshop/settings",
+    "trillion-workshop/settle-amounts-and-reconcile",
+    "trillion-workshop/shared-code",
+    "trillion-workshop/show-any-file-as-itself",
+    "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+    "trillion-workshop/show-ideas-as-records",
+    "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+    "trillion-workshop/sidebar",
+    "trillion-workshop/slot-table",
+    "trillion-workshop/social-posts",
+    "trillion-workshop/start-from-any-landing-page",
+    "trillion-workshop/starting-set",
+    "trillion-workshop/stream-an-answer-in-keyed-parts",
+    "trillion-workshop/take-pictures-out-of-a-zip-archive",
+    "trillion-workshop/tell-one-person-something-through-every-way-they",
+    "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+    "trillion-workshop/tours-screen",
+    "trillion-workshop/transcript-reader",
+    "trillion-workshop/turn-a-list-column-that-holds-names-into",
+    "trillion-workshop/turn-frames-into-slides",
+    "trillion-workshop/tweak-live-controls",
+    "trillion-workshop/ui",
+    "trillion-workshop/view-as",
+    "trillion-workshop/walk-a-new-person-through-first-setup",
+    "trillion-workshop/walk-nested-input-within-limits",
+    "trillion-workshop/watch-my-sources",
+    "trillion-workshop/what-is-waiting-on-me",
+    "trillion-workshop/where-a-person-stands",
+    "trillion-workshop/who-does-each-step",
+    "trillion-workshop/work-map",
+    "trillion-workshop/workflow-canvas",
+    "trillion-workshop/workflow-interruptions",
+    "trillion-workshop/workflows",
+    "trillion-workshop/workspace-pieces",
+    "trillion-workshop/workspace-screens",
+    "trillion-workshop/write-a-job-done-in-several-steps-have",
+    "trillion-workshop/write-a-post-for-each-place"
+   ],
+   "kind": "ai-tool-descriptor",
+   "id": "tool:make-sound-effect-forged-on-my-computer",
+   "label": "A sound effect made in code and tuned by listening, on your computer",
+   "job": "Make a sound effect in code on my computer and keep the versions that sound most like my description",
+   "description": "Makes a sound effect in code with earshot's forge: renders candidates of a synthesis recipe, scores each by how much it sounds like the description and less like the confusions (and like the real recordings, when given), and keeps the most different good ones. No model makes the audio, so what it makes is free of model licences. Runs on your computer.",
+   "status": "active",
+   "input_schema": {
+    "type": "object",
+    "required": [
+     "sound",
+     "recipe",
+     "alts"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "sound": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "description": "The sound, described in a few words: what it is aimed at"
+     },
+     "recipe": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "description": "The earshot forge recipe that synthesizes it (keypress, click, whoosh, impact, pluck, ...)"
+     },
+     "alts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+       "type": "string",
+       "minLength": 1
+      },
+      "description": "Sounds it must sound less like"
+     },
+     "refs": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+       "type": "string",
+       "minLength": 1
+      },
+      "description": "Real recordings of this kind of sound to compare with (paths on this computer)"
+     },
+     "count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "description": "How many different versions to keep (default 4)"
+     },
+     "settings": {
+      "type": "object",
+      "description": "Your settings for this computer, laid over the maker's: where its program, code and weights are, and any tuned numbers (the tool's settings record, as one object)"
+     }
+    }
+   },
+   "output_schema": {
+    "type": "object",
+    "required": [
+     "result",
+     "files"
+    ],
+    "properties": {
+     "result": {
+      "type": "object",
+      "required": [
+       "style",
+       "count",
+       "made"
+      ],
+      "properties": {
+       "count": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "made": {
+        "type": "array",
+        "minItems": 1
+       }
+      }
+     },
+     "files": {
+      "type": "object",
+      "required": [
+       "made"
+      ],
+      "properties": {
+       "made": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "invoke": {
+    "kind": "computer",
+    "capabilities": [
+     "change-a-folder",
+     "start-a-program"
+    ],
+    "workdir": "/opt/media-composition",
+    "internet": false,
+    "stdout": "json",
+    "argv": [
+     "node",
+     "/opt/media-composition/do-work/make-pictures-and-sounds.mjs",
+     "--style",
+     "sound-effect-forged-on-my-computer",
+     "--out",
+     {
+      "fill": {
+       "from": "task",
+       "field": "grants.change-a-folder.folder"
+      }
+     },
+     "--work",
+     "/opt/media-composition/making"
+    ],
+    "stdin": {
+     "fill": {
+      "from": "input"
+     }
+    },
+    "files": {
+     "package_files": {
+      "package": "media-composition",
+      "paths": [
+       "do-work",
+       "read-data"
+      ],
+      "at": "/opt/media-composition",
+      "exclude": [
+       "__tests__"
+      ]
+     }
+    }
+   },
+   "billing": {
+    "payers": [
+     "own-account"
+    ],
+    "per": "run"
+   },
+   "needs": {
+    "expected_seconds": 1800,
+    "network_egress": false
+   },
+   "licence_class": "licence:maker-own",
+   "placements": [
+    "placement:your-computer"
+   ],
+   "maker": "maker:media-composition",
+   "verify": [
+    {
+     "kind": "output-number-within",
+     "output_selector": "$.result.count",
+     "at_least": 1
+    }
+   ],
+   "provenance": {
+    "record": "package::media-composition::media-generation-style::sound-effect-forged-on-my-computer",
+    "source": "source:make-pictures-and-sounds"
+   }
+  }
+ },
+ {
+  "id": "package::media-composition::tool::make-sound-effect-from-stable-audio-3-on-my-computer",
+  "address": "package::media-composition::tool::make-sound-effect-from-stable-audio-3-on-my-computer",
+  "path": [
+   "current-item",
+   "published-record"
+  ],
+  "payload": {
+   "uses_tools": [
+    "trillion-workshop/account-dashboard",
+    "trillion-workshop/account-session",
+    "trillion-workshop/addressed-marks",
+    "trillion-workshop/agents-hub",
+    "trillion-workshop/ai-execution-history",
+    "trillion-workshop/ai-guided-work",
+    "trillion-workshop/ai-memory",
+    "trillion-workshop/ai-records-producer",
+    "trillion-workshop/ai-tool-catalog",
+    "trillion-workshop/ambience",
+    "trillion-workshop/arrange-screens-in-panes",
+    "trillion-workshop/ask-a-small-model-for-a-verdict",
+    "trillion-workshop/audio-transcription",
+    "trillion-workshop/away-summary",
+    "trillion-workshop/background-runner-control",
+    "trillion-workshop/bring-in-new-items-from-this-computer",
+    "trillion-workshop/browse-and-upload-my-files",
+    "trillion-workshop/browse-inspiration-clips",
+    "trillion-workshop/browse-public-page",
+    "trillion-workshop/build-a-screen-from-patches",
+    "trillion-workshop/build-engine-modules-for-web-hosts",
+    "trillion-workshop/calibrate-a-camera-frame",
+    "trillion-workshop/chat",
+    "trillion-workshop/check-a-packages-declared-permissions",
+    "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+    "trillion-workshop/check-bundle-package-boundaries",
+    "trillion-workshop/choose-and-publish-screen-looks",
+    "trillion-workshop/command-palette",
+    "trillion-workshop/composition-scene-renderer",
+    "trillion-workshop/computer-programs",
+    "trillion-workshop/connect-a-service-and-seal-its-key",
+    "trillion-workshop/content-identity",
+    "trillion-workshop/content-media-evidence",
+    "trillion-workshop/conversations",
+    "trillion-workshop/copy-a-site",
+    "trillion-workshop/decide-when-things-show",
+    "trillion-workshop/decide-with-a-method",
+    "trillion-workshop/delight-moments",
+    "trillion-workshop/describe-the-workshop",
+    "trillion-workshop/documents",
+    "trillion-workshop/documents-as-list-rows",
+    "trillion-workshop/draw-lists-on-a-canvas",
+    "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+    "trillion-workshop/drive-the-screen",
+    "trillion-workshop/edit-a-document-together",
+    "trillion-workshop/edit-a-site-visually",
+    "trillion-workshop/feel",
+    "trillion-workshop/file-content-renderer",
+    "trillion-workshop/fill-a-list-from-a-feed",
+    "trillion-workshop/find-anything-from-one-box",
+    "trillion-workshop/formula-engine",
+    "trillion-workshop/founder-growth-engine-screens",
+    "trillion-workshop/funnel-offer-graph",
+    "trillion-workshop/funnels-screen",
+    "trillion-workshop/graph-canvas",
+    "trillion-workshop/guided-overlay",
+    "trillion-workshop/hand-off-jobs-between-agents",
+    "trillion-workshop/hand-work-to-ais",
+    "trillion-workshop/headless-browser",
+    "trillion-workshop/hold-one-thing-until-done",
+    "trillion-workshop/http-client",
+    "trillion-workshop/introduce-two-people",
+    "trillion-workshop/judge-words",
+    "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+    "trillion-workshop/keep-copies-in-step",
+    "trillion-workshop/keep-lists-of-rows",
+    "trillion-workshop/keep-records-only-my-devices-can-read",
+    "trillion-workshop/know-the-projects-on-this-computer",
+    "trillion-workshop/know-who-is-in-this",
+    "trillion-workshop/learn-a-workflow-from-a-job",
+    "trillion-workshop/learn-from-everyones-results",
+    "trillion-workshop/leave-a-makers-private-starting-values-out",
+    "trillion-workshop/lessons-and-learning-paths",
+    "trillion-workshop/let-someone-look-at-my-account-read",
+    "trillion-workshop/list-tools-for-an-ai",
+    "trillion-workshop/listen-for-a-while",
+    "trillion-workshop/live-namespace",
+    "trillion-workshop/local-files",
+    "trillion-workshop/look-at-screen",
+    "trillion-workshop/make-a-video-playable-at-ingest",
+    "trillion-workshop/make-screen-layouts-and-controls",
+    "trillion-workshop/make-things-feel-good",
+    "trillion-workshop/marketplace-defaults",
+    "trillion-workshop/media-identity",
+    "trillion-workshop/media-playback",
+    "trillion-workshop/messages-screen",
+    "trillion-workshop/model-response",
+    "trillion-workshop/models-on-this-computer",
+    "trillion-workshop/move-records-through-declared-states",
+    "trillion-workshop/native-space-source-release",
+    "trillion-workshop/operation-records",
+    "trillion-workshop/organize-my-files",
+    "trillion-workshop/organize-the-sidebar",
+    "trillion-workshop/outside-conversations",
+    "trillion-workshop/paid-access",
+    "trillion-workshop/pair-unknown-senders",
+    "trillion-workshop/permission-lease",
+    "trillion-workshop/person-list",
+    "trillion-workshop/pick-a-screen-as-you-type",
+    "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+    "trillion-workshop/pin-files-by-content",
+    "trillion-workshop/plan-tasks-and-todo-lists",
+    "trillion-workshop/process-session",
+    "trillion-workshop/query-and-change-list-rows",
+    "trillion-workshop/quote-untrusted-words",
+    "trillion-workshop/read-and-write-mail",
+    "trillion-workshop/recently-deleted-and-storage",
+    "trillion-workshop/record-audio",
+    "trillion-workshop/record-graph",
+    "trillion-workshop/record-log",
+    "trillion-workshop/record-video",
+    "trillion-workshop/record-video-with-teleprompter",
+    "trillion-workshop/record-voice-and-meetings",
+    "trillion-workshop/records-door",
+    "trillion-workshop/refuse-requests-to-private-addresses",
+    "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+    "trillion-workshop/review-what-a-list-says",
+    "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+    "trillion-workshop/run-experiments",
+    "trillion-workshop/run-on-a-persons-computer",
+    "trillion-workshop/run-sql-in-my-database",
+    "trillion-workshop/run-tools-in-my-signed-in-browser",
+    "trillion-workshop/run-work-later-or-on-a-repeat",
+    "trillion-workshop/screen-arrangement",
+    "trillion-workshop/screen-look",
+    "trillion-workshop/screen-looks",
+    "trillion-workshop/screen-ready-records",
+    "trillion-workshop/screen-recording",
+    "trillion-workshop/sealed-records",
+    "trillion-workshop/see-a-pursuit-through-the-lens",
+    "trillion-workshop/see-what-is-being-worked-on",
+    "trillion-workshop/see-what-my-ais-did",
+    "trillion-workshop/selected-agent",
+    "trillion-workshop/send-requests-to-an-engine",
+    "trillion-workshop/send-to-trillion-from-my-browser",
+    "trillion-workshop/serialized-content",
+    "trillion-workshop/set-up-my-account",
+    "trillion-workshop/set-up-my-devices-and-cameras",
+    "trillion-workshop/settings",
+    "trillion-workshop/settle-amounts-and-reconcile",
+    "trillion-workshop/shared-code",
+    "trillion-workshop/show-any-file-as-itself",
+    "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+    "trillion-workshop/show-ideas-as-records",
+    "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+    "trillion-workshop/sidebar",
+    "trillion-workshop/slot-table",
+    "trillion-workshop/social-posts",
+    "trillion-workshop/start-from-any-landing-page",
+    "trillion-workshop/starting-set",
+    "trillion-workshop/stream-an-answer-in-keyed-parts",
+    "trillion-workshop/take-pictures-out-of-a-zip-archive",
+    "trillion-workshop/tell-one-person-something-through-every-way-they",
+    "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+    "trillion-workshop/tours-screen",
+    "trillion-workshop/transcript-reader",
+    "trillion-workshop/turn-a-list-column-that-holds-names-into",
+    "trillion-workshop/turn-frames-into-slides",
+    "trillion-workshop/tweak-live-controls",
+    "trillion-workshop/ui",
+    "trillion-workshop/view-as",
+    "trillion-workshop/walk-a-new-person-through-first-setup",
+    "trillion-workshop/walk-nested-input-within-limits",
+    "trillion-workshop/watch-my-sources",
+    "trillion-workshop/what-is-waiting-on-me",
+    "trillion-workshop/where-a-person-stands",
+    "trillion-workshop/who-does-each-step",
+    "trillion-workshop/work-map",
+    "trillion-workshop/workflow-canvas",
+    "trillion-workshop/workflow-interruptions",
+    "trillion-workshop/workflows",
+    "trillion-workshop/workspace-pieces",
+    "trillion-workshop/workspace-screens",
+    "trillion-workshop/write-a-job-done-in-several-steps-have",
+    "trillion-workshop/write-a-post-for-each-place"
+   ],
+   "kind": "ai-tool-descriptor",
+   "id": "tool:make-sound-effect-from-stable-audio-3-on-my-computer",
+   "label": "A sound effect from Stable Audio 3, on your computer",
+   "job": "Make sound effects from a description with Stable Audio 3 on my computer",
+   "description": "Makes sound effects from a description with Stable Audio 3 Small-SFX on your computer, one per seed, each scaled under full scale instead of clipped. The model's licence is the Stability AI Community License: read it before a public use of what it makes.",
+   "status": "active",
+   "input_schema": {
+    "type": "object",
+    "required": [
+     "sound",
+     "seconds"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "sound": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "description": "The sound, described in a few words"
+     },
+     "seconds": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 30,
+      "description": "How long each one is made"
+     },
+     "count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "description": "How many to make, one seed each (default 4)"
+     },
+     "settings": {
+      "type": "object",
+      "description": "Your settings for this computer, laid over the maker's: where its program, code and weights are, and any tuned numbers (the tool's settings record, as one object)"
+     }
+    }
+   },
+   "output_schema": {
+    "type": "object",
+    "required": [
+     "result",
+     "files"
+    ],
+    "properties": {
+     "result": {
+      "type": "object",
+      "required": [
+       "style",
+       "count",
+       "made"
+      ],
+      "properties": {
+       "count": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "made": {
+        "type": "array",
+        "minItems": 1
+       }
+      }
+     },
+     "files": {
+      "type": "object",
+      "required": [
+       "made"
+      ],
+      "properties": {
+       "made": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "invoke": {
+    "kind": "computer",
+    "capabilities": [
+     "change-a-folder",
+     "start-a-program"
+    ],
+    "workdir": "/opt/media-composition",
+    "internet": false,
+    "stdout": "json",
+    "argv": [
+     "node",
+     "/opt/media-composition/do-work/make-pictures-and-sounds.mjs",
+     "--style",
+     "sound-effect-from-stable-audio-3-on-my-computer",
+     "--out",
+     {
+      "fill": {
+       "from": "task",
+       "field": "grants.change-a-folder.folder"
+      }
+     },
+     "--work",
+     "/opt/media-composition/making"
+    ],
+    "stdin": {
+     "fill": {
+      "from": "input"
+     }
+    },
+    "files": {
+     "package_files": {
+      "package": "media-composition",
+      "paths": [
+       "do-work",
+       "read-data"
+      ],
+      "at": "/opt/media-composition",
+      "exclude": [
+       "__tests__"
+      ]
+     }
+    }
+   },
+   "billing": {
+    "payers": [
+     "own-account"
+    ],
+    "per": "run"
+   },
+   "needs": {
+    "expected_seconds": 1800,
+    "network_egress": false
+   },
+   "licence_class": "licence:maker-own",
+   "placements": [
+    "placement:your-computer"
+   ],
+   "maker": "maker:media-composition",
+   "verify": [
+    {
+     "kind": "output-number-within",
+     "output_selector": "$.result.count",
+     "at_least": 1
+    }
+   ],
+   "provenance": {
+    "record": "package::media-composition::media-generation-style::sound-effect-from-stable-audio-3-on-my-computer",
+    "source": "source:make-pictures-and-sounds"
+   }
+  }
+ },
+ {
+  "id": "package::media-composition::tool::make-sound-effect-from-moss-on-my-computer",
+  "address": "package::media-composition::tool::make-sound-effect-from-moss-on-my-computer",
+  "path": [
+   "current-item",
+   "published-record"
+  ],
+  "payload": {
+   "uses_tools": [
+    "trillion-workshop/account-dashboard",
+    "trillion-workshop/account-session",
+    "trillion-workshop/addressed-marks",
+    "trillion-workshop/agents-hub",
+    "trillion-workshop/ai-execution-history",
+    "trillion-workshop/ai-guided-work",
+    "trillion-workshop/ai-memory",
+    "trillion-workshop/ai-records-producer",
+    "trillion-workshop/ai-tool-catalog",
+    "trillion-workshop/ambience",
+    "trillion-workshop/arrange-screens-in-panes",
+    "trillion-workshop/ask-a-small-model-for-a-verdict",
+    "trillion-workshop/audio-transcription",
+    "trillion-workshop/away-summary",
+    "trillion-workshop/background-runner-control",
+    "trillion-workshop/bring-in-new-items-from-this-computer",
+    "trillion-workshop/browse-and-upload-my-files",
+    "trillion-workshop/browse-inspiration-clips",
+    "trillion-workshop/browse-public-page",
+    "trillion-workshop/build-a-screen-from-patches",
+    "trillion-workshop/build-engine-modules-for-web-hosts",
+    "trillion-workshop/calibrate-a-camera-frame",
+    "trillion-workshop/chat",
+    "trillion-workshop/check-a-packages-declared-permissions",
+    "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+    "trillion-workshop/check-bundle-package-boundaries",
+    "trillion-workshop/choose-and-publish-screen-looks",
+    "trillion-workshop/command-palette",
+    "trillion-workshop/composition-scene-renderer",
+    "trillion-workshop/computer-programs",
+    "trillion-workshop/connect-a-service-and-seal-its-key",
+    "trillion-workshop/content-identity",
+    "trillion-workshop/content-media-evidence",
+    "trillion-workshop/conversations",
+    "trillion-workshop/copy-a-site",
+    "trillion-workshop/decide-when-things-show",
+    "trillion-workshop/decide-with-a-method",
+    "trillion-workshop/delight-moments",
+    "trillion-workshop/describe-the-workshop",
+    "trillion-workshop/documents",
+    "trillion-workshop/documents-as-list-rows",
+    "trillion-workshop/draw-lists-on-a-canvas",
+    "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+    "trillion-workshop/drive-the-screen",
+    "trillion-workshop/edit-a-document-together",
+    "trillion-workshop/edit-a-site-visually",
+    "trillion-workshop/feel",
+    "trillion-workshop/file-content-renderer",
+    "trillion-workshop/fill-a-list-from-a-feed",
+    "trillion-workshop/find-anything-from-one-box",
+    "trillion-workshop/formula-engine",
+    "trillion-workshop/founder-growth-engine-screens",
+    "trillion-workshop/funnel-offer-graph",
+    "trillion-workshop/funnels-screen",
+    "trillion-workshop/graph-canvas",
+    "trillion-workshop/guided-overlay",
+    "trillion-workshop/hand-off-jobs-between-agents",
+    "trillion-workshop/hand-work-to-ais",
+    "trillion-workshop/headless-browser",
+    "trillion-workshop/hold-one-thing-until-done",
+    "trillion-workshop/http-client",
+    "trillion-workshop/introduce-two-people",
+    "trillion-workshop/judge-words",
+    "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+    "trillion-workshop/keep-copies-in-step",
+    "trillion-workshop/keep-lists-of-rows",
+    "trillion-workshop/keep-records-only-my-devices-can-read",
+    "trillion-workshop/know-the-projects-on-this-computer",
+    "trillion-workshop/know-who-is-in-this",
+    "trillion-workshop/learn-a-workflow-from-a-job",
+    "trillion-workshop/learn-from-everyones-results",
+    "trillion-workshop/leave-a-makers-private-starting-values-out",
+    "trillion-workshop/lessons-and-learning-paths",
+    "trillion-workshop/let-someone-look-at-my-account-read",
+    "trillion-workshop/list-tools-for-an-ai",
+    "trillion-workshop/listen-for-a-while",
+    "trillion-workshop/live-namespace",
+    "trillion-workshop/local-files",
+    "trillion-workshop/look-at-screen",
+    "trillion-workshop/make-a-video-playable-at-ingest",
+    "trillion-workshop/make-screen-layouts-and-controls",
+    "trillion-workshop/make-things-feel-good",
+    "trillion-workshop/marketplace-defaults",
+    "trillion-workshop/media-identity",
+    "trillion-workshop/media-playback",
+    "trillion-workshop/messages-screen",
+    "trillion-workshop/model-response",
+    "trillion-workshop/models-on-this-computer",
+    "trillion-workshop/move-records-through-declared-states",
+    "trillion-workshop/native-space-source-release",
+    "trillion-workshop/operation-records",
+    "trillion-workshop/organize-my-files",
+    "trillion-workshop/organize-the-sidebar",
+    "trillion-workshop/outside-conversations",
+    "trillion-workshop/paid-access",
+    "trillion-workshop/pair-unknown-senders",
+    "trillion-workshop/permission-lease",
+    "trillion-workshop/person-list",
+    "trillion-workshop/pick-a-screen-as-you-type",
+    "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+    "trillion-workshop/pin-files-by-content",
+    "trillion-workshop/plan-tasks-and-todo-lists",
+    "trillion-workshop/process-session",
+    "trillion-workshop/query-and-change-list-rows",
+    "trillion-workshop/quote-untrusted-words",
+    "trillion-workshop/read-and-write-mail",
+    "trillion-workshop/recently-deleted-and-storage",
+    "trillion-workshop/record-audio",
+    "trillion-workshop/record-graph",
+    "trillion-workshop/record-log",
+    "trillion-workshop/record-video",
+    "trillion-workshop/record-video-with-teleprompter",
+    "trillion-workshop/record-voice-and-meetings",
+    "trillion-workshop/records-door",
+    "trillion-workshop/refuse-requests-to-private-addresses",
+    "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+    "trillion-workshop/review-what-a-list-says",
+    "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+    "trillion-workshop/run-experiments",
+    "trillion-workshop/run-on-a-persons-computer",
+    "trillion-workshop/run-sql-in-my-database",
+    "trillion-workshop/run-tools-in-my-signed-in-browser",
+    "trillion-workshop/run-work-later-or-on-a-repeat",
+    "trillion-workshop/screen-arrangement",
+    "trillion-workshop/screen-look",
+    "trillion-workshop/screen-looks",
+    "trillion-workshop/screen-ready-records",
+    "trillion-workshop/screen-recording",
+    "trillion-workshop/sealed-records",
+    "trillion-workshop/see-a-pursuit-through-the-lens",
+    "trillion-workshop/see-what-is-being-worked-on",
+    "trillion-workshop/see-what-my-ais-did",
+    "trillion-workshop/selected-agent",
+    "trillion-workshop/send-requests-to-an-engine",
+    "trillion-workshop/send-to-trillion-from-my-browser",
+    "trillion-workshop/serialized-content",
+    "trillion-workshop/set-up-my-account",
+    "trillion-workshop/set-up-my-devices-and-cameras",
+    "trillion-workshop/settings",
+    "trillion-workshop/settle-amounts-and-reconcile",
+    "trillion-workshop/shared-code",
+    "trillion-workshop/show-any-file-as-itself",
+    "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+    "trillion-workshop/show-ideas-as-records",
+    "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+    "trillion-workshop/sidebar",
+    "trillion-workshop/slot-table",
+    "trillion-workshop/social-posts",
+    "trillion-workshop/start-from-any-landing-page",
+    "trillion-workshop/starting-set",
+    "trillion-workshop/stream-an-answer-in-keyed-parts",
+    "trillion-workshop/take-pictures-out-of-a-zip-archive",
+    "trillion-workshop/tell-one-person-something-through-every-way-they",
+    "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+    "trillion-workshop/tours-screen",
+    "trillion-workshop/transcript-reader",
+    "trillion-workshop/turn-a-list-column-that-holds-names-into",
+    "trillion-workshop/turn-frames-into-slides",
+    "trillion-workshop/tweak-live-controls",
+    "trillion-workshop/ui",
+    "trillion-workshop/view-as",
+    "trillion-workshop/walk-a-new-person-through-first-setup",
+    "trillion-workshop/walk-nested-input-within-limits",
+    "trillion-workshop/watch-my-sources",
+    "trillion-workshop/what-is-waiting-on-me",
+    "trillion-workshop/where-a-person-stands",
+    "trillion-workshop/who-does-each-step",
+    "trillion-workshop/work-map",
+    "trillion-workshop/workflow-canvas",
+    "trillion-workshop/workflow-interruptions",
+    "trillion-workshop/workflows",
+    "trillion-workshop/workspace-pieces",
+    "trillion-workshop/workspace-screens",
+    "trillion-workshop/write-a-job-done-in-several-steps-have",
+    "trillion-workshop/write-a-post-for-each-place"
+   ],
+   "kind": "ai-tool-descriptor",
+   "id": "tool:make-sound-effect-from-moss-on-my-computer",
+   "label": "A sound effect from MOSS-SoundEffect, on your computer",
+   "job": "Make sound effects from a description with MOSS-SoundEffect on my computer",
+   "description": "Makes sound effects from a description with MOSS-SoundEffect v2.0 on your computer, one per seed. Its VAE is Tencent's HunyuanVideo-Foley VAE under the Tencent Hunyuan Community License: read both licences before a public use of what it makes.",
+   "status": "active",
+   "input_schema": {
+    "type": "object",
+    "required": [
+     "sound",
+     "seconds"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "sound": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "description": "The sound, described in a few words"
+     },
+     "seconds": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 30,
+      "description": "How long each one is made"
+     },
+     "count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "description": "How many to make, one seed each (default 4)"
+     },
+     "settings": {
+      "type": "object",
+      "description": "Your settings for this computer, laid over the maker's: where its program, code and weights are, and any tuned numbers (the tool's settings record, as one object)"
+     }
+    }
+   },
+   "output_schema": {
+    "type": "object",
+    "required": [
+     "result",
+     "files"
+    ],
+    "properties": {
+     "result": {
+      "type": "object",
+      "required": [
+       "style",
+       "count",
+       "made"
+      ],
+      "properties": {
+       "count": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "made": {
+        "type": "array",
+        "minItems": 1
+       }
+      }
+     },
+     "files": {
+      "type": "object",
+      "required": [
+       "made"
+      ],
+      "properties": {
+       "made": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "invoke": {
+    "kind": "computer",
+    "capabilities": [
+     "change-a-folder",
+     "start-a-program"
+    ],
+    "workdir": "/opt/media-composition",
+    "internet": false,
+    "stdout": "json",
+    "argv": [
+     "node",
+     "/opt/media-composition/do-work/make-pictures-and-sounds.mjs",
+     "--style",
+     "sound-effect-from-moss-on-my-computer",
+     "--out",
+     {
+      "fill": {
+       "from": "task",
+       "field": "grants.change-a-folder.folder"
+      }
+     },
+     "--work",
+     "/opt/media-composition/making"
+    ],
+    "stdin": {
+     "fill": {
+      "from": "input"
+     }
+    },
+    "files": {
+     "package_files": {
+      "package": "media-composition",
+      "paths": [
+       "do-work",
+       "read-data"
+      ],
+      "at": "/opt/media-composition",
+      "exclude": [
+       "__tests__"
+      ]
+     }
+    }
+   },
+   "billing": {
+    "payers": [
+     "own-account"
+    ],
+    "per": "run"
+   },
+   "needs": {
+    "expected_seconds": 1800,
+    "network_egress": false
+   },
+   "licence_class": "licence:maker-own",
+   "placements": [
+    "placement:your-computer"
+   ],
+   "maker": "maker:media-composition",
+   "verify": [
+    {
+     "kind": "output-number-within",
+     "output_selector": "$.result.count",
+     "at_least": 1
+    }
+   ],
+   "provenance": {
+    "record": "package::media-composition::media-generation-style::sound-effect-from-moss-on-my-computer",
+    "source": "source:make-pictures-and-sounds"
+   }
+  }
+ },
+ {
+  "id": "package::media-composition::tool::make-sound-effects-for-a-video-from-hunyuan-foley-on-my-computer",
+  "address": "package::media-composition::tool::make-sound-effects-for-a-video-from-hunyuan-foley-on-my-computer",
+  "path": [
+   "current-item",
+   "published-record"
+  ],
+  "payload": {
+   "uses_tools": [
+    "trillion-workshop/account-dashboard",
+    "trillion-workshop/account-session",
+    "trillion-workshop/addressed-marks",
+    "trillion-workshop/agents-hub",
+    "trillion-workshop/ai-execution-history",
+    "trillion-workshop/ai-guided-work",
+    "trillion-workshop/ai-memory",
+    "trillion-workshop/ai-records-producer",
+    "trillion-workshop/ai-tool-catalog",
+    "trillion-workshop/ambience",
+    "trillion-workshop/arrange-screens-in-panes",
+    "trillion-workshop/ask-a-small-model-for-a-verdict",
+    "trillion-workshop/audio-transcription",
+    "trillion-workshop/away-summary",
+    "trillion-workshop/background-runner-control",
+    "trillion-workshop/bring-in-new-items-from-this-computer",
+    "trillion-workshop/browse-and-upload-my-files",
+    "trillion-workshop/browse-inspiration-clips",
+    "trillion-workshop/browse-public-page",
+    "trillion-workshop/build-a-screen-from-patches",
+    "trillion-workshop/build-engine-modules-for-web-hosts",
+    "trillion-workshop/calibrate-a-camera-frame",
+    "trillion-workshop/chat",
+    "trillion-workshop/check-a-packages-declared-permissions",
+    "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+    "trillion-workshop/check-bundle-package-boundaries",
+    "trillion-workshop/choose-and-publish-screen-looks",
+    "trillion-workshop/command-palette",
+    "trillion-workshop/composition-scene-renderer",
+    "trillion-workshop/computer-programs",
+    "trillion-workshop/connect-a-service-and-seal-its-key",
+    "trillion-workshop/content-identity",
+    "trillion-workshop/content-media-evidence",
+    "trillion-workshop/conversations",
+    "trillion-workshop/copy-a-site",
+    "trillion-workshop/decide-when-things-show",
+    "trillion-workshop/decide-with-a-method",
+    "trillion-workshop/delight-moments",
+    "trillion-workshop/describe-the-workshop",
+    "trillion-workshop/documents",
+    "trillion-workshop/documents-as-list-rows",
+    "trillion-workshop/draw-lists-on-a-canvas",
+    "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+    "trillion-workshop/drive-the-screen",
+    "trillion-workshop/edit-a-document-together",
+    "trillion-workshop/edit-a-site-visually",
+    "trillion-workshop/feel",
+    "trillion-workshop/file-content-renderer",
+    "trillion-workshop/fill-a-list-from-a-feed",
+    "trillion-workshop/find-anything-from-one-box",
+    "trillion-workshop/formula-engine",
+    "trillion-workshop/founder-growth-engine-screens",
+    "trillion-workshop/funnel-offer-graph",
+    "trillion-workshop/funnels-screen",
+    "trillion-workshop/graph-canvas",
+    "trillion-workshop/guided-overlay",
+    "trillion-workshop/hand-off-jobs-between-agents",
+    "trillion-workshop/hand-work-to-ais",
+    "trillion-workshop/headless-browser",
+    "trillion-workshop/hold-one-thing-until-done",
+    "trillion-workshop/http-client",
+    "trillion-workshop/introduce-two-people",
+    "trillion-workshop/judge-words",
+    "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+    "trillion-workshop/keep-copies-in-step",
+    "trillion-workshop/keep-lists-of-rows",
+    "trillion-workshop/keep-records-only-my-devices-can-read",
+    "trillion-workshop/know-the-projects-on-this-computer",
+    "trillion-workshop/know-who-is-in-this",
+    "trillion-workshop/learn-a-workflow-from-a-job",
+    "trillion-workshop/learn-from-everyones-results",
+    "trillion-workshop/leave-a-makers-private-starting-values-out",
+    "trillion-workshop/lessons-and-learning-paths",
+    "trillion-workshop/let-someone-look-at-my-account-read",
+    "trillion-workshop/list-tools-for-an-ai",
+    "trillion-workshop/listen-for-a-while",
+    "trillion-workshop/live-namespace",
+    "trillion-workshop/local-files",
+    "trillion-workshop/look-at-screen",
+    "trillion-workshop/make-a-video-playable-at-ingest",
+    "trillion-workshop/make-screen-layouts-and-controls",
+    "trillion-workshop/make-things-feel-good",
+    "trillion-workshop/marketplace-defaults",
+    "trillion-workshop/media-identity",
+    "trillion-workshop/media-playback",
+    "trillion-workshop/messages-screen",
+    "trillion-workshop/model-response",
+    "trillion-workshop/models-on-this-computer",
+    "trillion-workshop/move-records-through-declared-states",
+    "trillion-workshop/native-space-source-release",
+    "trillion-workshop/operation-records",
+    "trillion-workshop/organize-my-files",
+    "trillion-workshop/organize-the-sidebar",
+    "trillion-workshop/outside-conversations",
+    "trillion-workshop/paid-access",
+    "trillion-workshop/pair-unknown-senders",
+    "trillion-workshop/permission-lease",
+    "trillion-workshop/person-list",
+    "trillion-workshop/pick-a-screen-as-you-type",
+    "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+    "trillion-workshop/pin-files-by-content",
+    "trillion-workshop/plan-tasks-and-todo-lists",
+    "trillion-workshop/process-session",
+    "trillion-workshop/query-and-change-list-rows",
+    "trillion-workshop/quote-untrusted-words",
+    "trillion-workshop/read-and-write-mail",
+    "trillion-workshop/recently-deleted-and-storage",
+    "trillion-workshop/record-audio",
+    "trillion-workshop/record-graph",
+    "trillion-workshop/record-log",
+    "trillion-workshop/record-video",
+    "trillion-workshop/record-video-with-teleprompter",
+    "trillion-workshop/record-voice-and-meetings",
+    "trillion-workshop/records-door",
+    "trillion-workshop/refuse-requests-to-private-addresses",
+    "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+    "trillion-workshop/review-what-a-list-says",
+    "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+    "trillion-workshop/run-experiments",
+    "trillion-workshop/run-on-a-persons-computer",
+    "trillion-workshop/run-sql-in-my-database",
+    "trillion-workshop/run-tools-in-my-signed-in-browser",
+    "trillion-workshop/run-work-later-or-on-a-repeat",
+    "trillion-workshop/screen-arrangement",
+    "trillion-workshop/screen-look",
+    "trillion-workshop/screen-looks",
+    "trillion-workshop/screen-ready-records",
+    "trillion-workshop/screen-recording",
+    "trillion-workshop/sealed-records",
+    "trillion-workshop/see-a-pursuit-through-the-lens",
+    "trillion-workshop/see-what-is-being-worked-on",
+    "trillion-workshop/see-what-my-ais-did",
+    "trillion-workshop/selected-agent",
+    "trillion-workshop/send-requests-to-an-engine",
+    "trillion-workshop/send-to-trillion-from-my-browser",
+    "trillion-workshop/serialized-content",
+    "trillion-workshop/set-up-my-account",
+    "trillion-workshop/set-up-my-devices-and-cameras",
+    "trillion-workshop/settings",
+    "trillion-workshop/settle-amounts-and-reconcile",
+    "trillion-workshop/shared-code",
+    "trillion-workshop/show-any-file-as-itself",
+    "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+    "trillion-workshop/show-ideas-as-records",
+    "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+    "trillion-workshop/sidebar",
+    "trillion-workshop/slot-table",
+    "trillion-workshop/social-posts",
+    "trillion-workshop/start-from-any-landing-page",
+    "trillion-workshop/starting-set",
+    "trillion-workshop/stream-an-answer-in-keyed-parts",
+    "trillion-workshop/take-pictures-out-of-a-zip-archive",
+    "trillion-workshop/tell-one-person-something-through-every-way-they",
+    "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+    "trillion-workshop/tours-screen",
+    "trillion-workshop/transcript-reader",
+    "trillion-workshop/turn-a-list-column-that-holds-names-into",
+    "trillion-workshop/turn-frames-into-slides",
+    "trillion-workshop/tweak-live-controls",
+    "trillion-workshop/ui",
+    "trillion-workshop/view-as",
+    "trillion-workshop/walk-a-new-person-through-first-setup",
+    "trillion-workshop/walk-nested-input-within-limits",
+    "trillion-workshop/watch-my-sources",
+    "trillion-workshop/what-is-waiting-on-me",
+    "trillion-workshop/where-a-person-stands",
+    "trillion-workshop/who-does-each-step",
+    "trillion-workshop/work-map",
+    "trillion-workshop/workflow-canvas",
+    "trillion-workshop/workflow-interruptions",
+    "trillion-workshop/workflows",
+    "trillion-workshop/workspace-pieces",
+    "trillion-workshop/workspace-screens",
+    "trillion-workshop/write-a-job-done-in-several-steps-have",
+    "trillion-workshop/write-a-post-for-each-place"
+   ],
+   "kind": "ai-tool-descriptor",
+   "id": "tool:make-sound-effects-for-a-video-from-hunyuan-foley-on-my-computer",
+   "label": "A sound-effect track for a whole video, from its picture, on your computer",
+   "job": "Make a sound-effect track for my video from what it shows",
+   "description": "Makes one sound-effect track as long as the video, from its picture and a description, with HunyuanVideo-Foley XXL on your computer: windows of at most 15 seconds at the section starts, joined so every sample keeps its video time. Tencent Hunyuan Community License: its territory excludes the EU, the UK and South Korea; read it before a public use.",
+   "status": "active",
+   "input_schema": {
+    "type": "object",
+    "required": [
+     "video",
+     "sounds"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "video": {
+      "type": "string",
+      "format": "namespace-file",
+      "description": "The video (a path on this computer); it is only read"
+     },
+     "sounds": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "description": "The kinds of sound wanted, in a few words"
+     },
+     "section_starts": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+       "type": "number",
+       "minimum": 0
+      },
+      "description": "Seconds where the video's sections start, so no window crosses one"
+     },
+     "count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4,
+      "description": "How many tracks to make, one seed each (default 1)"
+     },
+     "settings": {
+      "type": "object",
+      "description": "Your settings for this computer, laid over the maker's: where its program, code and weights are, and any tuned numbers (the tool's settings record, as one object)"
+     }
+    }
+   },
+   "output_schema": {
+    "type": "object",
+    "required": [
+     "result",
+     "files"
+    ],
+    "properties": {
+     "result": {
+      "type": "object",
+      "required": [
+       "style",
+       "count",
+       "made"
+      ],
+      "properties": {
+       "count": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "made": {
+        "type": "array",
+        "minItems": 1
+       }
+      }
+     },
+     "files": {
+      "type": "object",
+      "required": [
+       "made"
+      ],
+      "properties": {
+       "made": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "invoke": {
+    "kind": "computer",
+    "capabilities": [
+     "change-a-folder",
+     "start-a-program"
+    ],
+    "workdir": "/opt/media-composition",
+    "internet": false,
+    "stdout": "json",
+    "argv": [
+     "node",
+     "/opt/media-composition/do-work/make-pictures-and-sounds.mjs",
+     "--style",
+     "sound-effects-for-a-video-from-hunyuan-foley-on-my-computer",
+     "--out",
+     {
+      "fill": {
+       "from": "task",
+       "field": "grants.change-a-folder.folder"
+      }
+     },
+     "--work",
+     "/opt/media-composition/making"
+    ],
+    "stdin": {
+     "fill": {
+      "from": "input"
+     }
+    },
+    "files": {
+     "package_files": {
+      "package": "media-composition",
+      "paths": [
+       "do-work",
+       "read-data"
+      ],
+      "at": "/opt/media-composition",
+      "exclude": [
+       "__tests__"
+      ]
+     }
+    }
+   },
+   "billing": {
+    "payers": [
+     "own-account"
+    ],
+    "per": "run"
+   },
+   "needs": {
+    "expected_seconds": 1800,
+    "network_egress": false
+   },
+   "licence_class": "licence:maker-own",
+   "placements": [
+    "placement:your-computer"
+   ],
+   "maker": "maker:media-composition",
+   "verify": [
+    {
+     "kind": "output-number-within",
+     "output_selector": "$.result.count",
+     "at_least": 1
+    }
+   ],
+   "provenance": {
+    "record": "package::media-composition::media-generation-style::sound-effects-for-a-video-from-hunyuan-foley-on-my-computer",
+    "source": "source:make-pictures-and-sounds"
+   }
+  }
+ }
  ]
 }

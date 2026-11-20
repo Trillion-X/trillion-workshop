@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tool:make-music's own row (its words, input schema and the style row in do-work/make-pictures-and-sounds.json) and the one run it got here (a run through its runner, no connected account, no sample file, no local weights); read it before relying on it",
+  "start_here": "Say to your AI: \"Make a piece of instrumental music for a video from a mood or style\", giving the fields its input names. It makes the files and keeps each as a new file in your files; a recording itself is never changed. It needs the connection or the local model the style names before it can make anything.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input, makes files, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:make-music"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Make a piece of instrumental music for a video from a mood or style\", and give it the fields the input names.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:make-music and its input (the worked example shows one).",
+    "3. If it says a connection or a model is missing, connect it or give its folder, then run it again. Read the files it kept in your files."
+  ],
+  "worked_examples": [
+    {
+      "title": "Run music once with a sample input",
+      "ask": "Make a piece of instrumental music for a video from a mood or style",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:make-music",
+            "input": {
+              "mood": "calm piano",
+              "count": 1
+            }
+          }
+        }
+      },
+      "given": "The input {\"mood\":\"calm piano\",\"count\":1} on this computer with no connected account, no sample file and no local weights.",
+      "hands_back": "It refused, quoted: \"Google AI music and sound needs your connected account, and none was given to this run.\""
+    }
+  ]
+}
