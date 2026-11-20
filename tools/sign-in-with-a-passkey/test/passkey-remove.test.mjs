@@ -2,7 +2,7 @@
 // sent to sign in again, and the known-passkey authority's refusal is passed on unchanged.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { decidePasskeyRemoval, PASSKEY_REMOVE, signInAgainAddress } from '../read-data/verify-every-port-sign-in-passkey-remove.mjs';
+import { decidePasskeyRemoval, PASSKEY_REMOVE, signInAgainAddress } from '../read-data/passkey-remove.mjs';
 
 const base = {
   fresh: true, passkeyId: 'pk-1', passkeyIds: ['pk-1', 'pk-2'], passwordSet: false, saved: { userId: 'acct-7' }, sessionUserId: 'acct-7',

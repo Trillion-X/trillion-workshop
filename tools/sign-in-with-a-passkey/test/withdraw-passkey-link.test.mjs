@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   decideBeginLinkUse, decideLinkSave, decideMakePasskeyLink, PASSKEY_LINK, refusedPasskeyAnswer,
-} from '../read-data/verify-every-port-sign-in-withdraw-passkey-link.mjs';
+} from '../read-data/withdraw-passkey-link.mjs';
 
 const now = Date.parse('2026-11-20T12:00:00.000Z');
 const NOT_SAVED = 'Your new passkey was not saved. Press "Add my passkey" again to make it.';

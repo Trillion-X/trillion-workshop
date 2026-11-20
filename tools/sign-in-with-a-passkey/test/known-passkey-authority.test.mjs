@@ -7,8 +7,8 @@ import assert from 'node:assert/strict';
 import {
   addedNotice, authorityFor, authorityFrom, authorityView, cancelWaiting, delayedChangeDecision, hasAuthority, legacyAuthority,
   legacyNotice, linkForNotice, noticeRoom, notKnownWords, provenanceOf, recoverDecision, vouchDecision, withClassified,
-} from '../read-data/verify-every-port-sign-in-known-passkey-authority.mjs';
-import { changeKey } from '../read-data/verify-every-port-sign-in-guarded-change-confirm.mjs';
+} from '../read-data/known-passkey-authority.mjs';
+import { changeKey } from '../../sign-in/read-data/guarded-change-confirm.mjs';
 
 const HOUR = 3_600_000;
 const now = Date.parse('2026-11-20T12:00:00Z');

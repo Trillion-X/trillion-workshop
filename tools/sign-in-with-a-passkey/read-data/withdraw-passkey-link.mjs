@@ -1,4 +1,4 @@
-// tools/sign-in-build-and-hold/read-data/verify-every-port-sign-in-withdraw-passkey-link.mjs
+// tools/sign-in-build-and-hold/read-data/withdraw-passkey-link.mjs
 //
 // The one-time passkey link: making it, using it to add a passkey, and what a refused passkey is named back as. Ported from
 // the earlier code base's account/passkeys/link route, makePasskeyLink and the passkey finish in src/worker.mjs, and
@@ -13,7 +13,7 @@
 //   2. A link is spent once its passkey checks out, before that passkey is saved, so it never adds two passkeys.
 //   3. A passkey whose user is not the link's account is not saved, and the link is still spent.
 //   4. A recent sign-in is needed to make a link; a passkey that was made but not saved is named back to the device.
-import settings from './verify-every-port-sign-in-withdraw-passkey-link.json' with { type: 'json' };
+import settings from './withdraw-passkey-link.json' with { type: 'json' };
 
 export const PASSKEY_LINK = settings;
 

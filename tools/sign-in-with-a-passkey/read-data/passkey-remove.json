@@ -1,5 +1,5 @@
 {
-  "_what": "Removing one of an account's passkeys (read-data/verify-every-port-sign-in-passkey-remove.mjs). The statuses and words a removal answers with. Ported from the earlier code base's account/passkeys/remove route in src/account-routes.mjs (b6ae0ebf815f). The known-passkey confirmation that a removal of a known passkey also needs is decided by the known-passkey authority item, not here.",
+  "_what": "Removing one of an account's passkeys (read-data/passkey-remove.mjs). The statuses and words a removal answers with. Ported from the earlier code base's account/passkeys/remove route in src/account-routes.mjs (b6ae0ebf815f). The known-passkey confirmation that a removal of a known passkey also needs is decided by the known-passkey authority item, not here.",
   "statuses": {
     "not_on_account": 404,
     "only_way_in": 409

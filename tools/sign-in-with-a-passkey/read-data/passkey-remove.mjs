@@ -1,4 +1,4 @@
-// tools/sign-in-build-and-hold/read-data/verify-every-port-sign-in-passkey-remove.mjs
+// tools/sign-in-build-and-hold/read-data/passkey-remove.mjs
 //
 // Removing one of an account's passkeys. Ported from the earlier code base's account/passkeys/remove route in
 // src/account-routes.mjs (b6ae0ebf815f): its checks, their order, their statuses and its words.
@@ -12,7 +12,7 @@
 //   2. The last passkey goes only while a password still signs in, so a person is never left with no way in.
 //   3. A removal the known-passkey authority refuses is answered with that refusal unchanged.
 //   4. A sign-in that is not recent is sent to sign in again before anything is removed.
-import settings from './verify-every-port-sign-in-passkey-remove.json' with { type: 'json' };
+import settings from './passkey-remove.json' with { type: 'json' };
 
 export const PASSKEY_REMOVE = settings;
 

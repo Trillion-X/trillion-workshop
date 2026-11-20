@@ -1,8 +1,8 @@
-// tools/sign-in-build-and-hold/read-data/verify-every-port-sign-in-known-passkey-authority.mjs
+// tools/sign-in-build-and-hold/read-data/known-passkey-authority.mjs
 //
 // Which of a person's passkeys are known (may confirm a guarded change), from when, and the decisions and notices that
 // move that authority: a recovery, a delayed deletion or move, a vouch, the notice room. Ported from the earlier code base's
-// src/passkey-authority.mjs (b6ae0ebf815f) with the same words (the DATA is read-data/verify-every-port-sign-in-known-passkey-authority.json).
+// src/passkey-authority.mjs (b6ae0ebf815f) with the same words (the DATA is read-data/known-passkey-authority.json).
 //
 // Storage-free and clock-free: the caller reads the passkey rows, the recovery, the delayed change and the notice times from
 // its store and passes them in with `now` (ms). Every function answers a value; the caller writes what it is told to write
@@ -17,9 +17,9 @@
 //      every channel at once, cancelled by a known passkey's use or any recent sign-in, and done only when asked again after
 //      the wait (delayedChangeDecision).
 //   5. Notices are bounded per window (noticeRoom), so a flood cannot use up the mail they ride.
-//   6. The confirmation of a single guarded change is in verify-every-port-sign-in-guarded-change-confirm.mjs, not here.
-import data from './verify-every-port-sign-in-known-passkey-authority.json' with { type: 'json' };
-import { changeKey } from './verify-every-port-sign-in-guarded-change-confirm.mjs';
+//   6. The confirmation of a single guarded change is in guarded-change-confirm.mjs, not here.
+import data from './known-passkey-authority.json' with { type: 'json' };
+import { changeKey } from '../../sign-in/read-data/guarded-change-confirm.mjs';
 
 const HOUR_MS = 3_600_000;
 const waitMs = by => (data.provenance[by].wait_hours ?? 0) * HOUR_MS;
@@ -145,7 +145,7 @@ export function noticeRoom({ times = [], now = Date.now() }) {
  *    { kind: 'go', clear: true }                        the same change, asked again after its wait
  *    { kind: 'refused', error, status }                  it waits, or another delayed change does
  *    { kind: 'started', row, said, notice }              the notice starts; the caller keeps `row` and sends `notice`
- *  `changeKey` of the change is the same text the earlier code kept (verify-every-port-sign-in-guarded-change-confirm.mjs). */
+ *  `changeKey` of the change is the same text the earlier code kept (guarded-change-confirm.mjs). */
 export function delayedChangeDecision({ change, delayed = null, room, now = Date.now() }) {
   const key = changeKey(change);
   if (delayed?.change === key && Date.parse(delayed.from) <= now) return { kind: 'go', clear: true };
