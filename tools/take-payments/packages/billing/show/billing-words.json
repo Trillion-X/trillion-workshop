@@ -1,0 +1,8 @@
+{
+  "about": "The words the billing screen shows when it has no purchase to draw or when a read fails. Changing a word is an edit here, not in the screen.",
+  "no_purchase": {
+    "title": "No plan yet",
+    "line": "A plan shows here after you join."
+  },
+  "read_error": "This purchase could not be read right now."
+}

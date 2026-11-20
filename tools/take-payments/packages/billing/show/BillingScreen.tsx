@@ -21,6 +21,8 @@ import { CreditCard, Receipt } from 'lucide-react';
 import { Badge, Button, Card, EmptyPlaceholder, LoadingOverlay, MetricRow, Text } from '../../../../ui';
 import type { MetricCell } from '../../../../ui/show/metric-row/MetricRow';
 import { formatMoneyCents } from '../../../../ui/packages/ui/show/format-money';
+import { billingScreenView } from './billing-screen-view';
+import words from './billing-words.json' with { type: 'json' };
 
 export type BillingFlow = 'payment_method_update' | 'subscription_update' | 'subscription_cancel';
 
@@ -61,6 +63,8 @@ export interface BillingPage {
 }
 
 export interface BillingScreenProps {
+  /** False when the host names no purchase: the screen reads nothing and says there is no plan yet. */
+  hasPurchase: boolean;
   readPage: () => Promise<BillingPage>;
   openFlow: (flow: BillingFlow) => Promise<{ redirect: string }>;
 }
@@ -90,18 +94,21 @@ function planCells(page: BillingPage): MetricCell[] {
   ];
 }
 
-export function BillingScreen({ readPage, openFlow }: BillingScreenProps) {
+export function BillingScreen({ hasPurchase, readPage, openFlow }: BillingScreenProps) {
   const [page, setPage] = React.useState<BillingPage | null>(null);
-  const [error, setError] = React.useState<string | null>(null);
+  const [failed, setFailed] = React.useState(false);
 
   React.useEffect(() => {
+    if (!hasPurchase) return undefined;
     let cancelled = false;
-    readPage().then(found => { if (!cancelled) setPage(found); }, () => { if (!cancelled) setError('This purchase could not be read right now.'); });
+    readPage().then(found => { if (!cancelled) setPage(found); }, () => { if (!cancelled) setFailed(true); });
     return () => { cancelled = true; };
-  }, [readPage]);
+  }, [hasPurchase, readPage]);
 
-  if (error) return <EmptyPlaceholder icon={CreditCard} message={error} />;
-  if (!page) return <LoadingOverlay />;
+  const view = billingScreenView({ hasPurchase, loaded: page !== null, failed });
+  if (view === 'no-purchase') return <EmptyPlaceholder icon={CreditCard} title={words.no_purchase.title} message={words.no_purchase.line} />;
+  if (view === 'read-error') return <EmptyPlaceholder icon={CreditCard} message={words.read_error} />;
+  if (view === 'loading' || !page) return <LoadingOverlay />;
 
   // Each step is one press: the button waits on the page address, then the browser goes there.
   const change = (flow: BillingFlow) => openFlow(flow).then(({ redirect }) => { window.location.assign(redirect); });

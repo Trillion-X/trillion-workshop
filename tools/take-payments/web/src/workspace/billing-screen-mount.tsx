@@ -20,6 +20,7 @@ export function mount(element: HTMLElement, props: BillingScreenInput = {}) {
   const { subscription_id: subscriptionId = '', subject_email: subjectEmail = '', seller_connection: sellerConnection } = props;
   return mountReactSurface(element, (
     <BillingScreen
+      hasPurchase={subscriptionId !== ''}
       readPage={() => readBillingPage(subscriptionId, subjectEmail, sellerConnection)}
       openFlow={flow => openBillingFlow(subscriptionId, subjectEmail, flow, sellerConnection)}
     />
