@@ -1,0 +1,51 @@
+{
+  "start_here": "Say to your AI: \"Mark the introduction intro-1 as sent, in my shop database, with the consent I was shown.\" Your AI calls tool:record-an-introduction-state with the database, the id, the states and the consent, and reports the new state. Nothing is sent to anyone.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it writes the introduction_states table and its history in the database named in the input, and no list row.",
+  "workflows": [],
+  "tools": [
+    "tool:record-an-introduction-state"
+  ],
+  "instructions": [
+    "1. Name the database the state is recorded in, such as shop_for_who_runs_it. Its connection must be held in your vault under that name with -connection.",
+    "2. Say the introduction id, the state it is in now (from) and the state it moves to (to). For sent or one_yes, also give the consent and the introduction as it was shown.",
+    "3. Read the answer: id, status and says. A move the lifecycle does not allow, or an introduction that changed since it was shown, is refused and nothing is written.",
+    "4. Nothing is sent to anyone by this tool. Live sending waits for the owner's word."
+  ],
+  "worked_examples": [
+    {
+      "title": "Record that an introduction was sent",
+      "ask": "Mark intro-1 as sent in my shop database, I agreed to it as shown.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:record-an-introduction-state",
+            "input": {
+              "database": "shop_for_who_runs_it",
+              "id": "intro-1",
+              "from": "proposed",
+              "to": "sent",
+              "consent": "<the consent as it was shown>",
+              "shown": {
+                "text": "Meet for coffee about the tennis club.",
+                "recipients": [
+                  "person:gate-test",
+                  "person:gate-test-two"
+                ],
+                "shared": "contact",
+                "expires_at": "2026-11-27T00:00:00.000Z"
+              }
+            }
+          }
+        }
+      },
+      "given": "The introduction is in state proposed, and the person saw it as shown above.",
+      "hands_back": "{\"result\":{\"id\":\"intro-1\",\"status\":\"sent\",\"says\":\"Asked to meet. No answer yet.\",\"database\":\"shop_for_who_runs_it\"}}"
+    }
+  ],
+  "drafted_from": "tools/introduce-two-people/do-work/record-introduction-state.mjs and test/record-introduction-state.test.mjs"
+}
