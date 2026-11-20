@@ -18,7 +18,7 @@ function client(changes) {
     // What the look for held-back changes answers, look by look (the last one again once they run out).
     held: [{ xmin: '1', waiting: 0, database: 'p_made_up', holder: null }],
     query: async (sql, params = []) => {
-      if (sql.includes('pg_stat_activity')) {
+      if (sql.includes('AS waiting')) {
         const held = asked.held = (asked.held ?? 0) + 1;
         const next = stand.held[Math.min(held, stand.held.length) - 1];
         if (next instanceof Error) throw next;
@@ -52,7 +52,9 @@ test('it declares its fields and reads its settings, refusing a table name that 
   assert.deepEqual(readSettings({}), { connection_fd: 4, table: 'row_changes', channel: 'row_changes', look_again_ms: 30000, most_per_read: 500, held_back_ms: 120000 });
   assert.equal(readSettings({ held_back_seconds: 5 }).held_back_ms, 5000);
   assert.equal(readSettings({ table: 'x; DROP TABLE y' }).table, 'row_changes');
-  assert.match(readSql('row_changes'), /txid < pg_snapshot_xmin\(pg_current_snapshot\(\)\)/);
+  assert.match(readSql('row_changes'), /WHERE txid < coalesce\(\(SELECT min\(x\) FROM pg_snapshot_xip\(pg_current_snapshot\(\)\) x/, 'the horizon is this database\'s own');
+  assert.match(readSql('row_changes'), /a\.datname <> current_database\(\)\)\),\s+pg_snapshot_xmax\(pg_current_snapshot\(\)\)\)/, 'only a transaction placed in another database is left out');
+  assert.doesNotMatch(readSql('row_changes'), /pg_snapshot_xmin/, 'never the server\'s horizon');
   assert.match(readSql('row_changes'), /ORDER BY txid, position/);
   assert.match(readSql('row_changes'), /to_jsonb\(c\) ->> 'changed_by' AS by/, 'a change table with no changed_by is read the same: by is null');
 });
@@ -187,8 +189,8 @@ test('a second hold after the first ended is told again, and a look that fails c
 test('a holder this login may not see is said so, and the read names its own horizon and server-wide sessions', () => {
   assert.match(heldBackWords(holding(7, 1, null), 125000), /^1 committed change has waited in p_made_up for 2 min behind a transaction still running: a session this login may not see\./);
   assert.match(heldBackWords(holding(7, 2, { pid: 9 }), 60000), /session 9 on a database this login may not name\./);
-  assert.match(heldBackSql('row_changes'), /FROM row_changes WHERE txid >= pg_snapshot_xmin\(pg_current_snapshot\(\)\)/);
-  assert.match(heldBackSql('row_changes'), /FROM pg_stat_activity WHERE backend_xid IS NOT NULL ORDER BY age\(backend_xid\) DESC LIMIT 1/);
+  assert.match(heldBackSql('row_changes'), /FROM row_changes WHERE txid >= \(SELECT horizon FROM h\)/);
+  assert.match(heldBackSql('row_changes'), /l\.transactionid::text::bigint = \(\(SELECT horizon FROM h\)::text::bigint % 4294967296\)/, 'the holder is the session whose transaction is the horizon');
 });
 
 test("a waiter's trouble is told as the fact a stopped wake is named by: tool, wake, cause and said, within a fact's fields", () => {

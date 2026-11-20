@@ -12,9 +12,18 @@
  * Non-negotiable invariants
  *   - Nothing is skipped and nothing is told twice. Rows are read in
  *     (txid, position) order and only those whose transaction is older than
- *     every transaction still running (txid < pg_snapshot_xmin of the current
- *     snapshot), so a change committed later can never sort before one already
- *     passed. The kept place is the last told (txid, position).
+ *     every transaction still running in this database (txid < the horizon,
+ *     horizonSql), so a change committed later can never sort before one
+ *     already passed. The kept place is the last told (txid, position).
+ *   - The horizon is this database's own. The server's (pg_snapshot_xmin) waits
+ *     for transactions in every database on it, and a transaction in another
+ *     database can never write this one's change table: Nov 20 2026, 7:29:55 to
+ *     7:41 and again from 7:58 AM CST, one session idle in a transaction on
+ *     another database held every row change on the Mac back. A running
+ *     transaction is left out of the horizon only when pg_locks and
+ *     pg_stat_activity (both readable by any login) show its session connected
+ *     to another database; any it cannot place (a prepared transaction, one
+ *     that ended while it looked) still holds the horizon.
  *   - Each change is told under its own event key, <database>:<txid>:<position>,
  *     so telling it again is one fact to the engine.
  *   - It names no table of the person's: the change table and channel are
@@ -29,8 +38,8 @@
  *     among many: nothing shared names it, and another store tells its changes
  *     its own way (workflow:tell-me-when-something-changes).
  *   - Changes held back are told, once: committed changes that wait behind one
- *     transaction still running (anywhere on the database's server: the horizon
- *     is the server's) for held_back_seconds are told as the waiter's trouble
+ *     transaction still running in this database for held_back_seconds are
+ *     told as the waiter's trouble
  *     (handlers.onTrouble), naming the holding session's pid and database when
  *     this login may see them. Nov 20 2026, 7:29:55 to 7:41 AM CST: one session
  *     left idle in a transaction on another database (pid 415254) held every
@@ -84,13 +93,17 @@ export function readSettings(settings = {}) {
   };
 }
 
-/** The read that says whether committed changes wait behind a running transaction: the horizon (xmin), how many changes
- *  wait at or after it, and the session holding the oldest running transaction, when this login may see it. */
-export const heldBackSql = (table) => `SELECT pg_snapshot_xmin(pg_current_snapshot())::text AS xmin,
-  (SELECT count(*) FROM ${table} WHERE txid >= pg_snapshot_xmin(pg_current_snapshot()))::int AS waiting,
+/** The read that says whether committed changes wait behind a transaction running in this database: the horizon, how
+ *  many changes wait at or after it, and the session holding it (pg_locks names its pid to any login; its state and
+ *  start only when this login may see them). */
+export const heldBackSql = (table) => `WITH h AS (SELECT ${horizonSql} AS horizon)
+SELECT (SELECT horizon::text FROM h) AS xmin,
+  (SELECT count(*) FROM ${table} WHERE txid >= (SELECT horizon FROM h))::int AS waiting,
   current_database() AS database,
-  (SELECT json_build_object('pid', pid, 'database', datname, 'state', state, 'since', xact_start)
-     FROM pg_stat_activity WHERE backend_xid IS NOT NULL ORDER BY age(backend_xid) DESC LIMIT 1) AS holder`;
+  (SELECT json_build_object('pid', a.pid, 'database', a.datname, 'state', a.state, 'since', a.xact_start)
+     FROM pg_locks l JOIN pg_stat_activity a ON a.pid = l.pid
+     WHERE l.locktype = 'transactionid' AND l.mode = 'ExclusiveLock' AND l.granted
+       AND l.transactionid::text::bigint = ((SELECT horizon FROM h)::text::bigint % 4294967296) LIMIT 1) AS holder`;
 
 /** Who holds changes back, in words: the session's pid, database, state and since when, as far as they can be seen. */
 export function heldBackWords({ waiting, database, holder }, heldMs) {
@@ -103,10 +116,18 @@ export function heldBackWords({ waiting, database, holder }, heldMs) {
   return `${changes} waited in ${database} for ${minutes} min behind a transaction still running: ${who}. They are told once that transaction ends (pg_terminate_backend on its pid ends it).`;
 }
 
+/** The oldest transaction still running in this database, as of this statement's snapshot (the snapshot's xmax when none
+ *  is): every running transaction ID in the snapshot but those whose session pg_locks and pg_stat_activity place in
+ *  another database. A transaction ID is 32 bits in pg_locks and 64 in the snapshot, so they meet modulo 2^32. */
+export const horizonSql = `coalesce((SELECT min(x) FROM pg_snapshot_xip(pg_current_snapshot()) x
+    WHERE (x::text::bigint % 4294967296) NOT IN (SELECT l.transactionid::text::bigint FROM pg_locks l JOIN pg_stat_activity a ON a.pid = l.pid
+      WHERE l.locktype = 'transactionid' AND l.mode = 'ExclusiveLock' AND l.granted AND a.datname IS NOT NULL AND a.datname <> current_database())),
+  pg_snapshot_xmax(pg_current_snapshot()))`;
+
 /** The read that takes the next changes after `after` ({txid, position} or null), oldest first. */
 export const readSql = (table) => `SELECT position::text AS position, txid::text AS txid, at, table_name, op, before, after, to_jsonb(c) ->> 'changed_by' AS by, current_database() AS database
   FROM ${table} c
-  WHERE txid < pg_snapshot_xmin(pg_current_snapshot()) AND ($1::xid8 IS NULL OR (txid, position) > ($1::xid8, $2::bigint))
+  WHERE txid < ${horizonSql} AND ($1::xid8 IS NULL OR (txid, position) > ($1::xid8, $2::bigint))
   ORDER BY txid, position LIMIT $3`;
 
 // A run the engine sandboxes reaches the database only through the run's own proxy, which the engine names in HTTPS_PROXY:
