@@ -667,6 +667,7 @@
         },
         "output_schema": {"type":"object","required":["text","segments","heard_whole"],"properties":{"text":{"type":"string"},"segments":{"type":"array","items":{"type":"object","properties":{"start":{"type":"number"},"end":{"type":"number"},"text":{"type":"string"}}}},"language":{"type":["string","null"]},"heard_whole":{"type":"boolean"},"produced_by":{"type":"string"}}},
         "invoke": {
+          "max_run_ms": 3600000,
           "kind": "computer",
           "capabilities": ["start-a-program"],
           "workdir": "/opt/audio-transcription",
