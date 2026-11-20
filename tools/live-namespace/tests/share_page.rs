@@ -166,10 +166,30 @@ fn a_browser_gets_the_page_and_anything_else_gets_the_bytes() {
     assert!(html.contains("&lt;img src=x onerror=alert(1)&gt;.txt"), "a file's name is escaped");
     assert!(!html.contains("</style><script") && !html.contains("<img src=x"), "no word of the row or the look becomes markup (inside <style> a <script> is only text, and nothing there can end it)");
     assert!(!html.contains("/Recordings/"), "only a file's own name is shown, never the folders it is kept in");
-    let bytes = ask(&served, &served.base, "Accept: */*\r\n");
-    assert_eq!(bytes.body, b"original camera bytes", "a tool that asks for bytes gets the first file, as before pages");
+    for asker in ["Accept: */*\r\n", "", "User-Agent: WhatsApp/2.0\r\n"] {
+        let preview = ask(&served, &served.base, asker);
+        assert_eq!((preview.status, preview.headers["content-type"].as_str()), (200, "text/html; charset=utf-8"),
+            "a share of many files is its page to every asker ({asker:?}): a link preview never pulls the first file's whole bytes");
+    }
+    let bytes = ask(&served, &format!("{}/0", served.base), "Accept: */*\r\n");
+    assert_eq!(bytes.body, b"original camera bytes", "each file answers at its own address");
     assert!(bytes.headers["content-security-policy"].starts_with("sandbox"), "a file's bytes stay under the sandbox");
-    assert_eq!(bytes.headers["vary"], "Accept");
+}
+
+#[test]
+fn a_page_names_its_title_and_first_poster_for_link_previews() {
+    let (served, _) = serve(files(), many(), true);
+    // `ask` names the host `x`: the image address starts with the address the page was asked at.
+    let html = String::from_utf8(ask(&served, &served.base, "").body).unwrap();
+    assert!(html.contains(r#"<meta property="og:title" content="Footage from &lt;i&gt;Sep&lt;/i&gt; 10">"#), "the preview title, escaped");
+    assert!(html.contains(&format!(r#"<meta property="og:image" content="https://x{}/0/poster">"#, served.base)), "the first poster, absolute");
+}
+
+#[test]
+fn a_share_of_one_plain_file_still_answers_its_bytes_to_a_tool() {
+    let (served, _) = serve(files(), json!({"name_or_identity": "/Recordings/C9058.MP4", "seconds": 60}), true);
+    assert_eq!(ask(&served, &served.base, "Accept: */*\r\n").body, b"original camera bytes");
+    assert_eq!(ask(&served, &served.base, BROWSER).headers["content-type"], "text/html; charset=utf-8", "a browser still gets the page");
 }
 
 #[test]

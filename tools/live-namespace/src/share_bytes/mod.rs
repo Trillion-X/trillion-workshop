@@ -326,7 +326,9 @@ impl Page {
     }
 
     /// The page of the standing share `share` at `base` (`/share/<id>/<key>`), wearing `look` (settings `site`).
-    pub fn draw(&self, config: &Config, look: &Value, share: &Value, base: &str) -> String {
+    /// `origin` is the https address the page was asked at (its preview image's address starts with it); none, and the page names no
+    /// preview image.
+    pub fn draw(&self, config: &Config, look: &Value, share: &Value, base: &str, origin: Option<&str>) -> String {
         let leaf = |name: &str| name.rsplit('/').next().unwrap_or(name).to_owned();
         let mut drawn = String::new();
         let mut listed = Vec::new();
@@ -358,11 +360,19 @@ impl Page {
             listed.push(serde_json::json!({"n": n, "name": leaf(&file.name), "url": url, "type": media_type, "size": file.byte_length, "forms": forms}));
         }
         let first = all.first().and_then(|item| text(item, "name")).map(leaf).unwrap_or_default();
+        // The preview image: the first file's poster, or the first file itself when it is an image, at its absolute address.
+        let preview = all.first().and_then(|item| {
+            let poster = item.get("forms").and_then(|forms| forms.get("poster")).is_some();
+            let image = file_of(item).ok().is_some_and(|file| config.served_type(&file.name, &file.media_type).1.starts_with("image/"));
+            let origin = origin?;
+            if poster { Some(format!("{origin}{base}/0/poster")) } else if image { Some(format!("{origin}{base}/0")) } else { None }
+        });
         let theme = look.get("theme").cloned().unwrap_or(Value::Null);
         let words = |value: Option<&Value>| value.and_then(Value::as_str).unwrap_or("").to_owned();
         let page: BTreeMap<&str, String> = BTreeMap::from([
             ("title", text(share, "title").map(str::to_owned).unwrap_or(first)),
             ("count", listed.len().to_string()),
+            ("preview_image", preview.unwrap_or_default()),
             ("expires_at", words(share.get("expires_at"))),
             ("site_name", words(look.get("name"))),
             ("theme", words(theme.get("data_theme"))),
@@ -518,8 +528,11 @@ fn plain_form(form: &str) -> bool {
 }
 
 async fn serve_share(State(route): State<Arc<Route>>, Path((id, key)): Path<(String, String)>, uri: Uri, headers: HeaderMap) -> Response {
-    if route.page.is_some() && wants_page(&headers) {
-        return page(route, id, key).await;
+    // A share of many files (or of one with forms) is its page at its own address to every asker: a link preview or a plain fetch gets
+    // the page and its preview tags, never the first file's whole bytes; each file answers only at its own `/<n>`. A share of one plain
+    // file keeps answering its bytes to anything that does not ask for a page, as tools and players expect.
+    if route.page.is_some() && (wants_page(&headers) || is_many(route.clone(), id.clone(), key.clone()).await) {
+        return page(route, id, key, &headers).await;
     }
     let mut response = serve(route, id, key, Pick::default(), uri, headers).await;
     response.headers_mut().insert(header::VARY, HeaderValue::from_static("Accept"));
@@ -536,8 +549,24 @@ async fn serve_form(State(route): State<Arc<Route>>, Path((id, key, n, form)): P
     serve(route, id, key, Pick { n, form: Some(form) }, uri, headers).await
 }
 
+/// Whether the standing share `id` names many files or forms (its row holds `items`); a share that is not there answers false, and
+/// the byte path then refuses it as every refusal is refused.
+async fn is_many(route: Arc<Route>, id: String, key: String) -> bool {
+    tokio::task::spawn_blocking(move || admit_share(route.grants.as_ref(), &id, &key, Utc::now()).is_ok_and(|share| share.get("items").is_some()))
+        .await
+        .unwrap_or(false)
+}
+
+/// The https address the asker reached the route at, from its Host (a plain host name and port only): what a link preview's
+/// absolute image address starts with. None when the Host is missing or holds anything else.
+fn asked_origin(headers: &HeaderMap) -> Option<String> {
+    let host = headers.get(header::HOST)?.to_str().ok()?;
+    let plain = !host.is_empty() && host.len() <= 253 && host.bytes().all(|b| b.is_ascii_alphanumeric() || b".-:".contains(&b));
+    plain.then(|| format!("https://{}", host.to_ascii_lowercase()))
+}
+
 /// The share's page, filled from the share row read now.
-async fn page(route: Arc<Route>, id: String, key: String) -> Response {
+async fn page(route: Arc<Route>, id: String, key: String, headers: &HeaderMap) -> Response {
     let admitted = {
         let (route, id, key) = (route.clone(), id.clone(), key.clone());
         // The sharer's own look is read with the share on every page, so a look they keep shows on the next page drawn; a person who
@@ -554,7 +583,7 @@ async fn page(route: Arc<Route>, id: String, key: String) -> Response {
         _ => return refuse(StatusCode::SERVICE_UNAVAILABLE),
     };
     let Some(page) = route.page.as_ref() else { return refuse(StatusCode::NOT_FOUND) };
-    let drawn = page.draw(&route.config, own_look.as_ref().unwrap_or(&route.look), &share, &format!("/share/{id}/{key}"));
+    let drawn = page.draw(&route.config, own_look.as_ref().unwrap_or(&route.look), &share, &format!("/share/{id}/{key}"), asked_origin(headers).as_deref());
     let mut response = Response::new(Body::from(drawn));
     let out = response.headers_mut();
     out.insert(header::CONTENT_TYPE, HeaderValue::from_static("text/html; charset=utf-8"));
