@@ -36,11 +36,11 @@
   "banned_substitutions": ["A new preference or history store", "A fixture-only implementation", "A cross-account target lookup", "A default private grant", "A legacy runtime fallback", "A successful list read reported as delivery"],
   "baseline": {
     "path": "tools/choose-where-shares-from-the-phone-browser/from-an-older-version/baseline/src/share-destinations.mjs.held",
-    "commit": "a6b9518c15bef6c6d8444868a52b8c46a040cfde",
+    "commit": "c8e1563481075d9904d56022638c923d48a7accc",
     "copied_before_adaptation": true,
     "source_multihash": "1f:7aa1fd56fc602dbbb8557061ca060918a944bcb47d44f657a24e52e5e2ce1279",
-    "target_multihash_at_baseline": "1f:c243fdc5cae08fe02d807ffb4071d05af5d8099c6f90b4b0afe3ab4198a90136",
-    "why": "The baseline bytes at this commit (a6b9518c1, which put them on main at this path) differ from d494390943's copy on the claude/* branch only by one import path, rewritten by the rename a6b9518c1; the original is on the claude/* branch.",
+    "target_multihash_at_baseline": "1f:7aa1fd56fc602dbbb8557061ca060918a944bcb47d44f657a24e52e5e2ce1279",
+    "why": "The baseline reference copy at this commit holds the exact source bytes at commit b6ae0ebf815f (1f:7aa1fd56...), checked by BLAKE3.",
     "recorded_at": "2026-11-07T19:41:13-06:00"
   },
   "proof": {
