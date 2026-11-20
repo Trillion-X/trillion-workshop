@@ -1,0 +1,76 @@
+{
+  "drafted_from": "tool:notice-messages-on-this-mac's own row (its words, its read-messages capability, its one wake) and the imessage-chat-database leaf's tests over a SQLite file with the Messages tables; read it before relying on it",
+  "start_here": "Say to your AI: \"Tell my engine each iMessage and text message that reaches this Mac, the moment it arrives, without sending anything\". It switches on tool:notice-messages-on-this-mac's wake keep-noticing-one-source on your Mac with one waiter naming imessage-chat-database.mjs, and each message then arrives at your engine as a something-changed fact at place message, for example {\"where\":\"imessage\",\"place\":\"message\",\"change\":\"added\",\"key\":\"iMessage;-;+15555550101/9F1C2A7E-0001\",\"by\":\"+15555550101\"}.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it tells your engine facts, and the workflows that hear them keep the rows.",
+  "workflows": [],
+  "tools": [
+    "tool:notice-messages-on-this-mac"
+  ],
+  "instructions": [
+    "1. Give the app that runs your engine on this Mac Full Disk Access: System Settings > Privacy & Security > Full Disk Access. macOS lets no program read Messages without it.",
+    "2. Grant tool:notice-messages-on-this-mac the read-messages capability at your engine's grants door; a run without the grant is refused before it starts.",
+    "3. Switch the wake on with your own waiter: wake:switch {tool: tool:notice-messages-on-this-mac, id: keep-noticing-one-source, on: true, input: {waiters: [one waiter with mechanism_leaf imessage-chat-database.mjs]}} (the worked example shows the waiter). history_since tells messages from that time on when it first starts; without it, only messages from then on.",
+    "4. Read what arrives: each message, edit and unsend is one something-changed fact (where imessage, place message, change added, changed or removed) with the sender in by and in after.from. A Mac that refuses the database is told once at place access with the setting to change.",
+    "5. It only reads. To send an iMessage, use the iMessage connection (tools/bring-in-new-items-from-this-computer/computer/connections/imessage.mjs), never this tool."
+  ],
+  "worked_examples": [
+    {
+      "title": "Tell the engine each iMessage on this Mac",
+      "ask": "Tell my engine each iMessage and text message that reaches this Mac, the moment it arrives, without sending anything",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:notice-messages-on-this-mac",
+            "input": {
+              "waiters": [
+                {
+                  "kind": "notice-when-something-shows-up.waiter-descriptor",
+                  "id": "waiter:imessage-of-the-person",
+                  "is_active": true,
+                  "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::imessage-chat-database",
+                  "mechanism_leaf": "imessage-chat-database.mjs",
+                  "where": "imessage",
+                  "mechanism_settings": {
+                    "where": "imessage",
+                    "history_since": "2026-11-20T06:00:00Z",
+                    "include_own": false,
+                    "kinds": [
+                      "seed"
+                    ]
+                  },
+                  "emitted_record": {
+                    "change_kind": "something-changed",
+                    "address_label": "where::something-changed",
+                    "path_labels": [
+                      "current-item",
+                      "something-changed"
+                    ],
+                    "payload_fields": [
+                      "where",
+                      "place",
+                      "change",
+                      "at",
+                      "key",
+                      "by",
+                      "after",
+                      "kinds"
+                    ]
+                  },
+                  "candidate_identity_feed": null,
+                  "why": "The person's iMessage and text messages on their own Mac, read only: each message, edit and unsend told as a something-changed fact the moment Messages writes it, with kinds [\"seed\"] so the tree's chooser takes it (Nov 20 2026). Messages from Nov 20 00:00 CST on are told on the first start."
+                }
+              ],
+              "for_seconds": 30
+            }
+          }
+        }
+      },
+      "given": "The input {\"waiters\": [{\"kind\": \"notice-when-something-shows-up.waiter-descriptor\", \"id\": \"waiter:imessage-of-the-person\", \"is_active\": true, \"mechanism_capability_ref\": \"package::notice-when-something-shows-up::mechanism::imessage-chat-database\", \"mechanism_leaf\": \"imessage-chat-database.mjs\", \"where\": \"imessage\", \"mechanism_settings\": {\"where\": \"imessage\", \"history_since\": \"2026-11-20T06:00:00Z\", \"include_own\": false, \"kinds\": [\"seed\"]}, \"emitted_record\": {\"change_kind\": \"something-changed\", \"address_label\": \"where::something-changed\", \"path_labels\": [\"current-item\", \"something-changed\"], \"payload_fie ....",
+      "hands_back": "It answered {\"told\": [{\"kind\": \"something-changed\", \"event_id\": \"where::something-changed#iMessage;-;+15555550101/9F1C2A7E-0001:added\", \"payload\": {\"where\": \"imessage\", \"place\": \"message\", \"change\": \"added\", \"at\": \"2026-11-20T07:31:05.000Z\", \"key\": \"iMessage;-;+15555550101/9F1C2A7E-0001\", \"by\": \"+15555550101\", \"after\": \"{\\\"chat\\\":\\\"iMessage;-;+15555550101\\\",\\\"chat_name\\\":null,\\\"group\\\":false,\\\"from\\\":\\\"+15555550101\\\",\\\"words\\\":\\\"are we still on for 6?\\\",\\\"media\\\":[],\\\"reply_to\\\":null}\", \"kinds\": \"[\\\"seed\\\"]\"}}], \"refused\": []}"
+    }
+  ]
+}

@@ -1163,6 +1163,231 @@
           }
         ]
       }
+    },
+    {
+      "address": "package::notice-when-something-shows-up::tool::notice-messages-on-this-mac",
+      "id": "package::notice-when-something-shows-up::tool::notice-messages-on-this-mac",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 0,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "id": "tool:notice-messages-on-this-mac",
+        "listed_on": "2026-11-20T07:30:00Z",
+        "label": "Notice each message on this Mac, and tell the engine",
+        "job": "Watch the Messages database on the person's own Mac and tell their engine one fact for each iMessage or text message that arrives, is edited or is unsent, the moment Messages writes it, so the workflows that hear messages start. It only reads: it never sends a message.",
+        "description": "The noticer's program (tell-the-engine.mjs) run on the person's own Mac with one capability, read-messages, which the person grants to this tool and which macOS allows only once the app that runs the engine has Full Disk Access. Its one wake, keep-noticing-one-source, names no waiter: the person switches it on with their own input (wake:switch input {waiters}), naming the imessage-chat-database leaf, so which Messages database is watched and from when (history_since) is their own DATA. Each message is told as a something-changed fact at place message, with the same eight fields every message source tells (where, place, change, at, key, by, after, kinds), so the router and the history keeper take it as they take WhatsApp. A Mac that refuses the database is told once at place access with the setting to change.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "waiters": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "id",
+                  "is_active",
+                  "mechanism_capability_ref",
+                  "mechanism_leaf",
+                  "emitted_record"
+                ]
+              },
+              "minItems": 1
+            },
+            "for_seconds": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Watch this long, then answer every fact told; left out, it watches until it is stopped (its wake keeps it running)."
+            },
+            "credential_name": {
+              "type": "string",
+              "description": "The vault name of what the waiters read with, when one credential serves them all, handed to the run on descriptor 4: a database connection a row-changes waiter reads, a key a service-lists waiter asks a service's list with, or a signing secret a signed-service-calls waiter checks calls with. Only that credential's hosts are reached. A waiter that names its own credential_name reads with that one instead, held on descriptor 5 plus its place in waiters, so one run watches many places, each with its own credential."
+            }
+          },
+          "required": [
+            "waiters"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "told": {
+              "type": "array"
+            },
+            "refused": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-messages"
+          ],
+          "workdir": "/opt/notice-when-something-shows-up",
+          "internet": false,
+          "argv": [
+            "node",
+            "do-work/tell-the-engine.mjs",
+            "--keep",
+            {
+              "fill": {
+                "from": "task",
+                "field": "kept_folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "session": {
+            "keep_open": true
+          },
+          "kept_folder": true,
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "at": "@own-records",
+                "id": "something-changed",
+                "operations": [
+                  "wake:arrive"
+                ]
+              }
+            ]
+          },
+          "stdout": "json",
+          "files": {
+            "package_files": [
+              {
+                "package": "notice-when-something-shows-up",
+                "paths": [
+                  "do-work/tell-the-engine.mjs",
+                  "do-work/emit-arrival-fact.mjs",
+                  "do-work/mechanisms/imessage-chat-database.mjs"
+                ],
+                "at": "/opt/notice-when-something-shows-up"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              }
+            ]
+          }
+        },
+        "wakes": [
+          {
+            "id": "keep-noticing-one-source",
+            "on": {
+              "running": {}
+            },
+            "budget": {
+              "steps": 2,
+              "wall_ms": 600000
+            }
+          }
+        ],
+        "provenance": {
+          "source": "bitfield-packages packages/notice-when-something-shows-up (moved byte for byte, moved-from.json): its resident emitter and mechanisms, with do-work/tell-the-engine.mjs as the carrier to the engine's wake:arrive in place of the retired runtime's record writes"
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "waiters": [
+                {
+                  "kind": "notice-when-something-shows-up.waiter-descriptor",
+                  "id": "waiter:elapsed-time",
+                  "is_active": true,
+                  "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::elapsed-time",
+                  "mechanism_leaf": "elapsed-time.mjs",
+                  "mechanism_settings": {
+                    "interval_seconds": 1,
+                    "every": "second"
+                  },
+                  "emitted_record": {
+                    "change_kind": "clock-tick",
+                    "address_label": "clock::tick",
+                    "path_labels": [
+                      "current-item",
+                      "clock-tick"
+                    ],
+                    "payload_fields": [
+                      "iso_time",
+                      "epoch_ms",
+                      "counter",
+                      "every"
+                    ]
+                  },
+                  "candidate_identity_feed": null,
+                  "supersedes": "package::clock-ticker::workflow-action::start-clock",
+                  "why": "This row IS the clock. Its projection writes the exact clock-tick record at the exact address and path labels clock-ticker wrote, so every trigger rule matching clock-tick keeps firing with no edit."
+                },
+                {
+                  "kind": "notice-when-something-shows-up.waiter-descriptor",
+                  "id": "waiter:due-time",
+                  "is_active": true,
+                  "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::due-time",
+                  "mechanism_leaf": "due-time.mjs",
+                  "mechanism_settings": {
+                    "time_windows": [
+                      {
+                        "record_id": "sample-reminder",
+                        "due_at": "2026-11-18T00:00:00Z"
+                      }
+                    ],
+                    "actions": [
+                      {
+                        "record_id": "sample-reminder",
+                        "action_id": "send",
+                        "dispatch": {
+                          "name": "wake:arrive"
+                        }
+                      }
+                    ]
+                  },
+                  "emitted_record": {
+                    "change_kind": "due-time",
+                    "address_label": "clock::due",
+                    "path_labels": [
+                      "current-item",
+                      "due-time"
+                    ],
+                    "payload_fields": [
+                      "schedule_id",
+                      "start",
+                      "record_id",
+                      "operation"
+                    ]
+                  },
+                  "candidate_identity_feed": null,
+                  "why": "What timed-action says is due (tools/run-work-later-or-on-a-repeat whenToWake), told as a fact once per occurrence: its settings are timed-action's own rows (schedules; time_windows and actions). A tool hears a schedule with a wake {fact: {kind: due-time, from: [run], match: {schedule_id}}}, a one-off with match {record_id}."
+                }
+              ],
+              "for_seconds": 3.5
+            }
+          }
+        ]
+      }
     }
   ]
 }

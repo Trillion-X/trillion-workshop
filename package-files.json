@@ -25757,6 +25757,37 @@
    "at": "/opt/browse-and-upload-my-files"
   }
  ],
+ "tool:notice-messages-on-this-mac": [
+  {
+   "package": "notice-when-something-shows-up",
+   "paths": [
+    "do-work/tell-the-engine.mjs",
+    "do-work/emit-arrival-fact.mjs",
+    "do-work/mechanisms/imessage-chat-database.mjs"
+   ],
+   "at": "/opt/notice-when-something-shows-up"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "bring-in-new-items-from-this-computer",
+   "paths": [
+    "computer/connections/imessage.mjs"
+   ],
+   "at": "/opt/bring-in-new-items-from-this-computer"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:notice-what-needs-attention": [
   {
    "package": "notice-what-needs-attention",

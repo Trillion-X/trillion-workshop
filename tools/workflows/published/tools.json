@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:37a10e003b524860ef69cc243b56c59ce9dd2eb7128ef787bdc0724daa7b00af"
+  "blake3": "1f:6e634221f03d91f52e77a2e6a9fb991385d39bb7b04468ea804cf6be53378836"
  },
  "fields": [
   {
@@ -2743,6 +2743,21 @@
    }
   },
   {
+   "id": "tool:correct-a-message-recorded-as-the-person",
+   "values": {
+    "title": "Correct a message recorded as the person",
+    "job": "Correct a message kept as the person's own words when it was really said by a diagnostic, a peer or generated context: the corrected message keeps its text and time, and the false row, its arrivals and its thread row retire",
+    "description": "Give the kept message's id, the speaker it really came from (sdk diagnostic, peer or generated context), the evidence, and the rows read from the store ([{ id, type, value }]: the message, its arrival rows and its thread index row when there is one). Answers the correction under `correction` and the rows that change under `keep` ([{ id, type, value, expected }]) for the caller to store. Only a kept person message can be corrected, and the same correction again answers the first one.",
+    "status": "active",
+    "maker": "maker:correct-a-message-recorded-as-the-person",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "correct-a-message-recorded-as-the-person"
+   }
+  },
+  {
    "id": "tool:correct-resource-usage-settlement",
    "values": {
     "title": "Correct a resource usage settlement",
@@ -2770,6 +2785,21 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:correct-when-a-message-was-written",
+   "values": {
+    "title": "Correct when a message was written",
+    "job": "Show when the person actually wrote a message they kept without its original time: the message keeps its id, text and links, with the exact time and the evidence",
+    "description": "Give the kept message's id, the time it was really written (any past time; never one ahead of the clock), the evidence, and the rows read from the store ([{ id, type, value }]: the message and any earlier time correction). Answers the correction under `correction` and the rows that change under `keep` ([{ id, type, value, expected }]). Only a kept person message can be dated, never after its capture time, and the same correction again answers the first one.",
+    "status": "active",
+    "maker": "maker:correct-when-a-message-was-written",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "correct-when-a-message-was-written"
    }
   },
   {
@@ -6053,6 +6083,21 @@
    }
   },
   {
+   "id": "tool:list-my-connected-accounts",
+   "values": {
+    "title": "List my connected accounts in Composio",
+    "job": "Find which Composio account each connected app belongs to, and the user id that owns it, so a tool can run as that user",
+    "description": "Asks Composio, with the vault's Composio key, for the connected accounts that key can see (of one app when a toolkit is named): each account's id, the user id that owns it, its app, alias and status. It reads only: nothing is created, changed or removed. The key goes only to Composio's own host and appears in no answer.",
+    "status": "active",
+    "maker": "maker:composio-connection",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "composio-connection"
+   }
+  },
+  {
    "id": "tool:list-my-conversations-newest-first",
    "values": {
     "title": "List my conversations newest first",
@@ -7725,6 +7770,21 @@
     ],
     "listed_on": "2026-11-04T12:00:00Z",
     "folder": "publish-a-site-at-its-own-address"
+   }
+  },
+  {
+   "id": "tool:notice-messages-on-this-mac",
+   "values": {
+    "title": "Notice each message on this Mac, and tell the engine",
+    "job": "Watch the Messages database on the person's own Mac and tell their engine one fact for each iMessage or text message that arrives, is edited or is unsent, the moment Messages writes it, so the workflows that hear messages start. It only reads: it never sends a message.",
+    "description": "The noticer's program (tell-the-engine.mjs) run on the person's own Mac with one capability, read-messages, which the person grants to this tool and which macOS allows only once the app that runs the engine has Full Disk Access. Its one wake, keep-noticing-one-source, names no waiter: the person switches it on with their own input (wake:switch input {waiters}), naming the imessage-chat-database leaf, so which Messages database is watched and from when (history_since) is their own DATA. Each message is told as a something-changed fact at place message, with the same eight fields every message source tells (where, place, change, at, key, by, after, kinds), so the router and the history keeper take it as they take WhatsApp. A Mac that refuses the database is told once at place access with the setting to change.",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-20T07:30:00Z",
+    "folder": "notice-when-something-shows-up"
    }
   },
   {
