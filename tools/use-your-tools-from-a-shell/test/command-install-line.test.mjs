@@ -36,6 +36,9 @@ test('the site pages name only their own site, and carry every file the program 
   const named = Object.fromEntries(pages.map(row => [row.page, row.bytes.toString('utf8')]));
   assert.equal(JSON.parse(named['cli/client.json']).client_id, 'https://acme.test/cli/client.json');
   assert.equal(JSON.parse(named['cli/client.json']).client_name, 'Acme Co command line');
+  const pagesClient = JSON.parse(named['pages/tool:serve-the-task-pages/client.json']);
+  assert.deepEqual([pagesClient.client_id, pagesClient.client_name, pagesClient.application_type], ['https://acme.test/pages/tool:serve-the-task-pages/client.json', 'Acme Co task pages', 'native']);
+  assert.ok(pagesClient.redirect_uris.every(uri => /^http:\/\/127\.0\.0\.1\/pages\//.test(uri)), 'a loopback redirect with no port');
   assert.match(named['cli/install'], /^origin='https:\/\/acme\.test'$/m);
   assert.match(named['cli/install'], /^cli='acmeco'$/m);
   assert.ok(!/\{(origin|site|cli|program)\}/.test(named['cli/install']));

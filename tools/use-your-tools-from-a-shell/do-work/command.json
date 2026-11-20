@@ -81,6 +81,10 @@
       ]
     }
   },
+  "site_clients": {
+    "_what": "Other OAuth client documents the site serves beside the command's own, each a page of the site written from a tool's own file (path from this folder), filled like client-metadata.json: a page a person's computer serves on its loopback door signs in with one of these. A loopback redirect names no port (application_type native: the sign-in matches it at any port, RFC 8252 section 8.3).",
+    "pages": [{"page": "pages/tool:serve-the-task-pages/client.json", "file": "../../see-what-is-being-worked-on/task-page/client-metadata.json"}]
+  },
   "install": {
     "follow": {
       "_what": "Where the installed command finds the Workshop copy it runs, from this computer's engine config (the first of `computer_config_files` that exists, the same file the agent socket is read from): its `persons_field` is the folder that holds one state folder per person the engine serves, and a person's <state>/<installs_folder>/<current> is the Workshop install the engine keeps current for them (current is `current_field` of <state>/<installs_folder>/<state_file>); `program` is the command inside it. It follows only when exactly one person's state holds a current install, so it never guesses between people. Nothing found, or the copy is this file: the installed copy runs itself. (It read a local-runtime.json the engine no longer writes, so on 2026-11-17 every Workshop update to this command was skipped on the Mac.)",

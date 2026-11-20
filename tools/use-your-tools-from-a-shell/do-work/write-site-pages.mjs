@@ -4,7 +4,8 @@
 // Purpose
 //   Writes the pages a site serves so anyone can put the site's own command on a computer with one line and sign in at that
 //   site: `cli/client.json` (this program's OAuth client document, client-metadata.json), `cli/install` (install.sh) and
-//   `cli/program/` (every file command.json `install.files` names, and files.txt listing them). {origin} in each is the
+//   `cli/program/` (every file command.json `install.files` names, and files.txt listing them), and the other client
+//   documents command.json `site_clients` names (a tool's own file, at its page). {origin} in each is the
 //   site's own origin, and {site_name} and {cli} are the site's name and command word, read from any file of its owner's by JSON Pointer (the same values its sign-in pages
 //   wear), so one site's pages never name another's and this tool names no product.
 //
@@ -33,6 +34,7 @@ export function sitePages(origin, site, { rules = settings, from = HERE } = {}) 
   const filled = name => Buffer.from(readFileSync(join(from, name), 'utf8').replace(/\{(origin|site_name|cli|program)\}/g, (whole, key) => values[key]));
   return [
     { page: 'cli/client.json', bytes: filled('client-metadata.json') },
+    ...(rules.site_clients?.pages ?? []).map(({ page, file }) => ({ page, bytes: filled(file) })),
     { page: 'cli/install', bytes: filled('install.sh') },
     { page: 'cli/program/files.txt', bytes: Buffer.from(`${rules.install.files.join('\n')}\n`) },
     ...rules.install.files.map(name => ({ page: `cli/program/${name}`, bytes: readFileSync(join(from, name)) })),

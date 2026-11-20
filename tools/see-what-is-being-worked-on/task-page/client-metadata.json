@@ -1,0 +1,15 @@
+{
+  "client_id": "{origin}/pages/tool:serve-the-task-pages/client.json",
+  "client_name": "{site_name} task pages",
+  "application_type": "native",
+  "redirect_uris": [
+    "http://127.0.0.1/pages/tool:serve-the-task-pages/callback.html"
+  ],
+  "grant_types": [
+    "authorization_code"
+  ],
+  "response_types": [
+    "code"
+  ],
+  "token_endpoint_auth_method": "none"
+}

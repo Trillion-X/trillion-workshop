@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:8feb00af22ded5efe29b06b6be89aaf241ba2c1e33d0925307a45ab2e5c6ce34"
+  "blake3": "1f:7f651317ca929f80b48fb46bd1ed0d330a0df13d83a5424bdae50175efa30900"
  },
  "fields": [
   {
@@ -12263,6 +12263,22 @@
      "placement:small-container"
     ],
     "folder": "social-posts"
+   }
+  },
+  {
+   "id": "tool:set-deleted-files-keep-for",
+   "values": {
+    "title": "Change how long deleted files are kept",
+    "job": "Change how many days this person's Recently Deleted or Archived keep things before they move on",
+    "description": "after_days is { state: days } (a whole number from 0 to 36500, or null to keep until put back). It applies at once to everything already there, so a shorter time can make things move on, or be gone for good, at the next sweep. A state left out keeps its days. Your AI reads your setting:keep_for and hands it in as stored; the answer's keep is the new setting for it to keep. Answers the keep-for now in force: states (each with its id, label, after_days, default_after_days and what happens when its time ends) and choices.",
+    "status": "active",
+    "maker": "maker:recently-deleted-and-storage",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-19T00:00:00Z",
+    "folder": "recently-deleted-and-storage"
    }
   },
   {

@@ -10139,6 +10139,9 @@
    "package": "recently-deleted-and-storage",
    "paths": [
     "namespace-set-aside.mjs",
+    "durable-archive.json",
+    "account-archive-actions.json",
+    "read-data/when-due.mjs",
     "namespace-set-aside.json",
     "carry-tables-into-records.mjs",
     "namespace-view.mjs",
@@ -10166,7 +10169,8 @@
   {
    "package": "workflows",
    "paths": [
-    "do-work/run-a-function.mjs"
+    "do-work/run-a-function.mjs",
+    "read-data"
    ],
    "at": "/opt/workflows"
   },
@@ -10196,7 +10200,8 @@
   {
    "package": "check-against-a-persons-rules-and-verdicts",
    "paths": [
-    "do-work/branch.mjs"
+    "do-work/branch.mjs",
+    "do-work/branch-core.mjs"
    ],
    "at": "/opt/check-against-a-persons-rules-and-verdicts"
   },
@@ -10234,6 +10239,16 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "ai-tool-catalog",
+   "paths": [
+    "do-work/derive-tool-rows-from-sources.mjs",
+    "do-work/read-openapi.mjs",
+    "read-data/declared-effects.ts",
+    "read-data/read-ai-tool-catalog.ts"
+   ],
+   "at": "/opt/ai-tool-catalog"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
@@ -10241,11 +10256,121 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
-   "package": "check-against-a-persons-rules-and-verdicts",
+   "package": "connect-a-service-and-seal-its-key",
    "paths": [
-    "do-work/branch-core.mjs"
+    "do-work/external-effect-attempt.ts"
    ],
-   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+   "at": "/opt/connect-a-service-and-seal-its-key"
+  },
+  {
+   "package": "decide-with-a-method",
+   "paths": [
+    "read-data/decision-outcome.mjs",
+    "read-data/what-helped-words.json"
+   ],
+   "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "describe-the-workshop",
+   "paths": [
+    "read-data/workshop-sample-rules.json"
+   ],
+   "at": "/opt/describe-the-workshop"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "http-client",
+   "paths": [
+    "do-work/same-origin.mjs"
+   ],
+   "at": "/opt/http-client"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/blake3.mjs",
+    "parts/live-namespace/do-work/shared-file-reference.mjs",
+    "parts/ui/show/file-chip/file-kinds.json",
+    "parts/ui/show/file-field/file-takes.json",
+    "parts/ui/show/file-field/takes-file.mjs",
+    "parts/ui/show/isolated-module-surface/module-surface-requests.mjs",
+    "parts/ui/show/isolated-module-surface/sandboxed-screen-routes.json",
+    "records/outcome-handling.json",
+    "records/sent-kinds.json",
+    "server.json",
+    "src/check-uses.mjs",
+    "src/claimed-time.json",
+    "src/claimed-time.mjs",
+    "src/configurations.mjs",
+    "src/connecting-without-the-store.json",
+    "src/connecting-without-the-store.mjs",
+    "src/cut-off.mjs",
+    "src/execution-context.mjs",
+    "src/live-tool-sources.mjs",
+    "src/maker-payouts.json",
+    "src/maker-payouts.mjs",
+    "src/meaning-or-words.mjs",
+    "src/model-admission.mjs",
+    "src/model-budgets.json",
+    "src/model-calls.mjs",
+    "src/namespace-preview.mjs",
+    "src/outcome-checks.mjs",
+    "src/outcome-precedence.json",
+    "src/pool-settings.json",
+    "src/public-app-run-permission.mjs",
+    "src/read-bounded-json.mjs",
+    "src/record-model-tools.mjs",
+    "src/record-model.json",
+    "src/record-scope.json",
+    "src/renamed-tools.json",
+    "src/renamed-tools.mjs",
+    "src/save-tool-example.json",
+    "src/scheduler.json",
+    "src/scheduler.mjs",
+    "src/sent.mjs",
+    "src/shared-namespace-file-input.mjs",
+    "src/sold-copies.json",
+    "src/sold-copies.mjs",
+    "src/source-connection.mjs",
+    "src/store-size.mjs",
+    "src/tar-gz.mjs",
+    "src/tool-releases.mjs",
+    "src/work-workshop.mjs",
+    "src/workshop-looks.json",
+    "src/workshop-sample-rules.mjs",
+    "src/workshop.mjs",
+    "src/workspace/file-previews.json",
+    "src/workspace/first-answers.json",
+    "src/workspace/screens.mjs",
+    "src/workspace/surfaces.json",
+    "src/write-only-input.mjs",
+    "src/your-records.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "do-work/fractional-order.ts",
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "learn-a-workflow-from-a-job",
+   "paths": [
+    "src/learned-workflows.json",
+    "src/learned-workflows.mjs"
+   ],
+   "at": "/opt/learn-a-workflow-from-a-job"
   },
   {
    "package": "learn-from-everyones-results",
@@ -10255,21 +10380,150 @@
    "at": "/opt/learn-from-everyones-results"
   },
   {
+   "package": "leave-a-makers-private-starting-values-out",
+   "paths": [
+    "src/published-workflow-privacy.mjs"
+   ],
+   "at": "/opt/leave-a-makers-private-starting-values-out"
+  },
+  {
+   "package": "list-tools-for-an-ai",
+   "paths": [
+    "read-data/tool-releases.json"
+   ],
+   "at": "/opt/list-tools-for-an-ai"
+  },
+  {
+   "package": "pick-a-screen-as-you-type",
+   "paths": [
+    "src/word-match.mjs"
+   ],
+   "at": "/opt/pick-a-screen-as-you-type"
+  },
+  {
    "package": "recently-deleted-and-storage",
    "paths": [
-    "account-archive-actions.json",
-    "durable-archive.json"
+    "set-aside-live.json"
    ],
    "at": "/opt/recently-deleted-and-storage"
   },
   {
+   "package": "record-log",
+   "paths": [
+    "do-work/record-model.mjs",
+    "do-work/store-size.json"
+   ],
+   "at": "/opt/record-log"
+  },
+  {
+   "package": "refuse-requests-to-private-addresses",
+   "paths": [
+    "public-address.json",
+    "public-address.mjs"
+   ],
+   "at": "/opt/refuse-requests-to-private-addresses"
+  },
+  {
+   "package": "require-that-a-workflow-steps-ai-answer-comes",
+   "paths": [
+    "src/workflow-actor-policy.mjs"
+   ],
+   "at": "/opt/require-that-a-workflow-steps-ai-answer-comes"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "built-stored-bytes/timed-action/timed_action.js",
+    "built-stored-bytes/timed-action/timed_action_bg.wasm",
+    "do-work/timed-action.mjs"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json",
+    "src/repo-explorer.mjs",
+    "src/typed-operation-contract.mjs",
+    "src/workflow-authoring-guidance.json",
+    "src/workflow-authoring-guidance.mjs",
+    "src/workflow-step-versions.json",
+    "src/workflow-step-versions.mjs"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "tweak-live-controls",
+   "paths": [
+    "effect-outcomes.json",
+    "failure-codes.json",
+    "failure.mjs",
+    "platform-failures.json"
+   ],
+   "at": "/opt/tweak-live-controls"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "read-data/declared-selector.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "workflow-interruptions",
+   "paths": [
+    "src/workflow-interruptions.json"
+   ],
+   "at": "/opt/workflow-interruptions"
+  },
+  {
    "package": "workflows",
    "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
+    "branches/fires-when.json",
+    "citation-resolvers.json",
+    "host-tools.json",
+    "kit-observe.json",
+    "kit-template.json",
+    "recipe-check-kinds.json",
+    "recipe-wake-causes.json"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "write-a-job-done-in-several-steps-have",
+   "paths": [
+    "read-data/workflows.mjs"
+   ],
+   "at": "/opt/write-a-job-done-in-several-steps-have"
+  },
+  {
+   "package": "build-a-screen-from-patches",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/build-a-screen-from-patches"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "packages": [
+    "node_modules/tldts"
+   ],
+   "at": "/opt/node_modules/tldts"
+  },
+  {
+   "packages": [
+    "node_modules/tldts-core"
+   ],
+   "at": "/opt/node_modules/tldts-core"
   }
  ],
  "tool:derive-current-api-description-rows": [
@@ -29609,12 +29863,11 @@
    "at": "/opt/quote-untrusted-words"
   },
   {
-   "package": "records-door",
+   "package": "workflows",
    "paths": [
-    "do-work",
-    "read-data"
+    "do-work/run-a-function.mjs"
    ],
-   "at": "/opt/records-door"
+   "at": "/opt/workflows"
   },
   {
    "package": "content-identity",
@@ -31255,6 +31508,13 @@
    "at": "/opt/records-door"
   },
   {
+   "package": "workflows",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
    "package": "content-identity",
    "paths": [
     "read-data"
@@ -31292,6 +31552,16 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "ai-tool-catalog",
+   "paths": [
+    "do-work/derive-tool-rows-from-sources.mjs",
+    "do-work/read-openapi.mjs",
+    "read-data/declared-effects.ts",
+    "read-data/read-ai-tool-catalog.ts"
+   ],
+   "at": "/opt/ai-tool-catalog"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
@@ -31299,13 +31569,260 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "connect-a-service-and-seal-its-key",
+   "paths": [
+    "do-work/external-effect-attempt.ts"
+   ],
+   "at": "/opt/connect-a-service-and-seal-its-key"
+  },
+  {
+   "package": "decide-with-a-method",
+   "paths": [
+    "read-data/decision-outcome.mjs",
+    "read-data/what-helped-words.json"
+   ],
+   "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "describe-the-workshop",
+   "paths": [
+    "read-data/workshop-sample-rules.json"
+   ],
+   "at": "/opt/describe-the-workshop"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "http-client",
+   "paths": [
+    "do-work/same-origin.mjs"
+   ],
+   "at": "/opt/http-client"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/blake3.mjs",
+    "parts/live-namespace/do-work/shared-file-reference.mjs",
+    "parts/ui/show/file-chip/file-kinds.json",
+    "parts/ui/show/file-field/file-takes.json",
+    "parts/ui/show/file-field/takes-file.mjs",
+    "parts/ui/show/isolated-module-surface/module-surface-requests.mjs",
+    "parts/ui/show/isolated-module-surface/sandboxed-screen-routes.json",
+    "records/outcome-handling.json",
+    "records/sent-kinds.json",
+    "server.json",
+    "src/check-uses.mjs",
+    "src/claimed-time.json",
+    "src/claimed-time.mjs",
+    "src/configurations.mjs",
+    "src/connecting-without-the-store.json",
+    "src/connecting-without-the-store.mjs",
+    "src/cut-off.mjs",
+    "src/execution-context.mjs",
+    "src/live-tool-sources.mjs",
+    "src/maker-payouts.json",
+    "src/maker-payouts.mjs",
+    "src/meaning-or-words.mjs",
+    "src/model-admission.mjs",
+    "src/model-budgets.json",
+    "src/model-calls.mjs",
+    "src/namespace-preview.mjs",
+    "src/outcome-checks.mjs",
+    "src/outcome-precedence.json",
+    "src/pool-settings.json",
+    "src/public-app-run-permission.mjs",
+    "src/read-bounded-json.mjs",
+    "src/record-model-tools.mjs",
+    "src/record-model.json",
+    "src/record-scope.json",
+    "src/renamed-tools.json",
+    "src/renamed-tools.mjs",
+    "src/save-tool-example.json",
+    "src/scheduler.json",
+    "src/scheduler.mjs",
+    "src/sent.mjs",
+    "src/shared-namespace-file-input.mjs",
+    "src/sold-copies.json",
+    "src/sold-copies.mjs",
+    "src/source-connection.mjs",
+    "src/store-size.mjs",
+    "src/tar-gz.mjs",
+    "src/tool-releases.mjs",
+    "src/work-workshop.mjs",
+    "src/workshop-looks.json",
+    "src/workshop-sample-rules.mjs",
+    "src/workshop.mjs",
+    "src/workspace/file-previews.json",
+    "src/workspace/first-answers.json",
+    "src/workspace/screens.mjs",
+    "src/workspace/surfaces.json",
+    "src/write-only-input.mjs",
+    "src/your-records.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "do-work/fractional-order.ts",
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "learn-a-workflow-from-a-job",
+   "paths": [
+    "src/learned-workflows.json",
+    "src/learned-workflows.mjs"
+   ],
+   "at": "/opt/learn-a-workflow-from-a-job"
+  },
+  {
+   "package": "leave-a-makers-private-starting-values-out",
+   "paths": [
+    "src/published-workflow-privacy.mjs"
+   ],
+   "at": "/opt/leave-a-makers-private-starting-values-out"
+  },
+  {
+   "package": "list-tools-for-an-ai",
+   "paths": [
+    "read-data/tool-releases.json"
+   ],
+   "at": "/opt/list-tools-for-an-ai"
+  },
+  {
+   "package": "pick-a-screen-as-you-type",
+   "paths": [
+    "src/word-match.mjs"
+   ],
+   "at": "/opt/pick-a-screen-as-you-type"
+  },
+  {
+   "package": "record-log",
+   "paths": [
+    "do-work/record-model.mjs",
+    "do-work/store-size.json"
+   ],
+   "at": "/opt/record-log"
+  },
+  {
+   "package": "refuse-requests-to-private-addresses",
+   "paths": [
+    "public-address.json",
+    "public-address.mjs"
+   ],
+   "at": "/opt/refuse-requests-to-private-addresses"
+  },
+  {
+   "package": "require-that-a-workflow-steps-ai-answer-comes",
+   "paths": [
+    "src/workflow-actor-policy.mjs"
+   ],
+   "at": "/opt/require-that-a-workflow-steps-ai-answer-comes"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "built-stored-bytes/timed-action/timed_action.js",
+    "built-stored-bytes/timed-action/timed_action_bg.wasm",
+    "do-work/timed-action.mjs"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json",
+    "src/repo-explorer.mjs",
+    "src/typed-operation-contract.mjs",
+    "src/workflow-authoring-guidance.json",
+    "src/workflow-authoring-guidance.mjs",
+    "src/workflow-step-versions.json",
+    "src/workflow-step-versions.mjs"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "tweak-live-controls",
+   "paths": [
+    "effect-outcomes.json",
+    "failure-codes.json",
+    "failure.mjs",
+    "platform-failures.json"
+   ],
+   "at": "/opt/tweak-live-controls"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "read-data/declared-selector.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "workflow-interruptions",
+   "paths": [
+    "src/workflow-interruptions.json"
+   ],
+   "at": "/opt/workflow-interruptions"
+  },
+  {
    "package": "workflows",
    "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
+    "branches/fires-when.json",
+    "citation-resolvers.json",
+    "host-tools.json",
+    "kit-observe.json",
+    "kit-template.json",
+    "recipe-check-kinds.json",
+    "recipe-wake-causes.json"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "write-a-job-done-in-several-steps-have",
+   "paths": [
+    "read-data/workflows.mjs"
+   ],
+   "at": "/opt/write-a-job-done-in-several-steps-have"
+  },
+  {
+   "package": "build-a-screen-from-patches",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/build-a-screen-from-patches"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "packages": [
+    "node_modules/tldts"
+   ],
+   "at": "/opt/node_modules/tldts"
+  },
+  {
+   "packages": [
+    "node_modules/tldts-core"
+   ],
+   "at": "/opt/node_modules/tldts-core"
   }
  ],
  "tool:read-documents-as-list-rows": [
@@ -41471,6 +41988,343 @@
    "at": "/opt/node_modules/@opencoredev/social-sdk"
   }
  ],
+ "tool:set-deleted-files-keep-for": [
+  {
+   "package": "recently-deleted-and-storage",
+   "paths": [
+    "do-work/recently-deleted-actions.mjs",
+    "namespace-set-aside.json",
+    "set-aside-live.json",
+    "read-data/when-due.mjs"
+   ],
+   "at": "/opt/recently-deleted-and-storage"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "ai-tool-catalog",
+   "paths": [
+    "do-work/derive-tool-rows-from-sources.mjs",
+    "do-work/read-openapi.mjs",
+    "read-data/declared-effects.ts",
+    "read-data/read-ai-tool-catalog.ts"
+   ],
+   "at": "/opt/ai-tool-catalog"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "connect-a-service-and-seal-its-key",
+   "paths": [
+    "do-work/external-effect-attempt.ts"
+   ],
+   "at": "/opt/connect-a-service-and-seal-its-key"
+  },
+  {
+   "package": "decide-with-a-method",
+   "paths": [
+    "read-data/decision-outcome.mjs",
+    "read-data/what-helped-words.json"
+   ],
+   "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "describe-the-workshop",
+   "paths": [
+    "read-data/workshop-sample-rules.json"
+   ],
+   "at": "/opt/describe-the-workshop"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "http-client",
+   "paths": [
+    "do-work/same-origin.mjs"
+   ],
+   "at": "/opt/http-client"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/blake3.mjs",
+    "parts/live-namespace/do-work/shared-file-reference.mjs",
+    "parts/ui/show/file-chip/file-kinds.json",
+    "parts/ui/show/file-field/file-takes.json",
+    "parts/ui/show/file-field/takes-file.mjs",
+    "parts/ui/show/isolated-module-surface/module-surface-requests.mjs",
+    "parts/ui/show/isolated-module-surface/sandboxed-screen-routes.json",
+    "records/outcome-handling.json",
+    "records/sent-kinds.json",
+    "server.json",
+    "src/check-uses.mjs",
+    "src/claimed-time.json",
+    "src/claimed-time.mjs",
+    "src/configurations.mjs",
+    "src/connecting-without-the-store.json",
+    "src/connecting-without-the-store.mjs",
+    "src/cut-off.mjs",
+    "src/execution-context.mjs",
+    "src/live-tool-sources.mjs",
+    "src/maker-payouts.json",
+    "src/maker-payouts.mjs",
+    "src/meaning-or-words.mjs",
+    "src/model-admission.mjs",
+    "src/model-budgets.json",
+    "src/model-calls.mjs",
+    "src/namespace-preview.mjs",
+    "src/outcome-checks.mjs",
+    "src/outcome-precedence.json",
+    "src/pool-settings.json",
+    "src/public-app-run-permission.mjs",
+    "src/read-bounded-json.mjs",
+    "src/record-model-tools.mjs",
+    "src/record-model.json",
+    "src/record-scope.json",
+    "src/renamed-tools.json",
+    "src/renamed-tools.mjs",
+    "src/save-tool-example.json",
+    "src/scheduler.json",
+    "src/scheduler.mjs",
+    "src/sent.mjs",
+    "src/shared-namespace-file-input.mjs",
+    "src/sold-copies.json",
+    "src/sold-copies.mjs",
+    "src/source-connection.mjs",
+    "src/store-size.mjs",
+    "src/tar-gz.mjs",
+    "src/tool-releases.mjs",
+    "src/work-workshop.mjs",
+    "src/workshop-looks.json",
+    "src/workshop-sample-rules.mjs",
+    "src/workshop.mjs",
+    "src/workspace/file-previews.json",
+    "src/workspace/first-answers.json",
+    "src/workspace/screens.mjs",
+    "src/workspace/surfaces.json",
+    "src/write-only-input.mjs",
+    "src/your-records.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "do-work/fractional-order.ts",
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "learn-a-workflow-from-a-job",
+   "paths": [
+    "src/learned-workflows.json",
+    "src/learned-workflows.mjs"
+   ],
+   "at": "/opt/learn-a-workflow-from-a-job"
+  },
+  {
+   "package": "leave-a-makers-private-starting-values-out",
+   "paths": [
+    "src/published-workflow-privacy.mjs"
+   ],
+   "at": "/opt/leave-a-makers-private-starting-values-out"
+  },
+  {
+   "package": "list-tools-for-an-ai",
+   "paths": [
+    "read-data/tool-releases.json"
+   ],
+   "at": "/opt/list-tools-for-an-ai"
+  },
+  {
+   "package": "pick-a-screen-as-you-type",
+   "paths": [
+    "src/word-match.mjs"
+   ],
+   "at": "/opt/pick-a-screen-as-you-type"
+  },
+  {
+   "package": "record-log",
+   "paths": [
+    "do-work/record-model.mjs",
+    "do-work/store-size.json"
+   ],
+   "at": "/opt/record-log"
+  },
+  {
+   "package": "refuse-requests-to-private-addresses",
+   "paths": [
+    "public-address.json",
+    "public-address.mjs"
+   ],
+   "at": "/opt/refuse-requests-to-private-addresses"
+  },
+  {
+   "package": "require-that-a-workflow-steps-ai-answer-comes",
+   "paths": [
+    "src/workflow-actor-policy.mjs"
+   ],
+   "at": "/opt/require-that-a-workflow-steps-ai-answer-comes"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "built-stored-bytes/timed-action/timed_action.js",
+    "built-stored-bytes/timed-action/timed_action_bg.wasm",
+    "do-work/timed-action.mjs"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json",
+    "src/repo-explorer.mjs",
+    "src/typed-operation-contract.mjs",
+    "src/workflow-authoring-guidance.json",
+    "src/workflow-authoring-guidance.mjs",
+    "src/workflow-step-versions.json",
+    "src/workflow-step-versions.mjs"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "tweak-live-controls",
+   "paths": [
+    "effect-outcomes.json",
+    "failure-codes.json",
+    "failure.mjs",
+    "platform-failures.json"
+   ],
+   "at": "/opt/tweak-live-controls"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "read-data/declared-selector.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "workflow-interruptions",
+   "paths": [
+    "src/workflow-interruptions.json"
+   ],
+   "at": "/opt/workflow-interruptions"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "branches/fires-when.json",
+    "citation-resolvers.json",
+    "host-tools.json",
+    "kit-observe.json",
+    "kit-template.json",
+    "recipe-check-kinds.json",
+    "recipe-wake-causes.json"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "write-a-job-done-in-several-steps-have",
+   "paths": [
+    "read-data/workflows.mjs"
+   ],
+   "at": "/opt/write-a-job-done-in-several-steps-have"
+  },
+  {
+   "package": "build-a-screen-from-patches",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/build-a-screen-from-patches"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "packages": [
+    "node_modules/tldts"
+   ],
+   "at": "/opt/node_modules/tldts"
+  },
+  {
+   "packages": [
+    "node_modules/tldts-core"
+   ],
+   "at": "/opt/node_modules/tldts-core"
+  }
+ ],
  "tool:set-fields-by-rules": [
   {
    "package": "field-values",
@@ -46803,6 +47657,13 @@
     "read-data"
    ],
    "at": "/opt/who-does-each-step"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/who-does-it.json"
+   ],
+   "at": "/opt/shared-code"
   }
  ],
  "tool:what-is-waiting-on-me": [
@@ -46949,6 +47810,13 @@
     "read-data"
    ],
    "at": "/opt/who-does-each-step"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/who-does-it.json"
+   ],
+   "at": "/opt/shared-code"
   }
  ],
  "tool:who-is-in-this": [
