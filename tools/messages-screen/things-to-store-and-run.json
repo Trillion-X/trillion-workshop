@@ -6898,13 +6898,6 @@
             }
           },
           {
-            "id": "crypto_script",
-            "kind": "read",
-            "config": {
-              "from": "package::transcript-mapper::stored-bytes::bitfield-crypto-python-module"
-            }
-          },
-          {
             "id": "decoder_script",
             "kind": "read",
             "config": {
@@ -7024,21 +7017,6 @@
                         "select": {
                           "from": "steps",
                           "key": "mapper_script",
-                          "path": "output.content_hash"
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "mount_path": "packages/chat/do-work/process-scripts/bitfield_crypto.py",
-                    "content_type": "text/x-python",
-                    "source": {
-                      "kind": "blob_ref",
-                      "hash": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "steps",
-                          "key": "crypto_script",
                           "path": "output.content_hash"
                         }
                       }
@@ -7913,13 +7891,6 @@
             }
           },
           {
-            "id": "crypto_script",
-            "kind": "read",
-            "config": {
-              "from": "package::transcript-mapper::stored-bytes::bitfield-crypto-python-module"
-            }
-          },
-          {
             "id": "noop_decoder_script",
             "kind": "read",
             "config": {
@@ -8588,21 +8559,6 @@
                         "select": {
                           "from": "steps",
                           "key": "mapper_script",
-                          "path": "output.content_hash"
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "mount_path": "packages/chat/do-work/process-scripts/bitfield_crypto.py",
-                    "content_type": "text/x-python",
-                    "source": {
-                      "kind": "blob_ref",
-                      "hash": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "steps",
-                          "key": "crypto_script",
                           "path": "output.content_hash"
                         }
                       }

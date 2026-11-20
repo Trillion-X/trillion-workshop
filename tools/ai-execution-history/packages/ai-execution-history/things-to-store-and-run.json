@@ -723,13 +723,6 @@
             }
           },
           {
-            "id": "read_crypto",
-            "kind": "read",
-            "config": {
-              "from": "package::transcript-mapper::stored-bytes::bitfield-crypto-python-module"
-            }
-          },
-          {
             "id": "plan",
             "kind": "ask",
             "config": {
@@ -789,21 +782,6 @@
                             }
                           }
                         ]
-                      }
-                    }
-                  },
-                  {
-                    "mount_path": "bitfield_crypto.py",
-                    "content_type": "text/x-python",
-                    "source": {
-                      "kind": "blob_ref",
-                      "hash": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "steps",
-                          "key": "read_crypto",
-                          "path": "output.content_hash"
-                        }
                       }
                     }
                   }
@@ -983,13 +961,6 @@
             }
           },
           {
-            "id": "read_crypto",
-            "kind": "read",
-            "config": {
-              "from": "package::transcript-mapper::stored-bytes::bitfield-crypto-python-module"
-            }
-          },
-          {
             "id": "evaluate",
             "kind": "ask",
             "config": {
@@ -1049,21 +1020,6 @@
                             }
                           }
                         ]
-                      }
-                    }
-                  },
-                  {
-                    "mount_path": "bitfield_crypto.py",
-                    "content_type": "text/x-python",
-                    "source": {
-                      "kind": "blob_ref",
-                      "hash": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "steps",
-                          "key": "read_crypto",
-                          "path": "output.content_hash"
-                        }
                       }
                     }
                   }
@@ -1637,13 +1593,6 @@
             }
           },
           {
-            "id": "read_crypto",
-            "kind": "read",
-            "config": {
-              "from": "package::transcript-mapper::stored-bytes::bitfield-crypto-python-module"
-            }
-          },
-          {
             "id": "finalize",
             "kind": "ask",
             "config": {
@@ -1701,21 +1650,6 @@
                             }
                           }
                         ]
-                      }
-                    }
-                  },
-                  {
-                    "mount_path": "bitfield_crypto.py",
-                    "content_type": "text/x-python",
-                    "source": {
-                      "kind": "blob_ref",
-                      "hash": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "steps",
-                          "key": "read_crypto",
-                          "path": "output.content_hash"
-                        }
                       }
                     }
                   }
@@ -2259,13 +2193,6 @@
             }
           },
           {
-            "id": "read_crypto",
-            "kind": "read",
-            "config": {
-              "from": "package::transcript-mapper::stored-bytes::bitfield-crypto-python-module"
-            }
-          },
-          {
             "id": "validate",
             "kind": "ask",
             "config": {
@@ -2323,21 +2250,6 @@
                             }
                           }
                         ]
-                      }
-                    }
-                  },
-                  {
-                    "mount_path": "bitfield_crypto.py",
-                    "content_type": "text/x-python",
-                    "source": {
-                      "kind": "blob_ref",
-                      "hash": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "steps",
-                          "key": "read_crypto",
-                          "path": "output.content_hash"
-                        }
                       }
                     }
                   }
