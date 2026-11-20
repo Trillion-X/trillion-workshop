@@ -7,7 +7,7 @@
 import React from 'react';
 import { SectionShell, TextColumn } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { Text, Button, Container, ShowcaseStrip } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
-import { LANDING_PRICING_SECTION_ID } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { CtaButton, LANDING_PRICING_SECTION_ID } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { PROGRAM_HERO_ENGRAVED_HEADING_STYLE } from './programHeroTypography';
 import { useProgramLandingData } from './ProgramLandingData';
 import {
@@ -508,6 +508,24 @@ export function ProgramPricingSection({ flatSurfaces, instanceId, embedded = fal
           </Button>
         </article>
         )}
+        {/* A card that sells nothing at checkout and sends the reader somewhere instead (a call to set up something custom):
+            each is a row of the plan's `links`, with its own name, words, button and address. A page with no links draws none. */}
+        {(Array.isArray(plan.links) ? plan.links : []).map((link: { id: string; planName: string; summary?: string; ctaLabel: string; href: string; order?: number; featured?: boolean }) => (
+          <article
+            key={link.id}
+            aria-labelledby={scoped(`program-link-plan-${link.id}`)}
+            className="program-pricing-card"
+            data-featured={link.featured ? 'true' : undefined}
+            data-link-card={link.id}
+            style={{ order: link.order ?? 0 }}
+          >
+            <div className="program-pricing-name-row">
+              <span className="program-pricing-name" id={scoped(`program-link-plan-${link.id}`)}>{link.planName}</span>
+            </div>
+            {link.summary ? <Text as="p" variant="body" className="program-pricing-feature-label">{link.summary}</Text> : null}
+            <CtaButton href={link.href} label={link.ctaLabel} />
+          </article>
+        ))}
       </Container>
     </SectionShell>
   );
