@@ -1,7 +1,5 @@
 // Allocation is separate from purchase, payer identity and the quantity chosen at checkout.
 // Old offers retain their original implicit payer unit. New offers declare every grant explicitly.
-import { offerRows as catalog } from './offer-rows.mjs';
-
 export const allocationOf = offer => offer?.allocation ?? (offer?.seats ? {
   grants_offer: offer.seats.grants_offer, keeps_for_life: offer.seats.keeps_for_life, payer_units: 1,
 } : null);
@@ -42,8 +40,8 @@ function allocationGraph(offers) {
   return byId;
 }
 
-/** Display only: the entitlement bought for allocation, not access granted to the payer. */
-export function entitlementOffer(offer, offers = catalog.records) {
+/** Display only: the entitlement bought for allocation, not access granted to the payer. `offers` is the resolved offer rows (offer-rows.mjs resolveOffers). */
+export function entitlementOffer(offer, offers) {
   const byId = allocationGraph(offers);
   if (hasAllocation(offer)) {
     if (typeof offer.id !== 'string' || !offer.id.trim() || hasMalformedAllocation(offer.allocation)) {
