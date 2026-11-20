@@ -1,0 +1,66 @@
+{
+  "drafted_from": "tool:say-what-got-worse's own row (its words, input schema and verify sample) and the answer its command gave on that sample in this folder's test run; read it before relying on it",
+  "start_here": "Say to your AI: \"Say which of today's numbers got worse than the day before\", giving two readings as measures, each with label, now, before and worse_when (higher or lower). It tells you whether anything got worse, and in words which numbers moved.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes two readings as input and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:say-what-got-worse",
+    "tool:tell-the-person"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Say which of today's numbers got worse than the day before\", and give it measures: each one a label, its now and before numbers (or lists of items), and worse_when (higher or lower).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:say-what-got-worse and its input (the worked example shows one).",
+    "3. Read worse (true when any measure got worse) and said. Tell the person only when worse is true.",
+    "4. When worse is true, hand what said says to tool:tell-the-person, so the person hears it only then."
+  ],
+  "worked_examples": [
+    {
+      "title": "Restarts went up from 2 to 6, and one store moved most",
+      "ask": "Say which of today's numbers got worse than the day before",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:say-what-got-worse",
+            "input": {
+              "measures": [
+                {
+                  "label": "Restarts",
+                  "now": [
+                    {
+                      "n": 5,
+                      "id": "a"
+                    },
+                    {
+                      "n": 1,
+                      "id": "b"
+                    }
+                  ],
+                  "before": [
+                    {
+                      "n": 2,
+                      "id": "a"
+                    }
+                  ],
+                  "value": [
+                    "n"
+                  ],
+                  "key": [
+                    "id"
+                  ],
+                  "worse_when": "higher",
+                  "missing": "zero"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The reading above: today's restarts for stores a and b, yesterday's for store a.",
+      "hands_back": "It answered worse true, and said: \"Worse than before: Restarts. Restarts: 6 (2 before); a 5 (2), b 1 (0).\""
+    }
+  ]
+}

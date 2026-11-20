@@ -1,0 +1,194 @@
+{
+ "kind": "tool-rows",
+ "record_set": "run-rules-and-schedules-by-themselves-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/run-rules-and-schedules-by-themselves: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::ai-tool-catalog::tool::say-what-got-worse",
+   "address": "package::ai-tool-catalog::tool::say-what-got-worse",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:say-what-got-worse",
+    "label": "Say what got worse since the last reading",
+    "job": "Compare a reading with the one before it (this day and the day before, this week and last) and say which numbers got worse, so a schedule tells the person only when something did",
+    "description": "Give measures, each { label, now, before, worse_when: \"higher\" or \"lower\" }. now and before are a number, a list of numbers (added up) or a list of items: value is the path to each item's number and key the path to its name, so a total also says which parts moved. missing: \"zero\" counts nothing found as none (for counts); otherwise a side that was not read is left uncompared. at_least is the smallest change that counts, scale divides both before they are shown (1000000 for microseconds to seconds) and unit is shown after each number. Returns worse (true when any measure got worse), measures (each with now, before, change, worse and the parts that moved), lines and said, the reading in words. Use it in a workflow after a tool that reads two periods, with an edge on worse to tool:tell-the-person.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "measures"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "measures": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "label",
+         "worse_when"
+        ],
+        "properties": {
+         "label": {
+          "type": "string",
+          "minLength": 1
+         },
+         "now": {},
+         "before": {},
+         "worse_when": {
+          "enum": [
+           "higher",
+           "lower"
+          ]
+         },
+         "value": {
+          "type": "array",
+          "items": {
+           "type": [
+            "string",
+            "integer"
+           ]
+          },
+          "description": "Path to each item's number"
+         },
+         "key": {
+          "type": "array",
+          "items": {
+           "type": [
+            "string",
+            "integer"
+           ]
+          },
+          "description": "Path to each item's name"
+         },
+         "missing": {
+          "enum": [
+           "zero",
+           "unknown"
+          ]
+         },
+         "at_least": {
+          "type": "number",
+          "minimum": 0
+         },
+         "scale": {
+          "type": "number",
+          "exclusiveMinimum": 0
+         },
+         "unit": {
+          "type": "string"
+         }
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "worse",
+      "measures",
+      "lines",
+      "said"
+     ],
+     "properties": {
+      "worse": {
+       "type": "boolean"
+      },
+      "measures": {
+       "type": "array"
+      },
+      "lines": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/run-rules-and-schedules-by-themselves",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/run-rules-and-schedules-by-themselves/do-work/say-what-got-worse.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "run-rules-and-schedules-by-themselves",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/run-rules-and-schedules-by-themselves"
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "maker": "maker:run-rules-and-schedules-by-themselves",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:this-account"
+    ],
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "measures": [
+        {
+         "label": "Restarts",
+         "now": [
+          {
+           "n": 5,
+           "id": "a"
+          },
+          {
+           "n": 1,
+           "id": "b"
+          }
+         ],
+         "before": [
+          {
+           "n": 2,
+           "id": "a"
+          }
+         ],
+         "value": [
+          "n"
+         ],
+         "key": [
+          "id"
+         ],
+         "worse_when": "higher",
+         "missing": "zero"
+        }
+       ]
+      },
+      "output_selector": "$.said",
+      "contains": "Worse than before"
+     }
+    ]
+   }
+  }
+ ]
+}

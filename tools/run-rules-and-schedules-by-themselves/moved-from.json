@@ -28,7 +28,7 @@
     {
       "from": "src/compare-readings.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/run-rules-and-schedules-by-themselves/src/compare-readings.mjs",
+      "to": "tools/run-rules-and-schedules-by-themselves/do-work/compare-readings.mjs",
       "source_identity": "1f:cfb2e9744c670511983a0515bfb4399a78637d951dbad258ec2f63ffd9f15c71",
       "identity": "1f:cfb2e9744c670511983a0515bfb4399a78637d951dbad258ec2f63ffd9f15c71"
     },
