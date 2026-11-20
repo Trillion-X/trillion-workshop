@@ -4,4 +4,4 @@ Files of old trillion whose job is this tool's (turn a folder of agent skills in
 
 | Old path | Here | Status |
 |---|---|---|
-| `scripts/skills-to-workflows.mjs` | `scripts/skills-to-workflows.mjs.held` | held: ported into `../read-data/skills-into-workflows.mjs` and `../data/skill-import-rules.json` (the bytes stay as the receipt) |
+| `scripts/skills-to-workflows.mjs` | removed here; its bytes are at the tag (commit b6ae0ebf81, identity in `../moved-from.json`) | ported: `../read-data/skills-into-workflows.mjs` and `../data/skill-import-rules.json`. Two rulings: the sharing gate (made_here or open licence) is not a gate, since the workflows stay with the person (the port's own invariant 1); the hand-made dedupe is added to the port (`skills-into-workflows.test.mjs`, 10 pass) |

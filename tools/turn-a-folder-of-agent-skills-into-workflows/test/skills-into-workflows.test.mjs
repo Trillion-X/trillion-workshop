@@ -73,6 +73,14 @@ test('a run answers the workflows with their rows, names a workflow whose skill 
   assert.ok(!JSON.stringify(answer).includes(SECRET));
 });
 
+test('a skill the person already has as a workflow of their own (made by hand, same source name) is not made again', () => {
+  const hand = { id: 'record:workflow-recipe:tidy', type: 'record:workflow-recipe', value: { recipe: 'workflow:my-tidy', source: JSON.stringify({ from: 'me', name: 'tidy-notes' }) } };
+  const answer = turnSkillsIntoWorkflows({ input: { records: [...SKILLS.map(item => ({ ...item, type: 'record:agent-skill' })), hand] } });
+  assert.equal(answer.made.includes('workflow:skill-tidy-notes'), false);
+  assert.deepEqual(answer.home.find(item => item.skill === 'tidy-notes').reasons, ['already one of your own workflows']);
+  assert.deepEqual(answer.stale, []);
+});
+
 test('records that are not rows are refused in words', () => {
   assert.throws(() => turnSkillsIntoWorkflows({ input: {} }), /records is the rows of the agent-skills list/);
   assert.throws(() => turnSkillsIntoWorkflows({ input: { records: [{ id: 'x' }] } }), /records is the rows/);

@@ -10,7 +10,8 @@
       "to": "tools/turn-a-folder-of-agent-skills-into-workflows/from-an-older-version/scripts/skills-to-workflows.mjs.held",
       "source_identity": "1f:0ed0e2b0e569c63ab86340b9a65bb04d5e0689a9ee3e76f1c4566f39babe0dd4",
       "identity": "1f:df753a6c8e20331b575ef277cdd8ee70148642546395cb05616b141a6ac2b187",
-      "held": true
+      "held": true,
+      "ported_to": "tools/turn-a-folder-of-agent-skills-into-workflows/read-data/skills-into-workflows.mjs"
     }
   ]
 }

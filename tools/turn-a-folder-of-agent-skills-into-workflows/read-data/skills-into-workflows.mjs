@@ -192,13 +192,14 @@ export function skillRows({ folder, skill: skillFile, files }, privateWords, rul
 }
 
 /** Every skill of the rows, as workflows to write and the skills that stay home. A name seen once is not taken again. */
-export function workflowsFromRows(rows, { privateWords = [], folder = '', rules = RULES } = {}) {
+export function workflowsFromRows(rows, { privateWords = [], folder = '', rules = RULES, handNames = new Set() } = {}) {
   const made = [];
   const home = [];
   const ids = new Set();
   for (const skill of skillsOfFiles(filesOfRows(rows), rules, folder)) {
     const result = skillRows(skill, privateWords, rules);
     if (!result.rows) { home.push(result); continue; }
+    if (handNames.has(result.skill)) { home.push({ skill: result.skill, folder: result.folder, reasons: ['already one of your own workflows'] }); continue; }
     if (ids.has(result.id)) { home.push({ skill: result.skill, folder: result.folder, reasons: [`${result.id} is already taken by another skill`] }); continue; }
     ids.add(result.id);
     made.push(result);
@@ -215,12 +216,18 @@ export function turnSkillsIntoWorkflows({ input = {} } = {}) {
     throw new Error(`records is the rows of the agent-skills list (${RULES.skill_row_type}) and the workflows already kept (${RULES.recipe_row_type}), each { id, type, value }, as the store that holds them returned them.`);
   }
   const privateWords = Array.isArray(input.private_words) ? input.private_words.filter(word => typeof word === 'string' && word.trim()).map(word => word.trim()) : [];
-  const { made, home } = workflowsFromRows(rowsOf(records, RULES.skill_row_type), { privateWords, folder: typeof input.folder === 'string' ? input.folder : '' });
+  const sourceOf = row => {
+    let source = row.value?.source;
+    try { source = typeof source === 'string' ? JSON.parse(source) : source; } catch { source = null; }
+    return source;
+  };
+  // A skill whose name is the source of a workflow the person already has (made by hand) is not made again.
+  const handNames = new Set(rowsOf(records, RULES.recipe_row_type).map(sourceOf).filter(source => source?.from !== 'agent skill' && typeof source?.name === 'string').map(source => source.name));
+  const { made, home } = workflowsFromRows(rowsOf(records, RULES.skill_row_type), { privateWords, folder: typeof input.folder === 'string' ? input.folder : '', handNames });
   const now = new Set(made.map(item => item.id));
   const stale = [];
   for (const row of rowsOf(records, RULES.recipe_row_type)) {
-    let source = row.value?.source;
-    try { source = typeof source === 'string' ? JSON.parse(source) : source; } catch { source = null; }
+    const source = sourceOf(row);
     if (source?.from === 'agent skill' && typeof row.value.recipe === 'string' && !now.has(row.value.recipe)) stale.push(row.value.recipe);
   }
   return { made: made.map(item => item.id), workflows: made.map(({ id, rows }) => ({ id, rows })), home: home.map(({ skill, reasons }) => ({ skill, reasons })), stale };
