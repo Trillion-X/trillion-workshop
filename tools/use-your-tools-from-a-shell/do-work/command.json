@@ -40,7 +40,7 @@
   },
   "held_file": "held.json",
   "client_name": "{site_name} command line",
-  "scope": "openid offline_access tools:* secrets:* wake:* grants:offer grants:read-offer",
+  "scope": "openid offline_access tools:* secrets:* wake:*",
   "sign_in_wait_seconds": 600,
   "retry": {
     "_what": "One call is tried again, under the same request_key, when the door does not answer within one try, answers 429 or 5xx, or says its run is still going (`codes`). A call has no deadline of its own: `count`, the number of tries after the first, is the one number that ends it. Each gap doubles from first_seconds up to most_seconds and is then cut down by up to `jitter` of itself, so callers that failed together do not try together. `attempt_seconds` is how long one try waits (--timeout SECONDS sets it for one command); the next try asks again with the same key and is answered with the first run's recorded result (the engine's tool_runs: one request key, one run). A run longer than the engine's tool-run deadline (tool-runs.json deadline_ms) is a row that declares invoke.max_run_ms or invoke.session, whose run id is read with the session read method.",

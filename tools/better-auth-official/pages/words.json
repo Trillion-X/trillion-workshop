@@ -21,9 +21,7 @@
     "tools:*": "Run tools for you",
     "tools:list": "See your tools",
     "sharing.*": "Share what you choose and see what you share",
-    "secrets:*": "Use the logins and keys you keep",
-    "grants:offer": "Ask you to let a tool use something on your computer (you say yes with your passkey)",
-    "grants:read-offer": "Read what a tool asked to use on your computer"
+    "secrets:*": "Use the logins and keys you keep"
   },
   "code_wrong_login": "That code is not right. Check it and try again.",
   "code_ran_out": "That code ran out. Send a new one.",

@@ -69,9 +69,7 @@
       "tools:*",
       "tools:list",
       "sharing.*",
-      "secrets:*",
-      "grants:offer",
-      "grants:read-offer"
+      "secrets:*"
     ],
     "resource_scopes": [
       "offline_access",
@@ -79,9 +77,7 @@
       "tools:*",
       "tools:list",
       "sharing.*",
-      "secrets:*",
-      "grants:offer",
-      "grants:read-offer"
+      "secrets:*"
     ],
     "access_token_seconds": 3600
   },
