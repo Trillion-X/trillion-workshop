@@ -10,8 +10,9 @@
 // audience is a formula-engine rule group; the caller passes `matches(tree, fields, facts)` that answers whether the
 // group holds, so this file does not interpret rules.
 //
-// Not here yet (tool rows of this folder, see README): the delivery on connect, the operator's row store and tools,
-// and the account facts (tools/decide-when-things-show/read-data/account-facts.mjs holds those).
+// The delivery on connect is work-for-ais-delivery.mjs and the operator's per-row book is work-for-ais-book.mjs (both in
+// this folder). Not here yet: the operator's tools and route (not built, waits for the owner's word), and the account facts
+// (tools/decide-when-things-show/read-data/account-facts.mjs holds those).
 
 export class WorkForAisError extends Error {}
 
