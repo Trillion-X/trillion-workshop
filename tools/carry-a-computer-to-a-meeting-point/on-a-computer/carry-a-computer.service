@@ -1,0 +1,41 @@
+[Unit]
+Description={description}
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# The announcement signs in with the credential named below, in the variable its row gives: start-a-computer seals it for this
+# computer (systemd-creds) at its file, and this unit names only where. The carrier's own key is kept in {state}/key, made on
+# its first start.
+{credential_lines}
+# HOME is the state folder: the announcement's command keeps its keeper socket in a folder under $HOME named for {cli}, and no other folder is writable.
+Environment=HOME={state}
+Environment=PATH={node_bin}:/usr/bin:/bin
+Environment=npm_config_cache={workshop}/.npm-cache
+Type=simple
+User={user}
+Group={user}
+# The Workshop copy at {workshop} stays between starts: the row's pinned commit {workshop_commit} is fetched into it (only what
+# the copy lacks) and checked out. npm ci runs in {tool_folder} (the carrier's own lock: only what the carrier imports) only when that commit's lock is not the one installed last time,
+# whose git id is kept in the copy's .git/npm-lock-id.
+ExecStartPre=/bin/sh -c 'test -d {workshop}/.git || git init -q {workshop}'
+ExecStartPre=/bin/sh -c 'git -C {workshop} fetch -q --depth 1 {repository} {workshop_commit} && git -C {workshop} checkout -q --detach {workshop_commit}'
+ExecStartPre=/bin/sh -c 'lock=$$(git -C {workshop} rev-parse {workshop_commit}:{tool_folder}/package-lock.json) && if [ "$$(cat {workshop}/.git/npm-lock-id 2>/dev/null)" != "$$lock" ]; then cd {workshop}/{tool_folder} && npm ci --omit=dev --no-audit --no-fund && echo "$$lock" > {workshop}/.git/npm-lock-id; fi'
+# The announcement runs the Workshop's command under the name the site gives it ({cli}), linked as the Mac's install links it: the
+# command reads its site, and so the name of its key variable, from the name it runs as.
+ExecStartPre=/bin/sh -c 'mkdir -p {state}/bin && ln -sfn {workshop}/tools/use-your-tools-from-a-shell/do-work/command.mjs {state}/bin/{cli}'
+ExecStart=/bin/sh -c 'cd {workshop} && {credential_env}exec node tools/carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs serve {settings_file}'
+Restart=always
+RestartSec=2
+KillSignal=SIGTERM
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths={writable}
+ProtectHome=true
+PrivateTmp=true
+LimitCORE=0
+
+[Install]
+WantedBy=multi-user.target

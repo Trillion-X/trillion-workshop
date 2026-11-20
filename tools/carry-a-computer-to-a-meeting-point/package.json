@@ -1,0 +1,8 @@
+{
+  "name": "carry-a-computer-to-a-meeting-point",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@noble/hashes": "2.4.0"
+  }
+}

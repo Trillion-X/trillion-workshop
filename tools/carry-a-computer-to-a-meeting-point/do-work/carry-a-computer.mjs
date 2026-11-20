@@ -72,6 +72,15 @@ export function renderClient(way, values, { secret, dir }) {
   return { files, argv };
 }
 
+/** Runs a way's `key.make` in `dir`, which is the folder its private and public files are left in. */
+function runKeyMake(way, dir, run) {
+  const [command, ...args] = way.key.make.map(part => fill(part, { dir }, `way ${way.id} key`));
+  run(command, args, { stdio: 'ignore' });
+}
+
+/** The private and public texts a way's key files hold in `dir`. */
+const readKey = (way, dir) => ({ private: readFileSync(join(dir, way.key.private), 'utf8'), public: readFileSync(join(dir, way.key.public), 'utf8').trim() });
+
 /** A new key for a way that says how one is made (`key`): its command runs in a private folder that is removed after, and the
  * private and public texts are answered, for the caller to keep where it keeps credentials. */
 export function makeKey(way, { state, run = execFileSync } = {}) {
@@ -79,11 +88,28 @@ export function makeKey(way, { state, run = execFileSync } = {}) {
   mkdirSync(join(state, 'run'), { recursive: true, mode: 0o700 });
   const dir = mkdtempSync(join(state, 'run', 'key-'));
   try {
-    const [command, ...args] = way.key.make.map(part => fill(part, { dir }, `way ${way.id} key`));
-    run(command, args, { stdio: 'ignore' });
-    return { private: readFileSync(join(dir, way.key.private), 'utf8'), public: readFileSync(join(dir, way.key.public), 'utf8').trim() };
+    runKeyMake(way, dir, run);
+    return readKey(way, dir);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
+
+/** The carrier's own key for a config that names no credential_command: kept in <state>/key (the folder 0700, its files 0600).
+ * The way's `key.make` runs there on the first start, and every later start reads the same key back. */
+export function keptKey(way, { state, run = execFileSync } = {}) {
+  if (!way.key) throw new Error(`way ${way.id} makes no key`);
+  const dir = join(state, 'key');
+  if (!existsSync(join(dir, way.key.private)) || !existsSync(join(dir, way.key.public))) {
+    rmSync(dir, { recursive: true, force: true });
+    mkdirSync(dir, { recursive: true, mode: 0o700 });
+    chmodSync(dir, 0o700);
+    runKeyMake(way, dir, run);
+    for (const name of [way.key.private, way.key.public]) chmodSync(join(dir, name), 0o600);
+  }
+  return readKey(way, dir);
+}
+
+/** A credential's text without the one line end a key file or a vault value ends with: the client's file adds its own. */
+const credentialText = text => text.replace(/\n$/, '');
 
 /** The credential the client dials with, read from the descriptor 3 of a vault command, never from its output. */
 export function credentialFrom(command) {
@@ -92,7 +118,7 @@ export function credentialFrom(command) {
     const chunks = [];
     child.stdio[3].on('data', chunk => chunks.push(chunk));
     child.once('error', fail);
-    child.once('exit', code => (code === 0 && chunks.length ? done(Buffer.concat(chunks).toString('utf8').replace(/\n$/, '')) : fail(new Error('the credential command gave no value'))));
+    child.once('exit', code => (code === 0 && chunks.length ? done(credentialText(Buffer.concat(chunks).toString('utf8'))) : fail(new Error('the credential command gave no value'))));
   });
 }
 
@@ -107,8 +133,13 @@ function answerOf(spawnImpl, argv) {
   });
 }
 
-/** Keeps one computer carried: starts the way's client, and starts it again two seconds after it ends, until aborted. */
-export async function serveCarrier(config, { credential, state, have = here(), spawnImpl = spawn, fetchBytes, run, wait = ms => new Promise(resolveWait => setTimeout(resolveWait, ms)), signal, report = () => {} }) {
+/** Keeps one computer carried: starts the way's client, and starts it again two seconds after it ends, until aborted. With no
+ * `credential` (the config names no credential_command), the carrier's own key (keptKey) is the credential, and its public half
+ * is the announced key unless the config gives one. */
+export async function serveCarrier(given, { credential, state, have = here(), spawnImpl = spawn, fetchBytes, run, wait = ms => new Promise(resolveWait => setTimeout(resolveWait, ms)), signal, report = () => {} }) {
+  const own = credential ? null : keptKey(given.way, { state, run });
+  const config = own && given.values?.public_key === undefined ? { ...given, values: { ...given.values, public_key: own.public } } : given;
+  const credentialOf = credential ?? (async () => credentialText(own.private));
   const { way } = config;
   const exe = await ensureProgram(way.client.program, { have, state, fetchBytes, run });
   const gives = config.announce?.gives;
@@ -131,7 +162,7 @@ export async function serveCarrier(config, { credential, state, have = here(), s
       }
       values = { ...values, ...Object.fromEntries(given) };
     }
-    const secret = await credential();
+    const secret = await credentialOf();
     mkdirSync(join(state, 'run'), { recursive: true, mode: 0o700 });
     const dir = mkdtempSync(join(state, 'run', 'carrier-'));
     try {
@@ -249,7 +280,7 @@ export async function runCLI(argv = process.argv.slice(2)) {
     const config = JSON.parse(readFileSync(rest[0], 'utf8'));
     const stop = new AbortController();
     for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => stop.abort());
-    await serveCarrier(config, { credential: credentialFrom(config.credential_command), state: config.state, signal: stop.signal, report: row => process.stderr.write(`${JSON.stringify(row)}\n`) });
+    await serveCarrier(config, { credential: config.credential_command ? credentialFrom(config.credential_command) : undefined, state: config.state, signal: stop.signal, report: row => process.stderr.write(`${JSON.stringify(row)}\n`) });
   } else if (command === 'install' && rest.length === 2) out(installCarrier(JSON.parse(readFileSync(rest[0], 'utf8')), resolve(rest[1])));
   else if (command === 'remove' && rest.length === 2) out(removeCarrier(JSON.parse(readFileSync(rest[0], 'utf8')), resolve(rest[1])));
   else if (command === 'render-meeting-point' && rest.length === 0) {

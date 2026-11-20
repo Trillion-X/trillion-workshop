@@ -2,14 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import { PassThrough } from 'node:stream';
-import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { spawn, spawnSync } from 'node:child_process';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { WAYS, copyCarrier, ensureProgram, makeKey, installCarrier, pickArtifact, portFor, removeCarrier, renderClient, renderMeetingPoint, serveCarrier, valuesFor } from '../do-work/carry-a-computer.mjs';
+import { WAYS, copyCarrier, ensureProgram, keptKey, makeKey, installCarrier, pickArtifact, portFor, removeCarrier, renderClient, renderMeetingPoint, serveCarrier, valuesFor } from '../do-work/carry-a-computer.mjs';
 
 const relayHost = { id: 'relay-example', hostname: 'relay.example.test', params: { control_port: 2333, ssh_port: 22, host_key: 'ssh-ed25519 AAAAEXAMPLE' } };
 const way = id => WAYS.find(row => row.id === id);
@@ -284,4 +284,45 @@ test('a carrier copy made again replaces an earlier copy whose files and folders
     spawnSync('chmod', ['-R', 'u+w', state]);
     rmSync(state, { recursive: true, force: true });
   }
+});
+
+// A synthetic way that makes its key with a shell command (no ssh-keygen): the command counts its runs in <state>/runs, and
+// the client's identity file is the credential it is given.
+const keyedWay = {
+  id: 'keyed-way', transport_kind: 'reverse_tunnel', relay_host_ref: 'relay-example', order: 1, requires_awake: true, install: { scope: 'user' }, params: {},
+  key: { make: ['/bin/sh', '-c', 'echo made >> "$0/../runs"; echo PRIVATE > "$0/identity"; echo "ssh-ed25519 PUBLIC carrier" > "$0/identity.pub"', '{dir}'], private: 'identity', public: 'identity.pub' },
+  client: { program: { artifacts: [{ where: {}, command: '/bin/any' }] }, files: [{ name: 'identity', mode: '0600', text: '{secret}\n' }], argv: ['-i', '{dir}/identity'] },
+};
+const keyedConfig = { way: keyedWay, relay_host: relayHost, computer_id: 'mac-1', local_port: 9000, values: { have: '{"doors":[]}' }, announce: { argv: ['/bin/announce', '{"public_key": "{public_key}", "carried": {carried}}'], every_seconds: 60 } };
+const carriedOnce = () => { const controller = new AbortController(); return { signal: controller.signal, wait: async () => controller.abort() }; };
+const clientAndAnnounce = (announced, dialed) => (exe, argv) => {
+  const child = new EventEmitter(); child.stderr = new PassThrough(); child.kill = () => {};
+  if (exe === '/bin/announce') { announced.push(argv[0]); return child; }
+  dialed.push(readFileSync(argv[1], 'utf8'));
+  setTimeout(() => child.emit('exit', 0), 5);
+  return child;
+};
+
+test('with no credential_command, the carrier keeps its own key in its state folder: made once, read back at each start, announced by its public half', async t => {
+  const state = folder(t);
+  const announced = [], dialed = [];
+  for (let start = 0; start < 2; start++) await serveCarrier(keyedConfig, { state, spawnImpl: clientAndAnnounce(announced, dialed), ...carriedOnce() });
+  assert.equal(readFileSync(join(state, 'runs'), 'utf8'), 'made\n', 'the way\'s key.make ran once, on the first start');
+  assert.equal(statSync(join(state, 'key')).mode & 0o777, 0o700, 'the key folder is private');
+  for (const name of ['identity', 'identity.pub']) assert.equal(statSync(join(state, 'key', name)).mode & 0o777, 0o600, `${name} is 0600`);
+  assert.deepEqual(dialed, ['PRIVATE\n', 'PRIVATE\n'], 'the private half is the credential at both starts');
+  assert.deepEqual(announced.map(text => JSON.parse(text).public_key), ['ssh-ed25519 PUBLIC carrier', 'ssh-ed25519 PUBLIC carrier'], 'the public half is announced');
+  assert.deepEqual(keptKey(keyedWay, { state }), { private: 'PRIVATE\n', public: 'ssh-ed25519 PUBLIC carrier' }, 'the same key is read back');
+  assert.equal(readFileSync(join(state, 'runs'), 'utf8'), 'made\n', 'reading it back makes no new key');
+  await assert.rejects(serveCarrier({ ...keyedConfig, way: way('frp') }, { state, ...carriedOnce() }), /makes no key/, 'a way that makes no key has none to keep');
+});
+
+test('with a credential (the Mac path, a credential_command), no key is made in the state folder and the config\'s public key is announced as given', async t => {
+  const state = folder(t);
+  const announced = [], dialed = [];
+  const config = { ...keyedConfig, values: { public_key: 'ssh-ed25519 GIVEN carrier', have: '{"doors":[]}' } };
+  await serveCarrier(config, { credential: async () => 'GIVEN', state, spawnImpl: clientAndAnnounce(announced, dialed), ...carriedOnce() });
+  assert.equal(existsSync(join(state, 'key')), false, 'no key is kept here');
+  assert.deepEqual(announced.map(text => JSON.parse(text)), [{ public_key: 'ssh-ed25519 GIVEN carrier', carried: true }]);
+  assert.deepEqual(dialed, ['GIVEN\n']);
 });
