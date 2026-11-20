@@ -41,7 +41,7 @@ import {
   mountReactSurface,
 } from '../../../ui';
 import { useGraphCanvas } from '../../../graph-canvas/show/use-graph-canvas';
-import type { CanvasNodeFrame } from '../../../draw-lists-on-a-canvas/show/types';
+import type { CanvasNodeFrame } from '../../../graph-canvas/show/types';
 import { CanvasView } from '../../../graph-canvas/show/CanvasView';
 import { VisualDatabaseSurface } from '../../../keep-lists-of-rows/show/VisualDatabaseSurface';
 import {

@@ -24,7 +24,7 @@
 // =============================================================================
 
 import React from 'react';
-import type { EdgeRoute } from './types';
+import type { EdgeRoute } from '../../graph-canvas/show/types';
 
 interface DefaultEdgeProps {
   route: EdgeRoute;

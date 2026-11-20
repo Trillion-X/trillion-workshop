@@ -18,7 +18,7 @@ import { connectionGraphToFeedModel } from './knowledge-graph-adapter.ts';
 import { foldKnowledgeGraphFeed } from './knowledge-graph-feed.ts';
 import { forceDirectedLayout, type GraphNode, type GraphEdge } from '../show/graph-layout.ts';
 // Type-only imports (erased at runtime — no graph-canvas coupling in this leaf).
-import type { CanvasNodeFrame, EdgeRoute } from '../../draw-lists-on-a-canvas/show/types';
+import type { CanvasNodeFrame, EdgeRoute } from '../../graph-canvas/show/types';
 
 export type KnowledgeGraphNodeView = {
   readonly id: string;

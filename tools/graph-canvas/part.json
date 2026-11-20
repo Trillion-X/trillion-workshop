@@ -5,6 +5,7 @@
   "public": [
     "show/CanvasView.tsx",
     "show/GraphCanvas.tsx",
-    "show/use-graph-canvas.ts"
+    "show/use-graph-canvas.ts",
+    "show/types.ts"
   ]
 }
