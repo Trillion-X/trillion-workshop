@@ -157,6 +157,41 @@ test('the action loads the space rows an open pursuit reads, so a path answers t
   assert.deepEqual(answer.spaces.map(item => item.space), ['bakers-circle']);
 });
 
+// The contact read against introduction_states, the one store: each of the ten states, both ways, a stranger, and no row.
+const TEN = ['proposed', 'one_yes', 'sent', 'accepted', 'declined', 'waiting_for_ais', 'introduced', 'talked', 'passed', 'expired'];
+function storeWith(rowsByStatus) {
+  const seen = [];
+  return { seen, async query(text, values) {
+    seen.push([text, values]);
+    if (text.startsWith('SELECT id, status FROM introduction_states')) {
+      const found = rowsByStatus.filter(row => row.id === values[0]);
+      return { rows: found, rowCount: found.length };
+    }
+    if (text.startsWith('SELECT id, type, value FROM network_records')) return { rows: [{ id: rowId('profile', ANA), type: KINDS.profile, value: ana.value }], rowCount: 1 };
+    return { rows: [], rowCount: 0 };
+  } };
+}
+test('the contact read takes the state from introduction_states by the pair key, released in four states and refused in six', async () => {
+  for (const status of TEN) {
+    const client = storeWith([{ id: rowId('introduction', ANA, BO), status }]);
+    const want = RELEASED.includes(status);
+    if (want) {
+      const answer = await runNetworkAction('readNetworkContact', { subject: BO, of: ANA }, client);
+      assert.equal(answer.contact, 'ana@example.com', status);
+      assert.equal(answer.state, status);
+    } else {
+      await assert.rejects(runNetworkAction('readNetworkContact', { subject: BO, of: ANA }, client), /after both people agree to meet/, status);
+    }
+    assert.ok(client.seen.some(([text, values]) => text.startsWith('SELECT id, status FROM introduction_states') && values[0] === rowId('introduction', ANA, BO)), status);
+  }
+});
+
+test('the contact read refuses a stranger and an introduction that is not there, whatever its state', async () => {
+  const other = storeWith([{ id: rowId('introduction', ANA, BO), status: 'talked' }]);
+  await assert.rejects(runNetworkAction('readNetworkContact', { subject: 'person:carl', of: ANA }, other), /after both people agree/);
+  await assert.rejects(runNetworkAction('readNetworkContact', { subject: BO, of: ANA }, storeWith([])), /after both people agree/);
+});
+
 test('the action writes the changed row with the value it read, and refuses a row that moved since', async () => {
   const seen = [];
   const client = {

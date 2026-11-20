@@ -8,9 +8,11 @@
 // (CREATE TABLE IF NOT EXISTS, as tool:sales-contracts does). Each statement goes through run-sql's own proxy.
 import { readFileSync } from 'node:fs';
 import { findNetworkPeople, networkProfile, onMyPath, readNetworkContact } from './network-people.mjs';
+import { KINDS, rowId } from '../read-data/profile-rows.mjs';
 import { throughProxy } from '../../run-sql-in-my-database/do-work/through-the-run-proxy.mjs';
 
 export const RECORD_TABLE = 'network_records';
+export const INTRODUCTION_TABLE = 'introduction_states';
 const CONNECTION_DESCRIPTOR = 3;
 const TABLE_SQL = `CREATE TABLE IF NOT EXISTS ${RECORD_TABLE} (
   id text PRIMARY KEY,
@@ -23,13 +25,25 @@ const FUNCTIONS = { networkProfile, findNetworkPeople, onMyPath, readNetworkCont
 
 /** One action over the rows of `client` ({ query(text, values) → { rows, rowCount } }): the rows the function needs are read, the
  * function answers, and a row it changes is written with the value it expected, so a row that moved since it was read is refused. */
+// The introduction state a contact is read against is the one store, introduction_states (introduce-two-people writes it through
+// tool:record-an-introduction-state): its id is the introduction's record id, and its status is the state. Read by that key only.
+async function introductionOf(input, client) {
+  const pair = [String(input?.subject ?? ''), String(input?.of ?? '')].sort();
+  if (!pair[0] || !pair[1]) return [];
+  const id = rowId('introduction', ...pair);
+  const { rows } = await client.query(`SELECT id, status FROM ${INTRODUCTION_TABLE} WHERE id = $1`, [id]);
+  return rows.map(row => ({ id: row.id, type: KINDS.introduction, value: { between: pair, state: row.status } }));
+}
+
 export async function runNetworkAction(action, input, client) {
   const run = FUNCTIONS[action];
   if (!run) throw new Error(`Say which: ${Object.keys(FUNCTIONS).join(', ')}.`);
   const asked = input !== null && typeof input === 'object' && !Array.isArray(input) ? input : {};
   await client.query(TABLE_SQL, []);
   const { rows } = await client.query(`SELECT id, type, value FROM ${RECORD_TABLE} WHERE type = ANY($1)`, [WANTED]);
-  const answer = run({ ...asked, records: rows });
+  const introduction = action === 'readNetworkContact' ? await introductionOf(asked, client) : [];
+  const answer = run({ ...asked, records: [...rows, ...introduction] });
+
   for (const row of answer.keep ?? []) {
     if (row.expected) {
       const { rowCount } = await client.query(`UPDATE ${RECORD_TABLE} SET value = $2::jsonb WHERE id = $1 AND value = $3::jsonb`, [row.id, JSON.stringify(row.value), JSON.stringify(row.expected.value)]);
