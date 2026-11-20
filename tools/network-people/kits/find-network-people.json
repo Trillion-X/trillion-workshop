@@ -1,0 +1,77 @@
+{
+  "drafted_from": "tool:find-network-people's own row (its words, input schema, sample run and steps) and what its sample run answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find people in the Network whose profiles fit a need, by handle\", with {\"subject\":\"person:sample-bo\",\"need\":\"where can I learn sourdough baking\",\"records\":[{\"id\":\"record:network-profile:person%3Asample-ana\",\"type\":\"record:network-profile\",\"value\":{\"subject\":\"person:sample-ana\",\"handle\":\"sample_ana\",\"name\":\"Sample Ana\",\"offering\":\"Sourdough baking classes at home\",\"seeking\":\"Pastry sales help\",\"findable\":true,\"open_to_messages\":true,\"show_pursuits\":true,\"pursuits\":[\"sourdough bread classes\"],\"links\":[],\"written\":[]}},{\"id\":\"record:network-profile:person%3Asample-bo\",\"type\":\"record:network-profile\",\"value\":{\"subject\":\"person:sample-bo\",\"handle\":\"sample_bo\",\"name\":\"Sample Bo\",\"offering\":\"Flour milling\",\"seeking\":\"Sourdough baking teachers\",\"findable\":true,\"open_to_messages\":true,\"show_pursuits\":true,\"pursuits\":[\"grain milling for bakers\"],\"links\":[],\"written\":[]}}]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row except a profile row it hands back under keep.",
+  "workflows": [],
+  "tools": [
+    "tool:find-network-people"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Find people in the Network whose profiles fit a need, by handle\", and give it subject (this person, the way the Network names them); records (the profile rows the caller read from its own store, each { id, type, value }); and the fields the ask needs.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, the tool id and its input (the worked example shows one).",
+    "3. Read the answer: a profile row under keep is stored by the caller; a search names people by handle, never by contact."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find people in the Network whose profiles fit a need, by handle",
+      "ask": "Find people in the Network whose profiles fit a need, by handle",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-network-people",
+            "input": {
+              "subject": "person:sample-bo",
+              "need": "where can I learn sourdough baking",
+              "records": [
+                {
+                  "id": "record:network-profile:person%3Asample-ana",
+                  "type": "record:network-profile",
+                  "value": {
+                    "subject": "person:sample-ana",
+                    "handle": "sample_ana",
+                    "name": "Sample Ana",
+                    "offering": "Sourdough baking classes at home",
+                    "seeking": "Pastry sales help",
+                    "findable": true,
+                    "open_to_messages": true,
+                    "show_pursuits": true,
+                    "pursuits": [
+                      "sourdough bread classes"
+                    ],
+                    "links": [],
+                    "written": []
+                  }
+                },
+                {
+                  "id": "record:network-profile:person%3Asample-bo",
+                  "type": "record:network-profile",
+                  "value": {
+                    "subject": "person:sample-bo",
+                    "handle": "sample_bo",
+                    "name": "Sample Bo",
+                    "offering": "Flour milling",
+                    "seeking": "Sourdough baking teachers",
+                    "findable": true,
+                    "open_to_messages": true,
+                    "show_pursuits": true,
+                    "pursuits": [
+                      "grain milling for bakers"
+                    ],
+                    "links": [],
+                    "written": []
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"subject\":\"person:sample-bo\",\"need\":\"where can I learn sourdough baking\",\"records\":[{\"id\":\"record:network-profile:person%3Asample-ana\",\"type\":\"record:network-profile\",\"value\":{\"subject\":\"person:sample-ana\",\"handle\":\"sample_ana\",\"name\":\"Sample Ana\",\"offering\":\"Sourdough baking classes at home\",\"seeking\":\"Pastry sales help\",\"findable\":true,\"open_to_messages\":true,\"show_pursuits\":true,\"pursuits\":[\"sourdough bread classes\"],\"links\":[],\"written\":[]}},{\"id\":\"record:network-profile:person%3Asample-bo\",\"type\":\"record:network-profile\",\"value\":{\"subject\":\"person:sample-bo\",\"handle\":\"sample_bo\",\"name\":\"Sample Bo\",\"offering\":\"Flour milling\",\"seeking\":\"Sourdough baking teachers\",\"findable\":true,\"open_to_messages\":true,\"show_pursuits\":true,\"pursuits\":[\"grain milling for bakers\"],\"links\":[],\"written\":[]}}]}.",
+      "hands_back": "It answered {\"subject\":\"person:sample-bo\",\"need\":\"where can I learn sourdough baking\",\"people\":[{\"handle\":\"sample_ana\",\"name\":\"Sample Ana\",\"offering\":\"Sourdough baking classes at home\",\"seeking\":\"Pastry sales help\",\"score\":0.6666666666666666}]}."
+    }
+  ]
+}

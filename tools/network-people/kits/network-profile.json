@@ -1,0 +1,59 @@
+{
+  "drafted_from": "tool:network-profile's own row (its words, input schema, sample run and steps) and what its sample run answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Set how people can find me in the Network, with the record to store\", with {\"subject\":\"person:sample-ana\",\"handle\":\"sample_ana\",\"offering\":\"Sourdough baking classes at home\",\"records\":[{\"id\":\"record:network-profile:person%3Asample-ana\",\"type\":\"record:network-profile\",\"value\":{\"subject\":\"person:sample-ana\",\"handle\":\"sample_ana\",\"name\":\"Sample Ana\",\"offering\":\"Sourdough baking classes at home\",\"seeking\":\"Pastry sales help\",\"findable\":true,\"open_to_messages\":true,\"show_pursuits\":true,\"pursuits\":[\"sourdough bread classes\"],\"links\":[],\"written\":[]}}]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row except a profile row it hands back under keep.",
+  "workflows": [],
+  "tools": [
+    "tool:network-profile"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Set how people can find me in the Network, with the record to store\", and give it subject (this person, the way the Network names them); records (the profile rows the caller read from its own store, each { id, type, value }); and the fields the ask needs.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, the tool id and its input (the worked example shows one).",
+    "3. Read the answer: a profile row under keep is stored by the caller; a search names people by handle, never by contact."
+  ],
+  "worked_examples": [
+    {
+      "title": "Set how people can find me in the Network, with the record to store",
+      "ask": "Set how people can find me in the Network, with the record to store",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:network-profile",
+            "input": {
+              "subject": "person:sample-ana",
+              "handle": "sample_ana",
+              "offering": "Sourdough baking classes at home",
+              "records": [
+                {
+                  "id": "record:network-profile:person%3Asample-ana",
+                  "type": "record:network-profile",
+                  "value": {
+                    "subject": "person:sample-ana",
+                    "handle": "sample_ana",
+                    "name": "Sample Ana",
+                    "offering": "Sourdough baking classes at home",
+                    "seeking": "Pastry sales help",
+                    "findable": true,
+                    "open_to_messages": true,
+                    "show_pursuits": true,
+                    "pursuits": [
+                      "sourdough bread classes"
+                    ],
+                    "links": [],
+                    "written": []
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"subject\":\"person:sample-ana\",\"handle\":\"sample_ana\",\"offering\":\"Sourdough baking classes at home\",\"records\":[{\"id\":\"record:network-profile:person%3Asample-ana\",\"type\":\"record:network-profile\",\"value\":{\"subject\":\"person:sample-ana\",\"handle\":\"sample_ana\",\"name\":\"Sample Ana\",\"offering\":\"Sourdough baking classes at home\",\"seeking\":\"Pastry sales help\",\"findable\":true,\"open_to_messages\":true,\"show_pursuits\":true,\"pursuits\":[\"sourdough bread classes\"],\"links\":[],\"written\":[]}}]}.",
+      "hands_back": "It answered {\"subject\":\"person:sample-ana\",\"changed\":[\"offering\",\"handle\"],\"profile\":{\"subject\":\"person:sample-ana\",\"handle\":\"sample_ana\",\"name\":\"Sample Ana\",\"offering\":\"Sourdough baking classes at home\",\"seeking\":\"Pastry sales help\",\"findable\":true,\"open_to_messages\":true,\"show_pursuits\":true,\"pursuits\":[\"sourdough bread classes\"],\"links\":[],\"written\":[],\"contact_set\":false}}."
+    }
+  ]
+}

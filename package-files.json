@@ -20173,6 +20173,36 @@
    "at": "/opt/formula-engine"
   }
  ],
+ "tool:network-profile": [
+  {
+   "package": "network-people",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/network-people"
+  }
+ ],
+ "tool:find-network-people": [
+  {
+   "package": "network-people",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/network-people"
+  }
+ ],
+ "tool:on-my-path": [
+  {
+   "package": "network-people",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/network-people"
+  }
+ ],
  "tool:leave-a-space": [
   {
    "package": "space-members",
