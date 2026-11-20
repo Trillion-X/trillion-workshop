@@ -92,13 +92,29 @@
       }
      },
      "files": {
-      "package_files": {
-       "package": "words-as-picture-vector",
-       "paths": [
-        "do-work/words-as-picture-vector.py"
-       ],
-       "at": "/opt/words-as-picture-vector"
-      }
+      "package_files": [
+       {
+        "package": "words-as-picture-vector",
+        "paths": [
+         "do-work/words-as-picture-vector.py"
+        ],
+        "at": "/opt/words-as-picture-vector"
+       },
+       {
+        "packages": [
+         "clip-vit-b32-text-model",
+         "clip-vit-b32-tokenizer"
+        ],
+        "at": "/opt/models/clip-vit-base-patch32"
+       },
+       {
+        "package": "words-as-picture-vector",
+        "paths": [
+         "clip-vit-base-patch32/model.json"
+        ],
+        "at": "/opt/models"
+       }
+      ]
      }
     },
     "needs": {

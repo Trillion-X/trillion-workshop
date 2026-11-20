@@ -44,6 +44,7 @@ import fs from 'node:fs';
 import { MODULES, SCRIPTS_NOT_NEEDED, treeOf } from './pinned-files.mjs';
 
 const SYSTEM_DATA = 'test-helpers/tool-row-imports.json';
+const PINNED_FILES = 'pinned-files.json';
 const DOOR_EXCEPTIONS = 'test-helpers/tool-row-door-exceptions.json';
 const LOCKFILE = 'package-lock.json';
 
@@ -83,6 +84,37 @@ const READS = [
 ];
 export const readsOf = (src) => [...new Set(READS.flatMap(re => [...src.matchAll(re)].map(m => m[1])))];
 
+// Python imports: `import x`, `import x.y as z` and `from x import y` give the top-level name; `from .x import y` and `from . import x`
+// give the sibling module as './x' (and '../x' for two dots). A comment line holds none.
+const PY_IMPORT = /^\s*(?:import\s+([\w.]+(?:\s+as\s+\w+)?(?:\s*,\s*[\w.]+(?:\s+as\s+\w+)?)*)|from\s+(\.*)([\w.]*)\s+import\s+([\w*(),\s]+))/;
+export const pySpecsOf = (src) => {
+  const out = new Set();
+  for (const line of src.split('\n')) {
+    if (/^\s*#/.test(line)) continue;
+    const m = line.match(PY_IMPORT);
+    if (!m) continue;
+    if (m[1]) for (const part of m[1].split(',')) out.add(part.trim().split(/\s+/)[0].split('.')[0]);
+    else if (m[2]) {
+      const prefix = m[2].length === 1 ? './' : '../'.repeat(m[2].length - 1);
+      if (m[3]) out.add(prefix + m[3].split('.').join('/'));
+      else for (const name of m[4].replace(/[()]/g, '').split(',')) if (name.trim() && name.trim() !== '*') out.add(prefix + name.trim().split(/\s+as\s+/)[0]);
+    } else out.add(m[3].split('.')[0]);
+  }
+  return [...out];
+};
+
+// Literal names a file loads: a string on a code line (a comment line holds none), with `call` when it follows `(`, `,` or `=`
+// (module("find-recurring-voices.py", ...)). A spawn, an open or a path constant are all such a literal.
+export const loadsOf = (src) => {
+  const out = [];
+  for (const line of src.split('\n')) {
+    if (/^\s*(#|\/\/)/.test(line)) continue;
+    for (const m of line.matchAll(/(['"])([^'"\n]{1,300})\1/g)) out.push({ literal: m[2], call: /[(,=]\s*$/.test(line.slice(0, m.index)) });
+  }
+  return out;
+};
+
+
 export function toolRowFindings({ repo, ref = 'HEAD' }) {
   const REF = ref;
 // Read-only: for every ai-tool-descriptor row in trillion-workshop origin/main,
@@ -101,7 +133,18 @@ if (top !== fs.realpathSync(repo)) throw new Error(`${repo} is not the top of a 
 const allFiles = git(['ls-tree', '-r', '--name-only', REF]).toString().split('\n').filter(Boolean);
 const fileSet = new Set(allFiles);
 const toolRowFiles = allFiles.filter((f) => /^tools\/[^/]+\/tool-rows\.json$/.test(f));
-const codeFiles = allFiles.filter((f) => /^tools\/.+\.(mjs|js|cjs|ts)$/.test(f));
+const codeFiles = allFiles.filter((f) => /^tools\/.+\.(mjs|js|cjs|ts|py)$/.test(f));
+const PY = /\.py$/;
+// The tool a workshop path belongs to: tools/<name>.
+const toolOf = (file) => file.split('/').slice(0, 2).join('/');
+// The tree's code files by their file name: a Python file names a sibling module or another tool's module by that name. A test's
+// stand-in (test/, tests/, __tests__/) is never the module a program runs, so a name is looked up among the others only.
+const codeByBase = new Map();
+for (const f of codeFiles.filter((c) => !/\/(test|tests|__tests__)\//.test(c))) {
+  const base = path.posix.basename(f);
+  if (!codeByBase.has(base)) codeByBase.set(base, []);
+  codeByBase.get(base).push(f);
+}
 
 // The blobs read so far, by workshop path. Each batch is one git call; a file a listed row source names is read in a batch of its own.
 const blobs = new Map();
@@ -122,7 +165,7 @@ const readBlobs = (files) => {
     pos += size + 1;
   }
 };
-readBlobs([...toolRowFiles, ...codeFiles, SYSTEM_DATA, LOCKFILE, DOOR_EXCEPTIONS, 'package.json']);
+readBlobs([...toolRowFiles, ...codeFiles, SYSTEM_DATA, PINNED_FILES, LOCKFILE, DOOR_EXCEPTIONS, 'package.json']);
 const text = (f) => (blobs.get(f) ? blobs.get(f).toString('utf8') : null);
 
 // The rows a tools folder offers, read as the engine reads them (trillion-rust src/tool_runs/tools/catalog.rs `parse` and
@@ -175,6 +218,19 @@ const systemNames = new Set(JSON.parse(text(SYSTEM_DATA)).provided_by_the_system
 // Rows the function-level walk over-reports, each with the reason a reader checked it: they need no records descriptor.
 const doorExceptions = new Set(text(DOOR_EXCEPTIONS) === null ? [] : Object.keys(JSON.parse(text(DOOR_EXCEPTIONS)).rows));
 const lockPackages = JSON.parse(text(LOCKFILE)).packages ?? {};
+const pinnedPackages = JSON.parse(text(PINNED_FILES) ?? '{}').packages ?? {};
+// The Python standard library, the modules a Python file imports without a package; and the pinned packages a Python module name
+// resolves to (import name -> pinned-files.json package), with the packages each pinned package needs (its wheels' requirements).
+const pythonData = JSON.parse(text(SYSTEM_DATA));
+const PYTHON_STDLIB = new Set(pythonData.python_stdlib);
+const PYTHON_PACKAGES = pythonData.python_packages;
+const PYTHON_REQUIRES = pythonData.python_requires;
+const pythonClosure = (name, out = new Set()) => {
+  if (out.has(name)) return out;
+  out.add(name);
+  for (const dependency of PYTHON_REQUIRES[name] ?? []) pythonClosure(dependency, out);
+  return out;
+};
 // The Workshop's own package name (package.json `name`). A bare import of `<name>/tools/<package>/<path>` is a file of this tree
 // that resolves under /opt/node_modules/<name>/tools/<package>: its folder is laid there whole (a module beside it, such as the
 // formula engine's .wasm read through import.meta.resolve, goes with it). Without this, 1b819b955 (Nov 19 2026, 6:07 PM CST)
@@ -396,7 +452,8 @@ function checkRow(rowFile, desc) {
   // Roots: every code file inside a declared directory or file, plus argv scripts.
   for (const c of covers) {
     const dir = path.posix.join('tools', c.pkg, c.rel);
-    const hits = fileSet.has(dir) ? [dir] : codeFiles.filter((f) => f.startsWith(dir + '/'));
+    // A Python file of a declared folder is packed with it; it is walked only where a program loads or imports it.
+    const hits = fileSet.has(dir) ? [dir] : codeFiles.filter((f) => f.startsWith(dir + '/') && !PY.test(f));
     for (const h of hits) queue.push({ ws: h, from: 'declared' });
   }
   for (const a of desc.invoke?.argv || []) {
@@ -411,6 +468,36 @@ function checkRow(rowFile, desc) {
   const readFiles = new Set();
   const needed = new Map();
   const ownFolders = new Map();
+  // Python: the packages a row's Python files import, each at the folder its entry program runs from (Python finds a module in the
+  // folder of its script), and the files a Python file reaches by name in the tree (reachPy).
+  // The Python program the row runs: its first argv word ending in .py, relative to the row's workdir (else its own folder).
+  const entryWord = (desc.invoke?.argv || []).find((a) => typeof a === 'string' && a.endsWith('.py') && !a.startsWith('-'));
+  const entryPy = entryWord && (entryWord.startsWith('/') ? entryWord : path.posix.join(desc.invoke?.workdir ?? `/opt/${toolOf(rowFile).split('/')[1]}`, entryWord));
+  const pyNeeds = new Map(); // `${at}|${package}` -> {at, package}
+  const needPython = (name, ws, spec) => {
+    const at = entryPy ? path.posix.dirname(entryPy) : '/opt/' + path.posix.dirname(ws.replace(/^tools\//, ''));
+    for (const pkg of pythonClosure(name)) {
+      if (!pinnedPackages[pkg]) {
+        const key = `refused|${ws}|${pkg}`;
+        if (!seen.has(key)) { seen.add(key); findings.push({ kind: 'module-tree-refused', from: ws, spec, why: `${pkg} is not pinned in pinned-files.json` }); }
+        continue;
+      }
+      pyNeeds.set(`${at}|${pkg}`, { at, package: pkg });
+    }
+  };
+  // A Python package a file imports by name: every code file under its folder is reached.
+  const reachPackage = (ws, spec, dir) => {
+    for (const f of codeFiles) if (f.startsWith(dir + '/')) reachPy(ws, spec, f);
+  };
+  const reachPy = (ws, spec, hit) => {
+    const [, pkg, ...rest] = hit.split('/');
+    if (!mountedAt(covers, pkg, rest.join('/'))) {
+      const key = `cross|${ws}|${hit}`;
+      if (!seen.has(key)) { seen.add(key); findings.push({ kind: 'cross-tool-load-not-declared', from: ws, spec, needs: hit, pkg }); }
+    }
+    if (/\.(mjs|js|cjs|ts|py)$/.test(hit)) { if (!visited.has(hit)) queue.push({ ws: hit, from: ws }); }
+    else readFiles.add(hit);
+  };
   while (queue.length) {
     const { ws, from } = queue.shift();
     if (visited.has(ws)) continue;
@@ -418,15 +505,17 @@ function checkRow(rowFile, desc) {
     const src = text(ws);
     if (src === null) continue;
     const installed = '/opt/' + ws.replace(/^tools\//, '');
-    for (const spec of specsOf(src)) {
+    const pyFile = PY.test(ws);
+    for (const spec of pyFile ? pySpecsOf(src) : specsOf(src)) {
       if (spec.startsWith('.') || spec.startsWith('/')) {
         const target = spec.startsWith('/') ? spec : resolveRel(installed.replace(/^\/opt\//, '/opt/'), spec);
         const w = toWorkshop(target, covers);
         if (!w) continue;
-        const candidates = [w.ws, w.ws + '.mjs', w.ws + '.js', w.ws + '.ts', w.ws + '/index.mjs', w.ws + '/index.js'];
+        const candidates = [w.ws, w.ws + '.mjs', w.ws + '.js', w.ws + '.ts', w.ws + '.py', w.ws + '/index.mjs', w.ws + '/index.js'];
         const hit = candidates.find((c) => fileSet.has(c));
         if (!hit) { findings.push({ kind: 'dangling-in-tree', from: ws, spec, target: w.ws }); continue; }
         const rel = hit.split('/').slice(2).join('/');
+        if (pyFile) { reachPy(ws, spec, hit); continue; }
         if (!mountedAt(covers, w.pkg, rel)) {
           const key = `${ws}|${spec}`;
           if (!seen.has(key)) { seen.add(key); findings.push({ kind: 'missing-relative-import', from: ws, spec, needs: hit, pkg: w.pkg, declared_pkg: w.declared }); }
@@ -434,6 +523,29 @@ function checkRow(rowFile, desc) {
         }
         if (!/\.(mjs|js|cjs|ts)$/.test(hit)) readFiles.add(hit);
         else if (!visited.has(hit)) queue.push({ ws: hit, from: ws });
+      } else if (pyFile) {
+        if (PYTHON_STDLIB.has(spec)) continue;
+        const sibling = path.posix.join(path.posix.dirname(ws), `${spec}.py`);
+        const siblingPackage = path.posix.join(path.posix.dirname(ws), spec, '__init__.py');
+        if (fileSet.has(sibling)) { reachPy(ws, spec, sibling); continue; }
+        if (fileSet.has(siblingPackage)) { reachPackage(ws, spec, path.posix.dirname(siblingPackage)); continue; }
+        if (PYTHON_PACKAGES[spec]) { needPython(PYTHON_PACKAGES[spec], ws, spec); continue; }
+        // A module another tool's folder holds is not on this program's path (only a literal load names it, below): a name is
+        // looked up in the importing file's own tool, and is that module when the tool holds it once.
+        const named = (codeByBase.get(`${spec}.py`) ?? []).filter((f) => toolOf(f) === toolOf(ws));
+        const packages = (codeByBase.get('__init__.py') ?? []).filter((f) => path.posix.basename(path.posix.dirname(f)) === spec && toolOf(f) === toolOf(ws));
+        const pick = (candidates) => (candidates.length === 1 ? candidates[0] : null);
+        const file = pick(named);
+        if (file) { reachPy(ws, spec, file); continue; }
+        const init = pick(packages);
+        if (init) { reachPackage(ws, spec, path.posix.dirname(init)); continue; }
+        const key = `pyimport|${ws}|${spec}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          findings.push(named.length + packages.length > 1
+            ? { kind: 'python-import-ambiguous', from: ws, spec, candidates: [...named, ...packages] }
+            : { kind: 'python-import-unresolved', from: ws, spec });
+        }
       } else if (!isBuiltin(spec)) {
         const top = spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0];
         const own = top === selfName ? spec.slice(top.length + 1).match(/^tools\/([^/]+)\/(.+)$/) : null;
@@ -456,6 +568,41 @@ function checkRow(rowFile, desc) {
           seen.add(key);
           findings.push({ kind: 'bare-import-not-declared', from: ws, spec: top, resolves_to: resolves });
           if (resolves?.refused) findings.push({ kind: 'module-tree-refused', from: ws, spec: top, why: resolves.refused });
+        }
+      }
+    }
+    // A literal that names another tool's file or folder is a load of it: an absolute /opt path (a folder: its code files), or a
+    // Python file's name that the tree holds (`call`: module("x.py", ...)), which is the file in its own folder, else the one in the tree.
+    for (const { literal, call } of loadsOf(src)) {
+      if (literal.startsWith('/opt/')) {
+        const w = toWorkshop(literal, covers);
+        if (!w) continue;
+        if (fileSet.has(w.ws)) {
+          if (/\.(mjs|js|cjs|ts|py)$/.test(w.ws)) { if (!visited.has(w.ws)) queue.push({ ws: w.ws, from: ws }); }
+          else readFiles.add(w.ws);
+        } else {
+          // A folder is the place the program loads its files from by name: the files load as laid out, and the files those
+          // named loads reach are walked where the literal names them (a basename below), not every file of the folder.
+          const inside = codeFiles.filter((c) => c.startsWith(w.ws + '/') && !/\/(test|tests|__tests__)\//.test(c));
+          if (!inside.length) continue;
+          if (!mountedAt(covers, w.pkg, w.ws.split('/').slice(2).join('/'))) {
+            const key = `folder|${ws}|${literal}`;
+            if (!seen.has(key)) { seen.add(key); findings.push({ kind: 'cross-tool-load-not-declared', from: ws, spec: literal, needs: w.ws, pkg: w.pkg }); }
+          }
+          for (const f of inside) readFiles.add(f);
+        }
+      } else if (PY.test(ws) && call && /^[\w.-]+\.(py|mjs|js|cjs|ts)$/.test(literal)) {
+        const named = (codeByBase.get(literal) ?? []).filter((f) => f !== ws);
+        const hit = named.find((f) => path.posix.dirname(f) === path.posix.dirname(ws)) ?? (named.length === 1 ? named[0] : null);
+        if (hit) reachPy(ws, literal, hit);
+        else {
+          const key = `load|${ws}|${literal}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            findings.push(named.length > 1
+              ? { kind: 'cross-tool-load-ambiguous', from: ws, literal, candidates: named }
+              : { kind: 'cross-tool-load-unresolved', from: ws, literal });
+          }
         }
       }
     }
@@ -503,6 +650,16 @@ function checkRow(rowFile, desc) {
   const declares = Boolean(desc.invoke?.records) || (Array.isArray(desc.stored) && desc.stored.length > 0);
   if (!declares && touches && !doorExceptions.has(desc.id)) findings.push({ kind: 'door-without-records' });
   if (declares && !touches) findings.push({ kind: 'records-without-door' });
+  // Python packages: one packages item per folder (a row may place a folder once, layoutProblems). The names a declared item at that
+  // folder already lays are left out; the rest join it, or make the item.
+  for (const at of [...new Set([...pyNeeds.values()].map((need) => need.at))].sort()) {
+    const names = [...pyNeeds.values()].filter((need) => need.at === at).map((need) => need.package).sort();
+    const existing = items.find((item) => item.packages && item.at === at);
+    const missing = names.filter((name) => !(existing?.packages ?? []).includes(name));
+    if (!missing.length) continue;
+    if (existing) items[items.indexOf(existing)] = { ...existing, packages: [...existing.packages, ...missing] };
+    else items.push({ packages: missing, at });
+  }
   return { findings, items: layOnce(items) };
 }
 

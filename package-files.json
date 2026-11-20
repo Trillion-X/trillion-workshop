@@ -3554,10 +3554,15 @@
   {
    "package": "audio-transcription",
    "paths": [
+    "do-work/audio_transcription.py",
+    "do-work/process-scripts/transcribe-audio.py",
+    "do-work/whisper_here.py",
     "read-data/hear-here.mjs",
     "read-data/hear-link-flow.mjs",
     "read-data/hear-with-programs.mjs",
-    "read-data/read-link-captions.mjs"
+    "read-data/read-link-captions.mjs",
+    "read-data/transcript_reports.py",
+    "read-data/whisper_loops.py"
    ],
    "at": "/opt/audio-transcription"
   },
@@ -3576,6 +3581,145 @@
    "at": "/opt/computer-programs"
   },
   {
+   "package": "know-who-is-in-this",
+   "paths": [
+    "do-work/measure.py",
+    "do-work/who-is-in-this.py",
+    "read-data/who_is_in.py"
+   ],
+   "at": "/opt/know-who-is-in-this"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work/align-clips.mjs",
+    "do-work/author-aligned-split.mjs",
+    "do-work/author-beat-montage.mjs",
+    "do-work/author-concat-edl.mjs",
+    "do-work/author-cover-text.mjs",
+    "do-work/author-decisions-from-records.ts",
+    "do-work/author-effect-stack.mjs",
+    "do-work/author-karaoke-captions.mjs",
+    "do-work/author-reel-plan.mjs",
+    "do-work/author-voice-script.mjs",
+    "do-work/auto-reframe.mjs",
+    "do-work/batch-produce-reels.mjs",
+    "do-work/beat-onset-picker.mjs",
+    "do-work/blur-faces-not-agreed.py",
+    "do-work/build-edit-decisions.ts",
+    "do-work/build-overlay-render-descriptor.ts",
+    "do-work/card-layout.mjs",
+    "do-work/change-speed-over-a-range.mjs",
+    "do-work/choose-by-threshold.mjs",
+    "do-work/color-match.mjs",
+    "do-work/cut-and-caption.mjs",
+    "do-work/cut-by-events.mjs",
+    "do-work/cut-out-a-person.py",
+    "do-work/cut-the-action.mjs",
+    "do-work/decode-audio-peaks.ts",
+    "do-work/detect-beats-browser.ts",
+    "do-work/detect-beats.mjs",
+    "do-work/detect-crop.mjs",
+    "do-work/detect-events.mjs",
+    "do-work/detect-highlights.mjs",
+    "do-work/detect-motion.mjs",
+    "do-work/detect-quality.mjs",
+    "do-work/detect-scenes-browser.ts",
+    "do-work/detect-scenes.mjs",
+    "do-work/detect-silence.mjs",
+    "do-work/detect-track-browser.ts",
+    "do-work/detect-track.mjs",
+    "do-work/edit-op-schemas.ts",
+    "do-work/effect-registry.mjs",
+    "do-work/export-editor-timeline.mjs",
+    "do-work/export-xmeml.mjs",
+    "do-work/extract-poster.mjs",
+    "do-work/filmcraft-edit-job.mjs",
+    "do-work/find-action-moments.mjs",
+    "do-work/find-recurring-voices.py",
+    "do-work/grade-a-video.mjs",
+    "do-work/keyframe-curve.mjs",
+    "do-work/layer-over-video.mjs",
+    "do-work/make-browser-preview.py",
+    "do-work/make-pictures-and-sounds.mjs",
+    "do-work/make-sound-for-a-video-with-hunyuan-foley.py",
+    "do-work/make-sound-with-moss-soundeffect.py",
+    "do-work/make-sound-with-stable-audio-3.py",
+    "do-work/match-shots.mjs",
+    "do-work/measure-loudness.mjs",
+    "do-work/name-a-voice.py",
+    "do-work/narration/identity.mjs",
+    "do-work/narration/lib/st/__init__.py",
+    "do-work/narration/lib/st/captions_rules.py",
+    "do-work/narration/lib/st/common.py",
+    "do-work/narration/lib/st/content_hash.py",
+    "do-work/narration/lib/st/ff.py",
+    "do-work/narration/lib/st/footage/__init__.py",
+    "do-work/narration/lib/st/footage/asr_models.py",
+    "do-work/narration/lib/st/footage/fillers.py",
+    "do-work/narration/lib/st/footage/transcribe.py",
+    "do-work/narration/lib/st/footage/util.py",
+    "do-work/narration/lib/st/lazy.py",
+    "do-work/narration/lib/st/platform.py",
+    "do-work/narration/lib/st/voice/__init__.py",
+    "do-work/narration/lib/st/voice/align.py",
+    "do-work/narration/lib/st/voice/audio_io.py",
+    "do-work/narration/lib/st/voice/engines/__init__.py",
+    "do-work/narration/lib/st/voice/engines/base.py",
+    "do-work/narration/lib/st/voice/engines/kokoro.py",
+    "do-work/narration/lib/st/voice/engines/own_voice.py",
+    "do-work/narration/lib/st/voice/engines/piper.py",
+    "do-work/narration/lib/st/voice/engines/supertonic.py",
+    "do-work/narration/lib/st/voice/espeak.py",
+    "do-work/narration/lib/st/voice/lexicon.py",
+    "do-work/narration/lib/st/voice/master.py",
+    "do-work/narration/lib/st/voice/models.py",
+    "do-work/narration/lib/st/voice/onnx_patch.py",
+    "do-work/narration/lib/st/voice/readback.py",
+    "do-work/narration/lib/st/voice/registry.py",
+    "do-work/narration/lib/st/voice/script.py",
+    "do-work/narration/lib/st/voice/textnorm.py",
+    "do-work/narration/lib/st/voice/tts.py",
+    "do-work/narration/lib/st/voice/voices.py",
+    "do-work/narration/produce.py",
+    "do-work/narration/speak.mjs",
+    "do-work/pick-poster-frame.mjs",
+    "do-work/place-captions.mjs",
+    "do-work/premiere-project-handoff.mjs",
+    "do-work/process-scripts/author-concat-edl-cli.built.mjs",
+    "do-work/process-scripts/author-concat-edl-cli.mjs",
+    "do-work/process-scripts/author-concat-edl-cli.test.mjs",
+    "do-work/process-scripts/build-process-scripts.mjs",
+    "do-work/process-scripts/make-media-composition-records-from-command-output.py",
+    "do-work/range-edits.mjs",
+    "do-work/read-narration-captions.mjs",
+    "do-work/reframe-to-a-size.mjs",
+    "do-work/relink-editor-projects.mjs",
+    "do-work/relink-in-resolve.py",
+    "do-work/render-an-edit.mjs",
+    "do-work/resolve-render-dimensions.mjs",
+    "do-work/retime-to-fit.mjs",
+    "do-work/save-cover-frame.mjs",
+    "do-work/search-assembly-items.mjs",
+    "do-work/segment-person-matte.py",
+    "do-work/segment_a_still_picture.py",
+    "do-work/semantic-reframe.mjs",
+    "do-work/split-layout.mjs",
+    "do-work/stage-reuse.mjs",
+    "do-work/stream-core.mjs",
+    "do-work/stream-features.mjs",
+    "do-work/suggest-media-cuts.mjs",
+    "do-work/track-moving-subject.mjs",
+    "do-work/tts-narrate.mjs",
+    "do-work/use-an-app-here.mjs",
+    "do-work/video-compose.mjs",
+    "do-work/video-pipeline.mjs",
+    "do-work/visual-overlay-order.mjs",
+    "do-work/write-media-composition-record.ts"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
    "package": "run-on-a-persons-computer",
    "paths": [
     "confined-run.mjs"
@@ -3590,6 +3734,39 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy"
+   ],
+   "at": "/opt/know-who-is-in-this/do-work"
+  },
+  {
+   "packages": [
+    "blake3",
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "kaldi-native-fbank",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy",
+    "webrtcvad-wheels"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:assemble-a-plan-into-a-cut": [],
@@ -4238,10 +4415,23 @@
    "at": "/opt/content-identity"
   },
   {
+   "package": "make-a-contact-sheet-of-pictures-or-video-frames",
+   "paths": [
+    "do-work/frames_at_times.py"
+   ],
+   "at": "/opt/make-a-contact-sheet-of-pictures-or-video-frames"
+  },
+  {
    "packages": [
     "node_modules/@noble/hashes"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "pillow"
+   ],
+   "at": "/opt/make-a-contact-sheet-of-pictures-or-video-frames/do-work"
   }
  ],
  "tool:build-a-quoted-section-from-entries": [
@@ -5029,10 +5219,15 @@
   {
    "package": "audio-transcription",
    "paths": [
+    "do-work/audio_transcription.py",
+    "do-work/process-scripts/transcribe-audio.py",
+    "do-work/whisper_here.py",
     "read-data/hear-here.mjs",
     "read-data/hear-link-flow.mjs",
     "read-data/hear-with-programs.mjs",
-    "read-data/read-link-captions.mjs"
+    "read-data/read-link-captions.mjs",
+    "read-data/transcript_reports.py",
+    "read-data/whisper_loops.py"
    ],
    "at": "/opt/audio-transcription"
   },
@@ -5051,6 +5246,145 @@
    "at": "/opt/computer-programs"
   },
   {
+   "package": "know-who-is-in-this",
+   "paths": [
+    "do-work/measure.py",
+    "do-work/who-is-in-this.py",
+    "read-data/who_is_in.py"
+   ],
+   "at": "/opt/know-who-is-in-this"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work/align-clips.mjs",
+    "do-work/author-aligned-split.mjs",
+    "do-work/author-beat-montage.mjs",
+    "do-work/author-concat-edl.mjs",
+    "do-work/author-cover-text.mjs",
+    "do-work/author-decisions-from-records.ts",
+    "do-work/author-effect-stack.mjs",
+    "do-work/author-karaoke-captions.mjs",
+    "do-work/author-reel-plan.mjs",
+    "do-work/author-voice-script.mjs",
+    "do-work/auto-reframe.mjs",
+    "do-work/batch-produce-reels.mjs",
+    "do-work/beat-onset-picker.mjs",
+    "do-work/blur-faces-not-agreed.py",
+    "do-work/build-edit-decisions.ts",
+    "do-work/build-overlay-render-descriptor.ts",
+    "do-work/card-layout.mjs",
+    "do-work/change-speed-over-a-range.mjs",
+    "do-work/choose-by-threshold.mjs",
+    "do-work/color-match.mjs",
+    "do-work/cut-and-caption.mjs",
+    "do-work/cut-by-events.mjs",
+    "do-work/cut-out-a-person.py",
+    "do-work/cut-the-action.mjs",
+    "do-work/decode-audio-peaks.ts",
+    "do-work/detect-beats-browser.ts",
+    "do-work/detect-beats.mjs",
+    "do-work/detect-crop.mjs",
+    "do-work/detect-events.mjs",
+    "do-work/detect-highlights.mjs",
+    "do-work/detect-motion.mjs",
+    "do-work/detect-quality.mjs",
+    "do-work/detect-scenes-browser.ts",
+    "do-work/detect-scenes.mjs",
+    "do-work/detect-silence.mjs",
+    "do-work/detect-track-browser.ts",
+    "do-work/detect-track.mjs",
+    "do-work/edit-op-schemas.ts",
+    "do-work/effect-registry.mjs",
+    "do-work/export-editor-timeline.mjs",
+    "do-work/export-xmeml.mjs",
+    "do-work/extract-poster.mjs",
+    "do-work/filmcraft-edit-job.mjs",
+    "do-work/find-action-moments.mjs",
+    "do-work/find-recurring-voices.py",
+    "do-work/grade-a-video.mjs",
+    "do-work/keyframe-curve.mjs",
+    "do-work/layer-over-video.mjs",
+    "do-work/make-browser-preview.py",
+    "do-work/make-pictures-and-sounds.mjs",
+    "do-work/make-sound-for-a-video-with-hunyuan-foley.py",
+    "do-work/make-sound-with-moss-soundeffect.py",
+    "do-work/make-sound-with-stable-audio-3.py",
+    "do-work/match-shots.mjs",
+    "do-work/measure-loudness.mjs",
+    "do-work/name-a-voice.py",
+    "do-work/narration/identity.mjs",
+    "do-work/narration/lib/st/__init__.py",
+    "do-work/narration/lib/st/captions_rules.py",
+    "do-work/narration/lib/st/common.py",
+    "do-work/narration/lib/st/content_hash.py",
+    "do-work/narration/lib/st/ff.py",
+    "do-work/narration/lib/st/footage/__init__.py",
+    "do-work/narration/lib/st/footage/asr_models.py",
+    "do-work/narration/lib/st/footage/fillers.py",
+    "do-work/narration/lib/st/footage/transcribe.py",
+    "do-work/narration/lib/st/footage/util.py",
+    "do-work/narration/lib/st/lazy.py",
+    "do-work/narration/lib/st/platform.py",
+    "do-work/narration/lib/st/voice/__init__.py",
+    "do-work/narration/lib/st/voice/align.py",
+    "do-work/narration/lib/st/voice/audio_io.py",
+    "do-work/narration/lib/st/voice/engines/__init__.py",
+    "do-work/narration/lib/st/voice/engines/base.py",
+    "do-work/narration/lib/st/voice/engines/kokoro.py",
+    "do-work/narration/lib/st/voice/engines/own_voice.py",
+    "do-work/narration/lib/st/voice/engines/piper.py",
+    "do-work/narration/lib/st/voice/engines/supertonic.py",
+    "do-work/narration/lib/st/voice/espeak.py",
+    "do-work/narration/lib/st/voice/lexicon.py",
+    "do-work/narration/lib/st/voice/master.py",
+    "do-work/narration/lib/st/voice/models.py",
+    "do-work/narration/lib/st/voice/onnx_patch.py",
+    "do-work/narration/lib/st/voice/readback.py",
+    "do-work/narration/lib/st/voice/registry.py",
+    "do-work/narration/lib/st/voice/script.py",
+    "do-work/narration/lib/st/voice/textnorm.py",
+    "do-work/narration/lib/st/voice/tts.py",
+    "do-work/narration/lib/st/voice/voices.py",
+    "do-work/narration/produce.py",
+    "do-work/narration/speak.mjs",
+    "do-work/pick-poster-frame.mjs",
+    "do-work/place-captions.mjs",
+    "do-work/premiere-project-handoff.mjs",
+    "do-work/process-scripts/author-concat-edl-cli.built.mjs",
+    "do-work/process-scripts/author-concat-edl-cli.mjs",
+    "do-work/process-scripts/author-concat-edl-cli.test.mjs",
+    "do-work/process-scripts/build-process-scripts.mjs",
+    "do-work/process-scripts/make-media-composition-records-from-command-output.py",
+    "do-work/range-edits.mjs",
+    "do-work/read-narration-captions.mjs",
+    "do-work/reframe-to-a-size.mjs",
+    "do-work/relink-editor-projects.mjs",
+    "do-work/relink-in-resolve.py",
+    "do-work/render-an-edit.mjs",
+    "do-work/resolve-render-dimensions.mjs",
+    "do-work/retime-to-fit.mjs",
+    "do-work/save-cover-frame.mjs",
+    "do-work/search-assembly-items.mjs",
+    "do-work/segment-person-matte.py",
+    "do-work/segment_a_still_picture.py",
+    "do-work/semantic-reframe.mjs",
+    "do-work/split-layout.mjs",
+    "do-work/stage-reuse.mjs",
+    "do-work/stream-core.mjs",
+    "do-work/stream-features.mjs",
+    "do-work/suggest-media-cuts.mjs",
+    "do-work/track-moving-subject.mjs",
+    "do-work/tts-narrate.mjs",
+    "do-work/use-an-app-here.mjs",
+    "do-work/video-compose.mjs",
+    "do-work/video-pipeline.mjs",
+    "do-work/visual-overlay-order.mjs",
+    "do-work/write-media-composition-record.ts"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
    "package": "run-on-a-persons-computer",
    "paths": [
     "confined-run.mjs"
@@ -5065,6 +5399,39 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy"
+   ],
+   "at": "/opt/know-who-is-in-this/do-work"
+  },
+  {
+   "packages": [
+    "blake3",
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "kaldi-native-fbank",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy",
+    "webrtcvad-wheels"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:capture-dedupe": [
@@ -7355,6 +7722,86 @@
     "read-data/spans.py"
    ],
    "at": "/opt/assemble-a-plan-into-a-cut"
+  },
+  {
+   "package": "check-a-rendered-video",
+   "paths": [
+    "do-work/rendercheck/__init__.py",
+    "do-work/rendercheck/checks/__init__.py",
+    "do-work/rendercheck/checks/backing.py",
+    "do-work/rendercheck/checks/bridge.py",
+    "do-work/rendercheck/checks/broll.py",
+    "do-work/rendercheck/checks/camera.py",
+    "do-work/rendercheck/checks/cue.py",
+    "do-work/rendercheck/checks/cutout_bottom.py",
+    "do-work/rendercheck/checks/devices.py",
+    "do-work/rendercheck/checks/dwell.py",
+    "do-work/rendercheck/checks/exits.py",
+    "do-work/rendercheck/checks/face.py",
+    "do-work/rendercheck/checks/filler_words.py",
+    "do-work/rendercheck/checks/held_face.py",
+    "do-work/rendercheck/checks/in_frame.py",
+    "do-work/rendercheck/checks/info_added.py",
+    "do-work/rendercheck/checks/internal_text.py",
+    "do-work/rendercheck/checks/jitter.py",
+    "do-work/rendercheck/checks/joins.py",
+    "do-work/rendercheck/checks/label_time.py",
+    "do-work/rendercheck/checks/math_shown.py",
+    "do-work/rendercheck/checks/motion_blur.py",
+    "do-work/rendercheck/checks/movement.py",
+    "do-work/rendercheck/checks/placement.py",
+    "do-work/rendercheck/checks/reused_footage.py",
+    "do-work/rendercheck/checks/settle.py",
+    "do-work/rendercheck/checks/sound_balance.py",
+    "do-work/rendercheck/checks/sound_harsh.py",
+    "do-work/rendercheck/checks/sound_loops.py",
+    "do-work/rendercheck/checks/sound_sync.py",
+    "do-work/rendercheck/checks/tempo.py",
+    "do-work/rendercheck/checks/text.py",
+    "do-work/rendercheck/checks/text_size.py",
+    "do-work/rendercheck/checks/type_sync.py",
+    "do-work/rendercheck/checks/variety.py",
+    "do-work/rendercheck/checks/word_clip.py",
+    "do-work/rendercheck/checks/zoom.py",
+    "do-work/rendercheck/cli.py",
+    "do-work/rendercheck/config.py",
+    "do-work/rendercheck/ctx.py",
+    "do-work/rendercheck/inspect_eyes.py",
+    "do-work/rendercheck/inspect_placement.py",
+    "do-work/rendercheck/inspect_settle.py",
+    "do-work/rendercheck/inspect_type.py",
+    "do-work/rendercheck/jsonio.py",
+    "do-work/rendercheck/media.py",
+    "do-work/rendercheck/pins.py",
+    "do-work/rendercheck/report.py",
+    "do-work/rendercheck/review_pack.py",
+    "do-work/rendercheck/sfx.py",
+    "do-work/rendercheck/spans.py",
+    "do-work/rendercheck/vision_landmarks.py"
+   ],
+   "at": "/opt/check-a-rendered-video"
+  },
+  {
+   "package": "settings",
+   "paths": [
+    "read-data/settings.mjs",
+    "read-data/settings.py"
+   ],
+   "at": "/opt/settings"
+  },
+  {
+   "packages": [
+    "blake3",
+    "numpy"
+   ],
+   "at": "/opt/check-a-rendered-video/do-work/rendercheck"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/check-a-rendered-video/do-work/rendercheck/checks"
   }
  ],
  "tool:check-every-claim-against-its-facts-and-sources": [],
@@ -13194,6 +13641,13 @@
    "at": "/opt/where-a-person-stands"
   },
   {
+   "package": "audio-transcription",
+   "paths": [
+    "do-work/whisper_here.py"
+   ],
+   "at": "/opt/audio-transcription"
+  },
+  {
    "package": "content-identity",
    "paths": [
     "read-data/blake3.mjs"
@@ -14636,6 +15090,13 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
+  },
+  {
+   "package": "audio-transcription",
+   "paths": [
+    "do-work/whisper_here.py"
+   ],
+   "at": "/opt/audio-transcription"
   },
   {
    "package": "content-identity",
@@ -16771,6 +17232,12 @@
     "node_modules/@noble/hashes"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/workflows/do-work"
   }
  ],
  "tool:gate-a-pieces-delivery-checklist": [],
@@ -18060,6 +18527,39 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy"
+   ],
+   "at": "/opt/know-who-is-in-this/do-work"
+  },
+  {
+   "packages": [
+    "blake3",
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "kaldi-native-fbank",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy",
+    "webrtcvad-wheels"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:hear-sources": [
@@ -18251,6 +18751,39 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy"
+   ],
+   "at": "/opt/know-who-is-in-this/do-work"
+  },
+  {
+   "packages": [
+    "blake3",
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "kaldi-native-fbank",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy",
+    "webrtcvad-wheels"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:heat-of-a-row": [
@@ -20423,10 +20956,15 @@
   {
    "package": "audio-transcription",
    "paths": [
+    "do-work/audio_transcription.py",
+    "do-work/process-scripts/transcribe-audio.py",
+    "do-work/whisper_here.py",
     "read-data/hear-here.mjs",
     "read-data/hear-link-flow.mjs",
     "read-data/hear-with-programs.mjs",
-    "read-data/read-link-captions.mjs"
+    "read-data/read-link-captions.mjs",
+    "read-data/transcript_reports.py",
+    "read-data/whisper_loops.py"
    ],
    "at": "/opt/audio-transcription"
   },
@@ -20453,6 +20991,145 @@
    "at": "/opt/computer-programs"
   },
   {
+   "package": "know-who-is-in-this",
+   "paths": [
+    "do-work/measure.py",
+    "do-work/who-is-in-this.py",
+    "read-data/who_is_in.py"
+   ],
+   "at": "/opt/know-who-is-in-this"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work/align-clips.mjs",
+    "do-work/author-aligned-split.mjs",
+    "do-work/author-beat-montage.mjs",
+    "do-work/author-concat-edl.mjs",
+    "do-work/author-cover-text.mjs",
+    "do-work/author-decisions-from-records.ts",
+    "do-work/author-effect-stack.mjs",
+    "do-work/author-karaoke-captions.mjs",
+    "do-work/author-reel-plan.mjs",
+    "do-work/author-voice-script.mjs",
+    "do-work/auto-reframe.mjs",
+    "do-work/batch-produce-reels.mjs",
+    "do-work/beat-onset-picker.mjs",
+    "do-work/blur-faces-not-agreed.py",
+    "do-work/build-edit-decisions.ts",
+    "do-work/build-overlay-render-descriptor.ts",
+    "do-work/card-layout.mjs",
+    "do-work/change-speed-over-a-range.mjs",
+    "do-work/choose-by-threshold.mjs",
+    "do-work/color-match.mjs",
+    "do-work/cut-and-caption.mjs",
+    "do-work/cut-by-events.mjs",
+    "do-work/cut-out-a-person.py",
+    "do-work/cut-the-action.mjs",
+    "do-work/decode-audio-peaks.ts",
+    "do-work/detect-beats-browser.ts",
+    "do-work/detect-beats.mjs",
+    "do-work/detect-crop.mjs",
+    "do-work/detect-events.mjs",
+    "do-work/detect-highlights.mjs",
+    "do-work/detect-motion.mjs",
+    "do-work/detect-quality.mjs",
+    "do-work/detect-scenes-browser.ts",
+    "do-work/detect-scenes.mjs",
+    "do-work/detect-silence.mjs",
+    "do-work/detect-track-browser.ts",
+    "do-work/detect-track.mjs",
+    "do-work/edit-op-schemas.ts",
+    "do-work/effect-registry.mjs",
+    "do-work/export-editor-timeline.mjs",
+    "do-work/export-xmeml.mjs",
+    "do-work/extract-poster.mjs",
+    "do-work/filmcraft-edit-job.mjs",
+    "do-work/find-action-moments.mjs",
+    "do-work/find-recurring-voices.py",
+    "do-work/grade-a-video.mjs",
+    "do-work/keyframe-curve.mjs",
+    "do-work/layer-over-video.mjs",
+    "do-work/make-browser-preview.py",
+    "do-work/make-pictures-and-sounds.mjs",
+    "do-work/make-sound-for-a-video-with-hunyuan-foley.py",
+    "do-work/make-sound-with-moss-soundeffect.py",
+    "do-work/make-sound-with-stable-audio-3.py",
+    "do-work/match-shots.mjs",
+    "do-work/measure-loudness.mjs",
+    "do-work/name-a-voice.py",
+    "do-work/narration/identity.mjs",
+    "do-work/narration/lib/st/__init__.py",
+    "do-work/narration/lib/st/captions_rules.py",
+    "do-work/narration/lib/st/common.py",
+    "do-work/narration/lib/st/content_hash.py",
+    "do-work/narration/lib/st/ff.py",
+    "do-work/narration/lib/st/footage/__init__.py",
+    "do-work/narration/lib/st/footage/asr_models.py",
+    "do-work/narration/lib/st/footage/fillers.py",
+    "do-work/narration/lib/st/footage/transcribe.py",
+    "do-work/narration/lib/st/footage/util.py",
+    "do-work/narration/lib/st/lazy.py",
+    "do-work/narration/lib/st/platform.py",
+    "do-work/narration/lib/st/voice/__init__.py",
+    "do-work/narration/lib/st/voice/align.py",
+    "do-work/narration/lib/st/voice/audio_io.py",
+    "do-work/narration/lib/st/voice/engines/__init__.py",
+    "do-work/narration/lib/st/voice/engines/base.py",
+    "do-work/narration/lib/st/voice/engines/kokoro.py",
+    "do-work/narration/lib/st/voice/engines/own_voice.py",
+    "do-work/narration/lib/st/voice/engines/piper.py",
+    "do-work/narration/lib/st/voice/engines/supertonic.py",
+    "do-work/narration/lib/st/voice/espeak.py",
+    "do-work/narration/lib/st/voice/lexicon.py",
+    "do-work/narration/lib/st/voice/master.py",
+    "do-work/narration/lib/st/voice/models.py",
+    "do-work/narration/lib/st/voice/onnx_patch.py",
+    "do-work/narration/lib/st/voice/readback.py",
+    "do-work/narration/lib/st/voice/registry.py",
+    "do-work/narration/lib/st/voice/script.py",
+    "do-work/narration/lib/st/voice/textnorm.py",
+    "do-work/narration/lib/st/voice/tts.py",
+    "do-work/narration/lib/st/voice/voices.py",
+    "do-work/narration/produce.py",
+    "do-work/narration/speak.mjs",
+    "do-work/pick-poster-frame.mjs",
+    "do-work/place-captions.mjs",
+    "do-work/premiere-project-handoff.mjs",
+    "do-work/process-scripts/author-concat-edl-cli.built.mjs",
+    "do-work/process-scripts/author-concat-edl-cli.mjs",
+    "do-work/process-scripts/author-concat-edl-cli.test.mjs",
+    "do-work/process-scripts/build-process-scripts.mjs",
+    "do-work/process-scripts/make-media-composition-records-from-command-output.py",
+    "do-work/range-edits.mjs",
+    "do-work/read-narration-captions.mjs",
+    "do-work/reframe-to-a-size.mjs",
+    "do-work/relink-editor-projects.mjs",
+    "do-work/relink-in-resolve.py",
+    "do-work/render-an-edit.mjs",
+    "do-work/resolve-render-dimensions.mjs",
+    "do-work/retime-to-fit.mjs",
+    "do-work/save-cover-frame.mjs",
+    "do-work/search-assembly-items.mjs",
+    "do-work/segment-person-matte.py",
+    "do-work/segment_a_still_picture.py",
+    "do-work/semantic-reframe.mjs",
+    "do-work/split-layout.mjs",
+    "do-work/stage-reuse.mjs",
+    "do-work/stream-core.mjs",
+    "do-work/stream-features.mjs",
+    "do-work/suggest-media-cuts.mjs",
+    "do-work/track-moving-subject.mjs",
+    "do-work/tts-narrate.mjs",
+    "do-work/use-an-app-here.mjs",
+    "do-work/video-compose.mjs",
+    "do-work/video-pipeline.mjs",
+    "do-work/visual-overlay-order.mjs",
+    "do-work/write-media-composition-record.ts"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
    "package": "run-on-a-persons-computer",
    "paths": [
     "confined-run.mjs"
@@ -20474,6 +21151,39 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy"
+   ],
+   "at": "/opt/know-who-is-in-this/do-work"
+  },
+  {
+   "packages": [
+    "blake3",
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "kaldi-native-fbank",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy",
+    "webrtcvad-wheels"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:keep-keyed-things-in-a-fixed-memory-budget": [
@@ -24093,6 +24803,12 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/conversations/read-data"
   }
  ],
  "tool:list-the-latest-items-of-a-feed": [
@@ -24743,6 +25459,39 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy"
+   ],
+   "at": "/opt/know-who-is-in-this/do-work"
+  },
+  {
+   "packages": [
+    "blake3",
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "kaldi-native-fbank",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy",
+    "webrtcvad-wheels"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:listen-to-a-generated-voice-take-word-by-word": [],
@@ -25272,6 +26021,19 @@
     "do-work/whisper_here.py"
    ],
    "at": "/opt/audio-transcription"
+  },
+  {
+   "package": "render-a-motion-graphics-overlay",
+   "paths": [
+    "do-work/render-overlay.mjs"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay"
+  },
+  {
+   "packages": [
+    "pillow"
+   ],
+   "at": "/opt/make-a-contact-sheet-of-pictures-or-video-frames/do-work"
   }
  ],
  "tool:make-a-lut-for-log-footage": [],
@@ -25503,6 +26265,26 @@
     "read-data"
    ],
    "at": "/opt/settings"
+  },
+  {
+   "package": "make-a-contact-sheet-of-pictures-or-video-frames",
+   "paths": [
+    "do-work/frames_at_times.py"
+   ],
+   "at": "/opt/make-a-contact-sheet-of-pictures-or-video-frames"
+  },
+  {
+   "package": "render-a-motion-graphics-overlay",
+   "paths": [
+    "do-work/render-overlay.mjs"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay"
+  },
+  {
+   "packages": [
+    "pillow"
+   ],
+   "at": "/opt/make-a-contact-sheet-of-pictures-or-video-frames/do-work"
   }
  ],
  "tool:make-and-measure-every-voice-take-of-a-line": [],
@@ -28860,10 +29642,15 @@
   {
    "package": "audio-transcription",
    "paths": [
+    "do-work/audio_transcription.py",
+    "do-work/process-scripts/transcribe-audio.py",
+    "do-work/whisper_here.py",
     "read-data/hear-here.mjs",
     "read-data/hear-link-flow.mjs",
     "read-data/hear-with-programs.mjs",
-    "read-data/read-link-captions.mjs"
+    "read-data/read-link-captions.mjs",
+    "read-data/transcript_reports.py",
+    "read-data/whisper_loops.py"
    ],
    "at": "/opt/audio-transcription"
   },
@@ -28882,6 +29669,145 @@
    "at": "/opt/computer-programs"
   },
   {
+   "package": "know-who-is-in-this",
+   "paths": [
+    "do-work/measure.py",
+    "do-work/who-is-in-this.py",
+    "read-data/who_is_in.py"
+   ],
+   "at": "/opt/know-who-is-in-this"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work/align-clips.mjs",
+    "do-work/author-aligned-split.mjs",
+    "do-work/author-beat-montage.mjs",
+    "do-work/author-concat-edl.mjs",
+    "do-work/author-cover-text.mjs",
+    "do-work/author-decisions-from-records.ts",
+    "do-work/author-effect-stack.mjs",
+    "do-work/author-karaoke-captions.mjs",
+    "do-work/author-reel-plan.mjs",
+    "do-work/author-voice-script.mjs",
+    "do-work/auto-reframe.mjs",
+    "do-work/batch-produce-reels.mjs",
+    "do-work/beat-onset-picker.mjs",
+    "do-work/blur-faces-not-agreed.py",
+    "do-work/build-edit-decisions.ts",
+    "do-work/build-overlay-render-descriptor.ts",
+    "do-work/card-layout.mjs",
+    "do-work/change-speed-over-a-range.mjs",
+    "do-work/choose-by-threshold.mjs",
+    "do-work/color-match.mjs",
+    "do-work/cut-and-caption.mjs",
+    "do-work/cut-by-events.mjs",
+    "do-work/cut-out-a-person.py",
+    "do-work/cut-the-action.mjs",
+    "do-work/decode-audio-peaks.ts",
+    "do-work/detect-beats-browser.ts",
+    "do-work/detect-beats.mjs",
+    "do-work/detect-crop.mjs",
+    "do-work/detect-events.mjs",
+    "do-work/detect-highlights.mjs",
+    "do-work/detect-motion.mjs",
+    "do-work/detect-quality.mjs",
+    "do-work/detect-scenes-browser.ts",
+    "do-work/detect-scenes.mjs",
+    "do-work/detect-silence.mjs",
+    "do-work/detect-track-browser.ts",
+    "do-work/detect-track.mjs",
+    "do-work/edit-op-schemas.ts",
+    "do-work/effect-registry.mjs",
+    "do-work/export-editor-timeline.mjs",
+    "do-work/export-xmeml.mjs",
+    "do-work/extract-poster.mjs",
+    "do-work/filmcraft-edit-job.mjs",
+    "do-work/find-action-moments.mjs",
+    "do-work/find-recurring-voices.py",
+    "do-work/grade-a-video.mjs",
+    "do-work/keyframe-curve.mjs",
+    "do-work/layer-over-video.mjs",
+    "do-work/make-browser-preview.py",
+    "do-work/make-pictures-and-sounds.mjs",
+    "do-work/make-sound-for-a-video-with-hunyuan-foley.py",
+    "do-work/make-sound-with-moss-soundeffect.py",
+    "do-work/make-sound-with-stable-audio-3.py",
+    "do-work/match-shots.mjs",
+    "do-work/measure-loudness.mjs",
+    "do-work/name-a-voice.py",
+    "do-work/narration/identity.mjs",
+    "do-work/narration/lib/st/__init__.py",
+    "do-work/narration/lib/st/captions_rules.py",
+    "do-work/narration/lib/st/common.py",
+    "do-work/narration/lib/st/content_hash.py",
+    "do-work/narration/lib/st/ff.py",
+    "do-work/narration/lib/st/footage/__init__.py",
+    "do-work/narration/lib/st/footage/asr_models.py",
+    "do-work/narration/lib/st/footage/fillers.py",
+    "do-work/narration/lib/st/footage/transcribe.py",
+    "do-work/narration/lib/st/footage/util.py",
+    "do-work/narration/lib/st/lazy.py",
+    "do-work/narration/lib/st/platform.py",
+    "do-work/narration/lib/st/voice/__init__.py",
+    "do-work/narration/lib/st/voice/align.py",
+    "do-work/narration/lib/st/voice/audio_io.py",
+    "do-work/narration/lib/st/voice/engines/__init__.py",
+    "do-work/narration/lib/st/voice/engines/base.py",
+    "do-work/narration/lib/st/voice/engines/kokoro.py",
+    "do-work/narration/lib/st/voice/engines/own_voice.py",
+    "do-work/narration/lib/st/voice/engines/piper.py",
+    "do-work/narration/lib/st/voice/engines/supertonic.py",
+    "do-work/narration/lib/st/voice/espeak.py",
+    "do-work/narration/lib/st/voice/lexicon.py",
+    "do-work/narration/lib/st/voice/master.py",
+    "do-work/narration/lib/st/voice/models.py",
+    "do-work/narration/lib/st/voice/onnx_patch.py",
+    "do-work/narration/lib/st/voice/readback.py",
+    "do-work/narration/lib/st/voice/registry.py",
+    "do-work/narration/lib/st/voice/script.py",
+    "do-work/narration/lib/st/voice/textnorm.py",
+    "do-work/narration/lib/st/voice/tts.py",
+    "do-work/narration/lib/st/voice/voices.py",
+    "do-work/narration/produce.py",
+    "do-work/narration/speak.mjs",
+    "do-work/pick-poster-frame.mjs",
+    "do-work/place-captions.mjs",
+    "do-work/premiere-project-handoff.mjs",
+    "do-work/process-scripts/author-concat-edl-cli.built.mjs",
+    "do-work/process-scripts/author-concat-edl-cli.mjs",
+    "do-work/process-scripts/author-concat-edl-cli.test.mjs",
+    "do-work/process-scripts/build-process-scripts.mjs",
+    "do-work/process-scripts/make-media-composition-records-from-command-output.py",
+    "do-work/range-edits.mjs",
+    "do-work/read-narration-captions.mjs",
+    "do-work/reframe-to-a-size.mjs",
+    "do-work/relink-editor-projects.mjs",
+    "do-work/relink-in-resolve.py",
+    "do-work/render-an-edit.mjs",
+    "do-work/resolve-render-dimensions.mjs",
+    "do-work/retime-to-fit.mjs",
+    "do-work/save-cover-frame.mjs",
+    "do-work/search-assembly-items.mjs",
+    "do-work/segment-person-matte.py",
+    "do-work/segment_a_still_picture.py",
+    "do-work/semantic-reframe.mjs",
+    "do-work/split-layout.mjs",
+    "do-work/stage-reuse.mjs",
+    "do-work/stream-core.mjs",
+    "do-work/stream-features.mjs",
+    "do-work/suggest-media-cuts.mjs",
+    "do-work/track-moving-subject.mjs",
+    "do-work/tts-narrate.mjs",
+    "do-work/use-an-app-here.mjs",
+    "do-work/video-compose.mjs",
+    "do-work/video-pipeline.mjs",
+    "do-work/visual-overlay-order.mjs",
+    "do-work/write-media-composition-record.ts"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
    "package": "run-on-a-persons-computer",
    "paths": [
     "confined-run.mjs"
@@ -28896,6 +29822,39 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy"
+   ],
+   "at": "/opt/know-who-is-in-this/do-work"
+  },
+  {
+   "packages": [
+    "blake3",
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "kaldi-native-fbank",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "pillow",
+    "protobuf",
+    "sympy",
+    "webrtcvad-wheels"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:name-a-voice": [
@@ -33644,6 +34603,26 @@
     "read-data"
    ],
    "at": "/opt/settings"
+  },
+  {
+   "package": "make-a-contact-sheet-of-pictures-or-video-frames",
+   "paths": [
+    "do-work/frames_at_times.py"
+   ],
+   "at": "/opt/make-a-contact-sheet-of-pictures-or-video-frames"
+  },
+  {
+   "package": "render-a-motion-graphics-overlay",
+   "paths": [
+    "do-work/render-overlay.mjs"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay"
+  },
+  {
+   "packages": [
+    "pillow"
+   ],
+   "at": "/opt/make-a-contact-sheet-of-pictures-or-video-frames/do-work"
   }
  ],
  "tool:publish-a-list-view-as-a-file": [],
@@ -34857,6 +35836,12 @@
     "utils.js"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/put-picked-options-into-a-filmcraft-project/do-work"
   }
  ],
  "tool:put-records-into-my-account": [
@@ -36453,6 +37438,12 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/conversations/read-data"
   }
  ],
  "tool:read-an-office-file": [],
@@ -38508,6 +39499,12 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/conversations/read-data"
   }
  ],
  "tool:read-my-saved-x-posts": [
@@ -41803,6 +42800,12 @@
     "node_modules/@noble/hashes"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/workflows/do-work"
   }
  ],
  "tool:record-method-answers": [
@@ -57113,6 +58116,35 @@
     "do-work/words-as-picture-vector.py"
    ],
    "at": "/opt/words-as-picture-vector"
+  },
+  {
+   "packages": [
+    "clip-vit-b32-text-model",
+    "clip-vit-b32-tokenizer"
+   ],
+   "at": "/opt/models/clip-vit-base-patch32"
+  },
+  {
+   "package": "words-as-picture-vector",
+   "paths": [
+    "clip-vit-base-patch32/model.json"
+   ],
+   "at": "/opt/models"
+  },
+  {
+   "packages": [
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "protobuf",
+    "sympy",
+    "tokenizers"
+   ],
+   "at": "/opt/words-as-picture-vector/do-work"
   }
  ],
  "tool:work-a-piece-through-a-question-bank": [],

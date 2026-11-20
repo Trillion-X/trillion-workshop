@@ -68,6 +68,41 @@
   }
  },
  "packages": {
+  "tokenizers": {
+   "version": "0.23.3",
+   "archive": "zip",
+   "fetch": {
+    "macos-aarch64": {
+     "url": "https://files.pythonhosted.org/packages/b2/72/01e49f032bb346e5aaf06c10c74fe8aeec847173adbadd66eb7c53054bf2/tokenizers-0.23.3-cp310-abi3-macosx_11_0_arm64.whl",
+     "blake3": "e51cbf944ce90a93b614679c56a92aa38d373c7bcbaf9536c5a411cef606186f",
+     "checked_against": "https://pypi.org/pypi/tokenizers/0.23.3/json"
+    }
+   }
+  },
+  "clip-vit-b32-text-model": {
+   "version": "d15189d7028b43f1d3e65039190477f6af591c2a",
+   "archive": "file",
+   "file_name": "text_model.onnx",
+   "fetch": {
+    "any": {
+     "url": "https://huggingface.co/Xenova/clip-vit-base-patch32/resolve/d15189d7028b43f1d3e65039190477f6af591c2a/onnx/text_model.onnx",
+     "blake3": "4a2656f646824b8ae4e3ddf16c4761a208379a600cfb72a03673c2dd88feeb71",
+     "checked_against": "https://huggingface.co/api/models/Xenova/clip-vit-base-patch32/tree/d15189d7028b43f1d3e65039190477f6af591c2a"
+    }
+   }
+  },
+  "clip-vit-b32-tokenizer": {
+   "version": "d15189d7028b43f1d3e65039190477f6af591c2a",
+   "archive": "file",
+   "file_name": "tokenizer.json",
+   "fetch": {
+    "any": {
+     "url": "https://huggingface.co/Xenova/clip-vit-base-patch32/resolve/d15189d7028b43f1d3e65039190477f6af591c2a/tokenizer.json",
+     "blake3": "fce83ce4401d6659642c31e4d7f78b926b83e5f8f091be7f827c32f580d44712",
+     "checked_against": "https://huggingface.co/api/models/Xenova/clip-vit-base-patch32/tree/d15189d7028b43f1d3e65039190477f6af591c2a"
+    }
+   }
+  },
   "blake3": {
    "version": "1.0.5",
    "archive": "zip",
