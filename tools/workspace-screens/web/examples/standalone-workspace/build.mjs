@@ -44,7 +44,9 @@ const aliases = {
   },
 };
 
-export async function buildPage({ entry, out }) {
+// html, files and plugins let a page of its own (members-page) use this build: its shell, the files it copies beside it, and its
+// own esbuild plugins. Without them the example's shell, sample lesson and plugins are used, as before.
+export async function buildPage({ entry, out, html = join(here, 'index.html'), files = [[join(here, 'sample-lesson.webm'), 'sample-lesson.webm']], plugins = [] }) {
   const barrels = barrelImportsPlugin(tools);
   mkdirSync(out, { recursive: true });
   // The shipped tours, one JSON file per tour, as the page fetches them (build-workspace.mjs writes them the same way).
@@ -65,6 +67,7 @@ export async function buildPage({ entry, out }) {
       barrels.plugin,
       walkthroughsPlugin({ publicNamed: './', toursName: 'walkthroughs.json', walkthroughFiles, root: web }),
       aliases,
+      ...plugins,
     ],
   });
   // The stylesheet the page draws with, assembled as the workspace build assembles its own (scripts/build-workspace.mjs):
@@ -82,8 +85,8 @@ export async function buildPage({ entry, out }) {
   const lightTheme = lightThemeCss(tools, [tailwindSource, utilities, ...LOOKS.map(look), ...sources.map(file => readFileSync(file, 'utf8'))]);
   const stylesheet = (await transform([utilities, look('fonts.css'), ...LOOKS.map(look), lightTheme, readFileSync(join(tools, 'ui/show/twenty/record-table.css'), 'utf8'), bundledCss].join('\n'), { loader: 'css', minify: true, logLevel: 'silent' })).code;
   writeFileSync(join(out, 'standalone-workspace.css'), stylesheet);
-  copyFileSync(join(here, 'index.html'), join(out, 'index.html'));
-  copyFileSync(join(here, 'sample-lesson.webm'), join(out, 'sample-lesson.webm'));
+  copyFileSync(html, join(out, 'index.html'));
+  for (const [from, to] of files) copyFileSync(from, join(out, to));
   // The faces the look names (its fonts.css and fonts/), beside the stylesheet, as the workspace build serves them.
   cpSync(join(tools, 'screen-look/show/fonts'), join(out, 'fonts'), { recursive: true });
   console.log(`built ${Object.keys(result.metafile.outputs).length} files into ${out}`);

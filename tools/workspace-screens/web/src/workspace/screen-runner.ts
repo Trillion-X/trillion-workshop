@@ -43,7 +43,7 @@ export function installScreenRunner(screens: Record<string, WarmMount>, addressL
       const key = keyOfLabel(label, prefix);
       const mount = key ? screens[key] : undefined;
       if (!mount) {
-        mountScreenState(element, { status: 'empty', icon: 'LayoutPanelLeft', title: 'This screen is not part of Trillion', description: 'Close this tab and open a screen from the sidebar.', action: goTo('Open Home', 'trillion.home') });
+        mountScreenState(element, { status: 'empty', icon: 'LayoutPanelLeft', title: 'This screen is not on this page', description: 'Close this tab and open a screen from the sidebar.', action: goTo('Open Home', 'trillion.home') });
         element._thingToPutOnScreenCleanup = () => element.replaceChildren();
         return undefined;
       }

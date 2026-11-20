@@ -128,5 +128,14 @@
   "password_errors": {
     "INVALID_EMAIL_OR_PASSWORD": "That email and password do not match.",
     "EMAIL_NOT_VERIFIED": "This email is not confirmed yet. Email yourself a code to confirm it."
-  }
+  },
+  "account_heading": "Your account",
+  "account_intro": "Your name and email, and how you sign in.",
+  "account_loading": "Loading your account.",
+  "account_failed": "Your account could not be read right now. Try again in a moment.",
+  "account_delete_title": "Delete your account",
+  "account_delete_confirm": "Confirm that you want to delete your account. It cannot be undone.",
+  "account_delete": "Delete my account",
+  "account_delete_keep": "Keep my account",
+  "account_delete_failed": "Your account could not be deleted. Try again."
 }

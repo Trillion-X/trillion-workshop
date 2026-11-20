@@ -1,0 +1,5 @@
+/* tools/workspace-screens/web/members-page/members-page.css: the page's frame, a sidebar column and the screens beside it. */
+html, body { height: 100%; margin: 0; }
+.members-page__frame { display: flex; height: 100vh; }
+.members-page__sidebar { width: 260px; flex: none; overflow: auto; }
+.members-page__arrangement { flex: 1; min-width: 0; }
