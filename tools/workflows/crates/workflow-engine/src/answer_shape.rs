@@ -2,7 +2,7 @@
 // can hand the engine an answer its step did not ask for. A step names the shape as `submit` in what it asks: a JSON
 // Schema. This checks the keywords the workflows use (type, properties, required, additionalProperties, items, minItems,
 // maxItems, uniqueItems, minLength, maxLength, pattern, enum, const, minimum, maximum, exclusiveMinimum,
-// exclusiveMaximum, minProperties, maxProperties, anyOf, oneOf, allOf, not). `format` and `description` are notes, as
+// exclusiveMaximum, minProperties, maxProperties, anyOf, oneOf, allOf, not, if/then/else). `format` and `description` are notes, as
 // JSON Schema itself treats them. Any other keyword is refused as unknown, so a shape is never silently half-checked.
 use serde_json::Value;
 
@@ -10,7 +10,7 @@ const NOTES: &[&str] = &["description", "title", "format", "examples", "default"
 const CHECKED: &[&str] = &[
     "type", "properties", "required", "additionalProperties", "items", "minItems", "maxItems", "uniqueItems", "minLength",
     "maxLength", "pattern", "enum", "const", "minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum", "minProperties",
-    "maxProperties", "anyOf", "oneOf", "allOf", "not",
+    "maxProperties", "anyOf", "oneOf", "allOf", "not", "if", "then", "else",
 ];
 
 /// Every way `answer` misses `shape`, each as "where: what is wrong"; empty when it fits.
@@ -67,7 +67,7 @@ fn check(shape: &Value, value: &Value, at: &str, found: &mut Vec<String>) {
         if !allowed.contains(value) { found.push(format!("{at}: is {}, but must be one of {}", short(value), short(&Value::Array(allowed.clone())))); }
     }
     if let Some(only) = rules.get("const") {
-        if only != value { found.push(format!("{at}: is {}, but must be {}", short(value), short(only))); }
+        if only != value { found.push(format!("{at}: is {}, but must be exactly {}", short(value), short(only))); }
     }
     match value {
         Value::String(text) => {
@@ -135,14 +135,22 @@ fn check(shape: &Value, value: &Value, at: &str, found: &mut Vec<String>) {
         let fits = each.iter().filter(|misses| misses.is_empty()).count();
         if fits != 1 { found.push(format!("{at}: fits {fits} of the {} shapes, but must fit exactly one{}", one.len(), if fits == 0 { nearest(&each) } else { String::new() })); }
     }
+    // if/then/else: an answer that fits `if` must fit `then`, any other must fit `else`; either may be left out.
+    if let Some(test) = rules.get("if") {
+        let branch = if misses_at(test, value, at).is_empty() { rules.get("then") } else { rules.get("else") };
+        if let Some(branch) = branch { check(branch, value, at, found); }
+    }
     if let Some(never) = rules.get("not") {
         if misses_at(never, value, at).is_empty() { found.push(format!("{at}: fits a shape it must not fit")); }
     }
 }
 
-/// The misses of the shape the answer came nearest to (fewest misses), so the answerer knows what to change.
+/// The misses of the shape the answer came nearest to, so the answerer knows what to change: the shape whose fixed values
+/// (const, enum) the answer already has, then the one with the fewest misses. An answer that says state "retired" is
+/// nearest the shape for "retired" even when another shape misses it by as few.
 fn nearest(each: &[Vec<String>]) -> String {
-    each.iter().enumerate().min_by_key(|(_, misses)| misses.len())
+    let fixed = |miss: &String| miss.contains(", but must be exactly ") || miss.contains(", but must be one of ");
+    each.iter().enumerate().min_by_key(|(_, misses)| (misses.iter().filter(|miss| fixed(miss)).count(), misses.len()))
         .map(|(at, misses)| format!("; nearest is shape {} of them, which it misses by: {}", at + 1, misses.join("; "))).unwrap_or_default()
 }
 
@@ -215,5 +223,31 @@ mod tests {
         assert!(!misses(&json!({ "not": { "const": "ai" } }), &json!("ai")).is_empty());
         let near = misses(&json!({ "oneOf": [{ "type": "object", "required": ["a"] }, { "type": "object", "required": ["b", "c"] }] }), &json!({ "c": 1 }));
         assert!(near[0].contains("nearest is shape 1 of them, which it misses by: answer.a: is missing"), "{near:?}");
+    }
+
+    #[test]
+    fn the_nearest_shape_is_the_one_whose_fixed_value_the_answer_has() {
+        // Run 1795155586 (Nov 20 2026): an answer with state "retired" and no ruling was told it was nearest the
+        // "missing or worse" shape, because both shapes missed it by one.
+        let states = json!({ "anyOf": [
+            { "properties": { "state": { "const": "there" } }, "required": ["new_at", "evidence"] },
+            { "properties": { "state": { "enum": ["missing", "worse"] } } },
+            { "properties": { "state": { "const": "retired" } }, "required": ["ruling"] } ] });
+        let found = misses(&states, &json!({ "state": "retired" }));
+        assert!(found[0].contains("nearest is shape 3 of them, which it misses by: answer.ruling: is missing"), "{found:?}");
+        assert!(misses(&states, &json!({ "state": "retired", "ruling": "the owner said so" })).is_empty());
+    }
+
+    #[test]
+    fn if_then_else_checks_the_branch_the_answer_takes() {
+        // Run 1795155510 (Nov 20 2026): a shape with if/then was refused as unknown, so no answer could fit.
+        let shape = json!({ "type": "object", "required": ["state"],
+            "if": { "properties": { "state": { "const": "there" } } }, "then": { "required": ["new_at"] }, "else": { "required": ["why"] } });
+        assert!(misses(&shape, &json!({ "state": "there", "new_at": "a.rs:1@abc1234" })).is_empty());
+        assert_eq!(misses(&shape, &json!({ "state": "there" })), vec!["answer.new_at: is missing".to_string()]);
+        assert!(misses(&shape, &json!({ "state": "gone", "why": "moved" })).is_empty());
+        assert_eq!(misses(&shape, &json!({ "state": "gone" })), vec!["answer.why: is missing".to_string()]);
+        let no_else = json!({ "if": { "const": 1 }, "then": { "type": "integer" } });
+        assert!(misses(&no_else, &json!("x")).is_empty(), "with no else, an answer that misses if is not checked further");
     }
 }
