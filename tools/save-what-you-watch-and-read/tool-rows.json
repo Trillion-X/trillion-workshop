@@ -217,6 +217,10 @@
         "type": "string"
        },
        "description": "Keys of posts the person already has; the read stops once several pages hold only those."
+      },
+      "since": {
+       "type": "string",
+       "description": "The key of the newest post the last read returned (its newest): posts above it are the new ones. Left out, the read is the whole list."
       }
      }
     },
@@ -225,7 +229,8 @@
      "required": [
       "which",
       "read",
-      "posts"
+      "posts",
+      "newest"
      ],
      "properties": {
       "which": {
@@ -242,6 +247,13 @@
       },
       "not_kept_yet": {
        "type": "integer"
+      },
+      "newest": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "description": "The key of the newest post read: the since a later read takes. The since it was given when nothing is newer."
       },
       "posts": {
        "type": "array",

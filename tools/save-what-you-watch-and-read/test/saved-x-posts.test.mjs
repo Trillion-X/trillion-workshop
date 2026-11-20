@@ -111,3 +111,16 @@ test('likes need the person\'s X name and a kind of list that does not exist is 
   assert.equal(pageFor({ which: 'bookmarks' }).pageAddress, 'https://x.com/i/bookmarks');
   assert.throws(() => pageFor({ which: 'follows' }), /which must be one of/);
 });
+
+test('a read with since names the newest post it saw, and keeps since when nothing is newer', async () => {
+  const post = key => ({ key, url: `https://x.example/${key}`, title: `post ${key}`, author: 'sample_maker', author_name: 'Sample Maker', posted_at: '2026-09-02T16:50:26Z' });
+  const listed = keys => async (request, collected) => {
+    collected.onPage(keys.map(post));
+    return 1;
+  };
+  const read = await readSaved({ which: 'bookmarks', since: '2' }, listed(['9', '5', '2', '1']));
+  assert.equal(read.newest, '9', 'the newest listed post is the next cursor');
+  assert.equal(read.not_kept_yet, 3, 'the since post is already kept, so it is not counted as new');
+  const quiet = await readSaved({ which: 'bookmarks', since: '9' }, listed([]));
+  assert.equal(quiet.newest, '9', 'with nothing listed the cursor stays where it was');
+});

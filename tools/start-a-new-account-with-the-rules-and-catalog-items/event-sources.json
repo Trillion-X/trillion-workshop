@@ -1405,7 +1405,7 @@
             "name": "bookmark",
             "each": [
               {
-                "field": "items",
+                "field": "posts",
                 "as": "b"
               }
             ],
@@ -1448,12 +1448,20 @@
           "output_selector": "$.data.id"
         },
         "poll": {
-          "tool_id": "tool:save-x-bookmarks",
+          "tool_id": "tool:read-my-saved-x-posts",
+          "input": {
+            "which": "bookmarks",
+            "account": "service_connection:x"
+          },
           "every_minutes": 30,
           "cursor": {
             "input_field": "since",
             "start": {
-              "tool_id": "tool:save-x-bookmarks",
+              "tool_id": "tool:read-my-saved-x-posts",
+              "input": {
+                "which": "bookmarks",
+                "account": "service_connection:x"
+              },
               "output_selector": "$.newest"
             },
             "next": {
@@ -1461,7 +1469,7 @@
             }
           }
         },
-        "notes": "X keeps no time a bookmark was made and has no address to send new ones to, so Trillion reads them: listening starts by saving every bookmark X hands out into the person's files (tool:save-x-bookmarks without since), which names the newest; each later read saves and returns only the bookmarks above that one. Every read is billed to the X app's credits, so it runs every 30 minutes.",
+        "notes": "X keeps no time a bookmark was made and has no address to send new ones to, so Trillion reads them: listening starts by reading the newest bookmark X hands out (tool:read-my-saved-x-posts with no since), which names it as newest; each later read returns only the bookmarks above that one. The start does not write the bookmarks into the person's files (the old tool:save-x-bookmarks did; the loss is recorded in research row verify-every-port/keep-links-i-saved-elsewhere-such). Every read is billed to the X app's credits, so it runs every 30 minutes.",
         "source": {
           "read_on": "2026-09-29",
           "from": [

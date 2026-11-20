@@ -12,6 +12,8 @@
 //     browser: profile_dir, handle? (needed for likes), browser?: { executable? }
 //   or { sign_in: true, profile_dir }: opens a visible window on X's sign-in page with that profile and waits for it to close.
 //   `already_kept` are post keys the person already has: the read stops once several pages hold only those.
+//   `since` is the key of the newest post the last read returned (a poll's cursor): posts above it are the new ones, and the
+//   answer's `newest` is the key a later read takes as its `since`.
 //   `out_file` is where the posts are written; without it they are in the answer.
 import { writeFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -24,10 +26,10 @@ const ways = { api: readFromApi, browser: readFromBrowser };
 /** Reads the request's list by the way it names; answers { which, pages, read, not_kept_yet, posts }. */
 export async function readSaved(request, way = ways[request.via ?? 'api']) {
   if (!way) throw new Error(`via must be one of ${Object.keys(ways).join(', ')}.`);
-  const collected = collector(request.already_kept);
+  const collected = collector([...(request.already_kept ?? []), ...(request.since ? [request.since] : [])]);
   const pages = await way(request, collected);
   const posts = collected.posts().map(post => savedPost(post, request.which));
-  return { which: request.which, via: request.via ?? 'api', pages, read: posts.length, not_kept_yet: collected.notKept(), posts };
+  return { which: request.which, via: request.via ?? 'api', pages, read: posts.length, not_kept_yet: collected.notKept(), newest: posts[0]?.key ?? request.since ?? null, posts };
 }
 
 async function main() {
