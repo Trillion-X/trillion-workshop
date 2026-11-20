@@ -1,0 +1,11 @@
+	# The engine's door at some of a site's own names: the paths in engine_paths of the names in engine_hosts go to the engine,
+	# with their Host, so the engine answers each at the door row whose accepts_hosts names it (trillion-rust src/mcp/hosts.rs).
+	# Every other path of those names, and every path of every other name, is the site's as before.
+	@engine_at_names {
+		host {engine_hosts}
+		path {engine_paths}
+	}
+	handle @engine_at_names {
+		# Every slot of the engine is the pool `engine` (caddy.pools.engine): the first that answers its health page takes each call.
+		{engine_proxy}
+	}

@@ -5,6 +5,8 @@
 # whole, any method. While that program restarts (its socket is gone or refuses), a request waits for it, trying again every
 # 250 ms for up to 15 s, so a restart drops no request that has not reached the old program. The computer's own address {{door_host}} keeps its certificate (ACME profile {{certificate_profile}}) and
 # answers 404. So this file and the computer's row name no site: a site is a folder, and a program of its own is its folder under programs_root.
+# The site's `routes` (absent or empty: none, and no line) go first, before any page or program, for a route that must answer some
+# paths of some names itself (the engine's door at a site's own name, tools/keep-an-engine-on-a-computer/caddy-route-engine-at-names.caddy).
 {
 	admin localhost:2019
 	grace_period {{grace_period}}
@@ -51,6 +53,7 @@ https:// {
 	}
 	@www header_regexp Host ^www\.
 	redir @www https://{site}{uri} 308
+{{routes}}
 	@page {
 		method GET HEAD
 		file {

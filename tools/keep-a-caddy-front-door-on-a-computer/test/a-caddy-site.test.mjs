@@ -172,3 +172,16 @@ test('each name its own folder: the site file names no site, asks before each ce
   assert.doesNotMatch(text, /place\.example\.test|\{\{/, 'no site is named in the file');
   assert.ok(files.some(file => file.path === '/var/lib/example-sites/place.example.test/index.html'), 'a site is its folder');
 });
+
+test('each name its own folder: the engine answers some paths of some names first, and every other path stays the site\'s', async () => {
+  const folders = { site_file: 'each-name-its-own-folder', door_host: '192.0.2.10', certificate_profile: 'shortlived', grace_period: '5s', pages_root: '/var/lib/example-sites', programs_root: '/run/example-sites' };
+  const engine = { engine: { listen: ['127.0.0.1:7199', '127.0.0.1:7198'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' } };
+  const text = (await siteFile({ ...folders, routes: ['tools/keep-an-engine-on-a-computer/caddy-route-engine-at-names.caddy'], engine_hosts: ['app.place.example.test'], engine_paths: ['/mcp', '/.well-known/oauth-protected-resource*'], pools: engine })).text;
+  assert.match(text, /@engine_at_names \{\n\t\thost app\.place\.example\.test\n\t\tpath \/mcp \/\.well-known\/oauth-protected-resource\*\n\t\}/);
+  const https = text.slice(text.indexOf('https:// {'));
+  assert.ok(https.indexOf('handle @engine_at_names') > https.indexOf('redir @www') && https.indexOf('handle @engine_at_names') < https.indexOf('handle @page'), 'the engine route goes after the www redirect and before every page and program');
+  assert.match(https, /handle @engine_at_names \{[\s\S]*reverse_proxy 127\.0\.0\.1:7199 127\.0\.0\.1:7198/);
+  const none = (await siteFile({ ...folders, routes: [] })).text;
+  assert.doesNotMatch(none, /engine_at_names|\{\{/, 'a site with no routes renders as before');
+  await assert.rejects(siteFile({ ...folders, routes: ['tools/keep-an-engine-on-a-computer/caddy-route-engine-at-names.caddy'], engine_paths: ['/mcp'], pools: engine }), /needs engine_hosts/);
+});

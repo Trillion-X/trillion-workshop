@@ -43,6 +43,7 @@ A site that names `site_file` gets that whole file from `sites/`, each `{{field}
 A site names each route by path, like a unit's template: a file the program it sends to publishes (a relative path inside the Workshop, or an absolute path of the person's own), filled from the site's fields. A route that is a module (`.mjs`) answers its text from `route()`, so a program that computes its route from its own data keeps that data. This kit names no route of its own:
 - The sign-in tool's routes are `tools/better-auth-official/on-a-computer/caddy-route-*`.
 - The engine's route is `tools/keep-an-engine-on-a-computer/caddy-route-engine.caddy`: it sends `engine_paths` to the engine's pool.
+- In `each-name-its-own-folder`, the site's `routes` go first in the `https://` block. `tools/keep-an-engine-on-a-computer/caddy-route-engine-at-names.caddy` sends `engine_paths` of only the names in `engine_hosts` to the engine's pool, so the engine answers a door at a site's own name (its `/mcp`, say) and every other path stays the site's.
 
 Every slot of a program is one pool: `pools: {<name>: {listen: [every slot's address], health_uri, health_interval, try_duration, lines?}}`, filled into a route as `{<name>_proxy}`. The engine route uses `engine`; the sign-in routes use `auth`.
 - Caddy sends each call to the first slot that answers its health page. A slot that is stopping answers 503 and gets no new call.
