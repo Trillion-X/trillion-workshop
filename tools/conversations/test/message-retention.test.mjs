@@ -4,8 +4,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { localStore } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { messages } from '../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
-import { makeMessageRetention, messageRetentionActions, RetentionError } from '../from-an-older-version/src/message-retention.mjs';
-import settings from '../from-an-older-version/src/message-retention.json' with { type: 'json' };
+import { makeMessageRetention, messageRetentionActions, RetentionError } from '../do-work/message-retention.mjs';
+import settings from '../read-data/message-retention.json' with { type: 'json' };
 
 const DAY = 86_400_000;
 const NOW = Date.parse('2026-10-19T12:00:00Z');

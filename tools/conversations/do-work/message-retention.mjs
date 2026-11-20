@@ -13,7 +13,7 @@
 //      the first one inside the window; no sweep reads a whole conversation.
 //   3. A policy is only what the person set: clearing it stops the sweep; messages already erased stay erased.
 //   4. Nothing here names a conversation, an app or a kind of message.
-import settings from './message-retention.json' with { type: 'json' };
+import settings from '../read-data/message-retention.json' with { type: 'json' };
 
 const TYPE = 'message';
 const DAY_MS = 86_400_000;
