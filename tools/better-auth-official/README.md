@@ -80,6 +80,10 @@ team admits the people whose pass holds its id (the engine's share grant); it le
 when their last pass expires. That lag is the access token's life, `settings.mcp.access_token_seconds` (3600 today, the mcp plugin's `accessTokenExpiresIn`),
 and a session JWT's own end. test/teams.test.mjs proves the claim for a member, for a member taken out, for a person in no team and for the cap.
 
+`settings.teams.everyone` (absent: none) names team ids every person this tool signs in carries, first and with no `teamMember` row, so a computer
+that grants such a team admits each person this sign-in vouches for (a school's own students, say), and what each may then do is the granted tools'
+own check; they count toward `most`. test/teams-everyone.test.mjs proves it for a person in no team, beside a team by row, and for the cap.
+
 ## Removing a user
 
 The admin plugin's `POST /api/auth/admin/remove-user {"userId"}` (`authClient.admin.removeUser`) deletes a user and its
