@@ -199,3 +199,24 @@ test('a long weekly meeting shifts every weekday by the full day count of its ch
   const longCheck = armAt({ every: 'week', on: ['monday', 'wednesday'], at: '00:05', minutes: 1500, time_zone: 'UTC' }, 1530, 0, policy);
   assert.deepEqual([longCheck.every.at, longCheck.every.on], ['01:35', ['tuesday', 'thursday']]);
 });
+
+// Ported from the old module's suggested-time assertions (its ask_time and keep with a suggested_at, removed with its generation).
+test('a keep with no time carries a suggested time to the answer and its reply, and a time that is not HH:MM is not carried', () => {
+  const suggested = hold({ what: 'Daily team meeting', agreed_by: ['Sam', 'Dana Lee'], cadence: { every: 'day', time_zone: 'UTC' }, suggested_at: '15:00' });
+  assert.equal(suggested.needs_time, true);
+  assert.equal(suggested.suggested_at, '15:00');
+  assert.match(suggested.said, /Suggested: 15:00\./);
+  const bad = hold({ what: 'Daily team meeting', agreed_by: ['Sam'], cadence: { every: 'day', time_zone: 'UTC' }, suggested_at: '3pm' });
+  assert.equal(bad.suggested_at, null);
+  assert.doesNotMatch(bad.said, /Suggested/);
+});
+
+test('ask_time asks for a time with the suggestion it is given, else the cadence time, and adds the reason', () => {
+  const agreement = { agreement_id: 'agreement-1', group, what: 'Daily team meeting', agreed_by: ['Sam', 'Dana Lee'], cadence: { every: 'day', at: '16:00', time_zone: 'UTC' } };
+  const asked = holdToIt({ policy, group, operation: 'ask_time', agreement, because: 'Nobody said the time.' }, { now: at('2026-03-02T08:00:00Z') });
+  assert.equal(asked.suggested_at, '16:00');
+  assert.match(asked.said, /Suggested: 16:00\..*Nobody said the time\./);
+  const chosen = holdToIt({ policy, group, operation: 'ask_time', agreement, suggested_at: '15:00' }, { now: at('2026-03-02T08:00:00Z') });
+  assert.equal(chosen.suggested_at, '15:00');
+  assert.throws(() => holdToIt({ policy, group: 'other-club', operation: 'ask_time', agreement }, { now: at('2026-03-02T08:00:00Z') }), /does not belong to this group/);
+});

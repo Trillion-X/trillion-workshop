@@ -24,7 +24,7 @@ import { readFileSync } from 'node:fs';
 import { addCivilDays, instantAt, timeZoneName, wallTimeOf, weekday } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 
 export const readSettings = () => JSON.parse(readFileSync(new URL('./hold-to-it.json', import.meta.url), 'utf8'));
-const OPERATIONS = ['keep', 'retime', 'remind', 'check', 'mark', 'scorecard', 'agreements'];
+const OPERATIONS = ['keep', 'retime', 'remind', 'check', 'mark', 'scorecard', 'agreements', 'ask_time'];
 const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 const refuse = words => { throw new Error(words); };
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : null);
@@ -176,6 +176,16 @@ export function holdToIt(input, { now = () => Date.now() } = {}) {
     const items = Array.isArray(input.agreements) ? input.agreements.filter(row => row && typeof row === 'object') : [];
     return { agreements: items.slice(0, settings.agreements_limit).map(item => ({ agreement_id: item.item_id, what: item.title, ...item.body })) };
   }
+  // The person is asked to choose a time for a held agreement that has none: the suggestion is the one given, else its cadence's, and any reason is added.
+  if (operation === 'ask_time') {
+    const held = input.agreement;
+    if (!held || typeof held !== 'object' || !text(held.agreement_id)) refuse(words.needs_agreement);
+    if (held.group !== group) refuse(fill(words.no_agreement, { agreement_id: held.agreement_id }));
+    const suggested = /^\d{2}:\d{2}$/.test(String(input.suggested_at ?? '')) ? input.suggested_at : (held.cadence?.at ?? null);
+    const because = text(input.because);
+    const body = fill(suggested ? words.choose_time_suggested : words.choose_time, { what: held.what, who: list(held.agreed_by ?? []), suggested });
+    return { agreement_id: held.agreement_id, suggested_at: suggested, said: because ? `${body} ${because}` : body };
+  }
   const policy = policyOf(input, settings);
   const current = now();
 
@@ -211,9 +221,10 @@ export function holdToIt(input, { now = () => Date.now() } = {}) {
     const { agreement_id: heldId, ...held } = input.agreement && input.agreement.agreement_id === agreementId ? input.agreement : {};
     const agreement = { agreement_id: heldId ?? agreementId, ...held, ...value };
     const said = fill(isTimed(cadence) ? words.kept : words.kept_no_time, { what, who: list(agreedBy), remind: policy.defaults.remind_minutes });
+    const suggestedAt = /^\d{2}:\d{2}$/.test(String(input.suggested_at ?? '')) ? input.suggested_at : null;
     return isTimed(cadence)
       ? { agreement, said, ...arming(agreementId, cadence) }
-      : { agreement, needs_time: true, said };
+      : { agreement, needs_time: true, suggested_at: suggestedAt, said: suggestedAt ? `${said} Suggested: ${suggestedAt}.` : said };
   }
 
   if (operation === 'retime') {
