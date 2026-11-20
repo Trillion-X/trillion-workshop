@@ -10,7 +10,8 @@
 // The engine replays the definition from the start with the answers held. A step whose answer is held is answered with
 // it. Every other ask waits: one whose name is a tool id is handed back as a wake effect that runs that tool with the
 // step's input and tells its result back as the fact `workflow-step-answered` (wake's `reply`), which runs this again
-// with that answer. Any other name is told as the fact `workflow-step-waiting`, carrying what it asks, whom, and the
+// with that answer. A name the run's own door answers (ask-rights.json `asks`, tools:list) is handed back as the engine's
+// door effect, made as the run's own party and told back the same way. Any other name is told as the fact `workflow-step-waiting`, carrying what it asks, whom, and the
 // envelope its answer is told back in (`told_as`); whatever the person's own wakes do with it (none, one or many) ends by
 // telling `workflow-step-answered` with that envelope and the answer. A step that asks `wake:arrive` (the engine's own
 // operation) is answered at once and told as the fact it gives ({kind, event_id?, payload}) when the run ends. A step
@@ -25,6 +26,35 @@ const ANSWERED: &str = "workflow-step-answered";
 const WAITING: &str = "workflow-step-waiting";
 /// The engine's own operation for telling a fact: a step that asks it is told as that fact when the run ends.
 const TELL: &str = "wake:arrive";
+/// The asks a step may make of its run's own door, as DATA (tools/workflows/ask-rights.json `asks`, fingerprinted with this
+/// crate through Cargo.toml's compiled-module source-files): each is handed back as the engine's door effect
+/// (trillion-rust src/wake.rs `Effect::Door`), which makes it as the run's party and tells its answer back as a tool's is.
+/// `wake:arrive` among them is answered here (`TELL`).
+const ASK_RIGHTS: &str = include_str!("../../../ask-rights.json");
+
+/// The names in `ASK_RIGHTS` the door makes for a run: every declared ask but `TELL`.
+fn door_asks() -> BTreeSet<String> {
+    let rights: Value = serde_json::from_str(ASK_RIGHTS).unwrap_or_else(|error| fail(format!("ask-rights.json does not read: {error}")));
+    rights["asks"].as_object().map(|asks| asks.keys().filter(|name| *name != TELL).cloned().collect()).unwrap_or_default()
+}
+
+/// The effect one waiting step is handed out as, told back as `told`: a tool id starts that tool (a step whose input is
+/// exactly the door's call shape asks the tool's session one question, wake's `call`); a name the run's door answers is
+/// the engine's door effect; any other ask is told as the fact `workflow-step-waiting` for whoever answers it.
+fn effect_of(waiting: &Value, told: Value, doors: &BTreeSet<String>, workflow: &str) -> Value {
+    let name = waiting["for"].as_str().unwrap_or_default();
+    if name.starts_with("tool:") {
+        return match waiting["asks"].as_object().filter(|asks| asks.len() == 1).and_then(|asks| asks.get("call")) {
+            Some(call) => json!({ "wake": { "tool": name, "call": call, "reply": told } }),
+            None => json!({ "wake": { "tool": name, "input": waiting["asks"], "reply": told } }),
+        };
+    }
+    if doors.contains(name) {
+        return json!({ "door": { "name": name, "input": waiting["asks"], "reply": told } });
+    }
+    json!({ "arrive": { "source": WAITING, "event_id": told["event_id"], "payload": { "workflow": workflow, "step": waiting["step"], "for": name, "asks": waiting["asks"], "told_as": told } } })
+}
+
 /// The fields of a run that are the run's own, not the workflow's input.
 const KEPT: [&str; 8] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused"];
 
@@ -203,23 +233,14 @@ fn main() {
     // the listed row's wake matches.
     let told_as = |step: &Value, name: &Value| json!({ "source": ANSWERED, "event_id": format!("{run_id}:{}", step.as_str().unwrap_or_default()),
         "payload": { "workflow": id, "run": run, "step": step, "for": name } });
-    // A name the engine can start (a tool id) is started with a reply; every other ask is told as a fact.
+    // A name the engine can start (a tool id) or make (a door ask) is handed back with a reply; every other ask is told as
+    // a fact.
     // One waiting step is handed out per pass, the first the walk reached. The run is carried in each answer's envelope
     // and kept nowhere else, so two steps handed out together would each come back with the run as it stood before
     // either answered, and the second answer back would lose the first. The next pass hands out the next one.
     let mut effects: Vec<Value> = told.into_iter().map(|(_, _, fact)| fact).collect();
-    effects.extend(waiting.iter().take(1).map(|w| {
-        let told = told_as(&w["step"], &w["for"]);
-        if w["for"].as_str().is_some_and(|name| name.starts_with("tool:")) {
-            // A step whose input is exactly the door's call shape asks the tool's session one question (wake's `call`).
-            match w["asks"].as_object().filter(|asks| asks.len() == 1).and_then(|asks| asks.get("call")) {
-                Some(call) => json!({ "wake": { "tool": w["for"], "call": call, "reply": told } }),
-                None => json!({ "wake": { "tool": w["for"], "input": w["asks"], "reply": told } }),
-            }
-        } else {
-            json!({ "arrive": { "source": WAITING, "event_id": told["event_id"], "payload": { "workflow": id, "step": w["step"], "for": w["for"], "asks": w["asks"], "told_as": told } } })
-        }
-    }));
+    let doors = door_asks();
+    effects.extend(waiting.iter().take(1).map(|w| effect_of(w, told_as(&w["step"], &w["for"]), &doors, &id)));
     let waiting: Vec<Value> = waiting.into_iter().map(|mut w| { w["told_as"] = told_as(&w["step"], &w["for"]); w }).collect();
     let result = json!({ "status": walked["status"], "workflow": id, "run": run_id, "steps": steps, "waiting": waiting });
     // A walk that failed is a failed run: it ends with exit 1 and the engine's words, so the wake that started it is
@@ -275,6 +296,20 @@ mod tests {
         assert_eq!(pass(json!({})).len(), 2, "the walk reaches both items");
         assert_eq!(pass(json!({ "each_iter_0/ask": 1 })).len(), 1, "an answered item stops waiting");
         assert!(pass(json!({ "each_iter_0/ask": 1, "each_iter_1/ask": 2 })).is_empty());
+    }
+
+    // A step that asks a door operation the run's door answers (tools:list) is handed back as the door effect with its
+    // reply, never told as a person's ask; a tool id still starts the tool, and any other name still waits for its answerer.
+    #[test]
+    fn a_door_ask_is_handed_back_as_the_door_effect_not_a_persons_ask() {
+        let doors = door_asks();
+        assert!(doors.contains("tools:list") && !doors.contains(TELL), "{doors:?}");
+        let told = json!({ "source": ANSWERED, "event_id": "r:read" });
+        let waiting = |name: &str| json!({ "step": "read", "for": name, "asks": { "tool": "tool:x" } });
+        assert_eq!(effect_of(&waiting("tools:list"), told.clone(), &doors, "w"),
+            json!({ "door": { "name": "tools:list", "input": { "tool": "tool:x" }, "reply": told } }));
+        assert_eq!(effect_of(&waiting("tool:x"), told.clone(), &doors, "w")["wake"]["tool"], "tool:x");
+        assert_eq!(effect_of(&waiting("anyone"), told.clone(), &doors, "w")["arrive"]["source"], WAITING);
     }
 
     // Each loop item waits under its own place in the run, and a top-level step under its own id.

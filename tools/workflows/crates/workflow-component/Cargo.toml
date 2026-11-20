@@ -17,3 +17,7 @@ async-trait.workspace = true
 serde_json.workspace = true
 futures.workspace = true
 chrono.workspace = true
+
+# ask-rights.json is read into the component (main.rs `ASK_RIGHTS`), so a change to it builds the component again.
+[package.metadata.compiled-module]
+source-files = ["../../ask-rights.json"]
