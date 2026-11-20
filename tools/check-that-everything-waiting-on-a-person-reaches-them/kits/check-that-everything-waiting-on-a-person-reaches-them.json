@@ -5,7 +5,8 @@
   "no_lists_because": "It names no list of yours: it takes the cards it is given and answers, and keeps no row.",
   "workflows": [],
   "tools": [
-    "tool:check-that-everything-waiting-on-a-person-reaches-them"
+    "tool:check-that-everything-waiting-on-a-person-reaches-them",
+    "tool:serve-the-task-pages"
   ],
   "instructions": [
     "1. Say to your AI: \"Check that everything waiting on me has a working control\", and give it the cards (each with its id, title and the place or steps it names).",

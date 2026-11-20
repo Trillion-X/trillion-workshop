@@ -16,7 +16,7 @@
         "label": "Check that every waiting thing has a working control",
         "status": "active",
         "job": "Check the waiting things you gave me: for each one, say whether it reaches the person with a control (a press, a place to do it, or steps), and list the ones that do not.",
-        "description": "Give cards: { sections: [{ id, batch?, finish?, cards: [{ id, title, does_in?, finish?, response?, detail? }] }], finishes?, origin? }. Returns checked, without_control and broken (each { id, title, why }). Pure: it reads nothing and holds no key. A card whose id starts with check: is never counted.",
+        "description": "Give cards: { sections: [{ id, batch?, finish?, cards: [{ id, title, does_in?, finish?, response?, detail?, source_reference? }] }], finishes?, origin?, served? }. Returns checked, without_control and broken (each { id, title, why }). A card that opens its own place passes only when its source_reference is a screen the catalog serves, or, for a calendar task, when served names tool:serve-the-task-pages. Pure: it reads nothing and holds no key, so served is the caller's word. Gap: a task's own entry on the page is not proven; the page is judged as served, not each task on it. A card whose id starts with check: is never counted.",
         "input_schema": {
           "type": "object",
           "required": [
