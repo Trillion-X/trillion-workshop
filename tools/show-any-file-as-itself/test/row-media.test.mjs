@@ -1,14 +1,22 @@
 // Tests for a row's media source (web/row-media.mjs). The rows are made up.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { bodyOf, mediaOf, sourceOf } from '../web/row-media.mjs';
+import { bodyOf, filesOf, mediaOf, sourceOf } from '../web/row-media.mjs';
 
-test('a YouTube address with no type is the player\'s, and its address is the one the field holds', () => {
+test('a YouTube address with no type is the player\'s embed, and its address is the one the field holds', () => {
   const source = sourceOf({ playback_url: 'https://www.youtube-nocookie.com/embed/abc123' }, 'row:video');
   assert.equal(source.kind, 'media');
   assert.deepEqual(source.media, {
-    id: 'row:video', label: '', mime_type: undefined, source_kind: 'video', playback_url: 'https://www.youtube-nocookie.com/embed/abc123', poster_url: undefined,
+    id: 'row:video', label: '', mime_type: undefined, source_kind: 'youtube', embed_url: 'https://www.youtube-nocookie.com/embed/abc123', poster_url: undefined,
   });
+});
+
+test('a row\'s list of files is each of its sources in order, and an item with no address is left out', () => {
+  const row = { resources: [{ url: 'https://files.example.test/a.pdf', mime_type: 'application/pdf', label: 'A' }, { label: 'no address' }, 'https://files.example.test/b.txt'] };
+  assert.deepEqual(filesOf(row, 'resources').map(source => source.file.label), ['A', '']);
+  assert.deepEqual(filesOf(row, 'resources')[1].file.url, 'https://files.example.test/b.txt');
+  assert.deepEqual(filesOf(row, 'missing'), []);
+  assert.deepEqual(filesOf({ resources: 'x' }, 'resources'), []);
 });
 
 test('a sound or video type is the player\'s, and a sound is a sound source', () => {

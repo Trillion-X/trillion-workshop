@@ -25,7 +25,7 @@ function hostOf(address) {
  * @param {unknown} held
  * @param {string} id
  * @param {string} [label]
- * @returns {{ kind: 'file', file: { url: string, contentType: string, label: string }, media?: undefined } | { kind: 'media', media: { id: string, label: string, mime_type: string | undefined, source_kind: 'audio' | 'video', playback_url: string, poster_url: string | undefined }, file?: undefined } | null}
+ * @returns {{ kind: 'file', file: { url: string, contentType: string, label: string }, media?: undefined } | { kind: 'media', media: { id: string, label: string, mime_type: string | undefined, source_kind: 'audio' | 'video' | 'youtube', playback_url?: string, embed_url?: string, poster_url: string | undefined }, file?: undefined } | null}
  */
 export function sourceOf(held, id, label = '') {
   const source = typeof held === 'string' ? { playback_url: held } : held;
@@ -34,19 +34,23 @@ export function sourceOf(held, id, label = '') {
   if (!address) return null;
   const mime = text(source.mime_type) ?? text(source.content_type);
   const name = text(source.label) ?? label;
-  const isPlayable = mime?.startsWith('audio/') || mime?.startsWith('video/') || (!mime && YOUTUBE_HOST.test(hostOf(address)));
+  const isYouTube = !mime && YOUTUBE_HOST.test(hostOf(address));
+  const isPlayable = mime?.startsWith('audio/') || mime?.startsWith('video/') || isYouTube;
   if (!isPlayable) return { kind: 'file', file: { url: address, contentType: mime ?? '', label: name } };
-  return {
-    kind: 'media',
-    media: {
-      id,
-      label: name,
-      mime_type: mime,
-      source_kind: mime?.startsWith('audio/') ? 'audio' : 'video',
-      playback_url: address,
-      poster_url: text(source.poster_url),
-    },
-  };
+  const common = { id, label: name, mime_type: mime, poster_url: text(source.poster_url) };
+  // A YouTube address plays through the player's own embed (its embed_url, with allowEmbeddedDocument), not as a file.
+  if (isYouTube) return { kind: 'media', media: { ...common, source_kind: 'youtube', embed_url: address } };
+  return { kind: 'media', media: { ...common, source_kind: mime.startsWith('audio/') ? 'audio' : 'video', playback_url: address } };
+}
+
+/** The file sources a row's field holds as a list (its resources), in order; a source with no address is left out. */
+export function filesOf(value, field) {
+  const held = field && value ? value[field] : undefined;
+  if (!Array.isArray(held)) return [];
+  return held.flatMap((item, index) => {
+    const source = sourceOf(item, `${field}:${index}`, '');
+    return source ? [source] : [];
+  });
 }
 
 /** The source a row's field holds, or null when the row holds none there. */

@@ -57,6 +57,8 @@ function AddName({ onAdd }: { onAdd: (name: string) => void }) {
 export type TranscriptReaderSurfaceProps = {
   /** Note tools: rename a speaker, copy a moment's link, split a passage, copy, export, reprocess. */
   tools?: TranscriptTools;
+  /** Whether the reader draws its own bordered card. A host that already sits in a pane with its own card turns it off. */
+  framed?: boolean;
   currentTimeSeconds?: number;
   entry?: TranscriptEntry;
   /** Ordered results from meaning-search, mapped to this transcript's segment ids. */
@@ -141,6 +143,7 @@ export function TranscriptReaderSurface({
   selectedRange,
   onSelectRange,
   tools,
+  framed = true,
 }: TranscriptReaderSurfaceProps) {
   // The word the person last chose is the caret a split falls before.
   const [caret, setCaret] = React.useState<{ segment: string; word: number } | null>(null);
@@ -255,7 +258,7 @@ export function TranscriptReaderSurface({
 
   return (
     <section
-      className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl border border-[var(--border-primary)] bg-[var(--glass-bg-subtle)]"
+      className={framed ? 'flex h-full min-h-0 flex-col overflow-hidden rounded-xl border border-[var(--border-primary)] bg-[var(--glass-bg-subtle)]' : 'flex h-full min-h-0 flex-col overflow-hidden'}
       data-package="transcript-reader"
       data-surface="transcript-reader"
       data-testid="transcript-reader-surface"

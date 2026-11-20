@@ -24,6 +24,7 @@ import { hostWithin } from 'trillion-workshop/tools/http-client/do-work/same-ori
 import type { MediaEmbedControl, MediaSourceRecord } from '../../show-any-file-as-itself/read-data/read-media-playback';
 import { privateObjectControl, privateObjectView } from '../../show-any-file-as-itself/read-data/private-object-request';
 import type { PrivateObjectCopy, PrivateObjectReply } from '../../show-any-file-as-itself/read-data/private-object-request';
+import { subtitleWordsOf } from '../read-data/subtitle-window.mjs';
 
 /** The one play mark every player in Trillion draws over a still or a paused picture: a frosted dark disc with a white
  *  glyph (the icon's own box is the disc), drawn the same for a browser video, an embedded one and a paused one. */
@@ -66,6 +67,13 @@ export type MediaPlaybackSurfaceProps = {
   seekRequest?: MediaPlaybackSeekRequest | null;
   showFrameChrome?: boolean;
   statusLabel?: string;
+  /** Whether the captions are on when the player opens (the viewer's caption button turns them off and on). Used when the
+   * timed text is there to show; without timed text there are no captions to turn on. */
+  captionsStartOn?: boolean;
+  /** How many lines of the caption passage the caption block shows (the look's default when left out). */
+  captionLines?: number;
+  /** `subtitle` draws the caption as subtitles (the words said now, two lines at most); `passage` (the default) draws the caption reader. */
+  captionStyle?: CaptionStyle;
   timedTextSegments?: readonly TimedTextSegment[];
   transcriptVisible?: boolean;
   /** Where the host shows the transcript. `beside-media` means the host renders its own
@@ -409,6 +417,15 @@ export function youtubePlayerVars(control: MediaEmbedControl | undefined, videoI
   return vars;
 }
 
+// YouTube's own caption track stays off: the surface draws its own captions from the timed text. Playing the video loads the
+// captions module again (an account preference or the video's own track can do it), so the player is silenced on ready and on
+// every play, and unloading plus clearing the track covers both module ids the player API has used.
+function silenceYouTubeCaptions(player: YouTubePlayerHandle) {
+  player.unloadModule?.('captions');
+  player.unloadModule?.('cc');
+  player.setOption?.('captions', 'track', {});
+}
+
 function loadYouTubeIframeApi(onReady: () => void) {
   if (typeof window === 'undefined') return () => {};
   if (window.YT?.Player) {
@@ -650,7 +667,32 @@ function releasePointerCaptureIfAvailable(element: Element, pointerId: number) {
 
 export type CaptionPlacement = 'over-picture' | 'below-picture';
 
+/** How the caption draws: `passage` is the caption reader (a panel of the text around the word said); `subtitle` is the words said
+ *  now, in at most two lines over the bottom of the picture, the way subtitles read. */
+export type CaptionStyle = 'passage' | 'subtitle';
+
+/** The caption as subtitles read: the words said now, in at most two lines over the bottom of the picture, on a translucent band
+ *  that hugs the text. No panel, no previous lines and no controls of its own; the player's own caption button turns it off. */
+function SubtitleCaption({ currentTime, segments }: { currentTime: number; segments?: readonly TimedTextSegment[] }) {
+  const index = activeTimedTextSegmentIndex(segments, currentTime);
+  const segment = index >= 0 ? segments?.[index] : undefined;
+  if (!segment) return null;
+  const shown = subtitleWordsOf(segment, currentTime);
+  return (
+    <div className="pointer-events-none absolute inset-x-0 bottom-16 z-20 flex justify-center px-[6%]" data-media-caption-style="subtitle">
+      <p className="m-0 max-w-full text-center font-medium leading-snug text-white line-clamp-2 text-[clamp(0.9rem,1.7vw,1.6rem)] [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]">
+        <span className="rounded-md bg-black/60 px-3 py-1 [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
+          {shown.words.length ? shown.words.map((word: { word: string; active: boolean }, offset: number) => (
+            <span key={offset} className={word.active ? 'text-white' : 'text-white/70'}>{offset > 0 ? ' ' : ''}{word.word}</span>
+          )) : segment.text}
+        </span>
+      </p>
+    </div>
+  );
+}
+
 export function TimedTextCaptionOverlay({
+  lines = captionReaderLook.readableLines,
   placement = 'over-picture',
   controlsVisible,
   currentTime,
@@ -658,6 +700,8 @@ export function TimedTextCaptionOverlay({
   segments,
   storageScope,
 }: {
+  /** How many lines of the passage the caption reader is tall enough to show (the look's `readableLines` by default). */
+  lines?: number;
   placement?: CaptionPlacement;
   controlsVisible: boolean;
   currentTime: number;
@@ -712,7 +756,7 @@ export function TimedTextCaptionOverlay({
     widestWord > 0 ? (readerWidth - captionReaderLook.inlineInset * 2 - captionReaderLook.wordInlineInset) / widestWord : Infinity,
   )));
   const scaledFontSize = Math.max(captionReaderLook.minimumFont, Math.min(maximumFontSize, Math.round(fontSize * fontScale)));
-  const readableHeight = Math.ceil(scaledFontSize * captionReaderLook.lineHeight * captionReaderLook.readableLines + captionReaderLook.textInset * 2 + (docked ? captionReaderLook.passageBlockInset * 2 : 0));
+  const readableHeight = Math.ceil(scaledFontSize * captionReaderLook.lineHeight * lines + captionReaderLook.textInset * 2 + (docked ? captionReaderLook.passageBlockInset * 2 : 0));
   const height = docked ? toolbarHeight + readableHeight : Math.min(availableHeight, Math.max(toolbarHeight + readableHeight, Math.min(containerSize.height * 0.5, containerSize.height * heightRatio)));
   const defaultTopSafeInset = Math.max(safeInset, containerSize.height * 0.1);
   const defaultBottomSafeInset = Math.max(120, containerSize.height * 0.28);
@@ -1327,6 +1371,8 @@ type BrowserMediaPlayerProps = {
   transcriptPlacement?: TranscriptPlacement;
   type: 'audio' | 'video';
   autoPlay?: boolean;
+  captionsStartOn?: boolean;
+  captionStyle?: CaptionStyle;
   preload?: 'none' | 'metadata' | 'auto';
   releaseUnplayedSourceWhenIdle?: boolean;
 };
@@ -1367,6 +1413,8 @@ function useSoundPeaks(sourceUrl: string | null, mimeType: string | undefined): 
 export function BrowserMediaPlayer({
   captionPlacement = 'below-picture',
   autoPlay = false,
+  captionsStartOn = false,
+  captionStyle = 'passage',
   preload = 'auto',
   releaseUnplayedSourceWhenIdle = false,
   playbackRanges,
@@ -1438,7 +1486,7 @@ export function BrowserMediaPlayer({
   const [controlPortalContainer, setControlPortalContainer] = React.useState<HTMLDivElement | null>(null);
   const [playbackSpeed, setPlaybackSpeed] = React.useState(1);
   const [progress, setProgress] = React.useState(0);
-  const [showCaptions, setShowCaptions] = React.useState(false);
+  const [showCaptions, setShowCaptions] = React.useState(Boolean(captionsStartOn));
   const [showControls, setShowControls] = React.useState(false);
   // A sound shows its words under it from the start; a video's reader opens when asked.
   const [uncontrolledTranscriptVisible, setUncontrolledTranscriptVisible] = React.useState(type === 'audio');
@@ -1798,7 +1846,8 @@ export function BrowserMediaPlayer({
             <PlayDisc />
           </button>
         ) : null}
-        {showCaptions && captionPlacement === 'over-picture' ? <TimedTextCaptionOverlay controlsVisible={controlsVisible} currentTime={currentTime} onSeek={seekToSeconds} segments={timedTextSegments} storageScope={media.id} /> : null}
+        {showCaptions && captionStyle === 'subtitle' ? <SubtitleCaption currentTime={currentTime} segments={timedTextSegments} /> : null}
+        {showCaptions && captionStyle !== 'subtitle' && captionPlacement === 'over-picture' ? <TimedTextCaptionOverlay controlsVisible={controlsVisible} currentTime={currentTime} onSeek={seekToSeconds} segments={timedTextSegments} storageScope={media.id} /> : null}
         <PlaybackCompletionOverlay
           actions={completionActions}
           onRestart={restartPlayback}
@@ -1837,7 +1886,7 @@ export function BrowserMediaPlayer({
         title={media.label ?? 'Transcript'}
         visible={showTranscript && (transcriptPlacement !== 'beside-media' || isFullscreen)}
       />
-      {showCaptions && captionPlacement === 'below-picture' ? <TimedTextCaptionOverlay placement="below-picture" controlsVisible={controlsVisible} currentTime={currentTime} onSeek={seekToSeconds} segments={timedTextSegments} storageScope={media.id} /> : null}
+      {showCaptions && captionStyle !== 'subtitle' && captionPlacement === 'below-picture' ? <TimedTextCaptionOverlay placement="below-picture" controlsVisible={controlsVisible} currentTime={currentTime} onSeek={seekToSeconds} segments={timedTextSegments} storageScope={media.id} /> : null}
     </div>
   );
 }
@@ -1859,9 +1908,17 @@ type ControlledEmbedPlayerProps = {
   /** Where the host shows the transcript. `beside-media` means the host renders its own
    * transcript reader next to the player, so the in-player panel appears only in fullscreen. */
   transcriptPlacement?: TranscriptPlacement;
+  captionsStartOn?: boolean;
+  captionLines?: number;
+  captionStyle?: CaptionStyle;
+  captionPlacement?: CaptionPlacement;
 };
 
 function ControlledEmbedPlayer({
+  captionLines,
+  captionStyle = 'passage',
+  captionPlacement = 'below-picture',
+  captionsStartOn = false,
   completionActions,
   media,
   onPause,
@@ -1895,7 +1952,7 @@ function ControlledEmbedPlayer({
   const [controlPortalContainer, setControlPortalContainer] = React.useState<HTMLDivElement | null>(null);
   const [playbackSpeed, setPlaybackSpeed] = React.useState(1);
   const [progress, setProgress] = React.useState(0);
-  const [showCaptions, setShowCaptions] = React.useState(false);
+  const [showCaptions, setShowCaptions] = React.useState(Boolean(captionsStartOn));
   const [showControls, setShowControls] = React.useState(true);
   const [uncontrolledTranscriptVisible, setUncontrolledTranscriptVisible] = React.useState(false);
   const [volume, setVolume] = React.useState(100);
@@ -2007,12 +2064,8 @@ function ControlledEmbedPlayer({
             if (!isYouTubePlayerHandle(readyPlayer)) return;
             youTubePlayerRef.current = readyPlayer;
             // Force YouTube's native captions OFF — the surface has its own caption
-            // reader. cc_load_policy:0 only suppresses AUTO-show; a viewer whose
-            // YouTube account forces "always show captions" still gets them unless we
-            // unload the module here. Both module ids are tried across API versions;
-            // the calls are optional-chained so an older player without them no-ops.
-            readyPlayer.unloadModule?.('captions');
-            readyPlayer.unloadModule?.('cc');
+            // reader. cc_load_policy:0 only suppresses AUTO-show; see silenceYouTubeCaptions.
+            silenceYouTubeCaptions(readyPlayer);
             readyPlayer.setVolume(volume);
             if (isMuted) readyPlayer.mute();
             publishTiming(readyPlayer.getCurrentTime(), readyPlayer.getDuration());
@@ -2029,6 +2082,7 @@ function ControlledEmbedPlayer({
               setStarted(true);
               setEndedMediaId(null);
               setPlaying(true);
+              if (isYouTubePlayerHandle(activePlayer)) silenceYouTubeCaptions(activePlayer);
             }
             if (state === window.YT?.PlayerState?.PAUSED || state === 2) setPlaying(false);
             if (state === window.YT?.PlayerState?.ENDED || state === 0) {
@@ -2306,7 +2360,13 @@ function ControlledEmbedPlayer({
           <PlayDisc />
         </button>
       ) : null}
-      {showCaptions ? <TimedTextCaptionOverlay controlsVisible={showControls} currentTime={currentTime} onSeek={seekToSeconds} segments={timedTextSegments} storageScope={media.id} /> : null}
+      {showCaptions && captionStyle === 'subtitle' ? <SubtitleCaption currentTime={currentTime} segments={timedTextSegments} /> : null}
+      {showCaptions && captionStyle !== 'subtitle' ? (
+        // The picture is the whole frame here, so captions placed below it take the picture's bottom edge, above the controls bar.
+        <div className={captionPlacement === 'below-picture' ? 'absolute inset-x-0 bottom-16 z-20' : undefined}>
+          <TimedTextCaptionOverlay lines={captionLines} placement={captionPlacement} controlsVisible={showControls} currentTime={currentTime} onSeek={seekToSeconds} segments={timedTextSegments} storageScope={media.id} />
+        </div>
+      ) : null}
       <FullscreenTimedTextOverlay
         currentTime={currentTime}
         onSeek={seekToSeconds}
@@ -2478,6 +2538,9 @@ export function MediaPlaybackSurface({
   onPrivateDeliveryAction,
   seekRequest,
   showFrameChrome = true,
+  captionLines,
+  captionStyle = 'passage',
+  captionsStartOn,
   statusLabel,
   timedTextSegments,
   transcriptPlacement,
@@ -2505,6 +2568,8 @@ export function MediaPlaybackSurface({
   const player = sourceUrl && elementKind ? (
     <BrowserMediaPlayer
       captionPlacement={captionPlacement}
+      captionStyle={captionStyle}
+      captionsStartOn={captionsStartOn}
       autoPlay={autoPlay}
       preload={preload}
       releaseUnplayedSourceWhenIdle={releaseUnplayedSourceWhenIdle}
@@ -2525,6 +2590,10 @@ export function MediaPlaybackSurface({
     />
   ) : usesControlledEmbed && media.embed_url ? (
     <ControlledEmbedPlayer
+      captionLines={captionLines}
+      captionStyle={captionStyle}
+      captionPlacement={captionPlacement}
+      captionsStartOn={captionsStartOn}
       completionActions={completionActions}
       media={media}
       onPause={onPause}
