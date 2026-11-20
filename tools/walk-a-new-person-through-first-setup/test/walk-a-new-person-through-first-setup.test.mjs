@@ -79,7 +79,7 @@ test('the plan names no store to read toolkits from: the starters travel with th
   assert.equal(plan.toolkits, undefined, 'no toolkits are offered until they are asked for');
   const offered = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkits: [] }).toolkits;
   assert.deepEqual(offered.offered.map(row => row.id), STARTERS);
-  assert.deepEqual(offered.swaps.map(swap => swap.id), ['toolkit-swap:my-own-domain-and-sign-in', 'toolkit-swap:no-domain-of-my-own', 'toolkit-swap:a-machine-i-already-run']);
+  assert.deepEqual(offered.swaps.map(swap => swap.id), ['toolkit-swap:my-own-domain-and-sign-in', 'toolkit-swap:a-machine-i-already-run']);
   assert.equal(offered.cart.toolkit, STARTERS[0]);
 });
 
@@ -93,10 +93,10 @@ test('a person\'s row with a starter\'s id stands in its place, and their own de
 });
 
 test('a swap is picked by its row id, into the named toolkit or the default one, and run as a listed row by its id', () => {
-  const into = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkit_choice: { toolkit: STARTERS[1], swap: 'toolkit-swap:no-domain-of-my-own' } }).toolkits.cart;
+  const into = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkit_choice: { toolkit: STARTERS[1], swap: 'toolkit-swap:my-own-domain-and-sign-in' } }).toolkits.cart;
   assert.equal(into.toolkit, STARTERS[1]);
-  assert.deepEqual(into.swapped, ['domain']);
-  assert.equal(into.stack.domain[0].label, 'tool:name_site');
+  assert.deepEqual(into.swapped, ['domain', 'sign-in']);
+  assert.equal(into.stack.domain[0].label, 'tool:cut-a-hostname-over-to-a-new-address');
   const byRow = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, row: 'toolkit-swap:a-machine-i-already-run' }).toolkits.cart;
   assert.equal(byRow.toolkit, STARTERS[0]);
   assert.equal(byRow.stack.hosting[0].id, 'adopt-my-machine');

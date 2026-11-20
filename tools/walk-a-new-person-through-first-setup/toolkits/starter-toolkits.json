@@ -47,10 +47,18 @@
          ],
          "hosting": [
           {
-           "id": "workshop-publish",
-           "door": "tool:publish_site",
+           "id": "my-own-computer",
+           "door": "tool:start-a-computer",
            "speaks": "tools:run",
-           "label": "tool:publish_site"
+           "label": "tool:start-a-computer",
+           "credential": "hetzner-api-token"
+          },
+          {
+           "id": "adopt-my-machine",
+           "door": "tool:start-a-computer",
+           "speaks": "tools:run",
+           "label": "tool:start-a-computer",
+           "credential": "my-machine-ssh-key"
           }
          ],
          "sign-in": [
@@ -118,10 +126,18 @@
          ],
          "hosting": [
           {
-           "id": "workshop-publish",
-           "door": "tool:publish_site",
+           "id": "my-own-computer",
+           "door": "tool:start-a-computer",
            "speaks": "tools:run",
-           "label": "tool:publish_site"
+           "label": "tool:start-a-computer",
+           "credential": "hetzner-api-token"
+          },
+          {
+           "id": "adopt-my-machine",
+           "door": "tool:start-a-computer",
+           "speaks": "tools:run",
+           "label": "tool:start-a-computer",
+           "credential": "my-machine-ssh-key"
           }
          ],
          "sign-in": [
@@ -141,7 +157,7 @@
           }
          ]
         },
-        "tools": ["tool:run-workflow-definition","tool:check-copy","tool:copy-a-site","tool:publish_site","tool:name_site","tool:attach_domain","tool:critique-a-public-page","tool:pour-example-rows-into-my-list","tool:check-a-page-for-search-and-answer-engines","tool:read-public-web-page","tool:find-a-completed-stripe-checkout","tool:set-up-stripe-payment-links","tool:start-a-stripe-checkout-that-pays-someone-else","tool:stripe-events-read_money_since","tool:send-an-email","tool:list-completed-stripe-checkouts","tool:look-up-a-stripe-checkout","tool:check-what-a-buyer-paid","tool:list-ended-stripe-subscriptions"]
+        "tools": ["tool:run-workflow-definition","tool:check-copy","tool:copy-a-site","tool:critique-a-public-page","tool:pour-example-rows-into-my-list","tool:check-a-page-for-search-and-answer-engines","tool:read-public-web-page","tool:find-a-completed-stripe-checkout","tool:set-up-stripe-payment-links","tool:start-a-stripe-checkout-that-pays-someone-else","tool:stripe-events-read_money_since","tool:send-an-email","tool:list-completed-stripe-checkouts","tool:look-up-a-stripe-checkout","tool:check-what-a-buyer-paid","tool:list-ended-stripe-subscriptions"]
       }
     },
     {
@@ -189,10 +205,18 @@
          ],
          "hosting": [
           {
-           "id": "workshop-publish",
-           "door": "tool:publish_site",
+           "id": "my-own-computer",
+           "door": "tool:start-a-computer",
            "speaks": "tools:run",
-           "label": "tool:publish_site"
+           "label": "tool:start-a-computer",
+           "credential": "hetzner-api-token"
+          },
+          {
+           "id": "adopt-my-machine",
+           "door": "tool:start-a-computer",
+           "speaks": "tools:run",
+           "label": "tool:start-a-computer",
+           "credential": "my-machine-ssh-key"
           }
          ],
          "sign-in": [

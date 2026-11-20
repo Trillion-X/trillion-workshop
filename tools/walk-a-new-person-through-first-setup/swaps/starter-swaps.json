@@ -1,5 +1,5 @@
 {
- "about": "Starter swaps: parts a person swaps into any toolkit's cart, each a published row (type record:toolkit-swap) whose `swap` is handed in as toolkit_choice.swap, so a way of setting up is chosen apart from the work a toolkit does: any toolkit with any swap is a cart, and no toolkit is written once per way. A pointer is the same { id, door, speaks, label?, credential? } a toolkit's stack holds (read-data/stack-policy.json); a credential is the NAME a person keeps the key under in their vault, never the key. Each part named here is a tool the Workshop ships. The ways of setting up these cover: a site on the person's own domain with their own sign-in, a site with no domain of its own, and the same on a Linux machine the person already runs. An agency runs the own-domain swap once per client, each its own cart; a person on a phone alone takes the toolkit as it stands, whose sign-in already offers passkeys. A company's own sign-in (OIDC or SAML through its identity provider) has no part yet: the official Better Auth tool runs no single sign-on plugin, so no swap offers it.",
+ "about": "Starter swaps: parts a person swaps into any toolkit's cart, each a published row (type record:toolkit-swap) whose `swap` is handed in as toolkit_choice.swap, so a way of setting up is chosen apart from the work a toolkit does: any toolkit with any swap is a cart, and no toolkit is written once per way. A pointer is the same { id, door, speaks, label?, credential? } a toolkit's stack holds (read-data/stack-policy.json); a credential is the NAME a person keeps the key under in their vault, never the key. Each part named here is a tool the Workshop ships. The starter toolkits already host on a computer of the person's own (rented, or one they run); these swaps cover a site on the person's own domain with their own sign-in, and a Linux machine the person already runs taken first. A site with no domain of its own has no swap: the names it would get under a shared address were given by the forwarder, which the engine dropped on Nov 15 2026 (trillion-rust f450c37a4), and no computer runs it now, so tool:name_site and tool:attach_domain cannot run (each answers no_host_actions). An agency runs the own-domain swap once per client, each its own cart; a person on a phone alone takes the toolkit as it stands, whose sign-in already offers passkeys. A company's own sign-in (OIDC or SAML through its identity provider) has no part yet: the official Better Auth tool runs no single sign-on plugin, so no swap offers it.",
  "records": [
   {
    "id": "toolkit-swap:my-own-domain-and-sign-in",
@@ -7,32 +7,13 @@
     "kind": "toolkit-swap",
     "id": "toolkit-swap:my-own-domain-and-sign-in",
     "title": "My own domain and my own sign-in",
-    "description": "A rented computer of your own serves your site and your sign-in, and your own domain points at it.",
+    "description": "Your own domain points at your computer, and your computer runs your own sign-in.",
     "swap": {
-     "hosting": [
-      { "id": "my-own-computer", "door": "tool:start-a-computer", "speaks": "tools:run", "label": "tool:start-a-computer", "credential": "hetzner-api-token" },
-      { "id": "workshop-publish", "door": "tool:publish_site", "speaks": "tools:run", "label": "tool:publish_site" }
-     ],
      "domain": [
-      { "id": "point-my-domain", "door": "tool:cut-a-hostname-over-to-a-new-address", "speaks": "tools:run", "label": "tool:cut-a-hostname-over-to-a-new-address", "credential": "cloudflare-api-token" },
-      { "id": "attach-my-domain", "door": "tool:attach_domain", "speaks": "tools:run", "label": "tool:attach_domain" }
+      { "id": "point-my-domain", "door": "tool:cut-a-hostname-over-to-a-new-address", "speaks": "tools:run", "label": "tool:cut-a-hostname-over-to-a-new-address", "credential": "cloudflare-api-token" }
      ],
      "sign-in": [
       { "id": "my-own-sign-in", "door": "tool:run-official-better-auth", "speaks": "tools:run", "label": "tool:run-official-better-auth", "credential": "better-auth-secret" }
-     ]
-    }
-   }
-  },
-  {
-   "id": "toolkit-swap:no-domain-of-my-own",
-   "payload": {
-    "kind": "toolkit-swap",
-    "id": "toolkit-swap:no-domain-of-my-own",
-    "title": "No domain of my own",
-    "description": "Your site gets a name under a shared address and answers there while your computer is on.",
-    "swap": {
-     "domain": [
-      { "id": "a-name-for-my-site", "door": "tool:name_site", "speaks": "tools:run", "label": "tool:name_site" }
      ]
     }
    }
