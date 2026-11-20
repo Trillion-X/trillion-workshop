@@ -82,20 +82,17 @@ function pruneRescueRefs(root, origin) {
   });
 }
 
-// Every blob id each candidate path had in origin/main's history (each commit that changed it, both sides), as
-// path -> Set of blob ids. Read once for all candidates, from the history git already holds.
-function historyVersions(root, rev, paths) {
+// Every blob id each path had in origin/main's history (each commit that changed it, both sides), as path -> Set of blob
+// ids. One raw log of the whole history: it is fast, and it is read once for every candidate.
+function historyVersions(root, rev) {
   const versions = new Map();
-  for (let i = 0; i < paths.length; i += 200) {
-    const out = git(root, ['log', '--raw', '--no-abbrev', '--no-renames', '--format=', rev, '--', ...paths.slice(i, i + 200)]);
-    for (const line of out.split('\n')) {
-      if (!line.startsWith(':')) continue;
-      const tab = line.indexOf('\t');
-      const [, , oldOid, newOid] = line.slice(0, tab).split(' ');
-      const p = line.slice(tab + 1);
-      if (!versions.has(p)) versions.set(p, new Set());
-      for (const oid of [oldOid, newOid]) if (!/^0+$/.test(oid)) versions.get(p).add(oid);
-    }
+  for (const line of git(root, ['log', '--raw', '--no-abbrev', '--no-renames', '--format=', rev]).split('\n')) {
+    if (!line.startsWith(':')) continue;
+    const tab = line.indexOf('\t');
+    const [, , oldOid, newOid] = line.slice(0, tab).split(' ');
+    const p = line.slice(tab + 1);
+    if (!versions.has(p)) versions.set(p, new Set());
+    for (const oid of [oldOid, newOid]) if (!/^0+$/.test(oid)) versions.get(p).add(oid);
   }
   return versions;
 }
@@ -171,7 +168,7 @@ export function keepCurrent(root, { now = new Date(), beforeReset = () => {} } =
   const incoming = git(root, ['diff', '--name-only', '--no-renames', '-z', head, origin]).split('\0').filter(Boolean);
   const candidates = [...new Set([...incoming, ...dirty, ...Object.keys(marker)])].sort();
   const disk = workingState(root, candidates, now);
-  const versions = historyVersions(root, origin, candidates);
+  const versions = historyVersions(root, origin);
   const plan = { update: [], removal: [], keep: [], skip: [], marker: {} };
   for (const p of candidates) {
     const headOid = headBlobs.get(p) ?? null;
