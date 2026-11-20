@@ -73,3 +73,41 @@ test('a calendar-task card opens the task page only when the task page tool is s
   assert.equal(unserved.without_control, 1);
   assert.match(unserved.broken[0].why, /resolves to no screen/);
 });
+
+const { countsWithoutControl } = await import('../do-work/controls-check.mjs');
+const TOOL = 'tool:serve-the-task-pages';
+
+test('a served page places every waiting thing with a task-record source; none lack a control', () => {
+  assert.deepEqual(countsWithoutControl({ database: 'database-a', served: [TOOL], waiting: 366, unplaced: 0, examples: [] }),
+    { database: 'database-a', checked: 366, served: true, without_control: 0, examples: [] });
+});
+
+test('a served page still leaves a thing with a non-record source without a place, and names it', () => {
+  const out = countsWithoutControl({ database: 'database-a', served: [TOOL], waiting: 366, unplaced: 1, examples: ['x1'] });
+  assert.equal(out.without_control, 1);
+  assert.deepEqual(out.examples, ['x1']);
+});
+
+test('a page not served leaves every waiting thing without a place', () => {
+  const out = countsWithoutControl({ database: 'database-a', served: [], waiting: 366, unplaced: 0, examples: [] });
+  assert.equal(out.served, false);
+  assert.equal(out.without_control, 366);
+});
+
+test('an empty list is checked as zero and has no control to lack', () => {
+  assert.deepEqual(countsWithoutControl({ served: [TOOL], waiting: 0, unplaced: 0 }), { database: null, checked: 0, served: true, without_control: 0, examples: [] });
+  assert.equal(countsWithoutControl({ served: [], waiting: 0, unplaced: 0 }).without_control, 0);
+});
+
+test('two databases are judged apart: one served, one not', () => {
+  const a = countsWithoutControl({ database: 'a', served: [TOOL], waiting: 10, unplaced: 0 });
+  const b = countsWithoutControl({ database: 'b', served: [], waiting: 10, unplaced: 0 });
+  assert.deepEqual([a.without_control, b.without_control], [0, 10]);
+});
+
+test('a very long list is counted in full and names at most five examples', () => {
+  const ids = Array.from({ length: 9 }, (_, i) => `record:calendar-task:n${i}`);
+  const out = countsWithoutControl({ served: [], waiting: 100000, unplaced: 0, examples: ids });
+  assert.equal(out.without_control, 100000);
+  assert.equal(out.examples.length, 5);
+});

@@ -65,11 +65,31 @@ export function cardsWithoutControl(answer, opensScreen = () => true) {
   return { checked, without_control: broken.length, broken };
 }
 
-// The tool's entry: the input on stdin is { origin?, finishes?, sections }, the output on stdout is the result.
+/** One database's waiting things judged by its counts (the workflow's SQL does the counting). `served` names the tools whose
+ *  page the probe found answering; a waiting thing with a task-record source is placed by its database's task page when
+ *  that page is served, so with it served only the `unplaced` ones have no place; with it not served, all have none.
+ *  Returns { database, checked, served, without_control, examples } with at most five example ids. */
+export function countsWithoutControl(summary) {
+  const served = (summary?.served ?? []).includes(TASK_PAGE_TOOL);
+  const waiting = Number(summary?.waiting ?? 0);
+  const unplaced = Number(summary?.unplaced ?? 0);
+  return {
+    database: summary?.database ?? null,
+    checked: waiting,
+    served,
+    without_control: served ? unplaced : waiting,
+    examples: (summary?.examples ?? []).slice(0, 5),
+  };
+}
+
+// The tool's entry: the input on stdin is either cards { origin?, finishes?, sections, served? } or counts { database?, served, waiting, unplaced, examples? }; the output on stdout is the result.
 if (import.meta.url === `file://${process.argv[1]}`) {
   const chunks = [];
   for await (const chunk of process.stdin) chunks.push(chunk);
   const input = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
-  const opensScreen = input.origin ? opensScreenAt(input.origin) : () => false;
-  process.stdout.write(JSON.stringify(cardsWithoutControl(input, opensScreen)));
+  if (typeof input.waiting === 'number') process.stdout.write(JSON.stringify(countsWithoutControl(input)));
+  else {
+    const opensScreen = input.origin ? opensScreenAt(input.origin) : () => false;
+    process.stdout.write(JSON.stringify(cardsWithoutControl(input, opensScreen)));
+  }
 }
