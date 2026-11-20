@@ -58,7 +58,7 @@
           "ok": true
         }
       },
-      "hands_back": "It answered {\"generation\":1,\"seq\":1} (run on the test's in-memory store; not yet run on a real database)."
+      "hands_back": "It answered {\"generation\":1,\"seq\":1} (pinned run on proofs_for_who_runs_it, 4:33 AM CST Nov 20 2026; the made-up row was removed after the read-back and the tables were left in place)."
     }
   ]
 }

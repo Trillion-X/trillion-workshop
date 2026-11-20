@@ -34,7 +34,7 @@
         "database": "proofs_for_who_runs_it",
         "limit": 10
       },
-      "hands_back": "It answered {\"items\":[{\"seq\":1,\"tool\":\"tool:sample-tool\",\"item\":\"file:sample-note\"}],\"next_before\":null} (run on the test's in-memory store; not yet run on a real database)."
+      "hands_back": "It answered {\"items\":[{\"seq\":1,\"at\":\"2026-11-20T04:35:00-06:00\",\"app\":\"sample-app\",\"tool\":\"tool:sample-tool\",\"item\":\"file:made-proof-note\",\"label\":\"Made a proof note\",\"ok\":true}],\"next_before\":null} (pinned run on proofs_for_who_runs_it, 4:33 AM CST Nov 20 2026, on the one made-up row; the trace of file:made-proof-note then answered its one made step)."
     }
   ]
 }
