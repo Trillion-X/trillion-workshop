@@ -23,7 +23,8 @@ const EXECUTE = `https://${HOST}/api/v3/tools/execute/`;
 
 export class Refused extends Error {}
 
-/** `execute(tool, accountId, args)`: one Composio tool run for one connected account, as the person; resolves to the tool's data. */
+/** `execute(tool, accountId, args, userId)`: one Composio tool run for one connected account, as the person; resolves to the tool's
+ *  data. Composio needs the user id that owns the account (its entity) with a connected account, so a run passes it when given. */
 export function makeComposioCall({ read = descriptor => readFileSync(descriptor, 'utf8'), send = fetch } = {}) {
   let key = null;
   const held = () => {
@@ -31,7 +32,7 @@ export function makeComposioCall({ read = descriptor => readFileSync(descriptor,
     if (!key) throw new Refused('The Composio key is not held: add composio-api-key to the vault, then run again.');
     return key;
   };
-  return async function execute(tool, accountId, args = {}) {
+  return async function execute(tool, accountId, args = {}, userId = undefined) {
     if (typeof tool !== 'string' || !/^[A-Z][A-Z0-9_]*$/.test(tool)) throw new Refused(`A Composio tool is named by its upper-case slug, not ${JSON.stringify(tool)}.`);
     if (typeof accountId !== 'string' || !accountId) throw new Refused('Give the Composio account id of the connection (its connection_id).');
     const url = new URL(EXECUTE + tool);
@@ -40,7 +41,7 @@ export function makeComposioCall({ read = descriptor => readFileSync(descriptor,
       method: 'POST',
       redirect: 'manual',
       headers: { 'x-api-key': held(), Accept: 'application/json', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ connected_account_id: accountId, arguments: args }),
+      body: JSON.stringify({ connected_account_id: accountId, ...(userId ? { user_id: userId } : {}), arguments: args }),
     });
     const text = await reply.text();
     if (!reply.ok) throw new Refused(`Composio refused ${tool} (${reply.status}): ${text.replace(/\s+/g, ' ').trim().slice(0, SAID)}`);

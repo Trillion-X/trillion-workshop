@@ -114,7 +114,7 @@ test('Composio: one execute call per range for the connected account, its key on
     ] } };
     return { ok: true, status: 200, text: async () => JSON.stringify(body) };
   };
-  const answer = await readCalendarEvents({ provider: 'google-calendar-via-composio', connection: { connection_id: 'googlecalendar_moon-suku' }, ...range }, undefined, { read: () => KEY, send });
+  const answer = await readCalendarEvents({ provider: 'google-calendar-via-composio', connection: { connection_id: 'googlecalendar_moon-suku', user_id: 'default' }, ...range }, undefined, { read: () => KEY, send });
   assert.equal(seen.length, 1);
   assert.equal(`${seen[0].url.origin}${seen[0].url.pathname}`, 'https://backend.composio.dev/api/v3/tools/execute/GOOGLECALENDAR_EVENTS_LIST');
   assert.equal(seen[0].init.method, 'POST');
@@ -122,6 +122,7 @@ test('Composio: one execute call per range for the connected account, its key on
   assert.equal(seen[0].init.headers.Authorization, undefined, 'no bearer header goes to Composio');
   const sent = JSON.parse(seen[0].init.body);
   assert.equal(sent.connected_account_id, 'googlecalendar_moon-suku');
+  assert.equal(sent.user_id, 'default', 'the owning user id the connection names goes with the account');
   assert.deepEqual(sent.arguments, { calendarId: 'primary', timeMin: '2026-11-20T00:00:00.000Z', timeMax: '2026-11-21T00:00:00.000Z', singleEvents: true, orderBy: 'startTime', maxResults: 50 });
   assert.equal(answer.blocks.length, 2);
   assert.equal(answer.blocks[0].display.ownerLabel, 'Google Calendar');

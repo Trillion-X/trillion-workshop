@@ -101,7 +101,7 @@ export async function readCalendarEvents(input = {}, _host = undefined, io = {})
   // A Composio connection kind reaches the account through one execute call (composio-connection); any other kind is the
   // provider's own host with the held key as a bearer token.
   const reach = provider.connection?.kind === 'composio'
-    ? { execute: makeComposioCall(io), accountId: input.connection?.connection_id }
+    ? { execute: makeComposioCall(io), accountId: input.connection?.connection_id, userId: input.connection?.user_id }
     : { call: makeCall(provider, io) };
   const events = await adapter.readEvents(reach, {
     calendarId,
