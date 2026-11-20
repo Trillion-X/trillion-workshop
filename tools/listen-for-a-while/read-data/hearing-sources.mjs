@@ -18,6 +18,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { hearFile } from '../../audio-transcription/read-data/hear-here.mjs';
+import { hearWithPrograms } from '../../audio-transcription/read-data/hear-with-programs.mjs';
 import { hearingHere } from '../../computer-programs/read-data/program-here.mjs';
 import { bytesToHex } from '@noble/hashes/utils.js';
 
@@ -83,10 +84,13 @@ export async function hearSourcesOfACall(input, { hear = hearFile, hearing = {},
  * name the whisper-cli program (`whisper_cli`, default: the one on PATH), ffmpeg (`ffmpeg`), the call's start (`at`) and flags.
  * It answers the words and the session record, and keeps no recording.
  */
-export async function hearSourcesTool(input = {}, { settings = sourcesSettings(), file, hear = hearFile } = {}) {
+/** The hearer of tool:hear-sources: the picked program's own whisper-cli and ffmpeg, no Python (see hear-with-programs.mjs). */
+const hearWithRow = (recording, { program }) => hearWithPrograms(recording, { modelPath: program.model, whisperCli: program.program, ffmpeg: program.ffmpeg ?? 'ffmpeg' });
+
+export async function hearSourcesTool(input = {}, { settings = sourcesSettings(), file, hear = hearWithRow } = {}) {
   if (!String(input.model_path ?? '').trim()) throw fail(settings.words.needs_model);
   const cli = String(input.whisper_cli ?? '').trim() || 'whisper-cli';
-  const program = { id: 'whisper-cli', label: 'whisper-cli', check: [path.basename(cli), '--help'], search_path: path.isAbsolute(cli) ? [path.dirname(cli)] : [], model: input.model_path, ffmpeg: input.ffmpeg ?? null, no_gpu: true };
+  const program = { id: 'whisper-cli', label: 'whisper-cli', check: [path.basename(cli), '--help'], search_path: path.isAbsolute(cli) ? [path.dirname(cli)] : [], model: input.model_path, ffmpeg: input.ffmpeg ?? null };
   return hearSourcesOfACall({ sources: input.sources, flags: input.flags }, { hear, hearing: { rows: [program] }, settings, at: input.at ? Date.parse(input.at) : 0, file });
 }
 

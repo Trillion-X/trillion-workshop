@@ -12,7 +12,7 @@ hear again only those windows.
   audio_transcription.py text            --transcript FILE.json --out FILE.txt [--title T] [--header LINE ...] [--duration S]
                                          [--paragraph-seconds S] [--even-if-rejected]
 
-transcribe runs do-work/process-scripts/transcribe-audio.py, copied from the package with one change (-ng when BITFIELD_WHISPER_NO_GPU is 1), and keeps its result (segments, words
+transcribe runs do-work/process-scripts/transcribe-audio.py, copied unchanged from the package, and keeps its result (segments, words
 with their timing_source, full_text, language) with the length of the recording added. repair hears each loop window again with
 whisper.cpp's context off (-mc 0) and splices what it hears into the transcript. transcribe-many does a folder of
 recordings (one <name>.json each, ones already done are skipped) and records each recording's path and when it was made (a
@@ -60,8 +60,6 @@ def environment(args):
         env["BITFIELD_WHISPER_CLI_PATH"] = args.whisper_cli
     if args.ffmpeg:
         env["BITFIELD_FFMPEG_PATH"] = args.ffmpeg
-    if getattr(args, "no_gpu", False):
-        env["BITFIELD_WHISPER_NO_GPU"] = "1"
     return env
 
 
@@ -259,7 +257,6 @@ def build_parser():
         p.add_argument("--model-path", required=True, help="the ggml Whisper model file")
         p.add_argument("--whisper-cli", help="the whisper-cli command (default: the one on PATH)")
         p.add_argument("--ffmpeg", help="the ffmpeg command (default: the one on PATH)")
-        p.add_argument("--no-gpu", action="store_true", help="run whisper-cli with -ng (no GPU), for a run whose sandbox cannot reach the Metal shader compiler")
 
     t = sub.add_parser("transcribe", help="a transcript with a time for every word")
     t.add_argument("--audio", required=True)

@@ -258,9 +258,6 @@ def run_whisper(audio_path: str, request_id: str, output_path: str) -> int:
     out_base = str(Path(output_path).with_suffix(""))
     # max-len enables whisper.cpp token timestamps; split-on-word keeps word pieces together.
     command = [whisper, "-m", str(model_path), "-f", audio_path, "-oj", "-ojf", "-ml", "1", "-sow", "-of", out_base, "-np"]
-    # -ng (no GPU) when the caller asks: the Metal back end compiles its shaders through xcrun, which a run under a computer sandbox may not reach.
-    if os.environ.get("BITFIELD_WHISPER_NO_GPU") == "1":
-        command.append("-ng")
     started = time.time()
     completed = subprocess.run(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     json_path = Path(out_base + ".json")
