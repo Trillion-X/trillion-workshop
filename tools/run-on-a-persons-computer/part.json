@@ -28,6 +28,7 @@
     "helper-sandbox.json": "helper-sandbox.json",
     "host-log": "host-log.mjs",
     "install-ledger": "install-ledger.mjs",
+    "manage-helpers": "manage-helpers.mjs",
     "isolated-run": "isolated-run.mjs",
     "isolated-run-worker": "isolated-run-worker.mjs",
     "keep-drive-files": "keep-drive-files.mjs",
