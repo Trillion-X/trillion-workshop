@@ -37,7 +37,7 @@
       ]
     },
     "test_refs": [
-      "tools/move-the-public-door/test/host-lease.test.mjs receipts are held in the run and answered; one handed in is read back, and a bad name is refused"
+      "tools/move-the-public-door/test/door-receipts.test.mjs receipts are held in the run and answered; one handed in is read back, and a bad name is refused"
     ]
   }
 }
