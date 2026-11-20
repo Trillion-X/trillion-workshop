@@ -30,12 +30,17 @@
   "internal": {
     "host": "127.0.0.1",
     "port": 8793,
-    "verify_path": "/api-key/verify"
+    "verify_path": "/api-key/verify",
+    "pass_path": "/api-key/pass",
+    "pass_seconds": 300,
+    "pass_audience": "http://localhost:8792/api-key/pass",
+    "_pass_why": "A call made with a key that the gateway carries on to a person's own computer goes with a pass in the key's place (pass_path, asked on this inner listener only), so the key never leaves the computer that checked it and every computer checks the pass by signature. 300 s: the gateway asks again near its end, and a revoked key stops at the gateway's key check (its issuer row's api_keys.cache_seconds) before the pass outlives it by more than this."
   },
   "credential_standing": {
     "path": "/credential/standing",
     "kinds": {
       "key": "api_key",
+      "key-pass": "key_pass",
       "session": "session",
       "mcp-access": "client_grant"
     }

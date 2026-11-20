@@ -72,3 +72,34 @@ test('a key checked on the internal listener has its last use noted (the use fac
   const after = (await pool.query('select "lastRequest" from apikey where id = $1', [made.id])).rows[0].lastRequest;
   assert.ok(after && (!before || new Date(after) > new Date(before)), `lastRequest ${before} -> ${after}`);
 });
+
+test('a verified key is handed a short pass signed with the sign-in\'s own keys: its person, key and scopes, for the MCP resource', async () => {
+  const asked = await post(`http://127.0.0.1:${internal}${settings.internal.pass_path}`, { key: made.key });
+  const answer = await asked.json();
+  assert.equal(answer.expires_in, settings.internal.pass_seconds);
+  const [, body] = answer.pass.split('.');
+  const claims = JSON.parse(Buffer.from(body, 'base64url').toString());
+  assert.equal(claims.sub, user.id);
+  assert.equal(claims.key_id, made.id);
+  assert.equal(claims.aud, settings.internal.pass_audience, 'its own audience, so no door takes it for a sign-in or an AI\'s pass');
+  assert.equal(claims.iss, settings.issuer);
+  assert.equal(claims.exp - claims.iat, settings.internal.pass_seconds);
+  assert.deepEqual(claims.scope.split(' ').sort(), [...new Set(Object.values(settings.api_key.default_permissions).flat())].sort());
+  const { createLocalJWKSet, jwtVerify } = await import('jose');
+  const keys = createLocalJWKSet(await (await fetch(`${ORIGIN}/api/auth/jwks`)).json());
+  const { payload } = await jwtVerify(answer.pass, keys, { issuer: settings.issuer, audience: settings.internal.pass_audience });
+  assert.equal(payload.sub, user.id, 'the pass checks against the sign-in\'s published keys, as every computer checks it');
+  assert.deepEqual(await (await post(`http://127.0.0.1:${internal}${settings.internal.pass_path}`, { key: `${made.key.slice(0, -2)}zz` })).json(), { valid: false }, 'an altered key gets no pass');
+  assert.equal((await post(`${ORIGIN}${settings.internal.pass_path}`, { key: made.key })).status, 404, 'the public listener never answers it');
+});
+
+test('a key pass stands while its key does and is its user\'s; a URL client id is kept whole', async () => {
+  const { credentialStands } = await import('../credential-standing.mjs');
+  const standing = settings.credential_standing;
+  assert.equal(await credentialStands(auth, standing, `key-pass:${user.id}:${made.id}`), true);
+  assert.equal(await credentialStands(auth, standing, `key-pass:someone-else:${made.id}`), false, 'another user\'s id never stands for this key');
+  const gone = await (await post(`${ORIGIN}/api/auth/api-key/create`, { name: 'to delete' }, cookie)).json();
+  await post(`${ORIGIN}/api/auth/api-key/delete`, { keyId: gone.id }, cookie);
+  assert.equal(await credentialStands(auth, standing, `key-pass:${user.id}:${gone.id}`), false, 'a deleted key\'s pass does not stand');
+  assert.equal(await credentialStands(auth, standing, `mcp-access:${user.id}:https://example.test/client.json`), false, 'a URL client is looked up whole (no grant here)');
+});

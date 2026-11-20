@@ -26,8 +26,27 @@ async function verified(auth, key) {
   return { valid: true, key: { id, userId, permissions } };
 }
 
-export function serveInternal(auth, { host, port, verify_path: path }, standing = null) {
+/** A short pass for a verified key, signed with the sign-in's own keys (Better Auth's jwt plugin, the same JWKS every computer
+ *  checks): its person, the key's id and its scopes, for the MCP resource, ending `seconds` from now. Null when the key is not valid. */
+async function passFor(auth, key, { seconds, audience }) {
+  const answer = await verified(auth, key);
+  if (!answer.valid) return null;
+  const scopes = Object.values(answer.key.permissions ?? {}).flat().filter(scope => typeof scope === 'string');
+  const now = Math.floor(Date.now() / 1000);
+  const { token } = await auth.api.signJWT({ body: { payload: { sub: answer.key.userId, aud: audience, key_id: answer.key.id, scope: [...new Set(scopes)].join(' '), iat: now, exp: now + seconds } } });
+  return { pass: token, expires_in: seconds };
+}
+
+export function serveInternal(auth, { host, port, verify_path: path, pass_path: passPath, pass_seconds: passSeconds, pass_audience: passAudience }, standing = null) {
   return createServer(async (request, response) => {
+    // A carried call made with a key goes on to a person's own computer with a pass in its place (the gateway asks here), so the
+    // key never leaves the computer that checked it and every computer checks what it is handed by signature alone.
+    if (passPath && request.method === 'POST' && request.url === passPath) {
+      const key = await keyOf(request);
+      if (!key) return json(response, 400, { error: 'key_required' });
+      const made = await passFor(auth, key, { seconds: passSeconds, audience: passAudience }).catch(() => null);
+      return made ? json(response, 200, made) : json(response, 200, { valid: false });
+    }
     if (readiness(request, response)) return;
     if (standing && request.method === 'POST' && request.url === standing.path) {
       const { credential } = (await bodyOf(request, 4096)) ?? {};
