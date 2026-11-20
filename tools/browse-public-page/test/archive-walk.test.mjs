@@ -46,7 +46,8 @@ test('the tool row passes the whole input and ships every file the walk imports'
   assert.deepEqual(row.invoke.stdin, { fill: { from: 'input' } });
   assert.deepEqual(row.invoke.files.package_files.paths, ['do-work/browse_public_page.mjs', 'do-work/page-facts.mjs', 'do-work/page-conventions.json', 'do-work/walk-archive.mjs', 'do-work/archive-facts.mjs']);
   assert.ok(row.input_schema.properties.walk);
-  assert.deepEqual(row.input_schema.required, ['url']);
+  assert.deepEqual(row.input_schema.required, []);
+  assert.deepEqual(row.input_schema.anyOf, [{ required: ['url'] }, { required: ['around'] }]);
   assert.equal(row.input_schema.additionalProperties, false);
   assert.ok(row.output_schema.properties.walk);
 });

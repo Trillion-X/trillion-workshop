@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { readPublicPage } from '../do-work/browse_public_page.mjs';
+import { readPublicPage, readPublicPageOrArchive } from '../do-work/browse_public_page.mjs';
 import { checkedUrl, extractPage } from '../do-work/page-facts.mjs';
 
 const script = fileURLToPath(new URL('../do-work/browse_public_page.mjs', import.meta.url));
@@ -43,4 +43,18 @@ test('HTML extraction and redirects keep bounded readable output', async () => {
   await assert.rejects(readPublicPage('https://example.com/', async () => ({ status: 302, headers: { location: 'http://127.0.0.1/' } })), /private network/);
   await assert.rejects(readPublicPage('https://example.com/', async () => ({ status: 302, headers: { location: 'http://example.org/' } })), /unencrypted HTTP/);
   await assert.rejects(readPublicPage('https://example.com/', async () => ({ status: 200, headers: { 'content-type': 'text/html' }, body: Buffer.alloc(2_000_001) })), /2 MB limit/);
+});
+
+test('around returns the words around the exact text, one read per address, and says why a text is missing', async () => {
+  const reads = [];
+  const fetchPage = async url => { reads.push(url.href); return { status: 200, headers: { 'content-type': 'text/html' }, body: new TextEncoder().encode('<html><head><title>Notes</title></head><body><p>Before the words. Say Hello to everyone. After the words.</p></body></html>') }; };
+  const { windows } = await readPublicPageOrArchive({ around: { addresses: ['https://example.com/a', 'https://example.com/a', 'https://example.com/a', 'https://example.com/a', 'file:///etc/passwd'], texts: ['say Hello', 'Say Hello', 'Say Hello', '', 'Say Hello'] } }, fetchPage);
+  assert.equal(windows[0].window, '', 'the lower-case words are not on the page');
+  assert.match(windows[0].error, /not on the page/);
+  assert.match(windows[1].window, /^Before the words\. Say Hello to everyone\. After the words\.$/);
+  assert.equal(windows[1].error, null);
+  assert.match(windows[2].window, /Say Hello/);
+  assert.match(windows[3].error, /empty/);
+  assert.match(windows[4].error, /Only public HTTP and HTTPS/);
+  assert.equal(reads.length, 1, 'the address is read once');
 });

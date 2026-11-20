@@ -197,11 +197,23 @@
     "status": "active",
     "input_schema": {
      "type": "object",
-     "required": [
-      "url"
+     "required": [],
+     "anyOf": [
+      {"required": ["url"]},
+      {"required": ["around"]}
      ],
      "additionalProperties": false,
      "properties": {
+      "around": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": ["addresses", "texts"],
+       "description": "Instead of one page: for each addresses[i], the words of that page around the first exact occurrence of texts[i] (300 characters on each side, case and quote marks as the page has them), as windows[i] = {address, window, error}. A text the page does not hold gives window \"\" and an error saying so; a page that cannot be read gives \"\" and why. Each address is read once.",
+       "properties": {
+        "addresses": {"type": "array", "maxItems": 100, "items": {"type": "string", "format": "uri"}, "description": "One public HTTP or HTTPS page address for each text, in order."},
+        "texts": {"type": "array", "maxItems": 100, "items": {"type": "string", "minLength": 1}, "description": "The exact words to find on the page at the same index in addresses."}
+       }
+      },
       "url": {
        "type": "string",
        "format": "uri",
