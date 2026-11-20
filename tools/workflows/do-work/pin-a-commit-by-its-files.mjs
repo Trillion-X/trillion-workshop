@@ -82,18 +82,34 @@ const folderOf = at => {
 };
 const landingsOf = item => item.packages
   ? item.packages.map(key => ({ key: `package ${folderOf(item.at)} ${String(key).replace(/^node_modules\//, '')}`, at: item.at }))
-  : (item.paths ?? []).map(path => ({ key: `path ${folderOf(`${String(item.at).replace(/\/+$/, '')}/${String(path).replace(/\/+$/, '')}`)}`, at: item.at, path }));
+  : (item.paths ?? []).map(path => {
+    // `.` (or an empty path) lays the folder itself, at `at`.
+    const rel = String(path).replace(/\/+$/, '').replace(/^\.$/, '');
+    return { key: `path ${folderOf(rel ? `${String(item.at).replace(/\/+$/, '')}/${rel}` : item.at)}`, at: item.at, path };
+  });
 
 /** The landings one row makes more than once, from a package-files.json object ({row id: items}): each as {row, key, at, path}, where
  *  `at` is the repeated entry's own folder and `path` its path when it lays a path. Two entries that land on one place are one
- *  duplicate, whichever spelling each uses. */
+ *  duplicate, whichever spelling each uses, and a path laid inside a folder the same row lays as a path is one too (`inside`
+ *  names that folder). A package folder and a path at one folder stay two landings. */
 export function duplicateLayouts(rows) {
   const duplicates = [];
   for (const [row, items] of Object.entries(rows)) {
     const seen = new Set();
+    // The places this row lays a path at: a path laid inside one of them is laid twice too, once by the folder laid whole
+    // (17dedb039 laid Workshop folders whole beside hand-declared files inside them, and every workflow run on the Mac failed
+    // from about 6:55 to 7:17 PM CST Nov 19 2026, Failure::Unavailable at the second copy).
+    const pathPlaces = new Set();
+    for (const item of items) for (const landing of landingsOf(item)) if (landing.path !== undefined) pathPlaces.add(landing.key.slice('path '.length));
     for (const item of items) for (const landing of landingsOf(item)) {
       if (seen.has(landing.key)) duplicates.push({ row, key: landing.key, at: landing.at, ...(landing.path === undefined ? {} : { path: landing.path }) });
       seen.add(landing.key);
+      if (landing.path === undefined) continue;
+      const place = landing.key.slice('path '.length);
+      for (let cut = place.lastIndexOf('/'); cut > 0; cut = place.lastIndexOf('/', cut - 1)) {
+        const folder = place.slice(0, cut);
+        if (pathPlaces.has(folder)) { duplicates.push({ row, key: landing.key, at: landing.at, path: landing.path, inside: folder }); break; }
+      }
     }
   }
   return duplicates;
@@ -121,7 +137,9 @@ export function layoutProblems(files) {
   for (const duplicate of duplicateLayouts(rows)) {
     problems.push(duplicate.path === undefined
       ? `${duplicate.row} places the package folder ${duplicate.at} twice`
-      : `${duplicate.row} lays ${duplicate.key.slice('path '.length)} twice`);
+      : duplicate.inside === undefined
+        ? `${duplicate.row} lays ${duplicate.key.slice('path '.length)} twice`
+        : `${duplicate.row} lays ${duplicate.key.slice('path '.length)} inside ${duplicate.inside}, which it lays whole`);
   }
   return problems;
 }

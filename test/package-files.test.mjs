@@ -8,6 +8,7 @@ import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { PACKAGE_FILES, packageFilesText } from '../test-helpers/write-package-files.mjs';
+import { duplicateLayouts } from '../tools/workflows/do-work/pin-a-commit-by-its-files.mjs';
 
 const repo = resolve(import.meta.dirname, '..');
 
@@ -61,15 +62,9 @@ test('no tool row places one package folder twice', () => {
 
 test('every place a row is laid out with is laid once: no path again, and none inside a folder the row already lays', () => {
   // The engine never replaces a file it laid (container.rs copy_file) and lays them read-only, so a second copy stops every run
-  // of the row; on Nov 19 2026 at 6:55 PM CST every workflow run on the Mac failed this way.
+  // of the row; on Nov 19 2026 at 6:55 PM CST every workflow run on the Mac failed this way. The rule is the pin tool's
+  // duplicateLayouts, the same one that refuses to pin such a commit, so the two never drift apart.
   const rows = JSON.parse(readFileSync(join(repo, PACKAGE_FILES), 'utf8'));
-  const twice = [];
-  for (const [row, items] of Object.entries(rows)) {
-    const places = items.flatMap(item => (item.paths ?? []).map(rel => (rel === '.' ? item.at : `${item.at.replace(/\/$/, '')}/${rel}`)));
-    const sorted = [...places].sort();
-    for (let i = 1; i < sorted.length; i += 1) {
-      if (sorted[i] === sorted[i - 1] || sorted.slice(0, i).some(other => sorted[i].startsWith(`${other}/`))) twice.push(`${row}: ${sorted[i]}`);
-    }
-  }
+  const twice = duplicateLayouts(rows).map(({ row, key, inside }) => `${row}: ${key}${inside ? ` inside ${inside}` : ''}`);
   assert.deepEqual(twice.slice(0, 20), [], 'a row lays one place twice: drop the later path (test-helpers/tool-row-imports.mjs layOnce)');
 });
