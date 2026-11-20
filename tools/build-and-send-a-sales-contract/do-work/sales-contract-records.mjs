@@ -8,7 +8,7 @@ const text = value => typeof value === 'string' && value.trim().length > 0;
 
 export class SalesContractsError extends Error {}
 
-function cleanContract(value) {
+export function cleanContract(value) {
   if (!object(value)) throw new SalesContractsError('Give the contract terms as an object.');
   const contract = structuredClone(value);
   if (!text(contract.name)) throw new SalesContractsError('Give the contract a name.');
