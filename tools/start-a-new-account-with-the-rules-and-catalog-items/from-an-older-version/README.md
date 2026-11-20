@@ -17,4 +17,4 @@ Files old trillion main still held at 5dc302be37 with no copy in any new reposit
 
 | Old path | Here |
 |---|---|
-| `records/workshop-event-source-records.json` | `records/workshop-event-source-records.json` |
+| `records/workshop-event-source-records.json` | Ported to `tools/start-a-new-account-with-the-rules-and-catalog-items/event-sources.json` (same 11 rows; the x-bookmarks and x-likes rows were changed later on origin by 7a23cb214 and 5287507d9). The held copy was removed by the commit that names this receipt. |
