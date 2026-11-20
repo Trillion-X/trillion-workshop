@@ -19,11 +19,12 @@ How a computer knows its drives is a reader row in `read-data/drives.json`, trie
 | `read-data/drives.json` | The readers, the icon sizes, and the bounds of one look at what is on a drive (files, milliseconds, largest files named). |
 | `read-data/drive-mount-table.mjs` | The `mount-table` reader: mountinfo lines parsed, and the block-device mounts inside the reader's mount roots. |
 | `read-data/draw-icon.js` | The icon macOS draws for a path, as a PNG (`osascript -l JavaScript`, the path an argument). |
+| `read-data/camera-card-index.mjs`, `read-data/camera-card-index.json` | `tool:read-a-camera-card-index`: a camera card's own index (its clip sidecars under `M4ROOT/CLIP`, read only) grouped into recording sessions by a gap in DATA, one seed each (`camera-card:<volume identity>:<first clip>`, words `pending`). Every name the camera writes, the gap and the `since` cutoff are in the JSON. |
 | `read-data/drive-identity.mjs` | What one mounted volume is (real mount, internal, kind, ejectable), from diskutil's plist. |
 | `read-data/drive-folder.mjs` | One folder on a drive, a page at a time, and `driveOf`, the check that a path really is on a connected drive. |
 | `read-data/drive-processes.mjs` | The programs with files open on a drive, from `lsof -Fpcn`, and `readProcessRows`, each process named the way the person knows it (from `ps`; a script by its script). |
 | `read-data/file-kinds.mjs`, `read-data/file-kinds.json` | What kind of file a name is (videos, audio, pictures, ...), as DATA. |
-| `tool-rows.json` | `tool:list-connected-drives`, `tool:list-a-drive-folder`, `tool:see-what-is-on-a-drive`, `tool:get-a-drive-icon`, `tool:name-what-holds-a-drive`. |
+| `tool-rows.json` | `tool:list-connected-drives`, `tool:list-a-drive-folder`, `tool:see-what-is-on-a-drive`, `tool:get-a-drive-icon`, `tool:name-what-holds-a-drive`, `tool:read-a-camera-card-index`. |
 | `part.json` | `drives.mjs` (`enumerateDevices`), `drive-folder.mjs` (`driveOf`) and `drive-processes.mjs`, which `tools/work-on-connected-drives` imports. |
 | `test/drives.test.mjs` | Tests against a pretend `/Volumes`, a pretend mount table and pretend commands. |
 

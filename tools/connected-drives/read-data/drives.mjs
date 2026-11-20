@@ -111,7 +111,7 @@ export async function listConnectedDrives(_input, _context, deps = {}) {
   return { devices: (await enumerateDevices(deps)).map(shown) };
 }
 
-const connectedDrives = async deps => (await enumerateDevices(deps)).filter(device => device.mount && !device.internal);
+export const connectedDrives = async deps =>(await enumerateDevices(deps)).filter(device => device.mount && !device.internal);
 
 /** `tool:list-a-drive-folder`: one folder on a connected drive, a page at a time. */
 export async function listDriveFolder({ path: target, offset, limit, hidden } = {}, _context, deps = {}) {

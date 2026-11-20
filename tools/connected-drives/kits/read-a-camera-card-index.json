@@ -1,0 +1,41 @@
+{
+  "drafted_from": "tool row tool:read-a-camera-card-index in tools/connected-drives/tool-rows.json, read-data/camera-card-index.mjs and read-data/camera-card-index.json, test/camera-card-index.test.mjs",
+  "start_here": "Say to your AI: \"Read the clips on my camera card, /Volumes/1TB SSD, as recording sessions.\" It runs tool:read-a-camera-card-index with path /Volumes/1TB SSD and hands back one seed per recording session: its words (pending), where it came from, and its clip list with times. Nothing on the card changes.",
+  "lists": [],
+  "no_lists_because": "It keeps no list: it reads the card's own index and changes nothing. The seeds it describes are kept as rows of the person's seeds table by workflow:keep-each-camera-session-as-a-seed.",
+  "workflows": [
+    "workflow:keep-each-camera-session-as-a-seed"
+  ],
+  "tools": [
+    "tool:read-a-camera-card-index",
+    "tool:list-connected-drives"
+  ],
+  "instructions": [
+    "1. Run tool:list-connected-drives and copy the mount of the card, for example /Volumes/1TB SSD.",
+    "2. Say \"Read the clips on my camera card, /Volumes/1TB SSD, as recording sessions\"; the AI calls tools:run for tool:read-a-camera-card-index with that path.",
+    "3. Read sessions (each with id, words, came_from, media and at) and the counts: clips_in_range, clips_before_since (older than the since time in read-data/camera-card-index.json), sidecars_unreadable and sidecars_without_media.",
+    "4. The workflow keeps each session as one seed row; a session already kept (same id) is not kept again.",
+    "5. To change what counts as a session, edit session_gap_seconds in read-data/camera-card-index.json; to change the first date read, edit since."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read today's call from the card",
+      "ask": "Read the clips on my camera card, /Volumes/1TB SSD, as recording sessions.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-camera-card-index",
+            "input": {
+              "path": "/Volumes/1TB SSD"
+            }
+          }
+        }
+      },
+      "given": "From tests and a real read on 2026-11-20: the card's clips C0004 (Nov 19, 8:11 PM CST, 10.6 minutes) and C0005 (Nov 20, 10:36:55 AM CST, 39.7 minutes) are two sessions after the since time, and the older clips are counted in clips_before_since.",
+      "hands_back": "sessions: two seeds from the card on 2026-11-20 read: camera-card:<volume identity>:C0004 at 2026-11-19T20:11:51-06:00 (1 clip, 639 seconds) and camera-card:<volume identity>:C0005 at 2026-11-20T10:36:55-06:00 (1 clip, 2382 seconds, ending 11:16:37 CST), each words \"pending\"; clips_in_range 2, clips_before_since 162, sidecars_unreadable 0, sidecars_without_media 0."
+    }
+  ]
+}

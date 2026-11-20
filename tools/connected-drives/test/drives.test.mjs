@@ -30,7 +30,7 @@ function pretendMac() {
 }
 
 test('every row runs on the person\'s computer with only the drive capability, and changes nothing', () => {
-  assert.deepEqual(rows.map(row => row.id), ['tool:list-connected-drives', 'tool:list-a-drive-folder', 'tool:name-what-holds-a-drive', 'tool:see-what-is-on-a-drive', 'tool:get-a-drive-icon']);
+  assert.deepEqual(rows.map(row => row.id), ['tool:list-connected-drives', 'tool:list-a-drive-folder', 'tool:name-what-holds-a-drive', 'tool:see-what-is-on-a-drive', 'tool:get-a-drive-icon', 'tool:read-a-camera-card-index']);
   for (const row of rows) {
     assert.equal(row.invoke.kind, 'computer');
     assert.deepEqual(row.invoke.capabilities, ['see-connected-drives']);

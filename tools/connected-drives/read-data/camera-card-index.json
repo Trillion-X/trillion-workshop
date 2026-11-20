@@ -1,0 +1,14 @@
+{
+  "_what": "How tool:read-a-camera-card-index reads a camera card's own index and groups its clips into recording sessions. Every name the camera writes and every time it takes is here, not in code. Reading only: the reader never writes, copies, moves or deletes anything on the card.",
+  "index_folder": "M4ROOT/CLIP",
+  "sidecar_suffix": "M01.XML",
+  "media_suffix": ".MP4",
+  "creation_element": "CreationDate",
+  "duration_element": "Duration",
+  "rate_element": "LtcChangeTable",
+  "rate_attribute": "tcFps",
+  "default_rate": 24,
+  "session_gap_seconds": 1800,
+  "since": "2026-11-19T00:00:00-06:00",
+  "why_since": "A card holds its whole history (164 clips here, October to November 20). Only clips recorded at or after this time are seeded on a first arrival; a later edit to this row widens or narrows it. The seed id makes a repeat read a no-op, so a card read again adds only its new sessions."
+}
