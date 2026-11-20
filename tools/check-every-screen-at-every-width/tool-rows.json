@@ -191,7 +191,7 @@
         "listed_on": "2026-11-04T00:00:00Z",
         "id": "tool:check-given-pages-at-every-width",
         "placements": [
-          "placement:deployed-container"
+          "placement:your-computer"
         ],
         "needs": {
           "expected_seconds": 30,
