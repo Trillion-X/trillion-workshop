@@ -2,6 +2,7 @@
   "_what": "The controls the sidebar part draws that a show rule can hide (subject `control`, tools/ui/show/show-rules show-of.ts controlShown). Each id is a dotted path; a rule about any path it sits in hides it too. The frame's own controls are `<controls>.<capability>` (`sidebar.<capability>` for the window's sidebar, DesktopSidebar.tsx allows). A screen's row is the control its screen DATA names (surface `control`, records/workshop-screen-tool-records.json), which AppSidebar.tsx asks before it draws the row; `screens.<screen>` names them.",
   "controls": [
     { "id": "sidebar.folders", "label": "Folders in the sidebar", "drawn_at": "show/AppSidebar.tsx (every list section the person's lists and folders make)" },
+    { "id": "sidebar.nesting-guide", "label": "The guide line beside lists inside lists", "drawn_at": "show/SidebarContent.tsx (NestingGuide beside a list's rows, when the list has a title)" },
     { "id": "cards.hover.sidebar", "label": "Preview cards on sidebar rows", "drawn_at": "show/SidebarContent.tsx (a row's SurfacePreviewCard; sidebar.row-preview hides the same card)" },
     { "id": "cards.hover.tabs", "label": "Preview cards on pane tabs", "drawn_at": "show/SidebarContent.tsx TabRow (arrangement.header.tabs.row-preview hides the same card)" },
     { "id": "devices.active", "label": "The icon showing your active devices", "drawn_at": "show/AppSidebar.tsx (a screen row whose surface DATA names it as its `control`: Your devices, records/workshop-screen-tool-records.json trillion.catch-up)" },

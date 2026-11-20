@@ -1283,7 +1283,7 @@ export function CollapsibleSection({
         <div className="min-h-0 overflow-hidden">
           {/* The guide belongs to navigation rows, not to contributed panels or their headings. */}
           <Container layout="vertical" gap="xs" className={section.title ? 'sidebar-list-body' : undefined}>
-            {section.title && (section.items.length > 0 || (section.sections?.length ?? 0) > 0) ? <NestingGuide /> : null}
+            {section.title && controlShown('sidebar.nesting-guide') && (section.items.length > 0 || (section.sections?.length ?? 0) > 0) ? <NestingGuide /> : null}
             {section.statusContent}
             <SortableNavRows
               items={section.items}
