@@ -368,7 +368,16 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   const switched = [], booted = [];
   for (const { group, target } of switching) {
     await run(machine, `systemctl restart ${q(target.unit)}`);
-    try { await bootCheck(target.unit); }
+    try {
+      await bootCheck(target.unit);
+      // A slotted unit may name what must also hold on the new slot before the one that ran stops (`switch_check_command`, run
+      // on the computer with {unit} and {listen} filled, tried like check_command): an engine's slot that answers its health but
+      // dropped what the slot that ran was keeping (its kept-running sessions, Nov 19 2026 10:38 and 11:22 PM CST) fails here.
+      if (target.switch_check_command) {
+        const filled = target.switch_check_command.replaceAll('{unit}', target.unit).replaceAll('{listen}', target.health_listen ?? '');
+        await commandPasses(machine, filled, { run, wait: deps.wait ?? pause, tries: Math.max(1, Math.ceil((target.switch_check_seconds ?? 60) / 5)) }, `${target.unit}'s switch_check_command`);
+      }
+    }
     catch (error) {
       await run(machine, `systemctl stop ${q(target.unit)}`).catch(() => {});
       throw Object.assign(error, { message: `${error.message} ${group.active.length ? `${group.active.map(unit => unit.unit).join(' and ')} kept serving.` : 'No slot of it serves.'}` });

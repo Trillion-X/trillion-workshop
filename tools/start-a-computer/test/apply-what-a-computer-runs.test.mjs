@@ -392,6 +392,24 @@ test('a release that never answers is stopped again, and the slot that ran keeps
   assert.equal(commands.some(({ command }) => command.includes("'example-place-a.service'") && /disable|stop|restart/.test(command)), false);
 });
 
+test('a new slot that answers but fails its switch_check_command is stopped again, and the slot that ran keeps serving', async () => {
+  const checked = { ...slotted, units: [{ ...slotted.units[0], switch_check_command: 'check-kept {unit} {listen}', switch_check_seconds: 10 }] };
+  const failing = slotComputer({ active: ['example-place-a.service'], links: { 'current-a': 'b'.repeat(40) } });
+  const run = async (m, command, input) => {
+    if (command.startsWith('check-kept ')) { failing.commands.push({ command }); throw Object.assign(new Error('2 kept sessions not running'), { code: 1 }); }
+    return failing.run(m, command, input);
+  };
+  await assert.rejects(applyWhatItRuns(machine, checked, run, {}, { wait: async () => {} }), /example-place-b\.service's switch_check_command did not pass after the restart: 2 kept sessions not running example-place-a\.service kept serving\./);
+  assert.equal(failing.commands.filter(({ command }) => command === 'check-kept example-place-b.service 127.0.0.1:7198').length, 2, 'tried every 5 s for switch_check_seconds');
+  assert.ok(failing.commands.some(({ command }) => command === "systemctl stop 'example-place-b.service'"));
+  assert.equal(failing.commands.some(({ command }) => command.includes("'example-place-a.service'") && /disable|stop|restart/.test(command)), false);
+  const passing = slotComputer({ active: ['example-place-a.service'], links: { 'current-a': 'b'.repeat(40) } });
+  const ok = async (m, command, input) => command.startsWith('check-kept ') ? (passing.commands.push({ command }), '') : passing.run(m, command, input);
+  assert.deepEqual((await applyWhatItRuns(machine, checked, ok)).switched, [{ to: 'example-place-b.service', from: ['example-place-a.service'] }]);
+  const at = text => passing.commands.findIndex(({ command }) => command.startsWith(text));
+  assert.ok(at('check-kept ') < at("systemctl disable --now 'example-place-a.service'"), 'the slot that ran stops only after the check passed');
+});
+
 test('a slot that runs its row\'s release is left alone', async () => {
   const { run, commands } = slotComputer({ active: ['example-place-b.service'], links: { 'current-b': SOURCE_COMMIT } });
   assert.deepEqual(await runsDifferences(machine, slotted, run), []);
