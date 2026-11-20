@@ -1,6 +1,7 @@
 import { publishReviewedArticle } from '../../write-a-sales-page/packages/hosted-public-app/processes/publish-reviewed-article.mjs';
 import { captureArticleCandidate, readRenderArtifact, releaseRenderWorkspace } from './render-article-candidate.mjs';
 import { sendRequestToRunningApp } from '../../send-requests-to-an-engine/read-data/find-the-running-app-and-send-requests-to-it.mjs';
+import { prepareCurrentDocument } from '../../publish-content-for-discovery/do-work/prepare-current-document.mjs';
 
 const CONFIG = {address:'package::public-document-site::publication-config::default',mode:'label_hash'};
 
@@ -43,7 +44,7 @@ export async function publishCurrentDocument(input, {session, expectedDocumentRe
   const deployment = await publishReviewedArticle({session,send,document_ref:input.document_ref},{
     currentProviderApplication: async () => config.provider_application,
     prepareCurrentDocument: async () => {
-      const candidate = await send('public-document-site.prepare-current-document',input);
+      const candidate = await prepareCurrentDocument(input, null, { send: ({ target, payload }) => send(target, payload) });
       if (candidate?.state !== 'render-review-required') throw new Error('The Documents owner returned no reviewed candidate.');
       if (expectedDocumentRevision !== null && candidate.document_revision_hash !== expectedDocumentRevision) {
         throw new Error('The document changed after the publication request was admitted.');

@@ -27,7 +27,9 @@ export async function prepareCurrentDocument(input, context, dependencies = {}) 
       !/^package::documents::documents::[^\s]+$/.test(input.document_ref ?? '')) {
     throw new Error('Only a canonical document_ref is accepted.');
   }
-  const send = dependencies.send ?? (await import('@bitfield/runtime-kit')).sendRequestToBitfieldTarget;
+  // The caller hands in its engine sender. The old Bitfield runtime default is retired.
+  const send = dependencies.send;
+  if (typeof send !== 'function') throw new Error('Preparing a publication needs its engine sender.');
   const bases = [];
   async function read(ref) {
     if (!plain(ref) || typeof ref.address !== 'string' || !['identity_text', 'label_hash'].includes(ref.mode)) {
