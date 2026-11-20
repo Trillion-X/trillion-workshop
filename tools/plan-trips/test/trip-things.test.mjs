@@ -136,3 +136,45 @@ test('a checklist refuses an item with no id and a status list that is not given
   assert.throws(() => measureAChecklist({ items: [], done_statuses: [] }), /skipped_statuses must be a list/);
   assert.throws(() => measureAChecklist({}), /items must be a list/);
 });
+
+test('the old packing-list case: a bag holds an item and a dependency joins the item\'s own, so the item waits', () => {
+  const answer = measureAChecklist({
+    items: [
+      { id: 'item:1', label: 'Passport', status: 'packed', container: 'bag:1' },
+      { id: 'item:2', label: 'Rain shell', status: 'missing', depends_on: ['dep:manual'] },
+    ],
+    containers: [{ id: 'bag:1', label: 'Carry on' }],
+    dependencies: [{ id: 'dep:1', item: 'item:2', depends_on: 'item:1', reason: 'Pack passport first' }],
+    done_statuses: ['packed'],
+    skipped_statuses: [],
+  });
+  assert.deepEqual(answer.container_paths, { 'item:1': ['Carry on'] });
+  assert.deepEqual(answer.blocked, [{ id: 'item:2', waiting_on: ['dep:manual'], reasons: ['Pack passport first'] }]);
+  assert.deepEqual([answer.done, answer.total], [1, 2]);
+});
+
+test('nested bags give a path root first, a finished dependency does not block, a done item never blocks', () => {
+  const answer = measureAChecklist({
+    items: [
+      { id: 'a', status: 'packed', container: 'inner' },
+      { id: 'b', status: 'planned', container: 'outer', depends_on: ['a'] },
+      { id: 'c', status: 'packed', depends_on: ['zzz'] },
+    ],
+    containers: [{ id: 'outer', label: 'Suitcase' }, { id: 'inner', parent: 'outer' }],
+    done_statuses: ['packed'],
+    skipped_statuses: [],
+  });
+  assert.deepEqual(answer.container_paths, { a: ['Suitcase', 'inner'], b: ['Suitcase'] });
+  assert.deepEqual(answer.blocked, []);
+});
+
+test('a checklist without containers or dependencies answers exactly as before, and bad ones are refused', () => {
+  const plain = measureAChecklist({ items: [{ id: 'a', status: 'x' }], done_statuses: ['x'], skipped_statuses: [] });
+  assert.deepEqual(Object.keys(plain), ['done', 'total', 'ratio', 'groups']);
+  const base = { done_statuses: [], skipped_statuses: [] };
+  assert.throws(() => measureAChecklist({ ...base, items: [{ id: 'a', container: 'nope' }], containers: [] }), /container nope is not in containers/);
+  assert.throws(() => measureAChecklist({ ...base, items: [{ id: 'a', container: 'x' }], containers: [{ id: 'x', parent: 'y' }, { id: 'y', parent: 'x' }] }), /sits inside itself/);
+  assert.throws(() => measureAChecklist({ ...base, items: [], containers: [{ label: 'no id' }] }), /containers\[0\] needs an id/);
+  assert.throws(() => measureAChecklist({ ...base, items: [{ id: 'a', depends_on: 'b' }] }), /depends_on must be a list/);
+  assert.throws(() => measureAChecklist({ ...base, items: [], dependencies: [{ item: 'a' }] }), /dependencies\[0\] needs item and depends_on/);
+});

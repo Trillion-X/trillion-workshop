@@ -458,7 +458,7 @@
         "label": "Measure how much of a checklist is done",
         "status": "active",
         "job": "See how much of a packing list or other checklist is done and group its items, for example by category",
-        "description": "Give the items (id, status, and optionally group) and which statuses mean done and which statuses leave the count (an item no longer needed). Returns how many counted items are done, how many are counted, the share done (0 when nothing is counted), and the items grouped by their group with a count and a done count for each. An item with no group goes under ungrouped_label (default uncategorized). Both status lists must be given, and may be empty. An item with no id is refused.",
+        "description": "Give the items (id, status, and optionally group) and which statuses mean done and which statuses leave the count (an item no longer needed). Returns how many counted items are done, how many are counted, the share done (0 when nothing is counted), and the items grouped by their group with a count and a done count for each. An item with no group goes under ungrouped_label (default uncategorized). Both status lists must be given, and may be empty. An item with no id is refused. Optionally give containers (id, label, parent) and name each item's container: the answer then holds container_paths, each item's bag path from the outermost bag in. Optionally give what an item waits on, as depends_on (item ids) on the item or as a dependencies list of { item, depends_on, reason }: the answer then holds blocked, each not-done item that waits on something not done, with what it waits on and the reasons. A thing waited on that is not in the list counts as not done. Without these the answer is unchanged.",
         "input_schema": {
           "type": "object",
           "required": ["items", "done_statuses", "skipped_statuses"],
@@ -467,7 +467,9 @@
             "items": { "type": "array", "items": { "type": "object", "required": ["id"], "additionalProperties": true }, "description": "The checklist's items: id, status, group" },
             "done_statuses": { "type": "array", "items": { "type": "string" }, "description": "Statuses that mean the item is done" },
             "skipped_statuses": { "type": "array", "items": { "type": "string" }, "description": "Statuses whose items are left out of the count (still listed in their group)" },
-            "ungrouped_label": { "type": "string", "description": "What to call the group of items with no group" }
+            "ungrouped_label": { "type": "string", "description": "What to call the group of items with no group" },
+            "containers": { "type": "array", "items": { "type": "object", "required": ["id"], "additionalProperties": true }, "description": "Bags the items sit in: id, label, parent (the id of the bag it sits inside)" },
+            "dependencies": { "type": "array", "items": { "type": "object", "required": ["item", "depends_on"], "additionalProperties": true }, "description": "Each { item, depends_on, reason }: the item waits on another item" }
           }
         },
         "output_schema": {
@@ -477,7 +479,9 @@
             "done": { "type": "integer" },
             "total": { "type": "integer" },
             "ratio": { "type": "number" },
-            "groups": { "type": "array", "description": "{ group, count, done, items } for each group, in order of first appearance" }
+            "groups": { "type": "array", "description": "{ group, count, done, items } for each group, in order of first appearance" },
+            "container_paths": { "type": "object", "description": "Only when containers were given: item id to the bag labels, outermost first" },
+            "blocked": { "type": "array", "description": "Only when dependencies were given: { id, waiting_on, reasons } for each not-done item that waits on something not done" }
           }
         },
         "invoke": {

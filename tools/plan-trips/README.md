@@ -23,7 +23,7 @@ Says what is still open on a trip, in the order to deal with it, and how far a c
 |---|---|---|
 | `rankOpenTripThings` | `({ policy, lanes, trip_name? }) => { trip_name, items, focus, later, lanes, skipped }` | Every row with a priority from the policy, most urgent first; the first open one is the focus. |
 | `readPolicy` | `(policy) => { order, closed, lanes }` | Checks the policy: priority names in order (the last means closed), and for each lane a default priority, a priority per status and the fields to sort by. |
-| `measureAChecklist` | `({ items, done_statuses, skipped_statuses }) => { done, total, ratio, groups }` | Share done among counted items, and every item under its group. |
+| `measureAChecklist` | `({ items, done_statuses, skipped_statuses, containers?, dependencies? }) => { done, total, ratio, groups, container_paths?, blocked? }` | Share done among counted items, and every item under its group. With `containers` (nested bags) each item's bag path; with `depends_on` or `dependencies` the not-done items that wait on something not done. |
 
 ## Invariants
 
