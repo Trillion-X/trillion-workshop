@@ -4,7 +4,8 @@ import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { hearSourcesOfACall, sourcesSettings } from '../read-data/hearing-sources.mjs';
+import { readFileSync as readJson } from 'node:fs';
+import { hearSourcesOfACall, hearSourcesTool, sourcesSettings } from '../read-data/hearing-sources.mjs';
 
 const ROW = { id: 'whisper-test', label: 'whisper test', check: ['whisper-cli', '--version'] };
 const runnable = { exists: () => true, run: () => {} };
@@ -81,4 +82,15 @@ test('the picked hearing row is what runs: its program, model and ffmpeg reach t
   assert.equal(value('--model-path'), '/row-model.bin', 'the row model is used, not the request model');
   assert.equal(value('--ffmpeg'), '/row/ffmpeg', 'the row ffmpeg is used, not the request ffmpeg');
   assert.equal(session.program, 'whisper-test');
+});
+
+test('tool:hear-sources refuses a request with no model before any recording is heard', async () => {
+  await assert.rejects(hearSourcesTool({ sources: [{ source: 'microphone', path: '/mic.wav' }] }), /Give model_path/);
+});
+
+test('the tool:hear-sources row runs the exported function of the listen module', () => {
+  const rows = JSON.parse(readJson(new URL('../tool-rows.json', import.meta.url), 'utf8')).records;
+  const row = rows.find(entry => entry.payload.id === 'tool:hear-sources').payload;
+  assert.equal(row.invoke.argv.at(-1), 'hearSourcesTool');
+  assert.equal(row.invoke.argv.at(-2), '/opt/listen-for-a-while/read-data/hearing-sources.mjs');
 });

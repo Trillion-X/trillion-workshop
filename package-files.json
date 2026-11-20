@@ -16097,6 +16097,197 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:hear-sources": [
+  {
+   "package": "listen-for-a-while",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/listen-for-a-while"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "run-on-a-persons-computer",
+   "paths": [
+    "confined-run.mjs",
+    "confined-run.json"
+   ],
+   "at": "/opt/run-on-a-persons-computer"
+  },
+  {
+   "package": "audio-transcription",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/audio-transcription"
+  },
+  {
+   "package": "know-who-is-in-this",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/know-who-is-in-this"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work",
+    "read-data/adjustment-layers.mjs",
+    "read-data/auto-cleanup.ts",
+    "read-data/auto-edit.json",
+    "read-data/auto-edit.mjs",
+    "read-data/caption-lines.ts",
+    "read-data/caption-styles.json",
+    "read-data/caption-styles.mjs",
+    "read-data/detect-events.json",
+    "read-data/layers-to-edit.mjs",
+    "read-data/looks.json",
+    "read-data/looks.mjs",
+    "read-data/reframe-camera.json",
+    "read-data/session-pairing.mjs",
+    "read-data/suggestion-stream.json",
+    "read-data/suggestion-stream.mjs",
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "package": "audio-transcription",
+   "paths": [
+    "show/AudioTranscriptionPanel.tsx",
+    "things-to-store-and-run.json"
+   ],
+   "at": "/opt/audio-transcription"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:hear-for-a-device": [
   {
    "package": "listen-for-a-while",

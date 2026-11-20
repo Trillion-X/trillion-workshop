@@ -77,3 +77,16 @@ export async function hearSourcesOfACall(input, { hear = hearFile, hearing = {},
   return { words, session };
 }
 
+/**
+ * tool:hear-sources (the old tool:hear-sources, computer/mac-tools.json:241-244@b7dc53d08a): hears one call's sources on this
+ * computer. The input names each source's recording (`sources: [{ source, path }]`) and the Whisper model (`model_path`), and may
+ * name the whisper-cli program (`whisper_cli`, default: the one on PATH), ffmpeg (`ffmpeg`), the call's start (`at`) and flags.
+ * It answers the words and the session record, and keeps no recording.
+ */
+export async function hearSourcesTool(input = {}, { settings = sourcesSettings(), file, hear = hearFile } = {}) {
+  if (!String(input.model_path ?? '').trim()) throw fail(settings.words.needs_model);
+  const cli = String(input.whisper_cli ?? '').trim() || 'whisper-cli';
+  const program = { id: 'whisper-cli', label: 'whisper-cli', check: [path.basename(cli), '--help'], search_path: path.isAbsolute(cli) ? [path.dirname(cli)] : [], model: input.model_path, ffmpeg: input.ffmpeg ?? null };
+  return hearSourcesOfACall({ sources: input.sources, flags: input.flags }, { hear, hearing: { rows: [program] }, settings, at: input.at ? Date.parse(input.at) : 0, file });
+}
+

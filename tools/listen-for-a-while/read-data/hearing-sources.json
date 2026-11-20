@@ -9,6 +9,7 @@
   "words": {
     "needs_sources": "Give sources: [{ source, path }], each a recording of one source.",
     "unknown_source": "There is no source {source}. Sources: {known}.",
-    "no_hearing": "This Mac has no program that hears recordings."
+    "no_hearing": "This Mac has no program that hears recordings.",
+    "needs_model": "Give model_path: the ggml Whisper model file on this computer."
   }
 }

@@ -1,0 +1,48 @@
+{
+  "drafted_from": "tool:hear-sources row in tools/listen-for-a-while/tool-rows.json and hearSourcesTool in read-data/hearing-sources.mjs (the old tool:hear-sources, computer/mac-tools.json:241-244 at b7dc53d08a)",
+  "start_here": "Say to your AI: \"Hear my call: the microphone recording /Recordings/me.wav and the system-audio recording /Recordings/others.wav, starting at 2026-11-20T09:00:00-08:00, with the Whisper model I keep at ~/models/ggml-base.bin.\" It runs tool:hear-sources and tells you each turn in time order, labelled by source.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it hears the recordings handed in and answers the words and the session record; it writes no row and no file, and keeps no recording.",
+  "workflows": [],
+  "tools": [
+    "tool:hear-sources",
+    "tool:listen-for-a-while",
+    "tool:hear-for-a-device"
+  ],
+  "instructions": [
+    "1. Have each source's recording as a file on the computer that will hear it, a ggml Whisper model file, and the whisper-cli and ffmpeg programs (or name them).",
+    "2. Say \"Hear my call with the model <model_path>\" and name each source's file. Your AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:hear-sources (sources and model_path are required; whisper_cli, ffmpeg, at and flags are optional).",
+    "3. Read the answer: words are the heard segments in time order, each with its source, speaker and me; session is the record (id, program, flags, sources)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Two recordings of one call become words in time order, labelled by source",
+      "ask": "Hear my call: my microphone recording and the system-audio recording, with the model I keep, and tell me who said what.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:hear-sources",
+            "input": {
+              "sources": [
+                {
+                  "source": "microphone",
+                  "path": "/Recordings/me.wav"
+                },
+                {
+                  "source": "system-audio",
+                  "path": "/Recordings/others.wav"
+                }
+              ],
+              "model_path": "{grant:start-a-program}/ggml-base.bin"
+            }
+          }
+        }
+      },
+      "given": "The microphone recording /Recordings/me.wav (the person's own voice) and the system-audio recording /Recordings/others.wav, both heard with the model ~/models/ggml-base.bin on the computer that has whisper-cli.",
+      "hands_back": "The answer's words hold each heard segment labelled Me (source microphone, me true) or Others (source system-audio, me false), in start-time order; session holds the record with the picked program's id (whisper-cli), the flags and the two sources. A request with no sources is refused with \"Give sources\"; a request with no model_path with \"Give model_path\"; a computer with no whisper-cli that runs with \"This Mac has no program that hears recordings.\""
+    }
+  ]
+}
