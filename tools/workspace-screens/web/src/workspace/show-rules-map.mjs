@@ -20,7 +20,7 @@
 //      fields than the rows did may use the answer only when no rule reads one of them.
 //   5. A strict subject is not decided here (`strict` comes back true): its caller decides each thing as before.
 
-import { timeZoneName } from 'trillion-workshop/tools/run-work-later-or-on-a-repeat/do-work/timed-action-in-a-page.mjs';
+import { timeZoneName, wallTimeOf, weekday } from 'trillion-workshop/tools/run-work-later-or-on-a-repeat/do-work/timed-action-in-a-page.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const timeOf = value => (typeof value === 'number' ? value : typeof value === 'string' ? Date.parse(value) : NaN);
@@ -32,18 +32,14 @@ function leaves(tree) {
   return Array.isArray(tree.rules) ? tree.rules.flatMap(leaves) : [];
 }
 
-// One formatter per time zone, as show-rules.mjs keeps them.
-const formatters = new Map();
+// The hour (0-23), minute and weekday a moment has in a time zone, read by the timed-action engine (the same zone data
+// that checks the zone, so a rule's hour never comes from older browser or Node zone data); an unknown zone gives no clock.
+const WEEKDAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 function clockIn(now, requestedZone) {
   const zone = timeZoneName({ value: requestedZone || 'UTC' });
   if (!zone) return { hour: null, minute: null, weekday: null };
-  let formatter = formatters.get(zone);
-  if (!formatter) {
-    formatter = new Intl.DateTimeFormat('en-US', { timeZone: zone, hour: 'numeric', minute: 'numeric', hourCycle: 'h23', weekday: 'long' });
-    formatters.set(zone, formatter);
-  }
-  const parts = Object.fromEntries(formatter.formatToParts(new Date(now)).map(part => [part.type, part.value]));
-  return { hour: Number(parts.hour), minute: Number(parts.minute), weekday: String(parts.weekday).toLowerCase() };
+  const { date, time } = wallTimeOf({ instantMs: now, zone });
+  return { hour: Number(time.slice(0, 2)), minute: Number(time.slice(3, 5)), weekday: WEEKDAY_NAMES[weekday({ date })] };
 }
 const TURNS = {
   hour: (now, clock) => now + (60 - clock.minute) * 60_000 - (now % 60_000),

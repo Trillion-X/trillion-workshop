@@ -39,7 +39,7 @@
 
 import { decideRuleEffects } from './rule-decisions.mjs';
 import { factsOf, nextTurn, rulesIn } from './sidebar-rules.mjs';
-import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
+import { timeZoneName, wallTimeOf, weekday } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 
 const HOUR_MS = 3_600_000;
 // A path never walks into an object's prototype.
@@ -48,26 +48,17 @@ const timeOf = value => (typeof value === 'number' ? value : typeof value === 's
 const text = value => (typeof value === 'string' ? value.trim() : '');
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
-// The hour (0-23), minute and weekday a moment has in a time zone; an unknown zone reads as UTC.
-// One formatter per time zone, made once: making an Intl.DateTimeFormat costs about a millisecond, and every show
-// decision reads the clock once per rule, so a formatter made per read held a busy page's main thread for seconds.
-const formatters = new Map();
-const formatterIn = zone => {
-  let formatter = formatters.get(zone);
-  if (!formatter) {
-    formatter = new Intl.DateTimeFormat('en-US', { timeZone: zone, hour: 'numeric', minute: 'numeric', hourCycle: 'h23', weekday: 'long' });
-    formatters.set(zone, formatter);
-  }
-  return formatter;
-};
+// The hour (0-23), minute and weekday a moment has in a time zone, read by the timed-action engine (the same zone data
+// that checks the zone, so a rule's hour never comes from older browser or Node zone data); an unknown zone gives no clock.
+const WEEKDAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
 // The clock in a zone (UTC when none is named). A zone that is not one gives no clock, so a rule on the hour or the day
 // fails closed instead of reading another zone's time.
 function clockIn(now, timeZone) {
   const zone = timeZoneName({ value: timeZone || 'UTC' });
   if (!zone) return { hour: null, minute: null, weekday: null };
-  const parts = Object.fromEntries(formatterIn(zone).formatToParts(new Date(now)).map(part => [part.type, part.value]));
-  return { hour: Number(parts.hour), minute: Number(parts.minute), weekday: String(parts.weekday).toLowerCase() };
+  const { date, time } = wallTimeOf({ instantMs: now, zone });
+  return { hour: Number(time.slice(0, 2)), minute: Number(time.slice(3, 5)), weekday: WEEKDAY_NAMES[weekday({ date })] };
 }
 // The moment ahead at which a fact read from the time turns by itself, from its `turns` (the next hour or the next day).
 const TURNS = {
