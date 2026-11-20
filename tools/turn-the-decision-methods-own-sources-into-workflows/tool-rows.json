@@ -432,6 +432,7 @@
                 "package": "check-against-a-persons-rules-and-verdicts",
                 "paths": [
                   "do-work/piece-sweep.mjs",
+                  "do-work/records-in-hand.mjs",
                   "read-data/pieces.json"
                 ],
                 "at": "/opt/tools/check-against-a-persons-rules-and-verdicts"
