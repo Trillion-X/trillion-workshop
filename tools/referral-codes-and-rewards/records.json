@@ -687,6 +687,17 @@
     "placements": [
      "placement:small-container"
     ],
+    "screen": {
+     "group": "sell",
+     "kind": "module",
+     "module": {
+      "package": "referral-codes-and-rewards",
+      "entry": "web/invite-a-friend-screen-mount.tsx"
+     },
+     "icon": "Gift",
+     "label": "Invite a friend",
+     "about": "Your own referral link, to copy and send to a friend."
+    },
     "maker": "maker:referral-codes-and-rewards",
     "result_selector": "$.result",
     "provenance": {
