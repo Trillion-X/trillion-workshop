@@ -16,7 +16,7 @@ function fakeHost({ pages = {}, filesRight = true } = {}) {
       calls.push(op);
       if (!filesRight) throw Object.assign(new Error('This run has no files right.'), { code: 'no_files' });
       if (op === 'find_file') {
-        if (!store.has(args.name_or_identity)) throw Object.assign(new Error('not found'), { code: 'not_found' });
+        if (!store.has(args.name_or_identity)) throw Object.assign(new Error('There is no file by that name.'), { code: 'file_not_found' });
         return { names: [args.name_or_identity] };
       }
       if (op === 'read_file') {
@@ -59,6 +59,13 @@ test('save, read, and list a saved page through the Files right', async () => {
 test('a read of a page never saved says so by name', async () => {
   const host = fakeHost();
   await assert.rejects(readSavedPage({ url: 'https://example.com/never' }, host), /There is no saved page/);
+});
+
+test('a file that is not there reads as no page, and an unrelated failure is raised', async () => {
+  const host = fakeHost();
+  assert.deepEqual((await readSavedPage({}, host)).pages, []);
+  host.files = async () => { throw Object.assign(new Error('the files right is busy'), { code: 'selected_owner_unavailable' }); };
+  await assert.rejects(readSavedPage({}, host), /busy/);
 });
 
 test('a host without the Files right is refused with its own code, never answered as an empty list', async () => {

@@ -126,19 +126,7 @@
                 "at": "/opt/node_modules/@noble/hashes"
               }
             ]
-          },
-          "stored": [
-            {
-              "files": "/",
-              "operations": [
-                "find_file",
-                "read_file",
-                "write_file_start",
-                "write_file_piece",
-                "write_file_finish"
-              ]
-            }
-          ]
+          }
         },
         "needs": {
           "expected_seconds": 120,
@@ -149,7 +137,19 @@
           "placement:your-computer"
         ],
         "maker": "maker:keep-links-i-saved-elsewhere-such",
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "files": "/",
+            "operations": [
+              "find_file",
+              "read_file",
+              "write_file_start",
+              "write_file_piece",
+              "write_file_finish"
+            ]
+          }
+        ]
       }
     },
     {
@@ -269,16 +269,7 @@
                 "at": "/opt/node_modules/@noble/hashes"
               }
             ]
-          },
-          "stored": [
-            {
-              "files": "/",
-              "operations": [
-                "find_file",
-                "read_file"
-              ]
-            }
-          ]
+          }
         },
         "needs": {
           "expected_seconds": 120,
@@ -289,7 +280,16 @@
           "placement:your-computer"
         ],
         "maker": "maker:keep-links-i-saved-elsewhere-such",
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "files": "/",
+            "operations": [
+              "find_file",
+              "read_file"
+            ]
+          }
+        ]
       }
     },
     {
@@ -421,19 +421,7 @@
                 "at": "/opt/node_modules/@noble/hashes"
               }
             ]
-          },
-          "stored": [
-            {
-              "files": "/",
-              "operations": [
-                "find_file",
-                "read_file",
-                "write_file_start",
-                "write_file_piece",
-                "write_file_finish"
-              ]
-            }
-          ]
+          }
         },
         "needs": {
           "expected_seconds": 120,
@@ -444,7 +432,19 @@
           "placement:your-computer"
         ],
         "maker": "maker:keep-links-i-saved-elsewhere-such",
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "files": "/",
+            "operations": [
+              "find_file",
+              "read_file",
+              "write_file_start",
+              "write_file_piece",
+              "write_file_finish"
+            ]
+          }
+        ]
       }
     },
     {
@@ -566,19 +566,7 @@
                 "at": "/opt/node_modules/@noble/hashes"
               }
             ]
-          },
-          "stored": [
-            {
-              "files": "/",
-              "operations": [
-                "find_file",
-                "read_file",
-                "write_file_start",
-                "write_file_piece",
-                "write_file_finish"
-              ]
-            }
-          ]
+          }
         },
         "needs": {
           "expected_seconds": 120,
@@ -589,7 +577,19 @@
           "placement:your-computer"
         ],
         "maker": "maker:keep-links-i-saved-elsewhere-such",
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "files": "/",
+            "operations": [
+              "find_file",
+              "read_file",
+              "write_file_start",
+              "write_file_piece",
+              "write_file_finish"
+            ]
+          }
+        ]
       }
     },
     {
@@ -707,8 +707,7 @@
                 "at": "/opt/node_modules/@noble/hashes"
               }
             ]
-          },
-          "stored": []
+          }
         },
         "needs": {
           "expected_seconds": 120,
@@ -727,7 +726,8 @@
               "url": "https://x.com/someone/status/1"
             }
           }
-        ]
+        ],
+        "stored": []
       }
     }
   ]
