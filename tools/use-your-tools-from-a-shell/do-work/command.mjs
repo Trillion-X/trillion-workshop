@@ -20,8 +20,8 @@
 //     {cli} tasks | give | take | who-can-take | finish | fail | hand-on | plan | release | stuck | wait | resume | edit | withdraw | remove | serve
 //                                         tasks, each a read or one move through its Workshop task tool (command.json `tasks`)
 //     {cli} tools | call TOOL JSON     the Workshop tools, and run one
-//     {cli} op ADDRESS METHOD JSON     any engine operation
-//     {cli} schedule list | on|off TOOL WAKE_ID | cancel RUN_KEY
+//     {cli} op METHOD JSON [--pin ID]...  any engine operation (--pin: the computers to meet it at, in order)
+//     {cli} schedule list | on|off TOOL WAKE_ID | cancel RUN_KEY [--pin ID]...
 //                                         the wakes the tool rows declare, read and switched at the engine's wake owner
 //     records replay-from-transcripts --since TIME
 //                                         the rows this computer's AIs wrote, from their transcripts, as an inventory
@@ -141,9 +141,9 @@ export const aiIdOf = (id, rules = settings) => (/^[^:\s]+:\S+$/.test(String(id)
 
 // ── Command line ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const VALUE_FLAGS = new Set(['address', 'description', 'title', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'can', 'from', 'taken-by', 'assignee', 'ag-ui', 'since', 'list', 'check-file', 'acceptance-file', 'input', 'store']);
+const VALUE_FLAGS = new Set(['address', 'description', 'title', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'can', 'from', 'taken-by', 'assignee', 'ag-ui', 'since', 'list', 'check-file', 'acceptance-file', 'input', 'store', 'pin']);
 // A flag given more than once keeps every value, in order (`--to A --to B`); the others keep the last.
-const MULTI_FLAGS = new Set(['to', 'can']);
+const MULTI_FLAGS = new Set(['to', 'can', 'pin']);
 
 /** The method `op` names first. A word that starts with @ is the address the old form put first, which a call no longer names. */
 function opMethod(word) {
@@ -178,6 +178,18 @@ const wholeNumber = (value, name) => {
 };
 const need = (value, words) => { if (value === undefined || value === '') throw new CommandError(words, { status: 2 }); return value; };
 const joined = list => (list.length ? list.join(' ') : undefined);
+/** The route `op` and `schedule` are sent with for their `--pin` flags: `{ pins }`, the computer ids in the order given (a
+ *  repeated flag, or a comma list), each one the engine accepts (command.json `engine.pins`); `{}` when no --pin is given,
+ *  so the call's envelope is unchanged. Refused before anything is sent. */
+export function pinRouteOf(flags, { rules = settings } = {}) {
+  if (flags.pin === undefined) return {};
+  const { most, id_pattern } = rules.engine.pins;
+  const pins = [flags.pin].flat().flatMap(value => value.split(','));
+  if (pins.length > most) throw new CommandError(fill(rules.words.pin_too_many, { most, count: pins.length }), { status: 2 });
+  const refused = pins.find(id => !new RegExp(id_pattern).test(id));
+  if (refused !== undefined) throw new CommandError(fill(rules.words.pin_refused, { id: short(refused, 40) }), { status: 2 });
+  return { pins };
+}
 /** The JSON object in `file` (a --check-file or --acceptance-file), or a refusal saying what it should hold. */
 const readJsonFile = (file, name, example) => {
   let value;
@@ -1436,9 +1448,10 @@ const HELP = `{cli}: see your AIs and their tasks, and run your {site_name}'s to
   {cli} publish [HELD_JSON|-]                         this AI's own record as a keep row (its facts, seen now) for your own store; HELD_JSON is the value your store holds now
   {cli} tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
   {cli} connect ADDRESS                               sign in to a remote tool server (an MCP server's https address); then any AI calls its tools by that address
-  {cli} op METHOD JSON|-                              any engine operation by its method (do_one_thing_in_my_account); op --dry-run shows the request and sends nothing
+  {cli} op METHOD JSON|- [--pin ID]...                 any engine operation by its method (do_one_thing_in_my_account); op --dry-run shows the request and sends nothing
+  --pin ID  meet the op or schedule call at this computer first, then the next --pin in order (repeat it, or give IDs separated by commas; at most ${settings.engine.pins.most})
   --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer is asked again, up to ${settings.retry.count} more times, under the same request key
-  {cli} schedule list | on TOOL WAKE_ID | off TOOL WAKE_ID | cancel RUN_KEY   the wakes your tool rows declare: list, switch, or cancel one admitted run (a wake is made, changed or removed in its row's wakes list)
+  {cli} schedule list | on TOOL WAKE_ID | off TOOL WAKE_ID | cancel RUN_KEY [--pin ID]...   the wakes your tool rows declare: list, switch, or cancel one admitted run (a wake is made, changed or removed in its row's wakes list)
   {cli} update                                        who updates this command (it never updates itself)
   ${basename(settings.install.link)} records replay-from-transcripts --since TIME            list the rows this computer's AIs wrote, to keep in your own store (writes nothing)
 
@@ -1466,24 +1479,24 @@ const HELP = `{cli}: see your AIs and their tasks, and run your {site_name}'s to
 /** `schedule`: the wakes the person's tool rows declare (each row's `wakes` list), read and switched at the engine's wake
  *  owner (`engine.wake`: list, switch), and one admitted run cancelled (`engine.cancel`). A call names its method only; the
  *  engine finds the owner. A wake is made, changed or removed in its row's `wakes` list, never here. */
-export async function schedules(client, words, { requestKey, rules = settings, inputFile, readInput = file => readFileSync(file === '-' ? 0 : file, 'utf8') } = {}) {
+export async function schedules(client, words, { requestKey, rules = settings, inputFile, route = {}, readInput = file => readFileSync(file === '-' ? 0 : file, 'utf8') } = {}) {
   const [action = 'list', ...args] = words;
   const { wake } = rules.engine;
   if (action === 'list') {
     if (args.length) throw new CommandError(`Use ${cliName()} schedule list.`, { status: 2 });
-    return client.op(null, wake.list, {}, { idempotent: true });
+    return client.op(null, wake.list, {}, { idempotent: true, route });
   }
   if (action === 'on' || action === 'off') {
     const [tool, id, ...extra] = args;
     need(tool, `Name the tool: ${cliName()} schedule ${action} TOOL WAKE_ID.`);
     need(id, `Name the wake id: ${cliName()} schedule ${action} TOOL WAKE_ID.`);
     if (extra.length) throw new CommandError(`Use ${cliName()} schedule ${action} TOOL WAKE_ID.`, { status: 2 });
-    if (inputFile === undefined) return opWhole(client, null, wake.switch, { tool, id, on: action === 'on' }, { requestKey });
+    if (inputFile === undefined) return opWhole(client, null, wake.switch, { tool, id, on: action === 'on' }, { requestKey, route });
     if (action === 'off') throw new CommandError(rules.words.schedule_input_off, { status: 2 });
     const input = switchInput(inputFile, readInput, rules);
     // An engine older than the input refuses the unknown field; that refusal is passed through with one line of help and
     // the call is never sent again without the input, which would switch the wake on without it.
-    return opWhole(client, null, wake.switch, { tool, id, on: true, input }, { requestKey }).catch(error => {
+    return opWhole(client, null, wake.switch, { tool, id, on: true, input }, { requestKey, route }).catch(error => {
       if (error?.answer?.code === rules.engine.need_refusal.code) error.message = `${error.message}\n${rules.words.schedule_input_old_engine}`;
       throw error;
     });
@@ -1492,7 +1505,7 @@ export async function schedules(client, words, { requestKey, rules = settings, i
     const [run, ...extra] = args;
     need(run, `Name the exact admitted run key: ${cliName()} schedule cancel RUN_KEY.`);
     if (extra.length) throw new CommandError(`Use ${cliName()} schedule cancel RUN_KEY.`, { status: 2 });
-    return opWhole(client, null, rules.engine.cancel, { run }, { requestKey });
+    return opWhole(client, null, rules.engine.cancel, { run }, { requestKey, route });
   }
   throw new CommandError(`Unknown schedule command ${action}. Run ${cliName()} help.`, { status: 2 });
 }
@@ -1866,12 +1879,13 @@ export async function main(argv, seams = {}) {
   }
   if (command === 'serve') return serve(context);
   if (!TASK_COMMANDS.has(command) && !['whoami', 'tools', 'connect', 'call', 'op', 'who', 'publish', 'schedule'].includes(command)) throw new CommandError(`Unknown command ${command}. Run ${cliName()} help.`, { status: 2 });
+  const pinned = command === 'op' || command === 'schedule' ? pinRouteOf(flags) : {};
   if (command === 'call' || command === 'op') {
     const known = settings.direct_calls.flags[command];
     const unknown = Object.keys(flags).find(name => !known.includes(name));
     if (unknown !== undefined) throw new CommandError(fill(settings.words.unknown_flag, { command, flag: unknown, known: known.map(name => `--${name}`).join(', ') }), { status: 2 });
     if (flags['dry-run'] === true) {
-      const request = { ...(flags.address ? { address: flags.address } : {}), method: opMethod(words[0]),
+      const request = { ...(flags.address ? { address: flags.address } : {}), method: opMethod(words[0]), ...pinned,
         request_key: flags['request-key'] ?? randomUUID(), input: await readJson(words[1], '{"id": "..."}') };
       return JSON.stringify(request, null, 2);
     }
@@ -1901,7 +1915,7 @@ export async function main(argv, seams = {}) {
   if (command === 'schedule') {
     const requestKey = flags['request-key'] ?? randomUUID();
     if (requestKey.length > 160) throw new CommandError('A schedule --request-key may be at most 160 characters so its per-step keys remain unique.', { status: 2 });
-    return print('schedule', await schedules(client, words, { requestKey, rules: settings, inputFile: flags.input }));
+    return print('schedule', await schedules(client, words, { requestKey, rules: settings, inputFile: flags.input, route: pinned }));
   }
   if (command === 'tools') return print('tools', { tools: await allPages(client, null, engine.tools_list, {}, 'tools') });
   if (command === 'connect') return JSON.stringify(await connectToolServer(client, words[0], { origin: context.state.site() }), null, 2);
@@ -1913,7 +1927,7 @@ export async function main(argv, seams = {}) {
       const input = await readJson(words[1], '{"text": "..."}');
       return whole(await opWhole(client, null, engine.tools_run, { tool, input }, { requestKey: flags['request-key'], route: await routeOf(client, tool) }));
     }
-    return whole(await opWhole(client, flags.address ?? null, opMethod(words[0]), await readJson(words[1], '{"id": "..."}'), { requestKey: flags['request-key'] }));
+    return whole(await opWhole(client, flags.address ?? null, opMethod(words[0]), await readJson(words[1], '{"id": "..."}'), { requestKey: flags['request-key'], route: pinned }));
   }
   if (command === 'who') {
     const now = Date.now();

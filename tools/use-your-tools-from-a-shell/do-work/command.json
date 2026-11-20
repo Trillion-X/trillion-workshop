@@ -54,7 +54,7 @@
     ]
   },
   "direct_calls": {
-    "_what": "The flags `{cli} op` and `{cli} call` take, per command; any other flag is refused before anything is sent (parseArgs makes every unknown --flag a true, so an unchecked one was silently dropped: an `op ... --dry-run` write was sent and removed a row on 2026-11-13). `--dry-run` is op only: it prints the request it would have sent {address, method, request_key, input} and sends nothing.",
+    "_what": "The flags `{cli} op` and `{cli} call` take, per command; any other flag is refused before anything is sent (parseArgs makes every unknown --flag a true, so an unchecked one was silently dropped: an `op ... --dry-run` write was sent and removed a row on 2026-11-13). `--dry-run` is op only: it prints the request it would have sent {address, method, request_key, input, and pins when given} and sends nothing. `--pin` is op's flag here; `{cli} schedule` takes it too (it has no flag list of its own). Each one is a computer id checked against engine.pins, and the pins they name are sent beside method and input as the call's `pins` argument, in the order given.",
     "flags": {
       "op": [
         "address",
@@ -64,6 +64,7 @@
         "json",
         "help",
         "dry-run",
+        "pin",
         "verbose"
       ],
       "call": [
@@ -314,6 +315,7 @@
     "most_pages": 1000,
     "cancel": "tools:cancel",
     "wake": { "switch": "wake:switch", "list": "wake:list", "max_switch_input_bytes": 65536, "_why": "A switch on may carry the person's own input (an object, at most max_switch_input_bytes as JSON), kept with the wake and handed to every run it starts under the row's own fields (an engine from commit 3bd6dc47a; an older one refuses the unknown field, and that refusal is passed through with schedule_input_old_engine, never resent without the input)." },
+    "pins": { "most": 64, "id_pattern": "^[A-Za-z0-9_-]{1,128}$", "_why": "The engine's rule for the pins of a call's envelope (trillion-rust src/tool_runs/reach.rs Route::parse and computer_id_valid): at most 64 computer ids, each 1 to 128 ASCII letters, digits, dashes or underscores. --pin is checked against it here, before anything is sent." },
     "_need_refusal": "The exact refusal an engine older than trillion-rust 9133c735e gives a call that carries `need` (its parse_operation names every argument that is not a call's, as invalid params). Only this refusal makes the command send the same call once more without `need`; every other refusal is passed through.",
     "need_refusal": { "code": -32602, "message": "Addressed resource arguments are incomplete: `need` is not an argument of a call." }
   },
@@ -438,6 +440,8 @@
     "schedule_input_size": "--input may hold at most {limit} bytes; this one holds {size}.",
     "schedule_input_off": "--input goes only with schedule on; a wake switched off keeps no input.",
     "schedule_input_old_engine": "What runs your tools on this computer is too old to take your own input when switching a wake on. Update it, then ask again. The wake was not switched on.",
+    "pin_refused": "--pin names a computer by its id: 1 to 128 letters, digits, dashes or underscores. {id} is not one.",
+    "pin_too_many": "--pin takes at most {most} computers; this names {count}.",
     "retry_with_key": "To ask again without doing it twice, add {flag} {key} to the command.",
     "request_key_line": "Reference: {key}.",
     "write_pending": "Your change was saved, but it has not shown up yet. Look again before you try again.",
