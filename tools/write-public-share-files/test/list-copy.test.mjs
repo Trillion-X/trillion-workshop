@@ -1,13 +1,13 @@
 // tools/write-public-share-files/test/list-copy.test.mjs (moved from Trillion's test/list-copy.test.mjs)
 //
 // What of a list leaves through a share link (read-data/list-copy.mjs), decided by the Workshop's formula engine
-// (tools/formulas): a row shows only while its own Shown when rule holds at the moment the link is read (a date in the
+// (tools/formula-engine): a row shows only while its own Shown when rule holds at the moment the link is read (a date in the
 // future hides it, a number of opens reveals it), an unfinished rule hides its row, the rule field itself never leaves,
 // and only files that shown rows name leave, each by its identity. A saved view leaves only through the view projection
 // its caller hands in; with none, no view leaves (Trillion's own test of this file runs it with Trillion's projection).
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { filterRecords } from '../../formulas/do-work/requests.mjs';
+import { filterRecords } from '../do-work/formula-engine.mjs';
 import { listCopy } from '../read-data/list-copy.mjs';
 
 const filterRows = ({ tree, fields, rows }) => { const { matches, incomplete } = filterRecords({ tree, fields, records: rows }); return { matches, incomplete }; };

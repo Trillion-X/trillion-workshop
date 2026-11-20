@@ -1,8 +1,8 @@
 // A metric card's totals are the list engine's `measure`, in a browser page as on the server. This bundles the metric math for a
 // browser (no Node: no process, no fs) and runs it in a context that has only what a page has: before the page loads the formula
-// engine's wasm a card shows no reading and says why; once it is loaded the totals are the engine's. The page's own load (the
-// content-named wasm file fetched once, formula-engine rules/evaluator-bytes-in-the-page.mjs) is the build's: workspace-screens
-// web/scripts/build-workspace.mjs writes the file.
+// engine's wasm a card shows no reading and says why; once it is loaded the totals are the engine's. The page loads the formula
+// engine's own module (its init on the content-named wasm file the build writes, workspace-screens web/scripts/build-workspace.mjs)
+// and hands that module to the list engine.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -12,13 +12,13 @@ import vm from 'node:vm';
 import { build } from 'esbuild';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const wasm = readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm')));
+const wasm = readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm')));
 
 // The page: the metric math and the list engine's loader, bundled for a browser and run where `process` does not exist.
 async function openPage() {
   const built = await build({
     stdin: {
-      contents: `export * from 'trillion-workshop/tools/keep-lists-of-rows/read-data/metric-aggregation.ts';\nexport { loadMeasureEngine, measureEngineReady, provideMeasureEngine } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';\nexport { loadRowEvaluator } from 'trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs';`,
+      contents: `export * from 'trillion-workshop/tools/keep-lists-of-rows/read-data/metric-aggregation.ts';\nexport { loadMeasureEngine, measureEngineReady, provideMeasureEngine } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';\nexport * as engine from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';\n// The page's own request object, made in the page (the module's init reads a plain object of the page's own kind).\nexport const loaded = bytes => ({ module: bytes });`,
       resolveDir: `${here}/..`, loader: 'ts',
     },
     bundle: true, format: 'iife', globalName: 'page', platform: 'browser', write: false, logLevel: 'silent',
@@ -41,7 +41,7 @@ test('a card shows no reading until the page has the formula engine, then the en
   assert.equal(before.value, null);
   assert.match(before.error, /formula engine/);
 
-  await page.loadMeasureEngine(async () => page.loadRowEvaluator(new Uint8Array(wasm)));
+  await page.loadMeasureEngine(async () => { page.engine.initSync(page.loaded(new Uint8Array(wasm))); return page.engine; });
   assert.equal(page.measureEngineReady(), true);
   const answers = Object.fromEntries(['sum', 'average', 'min', 'max', 'latest', 'first', 'count', 'count-values', 'median', 'distinct']
     .map(op => [op, page.computeMetricValue(spec(op), records, model).value]));
@@ -53,7 +53,7 @@ test('a card shows no reading until the page has the formula engine, then the en
 test('a page says how to load the engine and the first screen to ask has it loaded, once', async () => {
   const page = await openPage();
   let fetched = 0;
-  page.provideMeasureEngine(async () => { fetched += 1; return page.loadRowEvaluator(new Uint8Array(wasm)); });
+  page.provideMeasureEngine(async () => { fetched += 1; page.engine.initSync(page.loaded(new Uint8Array(wasm))); return page.engine; });
   await Promise.all([page.loadMeasureEngine(), page.loadMeasureEngine()]);
   await page.loadMeasureEngine();
   assert.equal(fetched, 1);

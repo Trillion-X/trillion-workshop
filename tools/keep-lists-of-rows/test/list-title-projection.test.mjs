@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { prepareListTitles, titleText } from '../read-data/list-title-projection.mjs';
-import { evaluateFormula } from '../../formulas/do-work/requests.mjs';
+import { readFileSync } from 'node:fs';
+import { initSync, evaluateFormula } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+
+initSync({ module: readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
 
 // Synthetic DATA, not an account fixture. The production evaluator, not a second formula implementation, decides it.
 const binding = { $kind: 'binding', select: { from: 'self', path: ['display'] }, transform: [] };

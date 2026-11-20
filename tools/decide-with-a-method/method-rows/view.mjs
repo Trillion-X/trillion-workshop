@@ -17,10 +17,20 @@
 //      answer to it is judged before it writes one.
 //   3. A page never holds more rows than `read.page_rows_most`, and says where the next one starts; a method of any size is
 //      read by following `next` until it is null.
-import { filterRecords } from '../../formulas/do-work/requests.mjs';
 import settings from './settings.json' with { type: 'json' };
 import decide from '../read-data/decide-with-a-method.json' with { type: 'json' };
 import { recordsIn } from '../read-data/decision-records.mjs';
+import { readFileSync } from 'node:fs';
+import { initSync, filterRecords as engineFilterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+// The formula engine is loaded on the first rule read, from its bytes beside the built module.
+let engineReady = false;
+const filterRecords = request => {
+  if (!engineReady) {
+    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    engineReady = true;
+  }
+  return engineFilterRecords(request);
+};
 
 const { names, strictness: STRICT, words: WORDS } = settings;
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);

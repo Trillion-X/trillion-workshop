@@ -12,7 +12,7 @@ The crates themselves live with the tool whose job they do, in that tool's `crat
 | `build/build-compiled-modules.mjs` | Compile every row's crate and publish `built-stored-bytes/` whole, with `fingerprint.json`; a failed or interrupted build leaves the published generation as it was. |
 | `build/build-crate-for-a-web-host.mjs` | Build one crate as a wasm-bindgen module (`buildCrateForAWebHost`), find the Cargo workspaces (`crateWorkspaces`: each tool's `crates/`, then the engine's) and the one a crate belongs to. |
 | `build/shared-cargo-target.mjs` | The one cargo target folder of the computer, held by one build at a time, kept under a size ceiling, with the flags that keep the building computer's paths out of a module. |
-| `build/build-formula-evaluator.mjs` | Rebuild the formula engine's row evaluator into `tools/formula-engine/built-stored-bytes/evaluate-over-rows/`. |
+| `build/build-formula-evaluator.mjs` | Rebuild the formula engine from `tools/formula-engine/crates/formula-engine`: the module every page and Node tool calls directly (`tools/formula-engine/built-stored-bytes/formula-engine/`) and the one WebAssembly component its tool rows run (`tools/formula-engine/built-stored-bytes/component/formula-engine.wasm`). |
 | `built-stored-bytes/` | The committed modules (`composition-engine/`, `held-values/`, `screen-arrangement/`, `trigger-engine/`, `workflow-engine/`, `workflow-component/`) and `fingerprint.json`. Regenerate; never edit. |
 | `test/` | The tests of the build: the fingerprint, the published generation under interruption and under readers, the shared target folder, and the engines running in WebAssembly. |
 

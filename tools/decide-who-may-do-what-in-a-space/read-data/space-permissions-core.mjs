@@ -1,15 +1,20 @@
 // One-to-one port of trillion@b6ae0ebf815f2f5271eed34e6e023c7e1767ec04 src/space-permissions.mjs75–343.
 // The normal immutable baseline commit precedes this active target. Current semantic record reads replace SQL;
 // the public compiled formula/effect/DATA owners replace retired imports. Stored policy is never reset by identity.
-import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import permissions from '../../space-permission-rules/src/space-permission-rules.json' with { type: 'json' };
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { compileRules, ruleVocabulary } from '../../formula-engine/rules/compile-rules.mjs';
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
+import { initSync, compileRules, filterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 import recordSharing from '../../decide-when-things-show/read-data/record-sharing.json' with { type: 'json' };
 import { decideRuleEffects } from '../../set-up-my-account/read-data/rule-decisions.mjs';
-const evaluator = makeRowFilter({ operators, wasm: () => readFile(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
-const filterRows = input => evaluator.filterRowsByRules(input);
+// The formula engine is loaded on the first rule read, from its bytes beside the built module.
+let engineReady = false;
+const engine = () => {
+  if (!engineReady) {
+    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    engineReady = true;
+  }
+};
+const filterRows = input => { engine(); return filterRecords({ records: input.rows, fields: input.fields, tree: input.tree }); };
 export const unknown = message => Object.assign(new Error(message), { code: 'SPACE_PERMISSION_UNKNOWN' });
 export const deadlineOf = (rules, at) => rules.reduce((deadline, rule) => {
   const until = typeof rule.until === 'number' ? rule.until : rule.until == null ? Infinity : Date.parse(rule.until);
@@ -18,7 +23,6 @@ export const deadlineOf = (rules, at) => rules.reduce((deadline, rule) => {
 const AUTHOR_FIELDS = permissions.facts.map(({ id, kind }) => ({ id, kind }));
 const ACTIONS = new Map(permissions.actions.map(action => [action.id, action]));
 const EFFECTS = new Map((permissions.effects ?? []).map(effect => [effect.id, effect]));
-const vocabulary = ruleVocabulary(operators);
 const NOT_A_MEMBER = ACTIONS.get('read_space').refused;
 // The rules a space starts with, by its label (default_rules_by_label), else default_rules; one text per label.
 const STARTING_TEXT = new Map(Object.entries(permissions.default_rules_by_label ?? {}).map(([label, rules]) => [label, JSON.stringify(rules)]));
@@ -76,7 +80,8 @@ export function ruleProblems(rules) {
       push(`${name} has an unfinished group of conditions.`); continue;
     }
     let incomplete;
-    try { ({ incomplete } = compileRules(conditionOf(rule), { fields: AUTHOR_FIELDS, vocabulary })); }
+    engine();
+    try { ({ incomplete } = compileRules({ tree: conditionOf(rule), fields: AUTHOR_FIELDS })); }
     catch { push(`${name} has conditions that cannot be compiled.`); continue; }
     if (incomplete.length) push(`${name} has ${incomplete.length === 1 ? 'a condition' : `${incomplete.length} conditions`} that ${incomplete.length === 1 ? 'is' : 'are'} not finished (a fact from ${AUTHOR_FIELDS.map(field => field.id).join(', ')}, a comparison and its values).`);
     const unknown = nodesOf(conditionOf(rule)).filter(node => node?.field === 'action').flatMap(node => node.params?.values ?? []).filter(value => !ACTIONS.has(value));

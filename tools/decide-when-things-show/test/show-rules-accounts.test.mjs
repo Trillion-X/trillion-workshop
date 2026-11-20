@@ -4,14 +4,10 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
 import { makeShowRules } from '../read-data/show-rules-store.mjs';
-
-const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
-const filter = makeRowFilter({ operators, wasm });
-await filter.load();
-const now = filter.filterRowsByRulesNow;
+import { initSync, filterRecords } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+initSync({ module: readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
+const now = ({ tree, fields, rows }) => filterRecords({ records: rows, fields, tree });
 const NOW = Date.parse('2026-10-13T16:00:00Z');
 const context = {
   accounts: {

@@ -6,7 +6,8 @@
 //   conditionProblems(conditions, where?) -> sentences   none when the conditions are absent or whole
 
 import { readFileSync } from 'node:fs';
-import { filterRecords } from '../../formulas/do-work/requests.mjs';
+import { initSync, filterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
 
 export const FIRES_WHEN = JSON.parse(readFileSync(new URL('../branches/fires-when.json', import.meta.url), 'utf8'));
 

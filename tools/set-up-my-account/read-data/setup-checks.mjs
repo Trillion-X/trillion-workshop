@@ -31,9 +31,7 @@
 import { readFileSync } from 'node:fs';
 import capabilityPolicy from './setup-policy.json' with { type: 'json' };
 import { logoOf } from './site-icon-url.mjs';
-import { compileRules, ruleVocabulary } from 'trillion-workshop/tools/formula-engine/rules/compile-rules.mjs';
-import { loadRowEvaluator } from 'trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs';
-import ruleOperators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { initSync, filterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 
 const FEW = 3;
 const at = (root, path) => String(path).split('.').reduce((here, key) => here == null ? undefined : here[key], root);
@@ -90,14 +88,15 @@ export function plainWords(words, facts = null, { plain = PLAIN, calm = '' } = {
   return kept.join(' ').trim() || calm;
 }
 
-// The formula engine decides which rows a check's `where` keeps (tools/formula-engine: its compiler and the ops-core
-// evaluator built to WebAssembly), loaded on the first check with a `where`. Each test reads its own fact of the row: is
+// The formula engine decides which rows a check's `where` keeps (tools/formula-engine, the Rust module built to
+// WebAssembly), loaded on the first check with a `where`. Each test reads its own fact of the row: is
 // and not are equals and does_not_equal, in is is_any_of, exists is is_true or is_false of the value's presence, gt is
 // greater_than of the value as a number, starts_with is begins_with of a text value, within_hours is at_most of the hours
 // since a time that is not in the future. A test naming none of these keeps no row.
-const ruleVocabularyOf = ruleVocabulary(ruleOperators);
-let evaluator = null;
-const engine = () => (evaluator ??= loadRowEvaluator(readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm')))));
+let engineReady = false;
+const engine = () => {
+  if (!engineReady) { initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) }); engineReady = true; }
+};
 function testRule(test, field) {
   if ('is' in test) return { rule: { kind: 'rule', field, operator: 'equals', params: { value: test.is } }, fact: value => value ?? null };
   if ('not' in test) return { rule: { kind: 'rule', field, operator: 'does_not_equal', params: { value: test.not } }, fact: value => value ?? null };
@@ -113,10 +112,10 @@ function rowsHolding(rows, where, now) {
   const tests = where.map((test, n) => testRule(test, `t${n}`));
   if (tests.includes(null)) return [];
   const fields = tests.map((_, n) => ({ id: `t${n}`, kind: 'fact' }));
-  const { binding, incomplete } = compileRules({ kind: 'group', combinator: 'and', negate: false, rules: tests.map(test => test.rule) }, { fields, vocabulary: ruleVocabularyOf });
-  if (incomplete.length) return [];
+  engine();
   const table = rows.map(row => Object.fromEntries(where.map((test, n) => [`t${n}`, tests[n].fact(at(row, test.field), now)])));
-  const { matches } = engine().filterRows(table, binding);
+  const { matches, incomplete } = filterRecords({ records: table, fields, tree: { kind: 'group', combinator: 'and', negate: false, rules: tests.map(test => test.rule) } });
+  if (incomplete.length) return [];
   return matches.map(index => rows[index]);
 }
 

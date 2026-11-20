@@ -8,7 +8,7 @@
 // a static file cannot check have no public files. Every name and address here is made up.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { filterRecords } from '../../formulas/do-work/requests.mjs';
+import { filterRecords } from '../do-work/formula-engine.mjs';
 import { linkOpen, listRows, shareFiles } from '../do-work/share-files.mjs';
 
 const ORIGIN = 'https://share.example';

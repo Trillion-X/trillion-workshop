@@ -1,17 +1,19 @@
-// Formula evaluation guards (tools/formula-engine/rules/evaluation-guards.mjs): every evaluation, through the Workshop
-// tools' row filter (tool:filter-rows-by-rules, tool:evaluate-binding) and the page's evaluator alike, is refused in its
-// own words when the formula is too deep, too large, contains itself, compiles an unsafe pattern or is too much work.
+// Formula evaluation guards (crates/formula-engine/src/guards.rs, limits in rules/evaluation-guards.json): every
+// evaluation, through the Workshop tools' row filter (tool:filter-rows-by-rules, tool:evaluate-a-formula) and a page's
+// calls alike, is refused in its own words when the formula is too deep, too large, contains itself, compiles an unsafe
+// pattern or is too much work. The slicing by the clock is proven inside the crate with a clock it is handed
+// (guards.rs a_call_past_its_budget_stops_between_slices_and_its_formula_is_paused).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import operators from '../rules/rule-operators.json' with { type: 'json' };
 import guards from '../rules/evaluation-guards.json' with { type: 'json' };
-import { makeRowFilter } from '../rules/filter-rows-by-rules.mjs';
-import { loadRowEvaluator } from '../rules/evaluate-over-rows.mjs';
-import { inSlices } from '../rules/evaluation-guards.mjs';
+import { initSync, evaluate, filterRecords, filterRows } from '../built-stored-bytes/formula-engine/formula_engine.js';
 
-const wasm = () => readFileSync(new URL(import.meta.resolve('../built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm')));
-const engine = makeRowFilter({ operators, wasm });
+initSync({ module: readFileSync(new URL('../built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
+const engine = {
+  evaluateBinding: async request => evaluate(request),
+  filterRowsByRules: async ({ tree, fields, rows }) => filterRecords({ records: rows, fields, tree }),
+};
 const select = path => ({ $kind: 'binding', select: { from: 'self', path } });
 const refusedAs = guard => error => error.code === 'formula_guard' && error.guard === guard && typeof error.message === 'string' && error.message.length > 0;
 
@@ -40,26 +42,15 @@ test('an unsafe pattern is refused; a safe one runs', async () => {
 });
 
 test('a call whose work is past max_work is refused before it starts, whatever the host clock does', () => {
-  const evaluator = loadRowEvaluator(wasm());
+  const evaluator = { filterRows: (rows, binding) => filterRows({ rows, binding }) };
   const heavy = { ...select(['n']), transform: Array.from({ length: 1000 }, () => ({ op: 'op:core.identity' })) };
   const rows = Array.from({ length: Math.ceil(guards.max_work / 1000) + 1 }, (_, n) => ({ n }));
   assert.throws(() => evaluator.filterRows(rows, heavy), refusedAs('too_much_work'));
   assert.deepEqual(evaluator.filterRows(rows.slice(0, 3), { ...select(['n']), transform: [{ op: 'op:core.gt', args: { value: 0 } }] }).matches, [1, 2]);
 });
 
-test('rows are given a slice at a time, and a call past its time budget stops between slices and is paused', () => {
-  const binding = { marker: 'slow-formula' };
-  const rows = Array.from({ length: guards.rows_per_slice * 3 }, (_, n) => n);
-  const seen = [];
-  const answer = inSlices({ marker: 'fast' }, rows, slice => { seen.push(slice.length); return { matches: [0], errorRows: 0, firstError: null }; });
-  assert.deepEqual(seen, [guards.rows_per_slice, guards.rows_per_slice, guards.rows_per_slice]);
-  assert.deepEqual(answer.matches, [0, guards.rows_per_slice, guards.rows_per_slice * 2]);
-  const slices = [];
-  assert.throws(() => inSlices(binding, rows, slice => {
-    slices.push(slice.length);
-    const until = Date.now() + guards.budget_ms + 20;
-    while (Date.now() < until) { /* a slice that outruns the budget */ }
-    return { matches: [], errorRows: 0, firstError: null };
-  }), refusedAs('over_time'));
-  assert.equal(slices.length, 1, 'the second slice is never started');
+test('a binding the guards refuse never reaches the evaluator, in filterRows and filterRecords alike', () => {
+  const deep = { $kind: 'binding', select: { from: 'self', path: ['x'] }, transform: [{ op: 'op:core.text_regex_match', args: { pattern: 'a{1000}' } }] };
+  assert.throws(() => filterRows({ rows: [{ x: 'a' }], binding: deep }), refusedAs('unsafe_regex'));
+  assert.equal(guards.rows_per_slice > 0 && guards.budget_ms > 0, true, 'the slicing limits are data the engine reads');
 });

@@ -3,7 +3,7 @@
 // Every workflow is a candidate branch of the one tree. Each says when it fires on its own row (branches/fires-when.json):
 // a list of conditions, each the {fields, tree} tool:filter-rows-by-rules takes, evaluated over one seed part. This takes
 // the person's own workflow rows as values (`own`, read by the caller from wherever the person keeps them) beside
-// every recipe this Workshop installs (recipes/), the person's own row winning, and lets the formulas engine say which
+// every recipe this Workshop installs (recipes/), the person's own row winning, and lets the formula engine (its Rust module, called directly) say which
 // conditions keep which parts. Nothing here names a workflow, a branch or a tag: a workflow added, or a kit installed,
 // is a candidate at once.
 //
@@ -20,9 +20,11 @@
 // last two are named so the run can fix them. A workflow with no condition is named in unconditioned, so the run can
 // judge it by its words and write the condition it judged back onto the workflow's row.
 
-import { filterRecords } from '../../formulas/do-work/requests.mjs';
+import { readFileSync } from 'node:fs';
+import { initSync, filterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 import { conditionProblems, FIRES_WHEN } from './fires-when.mjs';
 import { publicRecipes } from './public-recipes.mjs';
+initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const parsed = (value, where) => {

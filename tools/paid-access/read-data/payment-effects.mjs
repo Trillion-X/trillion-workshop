@@ -18,8 +18,7 @@
 // cannot be read is reported in `problems` and skipped, where the package refused the whole batch.
 
 import { readFileSync } from 'node:fs';
-import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
+import { initSync, holds } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : null);
@@ -45,8 +44,7 @@ export function eventOfPaymentEvent(record) {
 // Whether a rule reads a fact is decided by the formula engine (tools/formula-engine rule-operators.json): the rule's
 // `relation`, `objects` and `required_attributes` are its rows of a rule group, and the fact is the facts it reads. This file
 // keeps no comparison; it only says which of a fact's values count as given (a blank text is not).
-const engine = makeRowFilter({ operators, wasm: () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))) });
-await engine.load();
+initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
 const given = value => (present(value) ? value : null);
 const test = (field, operator, params = {}) => ({ kind: 'rule', field, operator, params });
 const texts = list => (Array.isArray(list) ? list.map(text).filter(Boolean) : []);
@@ -62,7 +60,7 @@ export function ruleMatches(rule, fact) {
     ...(objects.length ? [test('object', 'is_any_of', { values: objects })] : []),
     ...required.map((_, index) => test(`attribute_${index}`, 'is_known'))];
   const facts = { relation: fact.relation, object: fact.object, ...Object.fromEntries(required.map((key, index) => [`attribute_${index}`, given(fact.attributes?.[key])])) };
-  return engine.holdsNow({ kind: 'group', combinator: 'and', negate: false, rules: tests }, facts);
+  return holds({ tree: { kind: 'group', combinator: 'and', negate: false, rules: tests }, facts });
 }
 
 function selectedValue(selector, event, fact) {

@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:e43393a8fa90b3db78c8e8cffcca4ce3579e6f736c567f6db3d0bca7b4b1cbfd"
+  "blake3": "1f:6f3cfaf579e826f001d5b856701f1b7a9a7da144fa8139b98e251e8116003cda"
  },
  "fields": [
   {
@@ -2533,12 +2533,12 @@
     "job": "Give a record the label of the first of my rules that holds: each rule has clauses over facts read from the record (is present, is absent, at least, at most, equals), and I get the rule's key, label, tone and severity, or none",
     "description": "Takes a record, the facts to read from it (a key, a path, and how to read it: present, as a number, as an age in seconds up to now_ms, or as it is) and rules in order (a key, a label, an optional tone and severity, and clauses over facts). Answers the first rule whose clauses all hold, with its key, label, tone and severity exactly as given (null where none was given), or no result when none holds. A request that is unfinished (a rule with no key, label or clause, a clause naming a fact that was not declared, an operator that is not listed, an age fact with no now_ms) is refused with a sentence. The tool names no label, tone or threshold; the clock is now_ms, never read.",
     "status": "active",
-    "maker": "maker:formulas",
+    "maker": "maker:formula-engine",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:small-container"
     ],
-    "folder": "formulas"
+    "folder": "formula-engine"
    }
   },
   {
@@ -3383,12 +3383,12 @@
     "job": "Evaluate a formula over each row of a list: read a value from the row, then run a pipeline of steps (and, or, not, equals, more than, less than, is in a list, position in a list, lower-case, contains, starts with, join, is empty, is unknown) over it",
     "description": "Takes a binding (select from the row at a path, or a stated literal, then a transform list of { op, args }; an argument may itself be a binding evaluated over the value the step receives) and rows. Answers one value per row, in order, and the rows that could not be evaluated with the reason (a step given a value of the wrong kind, or a step that is not supported). Three-state logic: and, or and not answer true, false or unknown, and a comparison with an unknown side is unknown. Nothing outside the row is read.",
     "status": "active",
-    "maker": "maker:formulas",
+    "maker": "maker:formula-engine",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:small-container"
     ],
-    "folder": "formulas"
+    "folder": "formula-engine"
    }
   },
   {
@@ -3629,12 +3629,12 @@
     "job": "Keep the rows of a list that match my rules: a tree of comparisons (is any of, has all of, contains, is more than, is between, is empty, is known and more) joined by all-of and any-of groups, each group optionally negated",
     "description": "Takes records, the fields the rules may read (an id, a kind and a path into each record) and a rule tree. Answers the positions and the records that match, the field ids the rules read and the rules left out because they are not finished (an unknown field or comparison, a comparison the field's kind does not offer, missing values), never guessing at them. A tree with no finished rule keeps every row. A value that is unknown never matches a comparison that cannot tell (contains, starts with, more than, less than, between and the like) nor its negation (does not contain, has none of), but an unknown value is simply not in a list and not equal to a word, so is none of and is not keep it. A group whose combinator is not one of the listed ones is refused with a sentence. A row whose value is of the wrong kind for a comparison is counted in error_rows and left out. The comparisons are rows of data: send operators to add or change them, or leave it out to use the ones list-comparisons shows.",
     "status": "active",
-    "maker": "maker:formulas",
+    "maker": "maker:formula-engine",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:small-container"
     ],
-    "folder": "formulas"
+    "folder": "formula-engine"
    }
   },
   {
@@ -5806,12 +5806,12 @@
     "job": "List the comparisons and the all-of and any-of groups a rule can use, for one kind of field or every kind",
     "description": "Answers each comparison's id, its label, what it takes (nothing, one value, a list of values, words, text, a day or a range) and the field kinds that offer it, the group combinators, and the field kinds known. Send operators to list a person's own comparison rows instead of the built-in ones.",
     "status": "active",
-    "maker": "maker:formulas",
+    "maker": "maker:formula-engine",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:small-container"
     ],
-    "folder": "formulas"
+    "folder": "formula-engine"
    }
   },
   {
@@ -9003,12 +9003,12 @@
     "job": "Read one field's history of one row as lines a person reads: each value it held, from when until when, who changed it and by which road",
     "description": "Send list ({ id, fields }, the field naming keeps_history: true), row_id, field_id and kept (the row, with its _history). Answers steps [{ value, from, until, by, said }] oldest first, said being who changed it and by which road in plain words (\"You via <app> over MCP\"), and complete: false when older steps were let go or the first step's start is not known.",
     "status": "active",
-    "maker": "maker:formulas",
+    "maker": "maker:keep-lists-of-rows",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:small-container"
     ],
-    "folder": "formulas"
+    "folder": "keep-lists-of-rows"
    }
   },
   {
@@ -13857,12 +13857,12 @@
     "job": "Work out, from the values a field of a row has held over time, the value it held at a moment, the value before the current one, since when it holds it, how long it spent holding a value and whether it ever held one",
     "description": "Send kept (the row, with _history: { <field id>: { cut, steps: [{ v, at, by?, via? }] } }, the steps a history-keeping field kept), fields ([{ id, history: { field, op, value?, at?, days_ago?, unit? } }], op one of value_at, previous_value, value_set_at, time_spent_in, has_been_in; unit seconds, minutes, hours or days) and now_ms. Answers values { <field id>: value }. An answer that needs history that was not kept (steps let go, or a first value whose start is not known) is null, never a guess. A field that is not finished (no op, no value for time_spent_in or has_been_in, no at or days_ago for value_at, an unknown unit) is refused with a sentence.",
     "status": "active",
-    "maker": "maker:formulas",
+    "maker": "maker:keep-lists-of-rows",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:small-container"
     ],
-    "folder": "formulas"
+    "folder": "keep-lists-of-rows"
    }
   },
   {

@@ -3,12 +3,22 @@
 // One function per Workshop row. Each takes the request object a person's AI sent, refuses what it cannot run with a
 // sentence that says what to send, and returns the answer. The rows, fields, rules, sources and precedence all arrive in
 // the request (the precedence defaults to read-data/value-sources.json); no field, source or kind is named in code.
-import { filterRecords } from '../../formulas/do-work/requests.mjs';
 import { planAColumnFill } from './plan-a-column-fill.mjs';
 import { precedenceOf } from './precedence.mjs';
 import { isPath, readAt } from './row-paths.mjs';
 import { setFieldsByRules } from './set-fields-by-rules.mjs';
 import { settleFieldValues } from './settle-field-values.mjs';
+import { readFileSync } from 'node:fs';
+import { initSync, filterRecords as engineFilterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+// The formula engine is loaded on the first rule read, from its bytes beside the built module.
+let engineReady = false;
+const filterRecords = request => {
+  if (!engineReady) {
+    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    engineReady = true;
+  }
+  return engineFilterRecords(request);
+};
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const need = (ok, sentence) => { if (!ok) throw new Error(sentence); };

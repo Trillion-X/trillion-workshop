@@ -20,7 +20,8 @@
 // discovering the stream from the HEAD when a producer didn't supply it.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import filterBytesAddress from 'trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm';
+import init, { holds } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+import formulaEngineAddress from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm';
 import { useBitfieldData, useBitfieldFold } from '#workspace-records';
 import { readProcessSessionEventHead, type ProcessSessionState } from '../read-data/read-process-session-events';
 import {
@@ -30,8 +31,6 @@ import {
   type ProcessSessionOutputSnapshot,
   type ProcessSessionStreamHandle,
 } from '../read-data/accumulate-process-session-output';
-import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
 import { extractStreamText, streamConditionsLoaded, setStreamConditionEngine } from '../read-data/stream-output-text';
 
 /** Exact-address input owned by this hook's package. Importing entries declare
@@ -40,17 +39,14 @@ const LIVE_EVENTS_INPUT = 'liveProcessSessionEvents';
 
 let conditionEngine: Promise<void> | null = null;
 
-/** True once the formula engine that decides a stream spec's conditions is loaded (from the bytes the page fetches for
- * its filters); loads it the first time a hook asks. */
+/** True once the formula engine that decides a stream spec's conditions is loaded (its bytes, fetched once for this
+ * module); loads it the first time a hook asks. */
 function useStreamConditionsReady(): boolean {
   const [ready, setReady] = useState(streamConditionsLoaded());
   useEffect(() => {
     if (ready) return undefined;
     let live = true;
-    if (!conditionEngine) {
-      const filter = makeRowFilter({ operators, wasm: async () => new Uint8Array(await (await fetch(filterBytesAddress)).arrayBuffer()) });
-      conditionEngine = filter.load().then(() => setStreamConditionEngine(filter.holdsNow));
-    }
+    conditionEngine ||= init({ module_or_path: formulaEngineAddress }).then(() => setStreamConditionEngine(holds));
     conditionEngine.then(() => { if (live) setReady(true); }, () => { conditionEngine = null; });
     return () => { live = false; };
   }, [ready]);

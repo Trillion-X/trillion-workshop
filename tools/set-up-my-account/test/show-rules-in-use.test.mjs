@@ -4,18 +4,15 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
 import data from '../read-data/show-rules.json' with { type: 'json' };
 import { changedRecord, showDecision } from '../read-data/show-rules.mjs';
-
-const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
-const filter = makeRowFilter({ operators, wasm });
-await filter.load();
+import { initSync, filterRecords } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+initSync({ module: readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
+const filterRows = ({ tree, fields, rows }) => filterRecords({ records: rows, fields, tree });
 const NOW = Date.parse('2026-10-13T16:00:00Z');
 const thing = { control: 'sidebar.hide', within: ['sidebar', 'sidebar.hide'] };
 const quiet = { id: 'quiet', label: 'Quiet', inherits: [], rules: [{ id: 'hide-sidebar', label: 'Hide sidebar', subject: 'control', effect: 'hide', when: null }] };
-const hidden = (record, space_id = null) => showDecision({ data, record, subject: 'control', thing, now: NOW, filterRows: filter.filterRowsByRulesNow, space_id }).hidden;
+const hidden = (record, space_id = null) => showDecision({ data, record, subject: 'control', thing, now: NOW, filterRows: filterRows, space_id }).hidden;
 
 test('a kept profile hides only while it is in use, through the pure owner', () => {
   const kept = changedRecord(data, null, { type: quiet }, NOW);

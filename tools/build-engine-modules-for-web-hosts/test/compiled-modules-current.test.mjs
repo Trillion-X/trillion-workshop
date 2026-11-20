@@ -3,7 +3,7 @@
 // The crate-built modules committed under built-stored-bytes match their crates' sources (the build reads them
 // as they are and needs no Rust), the composition engine's wasm32-wasip1 slot asks its host for its two buffers through
 // the `env` import module (so every linker keeps them imports: a wasip1 link refuses an undefined symbol otherwise), and
-// build/build-formula-evaluator.mjs rebuilds the Workshop's evaluator glue byte for byte from the engine's crate.
+// build/build-formula-evaluator.mjs rebuilds the Workshop's formula engine glue byte for byte from its crate.
 // The fingerprint and the rebuild need the engine's crates beside this checkout (../trillion-rust) and cargo; without
 // them those two tests say so and stop.
 import test from 'node:test';
@@ -27,22 +27,24 @@ test('the composition engine slot takes its two host calls from the env import m
   assert.deepEqual(fromHost, ['env.__init_buffers', 'env.__notify_ready']);
 });
 
-test('build-formula-evaluator.mjs rebuilds the Workshop evaluator: the same glue, and its wasm answers a compiled rule',
-  { skip: (!existsSync(engineCrates) || !hasCargo) && 'needs cargo and ../trillion-rust', timeout: 600_000 }, async () => {
-    const into = mkdtempSync(join(tmpdir(), 'formula-evaluator-'));
+test('build-formula-evaluator.mjs rebuilds the Workshop formula engine: the same glue, its module answers a rule it compiles, and its component answers the same request',
+  { skip: (!existsSync(engineCrates) || !hasCargo) && 'needs cargo and ../trillion-rust', timeout: 900_000 }, async () => {
+    const into = mkdtempSync(join(tmpdir(), 'formula-engine-'));
     try {
       execFileSync(process.execPath, [join(BUILD_TOOL, 'build/build-formula-evaluator.mjs'), '--into', into], { stdio: ['ignore', 'ignore', 'inherit'] });
       const engine = path => join(TOOLS, 'formula-engine', path);
-      assert.equal(readFileSync(join(into, 'evaluate-over-rows.js'), 'utf8'), readFileSync(engine('built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js'), 'utf8'));
-      // The glue is the same, so the Workshop's loader instantiates the rebuilt bytes.
-      const { loadRowEvaluator } = await import('../../formula-engine/rules/evaluate-over-rows.mjs');
-      const { compileRules, ruleVocabulary } = await import('../../formula-engine/rules/compile-rules.mjs');
-      const operators = JSON.parse(readFileSync(engine('rules/rule-operators.json'), 'utf8'));
-      const tree = { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'amount', operator: 'greater_than', params: { value: 5 } }] };
-      const { binding } = compileRules(tree, { fields: [{ id: 'amount', label: 'Amount', kind: 'number' }], vocabulary: ruleVocabulary(operators) });
-      const evaluator = loadRowEvaluator(new Uint8Array(readFileSync(join(into, 'evaluate-over-rows_bg.wasm'))));
-      assert.equal(evaluator.evaluate(binding, { amount: 9 }), true);
-      assert.equal(evaluator.evaluate(binding, { amount: 2 }), false);
+      assert.equal(readFileSync(join(into, 'formula_engine.js'), 'utf8'), readFileSync(engine('built-stored-bytes/formula-engine/formula_engine.js'), 'utf8'));
+      // The glue is the same, so it instantiates the rebuilt bytes; the engine compiles the rule itself.
+      const glue = await import(join(into, 'formula_engine.js'));
+      glue.initSync({ module: readFileSync(join(into, 'formula_engine_bg.wasm')) });
+      const request = { records: [{ amount: 9 }, { amount: 2 }], fields: [{ id: 'amount', kind: 'number' }],
+        tree: { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'amount', operator: 'greater_than', params: { value: 5 } }] } };
+      assert.deepEqual(glue.filterRecords(request).matches, [0]);
+      const host = (() => { try { execFileSync('wasmtime', ['--version'], { stdio: 'ignore' }); return true; } catch { return false; } })();
+      if (host) {
+        const answer = JSON.parse(execFileSync('wasmtime', ['run', join(into, 'formula-engine.wasm'), 'filterRecords'], { input: JSON.stringify(request), encoding: 'utf8' }).trim().split('\n').pop());
+        assert.deepEqual(answer.result.matches, [0]);
+      }
     } finally { rmSync(into, { recursive: true, force: true }); }
   });
 

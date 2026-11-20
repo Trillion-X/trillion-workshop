@@ -4,16 +4,14 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
 import data from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
 import { showDecision } from '../../set-up-my-account/read-data/show-rules.mjs';
 import { makeTellThePerson } from '../read-data/tell-the-person.mjs';
+import { initSync, filterRecords } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+initSync({ module: readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
+const filterRows = ({ tree, fields, rows }) => filterRecords({ records: rows, fields, tree });
 
 const rows = JSON.parse(readFileSync(new URL('../read-data/tell-the-person.json', import.meta.url), 'utf8'));
-const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
-const filter = makeRowFilter({ operators, wasm });
-await filter.load();
 
 const kindIs = value => ({ kind: 'rule', field: 'kind', operator: 'is_any_of', params: { values: [value] } });
 const record = { rules: [{ id: 'few-finished', label: 'Few finished notices', subject: 'notification', effect: 'silence',
@@ -26,7 +24,7 @@ function owner(clock) {
     state: () => ({ ready: true }),
     send: (row, notice) => { sent.push({ channel: row.id, title: notice.title }); return { sent: true, said: 'sent' }; },
   }]));
-  const shows = (subject, thing, moment) => showDecision({ data, record, subject, thing, moment, now: clock.at.getTime(), filterRows: filter.filterRowsByRulesNow });
+  const shows = (subject, thing, moment) => showDecision({ data, record, subject, thing, moment, now: clock.at.getTime(), filterRows: filterRows });
   const tell = makeTellThePerson({
     rows, senders, shows, now: () => clock.at,
     store: { choices: () => null, putChoices: () => {}, notices: () => notices, putNotices: list => { notices = structuredClone(list); } },

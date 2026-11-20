@@ -3,19 +3,18 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
 import { setupStepsWithRules, readSetupPolicy } from '../read-data/setup-steps.mjs';
 import { provenSetup, pendingSetup } from './setup-fixtures.mjs';
 import { observerBucket } from '../../funnels-screen/read-data/score-candidates.ts';
 import computerRows from '../read-data/computer-sources.json' with { type: 'json' };
+import { initSync, filterRecords } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+initSync({ module: readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
+const filterRows = ({ tree, fields, rows }) => filterRecords({ records: rows, fields, tree });
 
-const filter = makeRowFilter({ operators, wasm: () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
-await filter.load();
 const NOW = Date.parse('2026-10-08T12:00:00Z');
 const inputs = { ...provenSetup(), accountId: 'member-a', computers: [], now: NOW,
   devices: ['iphone', 'watch', 'desktop', 'extension'].map(id => ({ id, installed: id === 'desktop', get: [{ available: null, state: 'unknown',
-    source_id: `${id}-source`, recovery: { label: 'Check access', href: '/devices' } }] })), filterRows: filter.filterRowsByRulesNow };
+    source_id: `${id}-source`, recovery: { label: 'Check access', href: '/devices' } }] })), filterRows: filterRows };
 const tree = (...rules) => ({ kind: 'group', combinator: 'and', negate: false, rules });
 const condition = (field, operator, params) => ({ kind: 'rule', field, operator, params });
 const is = (field, value) => condition(field, 'is_any_of', { values: [value] });

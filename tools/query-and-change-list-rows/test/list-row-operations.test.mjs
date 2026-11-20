@@ -4,18 +4,13 @@
 // view that reaches through links. Each runs against the real record store and the real rule evaluator.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { localStore } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { handleListsRequest, makeLists, ListsError } from '../../keep-lists-of-rows/lists.mjs';
 import { listTools } from '../src/list-tools.mjs';
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
 import settings from '../../keep-and-wake-ai-sessions-on-this-computer/src/lists.json' with { type: 'json' };
+import { evaluateBinding, filterRows, ruleKindOf } from '../../keep-and-wake-ai-sessions-on-this-computer/test/formula-views-for-tests.mjs';
 
-const evaluator = makeRowFilter({ operators, wasm: () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
-const ruleKinds = new Map(settings.field_kinds.map(kind => [kind.id, kind.ruleKind]));
-const views = { filterRows: input => evaluator.filterRowsByRules(input), ruleKindOf: kind => ruleKinds.get(kind) ?? kind,
-  evaluateBinding: async (binding, input) => (await evaluator.evaluateBinding({ binding, input })).value };
+const views = { filterRows, ruleKindOf, evaluateBinding };
 
 const fresh = t => {
   const store = localStore(':memory:');

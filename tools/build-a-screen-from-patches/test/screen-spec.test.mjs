@@ -9,14 +9,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { boundPath, checkElement, checkSpec, conditionHolds, resolveValue, specFromText, specStream } from '../read-data/screen-spec.mjs';
 import { setConditionEngine } from '../read-data/screen-spec.mjs';
-import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
-import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { initSync, holds } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 import { applyPatch } from '../read-data/view-patch.mjs';
 
 // The formula engine decides every condition; the page fetches its bytes, this test reads them.
-const conditions = makeRowFilter({ operators, wasm: () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))) });
-await conditions.load();
-setConditionEngine(conditions.holdsNow);
+initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+setConditionEngine(holds);
 
 const line = value => JSON.stringify(value);
 const LINES = [

@@ -1,23 +1,18 @@
 {
   "exports": {
-    "built": "built-stored-bytes/evaluate-over-rows",
-    "built/*": "built-stored-bytes/evaluate-over-rows/*",
-    "compile-rules": "rules/compile-rules.mjs",
-    "evaluate-over-rows": "rules/evaluate-over-rows.mjs",
-    "evaluate-over-rows_bg.wasm": "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "evaluation-guards": "rules/evaluation-guards.mjs",
-    "filter-rows-by-rules": "rules/filter-rows-by-rules.mjs",
+    "engine": "built-stored-bytes/formula-engine/formula_engine.js",
+    "engine.wasm": "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
+    "component": "built-stored-bytes/component/formula-engine.wasm",
     "rule-operators.json": "rules/rule-operators.json",
+    "evaluation-guards.json": "rules/evaluation-guards.json",
     "rules/*": "rules/*"
   },
   "public": [
-    "rules/filter-records.mjs",
-    "rules/compile-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
+    "built-stored-bytes/component/formula-engine.wasm",
     "rules/rule-operators.json",
-    "rules/filter-rows-by-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm"
+    "rules/evaluation-guards.json"
   ],
   "imported_by": [
     "Trillion-X/trillion-apps"

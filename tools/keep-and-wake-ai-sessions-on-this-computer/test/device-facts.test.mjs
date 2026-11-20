@@ -4,16 +4,12 @@
 // facts is the one that ticks: a sample camera seen by the Mac, a switch turned on by the iPhone. Facts from two devices are
 // never mixed to pass a rule.
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
 import { DeviceFactsError, deviceFacts, passedOnSomeDevice } from '../../walk-a-new-person-through-setup/device-facts.mjs';
 import lists from '../src/lists.json' with { type: 'json' };
 import waiting from '../src/waiting-on-you.json' with { type: 'json' };
+import { filterRows } from './formula-views-for-tests.mjs';
 
-const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
-const { filterRowsByRules: filterRows } = makeRowFilter({ operators, wasm });
 
 const kept = () => { let rows = []; return { read: () => rows, write: next => { rows = next; } }; };
 const rule = (field, operator, params) => ({ kind: 'rule', field, operator, params });

@@ -1,5 +1,15 @@
 import { createAttention } from '../read-data/attention.mjs';
-import { filterRecords } from '../../formulas/do-work/requests.mjs';
+import { readFileSync } from 'node:fs';
+import { initSync, filterRecords as engineFilterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+// The formula engine is loaded on the first rule read, from its bytes beside the built module.
+let engineReady = false;
+const filterRecords = request => {
+  if (!engineReady) {
+    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    engineReady = true;
+  }
+  return engineFilterRecords(request);
+};
 // This tool evaluates only the rules and caller-supplied classifier answers. It makes no model call.
 export async function noticeAttention(input = {}) {
  const settings=input.settings;

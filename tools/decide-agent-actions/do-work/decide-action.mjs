@@ -10,16 +10,26 @@
 //      other rules in order (a rule that cannot be evaluated is skipped and listed, it never allows); the policy's
 //      `otherwise`, else the vocabulary default. Then, if no one can be asked, an ask becomes a refusal.
 //   2. Every verdict, behaviour, scope and sentence is DATA (read-data/action-policy-vocabulary.json); this file names none.
-//   3. A rule's `when` is evaluated by tools/formulas (filterRecords) over the one action; this file keeps no comparison.
+//   3. A rule's `when` is evaluated by the formula engine (filterRecords) over the one action; this file keeps no comparison.
 //   4. An action's identity is tools/content-identity's BLAKE3 identity of the canonical JSON of its identity fields.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { isDeepStrictEqual } from 'node:util';
-import { filterRecords } from '../../formulas/do-work/requests.mjs';
+import { readFileSync } from 'node:fs';
+import { initSync, filterRecords as filterRecordsWithEngine } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
 import vocabulary from '../read-data/action-policy-vocabulary.json' with { type: 'json' };
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+// The formula engine is loaded on the first rule read, from its bytes beside the built module.
+let engineReady = false;
+const filterRecords = request => {
+  if (!engineReady) {
+    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    engineReady = true;
+  }
+  return filterRecordsWithEngine(request);
+};
 const need = (ok, sentence) => { if (!ok) throw new Error(sentence); };
 const isoTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
 const isTime = value => typeof value === 'string' && isoTime.test(value) && !Number.isNaN(Date.parse(value));

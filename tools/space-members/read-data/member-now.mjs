@@ -12,8 +12,18 @@
 //
 // The join rows are DATA (join-rows.json) evaluated by the formula engine's row filter (tools/formulas): one rule per
 // row, any row that holds admits. A row that is not one the DATA names fails closed: it admits nobody.
-import { filterRecords } from '../../formulas/do-work/requests.mjs';
 import joinData from './join-rows.json' with { type: 'json' };
+import { readFileSync } from 'node:fs';
+import { initSync, filterRecords as engineFilterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+// The formula engine is loaded on the first rule read, from its bytes beside the built module.
+let engineReady = false;
+const filterRecords = request => {
+  if (!engineReady) {
+    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    engineReady = true;
+  }
+  return engineFilterRecords(request);
+};
 
 const FIELDS = joinData.facts;
 

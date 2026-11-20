@@ -8,7 +8,16 @@ import test from 'node:test';
 import attentionDataRows from '../src/attention.json' with { type: 'json' };
 import { createAttention } from '../read-data/attention.mjs';
 import { broughtIn, wordsAgeMinutes } from '../src/brought-in.mjs';
-import { filterRecords } from '../../formulas/do-work/requests.mjs';
+import { initSync, filterRecords as engineFilterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+// The formula engine is loaded on the first rule read, from its bytes beside the built module.
+let engineReady = false;
+const filterRecords = request => {
+  if (!engineReady) {
+    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    engineReady = true;
+  }
+  return engineFilterRecords(request);
+};
 const { attentionData, attentionFacts, attentionOpens, attentionRules, checkAttentionRules, classifiedAttention, classifyRequest, decideAttention, handleAttentionRequest, keptAs, retriageWaiting } = createAttention(attentionDataRows, { broughtIn, wordsAgeMinutes });
 import { WorkFailure } from '../../shared-code/src/failure.mjs';
 

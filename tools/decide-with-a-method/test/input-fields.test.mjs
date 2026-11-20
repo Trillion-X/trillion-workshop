@@ -44,7 +44,7 @@ test('a field the call does not declare is refused by name, with the fields it d
 
 // The installed run folder holds this tool's read-data and the sibling tools its code imports, and no tool-rows.json: the
 // installed copy must read its input schemas from read-data alone.
-const SIBLINGS = ['ask-a-small-model-for-a-verdict', 'content-identity', 'formulas', 'learn-from-everyones-results', 'records-door'];
+const SIBLINGS = ['ask-a-small-model-for-a-verdict', 'content-identity', 'learn-from-everyones-results', 'records-door'];
 const SKIPPED = new Set(['test', 'tool-rows.json', 'README.md', 'node_modules']);
 const notSkipped = path => !SKIPPED.has(basename(path));
 

@@ -1,22 +1,17 @@
 # built-stored-bytes/
 
-Built output of the formula engine that other hosts load directly, rebuilt from `../trillion-rust/crates/evaluate-over-rows` by Trillion-X/trillion-apps `web/scripts/build-formula-evaluator.mjs` (run from a trillion-apps checkout beside this one; it writes here). Regenerate; never edit.
+The formula engine built from `../crates/formula-engine` by `tools/build-engine-modules-for-web-hosts/build/build-formula-evaluator.mjs` (the only writer). Regenerate; never edit.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `evaluate-over-rows/evaluate-over-rows_bg.wasm` | `formula-engine-evaluate-over-rows` (`../trillion-rust/crates/evaluate-over-rows`) compiled for `wasm32-unknown-unknown` |
-| `evaluate-over-rows/evaluate-over-rows.js` | wasm-bindgen `web` loader; `initSync({module: bytes})` works in browsers and Node |
-
-## Key Types / Functions
-
-| Type | Signature / Shape | Role |
-|------|-------------------|------|
-| `replace_rows` / `patch_rows` / `filter_rows` / `evaluate` | JSON text in, JSON text out | See `../trillion-rust/crates/evaluate-over-rows/README.md` |
+| `formula-engine/formula_engine_bg.wasm` | The crate's library compiled for `wasm32-unknown-unknown` |
+| `formula-engine/formula_engine.js` | wasm-bindgen `web` glue: `initSync({ module: bytes })` in Node and Workers, `init({ module_or_path })` in a page; then each export is a direct call into the engine |
+| `component/formula-engine.wasm` | The crate's command compiled for `wasm32-wasip2`: one component every computer's engine compiles for itself and runs for this folder's tool rows |
 
 ## Dependencies
 
-**Depends on:** trillion-apps `web/scripts/build-formula-evaluator.mjs` (the only writer), over `../trillion-rust/crates/evaluate-over-rows`, `../trillion-rust/crates/composition-ast` and `../trillion-rust/crates/ops-core`.
+**Depends on:** `../crates/formula-engine` over `tools/shared-code/crates/composition-ast` and `ops-core`.
 
-**Depended on by:** `../rules/evaluate-over-rows.mjs`, `scripts/build-workspace.mjs` (serves the wasm to the page), `test/formula-rules.test.mjs`, `../test/shipped-evaluator.test.mjs`.
+**Depended on by:** every caller of the formula engine (they import `formula-engine/formula_engine.js`), `tools/build-engine-modules-for-web-hosts/build/compiled-modules.mjs` (copies `formula-engine/` for the app's release), `../tool-rows.json` (runs `component/formula-engine.wasm`).

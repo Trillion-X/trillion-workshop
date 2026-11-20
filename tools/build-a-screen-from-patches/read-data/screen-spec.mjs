@@ -340,15 +340,15 @@ export function checkSpec(spec, { requests = {}, parts = declaredParts, complete
   return { spec: { root, elements, state: object(spec?.state) ? spec.state : {}, reads }, fixes, problems };
 }
 
-// A condition is a rule tree (formula-engine/rules/compile-rules.mjs) the formula engine decides over the facts this
-// screen's scope gives; this file keeps no comparison of its own. The spec's short spelling ({ $state, eq, not }) is read
-// into the engine's rules here, and the host gives the loaded engine (the page fetches its bytes, a Node host reads them),
-// so this file loads no code of its own and a container that only checks a spec packs nothing more.
-const conditionEngine = { holdsNow: null };
-/** The host gives the loaded formula engine: `holds(tree, facts)`, the shape of filter-rows-by-rules.mjs holdsNow. Until it
- * is given a condition throws rather than guess. */
+// A condition is a rule tree the formula engine decides over the facts this screen's scope gives (tools/formula-engine's
+// holds); this file keeps no comparison of its own. The spec's short spelling ({ $state, eq, not }) is read into the
+// engine's rules here, and the host gives the loaded engine (the page fetches its bytes, a Node host reads them), so this
+// file loads no code of its own and a container that only checks a spec packs nothing more.
+const conditionEngine = { holds: null };
+/** The host gives the loaded formula engine's `holds({ tree, facts })` -> boolean, where `facts` is an object keyed by the
+ * rules' fields. Until it is given a condition throws rather than guess. */
 export function setConditionEngine(holds) {
-  conditionEngine.holdsNow = holds;
+  conditionEngine.holds = holds;
 }
 const rule = (field, operator, params = {}) => ({ kind: 'rule', field, operator, params });
 const group = (combinator, rules, negate = false) => ({ kind: 'group', combinator, negate, rules });
@@ -384,6 +384,17 @@ function conditionTree(condition, scope, depth) {
   return condition.not === true ? group('and', [found], true) : found;
 }
 
+// The facts a tree names, read from the scope and keyed by each rule's field; a fact nobody gave is null.
+function factsOf(tree, read) {
+  const facts = {};
+  const visit = node => {
+    if (node.kind === 'group') node.rules.forEach(visit);
+    else facts[node.field] = read(node.field) ?? null;
+  };
+  visit(tree);
+  return facts;
+}
+
 const factIn = scope => function fact(name) {
   if (name === 'constant:true') return true;
   if (name === 'constant:false') return false;
@@ -397,8 +408,9 @@ const factIn = scope => function fact(name) {
  * ({ $state | $item | $index, eq | neq | gt | gte | lt | lte, not }), a list (all), { $and } or { $or }. */
 export function conditionHolds(condition, scope, depth = 0) {
   if (condition === undefined) return true;
-  if (!conditionEngine.holdsNow) throw new Error('The condition engine is not loaded yet: call setConditionEngine first.');
-  return conditionEngine.holdsNow(conditionTree(condition, scope, depth), factIn(scope));
+  if (!conditionEngine.holds) throw new Error('The condition engine is not loaded yet: call setConditionEngine first.');
+  const tree = conditionTree(condition, scope, depth);
+  return conditionEngine.holds({ tree, facts: factsOf(tree, factIn(scope)) });
 }
 
 const itemValue = (scope, field) => (field === '' || field === undefined ? scope.item : pointerGet(scope.item, field));

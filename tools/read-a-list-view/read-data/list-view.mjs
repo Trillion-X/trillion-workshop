@@ -11,7 +11,7 @@
 //
 // Non-Negotiable Invariants:
 //   1. readListView reads the records it is handed and never writes. A view's rules are decided by the rule filter of
-//      tools/formulas (filterRecords), imported here and called in the same process as the read.
+//      tools/formula-engine (the Rust engine's filterRecords), called here in the same process as the read.
 //   2. No list, view, field, record type, source or tool is named here. The record names are the caller's (`names`),
 //      the sources and their folder kinds are DATA (list-view.json `row_sources`), and so are the bounds (list-view.json
 //      `limits`), which a caller never passes.
@@ -37,7 +37,8 @@
 //     documents (each read and written by its own path) and leaves the source's other rows as they are.
 //     paths and dry_run apply to the list-original sources only (list-copy.mjs).
 import data from './list-view.json' with { type: 'json' };
-import { filterRecords, evaluateFormula } from '../../formulas/do-work/requests.mjs';
+import { readFileSync } from 'node:fs';
+import { evaluateFormula, filterRecords, initSync } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { syncRowSource } from './list-copy.mjs';
 import { storeOf } from './store.mjs';
@@ -50,6 +51,15 @@ const say = (code, words) => Object.assign(new Error(words), { code });
 const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
 const at = (value, path) => path.split('.').reduce((held, part) => (held == null ? held : held[part]), value);
 const SOURCE_MARK = '~';
+// The formula engine is read the first time a view's rules or a title's formula is decided, never by a list that has neither.
+let engineReady = false;
+const loadEngine = () => {
+  if (engineReady) return;
+  initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+  engineReady = true;
+};
+const filterRecordsWithEngine = request => { loadEngine(); return filterRecords(request); };
+const evaluateFormulaWithEngine = request => { loadEngine(); return evaluateFormula(request); };
 // The bounds of a list read and a refresh are this reader's own DATA (list-view.json `limits`).
 const { limits } = data;
 
@@ -138,7 +148,7 @@ const titleOf = (list, values, otherwise) => (list.title_field && values?.[list.
 function rowsFor(list, names, sources, records) {
   const address = addressOf(list, names);
   const prepared = prepareListTitles(list, records.map(record => record.value ?? {}));
-  const projected = prepared.request ? prepared.finish(evaluateFormula(prepared.request)) : null;
+  const projected = prepared.request ? prepared.finish(evaluateFormulaWithEngine(prepared.request)) : null;
   return records.map((record, index) => {
     const id = address.localId(record.id);
     const source = sources.find(one => id.startsWith(`${one.id}${SOURCE_MARK}`))?.id;
@@ -160,11 +170,11 @@ function ruleFields(tree) {
   return new Set((tree.rules ?? []).flatMap(rule => [...ruleFields(rule)]));
 }
 
-// The positions of the rows a view's rules keep, as the rule filter of tools/formulas decides; only the fields the
+// The positions of the rows a view's rules keep, as the rule filter of tools/formula-engine decides; only the fields the
 // rules read are given to it.
 function keptPositions(rows, fields, tree) {
   const reads = ruleFields(tree);
-  const found = filterRecords({
+  const found = filterRecordsWithEngine({
     records: rows.map(row => ({ value: Object.fromEntries([...reads].filter(name => name in row.values).map(name => [name, row.values[name]])) })),
     fields: fields.filter(field => reads.has(field.id)).map(field => ({ id: field.id, kind: field.kind, path: ['value', field.id] })),
     tree,

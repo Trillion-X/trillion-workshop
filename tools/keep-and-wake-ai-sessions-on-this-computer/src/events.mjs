@@ -46,8 +46,8 @@ import { selectDeclaredValue } from '../../ui/read-data/declared-selector.ts';
 import { withoutSecrets } from './scheduler.mjs';
 import { hasRouteCollection, makeRouteListeners } from './event-route-listeners.mjs';
 import { failureOf } from '../../shared-code/src/failure.mjs';
-import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter, ruleTreeOfTests } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
+import { readFileSync } from 'node:fs';
+import * as formula from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 
 const MAX_DELIVERY_BYTES = 1_000_000;
 // One alarm reads at most this many due sources (each read waits on the service), and reads at most this many new
@@ -65,21 +65,9 @@ const shownSeen = ({ event_payload, ...item }) => (typeof item.text === 'string'
 const HEALTH_EVENTS = 200;
 // A gathered batch keeps at most this many events in full; its count keeps counting past it.
 const MAX_GATHERED = 200;
-// The formula engine decides every condition here (a source's `where`, a rule's `skip`). A host that has loaded it gives
-// it with setConditionEngine(holds), the shape of filter-rows-by-rules.mjs holdsNow (tree, facts) -> boolean; this Node host
-// loads it from the bytes the Workshop ships, so a condition never goes undecided.
-let engine = null;
-export const setConditionEngine = given => { engine = given; };
-const conditionEngine = () => {
-  if (!engine) throw new Error('The condition engine is not loaded: call setConditionEngine first.');
-  return engine;
-};
-try {
-  const { readFileSync } = await import('node:fs');
-  const filter = makeRowFilter({ operators, wasm: () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))) });
-  await filter.load();
-  engine ??= filter.holdsNow;
-} catch { /* a host without files gives the engine with setConditionEngine */ }
+// The formula engine (its Rust module, loaded here from the bytes the Workshop ships) decides every condition: a source's
+// `where`, a rule's `skip`, a source row's tests.
+formula.initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 const json = (value, status = 200) => Response.json(value, { status });
@@ -195,18 +183,12 @@ export function heldByLimit(limit, fired, nowMs) {
 // A pattern is asked of each text the field holds (a field may hold a list); any rule that holds skips the event.
 export function skippedBy(skip, event) {
   const facts = {};
-  const rules = (skip ?? []).flatMap(test => [
-    ...(Object.hasOwn(test, 'matches') ? [event[test.field]].flat().filter(each => typeof each === 'string').map((each, at) => {
-      facts[`${test.field}[${at}]`] = each;
-      return { kind: 'rule', field: `${test.field}[${at}]`, operator: SKIP_TESTS.matches, params: { text: test.matches } };
-    }) : []),
-    ...(Object.hasOwn(test, 'equals') ? (() => {
-      const [rule] = ruleTreeOfTests([{ path: [test.field], equals: test.equals }]).rules;
-      facts[rule.field] = event[test.field];
-      return [rule];
-    })() : []),
-  ]);
-  return rules.length > 0 && conditionEngine()({ kind: 'group', combinator: 'or', negate: false, rules }, facts);
+  const rules = (skip ?? []).flatMap(test => (Object.hasOwn(test, 'matches') ? [event[test.field]].flat().filter(each => typeof each === 'string').map((each, at) => {
+    facts[`${test.field}[${at}]`] = each;
+    return { kind: 'rule', field: `${test.field}[${at}]`, operator: SKIP_TESTS.matches, params: { text: test.matches } };
+  }) : []));
+  const equal = (skip ?? []).some(test => Object.hasOwn(test, 'equals') && formula.testsHold({ tests: [{ path: [test.field], equals: test.equals }], row: event }));
+  return equal || (rules.length > 0 && formula.holds({ tree: { kind: 'group', combinator: 'or', negate: false, rules }, facts }));
 }
 const skipped = (rule, event) => skippedBy(rule.skip, event);
 
@@ -233,8 +215,13 @@ const stepAt = (at, part) => {
   return found(at, part.find ?? {});
 };
 const valueAt = (scope, path) => path.reduce((at, part) => (at === undefined || at === null ? undefined : stepAt(at, part)), scope);
-// A source row's tests ({ path, equals | present, not }, all must hold) as the engine's rule tree over the scope's values.
-const holds = (conditions, scope) => conditionEngine()(ruleTreeOfTests(conditions, { present: 'is_not_empty' }), id => valueAt(scope, JSON.parse(id)));
+// A source row's tests ({ path, equals | present, not }, all must hold), decided by the engine over the scope's values: each
+// value is read here at its path (a path may find or decode a step the engine's own paths do not), then the engine compares it.
+const holds = (conditions, scope) => formula.testsHold({
+  tests: (conditions || []).map((test, at) => ({ ...test, path: [at] })),
+  row: (conditions || []).map(test => valueAt(scope, test.path)),
+  present: 'is_not_empty',
+});
 
 // An event's own id: one field, or several joined (a thread that has news again is a new event).
 const eventIdOf = (source, fields) => [source.event_id].flat().map(name => String(fields[name])).join(':');

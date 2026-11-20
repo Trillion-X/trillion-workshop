@@ -1356,9 +1356,9 @@
     },
     {
       "capability": "evaluate formulas over rows",
-      "owner": ["tools/formulas/", "tools/formula-engine/"],
-      "entry": "tools/formulas/tool-rows.json",
-      "evidence": "formula-engine: slot source and rules",
+      "owner": ["tools/formula-engine/"],
+      "entry": "tools/formula-engine/tool-rows.json",
+      "evidence": "formula-engine README.md: one Rust engine compiles rule trees and evaluates formulas; its rows run it as one WebAssembly component",
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/formula-engine/"]}
     },
     {

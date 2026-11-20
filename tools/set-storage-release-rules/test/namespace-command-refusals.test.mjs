@@ -10,16 +10,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
 import { checkReleaseRules, releasePlan } from '../src/namespace-release-rules.mjs';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { namespaceStore } from '../../recently-deleted-and-storage/namespace-store.mjs';
 import { setAsideStore } from '../../recently-deleted-and-storage/namespace-set-aside.mjs';
 import { decisionStore } from '../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
-
-const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
-const { filterRowsByRules } = makeRowFilter({ operators, wasm });
+import { initSync, filterRecords } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+initSync({ module: readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
+const filterRowsByRules = ({ tree, fields, rows }) => filterRecords({ records: rows, fields, tree });
 const identity = digit => `1f:${String(digit).padStart(64, '0')}`;
 
 test('one item leaves by its id and no other does', async () => {

@@ -2,21 +2,17 @@
 // the shared compiler and real formula evaluator, with no publication-time agent.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { compileRules, ruleVocabulary } from '../../formula-engine/rules/compile-rules.mjs';
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
+import { compileRules, filterRecords } from '../do-work/formula-engine.mjs';
 import { listCopy } from '../read-data/list-copy.mjs';
 
-const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
-const { filterRowsByRules: filterRows } = makeRowFilter({ operators, wasm });
+const filterRows = ({ tree, fields, rows }) => filterRecords({ records: rows, fields, tree });
 const matches = (field, other) => ({ kind: 'rule', field, operator: 'matches_field', params: { text: other } });
 const group = rules => ({ kind: 'group', combinator: 'and', negate: false, rules });
 
 test('field comparison retains both fields and compares exact known values', async () => {
   const fields = [{ id: 'current', kind: 'text' }, { id: 'reviewed', kind: 'text' }];
   const tree = group([matches('current', 'reviewed')]);
-  assert.deepEqual(compileRules(tree, { fields, vocabulary: ruleVocabulary(operators) }).reads, ['current', 'reviewed']);
+  assert.deepEqual(compileRules({ tree, fields }).reads, ['current', 'reviewed']);
   const answer = await filterRows({ tree, fields, rows: [
     { current: 'Exact Case', reviewed: 'Exact Case' },
     { current: 'exact case', reviewed: 'Exact Case' },

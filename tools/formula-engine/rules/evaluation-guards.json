@@ -1,5 +1,5 @@
 {
-  "_what": "The limits every formula evaluation is held to before and while the compiled evaluator runs it (evaluation-guards.mjs, applied in evaluate-over-rows.mjs, the one door every caller passes: tool:evaluate-binding, tool:filter-rows-by-rules, the page's computed columns and record filters). A formula past one is refused with its own words, never left to freeze a list.",
+  "_what": "The limits every formula evaluation is held to before and while the compiled evaluator runs it (crates/formula-engine src/guards.rs, applied at the one door every evaluation passes inside the engine: tool:evaluate-a-formula, tool:filter-rows-by-rules, every caller's direct calls, the page's computed columns and record filters). A formula past one is refused with its own words, never left to freeze a list.",
   "max_depth": 64,
   "_max_depth": "How deeply a binding's parts may nest (objects and lists inside each other).",
   "max_nodes": 4000,

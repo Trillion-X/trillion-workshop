@@ -65,7 +65,7 @@ export const textKeyOf = (text, rows = data) => { const key = wordsKey(text); re
 
 // ---- matching a rule tree (the shape src/metered-use.json uses) over facts, synchronously ----
 // The formula engine decides every comparison (formula-engine/rules/rule-operators.json). A host that has loaded it gives
-// it with setConditionEngine(holds), the shape of filter-rows-by-rules.mjs holdsNow (tree, facts) -> boolean; this file
+// it with setConditionEngine(holds), (tree, facts) -> boolean, for example (tree, facts) => holds({ tree, facts }) over the formula engine's module; this file
 // imports no tool, so the host that matches rule trees here gives it before the first match.
 let engine = null;
 export const setConditionEngine = given => { engine = given; };

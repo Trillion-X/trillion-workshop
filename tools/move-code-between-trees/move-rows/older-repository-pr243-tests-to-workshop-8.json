@@ -114,8 +114,8 @@
       "owner": [
         "test/list-value-history.test.mjs"
       ],
-      "to": "tools/formulas",
-      "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+      "to": "tools/keep-lists-of-rows",
+      "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying (tools/formulas until Nov 19 2026, when the formula engine's Rust module replaced that folder and the history code moved here)"
     },
     {
       "id": "tests-of-turn-a-list-column-that-holds-names-into",
@@ -194,7 +194,7 @@
     },
     {
       "from": "tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-      "home": "tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+      "home": "tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm",
       "why": "an earlier lane adapted it here (the one same-name file); not the same bytes once import paths are set aside"
     },
     {

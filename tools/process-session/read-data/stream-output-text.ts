@@ -80,9 +80,9 @@ export function firstText(value: unknown): string | null {
 }
 
 // The formula engine decides every condition (rule-operators.json: is_known, is_unknown, equals); this module compares
-// nothing itself. The host gives the loaded engine with `setStreamConditionEngine` (the shape of filter-rows-by-rules.mjs
-// holdsNow); until then a condition throws rather than guess.
-type FactsHold = (tree: unknown, facts: (field: string) => unknown) => boolean;
+// nothing itself. The host gives the loaded engine's `holds` (tools/formula-engine, formula_engine.js) with
+// `setStreamConditionEngine`; until then a condition throws rather than guess.
+type FactsHold = (request: { tree: unknown; facts: Record<string, unknown> }) => boolean;
 let holdsFacts: FactsHold | null = null;
 
 export const streamConditionsLoaded = (): boolean => holdsFacts !== null;
@@ -99,7 +99,8 @@ export function conditionHolds(event: unknown, cond: StreamMatchCondition): bool
   const rules: { kind: 'rule'; field: string; operator: string; params: Record<string, unknown> }[] = [];
   if (cond.exists !== undefined) rules.push({ kind: 'rule', field, operator: cond.exists ? 'is_known' : 'is_unknown', params: {} });
   if (cond.equals !== undefined) rules.push({ kind: 'rule', field, operator: 'equals', params: { value: cond.equals } });
-  return holdsFacts({ kind: 'group', combinator: 'and', negate: false, rules }, (id) => readPath(event, JSON.parse(id) as string[]));
+  const facts = Object.fromEntries(rules.map((rule) => [rule.field, readPath(event, JSON.parse(rule.field) as string[]) ?? null]));
+  return holdsFacts({ tree: { kind: 'group', combinator: 'and', negate: false, rules }, facts });
 }
 
 function ruleTextPaths(rule: StreamTextRule): readonly (readonly string[])[] {

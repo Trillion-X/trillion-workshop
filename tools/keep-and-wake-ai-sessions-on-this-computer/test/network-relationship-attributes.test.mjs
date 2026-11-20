@@ -3,16 +3,11 @@
 // the messages that mention the row and the arrivals they spoke in, through the real record store's participation index.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { localStore } from '../src/local-store.mjs';
 import { handleListsRequest, makeLists, readThroughView } from '../../keep-lists-of-rows/lists.mjs';
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import settings from '../src/lists.json' with { type: 'json' };
+import { filterRows, ruleKindOf } from './formula-views-for-tests.mjs';
 
-const evaluator = makeRowFilter({ operators, wasm: () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
-const ruleKinds = new Map(settings.field_kinds.map(kind => [kind.id, kind.ruleKind]));
-const views = { filterRows: input => evaluator.filterRowsByRules(input), ruleKindOf: kind => ruleKinds.get(kind) ?? kind };
+const views = { filterRows, ruleKindOf };
 
 const DAY = 86_400_000;
 const ago = days => new Date(Date.now() - days * DAY).toISOString();

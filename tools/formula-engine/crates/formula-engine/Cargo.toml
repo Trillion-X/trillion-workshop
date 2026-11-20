@@ -1,0 +1,39 @@
+# crates/formula-engine/Cargo.toml
+#
+# The formula engine: a person's rule tree is compiled here (the comparisons are DATA, ../../rules/rule-operators.json)
+# into one composition-ast binding, held to the limits in ../../rules/evaluation-guards.json, and evaluated over rows
+# with the composition-ast evaluator and ops-core operators. One source, built two ways:
+# - for wasm32-unknown-unknown with wasm-bindgen: the module pages and Node tools import and call directly;
+# - for wasm32-wasip2 as one component (src/main.rs): the program the engine runs for the formula tool rows on any
+#   computer (trillion-rust src/tool_runs/tools/component.rs).
+# No operator logic lives here; ops-core owns what each operator means.
+
+[package]
+name = "formula-engine"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[lib]
+name = "formula_engine"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "formula-engine"
+path = "src/main.rs"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+composition-ast = { path = "../../../shared-code/crates/composition-ast" }
+ops-core = { path = "../../../shared-code/crates/ops-core" }
+
+# ops-core pulls rand 0.8 -> getrandom 0.2, which refuses to compile for
+# wasm32-unknown-unknown without a chosen backend. Evaluating a binding never
+# needs entropy, so the backend registered in src/lib.rs reports "unavailable"
+# instead of importing JavaScript glue.
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+getrandom_02 = { package = "getrandom", version = "0.2", features = ["custom"] }
+wasm-bindgen.workspace = true
+js-sys = "0.3"

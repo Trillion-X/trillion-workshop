@@ -22,7 +22,7 @@
 //
 // Non-Negotiable Invariants:
 //   1. Every computed value is a formula-engine binding evaluated by the one compiled evaluator
-//      (crates/evaluate-over-rows evaluate_request, the evaluator old src/formula-evaluate.mjs loaded); this only
+//      (tools/formula-engine/crates/formula-engine evaluate_with, the evaluator old src/formula-evaluate.mjs loaded); this only
 //      places what it answers, plus the four structural nodes (each, choose, join, apply) drawLayout adds.
 //   2. A field whose value is null is left out of a description; a list leaves out its null items.
 //   3. Every word, field and kind is DATA (page_routes/screen-host.json); nothing here names a screen, read or field.
@@ -411,11 +411,10 @@ fn evaluate_binding(
 
 /// The compiled formula evaluator (old src/formula-evaluate.mjs evaluateFormula(binding, input)).
 fn evaluate(binding: Value, input: &Value) -> Result<Value, CodedError<String>> {
-    use formula_engine_evaluate_over_rows::{evaluate_request, EvaluateRequest};
-    evaluate_request(EvaluateRequest {
-        binding,
-        input: input.clone(),
-    }).map_err(|words| CodedError::new(words))
+    use formula_engine::{evaluate_with, guards::now_ms, ready};
+    ready(&binding)
+        .and_then(|prepared| evaluate_with(&prepared, input.clone(), &now_ms))
+        .map_err(|refused| CodedError::new(refused.message().to_owned()))
 }
 
 /// `layout` with every binding evaluated against `context` (drawLayout).

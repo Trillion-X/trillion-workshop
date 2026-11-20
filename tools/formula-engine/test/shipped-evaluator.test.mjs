@@ -1,39 +1,34 @@
 // tools/formula-engine/test/shipped-evaluator.test.mjs
 //
-// The evaluator this folder ships (built-stored-bytes/evaluate-over-rows, rebuilt from trillion-rust
-// crates/evaluate-over-rows by trillion-apps web/scripts/build-formula-evaluator.mjs) loads from its own bytes the way the
-// page's computed columns load it (trillion-apps web/src/workspace/list-targets.ts: loadRowEvaluator, then
-// evaluate(binding, context)), answers a rule compiled by rules/compile-rules.mjs for one row, and filters a table.
+// The formula engine this folder ships (built-stored-bytes/formula-engine, built from crates/formula-engine by
+// tools/build-engine-modules-for-web-hosts/build/build-formula-evaluator.mjs) loads from its own bytes the way every
+// caller loads it (initSync, then a direct call), compiles a rule tree itself, answers it for one row and filters a table.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { loadRowEvaluator } from '../rules/evaluate-over-rows.mjs';
-import { compileRules, ruleVocabulary } from '../rules/compile-rules.mjs';
+import { initSync, compileRules, evaluate, filterRows, holds as engineHolds } from '../built-stored-bytes/formula-engine/formula_engine.js';
 
-const operators = JSON.parse(readFileSync(new URL('../rules/rule-operators.json', import.meta.url), 'utf8'));
-const bytes = new Uint8Array(readFileSync(new URL('../built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)));
+initSync({ module: readFileSync(new URL('../built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
+const valueOf = (binding, input) => evaluate({ binding, input }).value;
 const fields = [{ id: 'amount', label: 'Amount', kind: 'number' }, { id: 'stage', label: 'Stage', kind: 'text' }];
 const tree = { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'amount', operator: 'greater_than', params: { value: 5 } }] };
 
-test('the shipped evaluator loads from its bytes and answers one row, as a computed column asks it', () => {
-  const evaluator = loadRowEvaluator(bytes);
-  const { binding, reads } = compileRules(tree, { fields, vocabulary: ruleVocabulary(operators) });
+test('the shipped engine loads from its bytes and answers one row, as a computed column asks it', () => {
+  const { binding, reads } = compileRules({ tree, fields });
   assert.deepEqual(reads, ['amount']);
-  assert.equal(evaluator.evaluate(binding, { amount: 9 }), true);
-  assert.equal(evaluator.evaluate(binding, { amount: 2 }), false);
+  assert.equal(valueOf(binding, { amount: 9 }), true);
+  assert.equal(valueOf(binding, { amount: 2 }), false);
 });
 
-test('the shipped evaluator filters a table of rows by the same rule', () => {
-  const evaluator = loadRowEvaluator(bytes);
-  const { binding } = compileRules(tree, { fields, vocabulary: ruleVocabulary(operators) });
-  assert.deepEqual(evaluator.filterRows([{ amount: 1 }, { amount: 6 }, { amount: null }, { amount: 50 }], binding).matches, [1, 3]);
+test('the shipped engine filters a table of rows by the same rule', () => {
+  const { binding } = compileRules({ tree, fields });
+  assert.deepEqual(filterRows({ rows: [{ amount: 1 }, { amount: 6 }, { amount: null }, { amount: 50 }], binding }).matches, [1, 3]);
 });
 
 // The comparisons that stand in for code the Workshop kept twice. Each is proven against the answer of the code it replaces.
-const evaluator = () => loadRowEvaluator(bytes);
 const holds = (field, operator, params, row) => {
-  const { binding } = compileRules({ kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: field.id, operator, params }] }, { fields: [field], vocabulary: ruleVocabulary(operators) });
-  return evaluator().evaluate(binding, row);
+  const { binding } = compileRules({ tree: { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: field.id, operator, params }] }, fields: [field] });
+  return valueOf(binding, row);
 };
 
 // The retired glob test of the screen driver's run-decision (globMatches, the same function as the person's-computer runner's): * is the wildcard, the whole text is matched, case is ignored.
@@ -71,10 +66,9 @@ const isoWeekKey = date => {
 test('in_iso_week and in_date_bucket place every day of four years in its week, month, year and day', () => {
   const field = { id: 'at', kind: 'date' };
   const row = at => ({ at });
-  const rule = evaluator();
-  const weekRule = key => compileRules({ kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'at', operator: 'in_iso_week', params: { text: key } }] }, { fields: [field], vocabulary: ruleVocabulary(operators) }).binding;
+  const weekRule = key => compileRules({ tree: { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'at', operator: 'in_iso_week', params: { text: key } }] }, fields: [field] }).binding;
   const cache = new Map();
-  const weekAnswers = (key, at) => rule.evaluate(cache.get(key) ?? cache.set(key, weekRule(key)).get(key), row(at));
+  const weekAnswers = (key, at) => valueOf(cache.get(key) ?? cache.set(key, weekRule(key)).get(key), row(at));
   for (let day = Date.UTC(2023, 11, 20); day <= Date.UTC(2028, 0, 10); day += 86_400_000) {
     const date = new Date(day);
     const iso = date.toISOString();
@@ -90,18 +84,14 @@ test('in_iso_week and in_date_bucket place every day of four years in its week, 
   assert.equal(holds(field, 'in_iso_week', { text: '2027-W01' }, row('2027-01-03')), false, '2027-01-03 is a Sunday of 2026-W53');
 });
 
-// ---- a rule tree over ONE set of facts (filter-rows-by-rules.mjs holdsNow) ----
+// ---- a rule tree over ONE set of facts (the engine's holds) ----
 // The comparisons the hand-written `holds` / `conditionHolds` evaluators of events, wake-stopped-chats, screen-spec and the
 // stream specs made, each decided by this engine, over blank facts (no account is read).
-import { makeRowFilter } from '../rules/filter-rows-by-rules.mjs';
-
-const factFilter = makeRowFilter({ operators, wasm: () => bytes });
-await factFilter.load();
 const rule = (field, operator, params = {}, extra = {}) => ({ kind: 'rule', field, operator, params, ...extra });
 const all = (...rules) => ({ kind: 'group', combinator: 'and', negate: false, rules });
 const any = (...rules) => ({ kind: 'group', combinator: 'or', negate: false, rules });
 const none = (...rules) => ({ kind: 'group', combinator: 'and', negate: true, rules });
-const factsHold = (tree, facts) => factFilter.holdsNow(tree, facts);
+const factsHold = (tree, facts) => engineHolds({ tree, facts });
 
 test('facts: an empty or missing tree holds', () => {
   assert.equal(factsHold(undefined, {}), true);
@@ -153,7 +143,7 @@ test('facts: groups join and negate; a path is a field name', () => {
   const tree = all(rule('/state/n', 'at_least', { value: 1 }), any(rule('/item/k', 'equals', { value: 'z' }), rule('/item/k', 'equals', { value: 'y' })));
   assert.equal(factsHold(tree, { '/state/n': 1, '/item/k': 'y' }), true);
   assert.equal(factsHold(tree, { '/state/n': 0, '/item/k': 'y' }), false);
-  assert.equal(factsHold(tree, id => ({ '/state/n': 2, '/item/k': 'z' })[id]), true);
+  assert.equal(factsHold(tree, { '/state/n': 2, '/item/k': 'z' }), true);
 });
 
 test('facts: the existing kinds still work over facts (text lowers, choice lists)', () => {

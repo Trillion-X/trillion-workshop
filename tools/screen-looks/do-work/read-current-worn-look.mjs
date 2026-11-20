@@ -2,11 +2,9 @@
 // reads the person's four look values from wherever they keep them and hands them in as `saved` (by name), beside the
 // app-owned DATA; those are the only sources of the answer.
 import { readFileSync } from 'node:fs';
-import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
 import { resolveScreenLookPalette, resolveScreenLookButton } from '../read-data/resolve-screen-look-palette.js';
 import { deviceLook } from '../read-data/device-look-tokens.js';
-import { compileRules, ruleVocabulary } from 'trillion-workshop/tools/formula-engine/rules/compile-rules.mjs';
-import { loadRowEvaluator } from 'trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs';
+import { initSync, filterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 import { blendLookValues, lookAtTime, readLookPlan } from '../read-data/look-over-time.mjs';
 import { timeZoneName } from '../read-data/look-time-zone.js';
 
@@ -19,10 +17,14 @@ const BLENDING_READ_MS = 15 * 60 * 1000;
 const AHEAD_MS = 12 * 60 * 60 * 1000;
 const AHEAD_STEP_MS = 10 * 60 * 1000;
 const AHEAD_BLEND_STEPS = 10;
-const vocabulary = ruleVocabulary(operators);
-// The formula engine decides each saved rule (the evaluator built from ops-core), loaded on the first rule read.
-let evaluator = null;
-const filterRows = (rows, binding) => (evaluator ??= loadRowEvaluator(readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))))).filterRows(rows, binding);
+// The formula engine decides each saved rule, loaded on the first rule read.
+let engineReady = false;
+const engine = () => {
+  if (!engineReady) {
+    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    engineReady = true;
+  }
+};
 
 function validLook(value) {
   return value && value.kind === 'screen-look-editable-theme' && typeof value.id === 'string' && value.id.trim()
@@ -101,9 +103,9 @@ function ruleResult(value, facts, now, zone, wearableIds, ruleSettings) {
     const ruleZone = timeZoneName(rule.time_zone) ?? zone;
     const row = factsAt(now, ruleZone, facts);
     const fields = ruleSettings.facts.map(({ id, kind }) => ({ id, kind }));
-    const { binding } = compileRules(rule.when, { fields, vocabulary });
-    const result = filterRows([row], binding);
-    if (result.errorRows) throw new Error(result.firstError ?? 'A saved screen look rule could not be read.');
+    engine();
+    const result = filterRecords({ records: [row], fields, tree: rule.when });
+    if (result.error_rows) throw new Error(result.first_error ?? 'A saved screen look rule could not be read.');
     if (result.matches.length) { ruleId = rule.id ?? null; lookId = rule.look_id; break; }
   }
   return { lookId, ruleId, next: readsClock ? nextHourAt(now, zone) : null };

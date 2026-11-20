@@ -125,8 +125,8 @@ import { fieldsWritten, noteRecordsWriting } from '../keep-and-wake-ai-sessions-
 import { bindParameters, parametersOf } from '../query-and-change-list-rows/src/list-view-parameters.mjs';
 import { listFilters, viewsWithFiltersExpanded } from '../query-and-change-list-rows/src/list-filters.mjs';
 import { asViewed, checkRollups, withComputedFields } from '../query-and-change-list-rows/src/list-rollups.mjs';
-import { viaOf, viaWords } from '../formulas/read-data/write-via.mjs';
-import { checkHistoryFields, fieldHistoryOf, historyFieldsOf, historyKeptBy, historyValues, historyViewed, keepValueHistory } from '../formulas/read-data/list-value-history.mjs';
+import { viaOf, viaWords } from './read-data/value-history/write-via.mjs';
+import { checkHistoryFields, fieldHistoryOf, historyFieldsOf, historyKeptBy, historyValues, historyViewed, keepValueHistory } from './read-data/value-history/list-value-history.mjs';
 import { gatedWriter, listProposals } from '../query-and-change-list-rows/src/list-proposals.mjs';
 import { coldRows, reviewRows, rowsNeedingReview, usedHeat } from '../review-what-a-list-says/read-data/list-review.mjs';
 import { checkRelationships, relationshipFieldsOf, relationshipReader, relationshipViewed } from '../query-and-change-list-rows/src/list-relationships.mjs';

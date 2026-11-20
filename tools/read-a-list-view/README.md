@@ -49,7 +49,7 @@ A refresh prints `{ list, sources: [{ source, rows, written, removed, unchanged 
 
 - A page holds `limit` rows, or `read_page_rows` when no limit is given, and never more than `rows_per_read`. The cursor `after` is the record id the page before ended on.
 - A list that declares more than `row_sources_per_list` sources is refused, and so is a source that no row serves.
-- A view with rules or a sort needs every row before it can order them, so it reads at most `rows_per_read` rows in all. The rule filter (`tools/formulas` `filterRecords`, imported and called in the same process) answers which rows to keep, and gets only the fields the rules read. A rule the filter cannot use is refused, never shown as an empty view. The kept rows are sorted and then paged. `complete` is false when the list had more rows than `rows_per_read`.
+- A view with rules or a sort needs every row before it can order them, so it reads at most `rows_per_read` rows in all. The rule filter (the Rust formula engine's `filterRecords` from `tools/formula-engine`, called in the same process) answers which rows to keep, and gets only the fields the rules read. A rule the filter cannot use is refused, never shown as an empty view. The kept rows are sorted and then paged. `complete` is false when the list had more rows than `rows_per_read`.
 - The sort compares values by the UTF-8 bytes of their canonical JSON (keys sorted, no spaces), from the last sort entry to the first, with empty values last. This is the order the view publish used, so a published file's hash does not change.
 
 ## How a refresh writes
@@ -187,7 +187,7 @@ The reader does not run as an engine row: a run the engine starts gets record ri
 **Depends on:**
 - Node;
 - the folder functions of `tools/documents-as-list-rows` (`read-data/rows.mjs`, `read-data/json-items.mjs`), imported in the same process;
-- for a view's rules, the rule filter of `tools/formulas`, imported in the same process;
+- for a view's rules, the Rust formula engine's `filterRecords` (`tools/formula-engine`), called in the same process;
 - for a refresh's canonical identities, `tools/content-identity`.
 
 **Depended on by:**

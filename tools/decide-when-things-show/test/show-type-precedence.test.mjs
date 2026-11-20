@@ -4,17 +4,13 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
 import data from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
 import accountFactsData from '../read-data/work-for-ais.json' with { type: 'json' };
 import { accountFacts } from '../read-data/account-facts.mjs';
 import { givenRules, heldTypes, showDecision, typesOf } from '../../set-up-my-account/read-data/show-rules.mjs';
-
-const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
-const filter = makeRowFilter({ operators, wasm });
-await filter.load();
-const now = filter.filterRowsByRulesNow;
+import { initSync, filterRecords } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+initSync({ module: readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
+const now = ({ tree, fields, rows }) => filterRecords({ records: rows, fields, tree });
 const NOW = Date.parse('2026-10-13T16:00:00Z');
 const matches = (tree, row) => now({ tree, fields: accountFactsData.facts, rows: [row] }).matches.length === 1;
 const TABS = 'arrangement.header.tabs';

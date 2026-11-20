@@ -26,15 +26,23 @@
 //      (authority operator) gives.
 //
 
+import { readFileSync } from 'node:fs';
 import data from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
+import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
 import { changedRecord, everyRule, givenEditRules, givenRules, profileRules, ruleProblem, showDecision, typeProblem, typesOf } from '../../set-up-my-account/read-data/show-rules.mjs';
-import { compileRules, ruleVocabulary } from '../../formula-engine/rules/compile-rules.mjs';
+import { initSync, compileRules as compileRulesInEngine } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 import setupSettings from '../../set-up-my-account/read-data/setup-steps.json' with { type: 'json' };
 import { DECLARED_CONTROLS } from './declared-controls.mjs';
 import { ACCOUNT_RULE_FIELDS, accountFacts, accountRuleFields, createdAtFor, declaredAccountTags } from './account-facts.mjs';
 import { decideRuleEffects } from '../../set-up-my-account/read-data/rule-decisions.mjs';
 import { failureOf } from '../../set-up-my-account/read-data/failure.mjs';
+
+// The Rust formula engine compiles every rule this store checks: its bytes are read and compiled on the first check.
+let engineReady = false;
+function compileRules({ tree, fields }) {
+  if (!engineReady) { initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) }); engineReady = true; }
+  return compileRulesInEngine({ tree, fields });
+}
 
 export const isShowRulesPath = path => path === '/show-rules' || path.startsWith('/show-rules/');
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -104,12 +112,11 @@ export function makeShowRules({ held = {}, filterRows, authority = 'personal', n
   const activeEditRules = value => (Array.isArray(value?.edit_rules) ? value.edit_rules : data.edit_authority.starting_rules)
     .filter(rule => object(rule) && rule.on !== false);
   const editFields = data.edit_authority.facts;
-  const editVocabulary = ruleVocabulary(operators);
   const audienceFields = value => accountRuleFields(value?.attribute_fields);
   const validateAudienceTree = (tree, fields = audienceFields(record())) => {
     if (!object(tree) || tree.kind !== 'group' || !['and', 'or'].includes(tree.combinator) || typeof tree.negate !== 'boolean' || !Array.isArray(tree.rules)
       || tree.rules.some(node => node?.kind === 'group' ? !validateAudienceTree(node, fields) : node?.kind !== 'rule' || typeof node.field !== 'string' || typeof node.operator !== 'string' || !object(node.params))) return false;
-    return compileRules(tree, { fields, vocabulary: editVocabulary }).incomplete.length === 0;
+    return compileRules({ tree, fields }).incomplete.length === 0;
   };
   const validTree = tree => {
     if (!object(tree) || tree.kind !== 'group' || !['and', 'or'].includes(tree.combinator) || typeof tree.negate !== 'boolean' || !Array.isArray(tree.rules)) return false;
@@ -128,8 +135,8 @@ export function makeShowRules({ held = {}, filterRows, authority = 'personal', n
     if (!['account_owner', 'reader'].includes(rule.who?.kind) || (rule.who.kind === 'reader' && (typeof rule.who.reader !== 'string' || !rule.who.reader))) return 'An edit rule names account_owner or one trusted reader.';
     if (!Array.isArray(rule.actions) || !rule.actions.length || rule.actions.some(action => !data.edit_authority.actions.includes(action))) return `An edit rule names one or more actions: ${data.edit_authority.actions.join(', ')}.`;
     if (rule.until != null && !(Number.isFinite(typeof rule.until === 'number' ? rule.until : Date.parse(rule.until)))) return 'An edit rule until must be a date and time.';
-    if (rule.when != null && (!validTree(rule.when) || compileRules(rule.when, { fields: editFields, vocabulary: editVocabulary }).incomplete.length)) return 'An edit rule when must be a complete rule tree over the declared edit facts and operators.';
-    if (rule.audience != null && (!validTree(rule.audience) || compileRules(rule.audience, { fields: accountFields, vocabulary: editVocabulary }).incomplete.length)) return 'An edit rule audience must be a complete rule tree over the account facts and operators.';
+    if (rule.when != null && (!validTree(rule.when) || compileRules({ tree: rule.when, fields: editFields }).incomplete.length)) return 'An edit rule when must be a complete rule tree over the declared edit facts and operators.';
+    if (rule.audience != null && (!validTree(rule.audience) || compileRules({ tree: rule.audience, fields: accountFields }).incomplete.length)) return 'An edit rule audience must be a complete rule tree over the account facts and operators.';
     return null;
   };
   const decideEdit = async (actor, action, rules = activeEditRules(record()), accountFields = audienceFields(record())) => {

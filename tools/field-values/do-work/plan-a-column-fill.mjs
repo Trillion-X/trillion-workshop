@@ -17,8 +17,18 @@
 //      the shape settle-field-values reads, so the precedence decides whether it may replace anything.
 //   5. When the same rejected answer keeps coming back (`stop_after_same_failure` times), the row stops asking.
 import { canonicalJson, makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
-import { filterRecords } from '../../formulas/do-work/requests.mjs';
 import { isEmpty, readAt } from './row-paths.mjs';
+import { readFileSync } from 'node:fs';
+import { initSync, filterRecords as engineFilterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+// The formula engine is loaded on the first rule read, from its bytes beside the built module.
+let engineReady = false;
+const filterRecords = request => {
+  if (!engineReady) {
+    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    engineReady = true;
+  }
+  return engineFilterRecords(request);
+};
 
 /** Whether an answer passes the person's check: the accept tree over { value }. */
 function passes(accept, value, operators) {

@@ -59,7 +59,7 @@ impl<T: TextSemantics, E: BindingEvaluator> FormulaOwner for RuleFormulaOwner<'_
         let value = compiled
             .evaluate(&mut self.evaluator, row)
             .map_err(map_error)?;
-        // The canonical evaluate-over-rows owner matches only JSON true. Keep
+        // The canonical formula engine (tools/formula-engine/crates/formula-engine) matches only JSON true. Keep
         // that contract; other JSON values are valid evaluations but no match.
         let matches = matches!(value, Value::Bool(true));
         Ok(FormulaAnswer {

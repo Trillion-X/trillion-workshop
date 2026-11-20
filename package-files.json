@@ -268,18 +268,10 @@
    "at": "/opt/decide-with-a-method"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -371,15 +363,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -773,22 +758,9 @@
   {
    "package": "formula-engine",
    "paths": [
-    "rules/compile-rules.mjs",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
-  },
-  {
-   "package": "formulas",
-   "paths": [
-    "read-data/list-refusals-core.mjs",
-    "read-data/list-refusals.mjs",
-    "read-data/list-value-history.mjs",
-    "read-data/lists.json",
-    "read-data/write-via.json",
-    "read-data/write-via.mjs"
-   ],
-   "at": "/opt/formulas"
   },
   {
    "package": "keep-and-wake-ai-sessions-on-this-computer",
@@ -1017,6 +989,24 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "read-data/value-history/list-refusals.mjs",
+    "read-data/value-history/list-value-history.mjs",
+    "read-data/value-history/lists.json",
+    "read-data/value-history/write-via.json",
+    "read-data/value-history/write-via.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src/formula-engine.mjs"
+   ],
+   "at": "/opt/query-and-change-list-rows"
   },
   {
    "package": "workflows",
@@ -1697,7 +1687,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -1857,15 +1847,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -3588,15 +3571,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -3621,6 +3597,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -5238,7 +5215,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -5398,15 +5375,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -5440,7 +5410,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -5500,15 +5470,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -5955,22 +5918,15 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -6131,22 +6087,15 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -6347,18 +6296,10 @@
    "at": "/opt/decide-agent-actions"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -6388,15 +6329,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -6518,22 +6452,15 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -6558,6 +6485,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -6776,22 +6704,15 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -6816,6 +6737,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -7691,18 +7613,10 @@
    "at": "/opt/paid-access"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -7723,15 +7637,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -8362,18 +8269,10 @@
    "at": "/opt/paid-access"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -8394,15 +8293,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -8421,18 +8313,10 @@
    "at": "/opt/workflows"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -8462,15 +8346,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -8505,33 +8382,9 @@
  "tool:cite-principles-from-captions": [],
  "tool:classify-a-record": [
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
-    "rules",
-    "built-stored-bytes"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/component/formula-engine.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -9533,15 +9386,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -9566,6 +9412,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -9869,22 +9716,15 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -9909,6 +9749,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -10019,18 +9860,10 @@
    "at": "/opt/decide-agent-actions"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -10060,15 +9893,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -10086,7 +9912,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -10152,15 +9978,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -10823,7 +10642,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/formula-engine"
   },
@@ -11041,7 +10860,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -11114,15 +10933,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -11233,18 +11045,10 @@
    "at": "/opt/decide-with-a-method"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -11336,15 +11140,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -11669,33 +11466,9 @@
  "tool:enroll-someone": [],
  "tool:evaluate-a-formula": [
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
-    "rules",
-    "built-stored-bytes"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/component/formula-engine.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -12293,33 +12066,9 @@
  ],
  "tool:filter-rows-by-rules": [
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
-    "rules",
-    "built-stored-bytes"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/component/formula-engine.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -12776,18 +12525,10 @@
    "at": "/opt/records-door"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -12838,15 +12579,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -13574,7 +13308,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -13647,15 +13381,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -14016,18 +13743,10 @@
    "at": "/opt/records-door"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -14078,15 +13797,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -15334,7 +15046,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -15393,15 +15105,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -15583,15 +15288,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -16236,18 +15934,10 @@
    "at": "/opt/records-door"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -16298,15 +15988,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -16417,22 +16100,15 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -16457,6 +16133,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -17114,18 +16791,10 @@
    "at": "/opt/paid-access"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -17146,15 +16815,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -17490,7 +17152,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/formula-engine"
   },
@@ -17634,7 +17296,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/formula-engine"
   },
@@ -18123,7 +17785,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -18137,15 +17799,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -18170,6 +17825,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -18839,22 +18495,15 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -19072,18 +18721,10 @@
    "at": "/opt/paid-access"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -19104,15 +18745,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -19488,18 +19122,10 @@
    "at": "/opt/paid-access"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -19520,15 +19146,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -19536,33 +19155,9 @@
  "tool:list-clips-that-are-parts-of-a-series": [],
  "tool:list-comparisons": [
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
-    "rules",
-    "built-stored-bytes"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/component/formula-engine.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -20960,7 +20555,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/formula-engine"
   },
@@ -21249,7 +20844,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/formula-engine"
   },
@@ -21668,7 +21263,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -21741,15 +21336,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -22210,15 +21798,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -22615,18 +22196,10 @@
    "at": "/opt/decide-with-a-method"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -22718,15 +22291,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -23273,15 +22839,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -23306,6 +22865,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -23393,15 +22953,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -23426,6 +22979,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -23665,18 +23219,10 @@
    "at": "/opt/tools/workflows"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/tools/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -23714,15 +23260,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -25307,18 +24846,10 @@
    "at": "/opt/node_modules/@noble/hashes"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -25350,15 +24881,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -26151,7 +25675,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -26210,15 +25734,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -27437,22 +26954,15 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -27477,6 +26987,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -27810,18 +27321,10 @@
    "at": "/opt/field-values"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -27851,15 +27354,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -30308,35 +29804,56 @@
  ],
  "tool:read-a-fields-history": [
   {
-   "package": "formulas",
+   "package": "keep-lists-of-rows",
    "paths": [
-    "do-work",
-    "read-data"
+    "read-data/value-history"
    ],
-   "at": "/opt/formulas"
+   "at": "/opt/keep-lists-of-rows"
   },
   {
-   "package": "formula-engine",
+   "package": "workflows",
    "paths": [
-    "rules",
-    "built-stored-bytes"
+    "do-work/run-a-function.mjs"
    ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+   "at": "/opt/workflows"
   },
   {
-   "package": "formula-engine",
+   "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
    ],
-   "at": "/opt/formula-engine"
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
   }
  ],
  "tool:read-a-funnel-definition": [
@@ -30481,18 +29998,10 @@
    "at": "/opt/decide-with-a-method"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -30558,15 +30067,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -30888,7 +30390,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -30918,15 +30420,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -30951,6 +30446,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -31216,18 +30712,10 @@
    "at": "/opt/wall-time"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -31264,15 +30752,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -31430,15 +30911,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -31463,6 +30937,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -31528,7 +31003,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -31558,15 +31033,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -31591,6 +31059,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -31683,7 +31152,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -31713,15 +31182,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -31746,6 +31208,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -32959,7 +32422,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -33001,15 +32464,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -34034,18 +33490,10 @@
    "at": "/opt/decide-with-a-method"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -34137,15 +33585,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -34322,18 +33763,10 @@
    "at": "/opt/decide-with-a-method"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -34392,15 +33825,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -34711,7 +34137,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -34725,15 +34151,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -34758,6 +34177,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -35860,18 +35280,10 @@
    "at": "/opt/decide-with-a-method"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -35963,15 +35375,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -36669,15 +36074,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -36702,6 +36100,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -37374,7 +36773,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -37404,15 +36803,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -37437,6 +36829,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -37612,7 +37005,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -37626,15 +37019,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -37819,18 +37205,10 @@
    "at": "/opt/decide-with-a-method"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -37922,15 +37300,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -38255,15 +37626,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -38288,6 +37652,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -38347,22 +37712,15 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -38387,6 +37745,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -38436,7 +37795,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -38509,15 +37868,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -38536,7 +37888,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -38574,15 +37926,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -39364,7 +38709,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -39524,15 +38869,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -39565,7 +38903,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -39620,15 +38958,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -39762,7 +39093,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/formula-engine"
   },
@@ -39902,22 +39233,15 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -39942,6 +39266,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -40140,7 +39465,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -40200,15 +39525,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -40352,7 +39670,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -40366,15 +39684,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -40479,7 +39790,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -40552,15 +39863,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -40587,7 +39891,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -40660,15 +39964,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -40742,7 +40039,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -40763,15 +40060,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -40829,18 +40119,10 @@
    "at": "/opt/wall-time"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -40884,15 +40166,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -40973,7 +40248,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -40987,15 +40262,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -41324,18 +40592,10 @@
    "at": "/opt/field-values"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -41365,15 +40625,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -41660,18 +40913,10 @@
    "at": "/opt/field-values"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -41701,15 +40946,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -41897,18 +41135,10 @@
    "at": "/opt/decide-with-a-method"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -42002,15 +41232,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -42058,7 +41281,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/formula-engine"
   },
@@ -42735,7 +41958,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -42749,15 +41972,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -43111,18 +42327,10 @@
    "at": "/opt/decide-with-a-method"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -43214,15 +42422,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -43620,22 +42821,15 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -43660,6 +42854,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -43766,7 +42961,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -43780,15 +42975,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -43882,7 +43070,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/formula-engine"
   },
@@ -44029,7 +43217,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -44059,15 +43247,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -44092,6 +43273,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -44327,7 +43509,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/formula-engine"
   },
@@ -44636,7 +43818,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/formula-engine"
   },
@@ -44780,7 +43962,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/formula-engine"
   },
@@ -45605,18 +44787,10 @@
    "at": "/opt/workflows"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -45667,15 +44841,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -45694,7 +44861,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -45768,15 +44935,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -46757,7 +45917,7 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -46771,15 +45931,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   }
@@ -47085,35 +46238,56 @@
  ],
  "tool:work-out-history-values": [
   {
-   "package": "formulas",
+   "package": "keep-lists-of-rows",
    "paths": [
-    "do-work",
-    "read-data"
+    "read-data/value-history"
    ],
-   "at": "/opt/formulas"
+   "at": "/opt/keep-lists-of-rows"
   },
   {
-   "package": "formula-engine",
+   "package": "workflows",
    "paths": [
-    "rules",
-    "built-stored-bytes"
+    "do-work/run-a-function.mjs"
    ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+   "at": "/opt/workflows"
   },
   {
-   "package": "formula-engine",
+   "package": "browse-and-upload-my-files",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
    ],
-   "at": "/opt/formula-engine"
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
   }
  ],
  "tool:work-out-measures": [
@@ -47143,22 +46317,15 @@
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs",
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
     "rules/rule-operators.json"
    ],
    "at": "/opt/formula-engine"
@@ -47183,6 +46350,7 @@
    "package": "query-and-change-list-rows",
    "paths": [
     "src/configurations.mjs",
+    "src/formula-engine.mjs",
     "src/list-aggregates.mjs",
     "src/list-refusals.mjs"
    ],
@@ -47289,15 +46457,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },
@@ -47548,18 +46709,10 @@
    "at": "/opt/content-identity"
   },
   {
-   "package": "formulas",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/formulas"
-  },
-  {
    "package": "formula-engine",
    "paths": [
     "rules",
-    "built-stored-bytes"
+    "built-stored-bytes/formula-engine"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   },
@@ -47597,15 +46750,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
-    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-    "rules/compile-rules.mjs",
-    "rules/evaluate-over-rows.mjs",
-    "rules/evaluation-guards.json",
-    "rules/evaluation-guards.mjs",
-    "rules/evaluator-bytes-in-the-page.mjs",
-    "rules/filter-records.mjs",
-    "rules/filter-rows-by-rules.mjs"
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
   },

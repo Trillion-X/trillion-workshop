@@ -7,9 +7,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
 import { NOT_BROKEN, NO_PURSUIT, doneOfAsked, messageTasks } from 'trillion-workshop/tools/see-what-is-being-worked-on/message-task-canvas.mjs';
+import { initSync, filterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+const filterRowsByRules = ({ tree, fields, rows }) => filterRecords({ records: rows, fields, tree });
 
 const launch = { id: 'message:launch', speaker: 'person', app: 'Codex', text: 'Ship the landing page and write the welcome email.', at: '2026-10-06T09:00:00Z', about: [{ kind: 'pursuit', id: 'pursuit:launch' }] };
 const coaching = { id: 'message:coaching', speaker: 'person', app: 'Claude', text: 'Plan next week of pottery lessons.', at: '2026-10-06T10:00:00Z', about: [{ kind: 'decision', id: 'case:lessons' }] };
@@ -86,8 +87,6 @@ test('a message no AI broke down is one row saying so, never a guessed task, and
 });
 
 test('the shared rule filter narrows the tasks to one pursuit', async () => {
-  const wasm = () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm')));
-  const { filterRowsByRules } = makeRowFilter({ operators, wasm });
   const tree = { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'pursuit', operator: 'is_any_of', params: { values: ['pursuit:coach'] } }] };
   const { matches } = await filterRowsByRules({ tree, fields: [{ id: 'pursuit', kind: 'choice' }], rows: read.tasks.map(task => ({ pursuit: task.pursuit })) });
   assert.deepEqual(matches.map(at => read.tasks[at].id), ['block:week']);

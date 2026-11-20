@@ -20,10 +20,20 @@
 //      starting-rules.json hands to an AI. Everywhere else the cheap check is the whole check.
 //   4. The same answer again is no new version; a different answer for a row is its next version, and the earlier one stays
 //      readable in the record's own history.
-import { filterRecords } from '../../formulas/do-work/requests.mjs';
 import { laidTogether, recordsIn } from '../read-data/decision-records.mjs';
 import { refuse, refuseUnknownFields, rowsOfMethod, say, strictnessOf } from './view.mjs';
 import methodRows from './settings.json' with { type: 'json' };
+import { readFileSync } from 'node:fs';
+import { initSync, filterRecords as engineFilterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+// The formula engine is loaded on the first rule read, from its bytes beside the built module.
+let engineReady = false;
+const filterRecords = request => {
+  if (!engineReady) {
+    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    engineReady = true;
+  }
+  return engineFilterRecords(request);
+};
 
 const { answers: ANSWERS, strictness: STRICT, evidence: EVIDENCE, pursuit: PURSUIT_TYPE } = methodRows;
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);

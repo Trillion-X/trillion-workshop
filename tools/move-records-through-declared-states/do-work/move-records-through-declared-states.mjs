@@ -69,11 +69,9 @@
 // seam is exact: bands compute a candidate signal, transitions decide whether the move is legal.
 
 import { readFileSync } from 'node:fs';
-import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
+import { initSync, holds } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 
-const engine = makeRowFilter({ operators, wasm: () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))) });
-await engine.load();
+initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
 
 /** Every declared state, by key.
  *
@@ -140,7 +138,7 @@ export function transitionsFrom(transitionDescriptors, states) {
 export function conditionHolds(condition, signals) {
   if (condition == null) return true;
   if (condition.kind !== 'group') throw new Error(`unrecognised condition, expected a rule group of the formula engine: ${JSON.stringify(condition)}`);
-  return engine.holdsNow(condition, signals);
+  return holds({ tree: condition, facts: signals });
 }
 
 /** Where a record is now, from its own history.

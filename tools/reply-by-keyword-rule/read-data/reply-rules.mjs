@@ -17,15 +17,17 @@
 //      This file names no keyword, no customer, no account and no place.
 import { expandReplyTemplate } from '../../reply-templates/read-data/expand.mjs';
 import { readFileSync } from 'node:fs';
-import { compileRules, ruleVocabulary } from 'trillion-workshop/tools/formula-engine/rules/compile-rules.mjs';
-import { loadRowEvaluator } from 'trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs';
-import ruleOperators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { initSync, filterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 
-// The formula engine decides whether a rule's words are in the text (tools/formula-engine, the ops-core evaluator built
-// to WebAssembly), loaded on the first rule matched.
-const vocabulary = ruleVocabulary(ruleOperators);
-let evaluator = null;
-const engine = () => (evaluator ??= loadRowEvaluator(readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm')))));
+// The formula engine decides whether a rule's words are in the text (tools/formula-engine, built to WebAssembly), loaded
+// on the first rule matched.
+let engineReady = false;
+const engine = () => {
+  if (!engineReady) {
+    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    engineReady = true;
+  }
+};
 
 /** Lower case, accents removed, punctuation and symbols (emoji included) turned into spaces, words joined by one space. */
 export function normalise(text) {
@@ -44,8 +46,8 @@ export function normalise(text) {
 export function ruleMatches(rule, text) {
   if (!rule.words.length) return rule.mode === 'all';
   const tree = { kind: 'rule', field: 'text', operator: rule.mode === 'all' ? 'has_all_words' : 'has_any_words', params: { values: rule.words.map(word => ` ${normalise(word)} `) } };
-  const { binding } = compileRules(tree, { fields: [{ id: 'text', kind: 'text' }], vocabulary });
-  return engine().filterRows([{ text: ` ${normalise(text)} ` }], binding).matches.length === 1;
+  engine();
+  return filterRecords({ records: [{ text: ` ${normalise(text)} ` }], fields: [{ id: 'text', kind: 'text' }], tree }).matches.length === 1;
 }
 
 const ms = iso => Date.parse(iso);

@@ -16,9 +16,19 @@
 //      so taking a rule away undoes what it alone did; a field a rule set is never left claiming a rule that is gone.
 //   4. Nothing is written: the answer holds the changes, the rows as they would be, and the provenance to keep beside
 //      each value, for the list's owner to write.
-import { filterRecords } from '../../formulas/do-work/requests.mjs';
 import { precedenceOf } from './precedence.mjs';
 import { isEmpty, readAt, sameValue, writeAt } from './row-paths.mjs';
+import { readFileSync } from 'node:fs';
+import { initSync, filterRecords as engineFilterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+// The formula engine is loaded on the first rule read, from its bytes beside the built module.
+let engineReady = false;
+const filterRecords = request => {
+  if (!engineReady) {
+    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    engineReady = true;
+  }
+  return engineFilterRecords(request);
+};
 
 /** The changes a person's ordered rule groups make to their rows, previewed per rule. */
 export function setFieldsByRules(request) {

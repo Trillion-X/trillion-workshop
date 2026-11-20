@@ -56,7 +56,7 @@ test('no step can be skipped: each step after the first checks the step just bef
 
 test('the recipes join the existing tools instead of building their own', () => {
   const folders = new Set(OUTREACH.flatMap(id => recipeToolIds(recipes.get(id))).map(tool => folderOf.get(tool)).filter(Boolean));
-  for (const folder of ['formulas', 'research-a-creator-or-topic', 'how-someone-does-their-thing', 'send-messages', 'customer-follow-up', 'traffic-attribution', 'judge-words', 'funnels-and-offers', 'run-experiments', 'social-posts']) {
+  for (const folder of ['formula-engine', 'research-a-creator-or-topic', 'how-someone-does-their-thing', 'send-messages', 'customer-follow-up', 'traffic-attribution', 'judge-words', 'funnels-and-offers', 'run-experiments', 'social-posts']) {
     assert.ok(folders.has(folder), `a recipe step uses a tool of tools/${folder}`);
   }
 });
@@ -160,7 +160,8 @@ test('the recipes name no person, company, place or address of their own', () =>
 });
 
 test('the candidate rule rows are requests the Workshop rule owner runs: every rule holds or not on a made-up candidate, and none is a second rule language', async () => {
-  const { classifyByRules } = await import('../../formulas/do-work/classify-by-rules.mjs');
+  const { initSync, classifyRecord: classifyByRules } = await import('../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js');
+  initSync({ module: (await import('node:fs')).readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
   const rows = json('../read-data/candidate-rules.json').records;
   const now = Date.parse('2026-11-02T00:00:00Z');
   const candidates = {

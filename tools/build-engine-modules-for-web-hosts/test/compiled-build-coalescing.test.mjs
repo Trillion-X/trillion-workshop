@@ -51,7 +51,7 @@ function setup() {
   const keptTime = new Date('2026-01-01T00:00:00.000Z');
   utimesSync(join(built, 'unmanaged/keep.txt'), keptTime, keptTime);
   symlinkSync('unmanaged/keep.txt', join(built, 'unmanaged-link'));
-  const copiedPart = join(home, 'tools/formula-engine/built-stored-bytes/evaluate-over-rows');
+  const copiedPart = join(home, 'tools/formula-engine/built-stored-bytes/formula-engine');
   mkdirSync(copiedPart, { recursive: true });
   writeFileSync(join(copiedPart, 'keep.bin'), 'part-owner-original');
   writeFileSync(join(built, 'fingerprint.json'), JSON.stringify({ crate_dirs: names, fingerprint: 'stale' }));

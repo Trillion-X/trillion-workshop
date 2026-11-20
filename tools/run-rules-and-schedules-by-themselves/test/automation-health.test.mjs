@@ -10,15 +10,12 @@
 // run nowhere (searched makeAutomations, readHealth, inbound( in trillion-workshop tools/, trillion-apps web/, trillion-rust src/).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { makeSourceHealth } from '../../shared-code/src/automation-health.mjs';
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { filterRows } from '../../keep-and-wake-ai-sessions-on-this-computer/test/formula-views-for-tests.mjs';
 import looks from '../src/automation-health-looks.json' with { type: 'json' };
 
 const NOW = '2026-09-29T12:00:00.000Z';
 const ago = hours => new Date(Date.parse(NOW) - hours * 3600000).toISOString();
-const { filterRowsByRules: filterRows } = makeRowFilter({ operators, wasm: () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
 const { readSourceHealth } = makeSourceHealth({ looks, filterRows });
 const health = input => readSourceHealth({ now: NOW, ...input });
 

@@ -55,6 +55,7 @@ This result does not deploy a server. A workflow applying it must prove that the
 ## Code
 
 - `do-work/share-files.mjs`: the pure core. It reads and writes nothing; it turns the shares into the files above.
+- `do-work/formula-engine.mjs`: the Rust formula engine (`tools/formula-engine`) loaded once, the first time a share's rule is decided, with its `filterRecords` and `compileRules`.
 - `do-work/write-share-files.mjs`: the thin shell. It takes the records handed in, takes the shared bytes handed in, checked against their BLAKE3 identity, writes whole files under temporary names, keeps unchanged files, removes ended ones and writes the manifest.
 - `read-data/`: the moved `list-copy.mjs`, `shareable-copy.mjs` and the DATA.
 

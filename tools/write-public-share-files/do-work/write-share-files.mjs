@@ -23,7 +23,7 @@
 import { mkdir, readFile, rename, rm, writeFile, rmdir } from 'node:fs/promises';
 import { dirname, join, resolve, sep } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { filterRecords } from '../../formulas/do-work/requests.mjs';
+import { filterRecords } from './formula-engine.mjs';
 import data from '../read-data/share-files.json' with { type: 'json' };
 import { partOf, shareFiles } from './share-files.mjs';
 

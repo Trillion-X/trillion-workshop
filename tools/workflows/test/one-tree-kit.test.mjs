@@ -51,7 +51,8 @@ test('on a blank account (no workflow rows of its own) each of the three workflo
 });
 
 test('every condition a published workflow carries is one the formulas engine evaluates, and keeps a part with its tags', async () => {
-  const { filterRecords } = await import('../../formulas/do-work/requests.mjs');
+  const { initSync, filterRecords } = await import('../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js');
+  initSync({ module: (await import('node:fs')).readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
   const carrying = recipes.filter(recipe => recipe.fires_when);
   assert.ok(carrying.length >= 16, "the published workflows that were branches carry their conditions");
   for (const recipe of carrying) {
@@ -111,7 +112,8 @@ test('a broad condition the trunk reports is written as a row the rewrite workfl
   assert.ok(choose.includes(condition.input.arrival_source), 'choose-branches writes the arrival source the condition names');
   assert.equal(condition.input.start_at, rewrite.steps[0].id);
   // The source row choose-branches writes keeps a Waiting row and drops a Done one, so marking a row Done starts nothing.
-  const { filterRecords } = await import('../../formulas/do-work/requests.mjs');
+  const { initSync, filterRecords } = await import('../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js');
+  initSync({ module: (await import('node:fs')).readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
   const { fields, tree } = JSON.parse(choose.match(/filter: the text (\{.*?\}\}\]\}\}), seed/)[1]);
   const result = filterRecords({ records: [{ status: 'Waiting' }, { status: 'Done' }], fields, tree });
   assert.deepEqual(result.incomplete, []);

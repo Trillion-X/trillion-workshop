@@ -38,8 +38,8 @@ import { pursuitNavigationRows } from './workspace/pursuit-navigation-rows.mjs';
 import { oneRowPerId } from './workspace/one-row-per-id.mjs';
 import { decideSidebarRules } from './workspace/sidebar-rules.mjs';
 import { applyDecidedRules, ruleListsOf } from './read-data/apply-list-rules.ts';
-import { compileRules, ruleVocabulary } from '../formula-engine/rules/compile-rules.mjs';
-import ruleOperators from '../formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { readFileSync } from 'node:fs';
+import { initSync, compileRules as engineCompileRules } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 import { readSurfaceCollections } from './read-data/read-surface-collections.ts';
 import { isSpaceRow } from './read-data/space-row.ts';
 import { mergeSurfaceCollections } from './read-data/merge-surface-collections.ts';
@@ -59,7 +59,15 @@ const HOST = String(surfaces.address_label).split('::').at(-1);
 const text = value => (typeof value === 'string' ? value.trim() : '');
 // The facts a rule may name, for rows and for lists (surfaces.json sidebar_row_facts `on`).
 const FACTS = surfaces.sidebar_row_facts ?? [];
-const VOCABULARY = ruleVocabulary(ruleOperators);
+// The formula engine is loaded on the first rule read, from its bytes beside the built module.
+let engineReady = false;
+const compileRules = request => {
+  if (!engineReady) {
+    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    engineReady = true;
+  }
+  return engineCompileRules(request);
+};
 const factsOn = on => FACTS.filter(fact => (fact.on ?? ['rows']).includes(on));
 // A rule a person's AI gives must be finished: each rule names a fact of the kind given and a comparison it offers.
 function ruleTree(value, on, field) {
@@ -67,7 +75,7 @@ function ruleTree(value, on, field) {
   const facts = factsOn(on);
   const named = facts.map(fact => `${fact.id} (${fact.kind})`).join(', ');
   if (!value || typeof value !== 'object' || value.kind !== 'group') throw new Error(`${field} is a rule tree { kind: "group", combinator: "and" | "or", negate: false, rules: [{ kind: "rule", field, operator, params }] } over ${named}, or null.`);
-  const { binding, incomplete } = compileRules(value, { fields: facts.map(fact => ({ id: fact.id, kind: fact.kind })), vocabulary: VOCABULARY });
+  const { binding, incomplete } = compileRules({ tree: value, fields: facts.map(fact => ({ id: fact.id, kind: fact.kind })) });
   if (!binding || incomplete.length) throw new Error(`${field} has a rule that is not finished (${JSON.stringify(incomplete[0] ?? {})}): each rule names one of ${named} and an operator of rule-operators.json its kind offers, with its params.`);
   return value;
 }

@@ -27,8 +27,7 @@ import { readFileSync } from 'node:fs';
 import settings from '../read-data/tours.json' with { type: 'json' };
 import defaults from '../guided-overlay-defaults.json' with { type: 'json' };
 import showRules from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
+import { initSync, filterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 import { showDecision } from '../../set-up-my-account/read-data/show-rules.mjs';
 import { foldWalkthroughProgress, foldWalkthroughRecords, tourFacts } from '../read-data/walkthrough-eeaf.ts';
 import { selectTrigger, startEventForWalkthrough } from '../engine/trigger-intake.ts';
@@ -41,10 +40,14 @@ const OPENED = { event_kind: 'app-opened' };
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const word = value => typeof value === 'string' && value.trim().length > 0;
 
-const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
+// A row the caller hands over that is not an object reads as no facts, as the row filter always read it.
+const asRecord = row => (row && typeof row === 'object' ? row : {});
 let loaded = null;
 async function rowFilter() {
-  if (!loaded) loaded = (async () => { const filter = makeRowFilter({ operators, wasm }); await filter.load(); return filter.filterRowsByRulesNow; })();
+  if (!loaded) loaded = (async () => {
+    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    return ({ tree, fields, rows }) => filterRecords({ records: rows.map(asRecord), fields, tree });
+  })();
   return loaded;
 }
 

@@ -25,9 +25,8 @@ import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
-import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
 import guards from 'trillion-workshop/tools/formula-engine/rules/evaluation-guards.json' with { type: 'json' };
-import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
+import { initSync, holds } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const decisionSettings = () => JSON.parse(readFileSync(join(HERE, 'run-decision.json'), 'utf8'));
@@ -40,12 +39,11 @@ const PARTS = ['action', 'app', 'url'];
 // `matches_any_glob`: a pattern with * as the wildcard, matched whole and ignoring case). The engine holds one formula to
 // a few patterns (evaluation-guards.json `regex_per_binding`), so a longer list is asked a few at a time. This file keeps
 // no comparison.
-const engine = makeRowFilter({ operators, wasm: () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))) });
-await engine.load();
+initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
 const globMatches = (patterns, value) => {
   for (let at = 0; at < patterns.length; at += guards.regex_per_binding) {
     const tree = { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'value', operator: 'matches_any_glob', params: { values: patterns.slice(at, at + guards.regex_per_binding) } }] };
-    if (engine.holdsNow(tree, { value: String(value) })) return true;
+    if (holds({ tree, facts: { value: String(value) } })) return true;
   }
   return false;
 };

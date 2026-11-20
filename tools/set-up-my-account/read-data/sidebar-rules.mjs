@@ -5,7 +5,7 @@
 //
 // PURPOSE
 //   A list in surfaces.json `sidebar_collections` may hold rows by a rule tree in the formula engine's shape
-//   (`holds: { rules }`, tools/formula-engine/rules/compile-rules.mjs) and may itself show only while a rule holds
+//   (`holds: { rules }`, the rule tree the Rust module tools/formula-engine/built-stored-bytes/formula-engine decides) and may itself show only while a rule holds
 //   (`shown_when`). The rules name the row facts surfaces.json `sidebar_row_facts` declares: a fact reads a path of
 //   the row, or of one of the person's records kept by row id (`from`, an inputs.json name such as the notes their AI
 //   left), and may be measured against now (`time`: days since or days until that moment). The formula engine decides

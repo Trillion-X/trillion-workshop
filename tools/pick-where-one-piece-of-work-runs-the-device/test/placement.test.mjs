@@ -4,12 +4,10 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
 import { devicesAwake, placeFor, placementFacts, trillionBudgetDollars } from '../src/placement.mjs';
-
-const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
-const { filterRowsByRules } = makeRowFilter({ operators, wasm });
+import { initSync, filterRecords } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+initSync({ module: readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
+const filterRowsByRules = ({ tree, fields, rows }) => filterRecords({ records: rows, fields, tree });
 const matches = async (tree, facts) => (await filterRowsByRules({ tree, fields: placementFacts, rows: [facts] })).matches.length === 1;
 const place = (facts, budgets = [], devices = []) => placeFor({ job: 'make-a-preview', facts, matches, budgets, devices }).then(answer => answer.id);
 

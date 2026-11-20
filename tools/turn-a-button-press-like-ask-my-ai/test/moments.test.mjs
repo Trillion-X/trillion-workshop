@@ -9,14 +9,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import rows from '../../shared-code/src/moments.json' with { type: 'json' };
 import { readFileSync } from 'node:fs';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
 import { jobOf, kindOf, momentOf, due, MAX_JOB, textKeyOf, itemOfArrival, setConditionEngine } from '../../shared-code/src/moments.mjs';
+import { initSync, holds } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+initSync({ module: readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
+const holdsNow = (tree, facts) => holds({ tree, facts });
 
 // The formula engine decides every condition here: loaded from the bytes the Workshop ships and given to the moment step.
-const filter = makeRowFilter({ operators, wasm: () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
-await filter.load();
-setConditionEngine(filter.holdsNow);
+setConditionEngine(holdsNow);
 
 const T = (hhmm, day = '2026-10-08') => `${day}T${hhmm}:00.000Z`;
 const fid = n => `12:${String(n).padStart(64, '0')}`;

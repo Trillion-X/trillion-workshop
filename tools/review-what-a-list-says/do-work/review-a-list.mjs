@@ -10,17 +10,27 @@
 //   findRowsNeedingReview({ list, rows, owner?, now? })
 //       each owner's rows that need review, with why, from the list as read (its fields and the review views set_up
 //       saved on it) and its rows handed in: rowsNeedingReview reads each saved view through a reader that keeps the
-//       rows its rules keep (the rule filter of tools/formulas) or whose date field is before its `before` binding,
+//       rows its rules keep (the rule filter of tools/formula-engine) or whose date field is before its `before` binding,
 //       evaluated with { now } (the formula engine's binding evaluator).
 //   heatOfARow({ kept?, now?, used? })
 //       a row's heat as of now (heatNow), and with used: true the heat record a use leaves (usedHeat; null inside the gap).
 //
 // Nothing here decides anything: the moved functions and their data (read-data/lists.json) do.
 import { coldRows, heatNow, rowsNeedingReview, usedHeat } from '../read-data/list-review.mjs';
-import { evaluateFormula, filterRecords } from '../../formulas/do-work/requests.mjs';
+import { readFileSync } from 'node:fs';
+import { evaluateFormula, filterRecords, initSync } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const need = (ok, sentence) => { if (!ok) throw new Error(sentence); };
+// The formula engine is read the first time a saved view or a before binding is decided, never by a review that has neither.
+let engineReady = false;
+const loadEngine = () => {
+  if (engineReady) return;
+  initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+  engineReady = true;
+};
+const filterRecordsWithEngine = request => { loadEngine(); return filterRecords(request); };
+const evaluateFormulaWithEngine = request => { loadEngine(); return evaluateFormula(request); };
 
 // The lists coldRows reads, kept in the request: one list, its rows in order, a page at a time, and their heat records.
 function handedIn({ list, rows, heats }) {
@@ -46,13 +56,13 @@ export async function findColdRows(input) {
 const ruleFields = tree => (!isObject(tree) ? new Set() : tree.kind === 'rule' ? new Set(typeof tree.field === 'string' ? [tree.field] : [])
   : new Set((tree.rules ?? []).flatMap(rule => [...ruleFields(rule)])));
 
-// The rows one saved view keeps, from rows handed in: its rules by the rule filter of tools/formulas, its time window
+// The rows one saved view keeps, from rows handed in: its rules by the rule filter of tools/formula-engine, its time window
 // by the field's date against the `before` binding evaluated with { now }. A view with neither keeps every row.
 function keptByView(view, list, rows, now) {
   let kept = rows;
   if (view.rules) {
     const reads = ruleFields(view.rules);
-    const found = filterRecords({
+    const found = filterRecordsWithEngine({
       records: kept.map(row => ({ value: Object.fromEntries([...reads].filter(name => name in (row.values ?? {})).map(name => [name, row.values[name]])) })),
       fields: list.fields.filter(field => reads.has(field.id)).map(field => ({ id: field.id, kind: field.kind ?? 'text', path: ['value', field.id] })),
       tree: view.rules,
@@ -62,7 +72,7 @@ function keptByView(view, list, rows, now) {
   }
   if (view.time) {
     need(typeof view.time.field === 'string' && isObject(view.time.before?.binding), `View ${view.id}'s time window needs field and before.binding.`);
-    const { values, errors } = evaluateFormula({ binding: view.time.before.binding, rows: [{ now }] });
+    const { values, errors } = evaluateFormulaWithEngine({ binding: view.time.before.binding, rows: [{ now }] });
     need(!errors.length, `View ${view.id}'s before binding gave ${JSON.stringify(errors[0]?.error)}.`);
     const before = Date.parse(values[0]);
     need(Number.isFinite(before), `View ${view.id}'s before binding gave no time.`);

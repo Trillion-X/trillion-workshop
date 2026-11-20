@@ -4,7 +4,7 @@ Draws a person's Get started screen: which setup steps apply to their account, w
 
 - **The decisions moved here as they were.** `read-data/setup-steps.mjs` (`setupSteps`, `setupStepsWithRules`), `read-data/get-started-screen.mjs` (`getStartedFacts`, from `src/account-screens.mjs`) and their imports are byte copies of trillion `d273ef3`, changed only in their import paths (see `ports/`). The setup DATA (`setup-steps.json`, `setup-policy.json`, `setup-access.json`, `ai-clients.json`, `ai-setup-prompt.json`, `computer-sources.json`, `harnesses.json`) is the copy the engine read from its `product/` folder, which it no longer has.
 - **Fails closed.** A fact the request leaves out is unknown, never done. A rule set or setup context the request leaves out (`shared_rules`, `rules`, `context`, `personal_context`) is unknown too, so the screen is not ready (`policy.requirements_resolved: false`) rather than opening on a guess.
-- **The show rules are decided by the Workshop's one rule evaluator.** `setupStepsWithRules` asks `filterRows` for each rule's condition; here that is `filterRowsByRules`, the formula engine's row filter (trillion `tools/formula-engine/rules/filter-rows-by-rules.mjs`) over `tools/formulas` (its compiler, evaluator and comparison rows, which now include `is_true` and `is_false`).
+- **The show rules are decided by the Workshop's one rule evaluator.** `setupStepsWithRules` asks `filterRows` for each rule's condition; here that is `filterRowsByRules`, a call of the formula engine's `filterRecords` (tools/formula-engine, its Rust module called directly: compiler, evaluator and comparison rows, which include `is_true` and `is_false`).
 - **Nothing is read or kept.** Every fact comes in the request.
 
 ## Files

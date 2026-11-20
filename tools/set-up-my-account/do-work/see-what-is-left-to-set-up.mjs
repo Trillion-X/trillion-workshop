@@ -7,16 +7,15 @@
 import { readFileSync } from 'node:fs';
 import { setupStepsWithRules } from '../read-data/setup-steps.mjs';
 import { getStartedFacts } from '../read-data/get-started-screen.mjs';
-import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
-import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { initSync, filterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 
-// The show rules' row filter is the formula engine's own (tools/formula-engine filter-rows-by-rules.mjs, the evaluator
-// built from ops-core): a row's field value is row[field.id]; a missing value is null; an empty tree keeps every row; an
-// unfinished rule is left out and named in `incomplete`.
-const rowFilter = makeRowFilter({ operators, wasm: () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))) });
-await rowFilter.load();
+// The show rules' row filter is the Rust formula engine (tools/formula-engine): a row's field value is row[field.id]; a
+// missing value is null; an empty tree keeps every row; an unfinished rule is left out and named in `incomplete`.
+initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+// A row the caller hands over that is not an object reads as no facts, as the row filter always read it.
+const asRecord = row => (row && typeof row === 'object' ? row : {});
 export function filterRowsByRules({ tree, fields, rows }) {
-  return rowFilter.filterRowsByRulesNow({ tree, fields, rows });
+  return filterRecords({ records: rows.map(asRecord), fields, tree });
 }
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);

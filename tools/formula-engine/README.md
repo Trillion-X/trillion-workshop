@@ -1,30 +1,46 @@
 # tools/formula-engine/
 
-Rules over records: the operators a filter offers and the compiled evaluator that decides which rows match, used by the workspace's record views (Files, Decisions).
+Rules and formulas over rows, in one Rust engine every host calls directly. A person's rule tree (comparisons such as "is any of", "contains", "is more than", "is between", "is empty", joined in all-of and any-of groups that can be negated and nested) is compiled by the engine into one composition-ast binding and evaluated over rows; a formula (a binding) is evaluated over a value; a record gets the label of the first rule that holds. The comparisons are DATA (`rules/rule-operators.json`), and the limits every evaluation is held to are DATA (`rules/evaluation-guards.json`): adding a comparison is one row, no code.
+
+There is no JavaScript around the engine. Until Nov 19 2026 a JavaScript compiler (`rules/compile-rules.mjs`), five more `rules/*.mjs` wrappers and a second folder (`tools/formulas`) stood between callers and the Rust evaluator; they were deleted in the landing that moved compiling, the request checks, the guards and the classifier into the crate, and every caller now imports the built module and calls it.
+
+Logic has three states, and only a true answer keeps a row. A value that is unknown (missing, null) has no answer to a comparison that has to look at it, and NOT of unknown stays unknown, so such a row matches neither the comparison nor its negation. `is any of` / `is none of` and `is` / `is not` ask whether the value is in the list or equals the word, so an unknown value is kept by `is none of` and `is not`. A rule that is not finished (an unknown field or comparison, a comparison the field's kind does not offer, missing values) is left out and returned in `incomplete`, never guessed.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `part.json` | The files other code may import. |
-| `rules/rule-operators.json` | The operators each field kind offers (DATA). |
-| `rules/filter-records.mjs` | `createRecordFilter(wasmBytes)`: filters rows by rules with the compiled evaluator. |
-| `built-stored-bytes/evaluate-over-rows/` | The compiled evaluator (`evaluate-over-rows_bg.wasm`) and its glue, built from `../trillion-rust/crates/evaluate-over-rows` by trillion-apps `web/scripts/build-formula-evaluator.mjs`. |
-| `test/shipped-evaluator.test.mjs` | The shipped evaluator loads from its bytes, answers a compiled rule for one row (a computed column) and filters a table. |
-| `rules/compile-rules.mjs` | Compiles a rule tree into one composition-ast binding and the fields it reads. |
-| `rules/filter-rows-by-rules.mjs` | `makeRowFilter({operators, wasm})` → `filterRowsByRules({tree, fields, rows})`: the Workshop tool `tool:filter-rows-by-rules`. A rule (tree and fields, by value) is compiled once and each row's answer under it is kept, since a compiled rule reads only the row and its own literals. |
-| `rules/filter-rows-by-rules.mjs` `holdsNow(tree, facts)` and `ruleTreeOfTests(tests)` | Whether a rule tree holds over ONE set of facts (an event's fields, a transcript row, a screen's state), in the same call once `load()` has resolved: the one road for every tool condition (screen visibility, event `where` and `skip`, wake-stopped-chats tests, moment rows, stream specs). Facts have the kind `fact`; `ruleTreeOfTests` reads the data files' short spelling `{path, equals \| one_of \| starts_with \| present, not}` as a tree. A rule the engine cannot finish is refused, never read as holding. |
-| `rules/evaluate-over-rows.mjs` | `loadRowEvaluator(wasm bytes)`: the evaluator's JSON interface; public, so the page evaluates a list's computed columns with it (`src/workspace/list-targets.ts`). Every call passes the evaluation guards first. |
-| `rules/evaluation-guards.mjs` / `.json` | The limits every evaluation is held to (depth, parts, a binding containing itself, pattern size, work = rows x weight, wall time per row slice), as DATA; a formula past one is refused with `code: 'formula_guard'` and its own words. Stopping one evaluation part way through needs fuel metering inside the wasm (a rebuild of `../trillion-rust/crates/evaluate-over-rows`); everything decidable before and between evaluator calls is decided here. |
+| `crates/formula-engine/` | The engine: `src/rules.rs` (rule tree to binding), `src/guards.rs` (the limits), `src/requests.rs` (each request and its refusals), `src/classify.rs` (first rule that holds), `src/lib.rs` (evaluation), `src/host.rs` (the wasm-bindgen exports), `src/main.rs` (the WASI command) |
+| `built-stored-bytes/formula-engine/` | `formula_engine.js` and `formula_engine_bg.wasm`: the crate for a JavaScript host (wasm-bindgen `web` target). Pages and Node tools import these and call the engine directly |
+| `built-stored-bytes/component/formula-engine.wasm` | The crate's command built for wasm32-wasip2: the one component the engine runs for this folder's tool rows on any computer (trillion-rust `src/tool_runs/tools/component.rs`) |
+| `rules/rule-operators.json` | Every comparison and group combinator as DATA |
+| `rules/evaluation-guards.json` | The limits and their refusal words as DATA |
+| `tool-rows.json`, `kits/` | `tool:filter-rows-by-rules`, `tool:evaluate-a-formula`, `tool:list-comparisons`, `tool:classify-a-record`, each running the component |
+| `test/*.test.mjs` | Three-state logic, comparisons, errors and path safety (binding), rule trees (rules), the classifier (classify), the guards, the shipped module and the stored-formula contracts, and every row's sample run through the component (rows) |
+| `part.json` | The files other code may import |
+
+Rebuild both built forms with `node tools/build-engine-modules-for-web-hosts/build/build-formula-evaluator.mjs` (then commit the three files); `cargo test -p formula-engine` in `crates/` runs the crate's own tests.
 
 ## Key Types / Functions
 
-| Name | Signature / Shape | Role |
-|------|-------------------|------|
-| `createRecordFilter` | `(wasm bytes) => Promise<filterRecords>` | The record views' filter. |
+Load once (`initSync({ module: <the bytes of formula_engine_bg.wasm> })` in Node, `await init({ module_or_path })` in a page), then call. Each takes one object; a refusal is thrown as an Error with the engine's words, a guard's refusal with `code: 'formula_guard'`, `guard` and `limit`.
+
+| Export | Request -> answer |
+|--------|-------------------|
+| `filterRecords` | `{records, fields: [{id, kind, path?}], tree?, operators?}` -> `{total, matches, kept, records, reads, incomplete, error_rows, first_error}` |
+| `compileRules` | `{tree, fields, operators?}` -> `{binding \| null, reads, incomplete}` |
+| `holds` | `{tree, facts, operators?}` -> whether the tree holds over one set of facts (an unfinished rule is refused) |
+| `testsHold` | `{tests, row, present?}` -> whether the data files' short spelling `{path, equals \| one_of \| starts_with \| present, not}` holds over a row |
+| `filterRows` | `{rows, binding}` -> `{matches, error_rows, first_error}` |
+| `evaluate` / `evaluateFormula` | `{binding, input}` -> `{value}`; `{binding, rows}` -> `{values, errors}` |
+| `listComparisons` | `{field_kind?, operators?}` -> `{combinators, comparisons, field_kinds}` |
+| `classifyRecord` | `{facts, rules, record, now_ms?}` -> `{result: {key, label, tone, severity} \| null}` |
+| `replaceRows` / `patchRows` / `filterLoadedRows` | A loaded table for a host that owns the module alone (a page's measure engine) |
+
+The component takes the same requests by name: `component <formula-engine.wasm> <request>`, the request on standard input, `{"result": ...}` or `{"error": ...}` as its last line.
 
 ## Dependencies
 
-**Depends on:** nothing outside the part at run time; its evaluator is built from `../trillion-rust/crates/evaluate-over-rows`.
+**Depends on:** `tools/shared-code/crates/composition-ast` and `ops-core` (every operator's meaning), built by `tools/build-engine-modules-for-web-hosts`.
 
-**Depended on by:** `src/workspace/record-filter.ts`, `src/workspace/list-targets.ts` (computed columns), `src/workspace/files-screen.tsx`, `src/workspace/decisions-screen.tsx`, `scripts/build-workspace.mjs` (copies the evaluator), `test/formula-rules.test.mjs`, `src/engine-tools.mjs` (filter-rows-by-rules), `src/space-permissions.mjs` (compile-rules, to check a space's rules are finished), `scripts/compiled-modules.mjs` (the Worker copy of the evaluator).
+**Depended on by:** every tool that filters or decides by rules (the workflow chooser `tools/workflows/read-data/choose-the-workflows-that-fire.mjs` among them), the workspace pages' record filters and computed columns, and its own tool rows.

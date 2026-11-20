@@ -44,7 +44,7 @@ function fixture() {
   writeFileSync(join(home, CRATES, 'Cargo.lock'), '[[package]]\nname = "wasm-bindgen"\nversion = "0.2.120"\n');
   for (const [part, file] of [
     ['tools/browse-and-upload-my-files/built-stored-bytes/content-chunks', 'chunks.bin'],
-    ['tools/formula-engine/built-stored-bytes/evaluate-over-rows', 'evaluate.bin'],
+    ['tools/formula-engine/built-stored-bytes/formula-engine', 'evaluate.bin'],
   ]) {
     mkdirSync(join(home, part), { recursive: true });
     writeFileSync(join(home, part, file), 'owner bytes');

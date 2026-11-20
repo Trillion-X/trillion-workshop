@@ -36,10 +36,10 @@
 //
 
 import data from './done-when-facts.json' with { type: 'json' };
-import operatorData from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { resolveRule, ruleVocabulary } from '../../formula-engine/rules/compile-rules.mjs';
+import { readFileSync } from 'node:fs';
+import { compileRules, initSync, listComparisons } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 
-const VOCABULARY = ruleVocabulary(operatorData);
+initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
 const words = (key, values = {}) => data.words[key].replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 /** One of the DATA's words with its blanks filled (the owner's reasons: Checked: ..., already done: ...). */
 export const doneWords = words;
@@ -146,11 +146,12 @@ export function makeDoneWhen({ readers, filterRows, now = () => Date.now(), reda
     for (const test of tests) {
       const field = byId.get(test.field);
       if (!field) return words('bad_field', { field: String(test.field ?? ''), over: rule.over, fields: fields.map(have => `${have.id} (${have.kind})`).join(', ') });
-      const operator = VOCABULARY.operators.get(test.operator);
-      if (!operator || !operator.applies_to.includes(field.kind)) {
-        return words('bad_operator', { operator: String(test.operator ?? ''), field: field.id, kind: field.kind, allowed: VOCABULARY.operatorsFor(field.kind).map(have => have.id).join(', ') });
+      const comparisons = listComparisons({ field_kind: field.kind }).comparisons;
+      const operator = comparisons.find(have => have.id === test.operator);
+      if (!operator) {
+        return words('bad_operator', { operator: String(test.operator ?? ''), field: field.id, kind: field.kind, allowed: comparisons.map(have => have.id).join(', ') });
       }
-      if (!resolveRule(test, byId, VOCABULARY)) return words('bad_params', { field: field.id, operator: operator.id, input: operator.input });
+      if (compileRules({ tree: test, fields: [...byId.values()].map(({ id, kind }) => ({ id, kind })) }).incomplete.length) return words('bad_params', { field: field.id, operator: operator.id, input: operator.input });
     }
     if (def.named_by && !namesIn(rule.tree, def.named_by).length) return words('needs_names', { field: def.named_by, over: rule.over, noun: def.noun });
     return null;

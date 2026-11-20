@@ -3,7 +3,7 @@
 // Purpose
 //   The shape of a person's filter (a tree of rules and groups) and the pure,
 //   path-copying edits the filter controls make to it. The tree is the same
-//   plain JSON the formula engine compiles (formula-engine/rules/compile-rules.mjs),
+//   plain JSON the formula engine compiles (tools/formula-engine, its compileRules),
 //   so what a person builds here is exactly what gets evaluated and saved.
 //
 // Non-negotiable invariants

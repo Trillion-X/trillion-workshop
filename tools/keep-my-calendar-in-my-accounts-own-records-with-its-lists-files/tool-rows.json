@@ -56,7 +56,6 @@
           "trillion-workshop/fill-a-list-from-a-feed",
           "trillion-workshop/find-anything-from-one-box",
           "trillion-workshop/formula-engine",
-          "trillion-workshop/formulas",
           "trillion-workshop/founder-growth-engine-screens",
           "trillion-workshop/funnel-offer-graph",
           "trillion-workshop/funnels-screen",
@@ -260,22 +259,9 @@
               {
                 "package": "formula-engine",
                 "paths": [
-                  "rules/compile-rules.mjs",
                   "rules/rule-operators.json"
                 ],
                 "at": "/opt/formula-engine"
-              },
-              {
-                "package": "formulas",
-                "paths": [
-                  "read-data/list-refusals-core.mjs",
-                  "read-data/list-refusals.mjs",
-                  "read-data/list-value-history.mjs",
-                  "read-data/lists.json",
-                  "read-data/write-via.json",
-                  "read-data/write-via.mjs"
-                ],
-                "at": "/opt/formulas"
               },
               {
                 "package": "keep-and-wake-ai-sessions-on-this-computer",

@@ -2,12 +2,11 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
 import { decideRuleEffects } from '../read-data/rule-decisions.mjs';
+import { initSync, filterRecords } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+initSync({ module: readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
+const filterRows = ({ tree, fields, rows }) => filterRecords({ records: rows, fields, tree });
 
-const filter = makeRowFilter({ operators, wasm: () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
-await filter.load();
 const condition = () => ({ kind: 'group', combinator: 'and', negate: false, rules: [
   { kind: 'rule', field: 'enabled', operator: 'is_true', params: {} },
 ] });
@@ -25,7 +24,7 @@ test('display and access outcomes share formula matching, expiry, and declared p
     { rule: { id: 'permit', effect: 'allow' }, when: condition(), row },
     { rule: { id: 'refuse', effect: 'deny', until: '2026-10-14T00:00:00Z' }, when: condition(), row },
   ];
-  const result = filter.filterRowsByRulesNow;
+  const result = filterRows;
   const visibility = decideRuleEffects({ entries: entries.slice(0, 3), effects, fields: [{ id: 'enabled', kind: 'boolean' }], now: Date.parse('2026-10-13T12:00:00Z'), filterRows: result });
   assert.deepEqual(visibility.winners.map(entry => entry.rule.id), ['shown']);
   assert.deepEqual(visibility.changes.map(entry => entry.rule.id), ['layout-change']);
@@ -74,7 +73,7 @@ test('the real formula owner attributes an unfinished leaf to its rule without b
     { rule: { id: 'unfinished-score', effect: 'deny' }, when: unfinished, row: { score: 1 } },
   ], effects: [{ id: 'allow', strength: 1 }, { id: 'deny', strength: 2 }],
   fields: [{ id: 'score', kind: 'number' }], now: Date.parse('2026-10-13T12:00:00Z'),
-  strict: true, filterRows: filter.filterRowsByRulesNow };
+  strict: true, filterRows: filterRows };
   const answer = decideRuleEffects(input);
   assert.deepEqual(answer.incomplete, [{ ...unfinished, rule: 'unfinished-score' }]);
   assert.deepEqual(answer.held, [], 'unfinished conditions still refuse every strict match');

@@ -10,12 +10,13 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
 import data from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
 import accountFactsData from '../../decide-when-things-show/read-data/work-for-ais.json' with { type: 'json' };
 import { accountFacts } from '../../decide-when-things-show/read-data/account-facts.mjs';
 import { changedRecord, givenRules, showDecision } from '../../set-up-my-account/read-data/show-rules.mjs';
+import { initSync, filterRecords } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+initSync({ module: readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
+const filterRows = ({ tree, fields, rows }) => filterRecords({ records: rows, fields, tree });
 
 const FILE = new URL('../shipped-defaults.json', import.meta.url);
 const text = readFileSync(FILE, 'utf8');
@@ -62,13 +63,11 @@ test('the shipped type is one the show-rules store accepts, and no type ships in
 });
 
 test('given to an account, the shipped type keeps collapse and resize and hides the rest of the workspace chrome', async () => {
-  const filter = makeRowFilter({ operators, wasm: () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
-  await filter.load();
-  const matches = (tree, row) => filter.filterRowsByRulesNow({ tree, fields: accountFactsData.facts, rows: [row] }).matches.length === 1;
+  const matches = (tree, row) => filterRows({ tree, fields: accountFactsData.facts, rows: [row] }).matches.length === 1;
   const facts = accountFacts({ accountId: 'account-a', context: { cohorts: ['simple-workspace'] } });
   const rules = await givenRules({ data, giver: { types: showRules.value.types }, facts, matches });
   const within = control => control.split('.').map((_, index, parts) => parts.slice(0, index + 1).join('.'));
-  const shown = control => !showDecision({ data, record: null, given: rules, subject: 'control', thing: { control, within: within(control) }, now: Date.parse('2026-11-03T12:00:00Z'), filterRows: filter.filterRowsByRulesNow }).hidden;
+  const shown = control => !showDecision({ data, record: null, given: rules, subject: 'control', thing: { control, within: within(control) }, now: Date.parse('2026-11-03T12:00:00Z'), filterRows: filterRows }).hidden;
   for (const control of ['sidebar.collapse', 'sidebar.resize']) assert.equal(shown(control), true, `${control} stays`);
   for (const control of ['arrangement.header.tabs', 'arrangement.header.nav', 'arrangement.split', 'sidebar.position', 'comments', 'selection.tray',
     // The tool rows, pins, docking, compass, notifications, move handle, empty pane and tab bar the account owner named
@@ -84,7 +83,7 @@ test('given to an account, the shipped type keeps collapse and resize and hides 
   }
   assert.equal(shown('screens.record'), true, 'the one recording row stays');
   // Only the handful stays listed: a screen rule changes `listed` for every other screen.
-  const listed = (id, sidebar_collection) => showDecision({ data, record: null, given: rules, subject: 'screen', thing: { id, sidebar_collection }, now: Date.parse('2026-11-03T12:00:00Z'), filterRows: filter.filterRowsByRulesNow })
+  const listed = (id, sidebar_collection) => showDecision({ data, record: null, given: rules, subject: 'screen', thing: { id, sidebar_collection }, now: Date.parse('2026-11-03T12:00:00Z'), filterRows: filterRows })
     .changes.filter(change => change.path.join('.') === 'listed').at(-1)?.value !== false;
   for (const id of ['trillion.messages', 'trillion.calendar', 'trillion.files', 'trillion.media', 'trillion.lists', 'trillion.record', 'trillion.settings']) assert.equal(listed(id, 'information-being-acted-on'), true, `${id} stays listed`);
   for (const id of ['trillion.home', 'trillion.waiting', 'trillion.record-audio', 'trillion.formats', 'trillion.connections']) assert.equal(listed(id, 'start'), false, `${id} is not listed`);

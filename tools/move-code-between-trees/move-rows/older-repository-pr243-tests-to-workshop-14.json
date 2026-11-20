@@ -47,7 +47,7 @@
     },
     {
       "from": "tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
-      "home": "tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+      "home": "tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm",
       "why": "an earlier lane adapted it here (the one same-name file); not the same bytes once import paths are set aside"
     }
   ]

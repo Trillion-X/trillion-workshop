@@ -22,8 +22,7 @@
 //      (withComputedFields, below), which never follows a link back to a row whose value is being worked out.
 //
 import data from '../../keep-and-wake-ai-sessions-on-this-computer/src/lists.json' with { type: 'json' };
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { compileRules, ruleVocabulary } from '../../formula-engine/rules/compile-rules.mjs';
+import { formulaEngine } from './formula-engine.mjs';
 import { listSay as say } from './list-refusals.mjs';
 import { paramsOf, measure } from './list-aggregates.mjs';
 
@@ -35,7 +34,6 @@ const idsOf = value => (Array.isArray(value) ? value : typeof value === 'string'
 const empty = value => value === undefined || value === null || value === '' || (Array.isArray(value) && !value.length);
 // The engine answers decimals as text ("8"); a number is a number to the reader.
 const answered = value => (typeof value === 'string' && /^-?\d+(\.\d+)?$/.test(value) ? Number(value) : value);
-const vocabulary = ruleVocabulary(operators);
 const isComputed = field => KINDS.get(field?.kind)?.value === 'computed';
 const chunks = (items, size) => Array.from({ length: Math.ceil(items.length / size) }, (_, index) => items.slice(index * size, (index + 1) * size));
 
@@ -75,7 +73,7 @@ function withSettles(node, fieldsById) {
 function rowTest(rollup, target, evaluateBinding) {
   if (!rollup.where) return null;
   const fieldsById = new Map((target?.fields ?? []).map(field => [field.id, field]));
-  const { binding } = compileRules(withSettles(rollup.where, fieldsById), { fields: [...fieldsById.values()].map(field => ({ id: field.id, kind: KINDS.get(field.kind)?.ruleKind ?? field.kind })), vocabulary });
+  const { binding } = formulaEngine().compileRules({ tree: withSettles(rollup.where, fieldsById), fields: [...fieldsById.values()].map(field => ({ id: field.id, kind: KINDS.get(field.kind)?.ruleKind ?? field.kind })) });
   return binding ? async values => (await evaluateBinding(binding, values)) === true : null;
 }
 

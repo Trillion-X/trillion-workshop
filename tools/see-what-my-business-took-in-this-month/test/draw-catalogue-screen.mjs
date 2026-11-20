@@ -3,11 +3,11 @@
 // reads answered, through the compiled formula evaluator (tools/formula-engine). Ported from old trillion
 // test/catalogue-screens-for-tests.mjs drawCatalogueScreen and src/screen-layout.mjs, which it carries unchanged.
 import { readFileSync } from 'node:fs';
-import { loadRowEvaluator } from '../../formula-engine/rules/evaluate-over-rows.mjs';
+import { evaluate as formulaEvaluate, initSync } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 
 export const catalogueRows = JSON.parse(readFileSync(new URL('../../show-my-screens-from-a-catalogue-of-reads-and-layouts/tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
-const evaluator = loadRowEvaluator(readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)));
-const evaluate = (binding, input) => evaluator.evaluate(binding, input);
+initSync({ module: readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
+const evaluate = (binding, input) => formulaEvaluate({ binding, input }).value;
 
 // old src/screen-layout.mjs, unchanged but for the evaluator passed in.
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);

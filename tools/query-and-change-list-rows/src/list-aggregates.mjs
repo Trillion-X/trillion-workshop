@@ -22,10 +22,11 @@
 //      "the latest" is a sort and a last element and nothing more.
 //   6. `measure` is the one place a measure is worked out over values in hand (a rollup's linked rows, a habit's days, a board's
 //      child fractions, a tree's leaves): it answers at once when the evaluator does, so a screen that renders in one pass can ask.
-//      Without an evaluator of its own it loads the formula engine's wasm (Node reads it; a page says how to load it with
-//      provideMeasureEngine and awaits loadMeasureEngine, or passes the evaluator it already holds).
+//      Without an evaluate function of its own it uses the formula engine module (Node loads its wasm itself; a page loads the module
+//      with provideMeasureEngine and awaits loadMeasureEngine, or passes the evaluate function it already holds).
 //
 import data from '../../keep-and-wake-ai-sessions-on-this-computer/src/lists.json' with { type: 'json' };
+import { formulaEngine } from './formula-engine.mjs';
 
 const { limits } = data;
 // A measure marked per_row (the linked values themselves) is for a rollup over one row's links (src/list-rollups.mjs), never a total.
@@ -83,9 +84,10 @@ let source;
 const builtin = name => globalThis.process?.getBuiltinModule?.(name);
 
 /**
- * A page (a host without Node's fs) says how to get the formula engine's evaluator, once: `load` answers (a promise of) the evaluator
- * the engine's own loader makes from the wasm bytes (`evaluate(binding, input)`). Only the page's own code does, so a screen that
- * totals never names the bytes and a bundle that carries no page (a public share view) carries no 4 MB reference.
+ * A page (a host without Node's fs) says how to get the formula engine, once: `load` answers (a promise of) the engine module
+ * (tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js) after the page ran that module's own init on the wasm
+ * bytes. `measure` then calls its `evaluate({ binding, input })`, which answers `{ value }`. Only the page's own code names the
+ * bytes, so a screen that totals never names them and a bundle that carries no page (a public share view) carries no 4 MB reference.
  */
 export const provideMeasureEngine = load => { source = load; };
 
@@ -106,14 +108,13 @@ export function loadMeasureEngine(load = source) {
   return loading;
 }
 
-// The formula engine's evaluator, loaded once from the wasm bytes beside the engine's own files, at the first call that needs it
-// (Node's own fs and module loader, taken then, so a run that only totals a list, and a page that bundles this file, carry none of it).
-// A page has no fs: it holds the evaluator once `loadMeasureEngine` resolved, and until then `measure` refuses.
+// The formula engine module for measures: the one a page loaded (`loadMeasureEngine`), or Node's own, taken at the first call that
+// needs it, so a run that only totals a list, and a page that bundles this file, carry none of it. Until a page has loaded it, `measure`
+// refuses.
 const engine = () => {
   if (!loaded) {
     if (!builtin('node:fs')) throw new Error('measure needs the formula engine: await loadMeasureEngine() first, or pass the evaluator as its fourth argument');
-    const { loadRowEvaluator } = builtin('node:module').createRequire(import.meta.url)('trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs');
-    loaded = loadRowEvaluator(builtin('node:fs').readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))));
+    loaded = formulaEngine();
   }
   return loaded;
 };
@@ -125,7 +126,7 @@ const engine = () => {
  * alone. Empty values are left out, and so are values that are not numbers for a measure that reads numbers; with none left,
  * such a measure answers undefined, never a made-up zero.
  */
-export function measure(values, op, params, evaluate = (binding, input) => engine().evaluate(binding, input)) {
+export function measure(values, op, params, evaluate = (binding, input) => engine().evaluate({ binding, input }).value) {
   const settings = paramsOf(op, params, id => ({ id, kind: 'text' }), () => new Date().toISOString(), what => new Error(what));
   const read = values.map(item => (op.pairs ? item : { value: item })).filter(({ value }) => !empty(value))
     .map(({ value, by }) => ({ value: op.numeric ? Number(value) : value, by })).filter(({ value }) => !(op.numeric && Number.isNaN(value)));

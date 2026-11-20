@@ -20,7 +20,7 @@ export const COMPILED_MODULES = [
   { crate: 'http-client', cargoArgs: ['--no-default-features'], folder: 'held-values', worker: 'main' },
   { copy_from: join(TOOLS, 'browse-and-upload-my-files/built-stored-bytes/content-chunks'), folder: 'content-chunks', worker: 'main' },
   { crate: 'workflow-engine', folder: 'workflow-engine', worker: 'engines' },
-  { copy_from: join(TOOLS, 'formula-engine/built-stored-bytes/evaluate-over-rows'), folder: 'formula-engine', worker: 'engines', workers: ['main', 'engines'] },
+  { copy_from: join(TOOLS, 'formula-engine/built-stored-bytes/formula-engine'), folder: 'formula-engine', worker: 'engines', workers: ['main', 'engines'] },
 ];
 // Loaded by the page, not the Worker. A row naming a `target` is a slot built for that
 // target as it is, with no bindings: the page runs it through the shared buffer exchange (tools/workspace-screens/web/src/workspace/slot-in-the-page.ts).

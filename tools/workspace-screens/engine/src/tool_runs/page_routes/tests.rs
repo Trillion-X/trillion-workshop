@@ -8,7 +8,7 @@
 // any other screen is its catalogue row as {surface}). Their screens are the tag's records/marketplace-screens.json
 // rows, copied whole to tests/fixtures/screen-host/. Decision inputs and complete expected descriptions use
 // engine-owned synthetic scenario text while retaining all seven branch cases. The evaluator is the real one
-// (crates/evaluate-over-rows).
+// (tools/formula-engine/crates/formula-engine).
 
 use super::*;
 use serde_json::json;

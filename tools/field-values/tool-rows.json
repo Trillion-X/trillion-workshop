@@ -59,7 +59,6 @@
       "trillion-workshop/fill-a-list-from-a-feed",
       "trillion-workshop/find-anything-from-one-box",
       "trillion-workshop/formula-engine",
-      "trillion-workshop/formulas",
       "trillion-workshop/founder-growth-engine-screens",
       "trillion-workshop/funnel-offer-graph",
       "trillion-workshop/funnels-screen",
@@ -221,8 +220,7 @@
      "kind": "container",
      "files": { "package_files": [
       { "package": "field-values", "paths": ["do-work", "read-data"], "at": "/opt/field-values" },
-      { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
-      { "package": "formula-engine", "paths": ["rules", "built-stored-bytes"], "at": "/opt/node_modules/trillion-workshop/tools/formula-engine" },
+      { "package": "formula-engine", "paths": ["rules", "built-stored-bytes/formula-engine"], "at": "/opt/node_modules/trillion-workshop/tools/formula-engine" },
       { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
       { "packages": ["node_modules/@noble/hashes"], "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
      ] },
@@ -309,7 +307,6 @@
       "trillion-workshop/fill-a-list-from-a-feed",
       "trillion-workshop/find-anything-from-one-box",
       "trillion-workshop/formula-engine",
-      "trillion-workshop/formulas",
       "trillion-workshop/founder-growth-engine-screens",
       "trillion-workshop/funnel-offer-graph",
       "trillion-workshop/funnels-screen",
@@ -461,8 +458,7 @@
      "kind": "container",
      "files": { "package_files": [
       { "package": "field-values", "paths": ["do-work", "read-data"], "at": "/opt/field-values" },
-      { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
-      { "package": "formula-engine", "paths": ["rules", "built-stored-bytes"], "at": "/opt/node_modules/trillion-workshop/tools/formula-engine" },
+      { "package": "formula-engine", "paths": ["rules", "built-stored-bytes/formula-engine"], "at": "/opt/node_modules/trillion-workshop/tools/formula-engine" },
       { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
       { "packages": ["node_modules/@noble/hashes"], "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
      ] },
@@ -549,7 +545,6 @@
       "trillion-workshop/fill-a-list-from-a-feed",
       "trillion-workshop/find-anything-from-one-box",
       "trillion-workshop/formula-engine",
-      "trillion-workshop/formulas",
       "trillion-workshop/founder-growth-engine-screens",
       "trillion-workshop/funnel-offer-graph",
       "trillion-workshop/funnels-screen",
@@ -715,8 +710,7 @@
      "kind": "container",
      "files": { "package_files": [
       { "package": "field-values", "paths": ["do-work", "read-data"], "at": "/opt/field-values" },
-      { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
-      { "package": "formula-engine", "paths": ["rules", "built-stored-bytes"], "at": "/opt/node_modules/trillion-workshop/tools/formula-engine" },
+      { "package": "formula-engine", "paths": ["rules", "built-stored-bytes/formula-engine"], "at": "/opt/node_modules/trillion-workshop/tools/formula-engine" },
       { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
       { "packages": ["node_modules/@noble/hashes"], "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
      ] },

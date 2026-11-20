@@ -2,18 +2,14 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
 import showRuleData from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
 import simpleWorkspace from './fixtures/simple-workspace-profile.json' with { type: 'json' };
 import accountFactsData from '../read-data/work-for-ais.json' with { type: 'json' };
-import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
 import { givenAccountFields, handleShowRulesRequest, makeShowRules } from '../read-data/show-rules-store.mjs';
 import { showRuleAnnotations, showRuleTools } from '../read-data/show-rules-tools.mjs';
-
-const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
-const filter = makeRowFilter({ operators, wasm });
-await filter.load();
-const nowFilter = filter.filterRowsByRulesNow;
+import { initSync, filterRecords } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
+initSync({ module: readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
+const nowFilter = ({ tree, fields, rows }) => filterRecords({ records: rows, fields, tree });
 const NOW = Date.parse('2026-10-13T16:00:00Z');
 
 // A store over the rows in `kept`, which the caller keeps: what the store answers as changes goes back into `kept`, so the

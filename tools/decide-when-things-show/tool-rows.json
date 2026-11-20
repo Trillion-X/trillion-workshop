@@ -61,7 +61,6 @@
           "trillion-workshop/fill-a-list-from-a-feed",
           "trillion-workshop/find-anything-from-one-box",
           "trillion-workshop/formula-engine",
-          "trillion-workshop/formulas",
           "trillion-workshop/founder-growth-engine-screens",
           "trillion-workshop/funnel-offer-graph",
           "trillion-workshop/funnels-screen",
@@ -276,7 +275,7 @@
                 "package": "formula-engine",
                 "paths": [
                   "rules",
-                  "built-stored-bytes"
+                  "built-stored-bytes/formula-engine"
                 ],
                 "at": "/opt/formula-engine"
               },
@@ -539,7 +538,6 @@
           "trillion-workshop/fill-a-list-from-a-feed",
           "trillion-workshop/find-anything-from-one-box",
           "trillion-workshop/formula-engine",
-          "trillion-workshop/formulas",
           "trillion-workshop/founder-growth-engine-screens",
           "trillion-workshop/funnel-offer-graph",
           "trillion-workshop/funnels-screen",
@@ -767,7 +765,7 @@
                 "package": "formula-engine",
                 "paths": [
                   "rules",
-                  "built-stored-bytes"
+                  "built-stored-bytes/formula-engine"
                 ],
                 "at": "/opt/formula-engine"
               },
@@ -988,7 +986,6 @@
           "trillion-workshop/fill-a-list-from-a-feed",
           "trillion-workshop/find-anything-from-one-box",
           "trillion-workshop/formula-engine",
-          "trillion-workshop/formulas",
           "trillion-workshop/founder-growth-engine-screens",
           "trillion-workshop/funnel-offer-graph",
           "trillion-workshop/funnels-screen",
@@ -1211,7 +1208,7 @@
                 "package": "formula-engine",
                 "paths": [
                   "rules",
-                  "built-stored-bytes"
+                  "built-stored-bytes/formula-engine"
                 ],
                 "at": "/opt/formula-engine"
               },
@@ -1426,7 +1423,6 @@
           "trillion-workshop/fill-a-list-from-a-feed",
           "trillion-workshop/find-anything-from-one-box",
           "trillion-workshop/formula-engine",
-          "trillion-workshop/formulas",
           "trillion-workshop/founder-growth-engine-screens",
           "trillion-workshop/funnel-offer-graph",
           "trillion-workshop/funnels-screen",
@@ -1649,7 +1645,7 @@
                 "package": "formula-engine",
                 "paths": [
                   "rules",
-                  "built-stored-bytes"
+                  "built-stored-bytes/formula-engine"
                 ],
                 "at": "/opt/formula-engine"
               },
@@ -1868,7 +1864,6 @@
           "trillion-workshop/fill-a-list-from-a-feed",
           "trillion-workshop/find-anything-from-one-box",
           "trillion-workshop/formula-engine",
-          "trillion-workshop/formulas",
           "trillion-workshop/founder-growth-engine-screens",
           "trillion-workshop/funnel-offer-graph",
           "trillion-workshop/funnels-screen",
@@ -2091,7 +2086,7 @@
                 "package": "formula-engine",
                 "paths": [
                   "rules",
-                  "built-stored-bytes"
+                  "built-stored-bytes/formula-engine"
                 ],
                 "at": "/opt/formula-engine"
               },
@@ -2306,7 +2301,6 @@
           "trillion-workshop/fill-a-list-from-a-feed",
           "trillion-workshop/find-anything-from-one-box",
           "trillion-workshop/formula-engine",
-          "trillion-workshop/formulas",
           "trillion-workshop/founder-growth-engine-screens",
           "trillion-workshop/funnel-offer-graph",
           "trillion-workshop/funnels-screen",
@@ -2544,7 +2538,7 @@
                 "package": "formula-engine",
                 "paths": [
                   "rules",
-                  "built-stored-bytes"
+                  "built-stored-bytes/formula-engine"
                 ],
                 "at": "/opt/formula-engine"
               },
@@ -2762,7 +2756,6 @@
           "trillion-workshop/fill-a-list-from-a-feed",
           "trillion-workshop/find-anything-from-one-box",
           "trillion-workshop/formula-engine",
-          "trillion-workshop/formulas",
           "trillion-workshop/founder-growth-engine-screens",
           "trillion-workshop/funnel-offer-graph",
           "trillion-workshop/funnels-screen",
@@ -2999,7 +2992,7 @@
                 "package": "formula-engine",
                 "paths": [
                   "rules",
-                  "built-stored-bytes"
+                  "built-stored-bytes/formula-engine"
                 ],
                 "at": "/opt/formula-engine"
               },
@@ -3216,7 +3209,6 @@
           "trillion-workshop/fill-a-list-from-a-feed",
           "trillion-workshop/find-anything-from-one-box",
           "trillion-workshop/formula-engine",
-          "trillion-workshop/formulas",
           "trillion-workshop/founder-growth-engine-screens",
           "trillion-workshop/funnel-offer-graph",
           "trillion-workshop/funnels-screen",
@@ -3445,7 +3437,7 @@
                 "package": "formula-engine",
                 "paths": [
                   "rules",
-                  "built-stored-bytes"
+                  "built-stored-bytes/formula-engine"
                 ],
                 "at": "/opt/formula-engine"
               },

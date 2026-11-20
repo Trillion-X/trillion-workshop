@@ -6,21 +6,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { conditionHolds, extractStreamText, setStreamConditionEngine, streamConditionsLoaded } from '../read-data/stream-output-text.ts';
-import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
-import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { holds, initSync } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 import { interpretStream } from 'trillion-workshop/tools/messages-screen/read-data/stream-parse-spec.ts';
-
-const wasm = () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm')));
 
 test('a condition throws until the engine is loaded, never guessing', () => {
   assert.equal(streamConditionsLoaded(), false);
   assert.throws(() => conditionHolds({ a: 1 }, { path: ['a'], exists: true }), /not loaded/);
 });
 
-test('conditions hold as the hand-written interpreter held them', async () => {
-  const filter = makeRowFilter({ operators, wasm });
-  await filter.load();
-  setStreamConditionEngine(filter.holdsNow);
+test('conditions hold as the hand-written interpreter held them', () => {
+  initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+  setStreamConditionEngine(holds);
   assert.equal(streamConditionsLoaded(), true);
   const event = { type: 'delta', delta: { kind: 'text', n: 0, off: false }, nothing: null };
   assert.equal(conditionHolds(event, { path: ['type'], equals: 'delta' }), true);

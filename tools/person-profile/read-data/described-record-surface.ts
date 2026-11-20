@@ -1,15 +1,16 @@
 import { readFileSync } from 'node:fs';
-import { compileRules, ruleVocabulary } from 'trillion-workshop/tools/formula-engine/rules/compile-rules.mjs';
-import { loadRowEvaluator } from 'trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs';
-import ruleOperators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { initSync, filterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 
 export type AnyRecord = Record<string, unknown>;
 
-// The formula engine decides each visibility rule (tools/formula-engine, the ops-core evaluator built to WebAssembly),
-// loaded on the first rule read.
-const vocabulary = ruleVocabulary(ruleOperators);
-let evaluator: ReturnType<typeof loadRowEvaluator> | null = null;
-const engine = () => (evaluator ??= loadRowEvaluator(readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm')))));
+// The formula engine decides each visibility rule (tools/formula-engine, built to WebAssembly), loaded on the first rule read.
+let engineReady = false;
+const engine = () => {
+  if (!engineReady) {
+    initSync({ module: readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm'))) });
+    engineReady = true;
+  }
+};
 
 export interface DescribedRecordFieldDescriptor {
   id: string;
@@ -165,8 +166,8 @@ function ruleMatches(rule: RuleDescriptor, sources: Record<string, unknown>): bo
       : rule.notEquals !== undefined ? { kind: 'rule', field: 'value', operator: 'does_not_equal', params: { value: rule.notEquals } }
         : null;
   if (!tree) return true;
-  const { binding } = compileRules(tree, { fields: [{ id: 'value', kind: 'fact' }], vocabulary });
-  return engine().filterRows([{ value: value ?? null }], binding).matches.length === 1;
+  engine();
+  return filterRecords({ records: [{ value: value ?? null }], fields: [{ id: 'value', kind: 'fact' }], tree }).matches.length === 1;
 }
 
 function visible(rules: RuleDescriptor[] | undefined, sources: Record<string, unknown>): boolean {

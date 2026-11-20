@@ -117,6 +117,13 @@ function lay(specs, there) {
   }
 }
 
+// A row whose first word is `component` runs one WebAssembly component as a WASI command, its folder as `/` (the
+// engine's own host, trillion-rust src/tool_runs/tools/component.rs). Here it runs under wasmtime, the reference WASI
+// host, with the same arguments and standard input and output.
+const COMPONENT = 'component';
+const COMPONENT_HOST = 'wasmtime';
+const componentArgv = (argv, folder) => (argv[0] === COMPONENT ? [COMPONENT_HOST, 'run', '--dir', `${folder}::/`, ...argv.slice(1)] : argv);
+
 // The word as the run sees it: an absolute path inside a packed folder, under `there`; node is this Node.
 function placed(word, specs, there) {
   if (typeof word !== 'string') return typeof word === 'object' ? JSON.stringify(word) : String(word);
@@ -130,6 +137,7 @@ export function cannotRun(row) {
   const invoke = row.invoke ?? {};
   if (!Array.isArray(invoke.argv) || !invoke.argv.length) return 'it runs no program';
   const command = invoke.argv[0];
+  if (command === COMPONENT) return spawnSync('which', [COMPONENT_HOST]).status === 0 ? null : `no WebAssembly component host (${COMPONENT_HOST}) is on this computer`;
   if (typeof command === 'string' && !/(^|\/)node$/.test(command) && spawnSync('which', [command]).status !== 0) return `${command} is not on this computer`;
   return null;
 }
@@ -326,6 +334,7 @@ export async function runRow(row, sampleInput, sample = {}) {
     // A descriptor no one is given is closed in the program, as the engine leaves it.
     for (let fd = 0; fd < stdio.length; fd++) stdio[fd] ??= 'ignore';
     return await new Promise((done, fail) => {
+      argv = componentArgv(argv, there);
       const child = spawn(argv[0], argv.slice(1), { cwd: workdir, stdio, env: environment });
       let stdout = '', stderr = '';
       const timer = setTimeout(() => child.kill('SIGKILL'), invoke.max_run_ms ?? 60_000);
