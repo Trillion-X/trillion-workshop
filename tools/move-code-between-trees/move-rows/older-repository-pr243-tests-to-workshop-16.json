@@ -136,7 +136,7 @@
   "adapted_homes": [
     {
       "from": "src/network-profile-fill.mjs",
-      "home": "tools/person-profile/from-an-older-version/src/network-profile-fill.mjs",
+      "home": "tools/introduce-two-people/src/network-profile-fill.mjs",
       "why": "the same bytes under another name: receipt trillion-workshop:tools/person-profile/moved-from.json"
     },
     {

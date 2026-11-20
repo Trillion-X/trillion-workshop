@@ -10939,7 +10939,7 @@
   {
    "path": "src/network-profile-fill.mjs",
    "verdict": "being_moved",
-   "home": "trillion-workshop/tools/person-profile/from-an-older-version/src/network-profile-fill.mjs",
+   "home": "trillion-workshop/tools/introduce-two-people/src/network-profile-fill.mjs",
    "pr": "https://github.com/Trillion-X/trillion-workshop/pull/220",
    "evidence": "Only change: call made-up-quoted-person swaps the quoted person's first name for 'Sam Example' (matched by place, not spelled). No imports; loads in Node. New receipt tools/person-profile/moved-from.json and from-an-older-version/README.md. Its email handling is generic code ('ana.lopez' example is already made up). Source proof: ok. (home not on trillion-workshop main yet)",
    "group": "personal2"

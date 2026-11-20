@@ -6,7 +6,7 @@
     {
       "id": "made-up-quoted-person",
       "files": [
-        "tools/person-profile/from-an-older-version/src/network-profile-fill.mjs"
+        "tools/introduce-two-people/src/network-profile-fill.mjs"
       ],
       "find": "\\b[A-Z][a-z]+(?=,? 2026-\\d\\d-\\d\\d[:,]? )",
       "replace": "Sam Example",
@@ -17,7 +17,7 @@
     {
       "from": "src/network-profile-fill.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/person-profile/from-an-older-version/src/network-profile-fill.mjs",
+      "to": "tools/introduce-two-people/src/network-profile-fill.mjs",
       "source_identity": "1f:fcd7a52f792da5874c5594810ad5301a993b904c2a932951908a593aeab191ed",
       "identity": "1f:0df688cc8a1918109b9acc2107b5cd553f7d9ea18ab525f1eb8b674cf5773edb",
       "calls": [
@@ -27,7 +27,7 @@
     {
       "from": "src/network-profile-fill.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/person-profile/from-an-older-version/src/network-profile-fill.mjs",
+      "to": "tools/introduce-two-people/src/network-profile-fill.mjs",
       "source_identity": "1f:fcd7a52f792da5874c5594810ad5301a993b904c2a932951908a593aeab191ed",
       "identity": "1f:0df688cc8a1918109b9acc2107b5cd553f7d9ea18ab525f1eb8b674cf5773edb",
       "reused": true,
@@ -72,7 +72,7 @@
     {
       "from": "test/network-profile-fill.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/person-profile/test/network-profile-fill.test.mjs",
+      "to": "tools/introduce-two-people/test/network-profile-fill.test.mjs",
       "source_identity": "1f:a908cf08bbc63f167d63973519f0da21fa53512a0b57da68da6db4a85089cdd2",
       "identity": "1f:d47a83849ae7df56ca9805cda4726853ea454a10a3a0bd0ac11a98bf254d391c"
     }
